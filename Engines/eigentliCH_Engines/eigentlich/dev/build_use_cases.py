@@ -11,8 +11,9 @@ changed.
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py erase [--apply]     # everyone else, one at a time
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py enrich [--only simon,miriam]
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py partners            # partners and saving shares (EIG-53, 59)
-    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py mandates            # lbs, parameter set, pcp runs
-    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py threads | curate | reports | updates | approvals
+    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py mandates [--refresh]  # lbs, parameter set, pcp runs
+    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py threads | curate | reports [--refresh] | updates | approvals
+    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py revision            # the revision that was a copy (Regula)
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py check
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py all                 # enrich to check, in order
 
@@ -1081,7 +1082,7 @@ CLIENTS: list[dict[str, Any]] = [
         chain=dict(preset="income-focus", currency="CHF", scenario="stagflation",
                    threads=[
                        dict(key="festhypo", q="Unsere Festhypothek läuft 2029 aus. Sollen wir bis dahin indirekt über die Säule 3a amortisieren oder direkt?"),
-                       dict(key="mutter", q="Meine Mutter braucht zunehmend Pflege. Wie kann ich sie unterstützen, ohne meine eigene Vorsorge und meine Gesundheit zu gefährden?",
+                       dict(key="mutter", reask=True, q="Meine Mutter braucht zunehmend Pflege. Wie kann ich sie unterstützen, ohne meine eigene Vorsorge und meine Gesundheit zu gefährden?",
                             followup="Konkret: Wenn ich mein Pensum reduziere, um meine Mutter zu betreuen, was bedeutet das für meine Pensionskasse und meine AHV?"),
                    ]),
     ),
@@ -1546,7 +1547,7 @@ CLIENTS: list[dict[str, Any]] = [
         ],
         chain=dict(preset="conservative-chf", currency="CHF", scenario="hyperinflation",
                    threads=[
-                       dict(key="vorsorgeauftrag", q="Ich bin 67 und verwitwet. Wer entscheidet für mich, wenn ich nach einem Schlaganfall nicht mehr urteilsfähig bin, und was gehört in einen Vorsorgeauftrag?",
+                       dict(key="vorsorgeauftrag", reask=True, q="Ich bin 67 und verwitwet. Wer entscheidet für mich, wenn ich nach einem Schlaganfall nicht mehr urteilsfähig bin, und was gehört in einen Vorsorgeauftrag?",
                             followup="Anders gefragt: Was regelt ein Vorsorgeauftrag, was eine Patientenverfügung, und wie errichte ich einen Vorsorgeauftrag gültig?",
                             curator="Ergänzend: Ohne Vorsorgeauftrag entscheidet bei Urteilsunfähigkeit die KESB, wer Sie vertritt; mit einem Vorsorgeauftrag bestimmen Sie das selbst, zum Beispiel Daniel für Bank und Wohnung und Sabine für die medizinischen Fragen. Er muss von Hand geschrieben, datiert und unterschrieben oder öffentlich beurkundet sein. Die Beurkundung (in Ihrem Plan mit 1 800 Franken eingesetzt) hat den Vorteil, dass der Auftrag beim Zivilstandsamt registriert wird. Die Patientenverfügung ergänzt ihn für die medizinischen Entscheide. Nicolas"),
                        dict(key="rente-kapital", q="Meine Pensionskasse ist aufgeschoben. Soll ich 2027 die Rente nehmen oder das Kapital, wenn ich allein lebe?"),
@@ -1636,6 +1637,9 @@ CLIENTS: list[dict[str, Any]] = [
                        dict(key="chalet", q="Wir wollen das Ferienchalet 2030 unseren zwei Söhnen übertragen und unsere Tochter mit 180 000 Franken ausgleichen. Ist das im Sinne des Erbrechts gerecht, und was müssen wir beachten?",
                             followup="Anders gefragt: Wie funktionieren Pflichtteil und Ausgleichung im Erbrecht, wenn wir das Chalet schon zu Lebzeiten übertragen?",
                             curator="Ergänzend: Entscheidend ist, dass der Ausgleich zum Verkehrswert im Zeitpunkt des Erbgangs gerechnet wird, nicht zum heutigen. Wenn das Chalet bis dahin an Wert gewinnt, reicht der Ausgleich an Anna vielleicht nicht. Legen Sie deshalb im Erbvertrag fest, dass die Übertragung zum Wert von 2030 angerechnet wird, und dass die Hypothek von 200 000 mit übergeht. Den Notar sollten alle drei Kinder gemeinsam treffen. Nicolas", close=True),
+                       # The chalet thread is closed (by the curator), so the refused question is asked again in a
+                       # new thread (fix round: MiniMind 1.2.0 takes inheritance questions as in its domain).
+                       dict(key="chalet-erneut", q="Meine erste Frage zum Chalet blieb damals ohne Antwort, darum noch einmal: Wir wollen das Ferienchalet 2030 unseren zwei Söhnen übertragen und unsere Tochter mit 180 000 Franken ausgleichen. Ist das im Sinne des Erbrechts gerecht, und was müssen wir beachten?"),
                    ]),
     ),
 ]
@@ -1785,6 +1789,10 @@ COCKPIT = os.environ.get("USE_CASES_COCKPIT", "http://127.0.0.1:8098")
 LBS = os.environ.get("USE_CASES_LBS", "http://127.0.0.1:8013")
 PCP = os.environ.get("USE_CASES_PCP", "http://127.0.0.1:8007")
 CURATOR = os.environ.get("USE_CASES_CURATOR", "ac586536e6be42c68446c8f8f80e4242")   # Nicolas
+#: The Default Regime and the four scenarios aggregation derives from it (cockpit C-30: the Regime is the latest
+#: succeeded one of the optimism level, default unless named). ``mandates`` asks the cockpit's own choice
+#: (``GET /api/curator/regime``) and stops if it differs from these.
+OPTIMISM = os.environ.get("USE_CASES_OPTIMISM", "default")
 BASE_REGIME = os.environ.get("USE_CASES_REGIME", "RGM-e2658e8e9bbbc81e")
 SCENARIOS = {"depression": "RGM-1af6968e287768c9", "hyperinflation": "RGM-59eebfaf7744d8ec",
              "stagflation": "RGM-6bb531998bfefc4d", "deferral": "RGM-c0ed086f1916984e"}
@@ -2363,21 +2371,29 @@ def _role_pool(mandates):
             pool += [i for i in ids if i not in pool]
 
 
-def finalise(c, form, note):
-    """The Parameters page's save: assemble the form into pcp's Mandate, check it with pcp, finalise it as the
-    client's parameter set unless the current one is the same. Where pcp refuses, the curator does what the
-    page would let them do: add an instrument for a role lbs puts a floor on but the preset's universe leaves
-    empty, or give up a policy bound of the house (never a bound of the household)."""
+#: pcp 1.2.0's joint-feasibility check (PCP-21) names one smallest relaxation, row by row, e.g.
+#: "asset_class Equity floor 0.2500 (row 41) misses by 0.0500".
+RELAX_RE = r"(\w+) (.+?) (floor|ceiling) ([0-9.]+) \(row \d+\) misses by ([0-9.]+)"
+
+
+def settle(c, form, trail):
+    """Assemble the form into pcp's Mandate and check it with pcp's ``/validate`` until it passes. Where pcp
+    refuses, the curator does what the Parameters page lets them do, and ``trail`` records it for the note:
+    add an instrument for a role lbs puts a floor on but the preset's universe leaves empty; relax a row by the
+    amount pcp's joint-feasibility message names (PCP-21); or, as a last resort, give up a policy bound of the
+    house (never a bound of the household)."""
     import re
     mandate = cockpit("POST", "/api/curator/mandate/assemble", json=form)["mandate"]
     v = validate(mandate, BASE_REGIME, mandate["currency"])
-    dropped, added = [], []
     while not v["ok"]:
-        missing = []
+        missing, relax = [], []
         for problem in v["problems"]:
             m = re.search(r"role floor on \[(.*?)\], but no instrument of the universe", problem)
             if m:
                 missing += [x.strip(" '").lower() for x in m.group(1).split(",")]
+            if "infeasible as a whole" in problem:
+                head = problem.split("One smallest relaxation:", 1)[-1].split("; at that point", 1)[0]
+                relax += re.findall(RELAX_RE, head)
         loose = [d for d in POLICY_BOUND_DIMS if d in form["bounds_pct"]]
         if missing:
             for role in missing:
@@ -2385,23 +2401,46 @@ def finalise(c, form, note):
                 if not extra:
                     raise RuntimeError(f"{c['name']}: no instrument for the role {role}: {v['problems']}")
                 form["universe"] += extra
-                added.append(f"{role}: {', '.join(extra)}")
-            log(f"  pcp: {v['problems'][:1]}; the universe gets {added[-len(missing):]}")
+                trail["added"].append(f"{role}: {', '.join(extra)}")
+            log(f"  pcp: {v['problems'][:1]}; the universe gets {trail['added'][-len(missing):]}")
+        elif relax and all(cat in (form["bounds_pct"].get(dim) or {}) for dim, cat, *_ in relax):
+            for dim, cat, side, bound, miss in relax:
+                row = form["bounds_pct"][dim][cat]
+                step = float(miss) * 100 + 0.01          # just past pcp's smallest relaxation, in percent
+                if side == "floor":
+                    row["lower_pct"] = max(0.0, round(float(bound) * 100 - step, 2))
+                    trail["relaxed"].append(f"{dim} {cat} Untergrenze auf {row['lower_pct']:.2f} %")
+                else:
+                    row["upper_pct"] = min(100.0, round(float(bound) * 100 + step, 2))
+                    trail["relaxed"].append(f"{dim} {cat} Obergrenze auf {row['upper_pct']:.2f} %")
+            log(f"  pcp: jointly infeasible; relaxed as pcp names it: {trail['relaxed'][-len(relax):]}")
         elif loose:
             form["bounds_pct"].pop(loose[-1])
-            dropped.append(loose[-1])
+            trail["dropped"].append(loose[-1])
             log(f"  pcp: {v['problems'][:2]}; the policy bound {loose[-1]} is left out")
         else:
             raise RuntimeError(f"{c['name']}: pcp refuses the mandate: {v['problems']}")
         mandate = cockpit("POST", "/api/curator/mandate/assemble", json=form)["mandate"]
         v = validate(mandate, BASE_REGIME, mandate["currency"])
+    return mandate
+
+
+def finalise(c, form, note, trail=None):
+    """The Parameters page's save: the settled Mandate (``settle``) finalised as the client's parameter set
+    unless the current one is the same, body and note (a note is part of what the curator finalises; the pages
+    show it, so it names no ids)."""
+    trail = trail if trail is not None else {"added": [], "dropped": [], "relaxed": []}
+    mandate = settle(c, form, trail)
     current = cockpit("GET", f"/api/curator/clients/{c['id']}/parameter-sets")
     cur = next((p for p in current if p["current"]), None)
-    if added:
-        note += " Universum ergänzt, weil lbs für jede Rolle eine Untergrenze setzt: " + "; ".join(added) + "."
-    if dropped:
-        note += " Ohne die Hausgrenzen " + ", ".join(dropped) + ", die pcp mit den Haushaltsgrenzen nicht erfüllen konnte."
-    if cur and cur["body"] == mandate:
+    if trail["added"]:
+        note += " Universum ergänzt, weil lbs für jede Rolle eine Untergrenze setzt: " + "; ".join(trail["added"]) + "."
+    if trail["relaxed"]:
+        note += (" pcp fand die Grenzen zusammen nicht erfüllbar; gelockert, wie pcp es nennt: "
+                 + "; ".join(trail["relaxed"]) + ".")
+    if trail["dropped"]:
+        note += " Ohne die Hausgrenzen " + ", ".join(trail["dropped"]) + ", die pcp mit den Haushaltsgrenzen nicht erfüllen konnte."
+    if cur and cur["body"] == mandate and (cur.get("note") or "") == note:
         return cur, False
     row = cockpit("POST", f"/api/curator/clients/{c['id']}/parameter-sets",
                   json={"curator_id": CURATOR, "engine": "pcp", "contract_version": "pcp-mandate@1.0.0",
@@ -2409,29 +2448,55 @@ def finalise(c, form, note):
     return row, True
 
 
-def run_pcp(c, pset, regime_id, policy=None, speed=None):
-    with the_store().session() as conn:
-        done = conn.execute("SELECT id, artefact_id FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
-                            "AND status = 'succeeded' AND parameter_set_id = %s AND request->>'regime_id' = %s",
-                            (c["id"], pset["id"], regime_id)).fetchone()
-    if done:
-        return done["artefact_id"], False
-    currency = pset["body"]["currency"]
-    rs = return_set(regime_id, currency)
-    # A probe in pcp's own store first (pcp caches by idempotency key, so the recorded run below is the same
-    # solve): an unconverged attempt is then not written into the client's history.
-    probe = {"regime_id": regime_id, "return_set_id": rs, "mandate": pset["body"], **({"speed_mode": speed} if speed else {})}
-    answer = call("POST", f"{PCP}/run", json=probe)
+def probe(c, mandate, regime_id, speed=None):
+    """One solve in pcp's own store, not in the client's history (pcp caches by idempotency key, so a recorded
+    run of the same mandate afterwards is the same solve): the allocation, or a RuntimeError naming pcp's
+    reason."""
+    rs = return_set(regime_id, mandate["currency"])
+    body = {"regime_id": regime_id, "return_set_id": rs, "mandate": mandate, **({"speed_mode": speed} if speed else {})}
+    answer = call("POST", f"{PCP}/run", json=body)
     for _ in range(120):
         if answer.get("status") in ("succeeded", "failed") or not answer.get("run_id"):
             break
-        time.sleep(5)
+        time.sleep(3)
         answer = call("GET", f"{PCP}/runs/{answer['run_id']}")
-    if answer.get("status") == "failed":
+    if answer.get("status") != "succeeded":
         detail = call("GET", f"{PCP}/runs/{answer['run_id']}").get("error") if answer.get("run_id") else None
         raise RuntimeError(f"{c['name']}: pcp run failed (probe): {detail or answer}")
+    return call("GET", f"{PCP}/artefacts/{answer['artefact_id']}")
+
+
+def expected_pct(allocation, curve="achieved"):
+    """A pcp curve (per state, log returns) as one yearly figure in percent: weighted by the Regime's state
+    blend, as pcp weights the states in its objective (LBS-11)."""
+    import math
+    w, x = allocation["curves"]["regime"], allocation["curves"][curve]
+    return sum(wi * math.expm1(xi) for wi, xi in zip(w, x)) / sum(w) * 100
+
+
+#: The curator's judgement on a required return (fix round, 29.09.2026): lbs calls a goal feasible whenever its
+#: search finds a return below its ceiling, however high. When the required return lies more than this many
+#: points above what pcp's allocation within the household's bounds is expected to earn under the Default
+#: Regime, the curator levels the curve at that expected return instead (rounded down to 0.1 point), and the
+#: gap is left to the levers lbs names: the horizon, the saving, the goal's size.
+REALISM_MARGIN_PP = 1.0
+MANDATE_LOG: dict[str, dict[str, Any]] = {}
+
+
+def run_pcp(c, pset, regime_id, policy=None, speed=None):
+    currency = pset["body"]["currency"]
+    rs = return_set(regime_id, currency)
+    with the_store().session() as conn:
+        done = conn.execute("SELECT id, artefact_id FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
+                            "AND status = 'succeeded' AND parameter_set_id = %s AND request->>'regime_id' = %s "
+                            "AND request->>'return_set_id' = %s",
+                            (c["id"], pset["id"], regime_id, rs)).fetchone()
+    if done:
+        return done["artefact_id"], False
+    # A probe in pcp's own store first: an unconverged attempt is then not written into the client's history.
+    probe(c, pset["body"], regime_id, speed)
     body = {"curator_id": CURATOR, "engine": "pcp", "parameter_set_id": pset["id"], "regime_id": regime_id,
-            "return_set_id": rs, "currency": currency}
+            "return_set_id": rs, "currency": currency, "optimism": OPTIMISM}
     if policy:
         body.update(regime_policy=policy, base_regime_id=BASE_REGIME)
     if speed:
@@ -2447,10 +2512,53 @@ def run_pcp(c, pset, regime_id, policy=None, speed=None):
     return row["artefact_id"], True
 
 
+def check_regimes():
+    """The cockpit's own choice of Regime (C-30) must be the one this build names, for the base and each scenario."""
+    base = cockpit("GET", "/api/curator/regime", params={"optimism": OPTIMISM})
+    if base["regime_id"] != BASE_REGIME:
+        sys.exit(f"the cockpit chooses {base['regime_id']} at optimism {OPTIMISM}, not {BASE_REGIME}")
+    for policy, rid in SCENARIOS.items():
+        s = cockpit("GET", "/api/curator/regime", params={"optimism": OPTIMISM, "policy": policy})
+        if s["regime_id"] != rid or s["base_regime_id"] != BASE_REGIME:
+            sys.exit(f"the cockpit derives {policy} as {s['regime_id']} from {s['base_regime_id']}, not {rid}")
+    log(f"Regime {BASE_REGIME} (optimism {OPTIMISM}); scenarios " + ", ".join(f"{k} {v}" for k, v in SCENARIOS.items()))
+
+
+def realistic(c, form, trail, rr, cp):
+    """The curator's check of a required return above zero: the expected return of pcp's allocation under the
+    Default Regime for the curve lbs's required return asks (a probe, not recorded). Returns the shift to use and
+    a note when the curve is set lower (``REALISM_MARGIN_PP``), and what was seen."""
+    alloc = probe(c, settle(c, form, trail), BASE_REGIME)
+    reach = expected_pct(alloc)
+    seen = {"required_pct": round(rr * 100, 2), "reachable_pct": round(reach, 2),
+            "probe_roles": {k: round(v, 3) for k, v in alloc["weights_by_role"].items()}}
+    if rr * 100 <= reach + REALISM_MARGIN_PP:
+        return None, None, seen
+    level = int(reach * 10) / 10.0
+    shift = round(level - cp["mean_pct"], 2)
+    seen["level_pct"] = level
+    note = (f"Die verlangte Rendite von {rr * 100:.2f} % liegt über dem, was ein Portfolio in den Grenzen des Haushalts "
+            f"unter dem Default-Regime erwarten lässt (etwa {reach:.1f} %). Die Kurve ist darum auf {level:.1f} % gesetzt; "
+            "die Lücke schliessen der Zeithorizont, der Sparbetrag oder die Höhe des Ziels, nicht die Anlage.")
+    return shift, note, seen
+
+
+def _allocation(aid, regime_id):
+    art = call("GET", f"{PCP}/artefacts/{aid}")
+    return {"artefact": aid, "regime": regime_id, "return_set": art["return_set_id"],
+            "pcp": (art.get("provenance") or {}).get("engine_version"),
+            "roles": {k: round(v, 3) for k, v in art["weights_by_role"].items()},
+            "expected_pct": round(expected_pct(art), 2), "target_pct": round(expected_pct(art, "target"), 2),
+            "instruments": sum(1 for i in art["instruments"] if i["weight"] > 0.005),
+            "top": [(i["name"], round(i["weight"], 3)) for i in sorted(art["instruments"], key=lambda i: -i["weight"])[:4]]}
+
+
 def cmd_mandates(args):
+    check_regimes()
     curves, mandates, cv, mv = _presets()
     _role_pool(mandates)
     for c in selected(args):
+        wanted = {BASE_REGIME} | ({SCENARIOS[c["chain"]["scenario"]]} if c["chain"].get("scenario") else set())
         if not args.refresh:
             with the_store().session() as conn:
                 pset = conn.execute("SELECT id FROM parameter_set_current WHERE client_id = %s AND engine = 'pcp'",
@@ -2458,7 +2566,6 @@ def cmd_mandates(args):
                 regimes = {r["regime"] for r in conn.execute(
                     "SELECT request->>'regime_id' AS regime FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
                     "AND status = 'succeeded' AND parameter_set_id = %s", (c["id"], pset["id"] if pset else "")).fetchall()}
-            wanted = {BASE_REGIME} | ({SCENARIOS[c["chain"]["scenario"]]} if c["chain"].get("scenario") else set())
             if pset and wanted <= regimes:
                 log(f"{c['name']:<14} mandate finalised and run: kept (--refresh to derive it again)")
                 continue
@@ -2467,16 +2574,35 @@ def cmd_mandates(args):
         gaps = [f"{g['section']}:{g['input']}" for g in sheet.get("gaps") or []]
         form, kept, adjusted, shift, mp, cp = build_mandate(c, sheet, curves, mandates)
         prop = sheet.get("mandate_proposal") or {}
+        rr = prop.get("required_return")
+        trail = {"added": [], "dropped": [], "relaxed": []}
+        record = {"lbs": sheet["artefact_id"], "required_return_pct": round(rr * 100, 2) if rr is not None else None,
+                  "feasible_lbs": prop.get("feasible"), "preset": mp["key"], "curve_preset": cp["key"]}
+        judgement = None
+        if rr is not None and rr > 0:
+            new_shift, judgement, seen = realistic(c, form, trail, rr, cp)
+            record.update(seen)
+            if new_shift is not None:
+                shift = new_shift
+                form["curve"]["shift_pp"] = shift
+                kept = [k for k in kept if not k.startswith("Kurvenniveau")]
+                kept.append(f"verlangte Rendite {rr * 100:.2f} % zur Kenntnis genommen")
+                log(f"  {c['name']}: required {rr * 100:.2f} %, reachable about {seen['reachable_pct']:.2f} %: "
+                    f"the curve is set at {seen['level_pct']:.1f} %")
+        record["shift_pp"] = shift
         note = (f"Vorlage «{mp['name']}» (Vorlagen v{mv}), Kurve «{cp['name']}» um {shift:+.2f} Prozentpunkte verschoben. "
                 f"Von lbs übernommen: {', '.join(kept) or 'nichts'}."
-                + (f" Angepasst: {'; '.join(adjusted)}." if adjusted else ""))
+                + (f" Angepasst: {'; '.join(adjusted)}." if adjusted else "")
+                + (f" {judgement}" if judgement else "")
+                + f" Gerechnet auf dem Default-Regime (Optimismus-Stufe «{OPTIMISM}»).")
         loosened = []
         while True:
             pset, new = finalise(c, form, note + (" Nach einem nicht konvergierten Lauf ohne die Hausgrenzen "
-                                                  + ", ".join(loosened) + "." if loosened else ""))
-            runs = []
+                                                  + ", ".join(loosened) + "." if loosened else ""), trail)
+            runs, allocations = [], {}
             try:
                 todo = ([(SCENARIOS[c["chain"]["scenario"]], c["chain"]["scenario"])] if c["chain"].get("scenario") else [])
+                # The base run last: the app's report takes the client's latest succeeded pcp run.
                 for regime_id, pol in todo + [(BASE_REGIME, None)]:
                     try:
                         aid, fresh = run_pcp(c, pset, regime_id, pol)
@@ -2486,6 +2612,7 @@ def cmd_mandates(args):
                         log(f"  {c['name']}: {str(exc)[:100]}; run again in pcp's exact mode")
                         aid, fresh = run_pcp(c, pset, regime_id, pol, speed="exact")
                     runs.append(f"{pol or 'base'}:{aid}{'' if fresh else ' (had)'}")
+                    allocations[pol or "base"] = _allocation(aid, regime_id)
                 break
             except RuntimeError as exc:
                 loose = [d for d in POLICY_BOUND_DIMS if d in form["bounds_pct"]]
@@ -2495,10 +2622,18 @@ def cmd_mandates(args):
                 loosened.append(loose[-1])
                 form["bounds_pct"].pop(loose[-1])
                 log(f"  {c['name']}: {str(exc)[:120]}; the policy bound {loose[-1]} is left out and the set finalised again")
-        log(f"{c['name']:<14} lbs {sheet['artefact_id']} rr={prop.get('required_return')} feasible={prop.get('feasible')} "
+        record.update(parameter_set=pset["id"], new_set=new, trail=trail, loosened=loosened, runs=allocations,
+                      currency=pset["body"]["currency"], note=note)
+        MANDATE_LOG[c["name"]] = record
+        log(f"{c['name']:<14} lbs {sheet['artefact_id']} rr={rr} feasible={prop.get('feasible')} "
             f"gaps={len(gaps)} | set {'new' if new else 'kept'} {pset['id'][:8]} | {' '.join(runs)}")
         if args.verbose:
             print("   gaps:", gaps)
+        OUT.mkdir(parents=True, exist_ok=True)
+        path = OUT / "use-cases-mandates.json"
+        have = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+        have[c["name"]] = record
+        path.write_text(json.dumps(have, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
 
 
 # --------------------------------------------------------------------------------------------- threads
@@ -2570,6 +2705,25 @@ def cmd_threads(args):
                 app("POST", f"/api/clients/{c['id']}/threads/{t['id']}/messages", json={"body": spec["followup"]})
                 todo.append((c, t["id"]))
     _wait_answers(todo)
+    # The questions MiniMind refused in the first build (care, incapacity, inheritance) are asked again, as
+    # first asked, in their own threads (fix round: MiniMind 1.2.0's wider domain); the earlier turns stay.
+    todo = []
+    for c in selected(args):
+        for spec in c["chain"]["threads"]:
+            if not spec.get("reask"):
+                continue
+            t = _thread_by_question(c["id"], spec["q"])
+            if t is None or t.get("closed_at"):
+                log(f"{c['name']:<14} «{spec['key']}»: {'no thread' if t is None else 'the thread is closed'}")
+                continue
+            if not any(m["author_kind"] == "client" and m["body"] == spec["q"] for m in t["messages"][1:]):
+                app("POST", f"/api/clients/{c['id']}/threads/{t['id']}/messages", json={"body": spec["q"]})
+                log(f"{c['name']:<14} asked again «{spec['q'][:60]}…»")
+                todo.append((c, t["id"]))
+            elif t["messages"][-1]["author_kind"] == "client":
+                todo.append((c, t["id"]))
+    for c, tid in _wait_answers(todo):
+        log(f"  no answer yet: {c['name']} {tid}")
 
 
 def cmd_curate(args):
@@ -2639,20 +2793,83 @@ def _wait_reports(pending, timeout=3600):
 REPORT_NOTE = "Mein Gesamtbild: Ziele, Weiterbildung, Gesundheit und was der Plan dazu sagt."
 
 
+def page(c, report_id):
+    """A report's page as the app serves it (HTML)."""
+    r = http.get(f"{APP}/api/clients/{c['id']}/report/{report_id}/html")
+    r.raise_for_status()
+    return r.text
+
+
 def cmd_reports(args):
+    """A report per client. With ``--refresh`` (the fix round): a new report request for every client none of
+    whose reports rests on the allocation of its latest succeeded pcp run, so the report rests on the current
+    sheet and allocation; the earlier reports and their approvals stay."""
     todo = []
     for c in selected(args):
         reqs = _requests(c["id"], "report")
-        if not reqs:
-            r = app("POST", f"/api/clients/{c['id']}/reports", json={"kind": "report", "language": "de", "note": REPORT_NOTE})
+        stale = False
+        if args.refresh and reqs:
+            with the_store().session() as conn:
+                pcp = conn.execute("SELECT artefact_id FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
+                                   "AND status = 'succeeded' ORDER BY finished_at DESC LIMIT 1", (c["id"],)).fetchone()
+            made = {r["allocation_artefact_id"] for q in reqs for r in q["reports"]}
+            stale = pcp is not None and pcp["artefact_id"] not in made
+        if not reqs or stale:
+            note = REFRESH_NOTE if stale else REPORT_NOTE
+            r = app("POST", f"/api/clients/{c['id']}/reports", json={"kind": "report", "language": "de", "note": note})
             todo.append((c, r["request_id"]))
-            log(f"{c['name']:<14} report requested")
+            log(f"{c['name']:<14} report requested{' (on the new sheet and allocation)' if stale else ''}")
         elif reqs[0]["state"] == "open":
             todo.append((c, reqs[0]["id"]))
         if len(todo) >= args.batch:
             todo = _wait_reports(todo)
     for c, rid in _wait_reports(todo):
         log(f"  no report yet: {c['name']} {rid}")
+
+
+REFRESH_NOTE = ("Bitte ein neues Gesamtbild: mit meiner Partnerin oder meinem Partner, den Anteilen am Sparbetrag und "
+                "der neuen Aufteilung.")
+REVISION_NOTE = ("Überarbeitet mit dem nachgeführten Plan: Der Erbvorbezug an Andrea und Martin ist auf je 80 000 "
+                 "gesenkt, damit der Pflichtteil von Hans unberührt bleibt, und die Aufteilung ist neu gerechnet. "
+                 "Bitte lesen Sie diese Fassung; die erste Überarbeitung glich der ersten Fassung.")
+
+
+def cmd_revision(args):
+    """The report revision that was a copy (Regula, first build): the report engine answered the second
+    production of the same request from its cache. Regula asks for approval of that copy; the curator sends a
+    real revision (report 1.2.0: ``revision_of``, ``revision_note``, EIG-57) and names it in the event."""
+    for c in selected(args):
+        if c["chain"].get("report_approval") != "revision_sent":
+            continue
+        req = [r for r in _requests(c["id"], "report") if r["state"] == "fulfilled"][-1]      # the first
+        reps = sorted(req["reports"], key=lambda r: r["seq"])
+        if len(reps) >= 3:
+            log(f"{c['name']:<14} revision: done ({len(reps)} reports in the request)")
+            continue
+        if len(reps) < 2:
+            log(f"{c['name']:<14} revision: the first revision is not there yet (run approvals)")
+            continue
+        html = [page(c, r["id"]) for r in reps]
+        copy = reps[1]
+        if html[0] != html[1]:
+            log(f"{c['name']:<14} revision: the first revision differs already; nothing to do")
+            continue
+        a = copy.get("approval") or app("POST", f"/api/clients/{c['id']}/approvals",
+                                        json={"item": "report", "item_id": copy["id"],
+                                              "note": "Die überarbeitete Fassung gleicht der ersten. Bitte prüfen Sie sie noch einmal."})
+        app("POST", f"/api/clients/{c['id']}/reports/{req['id']}/produce", params={"revision": "true", "wait": "true"},
+            json={"revision_note": REVISION_NOTE, "revision_of": copy["id"]})
+        again = next(r for r in _requests(c["id"], "report") if r["id"] == req["id"])
+        newest = max(again["reports"], key=lambda r: r["seq"])
+        assert newest["id"] != copy["id"], "the revision is a new report"
+        new_html = page(c, newest["id"])
+        if new_html == html[1]:
+            raise RuntimeError(f"{c['name']}: the revision is again a copy")
+        if (a.get("state") or "awaiting_curator") == "awaiting_curator":
+            cockpit("POST", f"/api/curator/approvals/{a['id']}/revise",
+                    json={"curator_id": CURATOR, "revision_item_id": newest["id"],
+                          "note": "Neu erstellt mit dem nachgeführten Plan und meiner Anmerkung; bitte die neue Fassung lesen."})
+        log(f"{c['name']:<14} revision sent: {newest['id']} (note {'shown' if 'Pflichtteil von Hans' in new_html else 'NOT shown'})")
 
 
 def apply_update(c):
@@ -2726,7 +2943,9 @@ def cmd_approvals(args):
         if (ch.get("update") or {}).get("approval"):
             plans.append(("update", ch["update"]["approval"]))
         for kind, wanted in plans:
-            reqs = [r for r in _requests(c["id"], kind) if r["state"] == "fulfilled"]
+            # The first request of its kind carries the approval (the app lists the newest first; later reports,
+            # such as the fix round's, are asked without one).
+            reqs = [r for r in _requests(c["id"], kind) if r["state"] == "fulfilled"][::-1]
             if not reqs:
                 log(f"{c['name']:<14} no {kind} to approve yet")
                 continue
@@ -2755,9 +2974,22 @@ def cmd_approvals(args):
 
 # --------------------------------------------------------------------------------------------- checks
 
+#: Signs of text decoded in the wrong code page (EIG-46): UTF-8 read as Latin-1 or CP437, or a lost character.
+GARBLED = ("Ã", "â€", "├", "┬", "�")
+TEXT_COLUMNS = (("decision", "reasoning"), ("thread_message", "body"), ("thread", "subject"), ("goal", "name"),
+                ("position", "label"), ("position", "description"), ("parameter_set", "note"), ("report", "body_html"),
+                ("household_member", "label"), ("client", "display_name"), ("approval_request", "note"),
+                ("approval_event", "note"), ("report_request", "note"))
+
+
 def cmd_check(args):
+    """Counts; per client a current sheet, a parameter set, a succeeded pcp run of the current set on the Default
+    Regime with the ReturnSet fmre serves now (and on the client's scenario), a report on the latest allocation;
+    no garbled text; the scoring binds."""
     st = the_store()
-    out = {}
+    out = {"regime": BASE_REGIME, "scenarios": SCENARIOS}
+    sets = {cur: return_set(BASE_REGIME, cur) for cur in ("CHF", "EUR", "USD")}
+    scen_sets = {}
     with st.session() as conn:
         out["counts"] = store.table_counts(conn)
         rows = []
@@ -2769,11 +3001,34 @@ def cmd_check(args):
                                    (cid, cid)).fetchone()["at"]
             lbs = q("SELECT artefact_id, created_at, finished_at FROM engine_run WHERE client_id = %s AND engine = 'lbs' "
                     "AND status = 'succeeded' ORDER BY finished_at DESC LIMIT 1")
+            pset = q("SELECT id, body->>'currency' AS currency FROM parameter_set_current WHERE client_id = %s AND engine = 'pcp'")
+            base = scen = None
+            if pset:
+                base = q("SELECT artefact_id, finished_at FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
+                         "AND status = 'succeeded' AND parameter_set_id = %s AND request->>'regime_id' = %s "
+                         "AND request->>'return_set_id' = %s ORDER BY finished_at DESC LIMIT 1",
+                         pset["id"], BASE_REGIME, sets[pset["currency"]])
+                pol = c["chain"].get("scenario")
+                if pol:
+                    key = (pol, pset["currency"])
+                    scen_sets.setdefault(key, return_set(SCENARIOS[pol], pset["currency"]))
+                    scen = q("SELECT artefact_id FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
+                             "AND status = 'succeeded' AND parameter_set_id = %s AND request->>'regime_id' = %s "
+                             "AND request->>'return_set_id' = %s LIMIT 1", pset["id"], SCENARIOS[pol], scen_sets[key])
+            latest_pcp = q("SELECT artefact_id FROM engine_run WHERE client_id = %s AND engine = 'pcp' AND status = 'succeeded' "
+                           "ORDER BY finished_at DESC LIMIT 1")
+            report = q("SELECT id, allocation_artefact_id, lbs_artefact_id, created_at FROM report WHERE client_id = %s "
+                       "ORDER BY seq DESC LIMIT 1")
             rows.append({
                 "client": c["name"],
                 "lbs_current": bool(lbs and lbs["created_at"] >= changed),
                 "lbs": lbs["artefact_id"] if lbs else None,
-                "parameter_set": bool(q("SELECT 1 FROM parameter_set_current WHERE client_id = %s AND engine = 'pcp'")),
+                "parameter_set": pset["id"] if pset else None,
+                "pcp_default_regime": base["artefact_id"] if base else None,
+                "scenario": c["chain"].get("scenario"),
+                "pcp_scenario": scen["artefact_id"] if scen else None,
+                "latest_pcp_is_base": bool(base and latest_pcp and latest_pcp["artefact_id"] == base["artefact_id"]),
+                "report_on_it": bool(report and base and report["allocation_artefact_id"] == base["artefact_id"]),
                 "pcp_succeeded": q("SELECT count(*) AS n FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
                                    "AND status = 'succeeded'")["n"],
                 "reports": q("SELECT count(*) AS n FROM report WHERE client_id = %s")["n"],
@@ -2782,6 +3037,27 @@ def cmd_check(args):
                 "failed_runs": q("SELECT count(*) AS n FROM engine_run WHERE client_id = %s AND status = 'failed'")["n"],
             })
         out["clients"] = rows
+        ids = [c["id"] for c in CLIENTS]
+        garbled = {}
+        for table, col in TEXT_COLUMNS:
+            key = "id" if table == "client" else "client_id"
+            if table in ("thread_message", "approval_event"):
+                continue
+            # A decision is append-only: a garbled one counts only while no correcting decision names it (EIG-46).
+            live = " AND NOT EXISTS (SELECT 1 FROM decision k WHERE k.corrects_id = decision.id)" if table == "decision" else ""
+            n = conn.execute(f"SELECT count(*) AS n FROM {table} WHERE {key} = ANY(%s){live} AND ("
+                             + " OR ".join(f"{col} LIKE %s" for _ in GARBLED) + ")",
+                             (ids, *[f"%{g}%" for g in GARBLED])).fetchone()["n"]
+            garbled[f"{table}.{col}"] = n
+        for table, join in (("thread_message", "JOIN thread t ON t.id = x.thread_id WHERE t.client_id = ANY(%s)"),
+                            ("approval_event", "JOIN approval_request a ON a.id = x.request_id WHERE a.client_id = ANY(%s)")):
+            col = "body" if table == "thread_message" else "note"
+            garbled[f"{table}.{col}"] = conn.execute(
+                f"SELECT count(*) AS n FROM {table} x {join} AND (" + " OR ".join(f"x.{col} LIKE %s" for _ in GARBLED) + ")",
+                (ids, *[f"%{g}%" for g in GARBLED])).fetchone()["n"]
+        answers = conn.execute("SELECT value::text AS v FROM answer WHERE client_id = ANY(%s)", (ids,)).fetchall()
+        garbled["answer.value"] = sum(1 for a in answers if any(g in json.loads(a["v"]).__str__() for g in GARBLED))
+        out["garbled"] = garbled
         out["bind_mismatches"] = conn.execute("SELECT count(*) AS n FROM scoring_bind_check WHERE status <> 'ok'").fetchone()["n"]
         out["approval_states"] = {r["state"]: r["n"] for r in conn.execute(
             "SELECT state, count(*) AS n FROM approval_state GROUP BY state").fetchall()}
@@ -2789,8 +3065,17 @@ def cmd_check(args):
             "SELECT state, count(*) AS n FROM thread_state GROUP BY state").fetchall()}
         out["basis"] = {str(r["basis"]): r["n"] for r in conn.execute(
             "SELECT basis, count(*) AS n FROM thread_message WHERE author_kind = 'spark7' GROUP BY basis").fetchall()}
+        out["refusals_unanswered"] = conn.execute(
+            "SELECT count(*) AS n FROM thread_message m WHERE m.author_kind = 'spark7' AND m.body LIKE %s AND NOT EXISTS "
+            "(SELECT 1 FROM thread_message l WHERE l.thread_id = m.thread_id AND l.seq > m.seq AND l.author_kind = 'spark7' "
+            "AND l.body NOT LIKE %s)", ("Diese Frage liegt ausserhalb%", "Diese Frage liegt ausserhalb%")).fetchone()["n"]
+    ok = all(r["lbs_current"] and r["parameter_set"] and r["pcp_default_regime"] and r["report_on_it"]
+             and (r["pcp_scenario"] or not r["scenario"]) for r in out["clients"])
+    out["all_ok"] = ok and not any(out["garbled"].values()) and out["bind_mismatches"] == 0
     for r in out["clients"]:
-        print(f"{r['client']:<14} lbs current {r['lbs_current']!s:<5} set {r['parameter_set']!s:<5} pcp {r['pcp_succeeded']} "
+        print(f"{r['client']:<14} lbs current {r['lbs_current']!s:<5} set {bool(r['parameter_set'])!s:<5} "
+              f"default {r['pcp_default_regime'] or '-':<21} scenario {(r['scenario'] or '-'):<14} "
+              f"{r['pcp_scenario'] or '-':<21} report on it {r['report_on_it']!s:<5} pcp {r['pcp_succeeded']} "
               f"reports {r['reports']} threads {r['threads']} approvals {r['approvals']} failed runs {r['failed_runs']}")
     print(json.dumps({k: v for k, v in out.items() if k != "clients"}, indent=1, default=str))
     OUT.mkdir(parents=True, exist_ok=True)
@@ -2802,20 +3087,21 @@ def cmd_check(args):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("step", choices=["select", "erase", "enrich", "partners", "mandates", "threads", "curate",
-                                    "reports", "updates", "approvals", "check", "all"])
+                                    "reports", "updates", "approvals", "revision", "check", "all"])
     p.add_argument("--apply", action="store_true", help="erase: really erase (otherwise a dry run)")
     p.add_argument("--only", help="comma-separated client keys (simon, miriam, ...)")
     p.add_argument("--batch", type=int, default=6, help="threads and reports asked before waiting for them")
     p.add_argument("--verbose", action="store_true")
-    p.add_argument("--refresh", action="store_true", help="mandates: derive and finalise again from the latest sheet")
+    p.add_argument("--refresh", action="store_true", help="mandates: derive and finalise again from the latest sheet; reports: a new report where "
+                                                          "the latest is older than the latest pcp run")
     args = p.parse_args(argv)
     steps = {"select": cmd_select, "erase": cmd_erase, "enrich": cmd_enrich, "partners": cmd_partners,
              "mandates": cmd_mandates,
              "threads": cmd_threads, "curate": cmd_curate, "reports": cmd_reports, "updates": cmd_updates,
-             "approvals": cmd_approvals, "check": cmd_check}
+             "approvals": cmd_approvals, "revision": cmd_revision, "check": cmd_check}
     if args.step == "all":
         for name in ("enrich", "partners", "mandates", "threads", "curate", "reports", "updates", "approvals",
-                     "check"):
+                     "revision", "check"):
             log(f"== {name}")
             steps[name](args)
     else:
