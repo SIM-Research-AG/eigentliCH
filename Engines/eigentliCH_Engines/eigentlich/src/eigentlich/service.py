@@ -19,6 +19,13 @@ the household), debounced (``app.lbs_auto.debounce_s``, 5 s): a new change withi
 client has at most one run at a time; a change during a run makes one more run after it. Each run is an
 ``engine_run`` as every other, requested by ``system`` / ``AUTO_REF``. Opening the home page schedules one too
 when the plan or the answers changed after the client's last lbs run (a curator's change in the cockpit).
+
+**lbsim runs after a new sheet** (EIG-67). When an lbs run succeeds with a sheet id that differs from the sheet of
+the client's latest lbsim run, the app asks lbsim (``POST /run``) for that sheet and the base-Regime Allocation of
+the current parameter set (``allocation_run``, EIG-63), in the background, one at a time per client. The findings and
+paths come back at once and are the run's artefact; the plan calculation is a second ``engine_run`` under lbsim's own
+run id, ``running`` until a refresh (``GET /runs/{id}``) finds it finished. A report waits for an lbsim run on its
+way, then draws on the findings and paths of its sheet, and on the plan once it is there (EIG-69).
 """
 
 from __future__ import annotations
@@ -38,17 +45,21 @@ from . import contracts as c
 from . import decisions as dx
 from . import gaps, grounding, inputs, questionnaires as qn, store
 from .appsettings import AppSettings
+from . import outlook as ol
 from .clients import (AggregationClient, ChatbotClient, EngineError, EngineRefused, EngineUnavailable, LbsClient,
-                      ReportClient)
+                      LbsimClient, ReportClient)
 from .inputs import MEMBER_ORDER
 from .store import Decision, NotFound, Store
 
 APP = "eigentlich-app"
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.4.0"
 
 #: ``engine_run.requested_by_ref`` of the automatic lbs runs (``requested_by_kind = 'system'``).
 AUTO_REF = "eigentlich-app:auto"
 BACKFILL_REF = "eigentlich-app:lbs-backfill"
+LBSIM_BACKFILL_REF = "eigentlich-app:lbsim-backfill"
+#: The note of the report update the app asks once the plan calculation is there (EIG-69).
+PLAN_UPDATE_NOTE = "Ergänzt um die Planrechnung, sobald sie vorlag."
 
 ROLES = ("growth", "income", "stabilisation", "protection")
 CAPITAL_TYPES = ("human", "financial")
@@ -110,7 +121,8 @@ class Job:
 
 class Service:
     def __init__(self, settings: AppSettings, st: Store, lbs: LbsClient, chatbot: ChatbotClient,
-                 report: ReportClient, workers: int = 8, aggregation: Optional[AggregationClient] = None):
+                 report: ReportClient, workers: int = 8, aggregation: Optional[AggregationClient] = None,
+                 lbsim: Optional[LbsimClient] = None):
         self.settings = settings
         self.store = st
         self.lbs = lbs
@@ -118,6 +130,9 @@ class Service:
         self.report = report
         self.aggregation = aggregation or AggregationClient(settings.aggregation_url, settings.timeouts.aggregation_s,
                                                             settings.timeouts.connect_s)
+        self.lbsim = lbsim or LbsimClient(settings.lbsim_url, settings.timeouts.lbsim_s, settings.timeouts.connect_s)
+        self._lbsim_locks: dict[str, threading.Lock] = {}
+        self._lbsim_jobs: dict[str, Any] = {}           # client -> the Future of an lbsim run on its way
         self.started = time.monotonic()
         self._jobs: dict[tuple[str, str], Job] = {}
         self._lock = threading.Lock()
@@ -132,7 +147,7 @@ class Service:
         for timer in timers:
             timer.cancel()
         self._pool.shutdown(wait=True)
-        for client in (self.lbs, self.chatbot, self.report, self.aggregation):
+        for client in (self.lbs, self.chatbot, self.report, self.aggregation, self.lbsim):
             client.close()
 
     # ------------------------------------------------------------------ standard
@@ -145,8 +160,8 @@ class Service:
         except Exception as exc:  # noqa: BLE001 - health reports, it does not raise
             db = f"unreachable: {type(exc).__name__}"
         t = self.settings.timeouts.health_s
-        engines = {"lbs": self.lbs.health(t), "chatbot": self.chatbot.health(t), "report": self.report.health(t),
-                   "aggregation": self.aggregation.health(t)}
+        engines = {"lbs": self.lbs.health(t), "lbsim": self.lbsim.health(t), "chatbot": self.chatbot.health(t),
+                   "report": self.report.health(t), "aggregation": self.aggregation.health(t)}
         return {"status": "ok" if db == "ok" else "degraded", "app": APP, "app_version": APP_VERSION,
                 "store": db, "engines": engines, "sign_in": False,
                 "uptime_s": round(time.monotonic() - self.started, 3)}
@@ -919,6 +934,7 @@ class Service:
             return accepted, accepted.artefact_id, accepted.run_id
 
         accepted, run = self._engine_call(client_id, "lbs", request, call, requested_by=requested_by)
+        self._after_sheet(client_id, accepted.artefact_id, requested_by)
         return {"artefact_id": accepted.artefact_id, "engine_run_id": run["id"], "cached": accepted.cached,
                 "dropped": dropped}
 
@@ -1346,8 +1362,12 @@ class Service:
         pcp, _why = self.allocation_run(client_id, basis=basis, scenario=q.get("scenario"))
         sheet = self.run_balance_sheet(client_id)
         sources = [c.SourceRef(engine="lbs", artefact_id=sheet["artefact_id"])]
-        if pcp:
+        lbsim = self._lbsim_sources(client_id, sheet["artefact_id"], pcp["artefact_id"] if pcp else None, basis,
+                                    q.get("scenario"))
+        if pcp and not (basis == "real" and any(s.kind() == "lbsim.paths" for s in lbsim)):
+            # a real report with lbsim's paths draws on lbs and lbsim alone (report REP-36, REP-38)
             sources.append(c.SourceRef(engine="pcp", artefact_id=pcp["artefact_id"]))
+        sources.extend(lbsim)
         request = c.ReportRequest(client_ref=client_id, kind=q["kind"], language=_lang(q["language"]),
                                   sources=tuple(sources),
                                   previous_report_id=previous["report_artefact_id"] if q["kind"] == "update" else None,
@@ -1366,7 +1386,39 @@ class Service:
                              body_html=rep.html, lbs_artefact_id=sheet["artefact_id"],
                              allocation_artefact_id=pcp["artefact_id"] if pcp else None)
 
-    def allocation_run(self, client_id: str, *, basis: str = "nominal",
+    def _lbsim_sources(self, client_id: str, sheet_id: str, allocation_id: Optional[str], basis: str,
+                       scenario: Optional[str]) -> list[c.SourceRef]:
+        """lbsim's artefacts on this sheet for a report (EIG-69): the findings; the paths when they rest on the
+        report's allocation (a real report takes them with no pcp source, REP-36); the plan once lbsim has it on
+        those paths. An lbsim run on its way is waited for first. A report on a scenario takes the findings only
+        (lbsim's paths rest on the base Regime). lbsim not there: none, and the report is made without them."""
+        job = self._lbsim_jobs.get(client_id)
+        if job is not None:
+            try:
+                job.result(timeout=self.settings.timeouts.lbsim_s)
+            except Exception:  # noqa: BLE001 - the run's failure is its engine_run's; the report goes on without it
+                pass
+        try:
+            self.refresh_lbsim_runs(client_id, update_reports=False)
+            raw = self.lbsim.outlook(client_id, sheet_id)
+        except EngineError:
+            return []
+        if not raw:
+            return []
+        out = []
+        findings, paths, plan = raw.get("findings"), raw.get("paths"), (raw.get("plan") or {})
+        if findings:
+            out.append(c.SourceRef(engine="lbsim", artefact_id=findings["artefact_id"]))
+        take_paths = paths and not scenario and (
+            (basis == "real") or allocation_id is None or paths.get("allocation_id") == allocation_id)
+        if take_paths and paths.get("findings_artefact_id") == (findings or {}).get("artefact_id"):
+            out.append(c.SourceRef(engine="lbsim", artefact_id=paths["artefact_id"]))
+            art = plan.get("artefact") if plan.get("state") == "ready" else None
+            if isinstance(art, dict) and art.get("paths_artefact_id") == paths["artefact_id"]:
+                out.append(c.SourceRef(engine="lbsim", artefact_id=art["artefact_id"]))
+        return out
+
+    def allocation_run(self, client_id: str, *, basis: Optional[str] = "nominal",
                        scenario: Optional[str] = None) -> tuple[Optional[dict[str, Any]], Optional[str]]:
         """The pcp run a report draws on (EIG-63), and why there is none when there is none.
 
@@ -1376,6 +1428,7 @@ class Service:
         says (``GET /scenarios``); it is asked only when the current set has a run, and when it cannot answer the
         report waits (``EngineUnavailable``) rather than risk a scenario's allocation. A set whose basis is not
         the report's is left out (the report engine refuses a mix, REP-27): nominal and real are never mixed.
+        ``basis=None`` (lbsim, EIG-67) takes the set on whatever basis it is.
         Reasons: ``no_parameter_set``, ``no_run``, ``basis``, ``no_base_run``, ``no_scenario_run``."""
         with self.store.session() as conn:
             pset = conn.execute("SELECT id, body FROM parameter_set_current WHERE client_id = %s AND engine = 'pcp'",
@@ -1391,7 +1444,7 @@ class Service:
                 raise Conflict(f"no pcp run of the current parameter set on the scenario {scenario!r}")
             return None, "no_run"
         set_basis = ((pset["body"] or {}).get("basis") or "nominal") if isinstance(pset["body"], dict) else "nominal"
-        if set_basis != basis:
+        if basis is not None and set_basis != basis:
             if scenario:
                 raise Conflict(f"the current parameter set is {set_basis}; a {basis} report takes no {set_basis} "
                                "allocation")
@@ -1439,7 +1492,292 @@ class Service:
             "report_requests_open": [r for r in reports if r["state"] == "open"],
         }
         return {"client": client, "questionnaires": summary, "open": open_items,
-                "balance_sheet": self.balance_sheet(client_id, schedule_if_stale=True, language=lang)}
+                "balance_sheet": self.balance_sheet(client_id, schedule_if_stale=True, language=lang),
+                "outlook": self.outlook_card(client_id, lang)}
+
+    # ------------------------------------------------------------------ lbsim (EIG-66 to EIG-69)
+
+    def _lbsim_lock(self, client_id: str) -> threading.Lock:
+        with self._lock:
+            return self._lbsim_locks.setdefault(client_id, threading.Lock())
+
+    @staticmethod
+    def _latest_lbsim_run(conn, client_id: str, status: Optional[str] = None) -> Optional[dict[str, Any]]:
+        """The client's newest lbsim outlook run (a ``POST /run``; a plan run's row carries ``kind: plan``)."""
+        return conn.execute(
+            "SELECT * FROM engine_run WHERE client_id = %s AND engine = 'lbsim' "
+            "AND request->>'contract_version' = 'lbsim-request@1.0.0' AND (%s::text IS NULL OR status = %s) "
+            "ORDER BY created_at DESC LIMIT 1", (client_id, status, status)).fetchone()
+
+    def _after_sheet(self, client_id: str, sheet_id: Optional[str], requested_by: Optional[tuple[str, str]]) -> None:
+        """lbsim after a new sheet (EIG-67): only when the sheet id differs from the sheet of the client's latest
+        lbsim run, in the background, as the same requester (the automatic runs as ``system``)."""
+        if not self.settings.lbsim_auto.enabled or not sheet_id:
+            return
+        with self.store.session() as conn:
+            last = self._latest_lbsim_run(conn, client_id)
+        if last is not None and (last["request"] or {}).get("life_balance_sheet_id") == sheet_id:
+            return
+        with self._lock:
+            if self._closing:
+                return
+        try:
+            job = self._pool.submit(self._auto_outlook, client_id, sheet_id, requested_by)
+        except RuntimeError:                           # the pool is shutting down
+            return
+        self._lbsim_jobs[client_id] = job
+
+    def _auto_outlook(self, client_id: str, sheet_id: str, requested_by: Optional[tuple[str, str]]) -> None:
+        with self._lbsim_lock(client_id):
+            with self.store.session() as conn:
+                last = self._latest_lbsim_run(conn, client_id)
+            if last is not None and (last["request"] or {}).get("life_balance_sheet_id") == sheet_id:
+                return                                 # another call made it meanwhile
+            try:
+                self._run_outlook(client_id, sheet_id, requested_by or ("system", AUTO_REF), optimise=None)
+            except (EngineError, Conflict):
+                pass                                   # recorded on the engine_run when lbsim was called
+
+    def run_outlook(self, client_id: str, *, curator_id: Optional[str] = None, optimise: Optional[str] = None,
+                    requested_by: Optional[tuple[str, str]] = None) -> dict[str, Any]:
+        """``POST /api/clients/{c}/outlook``: lbsim for the client's newest sheet now. ``curator_id`` records the
+        run as that curator's (the cockpit, 403 unless in service); ``optimise: "now"`` asks for a priority plan
+        run on the paths (lbsim's ``POST /optimise``, recorded as that requester's), in place of the background one."""
+        if optimise not in (None, "now"):
+            raise Invalid("optimise is \"now\" or left out")
+        if curator_id is not None:
+            self.curator_in_service(curator_id)
+            requested_by = ("curator", curator_id)
+        with self.store.session() as conn:
+            store.get_client(conn, client_id)
+            sheet = self._latest_sheet_run(conn, client_id)
+        if sheet is None:
+            raise Conflict("the client has no balance sheet yet; compute it first")
+        with self._lbsim_lock(client_id):
+            return self._run_outlook(client_id, sheet["artefact_id"], requested_by, optimise=optimise)
+
+    def _lbsim_allocation(self, client_id: str) -> tuple[Optional[str], Optional[str]]:
+        """The Allocation lbsim simulates: the base-Regime run of the current parameter set (EIG-63), in CHF (lbsim
+        v1 is CHF only, LBSIM-14). Returns (allocation id, why none)."""
+        run, why = self.allocation_run(client_id, basis=None)
+        if run is None:
+            return None, why
+        with self.store.session() as conn:
+            pset = conn.execute("SELECT body FROM parameter_set_current WHERE client_id = %s AND engine = 'pcp'",
+                                (client_id,)).fetchone()
+        currency = ((pset or {}).get("body") or {}).get("currency") if isinstance((pset or {}).get("body"), dict) else None
+        if currency not in (None, "CHF"):
+            return None, "not_chf"
+        if not re.fullmatch(r"PCP-[0-9a-f]{16}", run["artefact_id"] or ""):
+            return None, "no_run"
+        return run["artefact_id"], None
+
+    def _run_outlook(self, client_id: str, sheet_id: str, requested_by: Optional[tuple[str, str]],
+                     optimise: Optional[str]) -> dict[str, Any]:
+        allocation_id, why = self._lbsim_allocation(client_id)
+        request = c.LbsimRequest(client_ref=client_id, life_balance_sheet_id=sheet_id, allocation_id=allocation_id,
+                                 optimise="no" if optimise == "now" else "background")
+
+        def call():
+            accepted = self.lbsim.run(request)
+            if accepted.status != "succeeded" or not (accepted.paths_artefact_id or accepted.findings_artefact_id):
+                raise EngineRefused("lbsim", f"lbsim could not compute the outlook ({accepted.status})")
+            return accepted, accepted.paths_artefact_id or accepted.findings_artefact_id, accepted.run_id
+
+        accepted, row = self._engine_call(client_id, "lbsim", request, call, requested_by=requested_by)
+        plan_row = None
+        if optimise == "now" and accepted.paths_artefact_id:
+            kind, ref = requested_by or ("client", client_id)
+            order = c.LbsimOptimise(paths_artefact_id=accepted.paths_artefact_id,
+                                    requested_by=c.LbsimRequestedBy(kind=kind, ref=ref))
+            plan = self.lbsim.optimise(order)
+            plan_row = self._plan_row(client_id, plan.plan_run_id or plan.run_id, c.dump(order), requested_by)
+        elif accepted.plan_run_id:
+            plan_row = self._plan_row(client_id, accepted.plan_run_id,
+                                      {"kind": "plan", "plan_run_id": accepted.plan_run_id,
+                                       "paths_artefact_id": accepted.paths_artefact_id,
+                                       "findings_artefact_id": accepted.findings_artefact_id}, requested_by)
+        if plan_row is not None:
+            self.refresh_lbsim_runs(client_id)
+        return {"engine_run_id": row["id"], "plan_engine_run_id": plan_row["id"] if plan_row else None,
+                "cached": accepted.cached, "allocation": allocation_id is not None, "no_allocation": why,
+                "not_made": [n.reason for n in accepted.not_made]}
+
+    def _plan_row(self, client_id: str, run_id: str, request: dict[str, Any],
+                  requested_by: Optional[tuple[str, str]]) -> dict[str, Any]:
+        """The plan run as its own ``engine_run`` under lbsim's run id, ``running`` until refreshed; one row per lbsim
+        run (a repeated request returns the same plan run)."""
+        kind, ref = requested_by or ("client", client_id)
+        with self.store.session() as conn:
+            have = conn.execute("SELECT * FROM engine_run WHERE client_id = %s AND engine = 'lbsim' AND run_id = %s "
+                                "AND request->>'contract_version' IS DISTINCT FROM 'lbsim-request@1.0.0' "
+                                "ORDER BY created_at DESC LIMIT 1", (client_id, run_id)).fetchone()
+            if have is not None:
+                return have
+            row = store.start_engine_run(conn, client_id=client_id, engine="lbsim", request=request,
+                                         requested_by_kind=kind, requested_by_ref=ref)
+            return store.mark_engine_run_running(conn, row["id"], run_id=run_id)
+
+    @staticmethod
+    def _plan_artefact(ids) -> Optional[str]:
+        """The artefact a finished lbsim run names: the plan, else the paths, else the findings (cockpit C-34)."""
+        for prefix in ("LSO-", "LSP-", "LSF-"):
+            hit = next((i for i in ids if isinstance(i, str) and i.startswith(prefix)), None)
+            if hit:
+                return hit
+        return None
+
+    def refresh_lbsim_runs(self, client_id: str, update_reports: bool = True) -> list[dict[str, Any]]:
+        """Ask lbsim about the client's plan runs still ``queued`` or ``running`` and record what finished: the
+        plan's artefact, or the failure with its kind. lbsim not there: nothing changes."""
+        with self.store.session() as conn:
+            rows = conn.execute("SELECT * FROM engine_run WHERE client_id = %s AND engine = 'lbsim' "
+                                "AND status IN ('queued', 'running') AND run_id IS NOT NULL ORDER BY created_at",
+                                (client_id,)).fetchall()
+        done = []
+        for row in rows:
+            try:
+                status = self.lbsim.run_status(row["run_id"])
+            except EngineError:
+                continue
+            with self.store.session() as conn:
+                if status.status == "succeeded":
+                    art = self._plan_artefact(status.artefact_ids)
+                    if row["status"] == "queued":
+                        store.mark_engine_run_running(conn, row["id"], run_id=row["run_id"])
+                    finished = store.finish_engine_run(
+                        conn, row["id"], status="succeeded" if art else "failed", artefact_id=art,
+                        error=None if art else "lbsim finished the run without an artefact")
+                    done.append(finished)
+                elif status.status == "failed":
+                    kind = f"{status.failure_kind}: " if status.failure_kind else ""
+                    done.append(store.finish_engine_run(conn, row["id"], status="failed",
+                                                        error=(kind + (status.error or "the plan calculation failed"))[:2000]))
+                elif status.status == "running" and row["status"] == "queued":
+                    store.mark_engine_run_running(conn, row["id"], run_id=row["run_id"])
+        if update_reports:
+            for row in done:
+                if row["status"] == "succeeded" and (row["artefact_id"] or "").startswith("LSO-"):
+                    self._plan_ready(client_id)
+        return done
+
+    def _plan_ready(self, client_id: str) -> None:
+        """The plan calculation is there (EIG-69): the client's latest report drew on its paths without it, so the
+        update that carries it is asked, once, in the name of whoever asked that report."""
+        if not self.settings.lbsim_auto.report_update:
+            return
+        with self.store.session() as conn:
+            last = conn.execute(
+                "SELECT r.id, r.created_at, r.report_artefact_id, q.requested_by_kind, q.requested_by_ref, q.language, "
+                "q.basis, e.request AS sent FROM report r JOIN report_request q ON q.id = r.request_id "
+                "LEFT JOIN engine_run e ON e.client_id = r.client_id AND e.engine = 'report' "
+                "AND e.artefact_id = r.report_artefact_id WHERE r.client_id = %s ORDER BY r.seq DESC LIMIT 1",
+                (client_id,)).fetchone()
+            if last is None or not isinstance(last["sent"], dict):
+                return
+            ids = [s.get("artefact_id") for s in last["sent"].get("sources") or [] if s.get("engine") == "lbsim"]
+            if not any(i.startswith("LSP-") for i in ids) or any(i.startswith("LSO-") for i in ids):
+                return
+            asked = conn.execute("SELECT 1 FROM report_request WHERE client_id = %s AND note = %s AND created_at > %s",
+                                 (client_id, PLAN_UPDATE_NOTE, last["created_at"])).fetchone()
+            if asked:
+                return
+            req = store.request_report(conn, client_id=client_id, kind="update",
+                                       requested_by_kind=last["requested_by_kind"],
+                                       requested_by_ref=last["requested_by_ref"], language=last["language"],
+                                       note=PLAN_UPDATE_NOTE, basis=last["basis"])
+        self.produce(client_id, req["id"])
+
+    def outlook(self, client_id: str, language: str = "de", basis: str = "nominal") -> dict[str, Any]:
+        """``GET /api/clients/{c}/outlook``: lbsim's outlook for the client's newest sheet, in one language, with
+        names instead of ids (EIG-68). Refreshes the plan's ``engine_run`` first. ``available`` false says why:
+        ``no_sheet``, ``not_run`` (lbsim has nothing for this sheet yet; ``pending`` when a run is on its way) or
+        ``engine`` (lbsim not there)."""
+        lang = _lang(language)
+        basis = basis if basis in BASES else "nominal"
+        with self.store.session() as conn:
+            store.get_client(conn, client_id)
+            sheet = self._latest_sheet_run(conn, client_id)
+            last = self._latest_lbsim_run(conn, client_id)
+        job = self._lbsim_jobs.get(client_id)
+        pending = bool(job is not None and not job.done())
+        base = {"available": False, "language": lang, "basis": basis, "pending": pending}
+        if sheet is None:
+            return {**base, "reason": "no_sheet"}
+        try:
+            self.refresh_lbsim_runs(client_id)
+            raw = self.lbsim.outlook(client_id, sheet["artefact_id"])
+        except EngineError:
+            return {**base, "reason": "engine"}
+        if not raw:
+            failed = last is not None and last["status"] == "failed" and \
+                (last["request"] or {}).get("life_balance_sheet_id") == sheet["artefact_id"]
+            return {**base, "reason": "failed" if failed else "not_run"}
+        with self.store.session() as conn:
+            names = self._names(conn, client_id)
+            roles = self._roles(conn)
+            bodies = {name: store.content_current(conn, key)["body"] for name, key in qn.NAMES.items()}
+        mandate = ((sheet["request"] or {}).get("mandate") or {}).get("goal_id")
+        shaped = ol.shape(raw, language=lang, basis=basis, persons=names["persons"], goals=names["goals"],
+                          role_name=lambda k: self._role_text(roles, ol.ROLE_KEYS.get(k, str(k).lower()), "financial",
+                                                              lang)[0],
+                          questions=ol.Questions(bodies), mandate_goal=mandate)
+        why = self._lbsim_allocation_quiet(client_id)[1] if shaped.get("paths") is None else None
+        return {**shaped, "pending": pending, "made_at": last["finished_at"] if last else None, "no_allocation": why}
+
+    def _lbsim_allocation_quiet(self, client_id: str) -> tuple[Optional[str], Optional[str]]:
+        try:
+            return self._lbsim_allocation(client_id)
+        except (EngineError, Conflict):
+            return None, None
+
+    def outlook_card(self, client_id: str, language: str = "de") -> dict[str, Any]:
+        """The home page's card (EIG-68): the designated goal's chance in words, the top three actions, the plan's
+        state. Never fails the home page: lbsim not there reads as not available."""
+        try:
+            shaped = self.outlook(client_id, language)
+        except (EngineError, NotFound):
+            return {"available": False, "reason": "engine"}
+        if not shaped.get("available"):
+            return {k: shaped.get(k) for k in ("available", "reason", "pending")}
+        return ol.card(shaped)
+
+    def lbsim_backfill(self, *, limit: Optional[int] = None, dry_run: bool = False,
+                       progress: Optional[Callable[[str], None]] = None) -> dict[str, Any]:
+        """One lbsim run for every client whose newest sheet has no succeeded lbsim run, one after the other.
+        Refuses to start when lbsim does not answer its health probe, so a down engine leaves no failed runs."""
+        with self.store.session() as conn:
+            rows = conn.execute(
+                "SELECT DISTINCT ON (r.client_id) r.client_id, r.artefact_id FROM engine_run r "
+                "WHERE r.engine = 'lbs' AND r.status = 'succeeded' ORDER BY r.client_id, r.finished_at DESC").fetchall()
+            todo = []
+            for r in rows:
+                had = conn.execute("SELECT 1 FROM engine_run WHERE client_id = %s AND engine = 'lbsim' AND status = 'succeeded' "
+                                   "AND request->>'life_balance_sheet_id' = %s LIMIT 1",
+                                   (r["client_id"], r["artefact_id"])).fetchone()
+                if not had:
+                    todo.append((r["client_id"], r["artefact_id"]))
+        todo.sort()
+        if limit is not None:
+            todo = todo[:limit]
+        out: dict[str, Any] = {"clients": len(todo), "succeeded": [], "failed": {}, "dry_run": dry_run}
+        if dry_run or not todo:
+            return out
+        health = self.lbsim.health(self.settings.timeouts.health_s)
+        if not health["reachable"]:
+            raise EngineUnavailable("lbsim", f"lbsim is not reachable at {health['url']}; nothing was run")
+        for client_id, sheet_id in todo:
+            try:
+                with self._lbsim_lock(client_id):
+                    self._run_outlook(client_id, sheet_id, ("system", LBSIM_BACKFILL_REF), optimise=None)
+                out["succeeded"].append(client_id)
+                if progress:
+                    progress(f"{client_id} ok")
+            except (EngineError, Conflict) as exc:
+                out["failed"][client_id] = str(exc)
+                if progress:
+                    progress(f"{client_id} failed: {exc}")
+        return out
 
     # ------------------------------------------------------------------ backfill (EIG-47)
 

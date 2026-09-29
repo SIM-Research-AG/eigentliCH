@@ -36,6 +36,7 @@ const PATTERNS = [
   [/shares of the yearly saving would sum to (\d+) %/, 'err.shares_sum'], [/share of the yearly saving is between/, 'err.share_range'],
   [/belongs to the client or the partner/, 'err.owner'], [/a fact key is/, 'err.invalid'],
   [/is asked per goal/, 'err.per_goal'], [/amount is in today's francs/, 'err.amount_basis'], [/report's basis is/, 'err.basis'],
+  [/has no balance sheet yet/, 'err.no_sheet_yet'],
 ];
 const BY_STATUS = { 0: 'err.server_down', 403: 'err.forbidden', 404: 'err.not_found', 409: 'err.conflict', 422: 'err.invalid', 400: 'err.invalid' };
 
@@ -123,6 +124,9 @@ export const api = {
   balanceSheet: (id, lang) => request('GET', `${C(id)}/balance-sheet?language=${lang || 'de'}`),
   runBalanceSheet: (id, lang) => request('POST', `${C(id)}/balance-sheet?language=${lang || 'de'}`),
   restateFact: (id, key, value, reasoning) => request('PUT', `${C(id)}/facts/${enc(key)}`, { value, reasoning }),
+
+  outlook: (id, lang, basis) => request('GET', `${C(id)}/outlook?language=${lang || 'de'}&basis=${basis || 'nominal'}`),
+  runOutlook: (id, lang, basis) => request('POST', `${C(id)}/outlook?language=${lang || 'de'}&basis=${basis || 'nominal'}`),
 
   threads: (id) => request('GET', `${C(id)}/threads`),
   thread: (id, tid) => request('GET', `${C(id)}/threads/${enc(tid)}`),

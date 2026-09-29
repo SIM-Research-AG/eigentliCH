@@ -202,3 +202,22 @@ table.figures td.num { text-align: right; }
 /* The nominal / real switch (EIG-62): the basis is always shown beside it. */
 .basis-switch { gap: .5rem; flex-wrap: wrap; align-items: center; margin: .5rem 0 1rem; }
 .basis-switch button[aria-pressed="true"] { font-weight: 600; }
+
+/* The outlook (EIG-68): the three charts, drawn in the browser as SVG (client/app/charts.js). */
+.chart { display: block; max-width: 100%; margin-top: var(--sp-md); font-family: var(--font); }
+.chart-label { font-size: 12px; fill: var(--ink-black); }
+.chart-label.muted { fill: var(--muted-text); }
+.chart-label.target { fill: var(--primary-deep); font-weight: 700; }
+.chart-label.achieved { fill: var(--g2); font-weight: 700; }
+.chart-label.goal { fill: var(--attention); font-weight: 700; }
+.chart-value { font-size: 12px; fill: var(--ink); font-variant-numeric: tabular-nums; }
+.chart-bar { fill: var(--g1); }
+.chart-zero { stroke: var(--quiet-line); stroke-width: 1; }
+.chart-target { stroke: var(--primary-deep); stroke-width: 2; }
+.chart-achieved { stroke: var(--g2); stroke-width: 2.5; }
+.chart-band-outer { fill: var(--g0); opacity: 0.22; }
+.chart-band-inner { fill: var(--g1); opacity: 0.35; }
+.chart-median { stroke: var(--ink); stroke-width: 2; }
+.chart-goal { stroke: var(--attention); stroke-width: 1.8; }
+.outlook-chance { font-size: 1.15rem; font-weight: 700; }
+.chances td.num { text-align: right; }

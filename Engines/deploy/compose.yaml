@@ -441,6 +441,7 @@ services:
       EIGENTLICH_CHATBOT_URL: http://chatbot:8016
       EIGENTLICH_REPORT_URL: http://report:8015
       EIGENTLICH_AGGREGATION_URL: http://aggregation:8004
+      EIGENTLICH_LBSIM_URL: http://lbsim:8014
     healthcheck:
       <<: *health
       test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8017/health"]

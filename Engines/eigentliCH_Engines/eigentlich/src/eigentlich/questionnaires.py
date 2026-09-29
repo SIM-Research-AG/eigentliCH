@@ -71,11 +71,20 @@ def question(body: dict[str, Any], key: str) -> dict[str, Any]:
 
 
 def is_asked(q: dict[str, Any], answers: dict[str, Any]) -> bool:
-    """``asked_when: {key, equals}``: the question is asked only when that answer equals the value."""
+    """``asked_when: {key, equals}``: the question is asked only when that answer equals the value;
+    ``{key, in: [...]}`` when it is one of the values (EIG-65); a list of conditions when all of them hold."""
     cond = q.get("asked_when")
-    if not isinstance(cond, dict) or "key" not in cond:
-        return True
-    return answers.get(cond["key"]) == cond.get("equals")
+    conds = cond if isinstance(cond, list) else [cond]
+    for one in conds:
+        if not isinstance(one, dict) or "key" not in one:
+            continue
+        given = answers.get(one["key"])
+        if "in" in one:
+            if given not in (one.get("in") or []):
+                return False
+        elif given != one.get("equals"):
+            return False
+    return True
 
 
 def next_question(body: dict[str, Any], answers: dict[str, Any]) -> Optional[str]:

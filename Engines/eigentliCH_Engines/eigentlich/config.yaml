@@ -37,14 +37,17 @@ app:
   port: 8017
   cors_origins: []              # same origin only: the browser app is served by the app itself
   # The engines the app calls, over HTTP only (contracts mirrored in contracts.py, never imported).
-  # Override with EIGENTLICH_LBS_URL, EIGENTLICH_CHATBOT_URL, EIGENTLICH_REPORT_URL.
+  # Override with EIGENTLICH_LBS_URL, EIGENTLICH_LBSIM_URL, EIGENTLICH_CHATBOT_URL, EIGENTLICH_REPORT_URL,
+  # EIGENTLICH_AGGREGATION_URL (Docker: http://lbsim:8014 and so on).
   lbs_url: http://127.0.0.1:8013       # POST /run, GET /artefacts/{id}   lbs-request@1.0.0
+  lbsim_url: http://127.0.0.1:8014     # POST /run, GET /outlook, GET /runs/{id}, POST /optimise   lbsim-request@1.0.0
   chatbot_url: http://127.0.0.1:8016   # POST /answer                     chat-request@1.0.0
   report_url: http://127.0.0.1:8015    # POST /report                     report-request@1.0.0
   aggregation_url: http://127.0.0.1:8004  # GET /scenarios: which Regimes are scenarios (EIG-63)
   timeouts:
     connect_s: 5
     lbs_s: 60
+    lbsim_s: 60                   # POST /run computes the findings and the paths before it answers
     chatbot_s: 330                # the chatbot streams from spark7; its own total limit is 300 s
     report_s: 330
     aggregation_s: 10
@@ -54,6 +57,12 @@ app:
     # once the changes pause for debounce_s, one run at a time per client.
     enabled: true
     debounce_s: 5
+  lbsim_auto:
+    # lbsim runs by itself after a new balance sheet (EIG-67): only when the sheet id differs from the sheet of the
+    # client's latest lbsim run; the plan calculation then runs in lbsim's background. report_update: once the plan
+    # is there, a report that drew on its paths gets the update that carries it.
+    enabled: true
+    report_update: true
   grounding:
     # How the question box chooses approved knowledge notes for the chatbot (EIG-33).
     max_notes: 4

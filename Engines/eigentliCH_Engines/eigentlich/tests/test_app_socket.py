@@ -1,4 +1,4 @@
-"""The app and three stand-in engines on real sockets (uvicorn), and a concurrent burst against the app.
+"""The app and its stand-in engines on real sockets (uvicorn), and a concurrent burst against the app.
 
 What must hold under concurrency: one current answer per question; one decision per plan change; content
 edits from the same base version: exactly one wins, the rest are told to reload; background drafts and
@@ -23,8 +23,8 @@ def world(settings, st):
     with st.session() as conn:
         assert seeding.seed(conn, settings.prototype_root)["ok"]
     engines = Engines()
-    with serve(engines.lbs.asgi()) as lbs, serve(engines.chatbot.asgi()) as chat, serve(engines.report.asgi()) as rep,             serve(engines.aggregation.asgi()) as agg:
-        cfg = app_settings(settings, lbs_url=lbs, chatbot_url=chat, report_url=rep, aggregation_url=agg)
+    with serve(engines.lbs.asgi()) as lbs, serve(engines.chatbot.asgi()) as chat, serve(engines.report.asgi()) as rep,             serve(engines.aggregation.asgi()) as agg, serve(engines.lbsim.asgi()) as sim:
+        cfg = app_settings(settings, lbs_url=lbs, chatbot_url=chat, report_url=rep, aggregation_url=agg, lbsim_url=sim)
         with serve(create_app(cfg)) as base:
             yield {"base": base, "engines": engines}
 

@@ -12,13 +12,19 @@ changed.
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py enrich [--only simon,miriam]
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py partners            # partners and saving shares (EIG-53, 59)
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py basis               # today's or future francs, indexed saving (EIG-60, 61)
+    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py earning             # lbsim's earning-power answers (EIG-65)
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py mandates [--refresh]  # lbs, parameter set, pcp runs
+    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py outlook [--refresh]   # lbsim's findings, paths and plan (EIG-66)
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py threads | curate | reports [--refresh] | updates | approvals
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py revision            # the revision that was a copy (Regula)
-    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py check
+    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py check [--plans]     # --plans: wait until every plan is there
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py all                 # enrich to check, in order
 
-Needs the app (8017), lbs (8013), chatbot (8016), report (8015), pcp (8007), fmre (8006), aggregation (8004)
+The lbsim refresh (29.09.2026), in order: ``earning``, ``mandates --refresh`` (lbs 1.4.0 makes new sheets, and
+lbsim runs by itself on each new sheet), ``outlook``, ``reports --refresh``, ``check`` (``check --plans`` waits for
+the plan calculations, about 50 minutes each on three workers).
+
+Needs the app (8017), lbs (8013), lbsim (8014), chatbot (8016), report (8015), pcp (8007), fmre (8006), aggregation (8004)
 and a cockpit serving its curator routes (``USE_CASES_COCKPIT``, default http://127.0.0.1:8098; start it with
 ``set COCKPIT_PORT=8098 && ..\Macro\.venv\Scripts\python -X utf8 -m cockpit serve`` in ``Engines\cockpit``).
 The erasure refuses to run without the backup ``USE_CASES_BACKUP``. Reports go to ``dev/reports/``.
@@ -1779,6 +1785,49 @@ INDEXED: dict[str, str] = {
     "esther": "nein", "peter": "nein",
 }
 
+#: lbsim's earning-power answers (EIG-65, intake v4): the gross salary expected at a full pensum once any education
+#: is done (today's francs), whether an education is under way or planned and when it ends, and how far health
+#: limits the working week (K3). Three leave the salary unanswered, so the outlook shows the model's own level
+#: ("Modellwert"): Corinne (no education, no plan to change), Esther (a 40 % job at 67) and Peter (retired).
+#: ``partner`` holds the partner's own, where the partner works; a retired partner leaves them unanswered too.
+def E(income, status, end=None, capacity="nein", partner=None):
+    out = {"income_expected_full": income, "education_status": status, "education_end_year": end,
+           "health_work_capacity": capacity}
+    return {"own": {k: v for k, v in out.items() if v is not None}, "partner": partner or {}}
+
+
+def EP(income=None, status="keine", kader="Keine Führungsfunktion", capacity="nein", end=None):
+    out = {"partner_income_expected_full": income, "partner_education_status": status,
+           "partner_education_end_year": end, "partner_kader": kader, "partner_health_work_capacity": capacity}
+    return {k: v for k, v in out.items() if v is not None}
+
+
+EARNING: dict[str, dict[str, Any]] = {
+    "simon": E(99000, "läuft", 2028),
+    "miriam": E(95000, "geplant", 2027),
+    "fabienne": E(96000, "geplant", 2028, partner=EP(92000)),
+    "lukas": E(200000, "geplant", 2029, partner=EP(160000)),
+    "noemi": E(92000, "geplant", 2029, "leicht"),
+    "celine": E(110000, "geplant", 2027),
+    "isabelle": E(310000, "geplant", 2027, "leicht", partner=EP(147500)),
+    "anita": E(105000, "läuft", 2027, partner=EP(135000, kader="Oberes oder mittleres Kader")),
+    "corinne": E(None, "keine"),
+    "tanja": E(175000, "geplant", 2027, "leicht", partner=EP(110000)),
+    "michele": E(150000, "geplant", 2027, partner=EP(105000)),
+    "reto": E(155000, "geplant", 2027, "leicht", partner=EP(90000)),
+    "claudia": E(135000, "geplant", 2028, partner=EP(68000)),
+    "yasmin": E(120000, "geplant", 2028),
+    "elio": E(214880, "geplant", 2027, "deutlich"),
+    "franziska": E(125000, "geplant", 2029, "deutlich"),
+    "regula": E(180000, "geplant", 2028, partner=EP(None)),
+    "kurt": E(148000, "geplant", 2027, partner=EP(None)),
+    "esther": E(None, "geplant", 2027, "leicht"),
+    "peter": E(None, "geplant", 2027, "leicht", partner=EP(None)),
+}
+#: The couple with two records states each other from the other's own answers (as for the partner section).
+EARNING_OF = {"yasmin": "elio", "elio": "yasmin"}
+assert len(EARNING) == 20 and sum(1 for e in EARNING.values() if "income_expected_full" not in e["own"]) == 3
+
 
 # =====================================================================================================
 # The build: every write goes through the app's API, the store's documented functions or the cockpit's
@@ -2316,6 +2365,98 @@ def cmd_basis(args):
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "use-cases-basis.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False, default=str),
                                               encoding="utf-8")
+
+
+def earning_answers(c):
+    """The client's own earning-power answers and, with a partner in the plan, the partner's (EIG-65)."""
+    spec = EARNING[c["key"]]
+    want = dict(spec["own"])
+    if c["key"] in EARNING_OF:
+        o = by_key(EARNING_OF[c["key"]])
+        other = EARNING[o["key"]]["own"]
+        want.update({f"partner_{k}": v for k, v in other.items()})
+        want["partner_kader"] = effective(o)["hc"]["kader"]
+        want["partner_education_hours"], want["partner_education_budget"] = o["education_hours"], o["education_budget"]
+    elif c["key"] in PARTNERS:
+        want.update(spec["partner"])
+    return want
+
+
+def cmd_earning(args):
+    """lbsim's earning-power answers for the 20 and their partners (EIG-65), through the app's routes; writes only
+    what differs. The app then makes a new sheet by itself (lbs 1.4.0 reads the answers); ``mandates --refresh``
+    presses the curator's button and lbsim follows each new sheet. Prints what the request now carries (read
+    from the store, as the app builds it)."""
+    summary = {}
+    for c in selected(args):
+        cid = c["id"]
+        q = app("GET", f"/api/clients/{cid}/questionnaires/intake")
+        if not {"income_expected_full", "partner_income_expected_full"} <= {x["key"] for x in q["questions"]}:
+            raise RuntimeError(f"the intake is at version {q['version']}; run python -m eigentlich revise-content first")
+        changed = answer_all(cid, "intake", earning_answers(c))
+        with the_store().session() as conn:
+            request, dropped = lbs_inputs.build(lbs_inputs.gather(conn, cid), date.today())
+        persons = {p.person_id: (p.earning_power.model_dump(exclude_none=True) if p.earning_power else None)
+                   for p in (request.household.persons if request.household else ())}
+        facts = {k: v for k, v in request.facts.model_dump(mode="json").items()
+                 if k not in ("canton", "civil_status", "has_no_liabilities") and v is not None}
+        summary[c["name"]] = {"answered": changed, "earning_power": persons, "facts": facts, "dropped": dropped}
+        level = "Ihre Angabe" if (persons.get("p1") or {}).get("expected_full_pensum_income") else "Modellwert"
+        log(f"{c['name']:<14} answers {len(changed)}; principal {level}; persons {sorted(k for k, v in persons.items() if v)}; "
+            f"facts {sorted(facts)}; dropped {dropped or 'nothing'}")
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "use-cases-earning.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False, default=str),
+                                                encoding="utf-8")
+
+
+def _latest_sheet(cid):
+    with the_store().session() as conn:
+        return conn.execute("SELECT artefact_id FROM engine_run WHERE client_id = %s AND engine = 'lbs' AND status = "
+                            "'succeeded' ORDER BY finished_at DESC LIMIT 1", (cid,)).fetchone()
+
+
+def _lbsim_done(cid, sheet):
+    with the_store().session() as conn:
+        return conn.execute("SELECT 1 FROM engine_run WHERE client_id = %s AND engine = 'lbsim' AND status = 'succeeded' "
+                            "AND request->>'life_balance_sheet_id' = %s LIMIT 1", (cid, sheet)).fetchone() is not None
+
+
+def cmd_outlook(args):
+    """lbsim's outlook for each client's newest sheet, asked as the curator (the cockpit's Parameters page asks the
+    same after a base-Regime pcp run, C-34): the app's ``POST /api/clients/{c}/outlook`` with Nicolas's id, which
+    builds the request from the sheet and the base-Regime Allocation of the current set and records the fast run
+    and the plan run. Skipped where the newest sheet has its outlook already (lbsim followed the new sheet by
+    itself), unless ``--refresh``."""
+    summary = {}
+    for c in selected(args):
+        cid = c["id"]
+        sheet = _latest_sheet(cid)
+        if sheet is None:
+            log(f"{c['name']:<14} no sheet: run mandates first")
+            continue
+        if args.refresh or not _lbsim_done(cid, sheet["artefact_id"]):
+            page = call("POST", f"{APP}/api/clients/{cid}/outlook", json={"curator_id": CURATOR}, ok=(200,), retries=2)
+        else:
+            page = app("GET", f"/api/clients/{cid}/outlook")
+        base = next((r for r in ((page.get("paths") or {}).get("regimes") or []) if r["key"] == "base"), None)
+        designated = (page.get("paths") or {}).get("designated_goal_id")
+        goal = next((g for g in (base or {}).get("goals") or [] if g["goal_id"] == designated), None)
+        ep = page.get("earning_power") or []
+        record = {"findings": len(page.get("findings") or []), "paths": page.get("paths") is not None,
+                  "plan": (page.get("plan") or {}).get("state"),
+                  "earning_power": [e.get("level_basis") for e in ep],
+                  "goal": goal["name"] if goal else None, "chance_base": goal["chance"] if goal else None,
+                  "chances": {r["label"]: {g["name"]: g["chance"] for g in r["goals"]}
+                              for r in (page.get("paths") or {}).get("regimes") or []},
+                  "no_allocation": page.get("no_allocation")}
+        summary[c["name"]] = record
+        log(f"{c['name']:<14} findings {record['findings']}; paths {record['paths']}; plan {record['plan']}; "
+            f"earning {record['earning_power']}; {record['goal'] or '-'} {record['chance_base']}")
+    OUT.mkdir(parents=True, exist_ok=True)
+    path = OUT / "use-cases-outlook.json"
+    have = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+    have.update(summary)
+    path.write_text(json.dumps(have, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
 
 
 # ------------------------------------------------------------------------------------------ the chain
@@ -2872,6 +3013,8 @@ def cmd_reports(args):
                                    "AND status = 'succeeded' ORDER BY finished_at DESC LIMIT 1", (c["id"],)).fetchone()
             made = {r["allocation_artefact_id"] for q in reqs for r in q["reports"]}
             stale = pcp is not None and pcp["artefact_id"] not in made
+            # lbsim (EIG-69): a report that draws on the outlook of the newest sheet (its findings and paths)
+            stale = stale or not _report_has_outlook(c["id"])
         if not reqs or stale:
             note = REFRESH_NOTE if stale else REPORT_NOTE
             r = app("POST", f"/api/clients/{c['id']}/reports", json={"kind": "report", "language": "de", "note": note})
@@ -2883,6 +3026,25 @@ def cmd_reports(args):
             todo = _wait_reports(todo)
     for c, rid in _wait_reports(todo):
         log(f"  no report yet: {c['name']} {rid}")
+
+
+def _report_has_outlook(cid):
+    """Whether one of the client's reports drew on lbsim's findings of the newest sheet (the report engine_run's
+    sources, as the app sent them)."""
+    sheet = _latest_sheet(cid)
+    if sheet is None:
+        return True
+    with the_store().session() as conn:
+        found = conn.execute(
+            "SELECT e.request FROM engine_run e JOIN report r ON r.report_artefact_id = e.artefact_id AND r.client_id = e.client_id "
+            "WHERE e.client_id = %s AND e.engine = 'report' AND e.status = 'succeeded' ORDER BY e.finished_at DESC",
+            (cid,)).fetchall()
+    for row in found:
+        sources = (row["request"] or {}).get("sources") or []
+        if any(s.get("engine") == "lbs" and s.get("artefact_id") == sheet["artefact_id"] for s in sources) and \
+                any(s.get("engine") == "lbsim" for s in sources):
+            return True
+    return False
 
 
 REFRESH_NOTE = ("Bitte ein neues Gesamtbild: mit meiner Partnerin oder meinem Partner, den Anteilen am Sparbetrag und "
@@ -3127,40 +3289,89 @@ def cmd_check(args):
             "SELECT count(*) AS n FROM thread_message m WHERE m.author_kind = 'spark7' AND m.body LIKE %s AND NOT EXISTS "
             "(SELECT 1 FROM thread_message l WHERE l.thread_id = m.thread_id AND l.seq > m.seq AND l.author_kind = 'spark7' "
             "AND l.body NOT LIKE %s)", ("Diese Frage liegt ausserhalb%", "Diese Frage liegt ausserhalb%")).fetchone()["n"]
+    lbsim = check_lbsim(wait_plans=getattr(args, "plans", False))
+    for r in out["clients"]:
+        r.update(lbsim.get(r["client"], {}))
     ok = all(r["lbs_current"] and r["parameter_set"] and r["pcp_default_regime"] and r["report_on_it"]
-             and (r["pcp_scenario"] or not r["scenario"]) for r in out["clients"])
+             and (r["pcp_scenario"] or not r["scenario"]) and r.get("lbsim_ok") for r in out["clients"])
     out["all_ok"] = ok and not any(out["garbled"].values()) and out["bind_mismatches"] == 0
     for r in out["clients"]:
         print(f"{r['client']:<14} lbs current {r['lbs_current']!s:<5} set {bool(r['parameter_set'])!s:<5} "
               f"default {r['pcp_default_regime'] or '-':<21} scenario {(r['scenario'] or '-'):<14} "
               f"{r['pcp_scenario'] or '-':<21} report on it {r['report_on_it']!s:<5} pcp {r['pcp_succeeded']} "
               f"reports {r['reports']} threads {r['threads']} approvals {r['approvals']} failed runs {r['failed_runs']}")
+        print(f"{'':<14} lbsim: findings {r.get('lbsim_findings')!s:<5} paths {r.get('lbsim_paths')!s:<5} plan "
+              f"{r.get('lbsim_plan') or '-':<10} report charts {r.get('report_charts')} ids on the page "
+              f"{r.get('report_ids') or 'none'}")
     print(json.dumps({k: v for k, v in out.items() if k != "clients"}, indent=1, default=str))
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "use-cases-check.json").write_text(json.dumps(out, indent=1, default=str), encoding="utf-8")
+
+
+ID_ON_PAGE = r"\b(?:LBS|LSF|LSP|LSO|PCP|RUN|RRQ|REP|RGM|RS|IDK|IPT)-[0-9a-f]{6,}|\b[0-9a-f]{32}\b"
+CHARTS = ("roles", "positions", "fit", "outlook")
+
+
+def check_lbsim(wait_plans=False, timeout_s=9 * 3600, step_s=300):
+    """Per client: findings and paths on the newest sheet (lbsim's outlook through the app), the plan run queued,
+    running or succeeded (``wait_plans``: until every one has succeeded or failed), and the newest report's page
+    with the three charts (weights by role and by building block, target against reached, the fan) and no id."""
+    import re as _re
+
+    def one(c):
+        cid = c["id"]
+        view = app("GET", f"/api/clients/{cid}/outlook")
+        sheet = _latest_sheet(cid)
+        with the_store().session() as conn:
+            plan = conn.execute(
+                "SELECT status FROM engine_run WHERE client_id = %s AND engine = 'lbsim' AND run_id IS NOT NULL "
+                "AND request->>'contract_version' IS DISTINCT FROM 'lbsim-request@1.0.0' ORDER BY created_at DESC LIMIT 1",
+                (cid,)).fetchone()
+            report = conn.execute("SELECT id FROM report WHERE client_id = %s ORDER BY seq DESC LIMIT 1", (cid,)).fetchone()
+        html = page(c, report["id"]) if report else ""
+        charts = [k for k in CHARTS if f'data-chart="{k}"' in html]
+        ids = sorted(set(_re.findall(ID_ON_PAGE, html)))[:5]
+        row = {"lbsim_findings": bool(view.get("available") and view.get("findings") is not None),
+               "lbsim_paths": view.get("paths") is not None, "lbsim_plan": (view.get("plan") or {}).get("state"),
+               "plan_run": plan["status"] if plan else None, "report_charts": len(charts), "report_ids": ids,
+               "lbsim_sheet": sheet["artefact_id"] if sheet else None}
+        row["lbsim_ok"] = (row["lbsim_findings"] and row["lbsim_paths"] and row["plan_run"] in ("queued", "running", "succeeded")
+                           and len(charts) == len(CHARTS) and not ids)
+        return row
+
+    t0 = time.time()
+    while True:
+        rows = {c["name"]: one(c) for c in CLIENTS}
+        waiting = [n for n, r in rows.items() if r["plan_run"] in ("queued", "running")]
+        if not wait_plans or not waiting or time.time() - t0 > timeout_s:
+            return rows
+        log(f"plans still calculating: {len(waiting)} ({', '.join(waiting[:6])}{' ...' if len(waiting) > 6 else ''})")
+        time.sleep(step_s)
 
 
 # --------------------------------------------------------------------------------------------- main
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("step", choices=["select", "erase", "enrich", "partners", "basis", "mandates", "threads", "curate",
-                                    "reports", "updates", "approvals", "revision", "check", "all"])
+    p.add_argument("step", choices=["select", "erase", "enrich", "partners", "basis", "earning", "mandates", "outlook",
+                                    "threads", "curate", "reports", "updates", "approvals", "revision", "check", "all"])
     p.add_argument("--apply", action="store_true", help="erase: really erase (otherwise a dry run)")
     p.add_argument("--only", help="comma-separated client keys (simon, miriam, ...)")
     p.add_argument("--batch", type=int, default=6, help="threads and reports asked before waiting for them")
     p.add_argument("--verbose", action="store_true")
+    p.add_argument("--plans", action="store_true", help="check: wait until every plan calculation has finished")
     p.add_argument("--refresh", action="store_true", help="mandates: derive and finalise again from the latest sheet; reports: a new report where "
-                                                          "the latest is older than the latest pcp run")
+                                                          "the latest is older than the latest pcp run or draws on no outlook "
+                                                          "of the newest sheet; outlook: ask lbsim again")
     args = p.parse_args(argv)
     steps = {"select": cmd_select, "erase": cmd_erase, "enrich": cmd_enrich, "partners": cmd_partners,
-             "basis": cmd_basis,
-             "mandates": cmd_mandates,
+             "basis": cmd_basis, "earning": cmd_earning,
+             "mandates": cmd_mandates, "outlook": cmd_outlook,
              "threads": cmd_threads, "curate": cmd_curate, "reports": cmd_reports, "updates": cmd_updates,
              "approvals": cmd_approvals, "revision": cmd_revision, "check": cmd_check}
     if args.step == "all":
-        for name in ("enrich", "partners", "basis", "mandates", "threads", "curate", "reports", "updates", "approvals",
-                     "revision", "check"):
+        for name in ("enrich", "partners", "basis", "earning", "mandates", "outlook", "threads", "curate", "reports",
+                     "updates", "approvals", "revision", "check"):
             log(f"== {name}")
             steps[name](args)
     else:

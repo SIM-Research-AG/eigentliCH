@@ -250,7 +250,9 @@ export async function render(main, ctx) {
   }
   const answers = Object.fromEntries(Object.entries(qn.answers).map(([k, a]) => [k, a.value]));
   const byKey = Object.fromEntries(qn.questions.map((q) => [q.key, q]));
-  const asked = (q) => !q.asked_when || answers[q.asked_when.key] === q.asked_when.equals;
+  // asked_when: {key, equals}, {key, in: [...]} (EIG-65), or a list of conditions that must all hold
+  const conds = (q) => (!q.asked_when ? [] : [].concat(q.asked_when));
+  const asked = (q) => conds(q).every((c) => (Array.isArray(c.in) ? c.in.includes(answers[c.key]) : answers[c.key] === c.equals));
   const modeDefault = name === 'intake' ? 'sections' : 'one';
   const mode = ctx.mode === 'sections' || ctx.mode === 'one' || ctx.mode === 'edit' ? ctx.mode : modeDefault;
   const editing = mode === 'edit';
@@ -368,7 +370,9 @@ export async function render(main, ctx) {
 
   // -- a section at a time
   const sections = qn.sections.length ? qn.sections : [{ key: null, title: { de: t('q.all_questions', 'de'), en: t('q.all_questions', 'en') } }];
-  const nextSection = qn.next_question_key && byKey[qn.next_question_key] ? byKey[qn.next_question_key].section : null;
+  // A link to one question (#/q/intake/sections/<key>, from the outlook's findings) opens its section.
+  const aimed = ctx.focus && byKey[ctx.focus] ? ctx.focus : qn.next_question_key;
+  const nextSection = aimed && byKey[aimed] ? byKey[aimed].section : null;
   let current = sections.findIndex((s) => s.key === nextSection);
   if (current < 0) current = 0;
   const nav = h('div', { class: 'tabs' });
@@ -414,6 +418,8 @@ export async function render(main, ctx) {
       current < sections.length - 1 ? button(t('q.next_section', L), { class: 'primary', onClick: () => { current += 1; drawSection(); window.scrollTo(0, 0); } }) : null,
     ]);
     put(body, nav2);
+    const target = ctx.focus && body.querySelector(`[data-key="${ctx.focus}"]`);
+    if (target) target.scrollIntoView({ block: 'center' });
     if (name === 'onboarding' && !qn.onboarding_completed_at) {
       const err = h('div');
       put(body, h('div', { class: 'actions' }, [button(t('q.complete', L), {
@@ -425,7 +431,7 @@ export async function render(main, ctx) {
   function redrawDependants(key) {
     body.querySelectorAll('.card').forEach((card) => {
       const q = byKey[card.dataset.key];
-      if (q && q.asked_when && q.asked_when.key === key && card.redraw) card.redraw();
+      if (q && conds(q).some((c) => c.key === key) && card.redraw) card.redraw();
     });
   }
   drawSection();

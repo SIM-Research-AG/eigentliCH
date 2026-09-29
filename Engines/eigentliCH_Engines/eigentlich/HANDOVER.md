@@ -172,6 +172,75 @@
     older than the goal's last change (the page says "Laut Bilanz").
 31. **The scenario of a report** is asked through the API only (`scenario`); the client's page offers none.
 
+## lbsim in the app (29.09.2026, EIG-65 to EIG-69)
+
+* **Built** to `review/LBSIM_INTERFACES.md` section 7 and the app side of section 5 (agent E): the intake's version 4
+  with lbsim's earning-power questions for the principal and the partner (`alignment.revise_earning`, run by
+  `revise-content`); the mapping to lbs@1.4.0's `persons[].earning_power` and the six new `facts`, only when stated,
+  with what is left out named (`inputs.py`); `clients.LbsimClient` and its mirrors (`contracts.py`); the settings
+  `lbsim_url`, `timeouts.lbsim_s`, `lbsim_auto` (`EIGENTLICH_LBSIM_URL`); lbsim after a new sheet only; the routes
+  `POST|GET /api/clients/{c}/outlook`; the plan's own `engine_run` and its refresh; `python -m eigentlich
+  lbsim-backfill`; the "Aussichten" page (`client/surfaces/outlook.js`), the home card and `client/app/charts.js`
+  (SVG through the namespace-aware `h()`); the report's lbsim sources and the update with the plan; `desktop.cmd`
+  starts lbsim on 8014. App version 1.4.0.
+* **Schema:** unchanged (no table, column or constraint; `engine_run.engine` already takes `lbsim`). SCHEMA.md and
+  `dev/SCHEMA.head.md` describe the intake's version 4 and the wider `asked_when`.
+* **Content on the real store:** not yet saved. `revise-content --curator Nicolas` saves the intake's version 4
+  (the coordinator's first step below).
+* **Tests:** 408 passed, 4 skipped (the opt-in live tests, now four with `test_live_lbsim`), in about 75 s.
+  `tests/test_app_lbsim.py` (25) runs against a stand-in lbsim serving B1's frozen samples (copied to
+  `tests/fixtures/lbsim/`). The live tests were not run here (they write to the engines' own stores); the
+  coordinator runs them once lbsim is up. `dev/verify_regressions.py` has no new guard for this round.
+* **Checked read-only against the running engines:** the 20 use cases' requests with the answers of step `earning`
+  validate against lbs's own model and through lbs 1.4.0's `POST /validate` (stores nothing): no refusal, no
+  unknown tier. The outlook page was run once in a stand-in DOM on the samples (German and English, plan ready and
+  calculating; four SVGs, drawn again after the switch).
+* **Docker:** the app reads `EIGENTLICH_LBSIM_URL`; `Engines/deploy/compose.yaml` should pass
+  `EIGENTLICH_LBSIM_URL: http://lbsim:8014` to the `eigentlich` service (not edited here, that folder is not this
+  agent's; `ENGINE_CHANGES.md`'s watch point for the app is then settled).
+
+### The coordinator's live refresh, in order (lbsim live on 8014 with its workers)
+
+```
+cd eigentliCH_Engines\eigentlich
+..\.venv\Scripts\python -m eigentlich revise-content --curator ac586536e6be42c68446c8f8f80e4242
+:: restart the app on 8017 (it must serve 1.4.0), then:
+..\.venv\Scripts\python -X utf8 dev\build_use_cases.py earning
+..\.venv\Scripts\python -X utf8 dev\build_use_cases.py mandates --refresh     :: needs the cockpit on 8098 (USE_CASES_COCKPIT)
+..\.venv\Scripts\python -X utf8 dev\build_use_cases.py outlook
+..\.venv\Scripts\python -X utf8 dev\build_use_cases.py reports --refresh
+..\.venv\Scripts\python -X utf8 dev\build_use_cases.py check
+..\.venv\Scripts\python -X utf8 dev\build_use_cases.py check --plans          :: waits for the plans (hours)
+set EIGENTLICH_LIVE=1 && ..\.venv\Scripts\python -m pytest -q tests\test_app_live.py
+```
+
+`python -m eigentlich lbsim-backfill` covers any client the steps above left without an outlook (it refuses to start
+when lbsim does not answer). Once `check --plans` is through, `check` again confirms that the updates carrying the
+plans were made (the app asks each when it first sees the plan there), and docs/USE_CASES.md's last three lbsim
+columns are filled from `dev/reports/use-cases-outlook.json` and `use-cases-check.json`.
+
+### Open points from this round
+
+32. **The priority of a queued plan is not raised.** "Planrechnung neu starten" asks lbsim's `POST /optimise` as the
+    curator; a plan already queued for the same key as a system run is answered as it is (lbsim's `_queue_plan`), so
+    it keeps its place in the queue. A finished plan is answered from lbsim's cache. A real restart (a new seed, or
+    raising the queued run's priority) is lbsim's to add.
+33. **Nothing polls lbsim in the background.** A plan that finishes is recorded (and its report update asked) when the
+    app next asks lbsim: the outlook page (which asks again every minute while it is open and the plan runs), the
+    home page, a report, the cockpit's refresh. A client nobody looks at keeps a `running` row until then.
+34. **The automatic report update is asked in the name of whoever asked the report it completes** (the client, or the
+    curator), with a note saying so: `report_request` takes no `system` requester. `lbsim_auto.report_update: false`
+    switches it off.
+35. **The management tiers are mirrored** (`inputs.RESPONSIBILITY_TIERS`, from lbs's calibration 1.5.0): a tier added
+    in a later lbs calibration is left out and named in `dropped` until the list follows.
+36. **`own_use_share` and `mortgage_fixed_until` are read from the intake's property entries** (the self-occupied share
+    of the stated values; the earliest fixed-rate end of a mortgaged property, as 31 December of that year); the plan
+    has no fields of its own for them.
+37. **The intake's new questions are drafted in English** (`en_draft`), as the partner section's; the intake is
+    otherwise German only (open point 10).
+38. **lbsim's reasons for "no allocation"** are the app's: without a parameter set, a run, a base run, or in another
+    currency than CHF, the page says so itself and lbsim is sent no Allocation (it then waits for one).
+
 ## For the next agents
 
 * **Cockpit:** link to a client's view with `http://127.0.0.1:8017/#/client/<id>/home`; for a report

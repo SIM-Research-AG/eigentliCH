@@ -70,7 +70,7 @@ def as_curator(settings, sql: str, params=()):
 def test_health_and_meta(http):
     h = http.get("/health").json()
     assert h["status"] == "ok" and h["store"] == "ok" and h["sign_in"] is False
-    assert set(h["engines"]) == {"lbs", "chatbot", "report", "aggregation"} and h["engines"]["lbs"]["reachable"]
+    assert set(h["engines"]) == {"lbs", "lbsim", "chatbot", "report", "aggregation"} and h["engines"]["lbs"]["reachable"]
     m = http.get("/meta").json()
     assert m["contract_versions"]["ChatRequest(chatbot)"] == "chat-request@1.0.0"
     assert m["settings"]["port"] == 8017 and m["settings"]["store"]["password_set"] in (True, False)

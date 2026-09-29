@@ -37,6 +37,19 @@ Where each field comes from:
   lbs reads today's francs and a fixed contribution (owner decisions 7 and 9), and the request keeps its bytes.
 * ``risk.esg_exclusions``: the intake's ``esg_exclusions``: the chosen options (a list, EIG-44), or for an
   answer to the earlier free-text version, the text split at commas, semicolons and line breaks.
+* **lbsim's answers** (lbs@1.4.0, LBS-39; EIG-65), each sent only when stated, so a request without them keeps its
+  bytes: per adult ``earning_power`` from the intake (the principal's ``income_expected_full``, ``kader``,
+  ``sector``, ``education_status``, ``education_end_year``, ``education_hours``, ``education_budget``,
+  ``health_work_capacity``; the partner's ``partner_*`` of the same, while ``partner_in_plan`` is not ``nein``);
+  ``facts.stop_work_age`` from ``work_until_age``, ``facts.legal_documents`` from the five document questions of
+  section 12 (those answered ``ja``, by name; answered and none ``ja`` is a stated none),
+  ``facts.pillar3a_contribution_per_year`` from ``pillar3a_contribution``, and from the ``properties`` entries
+  ``facts.mortgage_fixed_until`` (the earliest "Fest bis" of a property with a mortgage, 31 December of that year),
+  ``facts.amortisation_mode`` (direct or indirect of the first property with a mortgage that states one) and
+  ``facts.own_use_share`` (the self-occupied share of the stated values, only when every entry states its value and
+  its use). What does not fit lbs's rules is left out and named in ``dropped``: an unknown management tier, an end
+  year with no education, an education that ends before the year of the sheet, an answer outside its range. The
+  work capacity is K3 data, as health: withheld health withholds it too (lbs refuses the two together).
 """
 
 from __future__ import annotations
@@ -129,7 +142,107 @@ def _exclusions(value: Any) -> tuple[str, ...]:
     return ()
 
 
-def _partner(pid: str, answer, num) -> c.LbsPerson:
+#: lbs's ``human-capital.responsibility.tiers`` (calibration 1.5.0): each tier by its key and its labels, as the
+#: intake's ``kader`` options word them. Any other answer is left out (lbs refuses an unknown tier, 422).
+RESPONSIBILITY_TIERS = ("ohne Kaderfunktion", "oberes und mittleres Kader", "topmanagement",
+                        "Keine Führungsfunktion", "Oberes oder mittleres Kader", "Oberste Führung",
+                        "No management function", "Upper or middle management", "Top management")
+#: The intake's words (EIG-65) and lbs's: the education states and how far health limits the working week.
+EDUCATION_STATUS = {"keine": "none", "läuft": "in_progress", "geplant": "planned",
+                    "none": "none", "in_progress": "in_progress", "planned": "planned"}
+WORK_CAPACITY = {"nein": 1.0, "leicht": 0.8, "deutlich": 0.5, "stark": 0.2}
+#: The legal documents of intake section 12 by the name lbsim reads.
+LEGAL_DOCUMENTS = (("legal_will", "Testament"), ("legal_marriage_contract", "Ehevertrag"),
+                   ("legal_cohabitation", "Konkubinatsvertrag"), ("legal_power_of_attorney", "Vorsorgeauftrag"),
+                   ("legal_patient_decree", "Patientenverfügung"))
+_AMORTISATION = {"direkt": "direct", "indirekt über Säule 3a": "indirect", "indirekt": "indirect"}
+
+
+def earning_power(prefix: str, answer, num, dropped: list[str], as_of: date,
+                  health_withheld: bool = False) -> Optional[c.EarningPowerAnswers]:
+    """One adult's earning-power answers (EIG-65): ``prefix`` is ``""`` for the principal, ``"partner_"`` for the
+    partner. ``None`` when nothing is stated (the request keeps its bytes)."""
+    def key(name: str) -> str:
+        return f"{prefix}{name}"
+
+    values: dict[str, Any] = {"expected_full_pensum_income": num(key("income_expected_full"))}
+    tier = _text(answer(key("kader")))
+    if tier is not None and tier not in RESPONSIBILITY_TIERS:
+        dropped.append(f"{key('kader')}: {tier!r} is not a management tier lbs knows")
+        tier = None
+    values["responsibility"] = tier
+    values["sector"] = _text(answer(key("sector")))
+    raw_status = answer(key("education_status"))
+    status = EDUCATION_STATUS.get(raw_status) if isinstance(raw_status, str) else None
+    if raw_status is not None and status is None:
+        dropped.append(f"{key('education_status')}: {raw_status!r} is not keine, läuft or geplant")
+    values["education_status"] = status
+    end = num(key("education_end_year"), low=2000, high=2100)
+    if end is not None and status == "none":
+        dropped.append(f"{key('education_end_year')}: {end:g}, but no education is under way or planned")
+        end = None
+    elif end is not None and status in ("in_progress", "planned") and end < as_of.year:
+        dropped.append(f"{key('education_end_year')}: {end:g} is before {as_of.year}, the year of the sheet")
+        end = None
+    values["education_end_year"] = None if end is None else int(end)
+    hours = answer(key("education_hours"))
+    values["education_hours"] = _text(hours) if isinstance(hours, str) else (
+        num(key("education_hours"), high=168) if hours is not None else None)
+    values["education_budget_per_year"] = num(key("education_budget"))
+    raw_capacity = answer(key("health_work_capacity"))
+    capacity = WORK_CAPACITY.get(raw_capacity) if isinstance(raw_capacity, str) else None
+    if raw_capacity is not None and capacity is None:
+        dropped.append(f"{key('health_work_capacity')}: not one of the options")
+    if capacity is not None and health_withheld:
+        dropped.append(f"{key('health_work_capacity')}: withheld with the health answers (K3)")
+        capacity = None
+    values["health_work_capacity"] = capacity
+    if all(v is None for v in values.values()):
+        return None
+    return c.EarningPowerAnswers(**values)
+
+
+def _year_end(value: Any) -> Optional[date]:
+    year = _number(value)
+    if year is None or not 2000 <= year <= 2100 or year != int(year):
+        return None
+    return date(int(year), 12, 31)
+
+
+def stated_facts(answer, num, dropped: list[str]) -> dict[str, Any]:
+    """lbs@1.4.0's six facts (LBS-39) from the intake, only the stated ones (EIG-65)."""
+    out: dict[str, Any] = {}
+    stop = num("work_until_age")
+    if stop is not None:
+        if 40 <= stop <= 75:
+            out["stop_work_age"] = stop
+        else:
+            dropped.append(f"work_until_age: {stop:g} is outside 40 to 75, the ages lbs reads as a stop age")
+    answered = [(k, name) for k, name in LEGAL_DOCUMENTS if answer(k) is not None]
+    if answered:
+        out["legal_documents"] = tuple(name for k, name in answered if answer(k) == "ja")
+    p3a = num("pillar3a_contribution")
+    if p3a is not None:
+        out["pillar3a_contribution_per_year"] = p3a
+    props = answer("properties")
+    entries = [e for e in props if isinstance(e, dict)] if isinstance(props, list) else []
+    mortgaged = [e for e in entries if (_number(e.get("mortgage")) or 0) > 0]
+    fixed = [d for d in (_year_end(e.get("fixed_until")) for e in mortgaged) if d is not None]
+    if fixed:
+        out["mortgage_fixed_until"] = min(fixed)
+    modes = [_AMORTISATION.get(str(e.get("amortisation_kind") or "")) for e in mortgaged]
+    mode = next((m for m in modes if m), None)
+    if mode:
+        out["amortisation_mode"] = mode
+    valued = [(_number(e.get("value")), e.get("occupancy")) for e in entries]
+    if valued and all(v is not None and v >= 0 and occ for v, occ in valued) and sum(v for v, _ in valued) > 0:
+        own = sum(v for v, occ in valued if occ == "Ich wohne selbst darin")
+        out["own_use_share"] = round(own / sum(v for v, _ in valued), 6)
+    return out
+
+
+def _partner(pid: str, answer, num, dropped: Optional[list[str]] = None,
+             as_of: Optional[date] = None) -> c.LbsPerson:
     """The partner as the intake's partner section states them (EIG-53); an unanswered question stays absent."""
     years = num("partner_ahv_years_missing")
     age = num("partner_age", high=120)
@@ -146,9 +259,12 @@ def _partner(pid: str, answer, num) -> c.LbsPerson:
         hours_per_week=num("partner_hours_per_week"),
         rest_hours=_text(answer("partner_rest_hours")),
     )
+    ep = earning_power("partner_", answer, num, dropped if dropped is not None else [], as_of or date.today(),
+                       health_withheld=hc.health_withheld)
     return c.LbsPerson(person_id=pid, kind="adult", age=None if age is None else int(round(age)),
                        stated_gross_income=num("partner_income_gross"), human_capital=hc,
-                       ahv=c.AhvFacts(contribution_years_missing=None if years is None else int(years)))
+                       ahv=c.AhvFacts(contribution_years_missing=None if years is None else int(years)),
+                       earning_power=ep)
 
 
 @dataclass
@@ -239,17 +355,20 @@ def build(g: Gathered, as_of: date) -> tuple[c.LbsRequest, list[str]]:
                 hours_learning=num("hours_learning"),
                 hours_network=num("hours_network"),
             )
+            ep = earning_power("", answer, num, dropped, as_of, health_withheld=hc.health_withheld) \
+                if me["kind"] == "adult" else None
             persons.append(c.LbsPerson(
                 person_id="p1", kind=me["kind"], age=g.client["age_at_registration"],
                 stated_gross_income=num("income_gross"), human_capital=hc,
-                ahv=c.AhvFacts(contribution_years_missing=None if years is None else int(years))))
+                ahv=c.AhvFacts(contribution_years_missing=None if years is None else int(years)),
+                earning_power=ep))
         partner = next((m for m in others if m["kind"] == "adult"), None)
         for i, m in enumerate(others, start=2):
             pid = f"p{i}"
             person_of_member[m["id"]] = pid
             if m is partner:
                 partner_id = pid
-                persons.append(_partner(pid, answer, num) if answer("partner_in_plan") != "nein"
+                persons.append(_partner(pid, answer, num, dropped, as_of) if answer("partner_in_plan") != "nein"
                                else c.LbsPerson(person_id=pid, kind="adult"))
             else:
                 persons.append(c.LbsPerson(person_id=pid, kind=m["kind"]))
@@ -305,7 +424,8 @@ def build(g: Gathered, as_of: date) -> tuple[c.LbsRequest, list[str]]:
             dropped.append(f"position {row['label']!r}: {exc.errors()[0]['msg']}")
 
     # -- facts and risk
-    facts = c.LbsFacts(canton=_text(answer("canton")), civil_status=_text(answer("civil_status")))
+    facts = c.LbsFacts(canton=_text(answer("canton")), civil_status=_text(answer("civil_status")),
+                       **stated_facts(answer, num, dropped))
     loss = num("max_loss_pct", high=100)
     mandates = num("mandates")
     exclusions = answer("esg_exclusions")

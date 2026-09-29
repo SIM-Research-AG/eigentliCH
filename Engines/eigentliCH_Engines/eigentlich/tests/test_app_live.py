@@ -1,4 +1,4 @@
-"""Opt-in: the app against the real engines at the configured URLs (lbs 8013, chatbot 8016, report 8015).
+"""Opt-in: the app against the real engines at the configured URLs (lbs 8013, lbsim 8014, chatbot 8016, report 8015).
 
     set EIGENTLICH_LIVE=1 && ..\\.venv\\Scripts\\python -m pytest tests\\test_app_live.py
 
@@ -52,6 +52,22 @@ def test_live_lbs(live):
     assert r.status_code == 200, r.text
     sheet = r.json()["sheet"]
     assert len(sheet["grid"]) == 8 and sheet["totals"]["financial_assets"] == 60000
+
+
+def test_live_lbsim(live):
+    """lbsim on the sheet just made (EIG-66): no allocation for this client, so the findings come alone and the plan
+    waits for an allocation; the page names no id."""
+    if not (_up(live["cfg"].lbsim_url) and _up(live["cfg"].lbs_url)):
+        pytest.skip(f"lbsim or lbs not reachable ({live['cfg'].lbsim_url})")
+    http, cid = live["http"], live["cid"]
+    assert http.post(f"/api/clients/{cid}/balance-sheet").status_code == 200
+    r = http.post(f"/api/clients/{cid}/outlook")
+    assert r.status_code == 200, r.text
+    page = r.json()
+    assert page["available"] and page["earning_power"] and page["paths"] is None
+    assert page["plan"]["state"] == "waiting_for_allocation"
+    import re
+    assert not re.search(r"\b(LBS|LSF|LSP|LSO|RUN|PCP)-[0-9a-f]", r.text)
 
 
 def test_live_chatbot(live):

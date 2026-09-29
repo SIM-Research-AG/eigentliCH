@@ -567,3 +567,103 @@ names once), a template, a liquidity, a vessel or an occupancy in words, a date 
 Swiss format with the typographic apostrophe the page's other figures use (61’000 CHF), a share as 40 %, a fact key
 in a question («health») by its name. A text in none of the store's formats is shown as it is. New change lists are
 written in the same plain German from the start ("Betrag: neu 96’000, bisher 90’000").
+
+## lbsim in the app (29.09.2026)
+
+Built to `review/LBSIM_INTERFACES.md` section 7 and the app side of section 5, with the owner's decisions of
+29.09.2026 (section 10: findings for client and curator; the plan's figures for this period shown to the client
+at once, framed as "Was die Rechnung annimmt", never as a recommendation; the withdrawal rate of 3 % shown as an
+assumption; a plan confidence of 90 %). Everything is additive: no contract version moves, an lbs request without
+the new answers is byte for byte the request of before, no table or column is added, and every stored row reads
+back unchanged. App version 1.4.0.
+
+### EIG-65 · Intake version 4: lbsim's earning-power questions, per adult
+Owner decision (new questions per adult; a missing answer is the model's level, marked). The intake's next version
+(`intake@1.4`) is saved by the owner's curator record with the note "earning power questions for lbsim (principal
+and partner), owner 29.09.2026" through `revise-content` (`alignment.revise_earning`, the pattern of EIG-53 and
+EIG-60). Section 16 gains `income_expected_full` ("Welchen Bruttolohn erwarten Sie bei vollem Pensum, sobald eine
+laufende oder geplante Ausbildung abgeschlossen ist?", help "Ohne Angabe rechnet das Modell mit seinem eigenen
+Niveau und sagt das."), `education_status` (keine, läuft, geplant), `education_end_year` (asked when läuft or
+geplant) and `health_work_capacity` (nein, leicht, deutlich, stark: 1.0, 0.8, 0.5, 0.2 of a full week; K3). The
+partner section (21) gains `partner_income_expected_full`, `partner_education_status`,
+`partner_education_end_year`, `partner_education_hours`, `partner_education_budget`, `partner_kader`,
+`partner_sector` and `partner_health_work_capacity` (K3), on the options of the client's own questions. Nothing is
+removed, so every earlier answer stays valid and is read; the existing `kader`, `sector`, `education_hours` and
+`education_budget` now reach lbs. `asked_when` takes `{key, in: [...]}` and a list of conditions that must all hold
+(the partner's end year is asked when the partner is in the plan and an education is under way or planned), in
+`questionnaires.is_asked` and the browser alike.
+
+**The mapping** (`inputs.py`): per adult `earning_power` (`expected_full_pensum_income`, `responsibility` as the
+tier's German label, which lbs accepts, `sector`, `education_status`, `education_end_year`, `education_hours` as the
+band, `education_budget_per_year`, `health_work_capacity`) and in `facts` `stop_work_age` (`work_until_age`),
+`legal_documents` (the section 12 documents answered ja, by name; answered and none ja is a stated none),
+`pillar3a_contribution_per_year`, and from the `properties` entries `mortgage_fixed_until` (the earliest "Fest bis"
+of a property with a mortgage, as 31 December of that year), `amortisation_mode` and `own_use_share` (the
+self-occupied share of the stated values, only when every entry states its value and use). Each only when stated;
+`lbs_body` leaves out every unset one. Left out and named in `dropped`, because lbs refuses the whole request
+otherwise: a management tier lbs does not know, an end year with no education, an education that ends before the
+year of the sheet, a stop age outside 40 to 75. The work capacity is K3 data as health: while health is withheld it
+is dropped with it (lbs refuses the two together; the app withholds nothing today, so this is a guard, mirrored in
+`contracts.LbsPerson`). The 20 use cases' requests with their earning answers were validated against lbs's own
+model and by the running lbs 1.4.0 (`POST /validate`, which stores nothing).
+
+### EIG-66 · lbsim is called by the app alone; each call is an `engine_run`
+`clients.LbsimClient` (`lbsim_url`, 8014, `EIGENTLICH_LBSIM_URL`; `timeouts.lbsim_s` 60) mirrors `lbsim-request@1.0.0`
+and `lbsim-optimise@1.0.0` strictly and reads `RunAccepted`, `RunStatus` and the outlook partially (one client, one
+sheet, the plan on these paths: `contracts.LbsimOutlook`). The request names the client, the newest sheet and the
+Allocation of the current parameter set on its base Regime (`allocation_run`, EIG-63, on whatever basis the set is),
+in CHF only (lbsim v1, LBSIM-14; another currency or no set sends none, and the page says why); lbsim resolves
+everything else. The fast run is an `engine_run` (`engine = 'lbsim'`, the request's `contract_version`
+`lbsim-request@1.0.0`, `artefact_id` the paths, else the findings, `run_id` lbsim's). The plan is a second
+`engine_run` under lbsim's plan run id, `running` until `refresh_lbsim_runs` finds it finished in `GET /runs/{id}`:
+succeeded with the plan (`LSO-`), or failed with its `failure_kind` before the error (as the cockpit's refresh does,
+C-34), so `/api/curator/runs/{id}/refresh` works on it as it is.
+
+**Routes**: `POST /api/clients/{c}/outlook` (`{curator_id?, optimise?: "now"}`; a curator in service or 403; no
+sheet 409; lbsim down 503) and `GET /api/clients/{c}/outlook?language=&basis=` (refreshes the plan's row first). With
+`optimise: "now"` the fast run asks `optimise: "no"` and the plan is asked through lbsim's `POST /optimise` with
+`requested_by` the curator, so it goes ahead of the background plans; lbsim answers a plan already queued or
+finished for the same key as it is (the priority of a queued system plan is not raised: a point for lbsim).
+`python -m eigentlich lbsim-backfill [--limit N] [--dry-run]` runs lbsim for every client whose newest sheet has no
+succeeded lbsim run, one at a time, and refuses to start when lbsim does not answer.
+
+### EIG-67 · lbsim after a new sheet only
+After an lbs run succeeds, the app asks lbsim when the sheet id differs from the sheet of the client's latest lbsim
+run (whatever became of it), in the background and one at a time per client (a lock per client; the second call
+finds the sheet done and asks nothing). The same sheet again (lbs's cache) asks nothing; a new pcp run on an
+unchanged sheet is the cockpit's to announce (its Parameters page calls the outlook route after a base-Regime run,
+C-34), so there is no second debounce. The automatic run is requested as `system` / `eigentlich-app:auto` after the
+app's own lbs runs and as the curator after the cockpit's button. `lbsim_auto.enabled` (default on) switches it off;
+a failed call stays failed until the next new sheet, the cockpit, or the backfill.
+
+### EIG-68 · "Aussichten" / "Outlook" and the home card, in one language, without ids
+`eigentlich.outlook.shape` turns lbsim's outlook into the page: earning power per adult ("Ihre Angabe" or
+"Modellwert", the stated and the modelled full-pensum level, today's income and pensum, the management function,
+lbsim's caveats), the income paths with the zero-return saving need, the free cash and whether it holds, per goal in
+both bases (the real from lbsim's `views.real`), the findings with their templates filled with Swiss figures, the
+severity, urgency and kind of step in words, a link to the question that answers each (`#/q/<name>/sections/<key>`,
+which opens that question's section), the schedule, the rules not yet checked, lbsim's assumptions (the withdrawal
+rate of 3 % among them), the Regimes by lbsim's labels with the chances as numbers ("68 von 100"), the allocation's
+weights by the house's role names and by instrument name, both curves, the bands, and the plan block: "Die
+Planrechnung läuft noch (seit N Minuten, höchstens 2 Stunden)" while it runs, then the figures for this period
+under "Was die Rechnung annimmt" with lbsim's framing sentence. No artefact, run, question, finding or store id
+reaches the page: a goal is tied to its fan by a key of the page alone (`goal1`, ...).
+
+`client/app/charts.js` draws the three charts as SVG through the namespace-aware `h()` (`svg()` in `dom.js`), no
+library, no external script: the weights by role and by building block, the target against the reached return over
+the 25 states ("Krise" to "Boom", the line of zero return; marked "umgerechnet" in the basis lbsim derived), and the
+fan (90 and 50 of 100 paths, the median, the goal's line solid in its own basis and dashed, marked converted, in the
+other). The nominal / real switch (EIG-62) reloads the page's figures and redraws all three. The home page's card:
+the designated goal's chance in words ("In 68 von 100 simulierten Verläufen wird «Eigenheim» erreicht."), the top
+three steps, the plan's state; lbsim not there reads as not available and never fails the home page. The door
+"Aussichten" is `#/outlook`.
+
+### EIG-69 · The report draws on lbsim, and an update carries the plan
+A report asks lbsim's outlook for its sheet (after waiting for an lbsim run on its way) and sends, one per kind
+(report 1.4.0, REP-32): the findings; the paths when they rest on the report's allocation (a report on a scenario
+takes the findings only); the plan once lbsim has it on those paths. A real report that carries lbsim's paths leaves
+the pcp source out (REP-36, REP-38). The mirror of `report-request@1.0.0` admits `lbsim` and checks one source per
+engine and kind. When a plan run turns out succeeded and the client's latest report drew on its paths without it,
+the app asks the update that carries it, once, in the name of whoever asked that report, with the note "Ergänzt um
+die Planrechnung, sobald sie vorlag." (`lbsim_auto.report_update`, default on). The app learns of the plan when it
+asks lbsim (the outlook page, the home page, a report, the cockpit's refresh); nothing polls in the background.

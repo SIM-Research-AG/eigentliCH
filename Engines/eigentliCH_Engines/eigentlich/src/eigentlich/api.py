@@ -22,7 +22,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 from .appsettings import AppSettings, load_app
-from .clients import AggregationClient, ChatbotClient, EngineRefused, EngineUnavailable, LbsClient, ReportClient
+from .clients import (AggregationClient, ChatbotClient, EngineRefused, EngineUnavailable, LbsClient, LbsimClient,
+                      ReportClient)
 from .questionnaires import AnswerRefused
 from .service import APP_VERSION, Conflict, Forbidden, Invalid, Service
 from .settings import ROOT
@@ -121,6 +122,13 @@ class SheetRun(_Body):
     curator_id: Optional[str] = Field(default=None, min_length=1, max_length=64)
 
 
+class OutlookRun(_Body):
+    """Who asks for lbsim's outlook (EIG-66): nobody named (the client) or a curator in service (the cockpit, C-34);
+    ``optimise: "now"`` asks for a priority plan run in place of the background one ("Planrechnung neu starten")."""
+    curator_id: Optional[str] = Field(default=None, min_length=1, max_length=64)
+    optimise: Optional[Literal["now"]] = None
+
+
 class Reason(_Body):
     reasoning: Optional[str] = Field(default=None, max_length=2000)
 
@@ -167,7 +175,8 @@ def create_app(settings: Optional[AppSettings] = None, *,
                lbs_transport: Optional[httpx.BaseTransport] = None,
                chatbot_transport: Optional[httpx.BaseTransport] = None,
                report_transport: Optional[httpx.BaseTransport] = None,
-               aggregation_transport: Optional[httpx.BaseTransport] = None) -> FastAPI:
+               aggregation_transport: Optional[httpx.BaseTransport] = None,
+               lbsim_transport: Optional[httpx.BaseTransport] = None) -> FastAPI:
     settings = settings or load_app()
     t = settings.timeouts
     service = Service(settings, Store(settings.store.database),
@@ -175,7 +184,8 @@ def create_app(settings: Optional[AppSettings] = None, *,
                       ChatbotClient(settings.chatbot_url, t.chatbot_s, t.connect_s, chatbot_transport),
                       ReportClient(settings.report_url, t.report_s, t.connect_s, report_transport),
                       aggregation=AggregationClient(settings.aggregation_url, t.aggregation_s, t.connect_s,
-                                                    aggregation_transport))
+                                                    aggregation_transport),
+                      lbsim=LbsimClient(settings.lbsim_url, t.lbsim_s, t.connect_s, lbsim_transport))
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -339,6 +349,24 @@ def create_app(settings: Optional[AppSettings] = None, *,
         curator's, who must exist and be in service (403 otherwise); without a body, as the client's."""
         guard(service.run_balance_sheet, client_id, curator_id=body.curator_id if body else None)
         return guard(service.balance_sheet, client_id, language=language)
+
+    # ---- the outlook (lbsim, EIG-66 to EIG-68) ---------------------------------------------------
+
+    @app.get("/api/clients/{client_id}/outlook", tags=["outlook"])
+    def outlook(client_id: str, language: str = "de", basis: str = "nominal") -> dict[str, Any]:
+        """lbsim's findings, paths and plan state for the client's newest sheet, in one language and without ids;
+        the plan's ``engine_run`` is refreshed first."""
+        return guard(service.outlook, client_id, language, basis)
+
+    @app.post("/api/clients/{client_id}/outlook", tags=["outlook"])
+    def run_outlook(client_id: str, body: Optional[OutlookRun] = Body(default=None), language: str = "de",
+                    basis: str = "nominal") -> dict[str, Any]:
+        """Ask lbsim now for the newest sheet and the base-Regime Allocation of the current parameter set. With
+        ``{"curator_id": ...}`` the runs are recorded as that curator's (403 unless in service); ``optimise: "now"``
+        asks for a priority plan run. Answers the outlook as the GET does, with ``recorded``: what was recorded."""
+        recorded = guard(service.run_outlook, client_id, curator_id=body.curator_id if body else None,
+                         optimise=body.optimise if body else None)
+        return {**guard(service.outlook, client_id, language, basis), "recorded": recorded}
 
     # ---- threads ---------------------------------------------------------------------------------
 

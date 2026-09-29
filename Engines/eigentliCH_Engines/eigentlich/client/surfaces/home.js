@@ -7,6 +7,7 @@ import { api, detailText } from '../app/api.js';
 import { amount, button, clear, h, notice, when, put } from '../app/dom.js';
 import { t } from '../app/i18n.js';
 import { basisLabel, basisSwitch, currentBasis, pct } from '../app/basis.js';
+import { chanceWords, planSentence } from './outlook.js';
 
 export function showValue(value, L) {
   if (value === null || value === undefined) return '';
@@ -242,6 +243,25 @@ export async function render(main, { language, client, go }) {
     put(sheetBox, h('div', { class: 'actions' }, [run]));
   }
   drawSheet(data.balance_sheet);
+
+  // -- the outlook (lbsim, EIG-68): the designated goal's chance in words, the top three actions, the plan's state
+  const card = data.outlook || {};
+  const outlookBox = h('div', { class: 'card' }, [h('div', { class: 'row' }, [
+    h('h2', { class: 'grow', text: t('home.outlook_title', L) }), button(t('home.open', L), { onClick: () => go('#/outlook') })])]);
+  if (card.available) {
+    if (card.goal) {
+      put(outlookBox, h('p', { class: 'outlook-chance', text: `${chanceWords(card.goal.chance, L)} ${t('home.outlook_goal', L, { goal: card.goal.name || t('gap.this_goal', L) })}` }),
+        h('p', { class: 'small muted', text: t(card.goal.chance_basis === 'real' ? 'outlook.judged_real' : 'outlook.judged_nominal', L) }));
+    }
+    if (card.actions && card.actions.length) {
+      put(outlookBox, h('h3', { text: t('home.outlook_actions', L) }),
+        h('ol', {}, card.actions.map((a) => h('li', {}, [h('strong', { text: a.title }), h('span', { class: 'small', text: ` ${a.action}` })]))));
+    }
+    put(outlookBox, h('p', { class: 'small', text: planSentence(card.plan, L) }));
+  } else {
+    put(outlookBox, h('p', { class: 'muted', text: t(`outlook.reason_${card.reason || 'not_run'}`, L) }));
+  }
+  put(main, outlookBox);
 
   // -- what is answered
   put(main, h('h2', { text: t('home.answered_title', L) }));

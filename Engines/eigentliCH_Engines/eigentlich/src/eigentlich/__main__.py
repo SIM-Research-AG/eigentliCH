@@ -1,5 +1,5 @@
 """``python -m eigentlich init-db | seed | migrate [--from PATH] | show | serve | align-content | revise-content |
-fix-encoding | lbs-backfill``.
+fix-encoding | lbs-backfill | lbsim-backfill``.
 
 ``init-db``  create the tables, functions, triggers and views in the configured schema (idempotent).
 ``seed``     write content version 1 from the prototype's questionnaires, scoring maps, reference content
@@ -12,11 +12,14 @@ fix-encoding | lbs-backfill``.
              that curator (EIG-44, EIG-45); nothing when already aligned. Prints the bind check.
 ``revise-content --curator ID|EMAIL``  save the intake with the partner section and without ``hours_learning``
              as a new version by that curator (EIG-53, EIG-58), and the onboarding with the nominal and real
-             view's two questions (EIG-60, EIG-61); nothing when already done.
+             view's two questions (EIG-60, EIG-61), and the intake with lbsim's earning-power questions for the
+             principal and the partner (EIG-65); nothing when already done.
 ``fix-encoding [--apply]``  list the migrated texts that are UTF-8 read as a code page and, with ``--apply``,
              correct them (EIG-46). Without ``--apply`` nothing is written.
 ``lbs-backfill [--limit N] [--dry-run]``  one lbs run for every client without a successful one (EIG-47).
              Refuses to start when lbs does not answer (exit 1, nothing written).
+``lbsim-backfill [--limit N] [--dry-run]``  one lbsim run for every client whose newest sheet has no successful
+             one (EIG-67). Refuses to start when lbsim does not answer (exit 1, nothing written).
 """
 
 from __future__ import annotations
@@ -53,9 +56,12 @@ def main(argv: list[str] | None = None) -> int:
     b = sub.add_parser("lbs-backfill")
     b.add_argument("--limit", type=int, default=None)
     b.add_argument("--dry-run", action="store_true", help="count the clients, run nothing")
+    bs = sub.add_parser("lbsim-backfill")
+    bs.add_argument("--limit", type=int, default=None)
+    bs.add_argument("--dry-run", action="store_true", help="count the clients, run nothing")
     args = parser.parse_args(argv)
 
-    if args.command == "lbs-backfill":
+    if args.command in ("lbs-backfill", "lbsim-backfill"):
         return _backfill(args)
 
     if args.command == "serve":
@@ -122,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.command in ("align-content", "revise-content"):
-            from .alignment import align, revise, revise_basis
+            from .alignment import align, revise, revise_basis, revise_earning
             with st.session() as conn:
                 row = conn.execute("SELECT id FROM curator WHERE id = %s OR email = %s", (args.curator, args.curator)).fetchone()
                 if row is None:
@@ -133,7 +139,12 @@ def main(argv: list[str] | None = None) -> int:
                 else:
                     report = revise(conn, curator_id=row["id"])
                     basis = revise_basis(conn, curator_id=row["id"])
-                    report = {"saved": {**report["saved"], **basis["saved"]}, "binds": basis["binds"]}
+                    earning = revise_earning(conn, curator_id=row["id"])
+                    report = {"saved": {**report["saved"], **basis["saved"]}, "binds": earning["binds"]}
+                    # the intake is revised twice (the partner section, then earning power): report its last save
+                    for key, r in earning["saved"].items():
+                        if r["status"] == "saved" or report["saved"].get(key, {}).get("status") != "saved":
+                            report["saved"][key] = r
                 mismatches = conn.execute("SELECT scoring_key, question_key, option_value, status FROM scoring_bind_check "
                                           "WHERE status <> 'ok' ORDER BY scoring_key, bind_index").fetchall()
             for key, r in report["saved"].items():
@@ -191,7 +202,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _backfill(args) -> int:
     from .appsettings import load_app
-    from .clients import ChatbotClient, EngineUnavailable, LbsClient, ReportClient
+    from .clients import ChatbotClient, EngineUnavailable, LbsClient, LbsimClient, ReportClient
     from .service import Service
     from .store import Store as _Store
 
@@ -203,17 +214,21 @@ def _backfill(args) -> int:
     t = cfg.timeouts
     service = Service(cfg, _Store(cfg.store.database), LbsClient(cfg.lbs_url, t.lbs_s, t.connect_s),
                       ChatbotClient(cfg.chatbot_url, t.chatbot_s, t.connect_s),
-                      ReportClient(cfg.report_url, t.report_s, t.connect_s), workers=1)
-    print(f"store: {cfg.store.database.redacted_url()}  lbs: {cfg.lbs_url}")
+                      ReportClient(cfg.report_url, t.report_s, t.connect_s), workers=1,
+                      lbsim=LbsimClient(cfg.lbsim_url, t.lbsim_s, t.connect_s))
+    sim = args.command == "lbsim-backfill"
+    print(f"store: {cfg.store.database.redacted_url()}  " + (f"lbsim: {cfg.lbsim_url}" if sim else f"lbs: {cfg.lbs_url}"))
     try:
-        result = service.lbs_backfill(limit=args.limit, dry_run=args.dry_run, progress=print)
+        run = service.lbsim_backfill if sim else service.lbs_backfill
+        result = run(limit=args.limit, dry_run=args.dry_run, progress=print)
     except EngineUnavailable as exc:
-        print(f"lbs-backfill: {exc}", file=sys.stderr)
+        print(f"{args.command}: {exc}", file=sys.stderr)
         return 1
     finally:
         service.close()
     if result["dry_run"]:
-        print(f"{result['clients']} clients have no balance sheet yet; nothing run (dry run)")
+        what = "newest sheet has no outlook yet" if sim else "have no balance sheet yet"
+        print(f"{result['clients']} clients: {what}; nothing run (dry run)")
         return 0
     print(f"{result['clients']} clients: {len(result['succeeded'])} succeeded, {len(result['failed'])} failed")
     return 0 if not result["failed"] else 1

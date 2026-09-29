@@ -1,7 +1,8 @@
 """Stand-in engines and app helpers for the app tests.
 
 The stand-ins answer in the shapes of the real contracts (``lbs-balance-sheet@1.0.0``, ``chat-answer@1.0.0``,
-``report@1.0.0``), record every request they receive, and can be switched off (``down = True``: the
+``report@1.0.0``, lbsim's ``RunAccepted``, ``RunStatus`` and outlook on its frozen samples in ``fixtures/lbsim``),
+record every request they receive, and can be switched off (``down = True``: the
 connection is refused, as for an engine that is not running) or made to refuse (``refuse = True``: 422).
 Each serves through ``httpx.MockTransport`` (as pcp's tests do) or on a real socket (``serve``).
 """
@@ -15,6 +16,9 @@ import threading
 import time
 from contextlib import contextmanager
 from typing import Any, Callable, Iterator, Optional
+
+import copy
+from pathlib import Path
 
 import anyio
 import httpx
@@ -44,15 +48,17 @@ class StandIn:
     def handle(self, method: str, path: str, body: Any) -> tuple[int, Any]:  # pragma: no cover - overridden
         raise NotImplementedError
 
-    def _dispatch(self, method: str, path: str, body: Any) -> tuple[int, Any]:
+    def _dispatch(self, method: str, path: str, body: Any, query: Optional[dict[str, str]] = None) -> tuple[int, Any]:
         if path == "/health":
             return 200, {"status": "ok", "engine": self.engine, "engine_version": f"{self.engine}@stand-in"}
         with self.lock:
-            self.requests.append({"method": method, "path": path, "body": body})
+            self.requests.append({"method": method, "path": path, "body": body, "query": dict(query or {})})
         if self.delay_s:
             time.sleep(self.delay_s)
         if self.refuse:
             return 422, {"detail": f"{self.engine} stand-in refuses"}
+        if getattr(self, "wants_query", False):
+            return self.handle(method, path, body, dict(query or {}))
         return self.handle(method, path, body)
 
     def transport(self) -> httpx.MockTransport:
@@ -60,7 +66,7 @@ class StandIn:
             if self.down:
                 raise httpx.ConnectError("connection refused (stand-in down)", request=request)
             body = json.loads(request.content) if request.content else None
-            status, payload = self._dispatch(request.method, request.url.path, body)
+            status, payload = self._dispatch(request.method, request.url.path, body, dict(request.url.params))
             return httpx.Response(status, json=payload)
         return httpx.MockTransport(handler)
 
@@ -72,7 +78,8 @@ class StandIn:
         async def any_route(path: str, request: Request):
             raw = await request.body()
             body = json.loads(raw) if raw else None
-            status, payload = await anyio.to_thread.run_sync(self._dispatch, request.method, "/" + path, body)
+            status, payload = await anyio.to_thread.run_sync(self._dispatch, request.method, "/" + path, body,
+                                                             dict(request.query_params))
             return JSONResponse(payload, status_code=status)
         return app
 
@@ -240,13 +247,153 @@ class Aggregation(StandIn):
         return 404, {"detail": "no route"}
 
 
+SAMPLES = Path(__file__).resolve().parent / "fixtures" / "lbsim"
+
+
+def _sample(name: str) -> dict[str, Any]:
+    return json.loads((SAMPLES / f"{name}.sample.json").read_text(encoding="utf-8"))
+
+
+class Lbsim(StandIn):
+    """lbsim on B1's frozen samples (``fixtures/lbsim``, copied from ``engines/lbsim/golden/samples``): ``POST /run``
+    makes findings (and paths with an Allocation) for the sheet asked, with the sample's two goals renamed to the
+    first two goals of the lbs request that made the sheet; a plan run is queued unless ``optimise: "no"``;
+    ``finish(run_id)`` ends it (``succeeded`` writes the sample plan). ``GET /outlook`` answers as lbsim does."""
+    engine = "lbsim"
+    wants_query = True
+
+    def __init__(self, lbs: "Lbs") -> None:
+        super().__init__()
+        self.lbs = lbs
+        self.outlooks: dict[tuple[str, str], dict[str, Any]] = {}
+        self.runs: dict[str, dict[str, Any]] = {}
+        self.plans: dict[str, dict[str, Any]] = {}
+
+    def _goals(self, sheet_id: str) -> dict[str, str]:
+        request = next((r["body"] for r in self.lbs.requests if r["path"] == "/run"
+                        and _id("LBS", r["body"]) == sheet_id), None)
+        ids = [g["goal_id"] for g in (request or {}).get("goals") or []]
+        return {sample: mine for sample, mine in zip(("g-home", "g-ret"), ids)}
+
+    @staticmethod
+    def _rename(payload: Any, names: dict[str, str]) -> Any:
+        text = json.dumps(payload)
+        for old, new in names.items():
+            text = text.replace(f'"{old}"', f'"{new}"')
+        return json.loads(text)
+
+    def _plan_run(self, paths: dict[str, Any], requested_by: dict[str, Any]) -> str:
+        for rid, run in self.runs.items():
+            if run["kind"] == "plan" and run["paths"] == paths["artefact_id"] and run["status"] in ("queued", "running", "succeeded"):
+                return rid
+        rid = _id("RUN", ["plan", paths["artefact_id"], len(self.runs)])
+        self.runs[rid] = {"kind": "plan", "status": "queued", "paths": paths["artefact_id"], "requested_by": requested_by,
+                          "artefact_ids": [], "failure_kind": None, "error": None,
+                          "client_ref": paths["client_ref"], "sheet": paths["life_balance_sheet_id"]}
+        return rid
+
+    def finish(self, run_id: str, status: str = "succeeded", failure_kind: Optional[str] = None) -> None:
+        run = self.runs[run_id]
+        run["status"] = status
+        if status == "succeeded":
+            out = self.outlooks[(run["client_ref"], run["sheet"])]
+            plan = copy.deepcopy(_sample("plan"))
+            plan.update(client_ref=run["client_ref"], life_balance_sheet_id=run["sheet"],
+                        paths_artefact_id=run["paths"], artefact_id=_id("LSO", run["paths"]))
+            plan = self._rename(plan, out["names"])
+            self.plans[plan["artefact_id"]] = plan
+            run["artefact_ids"] = [plan["artefact_id"]]
+        elif status == "failed":
+            run["failure_kind"], run["error"] = failure_kind or "solver", "the solver did not converge"
+
+    def _status(self, rid: str) -> dict[str, Any]:
+        run = self.runs[rid]
+        return {"run_id": rid, "kind": run["kind"], "status": run["status"], "failure_kind": run["failure_kind"],
+                "idempotency_key": _id("IDK", rid), "requested_by": run["requested_by"],
+                "queued_at": "2026-09-29T10:00:00Z", "started_at": "2026-09-29T10:00:05Z"
+                if run["status"] != "queued" else None, "finished_at": None, "budget_s": 7200.0,
+                "request": {}, "artefact_ids": run["artefact_ids"], "error": run["error"]}
+
+    def handle(self, method, path, body, query):
+        if method == "POST" and path == "/run":
+            assert body["contract_version"] == "lbsim-request@1.0.0"
+            sheet, client = body["life_balance_sheet_id"], body["client_ref"]
+            names = self._goals(sheet)
+            findings = copy.deepcopy(_sample("findings"))
+            findings.update(artefact_id=_id("LSF", sheet), client_ref=client, life_balance_sheet_id=sheet)
+            findings = self._rename(findings, names)
+            paths = None
+            not_made = []
+            if body.get("allocation_id"):
+                paths = copy.deepcopy(_sample("paths"))
+                paths.update(artefact_id=_id("LSP", [sheet, body["allocation_id"]]), client_ref=client,
+                             life_balance_sheet_id=sheet, findings_artefact_id=findings["artefact_id"],
+                             allocation_id=body["allocation_id"])
+                paths["allocation_view"]["allocation_id"] = body["allocation_id"]
+                paths = self._rename(paths, names)
+            else:
+                not_made.append({"artefact": "paths", "reason": "no_allocation",
+                                 "text": {"de": "Noch keine Allokation.", "en": "No allocation yet."}})
+            rid = _id("RUN", ["outlook", sheet, len(self.requests)])
+            self.runs[rid] = {"kind": "outlook", "status": "succeeded", "paths": None, "requested_by": {"kind": "system", "ref": "run"},
+                              "artefact_ids": [findings["artefact_id"]] + ([paths["artefact_id"]] if paths else []),
+                              "failure_kind": None, "error": None, "client_ref": client, "sheet": sheet}
+            plan_rid = None
+            if paths and body.get("optimise", "background") == "background":
+                plan_rid = self._plan_run(paths, {"kind": "system", "ref": "run"})
+            self.outlooks[(client, sheet)] = {"findings": findings, "paths": paths, "names": names, "at": time.time()}
+            return 200, {"run_id": rid, "kind": "outlook", "status": "succeeded", "idempotency_key": _id("IDK", sheet),
+                         "cached": False, "findings_artefact_id": findings["artefact_id"],
+                         "paths_artefact_id": paths["artefact_id"] if paths else None, "plan_run_id": plan_rid,
+                         "not_made": not_made}
+        if method == "POST" and path == "/optimise":
+            assert body["contract_version"] == "lbsim-optimise@1.0.0"
+            out = next((o for o in self.outlooks.values() if o["paths"] and o["paths"]["artefact_id"] == body["paths_artefact_id"]), None)
+            if out is None:
+                return 404, {"detail": "lbsim has no such paths."}
+            rid = self._plan_run(out["paths"], body["requested_by"])
+            run = self.runs[rid]
+            return 200, {"run_id": rid, "kind": "plan", "status": run["status"], "idempotency_key": _id("IDK", rid),
+                         "cached": run["status"] == "succeeded", "findings_artefact_id": out["findings"]["artefact_id"],
+                         "paths_artefact_id": out["paths"]["artefact_id"], "plan_run_id": rid, "not_made": []}
+        if method == "GET" and path.startswith("/runs/"):
+            rid = path.rsplit("/", 1)[1]
+            return (200, self._status(rid)) if rid in self.runs else (404, {"detail": "lbsim has no such run."})
+        if method == "GET" and path == "/outlook":
+            client, sheet = query.get("client_ref"), query.get("life_balance_sheet_id")
+            out = self.outlooks.get((client, sheet))
+            if out is None:
+                return 404, {"detail": "lbsim has no outlook for this Life Balance Sheet yet."}
+            plan: dict[str, Any]
+            if out["paths"] is None:
+                plan = {"state": "waiting_for_allocation", "reason": {"de": "Die Planrechnung wartet auf eine Allokation.",
+                                                                      "en": "The plan calculation waits for an allocation."}}
+            else:
+                runs = [(rid, r) for rid, r in self.runs.items() if r["kind"] == "plan" and r["paths"] == out["paths"]["artefact_id"]]
+                done = next(((rid, r) for rid, r in runs if r["status"] == "succeeded"), None)
+                active = next(((rid, r) for rid, r in runs if r["status"] in ("queued", "running")), None)
+                if done:
+                    plan = {"state": "ready", "run": self._status(done[0]), "artefact": self.plans[done[1]["artefact_ids"][0]]}
+                elif active:
+                    plan = {"state": "calculating", "run": self._status(active[0]), "elapsed_s": 600.0, "budget_s": 7200.0}
+                elif runs:
+                    plan = {"state": "not_possible", "run": self._status(runs[-1][0]),
+                            "reason": {"de": "Die Planrechnung kam zu keinem Ergebnis.", "en": "The plan calculation found no result."}}
+                else:
+                    plan = {"state": "not_requested", "reason": {"de": "Keine Planrechnung verlangt.", "en": "No plan calculation asked for."}}
+            return 200, {"client_ref": client, "life_balance_sheet_id": sheet, "findings": out["findings"],
+                         "paths": out["paths"], "plan": plan}
+        return 404, {"detail": "no route"}
+
+
 class Engines:
     def __init__(self) -> None:
         self.lbs, self.chatbot, self.report = Lbs(), Chatbot(), Report()
         self.aggregation = Aggregation()
+        self.lbsim = Lbsim(self.lbs)
 
     def reset(self) -> None:
-        for e in (self.lbs, self.chatbot, self.report, self.aggregation):
+        for e in (self.lbs, self.chatbot, self.report, self.aggregation, self.lbsim):
             e.down = e.refuse = False
             e.delay_s = 0.0
         self.chatbot.unverified = []
@@ -256,17 +403,20 @@ class Engines:
         self.aggregation.scenarios = []
 
 
-def app_settings(store: Settings, lbs_auto: Optional[dict[str, Any]] = None, **urls: str) -> AppSettings:
-    """The automatic lbs runs (EIG-47) are off unless a test asks for them: a run firing in the background
-    of another test would change what that test counts."""
-    return load_app(store=store, overrides={**urls, "lbs_auto": lbs_auto or {"enabled": False}})
+def app_settings(store: Settings, lbs_auto: Optional[dict[str, Any]] = None,
+                 lbsim_auto: Optional[dict[str, Any]] = None, **urls: str) -> AppSettings:
+    """The automatic lbs runs (EIG-47) and lbsim runs (EIG-67) are off unless a test asks for them: a run firing
+    in the background of another test would change what that test counts."""
+    return load_app(store=store, overrides={**urls, "lbs_auto": lbs_auto or {"enabled": False},
+                                            "lbsim_auto": lbsim_auto or {"enabled": False}})
 
 
-def make_app(store: Settings, engines: Engines, lbs_auto: Optional[dict[str, Any]] = None):
+def make_app(store: Settings, engines: Engines, lbs_auto: Optional[dict[str, Any]] = None,
+             lbsim_auto: Optional[dict[str, Any]] = None):
     from eigentlich.api import create_app
-    return create_app(app_settings(store, lbs_auto), lbs_transport=engines.lbs.transport(),
+    return create_app(app_settings(store, lbs_auto, lbsim_auto), lbs_transport=engines.lbs.transport(),
                       chatbot_transport=engines.chatbot.transport(), report_transport=engines.report.transport(),
-                      aggregation_transport=engines.aggregation.transport())
+                      aggregation_transport=engines.aggregation.transport(), lbsim_transport=engines.lbsim.transport())
 
 
 def free_port() -> int:

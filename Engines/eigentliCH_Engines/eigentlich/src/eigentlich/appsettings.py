@@ -5,7 +5,7 @@ Precedence, lowest to highest, as for the store::
     config.yaml  <  config.local.yaml  <  EIGENTLICH_APP_* / EIGENTLICH_*_URL  <  overrides
 
 The store's own settings (``settings.load``) are read unchanged; this module only adds what the app needs:
-where it listens and where the three engines it calls are.
+where it listens and where the engines it calls are.
 """
 
 from __future__ import annotations
@@ -22,6 +22,8 @@ from .settings import PREFIX, ROOT, ConfigError, Settings, _deep_merge, _read_ya
 class Timeouts:
     connect_s: float = 5.0
     lbs_s: float = 60.0
+    #: lbsim's POST /run computes the findings and the paths before it answers (budget 30 s, EIG-66).
+    lbsim_s: float = 60.0
     chatbot_s: float = 330.0
     report_s: float = 330.0
     aggregation_s: float = 10.0
@@ -46,12 +48,21 @@ class LbsAuto:
 
 
 @dataclass(frozen=True)
+class LbsimAuto:
+    """lbsim after a new sheet (EIG-67): on a new sheet id only; and the report update once the plan is there."""
+    enabled: bool = True
+    #: When the plan calculation finishes after a report that drew on its paths, ask the update that carries it.
+    report_update: bool = True
+
+
+@dataclass(frozen=True)
 class AppSettings:
     store: Settings
     host: str = "127.0.0.1"
     port: int = 8017
     cors_origins: tuple[str, ...] = ()
     lbs_url: str = "http://127.0.0.1:8013"
+    lbsim_url: str = "http://127.0.0.1:8014"
     chatbot_url: str = "http://127.0.0.1:8016"
     report_url: str = "http://127.0.0.1:8015"
     #: Asked only which Regimes are scenarios, when a report takes a pcp allocation (EIG-63).
@@ -59,14 +70,15 @@ class AppSettings:
     timeouts: Timeouts = field(default_factory=Timeouts)
     grounding: Grounding = field(default_factory=Grounding)
     lbs_auto: LbsAuto = field(default_factory=LbsAuto)
+    lbsim_auto: LbsimAuto = field(default_factory=LbsimAuto)
 
     def describe(self) -> dict[str, Any]:
         """Safe to publish: no password."""
         return {"host": self.host, "port": self.port, "cors_origins": list(self.cors_origins),
-                "engines": {"lbs": self.lbs_url, "chatbot": self.chatbot_url, "report": self.report_url,
+                "engines": {"lbs": self.lbs_url, "lbsim": self.lbsim_url, "chatbot": self.chatbot_url, "report": self.report_url,
                             "aggregation": self.aggregation_url},
                 "timeouts": self.timeouts.__dict__, "grounding": self.grounding.__dict__,
-                "lbs_auto": self.lbs_auto.__dict__,
+                "lbs_auto": self.lbs_auto.__dict__, "lbsim_auto": self.lbsim_auto.__dict__,
                 "store": self.store.database.describe()}
 
 
@@ -74,6 +86,7 @@ _ENV = {
     f"{PREFIX}APP_HOST": ("host", str),
     f"{PREFIX}APP_PORT": ("port", int),
     f"{PREFIX}LBS_URL": ("lbs_url", str),
+    f"{PREFIX}LBSIM_URL": ("lbsim_url", str),
     f"{PREFIX}CHATBOT_URL": ("chatbot_url", str),
     f"{PREFIX}REPORT_URL": ("report_url", str),
     f"{PREFIX}AGGREGATION_URL": ("aggregation_url", str),
@@ -100,23 +113,25 @@ def load_app(path: Optional[Path] = None, overrides: Optional[Mapping[str, Any]]
     if overrides:
         app = _deep_merge(app, overrides)
 
-    known = {"host", "port", "cors_origins", "lbs_url", "chatbot_url", "report_url", "aggregation_url", "timeouts",
-             "grounding", "lbs_auto"}
+    known = {"host", "port", "cors_origins", "lbs_url", "lbsim_url", "chatbot_url", "report_url", "aggregation_url",
+             "timeouts", "grounding", "lbs_auto", "lbsim_auto"}
     extra = set(app) - known
     if extra:
         raise ConfigError(f"unknown app keys: {sorted(extra)}")
     timeouts = dict(app.pop("timeouts", None) or {})
     grounding = dict(app.pop("grounding", None) or {})
     auto = dict(app.pop("lbs_auto", None) or {})
+    sim_auto = dict(app.pop("lbsim_auto", None) or {})
     try:
         t = replace(Timeouts(), **{k: float(v) for k, v in timeouts.items()})
         g = replace(Grounding(), **{k: int(v) for k, v in grounding.items()})
         a = replace(LbsAuto(), **{k: (bool(v) if k == "enabled" else float(v)) for k, v in auto.items()})
+        sa = replace(LbsimAuto(), **{k: bool(v) for k, v in sim_auto.items()})
     except TypeError as exc:
-        raise ConfigError(f"app.timeouts, app.grounding or app.lbs_auto: {exc}") from exc
+        raise ConfigError(f"app.timeouts, app.grounding, app.lbs_auto or app.lbsim_auto: {exc}") from exc
     if a.debounce_s < 0:
         raise ConfigError("app.lbs_auto.debounce_s is not negative")
-    for key in ("lbs_url", "chatbot_url", "report_url", "aggregation_url"):
+    for key in ("lbs_url", "lbsim_url", "chatbot_url", "report_url", "aggregation_url"):
         if key in app:
             app[key] = str(app[key]).rstrip("/")
     port = int(app.pop("port", 8017))
@@ -124,4 +139,4 @@ def load_app(path: Optional[Path] = None, overrides: Optional[Mapping[str, Any]]
         raise ConfigError(f"port {port} belongs to an engine (8000-8016); the app listens on 8017")
     return AppSettings(store=store or load(path), port=port,
                        cors_origins=tuple(app.pop("cors_origins", None) or ()),
-                       timeouts=t, grounding=g, lbs_auto=a, **app)
+                       timeouts=t, grounding=g, lbs_auto=a, lbsim_auto=sa, **app)

@@ -24,6 +24,11 @@ builds is refused here, with the field named, before it is sent. Inbound artefac
 * ``aggregation`` ``GET /scenarios`` in (``ScenarioListed``, partial): which Regimes are scenarios, so a report
                takes the allocation of the base Regime unless a scenario is asked for (EIG-63). Mirrored from
                ``Macro/engines/aggregation/src/aggregation/contracts.py`` of 29.09.2026.
+* ``lbsim``    ``lbsim-request@1.0.0`` and ``lbsim-optimise@1.0.0`` out; ``RunAccepted``, ``RunStatus`` and the outlook
+               (``GET /outlook``, partial: the plan state and the artefacts' ids and sheet; the page reads the rest as
+               published) in. Mirrored from ``engines/lbsim/src/lbsim/contracts.py`` of 29.09.2026 (EIG-66). With it,
+               lbs@1.4.0's optional ``persons[].earning_power`` and the six new ``facts`` (LBS-39), sent only when
+               stated (EIG-65), and the report's ``lbsim`` sources, one per artefact kind (report 1.4.0, REP-32).
 """
 
 from __future__ import annotations
@@ -41,6 +46,11 @@ CONTRACT_VERSIONS: dict[str, str] = {
     "ChatAnswer(chatbot)": "chat-answer@1.0.0",
     "ReportRequest(report)": "report-request@1.0.0",
     "Report(report)": "report@1.0.0",
+    "LifeBalanceSimRequest(lbsim)": "lbsim-request@1.0.0",
+    "OptimiseRequest(lbsim)": "lbsim-optimise@1.0.0",
+    "LifeBalanceFindings(lbsim)": "lbsim-findings@1.0.0",
+    "LifeBalancePaths(lbsim)": "lbsim-paths@1.0.0",
+    "LifeBalancePlan(lbsim)": "lbsim-plan@1.0.0",
 }
 
 NOTICE = "Model-derived research output. Not investment advice."
@@ -88,6 +98,31 @@ class AhvFacts(_Out):
     contribution_years_missing: Optional[int] = Field(default=None, ge=0)
 
 
+class EarningPowerAnswers(_Out):
+    """lbs@1.4.0 (LBS-39): the answers lbsim reads for earning power and the income paths, per adult. Validated by
+    lbs, computed by lbsim. Each is sent only when stated (EIG-65)."""
+    expected_full_pensum_income: Optional[float] = Field(default=None, ge=0)
+    #: A tier of lbs's ``human-capital.responsibility.tiers``, by its key or its German or English label.
+    responsibility: Optional[str] = Field(default=None, min_length=1)
+    sector: Optional[str] = Field(default=None, min_length=1)
+    education_status: Optional[Literal["none", "in_progress", "planned"]] = None
+    education_end_year: Optional[int] = Field(default=None, ge=2000, le=2100)
+    #: A band string ("3–5") or a number of hours.
+    education_hours: Optional[Union[float, str]] = None
+    education_budget_per_year: Optional[float] = Field(default=None, ge=0)
+    #: K3 data: cannot be stated while ``human_capital.health_withheld`` is true (lbs refuses it, 422).
+    health_work_capacity: Optional[float] = Field(default=None, ge=0, le=1)
+
+    @model_validator(mode="after")
+    def _education(self) -> "EarningPowerAnswers":
+        if self.education_status == "none" and self.education_end_year is not None:
+            raise ValueError("earning_power states no education but an education end year")
+        return self
+
+    def stated(self) -> bool:
+        return any(v is not None for v in self.model_dump().values())
+
+
 class LbsPerson(_Out):
     person_id: str
     kind: Literal["adult", "dependant"]
@@ -95,11 +130,23 @@ class LbsPerson(_Out):
     stated_gross_income: Optional[float] = Field(default=None, ge=0)
     human_capital: HumanCapitalAnswers = Field(default_factory=HumanCapitalAnswers)
     ahv: AhvFacts = Field(default_factory=AhvFacts)
+    #: lbs@1.4.0 (LBS-39), adults only, sent only when some answer is stated (EIG-65).
+    earning_power: Optional[EarningPowerAnswers] = None
 
     @field_validator("person_id")
     @classmethod
     def _pid(cls, v: str) -> str:
         return _opaque(v, "person_id")
+
+    @model_validator(mode="after")
+    def _earning(self) -> "LbsPerson":
+        if self.earning_power is None:
+            return self
+        if self.kind != "adult":
+            raise ValueError(f"person {self.person_id} is a dependant; earning power is asked of adults only")
+        if self.human_capital.health_withheld and self.earning_power.health_work_capacity is not None:
+            raise ValueError(f"person {self.person_id}: health is withheld (K3), so health_work_capacity is not sent")
+        return self
 
 
 class LbsHousehold(_Out):
@@ -151,6 +198,26 @@ class LbsFacts(_Out):
     canton: Optional[str] = None
     civil_status: Optional[str] = None
     has_no_liabilities: bool = False
+    # lbs@1.4.0 (LBS-39), optional and additive, each sent only when stated (EIG-65): the facts lbsim's findings read.
+    stop_work_age: Optional[float] = Field(default=None, ge=40, le=75)
+    #: The legal documents in place, by name; an empty tuple is a stated "none", unset is unanswered.
+    legal_documents: Optional[tuple[str, ...]] = None
+    mortgage_fixed_until: Optional[date] = None
+    amortisation_mode: Optional[Literal["direct", "indirect"]] = None
+    own_use_share: Optional[float] = Field(default=None, ge=0, le=1)
+    pillar3a_contribution_per_year: Optional[float] = Field(default=None, ge=0)
+
+    @field_validator("legal_documents")
+    @classmethod
+    def _documents(cls, value: Optional[tuple[str, ...]]) -> Optional[tuple[str, ...]]:
+        if value is not None and (any(not d.strip() for d in value) or len(set(value)) != len(value)):
+            raise ValueError("facts.legal_documents names an empty document or one twice")
+        return value
+
+
+#: The facts lbs@1.4.0 added (LBS-39): each left out of the request while unset.
+FACTS_ADDED = ("stop_work_age", "legal_documents", "mortgage_fixed_until", "amortisation_mode", "own_use_share",
+               "pillar3a_contribution_per_year")
 
 
 class LbsRisk(_Out):
@@ -330,9 +397,21 @@ class ChatAnswer(_In):
 # report
 # ---------------------------------------------------------------------------
 
+#: lbsim's artefact kinds by the prefix of their id (report REP-32): at most one source per engine and kind.
+LBSIM_KINDS = {"LSF": "findings", "LSP": "paths", "LSO": "plan"}
+
+
 class SourceRef(_Out):
-    engine: Literal["pcp", "lbs"]
+    engine: Literal["pcp", "lbs", "lbsim"]
     artefact_id: str = Field(min_length=1, max_length=80)
+
+    def kind(self) -> str:
+        if self.engine != "lbsim":
+            return self.engine
+        kind = LBSIM_KINDS.get(self.artefact_id.split("-", 1)[0])
+        if kind is None:
+            raise ValueError(f"an lbsim source is a findings, paths or plan artefact, not {self.artefact_id!r}")
+        return f"lbsim.{kind}"
 
 
 class ReportRequest(_Out):
@@ -361,6 +440,9 @@ class ReportRequest(_Out):
     def _revision(self) -> "ReportRequest":
         if self.revision_note is not None and (not self.revision_note.strip() or self.revision_of is None):
             raise ValueError("a revision_note belongs to a revision (revision_of) and is not blank")
+        kinds = [s.kind() for s in self.sources]
+        if len(set(kinds)) != len(kinds):
+            raise ValueError("a report draws on at most one source per engine and artefact kind")
         return self
 
 
@@ -388,6 +470,129 @@ class ScenarioListed(_In):
     regime_id: str
     policy: str
     base_regime_id: str
+
+
+# ---------------------------------------------------------------------------
+# lbsim (Engine 14): the request strictly, what comes back partially (EIG-66)
+# ---------------------------------------------------------------------------
+
+_LBS_SHEET = r"^LBS-[0-9a-f]{16}$"
+_PCP_ALLOCATION = r"^PCP-[0-9a-f]{16}$"
+
+
+class LbsimRequest(_Out):
+    """``lbsim-request@1.0.0``, the body of lbsim's ``POST /run``: the client's newest sheet and the base-Regime
+    Allocation of the current parameter set; everything else lbsim resolves (LBSIM-18, the defaults of 3.1)."""
+    contract_version: Literal["lbsim-request@1.0.0"] = "lbsim-request@1.0.0"
+    client_ref: str
+    life_balance_sheet_id: str = Field(pattern=_LBS_SHEET)
+    allocation_id: Optional[str] = Field(default=None, pattern=_PCP_ALLOCATION)
+    scenarios: Optional[tuple[Literal["depression", "hyperinflation", "stagflation", "deferral"], ...]] = None
+    horizon_years: Optional[float] = Field(default=None, ge=1, le=60)
+    income_path: Optional[Literal["today", "education", "full_pensum", "network"]] = None
+    n_paths: Optional[int] = Field(default=None, ge=200, le=20_000)
+    seed: Optional[int] = Field(default=None, ge=0, le=2**31 - 1)
+    optimise: Literal["background", "no"] = "background"
+    calibration_version: Optional[str] = None
+
+    @field_validator("client_ref")
+    @classmethod
+    def _ref(cls, v: str) -> str:
+        return _opaque(v, "client_ref")
+
+
+class LbsimRequestedBy(_Out):
+    kind: Literal["client", "curator", "system"]
+    ref: Optional[str] = None
+
+
+class LbsimOptimise(_Out):
+    """``lbsim-optimise@1.0.0``: a plan run on demand; a curator's goes ahead of the others."""
+    contract_version: Literal["lbsim-optimise@1.0.0"] = "lbsim-optimise@1.0.0"
+    paths_artefact_id: str = Field(pattern=r"^LSP-[0-9a-f]{16}$")
+    seed: Optional[int] = Field(default=None, ge=0, le=2**31 - 1)
+    requested_by: LbsimRequestedBy
+
+
+class LbsimNotMade(_In):
+    artefact: str
+    reason: str
+    text: dict[str, str] = Field(default_factory=dict)
+
+
+class LbsimRunAccepted(_In):
+    run_id: str
+    kind: Literal["outlook", "plan"]
+    status: Literal["queued", "running", "succeeded", "failed"]
+    idempotency_key: str
+    cached: bool
+    findings_artefact_id: Optional[str] = None
+    paths_artefact_id: Optional[str] = None
+    plan_run_id: Optional[str] = None
+    not_made: tuple[LbsimNotMade, ...] = ()
+
+
+class LbsimRunStatus(_In):
+    run_id: str
+    kind: Literal["outlook", "plan"]
+    status: Literal["queued", "running", "succeeded", "failed"]
+    failure_kind: Optional[str] = None
+    artefact_ids: tuple[str, ...] = ()
+    error: Optional[str] = None
+    started_at: Optional[str] = None
+    queued_at: Optional[str] = None
+    budget_s: Optional[float] = None
+
+
+class _LbsimArtefact(_In):
+    artefact_id: str
+    client_ref: str
+    life_balance_sheet_id: str
+
+
+class LbsimFindings(_LbsimArtefact):
+    contract_version: Literal["lbsim-findings@1.0.0"]
+
+
+class LbsimPaths(_LbsimArtefact):
+    contract_version: Literal["lbsim-paths@1.0.0"]
+    allocation_id: str
+    findings_artefact_id: str
+
+
+class LbsimPlan(_LbsimArtefact):
+    contract_version: Literal["lbsim-plan@1.0.0"]
+    paths_artefact_id: str
+
+
+class LbsimPlanOutlook(_In):
+    state: Literal["ready", "calculating", "waiting_for_allocation", "not_possible", "not_requested"]
+    reason: Optional[dict[str, str]] = None
+    run: Optional[LbsimRunStatus] = None
+    artefact: Optional[LbsimPlan] = None
+    elapsed_s: Optional[float] = None
+    budget_s: Optional[float] = None
+
+
+class LbsimOutlook(_In):
+    """``GET /outlook``, checked for what the app relies on: one client, one sheet, the plan on these paths. The
+    page reads the rest of the published findings and paths as they are."""
+    client_ref: str
+    life_balance_sheet_id: str
+    findings: Optional[LbsimFindings] = None
+    paths: Optional[LbsimPaths] = None
+    plan: LbsimPlanOutlook
+
+    @model_validator(mode="after")
+    def _one_sheet(self) -> "LbsimOutlook":
+        for part in (self.findings, self.paths, self.plan.artefact):
+            if part is not None and (part.life_balance_sheet_id != self.life_balance_sheet_id
+                                     or part.client_ref != self.client_ref):
+                raise ValueError("an outlook never mixes sheets or clients")
+        if self.plan.artefact is not None and (self.paths is None
+                                               or self.plan.artefact.paths_artefact_id != self.paths.artefact_id):
+            raise ValueError("the plan rests on other paths than the outlook's")
+        return self
 
 
 def dump(model: BaseModel) -> dict[str, Any]:

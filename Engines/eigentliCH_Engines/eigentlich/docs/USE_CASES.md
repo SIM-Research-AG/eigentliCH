@@ -7,7 +7,8 @@ path (`store.erase_client`, one client at a time, owner role), after a full back
 (`Projects/PostgreSQL/backups/eigentlich-before-use-cases-2026-09-29.sql`).
 
 The set is built, and can be rebuilt, by `dev/build_use_cases.py` (steps `select`, `erase`, `enrich`,
-`partners`, `mandates`, `threads`, `curate`, `reports`, `updates`, `approvals`, `revision`, `check`; every step
+`partners`, `basis`, `earning`, `mandates`, `outlook`, `threads`, `curate`, `reports`, `updates`, `approvals`,
+`revision`, `check`; every step
 is idempotent; `mandates --refresh` and `reports --refresh` derive again from the latest sheet). Every write goes
 through the app's API, the store's documented functions or the cockpit's curator routes: every plan change has its
 decision, every answer names its content version (onboarding v2 `onb2@0.2.0`, intake v2 `intake@1.2` and, for the
@@ -455,6 +456,49 @@ The parameter sets and pcp runs are unchanged (all nominal); a real report there
 a real mandate is finalised. Every one of the 20 clients' latest pcp run is on the base Regime, so the report fix
 (EIG-63) changes none of the reports already made.
 
+## The outlook (lbsim, 29.09.2026, EIG-65 to EIG-69)
+
+Step `earning` of `dev/build_use_cases.py` answers, through the app's routes, the intake's version 4 questions for
+each client and each partner who works: the gross salary expected at a full pensum once any education is done (in
+today's francs), whether an education is under way or planned and when it ends, and how far health limits the
+working week (K3; "leicht" where the health answer is 0.7, "deutlich" at 0.5). Three leave the salary unanswered,
+so their outlook shows the model's own level, marked "Modellwert": Corinne (no education and no change planned),
+Esther (a 40 % job at 67) and Peter (retired); the retired partners (Hans A., Rosmarie W., Margrit S.) leave it
+unanswered too. The management function, the sector, the learning hours and the education budget were answered
+before and now reach lbs as well. Then `mandates --refresh` makes the new sheets (lbs 1.4.0 reads the answers, so
+every sheet changes), lbsim follows each new sheet by itself, `outlook` asks the outlook as the curator where it is
+missing, `reports --refresh` asks a report on the new sheet with lbsim's findings and paths, and `check` checks
+every client (findings and paths on the newest sheet, a plan run queued, running or succeeded, and the report page
+with the three charts and no id); `check --plans` waits for the plan calculations. When a plan is there, the app asks
+the report update that carries it.
+
+The last three columns are filled in from `dev/reports/use-cases-outlook.json` and `use-cases-check.json` after the
+coordinator's live refresh with lbsim on 8014 (the designated goal's chance in 100 simulated paths under the current
+assessment, the plan's state, and whether the report carries the three charts).
+
+| client | salary at a full pensum (stated) | education | health limits work | partner's salary at a full pensum | chance of the designated goal | plan | report with the three charts |
+|---|---|---|---|---|---|---|---|
+| Simon N. | 99’000 | läuft, ends 2028 | nein | no partner | to fill | to fill | to fill |
+| Miriam S. | 95’000 | geplant, ends 2027 | nein | no partner | to fill | to fill | to fill |
+| Fabienne G. | 96’000 | geplant, ends 2028 | nein | 92’000 | to fill | to fill | to fill |
+| Lukas M. | 200’000 | geplant, ends 2029 | nein | 160’000 | to fill | to fill | to fill |
+| Noemi B. | 92’000 | geplant, ends 2029 | leicht | no partner | to fill | to fill | to fill |
+| Céline B. | 110’000 | geplant, ends 2027 | nein | no partner | to fill | to fill | to fill |
+| Isabelle C. | 310’000 | geplant, ends 2027 | leicht | 147’500 | to fill | to fill | to fill |
+| Anita P. | 105’000 | läuft, ends 2027 | nein | 135’000 | to fill | to fill | to fill |
+| Corinne B. | «Modellwert» | keine | nein | no partner | to fill | to fill | to fill |
+| Tanja E. | 175’000 | geplant, ends 2027 | leicht | 110’000 | to fill | to fill | to fill |
+| Michele B. | 150’000 | geplant, ends 2027 | nein | 105’000 | to fill | to fill | to fill |
+| Reto S. | 155’000 | geplant, ends 2027 | leicht | 90’000 | to fill | to fill | to fill |
+| Claudia I. | 135’000 | geplant, ends 2028 | nein | 68’000 | to fill | to fill | to fill |
+| Yasmin T. | 120’000 | geplant, ends 2028 | nein | 214’880 (from the other record) | to fill | to fill | to fill |
+| Elio T. | 214’880 | geplant, ends 2027 | deutlich | 120’000 (from the other record) | to fill | to fill | to fill |
+| Franziska O. | 125’000 | geplant, ends 2029 | deutlich | no partner | to fill | to fill | to fill |
+| Regula A. | 180’000 | geplant, ends 2028 | nein | «Modellwert» (retired) | to fill | to fill | to fill |
+| Kurt W. | 148’000 | geplant, ends 2027 | nein | «Modellwert» (retired) | to fill | to fill | to fill |
+| Esther W. | «Modellwert» | geplant, ends 2027 | leicht | no partner | to fill | to fill | to fill |
+| Peter S. | «Modellwert» | geplant, ends 2027 | leicht | «Modellwert» (retired) | to fill | to fill | to fill |
+
 ## Coverage matrix
 
 Columns: Si Simon, Mi Miriam, Fa Fabienne, Lu Lukas, No Noemi, Cé Céline, Is Isabelle, An Anita, Co Corinne,
@@ -512,6 +556,13 @@ Pe Peter.
 | Approval: revision sent | | x | | | | | | | | | | | | | | | x | | | | 2 |
 | Approval: awaiting the curator | | | | | | | | | | | | | | | | | | | x | | 1 |
 | Approval: withdrawn by the client | | | | | | | | | | x | | | | | | | | | | | 1 |
+| Earning power from the client's own statement ("Ihre Angabe") | x | x | x | x | x | x | x | x | | x | x | x | x | x | x | x | x | x | | | 17 |
+| Earning power at the model's level ("Modellwert") | | | | | | | | | x | | | | | | | | | | x | x | 3 |
+| Education under way or planned, with its end year | x | x | x | x | x | x | x | x | | x | x | x | x | x | x | x | x | x | x | x | 19 |
+| Health limits the working week (K3) | | | | | x | | x | | | x | | x | | | x | x | | | x | x | 8 |
+| Partner's salary at a full pensum stated to lbs | | | x | x | | | x | x | | x | x | x | x | x | x | | | | | | 10 |
+| lbsim findings and paths on the newest sheet (after the live refresh) | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | 20 |
+| Plan calculation in the background (after the live refresh) | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | 20 |
 
 Every capability is shown at least twice, with two exceptions by design: exactly one approval is left awaiting
 the curator (as asked), and one request withdrawn by the client (an extra, so the withdrawn state is on the

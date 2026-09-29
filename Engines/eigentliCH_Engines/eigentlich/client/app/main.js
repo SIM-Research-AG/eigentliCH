@@ -11,6 +11,7 @@ import * as picker from '../surfaces/picker.js';
 import * as home from '../surfaces/home.js';
 import * as questionnaire from '../surfaces/questionnaire.js';
 import * as plan from '../surfaces/plan.js';
+import * as outlook from '../surfaces/outlook.js';
 import * as threads from '../surfaces/threads.js';
 import * as reports from '../surfaces/reports.js';
 
@@ -44,7 +45,7 @@ function setLanguage(language) {
 }
 
 const DOORS = [
-  ['home', '#/home'], ['onboarding', '#/q/onboarding'], ['intake', '#/q/intake'], ['plan', '#/plan'],
+  ['home', '#/home'], ['onboarding', '#/q/onboarding'], ['intake', '#/q/intake'], ['plan', '#/plan'], ['outlook', '#/outlook'],
   ['threads', '#/threads'], ['reports', '#/reports'],
 ];
 
@@ -98,7 +99,8 @@ async function route() {
   }
   switch (parts[0]) {
     case 'home': return home.render(main, ctx);
-    case 'q': return questionnaire.render(main, { ...ctx, name: parts[1] || 'onboarding', mode: parts[2] || null });
+    case 'q': return questionnaire.render(main, { ...ctx, name: parts[1] || 'onboarding', mode: parts[2] || null, focus: parts[3] || null });
+    case 'outlook': return outlook.render(main, ctx);
     case 'plan': return plan.render(main, ctx);
     case 'threads': return threads.render(main, { ...ctx, threadId: parts[1] || null });
     case 'reports': return reports.render(main, { ...ctx, reportId: parts[1] || null });

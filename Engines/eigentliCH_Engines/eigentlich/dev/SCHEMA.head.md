@@ -283,7 +283,8 @@ plus free members (`_about`, `sections`, `source`, `language`). A question:
 `type` is `choice`, `multi_choice` (several options at once; the answer is the list of the chosen option
 values, in the questionnaire's order), `number`, `text` (with `multiline: true` for long text), `household`,
 `goal_template` (onboarding) or `repeat` (intake `properties`: `item_label` and `fields`, each a question).
-Optional: `unit`, `min`, `max`, `placeholder`, `fills`, `data_class`, `asked_when`. An option may carry
+Optional: `unit`, `min`, `max`, `placeholder`, `fills`, `data_class`, `asked_when` (`{key, equals}`, `{key, in: [...]}`
+since EIG-65, or a list of such conditions that must all hold). An option may carry
 `"offered": false`: it stays a valid answer (earlier answers, the offline intake form's files) and a bind
 target, but the app does not offer it for a new answer (EIG-44). `order` may be fractional (a question
 placed between two others without renumbering them). Version 1 of the onboarding is the
@@ -296,7 +297,12 @@ change. Version 3 of the intake (`intake@1.3`, 29.09.2026, saved by the same cur
 (`partner_in_plan` and, asked when it is `ja`, thirteen `partner_*` questions: age, gross salary, working
 hours, missing AHV years, qualification, its year, years in the field, training, network and its reach,
 mandates, health (K3) and rest; EIG-53), and drops `hours_learning` (EIG-58; answers to earlier versions stay):
-127 questions. The intake has `sections: [{key, order, title{de}, lede{de}}]`. An
+127 questions. Version 4 of the intake (`intake@1.4`, 29.09.2026, saved by the same curator record with the note
+"earning power questions for lbsim (principal and partner), owner 29.09.2026") adds lbsim's earning-power questions
+(EIG-65): `income_expected_full`, `education_status`, `education_end_year` (asked when an education is under way
+or planned) and `health_work_capacity` (K3) in section 16, and their eight `partner_*` counterparts (with the
+partner's `partner_education_hours`, `partner_education_budget`, `partner_kader`, `partner_sector`) in section
+21; nothing is removed: 139 questions. The intake has `sections: [{key, order, title{de}, lede{de}}]`. An
 answer's `value` is the option's `value` for a choice, a number, a string, or for `repeat` a list of
 objects keyed by field.
 

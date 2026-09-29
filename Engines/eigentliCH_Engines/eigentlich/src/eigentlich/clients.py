@@ -1,5 +1,5 @@
-"""Typed callers for the engines the app uses: ``lbs`` (8013), ``chatbot`` (8016), ``report`` (8015), and
-``aggregation`` (8004), asked only which Regimes are scenarios (EIG-63).
+"""Typed callers for the engines the app uses: ``lbs`` (8013), ``lbsim`` (8014, EIG-66), ``chatbot`` (8016),
+``report`` (8015), and ``aggregation`` (8004), asked only which Regimes are scenarios (EIG-63).
 
 HTTP only; each response is validated against its mirror in ``contracts.py`` on arrival. An engine that is
 not there, answers with an error, or answers with something that breaks its contract raises
@@ -102,6 +102,20 @@ def lbs_body(request: c.LbsRequest) -> dict[str, Any]:
     mandate = body.get("mandate")
     if isinstance(mandate, dict) and mandate.get("contribution_indexed") is None:
         mandate.pop("contribution_indexed", None)
+    # lbs@1.4.0 (LBS-39): earning power per adult and six facts, each only where stated (EIG-65); unstated, the
+    # request is the request of before, byte for byte, and an lbs before 1.4.0 still takes it.
+    for person in (body.get("household") or {}).get("persons") or []:
+        ep = person.get("earning_power")
+        if ep is None:
+            person.pop("earning_power", None)
+        else:
+            for key in [k for k, v in ep.items() if v is None]:
+                ep.pop(key)
+    facts = body.get("facts")
+    if isinstance(facts, dict):
+        for key in c.FACTS_ADDED:
+            if facts.get(key) is None:
+                facts.pop(key, None)
     return body
 
 
@@ -122,6 +136,52 @@ class LbsClient(_Client):
         """The whole sheet as lbs published it, for display (validated first)."""
         response = self._call("GET", f"/artefacts/{artefact_id}")
         self._parse(c.LifeBalanceSheet, response)
+        return response.json()
+
+
+class LbsimClient(_Client):
+    """lbsim (Engine 14): the findings and paths at once, the plan in the background (EIG-66)."""
+    engine = "lbsim"
+    start_hint = r"engines\lbsim (python -m lbsim serve)"
+
+    def run(self, request: c.LbsimRequest) -> c.LbsimRunAccepted:
+        accepted = self._parse(c.LbsimRunAccepted, self._call("POST", "/run", json=c.dump(request)))
+        if accepted.kind != "outlook":
+            raise EngineRefused(self.engine, f"lbsim answered a {accepted.kind} run to POST /run")
+        return accepted
+
+    def optimise(self, request: c.LbsimOptimise) -> c.LbsimRunAccepted:
+        return self._parse(c.LbsimRunAccepted, self._call("POST", "/optimise", json=c.dump(request)))
+
+    def run_status(self, run_id: str) -> c.LbsimRunStatus:
+        status = self._parse(c.LbsimRunStatus, self._call("GET", f"/runs/{run_id}"))
+        if status.run_id != run_id:
+            raise EngineRefused(self.engine, f"asked lbsim for run {run_id} and got {status.run_id}")
+        return status
+
+    def outlook(self, client_ref: str, life_balance_sheet_id: Optional[str] = None) -> Optional[dict[str, Any]]:
+        """The outlook as lbsim published it (checked by ``LbsimOutlook`` first), or None when lbsim has none yet
+        for this client or sheet (404)."""
+        params = {"client_ref": client_ref}
+        if life_balance_sheet_id:
+            params["life_balance_sheet_id"] = life_balance_sheet_id
+        try:
+            response = self._client.get("/outlook", params=params)
+        except httpx.TimeoutException as exc:
+            raise EngineUnavailable(self.engine, f"lbsim did not answer in time ({self.base_url}/outlook).") from exc
+        except httpx.HTTPError as exc:
+            raise EngineUnavailable(self.engine, f"lbsim is not reachable at {self.base_url}. "
+                                                 f"Start it with {self.start_hint}.") from exc
+        if response.status_code == 404:
+            return None
+        if response.status_code >= 500:
+            raise EngineUnavailable(self.engine, f"lbsim answered {response.status_code}: {_detail(response)}")
+        if response.status_code >= 400:
+            raise EngineRefused(self.engine, f"lbsim refused the request ({response.status_code}): {_detail(response)}")
+        checked = self._parse(c.LbsimOutlook, response)
+        if checked.client_ref != client_ref or (life_balance_sheet_id
+                                                and checked.life_balance_sheet_id != life_balance_sheet_id):
+            raise EngineRefused(self.engine, "lbsim answered the outlook of another client or sheet")
         return response.json()
 
 

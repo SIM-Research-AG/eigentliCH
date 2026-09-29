@@ -54,6 +54,11 @@ onboarding ``goal_amount_basis`` (EIG-60)
     "Ist der Betrag in heutigen Franken?", asked per goal (``scope: goal``), not in the sequence: the plan page's
     goal form and the onboarding's completion read its wording. ``today`` (the default, owner decision 7) or
     ``future``; stored on the goal (``goal.amount_basis``), sent as ``goals[].amount_basis``.
+
+For lbsim (``revise_earning``, EIG-65; also run by ``revise-content``), the intake's next version ``intake@1.4``:
+``income_expected_full``, ``education_status``, ``education_end_year`` (asked when an education is under way or
+planned) and ``health_work_capacity`` (K3) in section 16, and the partner's eight counterparts in section 21, on the
+client's own options. Nothing is removed; ``inputs.py`` sends them as ``persons[].earning_power`` (lbs@1.4.0).
 """
 
 from __future__ import annotations
@@ -398,6 +403,155 @@ def basis_onboarding(body: dict[str, Any]) -> dict[str, Any]:
 BASIS_REVISIONS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {ONBOARDING: basis_onboarding}
 
 
+# ---------------------------------------------------------------------------------------------------------
+# lbsim (Engine 14): the answers earning power and the income paths read (owner, 29.09.2026; LBSIM_INTERFACES
+# section 7, EIG-65). The intake's next version ``intake@1.4``, saved by the owner's curator record. Earlier answers
+# stay and are read; a missing answer means lbsim uses its own model level and says so ("Modellwert").
+# ---------------------------------------------------------------------------------------------------------
+
+EARNING_NOTE = "earning power questions for lbsim (principal and partner), owner 29.09.2026"
+
+#: The education states the intake offers, and what lbs's ``earning_power.education_status`` reads for each.
+EDUCATION_STATUS = {"keine": "none", "läuft": "in_progress", "geplant": "planned"}
+#: How far health limits the working week, and the share of a full week lbs's ``health_work_capacity`` reads.
+WORK_CAPACITY = {"nein": 1.0, "leicht": 0.8, "deutlich": 0.5, "stark": 0.2}
+
+_EDU_ASKED = {"key": "education_status", "in": ["läuft", "geplant"]}
+
+
+def _education_status_options() -> list[dict[str, Any]]:
+    return [{"value": "keine", "label": {"de": "Keine", "en": "None"}},
+            {"value": "läuft", "label": {"de": "Läuft", "en": "Under way"}},
+            {"value": "geplant", "label": {"de": "Geplant", "en": "Planned"}}]
+
+
+def _capacity_options() -> list[dict[str, Any]]:
+    return [{"value": "nein", "label": {"de": "Nein", "en": "No"}},
+            {"value": "leicht", "label": {"de": "Leicht (etwa 80 % eines vollen Pensums)",
+                                          "en": "Slightly (about 80 % of a full week)"}},
+            {"value": "deutlich", "label": {"de": "Deutlich (etwa die Hälfte)", "en": "Clearly (about half)"}},
+            {"value": "stark", "label": {"de": "Stark (etwa ein Fünftel)", "en": "Strongly (about a fifth)"}}]
+
+
+def _eq(key: str, qtype: str, section: str, de: str, en: str, why_de: str, why_en: str, **extra: Any) -> dict[str, Any]:
+    q: dict[str, Any] = {"key": key, "type": qtype, "section": section, "required": False,
+                         "question": {"de": de, "en": en, "en_draft": True},
+                         "why": {"de": why_de, "en": why_en, "en_draft": True}, "provenance": "new (EIG-65, lbsim)"}
+    q.update(extra)
+    return q
+
+
+INCOME_EXPECTED_FULL = _eq(
+    "income_expected_full", "number", "16",
+    "Welchen Bruttolohn erwarten Sie bei vollem Pensum, sobald eine laufende oder geplante Ausbildung abgeschlossen ist?",
+    "What gross salary do you expect at a full pensum, once any education under way or planned is finished?",
+    "Ohne Angabe rechnet das Modell mit seinem eigenen Niveau und sagt das.",
+    "Without an answer the model works with its own level and says so.",
+    unit="CHF/Jahr", min=0)
+EDUCATION_STATUS_Q = _eq(
+    "education_status", "choice", "16", "Läuft eine Ausbildung, oder ist eine geplant?",
+    "Is an education under way, or is one planned?",
+    "Eine Ausbildung verschiebt, ab wann welches Einkommen gilt; die Einkommenspfade rechnen damit.",
+    "An education moves when which income applies; the income paths count with it.",
+    options=_education_status_options())
+EDUCATION_END_YEAR = _eq(
+    "education_end_year", "number", "16", "In welchem Jahr endet sie?", "In what year does it end?",
+    "Ab dann rechnet das Modell mit dem Lohn nach der Ausbildung.",
+    "From then on the model counts the salary after the education.",
+    unit="Jahr", min=2000, max=2100, asked_when=dict(_EDU_ASKED))
+HEALTH_WORK_CAPACITY = _eq(
+    "health_work_capacity", "choice", "16", "Schränkt Ihre Gesundheit ein, wie viel Sie arbeiten können?",
+    "Does your health limit how much you can work?",
+    "Besonders schützenswert (K3). Ohne Angabe liest das Modell die Arbeitsfähigkeit aus Ihrer Gesundheitsangabe.",
+    "Specially protected (K3). Without an answer the model reads the capacity from your health answer.",
+    options=_capacity_options(), data_class="K3")
+
+#: The principal's four new questions, each placed after the question named.
+EARNING_CLIENT: list[tuple[str, dict[str, Any]]] = [
+    ("sector", INCOME_EXPECTED_FULL), ("education_recent", EDUCATION_STATUS_Q),
+    ("education_status", EDUCATION_END_YEAR), ("health", HEALTH_WORK_CAPACITY),
+]
+
+_PARTNER = {"key": "partner_in_plan", "equals": "ja"}
+
+
+def _earning_partner(body: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    """The partner's eight, on the scales of the client's own questions (read from ``body``, so both people
+    answer on the same options), each asked only when the partner is in the plan."""
+    def same(key: str) -> list[dict[str, Any]]:
+        q = _question(body, key)
+        if q is None:
+            raise ValueError(f"the intake has no {key} to copy the partner's options from")
+        return copy.deepcopy(offered(q.get("options") or []))
+
+    def pq(key, qtype, de, en, why_de, why_en, asked=None, **extra):
+        return _eq(key, qtype, "21", de, en, why_de, why_en, asked_when=asked or dict(_PARTNER), **extra)
+
+    return [
+        ("partner_education_recent", pq(
+            "partner_income_expected_full", "number",
+            "Welchen Bruttolohn erwartet Ihre Partnerin oder Ihr Partner bei vollem Pensum, sobald eine laufende oder "
+            "geplante Ausbildung abgeschlossen ist?",
+            "What gross salary does your partner expect at a full pensum, once any education is finished?",
+            "Ohne Angabe rechnet das Modell mit seinem eigenen Niveau und sagt das.",
+            "Without an answer the model works with its own level and says so.", unit="CHF/Jahr", min=0)),
+        ("partner_income_expected_full", pq(
+            "partner_education_status", "choice", "Läuft bei Ihrer Partnerin oder Ihrem Partner eine Ausbildung, "
+            "oder ist eine geplant?", "Is an education under way for your partner, or is one planned?",
+            "Eine Ausbildung verschiebt, ab wann welches Einkommen gilt.", "An education moves when which income applies.",
+            options=_education_status_options())),
+        ("partner_education_status", pq(
+            "partner_education_end_year", "number", "In welchem Jahr endet sie?", "In what year does it end?",
+            "Ab dann rechnet das Modell mit dem Lohn nach der Ausbildung.",
+            "From then on the model counts the salary after the education.",
+            asked=[dict(_PARTNER), {"key": "partner_education_status", "in": ["läuft", "geplant"]}],
+            unit="Jahr", min=2000, max=2100)),
+        ("partner_education_end_year", pq(
+            "partner_education_hours", "choice", "Wie viele Stunden pro Woche könnte Ihre Partnerin oder Ihr Partner "
+            "realistisch fürs Lernen aufwenden?", "How many hours a week could your partner realistically spend learning?",
+            "Die Rendite auf Lernzeit sättigt bei etwa 20 Stunden pro Woche.",
+            "The return on learning time saturates at about 20 hours a week.", options=same("education_hours"))),
+        ("partner_education_hours", pq(
+            "partner_education_budget", "number", "Budget dafür pro Jahr", "Budget for it per year", "Pro Jahr.",
+            "Per year.", unit="CHF/Jahr", min=0)),
+        ("partner_education_budget", pq(
+            "partner_kader", "choice", "Führungsfunktion Ihrer Partnerin oder Ihres Partners",
+            "Your partner's management function",
+            "Bei gleicher Ausbildung entscheidet die Funktion stärker über den Lohn als der Abschluss.",
+            "At the same education, the function moves the salary more than the qualification.", options=same("kader"))),
+        ("partner_kader", pq(
+            "partner_sector", "choice", "Branche Ihrer Partnerin oder Ihres Partners", "Your partner's sector",
+            "Nur nötig bei oberster Führung: dort liegt zwischen den Branchen der Faktor sechs.",
+            "Needed only for top management: there the sectors differ by a factor of six.", options=same("sector"))),
+        ("partner_health", pq(
+            "partner_health_work_capacity", "choice", "Schränkt die Gesundheit Ihrer Partnerin oder Ihres Partners ein, "
+            "wie viel sie oder er arbeiten kann?", "Does your partner's health limit how much they can work?",
+            "Besonders schützenswert (K3); nur beantworten, wenn Ihre Partnerin oder Ihr Partner einverstanden ist.",
+            "Specially protected (K3); answer only if your partner agrees.", options=_capacity_options(),
+            data_class="K3")),
+    ]
+
+
+def earning_intake(body: dict[str, Any]) -> dict[str, Any]:
+    """The principal's and the partner's earning-power questions (EIG-65), each after the question it belongs
+    to; nothing else changes, so every earlier answer stays valid and is read."""
+    new = copy.deepcopy(body)
+    for after, question in EARNING_CLIENT + _earning_partner(body):
+        _insert_after(new, after, question)
+    if new != body:
+        new["version"] = "intake@1.4"
+    return new
+
+
+#: The earning-power question keys (EIG-65), the principal's then the partner's.
+EARNING_KEYS = tuple(q["key"] for _, q in EARNING_CLIENT) + (
+    "partner_income_expected_full", "partner_education_status", "partner_education_end_year",
+    "partner_education_hours", "partner_education_budget", "partner_kader", "partner_sector",
+    "partner_health_work_capacity")
+
+EARNING_REVISIONS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {INTAKE: earning_intake}
+
+
 def _changed_keys(old: dict[str, Any], new: dict[str, Any]) -> list[str]:
     """Keys added or changed, then ``-key`` for each question removed."""
     before = {q["key"]: q for q in old.get("questions") or []}
@@ -422,6 +576,12 @@ def revise_basis(conn, *, curator_id: str, note: str = BASIS_NOTE) -> dict[str, 
     """The nominal and real view's two questions (EIG-60, EIG-61) as the onboarding's next version, saved by
     ``curator_id``; nothing when done."""
     return _save_all(conn, BASIS_REVISIONS, curator_id=curator_id, note=note)
+
+
+def revise_earning(conn, *, curator_id: str, note: str = EARNING_NOTE) -> dict[str, Any]:
+    """lbsim's earning-power questions for the principal and the partner (EIG-65) as the intake's next version,
+    saved by ``curator_id``; nothing when done."""
+    return _save_all(conn, EARNING_REVISIONS, curator_id=curator_id, note=note)
 
 
 def _save_all(conn, changes: dict[str, Callable[[dict[str, Any]], dict[str, Any]]], *, curator_id: str,
@@ -456,4 +616,5 @@ def offered(options: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 __all__ = ["align", "aligned_intake", "aligned_onboarding", "NOTE", "offered", "revise", "revised_intake",
-           "REVISION_NOTE", "PARTNER_KEYS", "revise_basis", "basis_onboarding", "BASIS_NOTE", "GOAL_AMOUNT_BASIS_KEY"]
+           "REVISION_NOTE", "PARTNER_KEYS", "revise_basis", "basis_onboarding", "BASIS_NOTE", "GOAL_AMOUNT_BASIS_KEY",
+           "revise_earning", "earning_intake", "EARNING_NOTE", "EARNING_KEYS", "EDUCATION_STATUS", "WORK_CAPACITY"]
