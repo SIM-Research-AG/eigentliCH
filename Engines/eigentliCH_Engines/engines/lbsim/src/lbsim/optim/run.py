@@ -103,7 +103,13 @@ def the_grid(problem: T.PlanProblem) -> Grid:
     h = max(float(g.horizon_years) for g in problem.goals)
     if h <= 0:
         raise ProblemError("every goal lies in the past; there is nothing to plan for")
-    cap = problem.max_solve_horizon_years if opt.grid_rule == "variable" else None
+    cap = None
+    if opt.grid_rule == "variable":
+        # The calibration's cap (1.3.0 on) and the run's (config.yaml): the tighter one holds.
+        caps = [float(problem.max_solve_horizon_years)]
+        if getattr(opt, "max_solve_horizon_years", None) is not None:
+            caps.append(float(opt.max_solve_horizon_years))
+        cap = min(caps)
     return build_grid(h, opt.grid, opt.grid_rule, cap=cap)
 
 

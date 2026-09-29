@@ -21,17 +21,18 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
   refused (the app's K3 filter must drop it with health).
 - Done: B1 (lbsim core, 457 tests, golden layer A 48 cases exact, earning power 192 rows exact, samples in
   `engines/lbsim/golden/samples/`; pushed 40e05a4).
-- Running (started ~evening 29.09.2026): B2 (Monte Carlo, clients, store, service, API, workers), C (optimiser in
-  `src/lbsim/optim`), D (report charts and lbsim sections; cockpit Aussichten panel and roster). Handshake B2/C:
-  C writes `optim/types.py` (PlanProblem, ControlPath, PlanOutcome) and
-  `solve(problem, *, simulate, deadline, should_cancel, progress)`; B2 injects its Monte Carlo as `simulate`.
-- After them: restart report 8015 and the cockpit; start lbsim 8014 (`python -m lbsim serve` in the family
-  venv); then E (app).
-- Then E (app questions content v4, outlook page and charts, desktop.cmd 8014, use-case
-  `earning` and `outlook`, then mandates/reports refresh and check; the 20 plans take about 6 hours).
+- Done: B2 (Monte Carlo, store, API, workers, test bench), D (report 1.4.0 charts + lbsim sections, REP-38 real
+  charts; cockpit Outlook panel), B1 fix (calibration 1.2.0: corrected income paths), C (optimiser; retirement
+  measure without pillar 2). Pushed to both remotes up to 60f25a1.
+- Running: C adds calibration 1.3.0 (owner: 500 iterations, 10-year solve horizon) and lbsim env URL overrides;
+  E builds the app (content v4, outlook page, charts, desktop.cmd 8014, use-case earning/outlook/check).
+- Next: start lbsim 8014 (`python -m lbsim serve` in eigentliCH_Engines/.venv, from engines/lbsim) once C is
+  done; restart cockpit and app; run E's live refresh commands; push to both remotes after every step.
+- Docker: `Engines/deploy/` built, tested (images, smoke test, real-dump restore). CTO takes over 30.09.2026 from
+  https://github.com/SIM-Research-AG/eigentliCH. Dump for him: `PostgreSQL/backups/simtech_for_server_2026-09-29.dump`.
+  Pending engine changes: `Engines/deploy/ENGINE_CHANGES.md` (cockpit items 2-5, 8; fmre/app init 6-7).
 
-Open: two hung pytest processes from the pcp agent (pids 4564 and 24748, started 15:25); the agent was
-not allowed to stop them, so this is the owner's call. The owner is judging FMRE-38 (a duration-6 bond
+Hung pytest processes stopped and scratch schemas dropped (owner's go-ahead). The owner is judging FMRE-38 (a duration-6 bond
 reads -97 % real in hyperinflation, not -94 %; -94 % is the price change alone).
 
 Notion page ids:

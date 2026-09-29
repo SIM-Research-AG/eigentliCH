@@ -267,4 +267,16 @@ is B1's and B2's.
 - **O-17 the solves are deterministic.** The same restore solve, five times with OpenBLAS on 20 threads and five times
   pinned to one, all concurrent, gave identical iterations and CVaR to the last bit. Differences seen during the build
   came from B2 regenerating the sample household while runs were starting.
-
+- **O-18 calibration 1.3.0, the owner's plan settings (29.09.2026).** On O-15 the owner set at most 500 IPOPT
+  iterations and a solve horizon of 10 years. 1.3.0 is 1.2.0 with the optimiser block changed only: `max_iter` 500,
+  the new field `max_solve_horizon_years` 10 (left out of the canonical form while unset, so 1.0.0 to 1.2.0 keep their
+  bytes and hashes), and the grid `((10.0, 0.5),)`: 0.5-year steps throughout, a goal beyond year 10 the zero-return
+  terminal requirement at the cap. The optimiser takes the tighter of the calibration's cap and `config.yaml`'s (now
+  10 as well). Active in `config.yaml`; hash pinned (`CAL-5f544bab06ed5f76`); layer B step 1.2.0 to 1.3.0 moves no
+  leaf of the findings (`changes.json` `step_1_3_0`, attributed to O-18); the samples were rebuilt under 1.3.0
+  (findings `LSF-11a3e8916675c033`, paths `LSP-7e00fcdca5cc7a83`, plan `LSO-6380a2c95e299202`, the hand-built plan on
+  the 10-year grid). Measured on B2's sample household (27-year horizon, home goal at 3 years designated, retirement
+  at 27 as extra goal): `solved` on the third draw (seed 20262929), the certified solve 160 iterations, the others of
+  that draw stopping at 500; in-sample chance 1.0 (14 of 14), out-of-sample 1.0 from B2's `plan.simulate` (400 paths,
+  seed 20760929); 1868 s (31 minutes), inside the 120-minute budget (`golden/optim/ten_year_run.json`). O-15 and O-16
+  describe 1.2.0 and stay as the record of why.

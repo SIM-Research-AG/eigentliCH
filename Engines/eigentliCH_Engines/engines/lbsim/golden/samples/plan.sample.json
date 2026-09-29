@@ -1,10 +1,10 @@
 {
  "contract_version": "lbsim-plan@1.0.0",
- "artefact_id": "LSO-0fa7019e33b93242",
+ "artefact_id": "LSO-6380a2c95e299202",
  "client_ref": "lbsim-sample",
  "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
- "paths_artefact_id": "LSP-d0121e59576216e4",
- "calibration_version": "1.2.0",
+ "paths_artefact_id": "LSP-7e00fcdca5cc7a83",
+ "calibration_version": "1.3.0",
  "outcome": "solved",
  "goal": {
   "goal_id": "g-home",
@@ -328,150 +328,10 @@
     "m_N": 1000.0,
     "p_A": 0.0
    }
-  },
-  {
-   "t_years": 10.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 11.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 12.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 13.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 14.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 15.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 16.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 17.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 18.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
-  },
-  {
-   "t_years": 19.0,
-   "dt_years": 1.0,
-   "controls": {
-    "tau_Y": 0.42,
-    "tau_E": 0.02,
-    "tau_N": 0.03,
-    "tau_H": 0.2,
-    "C": 118000.0,
-    "m_E": 2000.0,
-    "m_N": 1000.0,
-    "p_A": 0.0
-   }
   }
  ],
  "horizon": {
-  "solved_years": 20.0,
+  "solved_years": 10.0,
   "total_years": 27.0,
   "beyond_cap_rule": "zero_return_terminal"
  },
@@ -502,17 +362,7 @@
    0.5,
    0.5,
    0.5,
-   0.5,
-   1.0,
-   1.0,
-   1.0,
-   1.0,
-   1.0,
-   1.0,
-   1.0,
-   1.0,
-   1.0,
-   1.0
+   0.5
   ],
   "casadi_version": "3.7.2",
   "ipopt_version": null
@@ -529,11 +379,11 @@
    "ValidationReport": "lbsim-validation@1.0.0",
    "Calibration": "lbsim-calibration@1.0.0"
   },
-  "calibration_version": "1.2.0",
-  "calibration_hash": "CAL-3a4ecac98ac98b90",
-  "idempotency_key": "IDK-5f442d13db8ef9af",
+  "calibration_version": "1.3.0",
+  "calibration_hash": "CAL-5f544bab06ed5f76",
+  "idempotency_key": "IDK-eee4b8f499d0a6b9",
   "upstream": {
-   "paths": "LSP-d0121e59576216e4"
+   "paths": "LSP-7e00fcdca5cc7a83"
   },
   "records": [],
   "label": "model-derived",

@@ -224,7 +224,8 @@ def test_the_terminal_requirement_is_read_as_b2_reads_it(saving):
 
     p = sample_problem()
     g = dataclasses.replace(p.extra_goals[0], planned_saving_chf_per_year=saving)
-    grid = build(27.0, ACTIVE_SEED.optimiser.grid, "variable", cap=20.0)
+    o = ACTIVE_SEED.optimiser
+    grid = build(27.0, o.grid, o.grid_rule, cap=o.max_solve_horizon_years)
     spec = run.goal_spec(g, grid)
     target = g.target_real_chf
-    assert target - spec.params["extra"] == pytest.approx(max(0.0, target - saving * 7.0))
+    assert target - spec.params["extra"] == pytest.approx(max(0.0, target - saving * 17.0))

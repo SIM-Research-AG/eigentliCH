@@ -4,6 +4,8 @@ Precedence, lowest to highest::
 
     config.yaml  <  config.local.yaml  <  LBSIM_DATABASE_URL / DATABASE_URL  <  LBSIM_*  <  overrides
 
+The upstream addresses take ``LBSIM_LBS_URL``, ``LBSIM_PCP_URL``, ``LBSIM_AGGREGATION_URL`` and ``LBSIM_FMRE_URL``.
+
 ``config.yaml`` is committed and describes how the engine runs: port, store, upstream engines, the figures a
 request resolves to when it leaves them open, the worker harness. It never holds a password.
 ``config.local.yaml`` is git-ignored and is where a developer keeps the local container's password (as lbs
@@ -171,6 +173,10 @@ _DB_ENV = {
 }
 
 
+#: The upstream engines whose address an environment variable ``LBSIM_<NAME>_URL`` may set.
+UPSTREAM_NAMES: tuple[str, ...] = ("lbs", "pcp", "aggregation", "fmre")
+
+
 def load(path: Optional[Path] = None, overrides: Optional[Mapping[str, Any]] = None) -> Settings:
     """Read the configuration. ``overrides`` is a partial config tree, applied last."""
     if path is None:
@@ -205,6 +211,17 @@ def load(path: Optional[Path] = None, overrides: Optional[Mapping[str, Any]] = N
     if "LBSIM_CORS_ORIGINS" in os.environ:
         service["cors_origins"] = [o.strip() for o in os.environ["LBSIM_CORS_ORIGINS"].split(",") if o.strip()]
     tree["service"] = service
+
+    # The upstream engines' addresses (deploy/ENGINE_CHANGES.md item 1): LBSIM_LBS_URL, LBSIM_PCP_URL,
+    # LBSIM_AGGREGATION_URL, LBSIM_FMRE_URL, after the config.local.yaml merge, as report does for REPORT_*_URL.
+    upstream = dict(tree.get("upstream") or {})
+    for name in UPSTREAM_NAMES:
+        var = f"LBSIM_{name.upper()}_URL"
+        value = os.environ.get(var, "").strip()
+        if value:
+            upstream[name] = {**dict(upstream.get(name) or {}), "url": value}
+            sources.append(f"env: {var}")
+    tree["upstream"] = upstream
 
     if overrides:
         tree = _deep_merge(tree, overrides)

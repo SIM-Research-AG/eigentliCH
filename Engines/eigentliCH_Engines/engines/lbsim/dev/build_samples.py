@@ -170,7 +170,12 @@ def plan_sample(f: LifeBalanceFindings, paths: LifeBalancePaths) -> LifeBalanceP
     home = next(g for g in base.goals if g.goal_id == "g-home")
     controls = {"tau_Y": 0.42, "tau_E": 0.02, "tau_N": 0.03, "tau_H": 0.20, "C": 118_000.0, "m_E": 2_000.0,
                 "m_N": 1_000.0, "p_A": 0.0}
-    grid = [0.5] * 20 + [1.0] * 10
+    # The active calibration's grid (1.3.0, DECISIONS O-18: 0.5-year steps to the 10-year cap).
+    from lbsim.optim.grid import build as _build_grid  # noqa: PLC0415 - casadi-free
+    opt = ACTIVE_SEED.optimiser
+    g = _build_grid(float(paths.horizon_years), opt.grid, opt.grid_rule,
+                    cap=opt.max_solve_horizon_years or opt.grid[-1][0])
+    grid = list(g.dts)
     t, steps = 0.0, []
     for dt in grid:
         steps.append({"t_years": t, "dt_years": dt, "controls": controls})
@@ -194,7 +199,7 @@ def plan_sample(f: LifeBalanceFindings, paths: LifeBalancePaths) -> LifeBalanceP
         "exchange_rate": {"winner": "networking", "ratio": 1.8, "dominant": "tau_N"},
         "costates": {"W": 1.0e-5, "E": 0.42, "N": 0.31, "H": 0.27},
         "control_path": steps,
-        "horizon": {"solved_years": 20.0, "total_years": float(paths.horizon_years),
+        "horizon": {"solved_years": float(g.times[-1]), "total_years": float(paths.horizon_years),
                     "beyond_cap_rule": "zero_return_terminal"},
         "solver": {"return_status": "Solve_Succeeded", "iterations": 212, "wall_clock_s": 2870.0, "seed": SEED,
                    "seed_attempt": 0, "M_opt": 14, "grid": grid, "casadi_version": "3.7.2",

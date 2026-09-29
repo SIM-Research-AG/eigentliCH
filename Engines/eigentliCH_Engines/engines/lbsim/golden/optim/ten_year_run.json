@@ -1,0 +1,99 @@
+{
+  "calibration": "1.3.0",
+  "wall_clock_s": 1867.9,
+  "status": "succeeded",
+  "failure_kind": null,
+  "outcome": "solved",
+  "chance": {
+    "in_sample": 1.0,
+    "out_of_sample": 1.0,
+    "n_out_of_sample": 400,
+    "seed_out": 20760929
+  },
+  "iterations": 160,
+  "solves": [
+    {
+      "phase": "restore",
+      "start": 1,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 500,
+      "success": false,
+      "cvar": 89.56925698410254,
+      "wall_clock_s": 97.60899999999674
+    },
+    {
+      "phase": "restore",
+      "start": 2,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 500,
+      "success": false,
+      "cvar": -0.7234827751625647,
+      "wall_clock_s": 100.0
+    },
+    {
+      "phase": "best_life",
+      "start": 1,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 500,
+      "success": false,
+      "cvar": 11.205534885688557,
+      "wall_clock_s": 200.28099999998813
+    },
+    {
+      "phase": "best_life",
+      "start": 2,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 500,
+      "success": false,
+      "cvar": -0.005406044993724282,
+      "wall_clock_s": 106.93700000000536
+    },
+    {
+      "phase": "best_life",
+      "start": 3,
+      "return_status": "Solve_Succeeded",
+      "iter_count": 160,
+      "success": true,
+      "cvar": -0.01843274998358596,
+      "wall_clock_s": 39.655999999988126
+    },
+    {
+      "phase": "best_life",
+      "start": 4,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 500,
+      "success": false,
+      "cvar": -0.0067602475225126135,
+      "wall_clock_s": 105.68799999999464
+    }
+  ],
+  "grid": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5
+  ],
+  "seeds_used": [
+    20260929,
+    20261929,
+    20262929,
+    20760929
+  ],
+  "measured_by": "tests/optim/test_optim_end_to_end.py::test_the_10_year_case_under_1_3_0"
+}

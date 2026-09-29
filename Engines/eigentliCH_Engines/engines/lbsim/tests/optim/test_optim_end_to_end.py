@@ -16,7 +16,7 @@ import time
 
 import pytest
 
-from optim_helpers import (ACTIVE_SEED, OPTIM_GOLDEN, SEED, StandInSimulate, never, no_deadline, quiet,
+from optim_helpers import (ACTIVE_SEED, OPTIM_GOLDEN, SEED, SEED_1_2, StandInSimulate, never, no_deadline, quiet,
                            sample_problem, with_optimiser)
 from lbsim.optim import solve
 
@@ -73,9 +73,9 @@ def test_a_plan_under_the_active_calibration_on_the_allocation_market():
     assert out.diagnostics["in_sample_cvar"] <= 1e-3 + 1e-6, "the certified plan meets the CVaR bound"
 
 
-def test_at_the_calibrated_400_iterations_the_run_plans_or_reports_nothing():
-    """The active calibration as shipped (``max_iter`` 400): a certified plan, or three draws (``seed + 1000 k``) and a failed run with no
-    figures. On the sample household (29.09.2026) it is the second."""
+def test_at_the_calibrated_iteration_limit_the_run_plans_or_reports_nothing():
+    """The active calibration as shipped (``max_iter`` 500 under 1.3.0): a certified plan, or three draws (``seed + 1000 k``) and a failed run with no
+    figures. On the sample household at 400 (1.2.0, 29.09.2026) it was the second."""
     problem = sample_problem(horizon=3.0, extra=False)
     sim = StandInSimulate()
     out = solve(problem, simulate=sim, deadline=no_deadline(), should_cancel=never, progress=quiet)
@@ -101,9 +101,9 @@ def test_an_unfundable_goal_is_determined_on_its_draw_and_not_redrawn():
 
 
 def test_the_20_year_case_finishes_inside_the_budget():
-    """Section 5: 0.5-year steps to 10 years, 1-year steps to 20, the cap at 20; a goal at 27 years is the
-    zero-return terminal requirement. Measured wall clock written to ``golden/optim/twenty_year_run.json``."""
-    problem = sample_problem()
+    """Section 5 as 1.1.0 and 1.2.0 carry it: 0.5-year steps to 10 years, 1-year steps to 20, the cap at 20; a goal
+    at 27 years is the zero-return terminal requirement. Measured wall clock written to ``golden/optim/twenty_year_run.json``."""
+    problem = sample_problem(calibration=SEED_1_2)   # the 20-year grid is 1.1.0 and 1.2.0's
     assert problem.horizon_years == 27.0 and problem.extra_goals[0].horizon_years == 27.0
     sim, events = StandInSimulate(), []
     t0 = time.monotonic()
@@ -142,3 +142,38 @@ def test_the_receding_horizon_loop_emits_admissible_actions():
         assert all(t >= -1e-2 for t in taus) and sum(taus) <= 1.01 and -1e-2 <= u.theta <= 1.01
         assert 0.0 <= o.p_goal <= 1.0 and o.lever
         assert o.exchange_rate.winner in ("networking", "overtime", "undetermined")
+
+
+def test_the_10_year_case_under_1_3_0():
+    """DECISIONS O-18: the active calibration (500 iterations, 10-year cap) on the sample household's two goals.
+    Measured and written to ``golden/optim/ten_year_run.json``. It must finish inside the budget; a plan is
+    checked when one is certified, else the run is failed with no figures (the owner decides the limit)."""
+    problem = sample_problem()
+    assert problem.calibration.version == "1.3.0"
+    sim_calls = []
+
+    def sim(problem, controls, n_paths, seed):
+        from lbsim.plan import simulate as b2
+        out = b2(problem, controls, n_paths, seed)
+        sim_calls.append(out)
+        return out
+
+    t0 = time.monotonic()
+    out = solve(problem, simulate=sim, deadline=time.monotonic() + BUDGET_S, should_cancel=never,
+                progress=quiet)
+    wall = time.monotonic() - t0
+    r = out.result
+    record = {"calibration": "1.3.0", "wall_clock_s": round(wall, 1), "status": out.status,
+              "failure_kind": out.failure_kind, "outcome": r.outcome if r else None,
+              "chance": dataclasses.asdict(r.chance) if r else None,
+              "iterations": r.solver.iterations if r else None, "solves": out.diagnostics.get("solves"),
+              "grid": out.diagnostics.get("grid"), "seeds_used": list(out.seeds_used),
+              "measured_by": "tests/optim/test_optim_end_to_end.py::test_the_10_year_case_under_1_3_0"}
+    (OPTIM_GOLDEN / "ten_year_run.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+    assert wall < BUDGET_S and out.failure_kind != "timed_out"
+    assert out.diagnostics["grid"] == [0.5] * 20
+    if r is None:
+        assert out.failure_kind == "solver" and not sim_calls
+    else:
+        assert r.horizon.solved_years == 10.0 and r.horizon.beyond_cap_rule == "zero_return_terminal"
+        assert len(sim_calls) == 1 and r.chance.out_of_sample == sim_calls[0]["chance"]

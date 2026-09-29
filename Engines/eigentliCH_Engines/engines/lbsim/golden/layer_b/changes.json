@@ -22090,5 +22090,41 @@
     ]
    }
   }
+ },
+ "step_1_3_0": {
+  "about": "Every leaf calibration 1.3.0 changes against 1.2.0: the owner's plan settings (DECISIONS O-18, the optimiser block only), which the findings do not read.",
+  "from": {
+   "version": "1.2.0",
+   "hash": "CAL-3a4ecac98ac98b90"
+  },
+  "to": {
+   "version": "1.3.0",
+   "hash": "CAL-5f544bab06ed5f76"
+  },
+  "summary": {},
+  "cases": {
+   "db-01": {},
+   "db-02": {},
+   "db-03": {},
+   "db-04": {},
+   "db-05": {},
+   "db-06": {},
+   "db-07": {},
+   "db-08": {},
+   "syn-couple": {},
+   "syn-liquidity": {},
+   "syn-property-1": {},
+   "syn-property-2": {},
+   "syn-property-3": {},
+   "syn-property-4": {},
+   "syn-property-5": {},
+   "lbsim-reduced-pensum": {},
+   "lbsim-couple": {},
+   "lbsim-young": {},
+   "lbsim-early": {},
+   "lbsim-family": {},
+   "lbsim-thin": {},
+   "lbsim-sample": {}
+  }
  }
 }

@@ -1018,6 +1018,11 @@ class Optimiser(_Frozen):
     #: ``run_case`` chose one step for the whole horizon (0.5 up to 10 years, 1.0 beyond).
     grid: tuple[tuple[float, float], ...]
     grid_rule: Literal["draft_single_step", "variable"]
+    #: The solve cap in years (section 5); beyond it a goal is the zero-return terminal requirement. None (1.0.0 to
+    #: 1.2.0): the grid's last rung and ``config.yaml``'s ``optimiser.max_solve_horizon_years`` decide. Set from
+    #: 1.3.0 (owner, 29.09.2026: 10 years). Left out of the canonical form while unset, so the older seeds keep
+    #: their hashes.
+    max_solve_horizon_years: Optional[float] = Field(default=None, gt=0.0)
 
 
 class Calibration(_Frozen):

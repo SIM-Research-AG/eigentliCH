@@ -1,5 +1,6 @@
 """The seed calibrations (LBSIM-13): 1.0.0 reproduces the draft; 1.1.0 is lbsim's behaviour; 1.2.0 corrects the
-draft's income paths (DECISIONS P-9) and is active.
+draft's income paths (DECISIONS P-9); 1.3.0 carries the owner's plan settings (DECISIONS O-18: 500 iterations, a
+10-year solve horizon) and is active.
 
 ``1.0.0``  The draft as it is: the draft's ``Params()`` (``earning_power_at_unit`` 0.75), no inflation, the
            draft's Gaussian market and tilt, and its ``cases.run_case`` solver settings (``M_opt`` 14,
@@ -83,7 +84,7 @@ SEED_1_1 = Calibration(
 #: (it moved to about twice it in five years through the draft's autonomous expertise growth), and a path's
 #: pensum applies from today when no education is planned (the draft applied it only after an education, so
 #: `full_pensum` and `network` equalled `today` for everyone without one). Active.
-ACTIVE_SEED = SEED_1_1.model_copy(update={
+SEED_1_2 = SEED_1_1.model_copy(update={
     "version": "1.2.0", "parent_version": "1.1.0",
     "note": ("1.1.0 with the income paths corrected (DECISIONS P-9): a path is credited only with the expertise and "
              "network its own education and networking add, never the draft's autonomous growth, and a path's "
@@ -91,9 +92,22 @@ ACTIVE_SEED = SEED_1_1.model_copy(update={
              "out, as the draft leaves out education paths without an education."),
     "behaviour": SEED_1_1.behaviour.model_copy(update={"income_paths": "corrected"}),
 })
+SEED_1_2 = Calibration.model_validate(SEED_1_2.model_dump())
+
+#: 1.2.0 with the owner's plan settings of 29.09.2026 (DECISIONS O-18): at most 500 IPOPT iterations and a solve
+#: horizon of 10 years (0.5-year steps throughout; a goal beyond year 10 is the zero-return terminal requirement at
+#: the cap). Only the optimiser block differs, so the findings are 1.2.0's. Active.
+ACTIVE_SEED = SEED_1_2.model_copy(update={
+    "version": "1.3.0", "parent_version": "1.2.0",
+    "note": ("1.2.0 with the owner's plan settings (DECISIONS O-18): at most 500 IPOPT iterations per solve and a "
+             "solve horizon of 10 years on 0.5-year steps; a goal beyond year 10 is read as the zero-return terminal "
+             "requirement at the cap. The findings and the paths are 1.2.0's."),
+    "optimiser": SEED_1_2.optimiser.model_copy(update={"max_iter": 500, "max_solve_horizon_years": 10.0,
+                                                       "grid": ((10.0, 0.5),)}),
+})
 ACTIVE_SEED = Calibration.model_validate(ACTIVE_SEED.model_dump())
 
-SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, ACTIVE_SEED)
+SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, SEED_1_2, ACTIVE_SEED)
 
 
 def canonical_json(calibration: Calibration) -> str:
@@ -101,6 +115,8 @@ def canonical_json(calibration: Calibration) -> str:
     payload = calibration.model_dump(mode="json")
     if payload["behaviour"].get("income_paths") is None:
         payload["behaviour"].pop("income_paths", None)
+    if payload["optimiser"].get("max_solve_horizon_years") is None:
+        payload["optimiser"].pop("max_solve_horizon_years", None)
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 

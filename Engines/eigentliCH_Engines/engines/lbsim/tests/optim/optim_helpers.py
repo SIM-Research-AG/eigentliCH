@@ -29,7 +29,7 @@ from typing import Any, Optional
 import numpy as np
 
 from lbsim.adapter import adapt
-from lbsim.calibration import ACTIVE_SEED, SEED
+from lbsim.calibration import ACTIVE_SEED, SEED, SEED_1_2
 from lbsim.contracts import Calibration, LbsRequest, LbsSheet
 from lbsim.optim.types import GoalInput, MarketInputs, PlanProblem
 
@@ -139,5 +139,5 @@ def quiet(_event: dict) -> None:
     return None
 
 
-__all__ = ["ACTIVE_SEED", "SEED", "StandInSimulate", "load", "no_deadline", "never", "quiet", "sample_goals",
+__all__ = ["ACTIVE_SEED", "SEED", "SEED_1_2", "StandInSimulate", "load", "no_deadline", "never", "quiet", "sample_goals",
            "sample_market", "sample_problem", "sample_submission", "with_optimiser"]

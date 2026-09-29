@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import pytest
 
-from optim_helpers import ACTIVE_SEED, SEED, sample_market
+from optim_helpers import ACTIVE_SEED, SEED, SEED_1_2, sample_market
 from lbsim.optim.grid import build
 from lbsim.optim.market import sample_allocation
 from lbsim.optim.types import ControlPath, ControlStep, PlanOutcome
@@ -17,7 +17,31 @@ from lbsim.optim.types import ControlPath, ControlStep, PlanOutcome
 # --- the grid ------------------------------------------------------------------------------------------------
 
 def _variable(h: float, cap: float = 20.0):
-    return build(h, ACTIVE_SEED.optimiser.grid, "variable", cap=cap)
+    """1.1.0 and 1.2.0's grid: 0.5-year steps to 10 years, 1-year steps to the 20-year cap."""
+    return build(h, SEED_1_2.optimiser.grid, "variable", cap=cap)
+
+
+def test_1_3_0_solves_10_years_on_half_year_steps():
+    """DECISIONS O-18 (owner, 29.09.2026): 500 iterations, a 10-year solve horizon."""
+    o = ACTIVE_SEED.optimiser
+    assert (ACTIVE_SEED.version, o.max_iter, o.max_solve_horizon_years) == ("1.3.0", 500, 10.0)
+    g = build(27.0, o.grid, o.grid_rule, cap=o.max_solve_horizon_years)
+    assert g.dts == (0.5,) * 20 and g.times[-1] == 10.0 and g.capped
+    assert g.goal_node(27.0) == 20 and g.beyond(27.0) == 17.0 and g.beyond(3.0) == 0.0
+    short = build(3.0, o.grid, o.grid_rule, cap=o.max_solve_horizon_years)
+    assert short.dts == (0.5,) * 6 and not short.capped
+
+
+def test_the_calibration_cap_and_the_run_cap_the_tighter_holds():
+    from optim_helpers import sample_problem
+    from lbsim.optim import run
+    import dataclasses
+
+    p13 = sample_problem()                                   # 1.3.0: the calibration says 10
+    assert run.the_grid(p13).times[-1] == 10.0
+    assert run.the_grid(dataclasses.replace(p13, max_solve_horizon_years=5.0)).times[-1] == 5.0
+    p12 = sample_problem(calibration=SEED_1_2)               # 1.2.0: no calibration cap, the run's 20
+    assert run.the_grid(p12).times[-1] == 20.0
 
 
 def test_a_20_year_horizon_is_30_steps():
