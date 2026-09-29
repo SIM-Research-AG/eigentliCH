@@ -1,0 +1,1050 @@
+# Default configuration for the macrofield programme.
+#
+# Every threshold the model uses lives here rather than in code, per section 7 of the build brief.
+# Each value carries its source. Where a value resolves a disagreement between the brief and the
+# primary sources, the resolution is recorded in docs/MODEL_SPEC.md and referenced here.
+#
+# No dated forecast appears in this file. The synchronisation window and any stock-to-gold path are
+# recomputed from data (brief section 0.14).
+
+model:
+  # How the over-determination of brief section 0.2 is resolved. See docs/MODEL_SPEC.md section 2
+  # and macrofield.model.edm.ClosureMode.
+  closure: as_written
+
+  integrator:
+    # Stiff-capable implicit method: Phase IV dynamics stiffen once K_R / K_I falls below one.
+    method: Radau
+    rtol: 1.0e-8
+    atol: 1.0e-10
+
+  # Relative tolerance above which the two-body identity residual is reported as a breach. The
+  # identity is exact algebraically, so a breach means integrator drift or an inconsistent
+  # parameterisation, not a modelling question.
+  two_body_residual_tolerance: 1.0e-6
+
+  # r = 1 - K_R / Y is a pure function of the state, so it is computed endogenously by default
+  # rather than taken from an observed series.
+  endogenous_r: true
+
+  derivatives:
+    # Numerical derivatives of observed series (brief section 3). The smoothing choice is exposed
+    # because it materially affects p_p, p_b and alpha, all of which are defined through derivatives.
+    method: savitzky_golay
+    window_years: 5
+    polynomial_order: 2
+    # Alternative methods available: central_difference, hp_filter_trend. Recorded in the manifest.
+
+# Capital saturation and the phase classifier.
+#
+# Resolution of a scale conflict, settled 2026-07-27. Brief section 0.5 places the phase cut-offs at
+# K/Y of 1 and 3 and the production-versus-financial boundary at K_R/Y of 1. Book chapter 10 defines
+# the empirical proxies such that K_R/Y is roughly 3 and K_I/Y is 4 to 6 for advanced economies, so
+# those cut-offs are unreachable and every major economy would classify as Phase 4 by default.
+# The saturation axis carrying the 1 and 3 cut-offs and the 250 to 350 band is therefore read as
+# total credit to the non-financial sector over GDP, which matches published data closely. See
+# docs/MODEL_SPEC.md section 3.
+saturation:
+  # The axis on which the phase cut-offs and the balanced band are measured.
+  # BIS total credit to the non-financial sector, as a ratio to GDP.
+  axis: credit_to_non_financial_sector_over_gdp
+
+  # Book section 8.5 derives this as the total-capital-to-GDP ratio at which the determinant of the
+  # Jacobian vanishes, a saddle-node bifurcation (full calculation in book appendix A.3). It is a
+  # derived quantity, not a stylised fact. Brief section 0.6 gives the same band for HoNI.
+  balanced_band:
+    lower: 2.5
+    upper: 3.5
+    source: "Capital Saturation section 8.5, bifurcation analysis; brief section 0.6"
+
+  # Above this, the axis is refused rather than classified. Author's decision, 2026-08-02, closing the boundary
+  # gap raised in calibration round A: there was no upper bound at all, so a credit-to-GDP ratio of 20 would
+  # have been accepted and given a phase.
+  #
+  # WHY 6.0 AND NOT 5.0, which was the first proposal. Every economy's saturation peaks in 2020, because GDP
+  # collapsed while credit rose and this axis is a ratio — a denominator effect, not a data fault. France
+  # reached 5.212 that year. A hard bound at 5.0 would therefore have refused France outright, removing it from
+  # the estate and from the Global blend's EU leg, which would have made the blend weights mean something
+  # different. That is a large consequence for a guard rail.
+  #
+  # 6.0 sits above every observation in every window (the highest anywhere is France's 5.212) so nothing is
+  # refused today, while still catching a value that could only be an ingestion fault. It is a guard, not a
+  # modelling threshold: the framework describes nothing past about 3.5, and everything between 3.5 and 6.0 is
+  # already reported as saturated and reordering by the phase classifier.
+  refuse_above: 6.0
+
+phases:
+  # Brief section 0.5. Cut-offs on the saturation axis defined above.
+  foundation_saturation_ceiling: 1.0
+
+  # Raised from 3.0 to 3.5 on 2026-07-27, to align with the upper bound of the balanced band.
+  #
+  # At 3.0 an economy could be reported as inside the balanced band (2.5 to 3.5) and past the Phase 3
+  # ceiling at the same time, which is contradictory in a report: the United Kingdom at 3.35 read as
+  # "inside the band" and "Saturation and reordering" simultaneously. Book section 8.5 derives a single
+  # threshold range from the bifurcation analysis, so the phase ceiling and the band's upper bound are the
+  # same quantity and should carry the same value. The brief's 3.0 appears to be a rounding of it.
+  optimisation_saturation_ceiling: 3.5
+
+  # Brief section 0.5, Phase 4. This condition is a ratio of two capital stocks, so it is invariant
+  # to the scale problem above and is applied to the chapter 10 proxies literally. Chapter 10's own
+  # figures give K_R/K_I of roughly 0.6 for advanced economies, which is the framework's thesis.
+  saturation_real_to_financial_ceiling: 1.0
+
+  # Brief section 0.5, the production-versus-financial split and the Phase 3 real-capital ceiling.
+  # Retained at the literal values the brief states. Under the chapter 10 proxies both are exceeded
+  # by every developed economy, so the classifier reports them as saturated rather than treating
+  # them as discriminating, and says so in the output.
+  production_economy_real_capital_ceiling: 1.0
+  optimisation_real_capital_ceiling: 1.5
+
+  # Transition indicators, brief section 0.5.
+  # Unsecured assets accelerating into Phase III: the number of consecutive periods of positive
+  # second derivative required before the indicator fires.
+  unsecured_acceleration_periods: 3
+
+honi:
+  # Scale and direction. Brief section 0.6 specifies the 1.0 to 5.0 axis but not its direction.
+  #
+  # The direction is HIGHER IS HEALTHIER, matching the current export dated 2026-04-27. This is the
+  # reverse of the 2022 methodology workbook, whose header reads "Key: 1 most healthy; 5 least
+  # healthy". The convention changed between the two vintages, and the current one governs.
+  #
+  # Established from the export's own data rather than from a header, because the headers disagree:
+  #   - USA Gov_Debt raw rises from 1.0875 to 1.2232 of GDP between 2019 and 2024 while its score
+  #     falls from 1.844 to 1.000. Across the panel, corr(raw, score) = -0.888.
+  #   - Japan, carrying the highest government debt of the panel, sits at Gov_Debt = 1.000 throughout.
+  #   - 13 of the 15 indicators align with this direction: higher debt, larger financialised market
+  #     capitalisation and higher external exposure push towards 1, while higher labour-force
+  #     participation (corr +0.963), GDP growth per capita (+0.940) and institutional quality (+0.996)
+  #     push towards 5.
+  #
+  # Under this direction the export's USA composite of 1.000 in 2024 reads as least healthy of the 16
+  # economies, which is what the framework's thesis of United States late saturation predicts.
+  #
+  # The 2022 band table in config/honi_bands.yaml declares its own opposite direction and the scorer
+  # converts, so the two conventions are never mixed silently. See docs/MODEL_SPEC.md section 4.
+  scale:
+    minimum: 1.0
+    maximum: 5.0
+    direction: higher_is_healthier
+
+  # The four-stage taxonomy. Book section 12.3 gives these against its 0 to 100 axis, on which higher
+  # is healthier: Foundation 70 to 100, Build-up 50 to 70, Optimisation 30 to 50, Saturation 0 to 30.
+  #
+  # Because this axis also runs higher-is-healthier, the mapping is the direct linear one,
+  # score = 1 + 4 * book_score / 100, so the ordering is preserved: Saturation sits at the bottom of
+  # the axis and Foundation at the top. Book 12.3 calls the ranges guidelines rather than sharp
+  # boundaries.
+  stages:
+    - name: Saturation
+      lower: 1.0
+      upper: 2.2
+    - name: Optimisation
+      lower: 2.2
+      upper: 3.0
+    - name: Build-up
+      lower: 3.0
+      upper: 3.8
+    - name: Foundation
+      lower: 3.8
+      upper: 5.0
+
+  # Indicator set and dimension mapping. The current model uses 15 indicators in three groups of
+  # five, from the HoNI export dated 2026-04-27, which supersedes the 83-indicator methodology
+  # workbook dated 2022-01-16. See config/honi_indicators.yaml.
+  indicators_config: config/honi_indicators.yaml
+  bands_config: config/honi_bands.yaml
+
+  aggregation:
+    # absolute:      weighted mean on the fixed 1 to 5 axis. Comparable across years and panels, and
+    #                required by the four-stage taxonomy below. The default.
+    # panel_min_max: reproduces the current export, which rescales each year's panel so the
+    #                healthiest economy is exactly 1.0 and the least healthy exactly 5.0. A relative
+    #                ranking only: not comparable across years, dependent on panel membership, and
+    #                the four-stage taxonomy cannot be applied to it.
+    strategy: absolute
+    # Emit the panel_min_max ranking alongside the absolute score, since the brief asks for
+    # comparative output and pairwise comparisons.
+    also_report_panel_ranking: true
+
+  # Book section 12.2 aggregates the three dimensions with the Financial dimension weighted highest,
+  # to reflect its central role in the cycle-position diagnostic. The specific weights are rendered
+  # as an image in the source PDF and could not be extracted, so these are set to the stated
+  # ordering with the Financial dimension dominant. Flagged as weakly grounded: vary them in the
+  # sensitivity run.
+  weights:
+    financial: 0.4
+    international: 0.3
+    real: 0.3
+    source: "Capital Saturation section 12.2, ordering only; specific values require review"
+
+  # Minimum share of a dimension's indicators that must have loaded before a dimension score is
+  # emitted, and before the composite is emitted. Below the floor the score is withheld rather than
+  # computed from a thin subset. Many of the 83 indicators are sourced from CEIC, which is
+  # authenticated, so partial coverage is the normal case.
+  coverage_floor:
+    dimension: 0.5
+    composite: 0.6
+
+# ---------------------------------------------------------------------------------------------------
+# INERT. Reviewed in calibration round A, 2026-08-02, and deliberately left as it stands.
+#
+# This is NOT dead configuration. `macrofield/model/stock_gold.py` is 343 lines, implemented and covered by
+# 36 tests, with a cockpit endpoint at /api/stock, a chart in charts.py and a panel the cockpit gates on the
+# flag below. What is switched off is the component, not a stub.
+#
+# What is genuinely missing is a CALIBRATION: the three `initial_weights` are placeholders at 1.0, never
+# fitted against the gold-over-equity ratio. So `calibration_anchor_year: 2019` is the year a fit WOULD be
+# anchored at, not evidence that one happened. Read it that way.
+#
+# Enabling it means fitting those three weights under the sign constraints below, which is its own piece of
+# work rather than a flag change. Recorded rather than done, and deliberately not deleted: an earlier note in
+# this round described it as ten keys of inert config, which was wrong and nearly led to removing working code.
+# ---------------------------------------------------------------------------------------------------
+stock_gold:
+  # HIDDEN. Switched off on the author's instruction, 2026-07-27.
+  #
+  # The module, its configuration and its tests are all retained and correct; the model simply is not
+  # part of the current output. The cockpit hides its panel and its endpoint refuses with this reason
+  # rather than silently returning nothing, and no brief or export includes it. Set to true to bring it
+  # back, which needs no other change.
+  #
+  # It is switched off rather than deleted because the equation was only settled on 2026-07-27, after a
+  # sign error had been carried for some time, and deleting the module would throw away that resolution
+  # along with the Weimar validation target recorded under validation.analogues.
+  enabled: false
+
+  # The three-driver differential equation of brief section 0.7. The authoritative form, supplied by
+  # the author on 2026-07-27 and consistent with book chapter 24.2, is
+  #
+  #   R_DG_dot = + a1 (K_I_ddot / Y) - a2 (Y_dot / K_I) - a3 ((K_R_dot + K_I_dot - Y_dot) / K_I)
+  #
+  # with a1, a2, a3 >= 0. The modelled quantity R_DG is the ratio of gold to an equity index. The
+  # stock-to-gold ratio the brief asks for is its reciprocal, and both are reported. See
+  # docs/MODEL_SPEC.md section 5.
+  #
+  # DRIVER ONE'S SIGN IS POSITIVE. An earlier revision set it to -1, on the reasoning that a positive
+  # credit impulse means rising confidence and so must push gold down against equities. That was
+  # wrong, and chapter 24.2 states the mechanism directly: "Gold's price responds positively to
+  # liquidity impulses in the financial system... as K_I grows, a portion of the growth seeks
+  # expression in gold positions, supporting gold's price." The credit impulse is a liquidity impulse,
+  # not a confidence reading. The source note's transcribed algebra was right and its prose was the
+  # error.
+  ratio: gold_over_equity
+  driver_signs:
+    liquidity_credit_impulse: 1
+    innovation_growth: -1
+    capital_cycle_currency_stability: -1
+
+  # Calibration anchor. The framework's calibration is anchored around 2019 (brief section 0.7).
+  # Exposed here rather than buried in code, as the brief requires.
+  calibration_anchor_year: 2019
+
+  # Initial guesses for the weights. Calibrated per economy; these only seed the optimiser.
+  initial_weights:
+    liquidity_credit_impulse: 1.0
+    innovation_growth: 1.0
+    capital_cycle_currency_stability: 1.0
+
+  # Above this ratio of capital to output the quantity equation loses validity and currency
+  # stability is lost, which is when driver three dominates. Tied to the bifurcation band above.
+  quantity_equation_validity_ceiling: 3.5
+
+# The long-term overlay: the macro state expressed as a 25-bin market risk signal, and its merge with the
+# short-term technical signal. See macrofield/model/saa_signal.py and docs/BATTLE_PLAN.md phases 4 and 5.
+saa:
+  # Weight on the macro signal when merging with the TAA. The remainder goes to the technical side.
+  # A control-board variable; 0.5 is the author's starting point of 2026-07-28.
+  blend_weight: 0.5
+
+  # How the TAA is carried past the last month the published file covers.
+  #
+  # Decayed toward its own long-run average, not held flat: a short-term technical signal carries no
+  # information about a date fifteen years out, and holding it would assert that it does. At six months,
+  # beyond roughly two years the merge is the macro signal alone, which is the intended division of labour.
+  taa:
+    half_life_months: 6.0
+    # Trailing window for the long-run average the decay targets. Null uses the whole history.
+    average_window_months: null
+
+  # Share of a four-scenario "Recovery" weight given to Stagnation, the remainder to Expansion.
+  #
+  # Recovery has no five-regime equivalent. MODEL_SPEC section 6: "Recovery is a transition rather than a
+  # regime and gives way to BOOK's Stagnation and Expansion." An even split asserts nothing further.
+  recovery_split: 0.5
+
+  # How much each macro quantity moves the regime weights.
+  #
+  # THESE ARE A JUDGEMENT CALL AND HAVE NO SOURCE. The book supplies which quantities matter, not how much
+  # each should count, so the coefficients are here to be stress-tested rather than trusted. The per-tilt
+  # contribution to every regime is reported with each signal so a surprising answer can be taken apart.
+  #
+  # `base` is the weight every regime starts with. Raising it makes the signal less responsive to all of
+  # the tilts at once, which is the right dial if the signal looks too jumpy.
+  # SWEPT AND KEPT, calibration round A, 2026-08-02. Every coefficient below was measured over 0.5x to 1.5x,
+  # per band position rather than on an average, because these tilts are CONDITIONAL: `saturation_above_band`
+  # is zero for the five economies inside the band and the largest effect in the set for the three above it.
+  #
+  # Result: no coefficient moves any economy's reported state anywhere in that range, and the largest effect on
+  # the mean bin is 0.333 of a bin. The measured maxima, by the economies each tilt governs:
+  #
+  #   saturation_above_band          0.333 bins (above band)   0.000 (inside)
+  #   interference                   0.096                     0.303
+  #   alignment_gain                 0.035                     0.101
+  #   real_to_financial_below_one    0.000                     0.044  (fires on `us` alone)
+  #   unsecured_rising               0.016                     0.040  (the SMALLEST, not the largest)
+  #
+  # So their basis is no longer "no source" but "measured, effect bounded". That is a stronger position than
+  # tuning them would have been: the numbers are unsourced and now known not to matter much, which is a fact
+  # rather than a hope.
+  #
+  # One expectation this refuted. `unsecured_rising` at 2.0 was flagged as the outlier to examine first, being
+  # twice the base. It is the smallest effect in the set. A coefficient's SIZE says nothing about its leverage;
+  # what matters is the magnitude of the quantity it multiplies. Do not rank these by value again.
+  #
+  # Re-sweep when the instrument universe is cut: the distribution will barely move, but what the Optimiser
+  # does with it will.
+  tilts:
+    base: 1.0
+    saturation_above_band: 1.2
+    saturation_below_band: 0.8
+    real_to_financial_below_one: 1.5
+    unsecured_rising: 2.0
+    interference: 1.0
+    alignment_gain: 1.0
+    capital_overdue_per_decade: 0.8
+    innovation_approach_per_decade: 0.4
+
+regime:
+  # The 25-state layer of brief section 0.8, reconstructed from the operational implementation in
+  # SIM_Tech/Master_Controller/Team_TAA_Risk_Signal.m. The axis is ordered 1 cautious to
+  # 25 aggressive, and the live interface the Portfolio Creation Program consumes has this shape
+  # (see convictions.json). See docs/MODEL_SPEC.md section 6.
+  states: 25
+  ordering: cautious_to_aggressive
+
+  # Blended market scopes.
+  #
+  # A downstream consumer optimises against one Regime, and the Return Estimation programme estimates
+  # its return profiles under one Regime. If the blending of several economies happened downstream, the
+  # two would carry different regime identifiers and could never be reconciled: a ReturnSet estimated
+  # under Switzerland cannot be optimised against a blend of seven economies. So the blend belongs here,
+  # in the producer, and each scope is published as a Regime timeline in its own right. That is also what
+  # the information-flow blueprint's DAG shows: the market-risk blend sits upstream of the Regime
+  # contract, not downstream of it.
+  #
+  # A scope is population-level (there are five of them, fixed) and carries no user data, so publishing
+  # them keeps the regulated wall intact.
+  #
+  # Weights reproduce Market_Signal.m lines 173 to 185 over the slot order below, which is the vector
+  # order the operational implementation used.
+  scopes:
+    slot_order: [China, EU, India, US, Switzerland, Brazil, UK]
+
+    # Which economy supplies each slot, and in what proportion. A slot may name several economies: the
+    # euro area has no Regime of its own because the Penn World Table publishes no capital stock for the
+    # EMU aggregate, so the EU slot is its members weighted by GDP. Each inner mapping must sum to one.
+    #
+    # Germany and France by their share of the two-economy total, from published 2025 World Bank GDP
+    # (5.051 and 3.366 trillion USD). Recompute when a third member becomes available.
+    economies_for_slot:
+      China:       { cn: 1.0 }
+      EU:          { de: 0.6, fr: 0.4 }
+      India:       { in: 1.0 }
+      US:          { us: 1.0 }
+      Switzerland: { ch: 1.0 }
+      Brazil:      { br: 1.0 }
+      UK:          { gb: 1.0 }
+
+    presets:
+      Americas: [0.10, 0.20, 0.00, 0.60, 0.00, 0.05, 0.05]
+      Europe:   [0.10, 0.40, 0.00, 0.20, 0.15, 0.00, 0.15]
+      Asia:     [0.55, 0.05, 0.25, 0.15, 0.00, 0.00, 0.00]
+      Sino:     [0.70, 0.10, 0.00, 0.20, 0.00, 0.00, 0.00]
+      # India removed 2026-08-01 and its 5% moved to China, on the user's instruction. Not a view about
+      # India: its timeline is missing 2019-01 to 2021-12, and because the blend intersects rather than
+      # unions its contributors, that one 5% gap removed 36 months from the *whole* Global blend — all of
+      # 2020 included — and capped it at 2022-12. Crisis states were left with four observations, which is
+      # why the ReturnSet could not be estimated per state (M9). Zero weight is enough to drop it: the
+      # flattening skips non-positive slots, so India no longer constrains the window.
+      #
+      # China takes the 5% as the nearest analogue — the other large Asian emerging economy. Note the
+      # consequence: China goes 20% to 25%, so emerging-market exposure is now concentrated in one economy
+      # rather than split across two. Splitting the 5% with Brazil would have kept that diversification.
+      #
+      # The Asia preset above still weights India at 25% and would still carry the hole if published.
+      # DECIDED and kept on the author's review, 2026-08-02, rather than inherited. These seven weights are
+      # what every downstream artefact is estimated against, so they are an allocation of attention and not a
+      # default: US 30, China 25, EU 25, UK 10, Switzerland 5, Brazil 5, India 0.
+      #
+      # India is 0.0 following M42, which removed it because a 36-month hole in one 5%-weight contributor was
+      # capping the whole blend at 2022-12. The slot is kept at zero rather than deleted so the decision stays
+      # visible and reversible.
+      #
+      # One level down, the EU slot splits de 0.6 / fr 0.4. Raised in calibration round A and **DECIDED by the
+      # author on 3 August 2026: reviewed and kept.**
+      #
+      # The round-A note called this "a second unsourced weighting", and that description was wrong. It is
+      # derived, and the derivation is stated where the value lives (`economies_for_slot` above): Germany and
+      # France by their share of the two-economy total from published 2025 World Bank GDP, 5.051 and 3.366
+      # trillion USD. 5.051 / 8.417 = 0.6001 and 3.366 / 8.417 = 0.3999, so 0.6 / 0.4 is the rounded GDP share
+      # rather than a judgement. What round A actually found was that the *basis* was recorded in one place and
+      # contradicted in another — a documentation defect, not a calibration gap.
+      #
+      # What remains genuinely open is narrower and is not a weighting question: the EU slot stands in for the
+      # euro area using two members, because the Penn World Table publishes no capital stock for the EMU
+      # aggregate. Italy and Spain are absent, so the slot is 60/40 of a two-economy proxy and not of the euro
+      # area. Recompute when a third member becomes available, as the note above already says.
+      Global:   [0.25, 0.25, 0.00, 0.30, 0.05, 0.05, 0.10]
+      # Reproduces the operational else-branch, used when no scope is named.
+      equal:    [0.25, 0.25, 0.25, 0.25, 0.00, 0.00, 0.00]
+
+  # The four segments the brief names. Each produces a probability vector over the five regimes below
+  # from leading, current and lagging indicators.
+  segments:
+    - business_cycle
+    - investment_environment
+    - market_behaviour
+    - market_stress
+
+  # The five regimes of book section 20.2, in cautious-to-aggressive order, which is already the order
+  # of the axis. No reversal is applied.
+  #
+  # This replaces an earlier four-scenario vocabulary [boom, recovery, contraction, bust] taken from
+  # Team_TAA_Risk_Signal.m. That set never matched the book's taxonomy, which forced the five-regime
+  # report to be produced by aggregating bins rather than by naming what the segments assessed.
+  # "Recovery" is a transition rather than a regime, and it gives way to the book's Stagnation and
+  # Expansion.
+  scenarios: [crisis, contraction, stagnation, expansion, boom]
+
+  # Spreading kernels, expressed as percentages. The crisis kernel is piled towards the cautious end,
+  # which is what keeps live weight on the crisis tail as the brief requires. The boom kernel is its
+  # reverse. The three interior regimes share the symmetric kernel.
+  kernels:
+    # CORRECTED on the author's decision, 2026-08-02. Position 9 (one-based) was 12.0; it is 13.0.
+    #
+    # The transcribed original summed to 99.0 and was symmetric except for a single mirror pair: index 5
+    # carried 13.0 against index 8's 12.0. Replacing that one value makes the kernel exactly symmetric AND
+    # makes it sum to exactly 100.0 — two independent quirks resolved by one substitution, which is why the
+    # module reads it as a single transcription error rather than two deliberate choices.
+    #
+    # Kernels are normalised before use, so the 99.0 never distorted anything. The asymmetry did: it put
+    # slightly more weight on the cautious side of every interior scenario's kernel. `regime.py` carries the
+    # original as SYMMETRIC_KERNEL and this value as SYMMETRIC_KERNEL_CORRECTED; set `symmetric` back to the
+    # former to compare. DECISIONS.md M56.
+    symmetric: [1.5, 2.0, 4.9, 6.0, 8.9, 13.0, 13.7, 13.7, 13.0, 8.9, 6.0, 4.9, 2.0, 1.5]
+    # CORRECTED on the author's decision, 2026-08-03. Position 5 (one-based) was 12.0; it is 13.0.
+    #
+    # The same transcription error as the symmetric kernel's, corrected there on 2026-08-02 (M56) and left
+    # unruled-on here for a day. This kernel is FOLDED FROM the symmetric one, carries the identical 12.0, and
+    # sums to the identical 99.0 - and the substitution takes it to exactly 100.0, the same two-quirks-one-value
+    # signature that identified the first error. The argument that stopped the correction transferring
+    # automatically was that folding a tail into two bins can legitimately break symmetry; that is why it needed
+    # a decision rather than an inference. But the shared 12.0 is a transcription error in both kernels or in
+    # neither, and only one had been ruled on.
+    #
+    # regime.py keeps the original as CRISIS_KERNEL and this value as CRISIS_KERNEL_CORRECTED; set `crisis` back
+    # to the former to compare. This CHANGES regime_id: republish output/regime/, rebuild the ReturnSet, and
+    # re-record tests/golden/shared_path_Global_1y.json.
+    crisis: [14.4, 21.9, 13.7, 13.7, 13.0, 8.9, 6.0, 4.9, 2.0, 1.5]
+
+  # Where each regime's kernel is placed on the 25-bin axis, as one-based inclusive start bins. Chosen
+  # so the five kernel centres are roughly evenly spaced, with the two extremes piled at their own
+  # ends and the three interior centres near bins 8.5, 12.5 and 17.5.
+  placement:
+    crisis: 1
+    contraction: 2
+    stagnation: 6
+    expansion: 11
+    boom: 16
+
+  # Minimum probability that must remain on the crisis tail, so that the crisis regime always has a
+  # live probability (brief section 0.8). Checked, not imposed by reweighting: a breach is reported.
+  minimum_tail_probability: 0.01
+  tail_bins: 5
+
+  # How the shape of a 25-bin distribution is classified, per the Master Deck: mass at the cautious end is
+  # a risky market, at the aggressive end an opportunistic one, and two or more prominent modes is a swing
+  # market where participants disagree on direction.
+  shape:
+    # Minimum height, as a share of the tallest bin, for a local maximum to count as a mode.
+    #
+    # Without a floor every wiggle counts and almost every distribution reads as a swing. The published
+    # 2026-07 TAA row has four bare local maxima, two of them at 1.7 and 3.1 per cent against a main peak
+    # of 15.1; counting those would report disagreement about a distribution with one obvious peak. At 0.25
+    # that row reports two modes, bins 1 and 16, which is a genuine reading: a bold central view with a
+    # live crisis tail.
+    #
+    # Same reasoning as the prominence floor on turning points in calibration/validate.py, and MODEL_SPEC
+    # section 10 states the general form of it: counting wobbles inflates a count until it means nothing.
+    mode_prominence: 0.25
+
+    # How far the mean bin must sit from the centre of the axis before the shape is called risky or
+    # opportunistic rather than balanced, in bins.
+    lean_bins: 2.0
+
+  # Aggregation of the 25-bin axis onto the five-regime taxonomy of book section 20.2, offered
+  # alongside the 25 states. Bins are one-based and inclusive of both ends, and must partition the
+  # axis exactly: a gap or an overlap would stop the aggregated probabilities summing to one, and the
+  # code refuses either.
+  #
+  # The seventeen-state extension of book section 20.3 is deliberately NOT derived from these bins.
+  # It distinguishes variants that a cautious-to-aggressive axis does not carry, for example an
+  # asset-price boom without productive support against a credit-driven boom, which is a qualitative
+  # distinction rather than a position on the axis. Producing it from the 25 bins would be invention.
+  five_regime_bins:
+    Crisis: [1, 5]
+    Contraction: [6, 10]
+    Stagnation: [11, 15]
+    Expansion: [16, 20]
+    Boom: [21, 25]
+
+cycles:
+  # Cycle hierarchy from the frequency analysis of the eight-century real-return series, in the
+  # German source note and corroborated in book chapters 6.4 and 9. These are priors for the
+  # spectral and band-pass extraction. Estimated periods and phases are recomputed from data per
+  # economy, and the synchronisation window is derived from the estimated phases, never asserted.
+  priors:
+    fundamental_pulse_years: 3.6
+    business_years: 7.0
+    credit_years: 18.0
+    innovation_years: 36.0
+    innovation_observed_band_years: [40.0, 54.0]
+    capital_years: 90.0
+    hegemonic_years: 130.0
+  source: >
+    Feldtheoretische Beschreibung der Dynamiken von Volkswirtschaften, frequency analysis of the
+    Officer-Williamson real-return series; Capital Saturation chapters 6.4 and 9.
+
+  # Which cycles the programme decomposes by band-pass, per brief section 0.9.
+  #
+  # The short cycles are decomposed. The innovation, capital and hegemonic cycles are ANCHORED instead,
+  # see below, because they cannot be estimated from a national-accounts sample at any length that
+  # exists.
+  #
+  # `fundamental_pulse` added 2026-08-02 on the author's instruction, so the cycle layer can carry all six
+  # cycles. It is included with an EXPLICIT narrowed band rather than the default band fraction, and the
+  # reason is a sampling limit rather than a preference — see `explicit_bands` below.
+  decompose: [fundamental_pulse, business, credit]
+
+  # Bands given directly rather than as prior +/- band_fraction.
+  #
+  # The fundamental pulse's prior is 3.6 years and the SAA path is ANNUAL, so it carries 3.6 samples per
+  # cycle. The default 40% band fraction would ask for 2.16 to 5.04 years, and a 2.16-year period against
+  # annual sampling sits essentially at the 2-year Nyquist limit: the filter would alias rather than
+  # extract. Narrowing to 3.0-4.5 keeps the band clear of it.
+  #
+  # This does not make the pulse trustworthy, it makes it honest. At 3.6 intervals per period it is still
+  # below `cycle_bins.MINIMUM_INTERVALS_PER_PERIOD`, so the cycle layer classifies it `marginal` and gives
+  # it the widest kernel, and the note travels with the value. Revisit if a quarterly or monthly macro
+  # source ever arrives; the monthly regime timeline does not help, because its macro half is annual held
+  # flat within each year and carries no sub-annual information.
+  explicit_bands:
+    fundamental_pulse: [3.0, 4.5]
+
+  # The two long cycles, positioned from author-supplied structure rather than estimated.
+  #
+  # Directed by the author on 2026-07-27. The innovation cycle needs about 94 years of annual data to be
+  # identifiable and the capital cycle about 180, against the 50 to 60 a typical series provides. Before
+  # this they were reported as unidentifiable, which is honest but drops them out of the synchrony
+  # analysis, leaving the synchronisation window a statement about the business and credit cycles only.
+  #
+  # THESE ARE THE ONLY DATES IN THIS FILE. They are structural inputs supplied by the author, not
+  # forecasts the programme recomputed, which is the same standing as stock_gold.calibration_anchor_year.
+  # Brief section 0.14 forbids the programme asserting a dated conclusion of its own; it does not forbid
+  # an author-supplied anchor. See docs/MODEL_SPEC.md section 7.
+  anchored:
+    capital:
+      # Reaching this credit-to-GDP ratio means the economy is `years_into_cycle_at_anchor` years into
+      # the capital cycle. This is the same 3.5 that phases.optimisation_saturation_ceiling and the
+      # upper bound of saturation.balanced_band carry, so the anchor and the phase boundary are one
+      # quantity rather than two that could drift apart.
+      anchor_saturation: 3.5
+      years_into_cycle_at_anchor: 90.0
+      period_years: 90.0
+      source: "Author's calculation, 2026-07-27, superseding the band-pass estimate"
+
+      # Where an economy has never reached the anchor ratio, the control board can solve its recent trend
+      # for when it would and anchor provisionally on that, on the author's instruction of 2026-07-28.
+      # Off unless a caller asks for it, and everything derived from it is marked ASSUMED.
+      #
+      # Germany at 2.76 and India at 2.50 are the live cases.
+      assume_trend_window: 10
+      # A trend that reaches the anchor only centuries out is arithmetic rather than a cycle position, so
+      # beyond this the economy stays unanchored.
+      assume_maximum_years_ahead: 120.0
+
+    innovation:
+      # The cycle is at a low in this year, identically for every economy, because it is a global
+      # technological cycle rather than a national one.
+      trough_year: 2032
+      # CONFIRMED by the author on 2026-07-28. The midpoint of `priors.innovation_observed_band_years`
+      # (40 to 54), which is what bands_from_config already used as innovation's prior period. The nominal
+      # alternative, `priors.innovation_years` at 36.0, was considered and not taken.
+      period_years: 47.0
+      source: "Author's calculation, 2026-07-27; period from the observed 40 to 54 year band"
+
+    hegemonic:
+      # Directed by the author on 2026-08-02. The UK-to-US hegemonic succession ran 1914 to 1945, and the
+      # cycle is anchored on its COMPLETION: the post-war settlement, at which the new order stands at full
+      # strength. This is the only anchor pinned to a PEAK rather than a trough, so `peak_year` is phase 0.
+      #
+      # Applied identically to every economy, since hegemonic order is a global structure rather than a
+      # national one. A 130-year cycle cannot be estimated from any national-accounts sample that exists:
+      # identifiability needs about 260 years of annual data against the 50 to 60 a series provides.
+      peak_year: 1945
+      period_years: 130.0
+
+      # The interval the anchor rests on, recorded because it is the evidence and a reader should not have to
+      # go looking for it. `succession_to` is normally equal to `peak_year`; both are kept so that changing
+      # the reading of the anchor does not silently discard the interval it came from.
+      succession_from: 1914
+      succession_to: 1945
+
+      # EXCLUDED from the alignment measure the fragility window is computed from, on the author's
+      # instruction of 2026-08-02. The cycle is positioned, charted and reported; it does not contribute to
+      # interference, so adding it moved no published conclusion.
+      #
+      # It is also the conservative choice on its own merits. Over any window this system looks at, a
+      # 130-year term barely varies, and a normalised alignment measure would mostly gain a near-constant —
+      # which would raise or lower the measure uniformly rather than telling anyone when cycles align.
+      in_interference: false
+
+      # The 1929 crash falls inside the succession interval and is NOT a trough of this cycle. With a peak at
+      # 1945 and a 130-year period it sits on the rising limb at about +0.72, sixteen years short of the peak.
+      # Recorded here because the two facts together are the reason the module computes interference between
+      # cycles instead of reading a conclusion off the slowest one: a severe crisis need not coincide with
+      # the slowest cycle's low.
+      note_1929: "inside the succession interval, on the rising limb at about +0.72, not a trough"
+      source: "Author's instruction, 2026-08-02; UK-to-US succession 1914 to 1945, anchored on completion"
+
+  # ---------------------------------------------------------------------------------------------------
+  # The cycle layer: each cycle's position as a distribution on the 25-bin axis, superposed and blended
+  # into the SAA/TAA merge as a third contributor. See macrofield/model/cycle_bins.py.
+  #
+  # Directed by the author on 2026-08-02, replacing an intention to implement book section 20.3's
+  # seventeen-state taxonomy. That taxonomy needed a qualitative distinction the cautious-to-aggressive
+  # axis does not carry; this puts the cycles into the axis the risk signal already uses instead.
+  # ---------------------------------------------------------------------------------------------------
+  bins:
+    # LIVE as of 2026-08-02. `contracts/regime_timeline.py` builds the annual matrix beside the existing
+    # cycle work, holds it to monthly by the same step hold the macro half uses, and passes it to
+    # `saa_signal.merge`. The weight and the layer's latest summary go into the payload hash, so turning it
+    # on or changing it produces a different `regime_id` — which is correct, because a consumer must be able
+    # to tell apart two Regimes whose axis was composed differently.
+    #
+    # Setting this to 0 disables the layer cleanly: the matrix is not built, `merge` is called exactly as it
+    # was before, and a note says the layer contributed nothing.
+
+    # How much of the final blended distribution the cycle layer contributes.
+    #
+    # 0.20 is the HIGHEST WEIGHT AT WHICH NO ECONOMY'S REPORTED STATE MOVES, re-measured across all eight
+    # publishable economies on 2026-08-02 AFTER `current.state` stopped being an argmax (M57). The criterion is
+    # the author's and unchanged; the number it yields moved because the statistic it is measured against did.
+    #
+    # RAISED FROM 0.14. That cap was not a property of the cycle layer at all - it was the old modal statistic
+    # breaking. The mode leapt from bin 12 to bin 2 at 0.15 on a 0.4-point margin, so the cap was dodging an
+    # artefact. With the mean-nearest bin: 0.20 leaves every state untouched, and even 0.30 moves only two
+    # economies by exactly one bin each, which is a distribution genuinely shifting rather than a statistic
+    # failing. 0.20 keeps the author's stability criterion strictly; 0.30 remains available and defensible.
+    #
+    # The author first chose 0.15 on my estimate that it was the ceiling. It was not: that estimate came
+    # from one blended row with only two cycles placed. Republishing all ten scopes with all six cycles
+    # showed **China's modal state moving 11 -> 1 at 0.15** while its mean bin moved 0.15 of a bin. The
+    # binding economy is `cn`; every other one is stable well past this.
+    #
+    # WHY THE MODE IS THE CONSTRAINT. The published distribution peaks near bin 12 and the cycle layer
+    # peaks near bin 2, so the blend is bimodal. As the weight rises the cycle peak overtakes the other and
+    # the mode relocates DISCONTINUOUSLY across the axis with nothing having changed in the world. Because
+    # `current.state` is the modal state, that publishes a change of regime which is an artefact of an
+    # argmax over two humps. The mean bin, by contrast, moves smoothly and by very little.
+    #
+    # DO NOT RAISE THIS without either re-running the census above or making the reported state
+    # bimodality-aware. `saa_signal.merge` already computes the dispersion such a statistic would need.
+    #
+    # Effect at 0.14 on the Global scope: crisis tail 23.39% -> about 24.5%, mean bin essentially unmoved,
+    # every reported state unchanged.
+    blend_weight: 0.20
+
+    # Which cycles are placed on the axis. All six, on the author's instruction of 2026-08-02.
+    #
+    # A name here that is absent from both the estimated and the anchored set is SKIPPED WITH A NOTE
+    # rather than defaulted, so a layer containing fewer cycles than configured says so.
+    members: [fundamental_pulse, business, credit, innovation, capital, hegemonic]
+
+    # Relative weight per cycle within the layer. Equal unless set: no source says a business cycle should
+    # count for more or less than a credit cycle in a position reading, and inventing a hierarchy here
+    # would be the same error as inventing the regime tilts.
+    weights: {}
+
+    # Which END of the cautious-to-aggressive axis a peak in each cycle's OWN variable belongs at.
+    # +1 aggressive, -1 cautious. Absent means +1.
+    #
+    # This exists because `cycles.py` defines every phase in the cycle's own variable — "in phase when both
+    # are peaking in their own variable" — which is right for synchrony and does not transfer to a risk axis
+    # without saying which way round each variable runs.
+    #
+    # capital: -1, CORRECTED on the author's instruction 2026-08-02. Its phase 0 is the credit-to-GDP
+    # crossing at 3.5, which is where SATURATION PEAKS: maximum fragility, the point the reordering occurs.
+    # Before this it mapped to bin 21.9 — reading the economy as maximally risk-tolerant at exactly its most
+    # saturated. The printed distributions are what exposed it, against an economy the author read as near
+    # crisis. Nothing in the phase machinery changed; only the statement of what its peak means.
+    #
+    # The growth-based cycles (fundamental_pulse, business, credit) are +1: a peak in band-passed log-output
+    # growth is an aggressive condition. innovation is +1: it is anchored on a LOW in 2032, and an innovation
+    # low is stagnation. hegemonic is +1: a peak is a consolidated order, and it currently reads near its
+    # trough, which is the cautious end and is the intended reading.
+    orientation:
+      fundamental_pulse: 1
+      business: 1
+      credit: 1
+      innovation: 1
+      capital: -1
+      hegemonic: 1
+
+    # Kernel width in bins, from what each position is worth rather than a number per cycle.
+    #
+    # A measured cycle scales as measured_base * sqrt(reference / periods_in_sample) — ordinary
+    # standard-error scaling — clamped to [measured_min, measured_max]. Everything else takes a flat
+    # width, because there is no sample size to scale against: the position was supplied, projected, or
+    # recovered near the sampling limit.
+    #
+    # The supplied/assumed/marginal widths are deliberately large. An anchored cycle's position is a
+    # structural assumption, and it must not be able to speak as confidently as a measured one. The
+    # practical effect is that the three long cycles contribute broad gentle tilts rather than sharp
+    # claims, which is the correct weight for a position nobody measured.
+    widths:
+      measured_base: 2.0
+      measured_reference_periods: 10.0
+      measured_min: 1.5
+      measured_max: 5.0
+      supplied: 5.0
+      assumed: 7.0
+      marginal: 7.0
+
+    # How far the kernel leans in the cycle's direction of travel, as a fraction of its width, at the
+    # fastest the cycle could be moving at its own period.
+    #
+    # THIS COEFFICIENT HAS NO SOURCE. The framework says direction matters; it does not say how much. It
+    # is a modelling choice in exactly the sense the regime tilts are, so it lives here, it is reported
+    # with every result, and 0.0 recovers a symmetric kernel and the pure level reading. Chosen by the
+    # author on 2026-08-02 in preference to carrying direction as a separate reported field.
+    skew_coefficient: 0.35
+
+  extraction:
+    # statsmodels routines. The band-pass filter is the default because the cycle periods are known
+    # a priori and Christiano-Fitzgerald handles the long periods without the end-point distortion
+    # that Hodrick-Prescott shows on short samples.
+    method: christiano_fitzgerald
+    # Alternatives: hodrick_prescott, wavelet.
+    spectrum: welch
+
+  synchrony:
+    # A window is flagged as constructive interference when the pairwise phase differences of the
+    # decomposed cycles fall within this tolerance, in radians.
+    phase_tolerance_radians: 0.5
+    # Minimum number of cycles that must be in phase for the window to be reported.
+    minimum_cycles_in_phase: 3
+
+  # The superposition of the four cycles, which is what shows stabilising against destabilising factors.
+  #
+  # Every component is normalised to unit amplitude before summing, settled by the author on 2026-07-28,
+  # because a band-passed growth-rate deviation of order 0.02 and an anchored cycle position with no
+  # amplitude at all are not comparable magnitudes. The sum is therefore a statement about phase alignment.
+  #
+  # Weights are equal by default, which asserts nothing about relative importance. Raising the two long
+  # cycles would encode the framework's thesis that they dominate late-cycle outcomes, and that is a
+  # deliberate choice to make here rather than a default to inherit.
+  superposition:
+    weights:
+      business: 1.0
+      credit: 1.0
+      innovation: 1.0
+      capital: 1.0
+    # Alignment above which the cycles count as reinforcing rather than merely coexisting. One means every
+    # cycle points the same way; zero means they cancel exactly.
+    constructive_alignment: 0.7
+
+data:
+  # Offline mode runs from the cached, manifested pulls so results reproduce without network access
+  # (brief section 2).
+  offline: false
+  cache_directory: macrofield/data/cache
+  manifest_path: macrofield/data/cache/manifest.json
+
+  # Refuse to use a cached pull older than this without an explicit refresh.
+  staleness_days: 90
+
+  # K_I composition, settled 2026-07-27. Book section 10.4 defines K_I as the consolidated gross
+  # financial-asset stock and states it runs 400 to 600 percent of GDP for major advanced economies.
+  # That measure is primary; the credit-based aggregate is the fallback where it is not published.
+  # The measure actually used is recorded per economy per year in the manifest and shown on output.
+  financial_capital:
+    primary: consolidated_financial_assets
+    # Changed on 2026-07-27 from credit_plus_listed_equity to credit only, on the author's instruction
+    # and on the evidence below. Listed equity market capitalisation is still fetched and reported as a
+    # diagnostic, it simply no longer enters K_I.
+    #
+    # The evidence. Across Germany, the United Kingdom and the United States, three economies whose debt
+    # positions are close:
+    #
+    #   BIS credit as a share of GDP     195.6, 221.4, 251.2   spread 1.28 times
+    #   equity market cap as a share     57.4,   77.3, 224.0   spread 3.90 times
+    #
+    # Adding equity therefore made the United States look twice as financialised as Germany when the debt
+    # picture is similar, and it broke the ordering the framework expects. Worse, the World Bank equity
+    # series is published on different vintages per economy: France's latest value is 2018 and the United
+    # Kingdom's is 2022, sitting alongside 2025 values for everyone else in the same cross-section. A
+    # broader aggregate assembled from mismatched vintages and incomparable coverage is worse than a
+    # narrower consistent one.
+    #
+    # BIS total credit is single-source, harmonised across economies, and current for every economy in the
+    # panel, and it reproduces the expected ordering with Japan highest at 353.9.
+    fallback: credit_only
+    fallback_components: [bis_total_credit_non_financial]
+    # Retained so the previous composition can be reinstated deliberately rather than by accident.
+    available_fallbacks:
+      credit_only: [bis_total_credit_non_financial]
+      credit_plus_listed_equity: [bis_total_credit_non_financial, listed_equity_market_cap]
+
+  # Credit uplift, applied to the saturation axis and therefore to K_I.
+  #
+  # BIS total credit to the non-financial sector covers households, non-financial corporations and
+  # government. It does not cover credit to the *financial* sector, and it captures non-bank
+  # intermediation incompletely. Both are credit in the sense the model means, since in a fractional money
+  # system every claim is somebody's debt, so the published series understates the capital stock the
+  # framework is measuring.
+  #
+  # For the United States, financial-sector debt has run at roughly 100 per cent of GDP, so the corrected
+  # total is about 251 plus 100, that is close to 350. That is the basis for the factor: it is the ratio
+  # needed to bring the United States from its published 2.51 to about 3.51, and the author's assessment is
+  # that every economy in the panel is understated by a similar proportion.
+  #
+  # Two properties make this safe to apply by default rather than only offer as a prior:
+  #
+  #   - It is a multiplicative level adjustment, so it cannot change a growth rate, a direction or a
+  #     turning point. See macrofield/data/adjustment.py, where that invariant is asserted as a property
+  #     test. It changes only where an economy sits against the band, which is exactly the intent.
+  #   - It is applied identically to every economy, so it cannot reorder the cross-section. The relative
+  #     positions are unchanged and only the absolute level moves.
+  #
+  # Because K_I is built as the saturation ratio times output, the uplift flows into K_I automatically,
+  # which is the intended effect: the newly attributed credit is financial capital.
+  #
+  # Set factor to 1.0 to work with the published series unadjusted. Any run carries the factor in its
+  # manifest and on every chart.
+  credit_uplift:
+    factor: 1.4
+    rationale: >
+      BIS total credit to the non-financial sector excludes credit to the financial sector and
+      incompletely captures non-bank intermediation, both of which are debt claims the model counts as
+      financial capital. The published series therefore understates capital saturation.
+    source: >
+      Author's assessment, 2026-07-27, calibrated so the United States reads about 3.5 against its
+      published 2.51. Consistent with United States financial-sector debt of roughly 100 per cent of GDP.
+    prior_range: [1.25, 1.55]
+
+  # Cross-sections must be taken at a single period, not at each economy's own latest.
+  #
+  # Without this the comparison silently mixed vintages from 2018 to 2025, because the World Bank equity
+  # and fiscal series run to different years per economy. A cross-section assembled from different years
+  # is not a cross-section.
+  cross_section:
+    enforce_common_year: true
+    # Series to require when determining the latest year every economy shares. Kept deliberately short:
+    # requiring a series that one economy lacks would drag the common year back for everyone.
+    required_for_common_year: [output_nominal, total_credit]
+
+  # K_R extension, settled 2026-07-27. Published capital stock (IMF investment and capital stock,
+  # Penn World Table) ends several years short of the present. It is carried forward by perpetual
+  # inventory from published gross fixed capital formation, labelled as an extension with its method
+  # in the manifest and on every chart. This is a documented computation, never a silent
+  # interpolation.
+  real_capital_extension:
+    enabled: true
+    method: perpetual_inventory
+    # Depreciation rate used where the source dataset does not publish one per economy.
+    default_depreciation_rate: 0.05
+    label: "extended by perpetual inventory from published GFCF"
+
+  # Interpolation policy (brief section 2). Never silent. Where a gap must be filled the method is
+  # labelled, bounded, and flagged in the output.
+  interpolation:
+    allowed: false
+    max_consecutive_periods: 2
+    method: linear
+    flag_in_output: true
+
+  # Series templates shared by every economy, so an economy configuration only states what is
+  # distinctive about it. Each entry names the connector, the source identifier, and the units and
+  # basis to record in the provenance. An economy may override any of these.
+  #
+  # `{wb}` is substituted with the economy's World Bank country code and `{bis}` with its BIS
+  # borrower code, so adding an economy stays a config change (brief section 1).
+  series:
+    output_nominal:
+      connector: world_bank
+      identifier: NY.GDP.MKTP.CD
+      quantity: Y
+      units: current US dollars
+      basis: nominal
+      currency: USD
+      description: gross domestic product, current prices
+    output_real:
+      connector: world_bank
+      identifier: NY.GDP.MKTP.KD
+      quantity: Y_real
+      units: constant 2015 US dollars
+      basis: real
+      currency: USD
+      description: gross domestic product, constant prices
+    gross_fixed_capital_formation:
+      connector: world_bank
+      identifier: NE.GDI.FTOT.CD
+      quantity: gfcf
+      units: current US dollars
+      basis: nominal
+      currency: USD
+      description: gross fixed capital formation, used to extend the capital stock
+    savings_rate:
+      connector: world_bank
+      identifier: NY.GNS.ICTR.ZS
+      quantity: p_s
+      units: percent of GDP
+      basis: unitless
+      description: gross national savings rate, the p_s of section 0.2
+    listed_equity_market_cap:
+      connector: world_bank
+      identifier: CM.MKT.LCAP.CD
+      quantity: equity_market_cap
+      units: current US dollars
+      basis: nominal
+      currency: USD
+      description: >
+        market capitalisation of listed domestic companies, a component of the fallback K_I measure.
+        World Bank discontinued this indicator for several economies, so coverage is uneven and the
+        gap report will show it.
+    population:
+      connector: world_bank
+      identifier: SP.POP.TOTL
+      quantity: population
+      units: persons
+      basis: unitless
+      description: total population, auxiliary series
+    consumer_prices:
+      connector: world_bank
+      identifier: FP.CPI.TOTL
+      quantity: cpi
+      units: index, 2010 = 100
+      basis: unitless
+      description: consumer price index, auxiliary series
+    government_balance:
+      connector: world_bank
+      identifier: GC.NLD.TOTL.GD.ZS
+      quantity: fiscal_balance
+      units: percent of GDP
+      basis: unitless
+      description: >
+        net lending or borrowing of general government. The default stimulus proxy S, entering with a
+        reversed sign so that a deficit is a positive injection.
+    total_credit:
+      connector: bis
+      identifier: WS_TC
+      quantity: credit_to_gdp
+      units: percent of GDP
+      basis: unitless
+      description: >
+        total credit to the non-financial sector, BIS borrowing sector C. This is the saturation axis,
+        converted from a percentage to a ratio by the loader.
+    gold_price:
+      connector: lbma
+      identifier: gold_pm
+      quantity: gold_price
+      units: USD per troy ounce
+      basis: nominal
+      currency: USD
+      description: gold PM auction price, for the stock-to-gold module. Shared across economies.
+
+  # Stimulus proxy S. Configurable per economy, and the choice is recorded (brief section 2).
+  # Candidates: fiscal_balance (the general-government deficit as an injection), central_bank_assets
+  # (the change in the central bank's balance sheet), net_new_credit (the change in total credit).
+  stimulus:
+    proxy: fiscal_balance
+    # A deficit is an injection, so the fiscal balance enters with a reversed sign.
+    reverse_sign: true
+
+reporting:
+  # Every chart and table carries the calibration window and the data vintage, and any projected
+  # path carries the label below (brief section 6).
+  projected_path_label: "illustrative, model-derived"
+  british_spelling: true
+  em_dashes: false
+  disclaimer: >
+    This tool produces model-derived research and decision support, not investment advice.
+    Projected paths are illustrative consequences of the calibrated model, not dated forecasts.
+
+  outputs: [csv, json, png]
+
+calibration:
+  # The longest reliably documented span is the default window. Per-economy configs override.
+  window:
+    start: null
+    end: null
+
+  # Weakly identified parameters are held to plausible priors and stress-tested rather than
+  # over-fitted (brief section 4). This is the threshold on the ratio of a parameter's standard
+  # error to its value above which it is reported as weakly identified.
+  weak_identification_ratio: 0.5
+
+  optimiser:
+    method: least_squares
+    max_iterations: 2000
+    # Seeded so runs are reproducible (brief section 7).
+    seed: 20260727
+
+  # The two-body consistency of brief section 0.3 is enforced as a calibration constraint, not only
+  # as a post-hoc check.
+  enforce_two_body_constraint: true
+
+validation:
+  backtest:
+    # Share of the calibration window held out for out-of-sample comparison.
+    holdout_fraction: 0.3
+
+  sensitivity:
+    # Multiplicative range applied to weakly identified parameters and to the stimulus proxy.
+    range: [0.5, 1.5]
+    steps: 5
+
+  # In Phase IV both resolution paths are run, because the capital-to-GDP ratio corrects through
+  # capital destruction either way and the two imply opposite asset outcomes. Both are presented.
+  phase_four_scenarios: [debt_deflation, hyperinflation]
+
+  # The historical analogue facility. Overlays are labelled as analogues, never as predictions.
+  analogues:
+    - name: germany_1920s
+      label: "Germany in the 1920s, historical analogue, not a prediction"
+      # The validation target BOOK section 24.3.2 supplies for the three-driver model, recorded here
+      # so a rebuild has something to be judged against.
+      #
+      # NOTE THE ORIENTATION. The chapter's figure is the EQUITY-OVER-GOLD ratio, that is the
+      # stock-to-gold ratio and the reciprocal of the modelled R_DG: "The ratio falls from
+      # approximately 20 in 1916 to nearly zero by 1923: a near-total destruction of equity value
+      # relative to gold." The same orientation carries the chapter's forward statement, that the
+      # strategic implication is "increasing gold allocation as the projected ratio decline unfolds".
+      # Read as gold-over-equity, both statements invert.
+      target:
+        quantity: stock_to_gold
+        start_period: 1916
+        start_value: 20.0
+        end_period: 1923
+        end_value: 0.0
+        source: >
+          Capital Saturation section 24.3.2, which states that the three-driver model's projections
+          track the real data closely over this episode. Underlying series from SIM Research
+          Institute, Deriving the Value of Gold.
+        # The series themselves are not on disk. Until a German 1916 to 1923 equity index and gold
+        # price in Reichsmarks are supplied, this is a declared target and not a running backtest,
+        # and the programme says so rather than fabricating the episode.
+        data_available: false

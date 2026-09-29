@@ -1,0 +1,298 @@
+<!doctype html>
+<!--
+  Portfolio Creation Program (pcp) test bench. Development only: not part of the system and not in the
+  deploy folder.
+
+  A client of the engine's HTTP surface, nothing more: every figure is read from pcp's endpoints (and the
+  ReturnSet id and register from fmre). Served by the engine at "/", or by the cockpit at /bench/pcp/
+  (then ?api=/api/pcp and fmre is the cockpit's /api/fmre), or opened off disk, when it calls
+  http://127.0.0.1:8007 and fmre on 8006. Plotly from CDN, no build step (Engine Building Guide section 3).
+
+  The charts are the five of Manual section 15.5, plus the portfolio map. Colour: the house palette of the
+  other benches. The crisis tail (states 1 to 5) is a shaded band.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCP test bench</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --rest: #c3c2b7;
+    --critical: #d03b3b; --good: #0ca30c; --band: rgba(208,59,59,0.08); --carry: rgba(42,120,214,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --rest: #4a4a47;
+      --band: rgba(230,103,103,0.12); --carry: rgba(57,135,229,0.14);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --rest: #4a4a47;
+    --band: rgba(230,103,103,0.12); --carry: rgba(57,135,229,0.14);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; }
+  #sub { color: var(--ink-2); font-size: 12px; }
+  #themeBtn { margin-left: auto; }
+  nav { display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--grid); overflow-x: auto; }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 12px; color: var(--ink-2); font: inherit; cursor: pointer; white-space: nowrap; }
+  nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--s1); font-weight: 600; }
+  main { padding: 16px 24px 48px; max-width: 1320px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 16px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  input, select, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  button { cursor: pointer; } button:disabled { opacity: .55; cursor: default; }
+  button.primary { background: var(--s1); color: #fff; border-color: var(--s1); }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; margin-bottom: 16px; min-width: 0; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; }
+  .q { color: var(--ink-2); margin: 0 0 10px; font-size: 13px; }
+  .note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 10px 12px; }
+  .tile .v { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tile .k { color: var(--ink-2); font-size: 12px; }
+  .chart { width: 100%; height: 400px; }
+  .side { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .side { grid-template-columns: 1fr; } }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; vertical-align: top; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  .warn::before { content: "\26A0  "; color: var(--critical); }
+  .ok::before { content: "\2713  "; color: var(--good); font-weight: 700; }
+  .err { border-left: 3px solid var(--critical); }
+  code, pre { font: 12px ui-monospace, Consolas, monospace; }
+  pre { background: var(--page); padding: 8px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Portfolio Creation Program · test bench</h1>
+  <span id="sub">connecting…</span>
+  <button id="themeBtn" type="button">Theme</button>
+</header>
+<main>
+  <div class="filters">
+    <label>Engine <input id="api" size="24"></label>
+    <label>Regime id <input id="regime" size="24"></label>
+    <label>Currency <select id="currency"><option>CHF</option><option>EUR</option><option>USD</option></select></label>
+    <label>ReturnSet id <input id="rs" size="24"></label>
+    <label>Speed <select id="speed"><option>exact</option><option>fast</option></select></label>
+    <label>Month <input id="date" size="10" placeholder="latest"></label>
+    <button id="validateBtn" type="button">Validate</button>
+    <button id="runBtn" class="primary" type="button">Run</button>
+  </div>
+  <div class="card">
+    <h2>Mandate</h2>
+    <p class="q">The client's mandate as JSON (pcp-mandate@1.0.0). Economy weights blend the client's Regime; a market name uses aggregation's published blend. The Currency select sets the mandate's reporting currency: fmre measures the profiles in it, the target curve is read in it, and the ReturnSet id is the one fmre serves for it (PCP-18).</p>
+    <textarea id="mandate" rows="12" style="width:100%;font:12px ui-monospace,Consolas,monospace"></textarea>
+    <p class="note" id="status"></p>
+  </div>
+  <div id="panel"></div>
+</main>
+<script>
+"use strict";
+const DEFAULT_API = "http://127.0.0.1:8007";
+const DEFAULT_UP = { aggregation: "http://127.0.0.1:8004", fmre: "http://127.0.0.1:8006" };
+const params = new URLSearchParams(location.search);
+const store = { get(k) { try { return localStorage.getItem("pcp." + k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem("pcp." + k, v); } catch {} } };
+const $ = id => document.getElementById(id);
+$("api").value = params.get("api") || store.get("api") || (location.protocol === "file:" ? DEFAULT_API : location.origin);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (v, d = 3) => v === null || v === undefined ? "–" : Number(v).toFixed(d);
+const pct = (v, d = 1) => v === null || v === undefined ? "–" : (100 * Number(v)).toFixed(d) + "%";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const base = () => $("api").value.replace(/\/$/, "");
+function upstream(key) {
+  const b = base();
+  if (/\/api\/pcp$/.test(b)) return b.replace(/pcp$/, key);
+  return store.get("up." + key) || DEFAULT_UP[key];
+}
+async function get(url, init) {
+  let r;
+  try { r = await fetch(url, init); } catch { throw new Error(`cannot reach ${url.split("/").slice(0, 3).join("/")}. Is the engine running?`); }
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${url.replace(location.origin, "")} → ${r.status} ${text.slice(0, 400)}`);
+  return text ? JSON.parse(text) : null;
+}
+const call = (path, init) => get(base() + path, init);
+const post = (path, body) => call(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+
+function layout(extra = {}) {
+  const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false, tickfont: { color: css("--muted") }, title: { font: { color: css("--ink-2") } } };
+  const merged = Object.assign({
+    paper_bgcolor: css("--surface"), plot_bgcolor: css("--surface"),
+    font: { family: "system-ui, -apple-system, Segoe UI, sans-serif", color: css("--ink"), size: 12 },
+    margin: { l: 56, r: 24, t: 16, b: 48 }, hovermode: "closest", showlegend: true,
+    legend: { orientation: "h", y: -0.2, font: { color: css("--ink-2") } },
+    hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--axis"), font: { color: css("--ink") } },
+  }, extra);
+  merged.xaxis = Object.assign({}, axis, extra.xaxis || {}); merged.yaxis = Object.assign({}, axis, extra.yaxis || {});
+  return merged;
+}
+const crisisBand = () => ({ type: "rect", xref: "x", yref: "paper", x0: 0.5, x1: 5.5, y0: 0, y1: 1, fillcolor: css("--band"), line: { width: 0 }, layer: "below" });
+const STATES = Array.from({ length: 25 }, (_, i) => i + 1);
+
+function exampleMandate(instruments) {
+  return {
+    client: "bench", name: "balanced", currency: "CHF", curve_unit: "annualised_log_return",
+    target_curve: Array(25).fill(0.02), universe: instruments.map(i => i.instrument_id).sort(),
+    max_single_position: 0.15, esg_min: 0,
+    bounds: { role: { Gain: { lower: 0.2, upper: 0.6 }, Protection: { lower: 0.05, upper: 0.4 } },
+              currency: { CHF: { lower: 0.3, upper: 1.0 } } },
+    bound_sources: { role: "derived", currency: "derived" },
+    regime_weights: { CH: 0.5, EU: 0.3, US: 0.2 },
+  };
+}
+
+function request() {
+  const mandate = { ...JSON.parse($("mandate").value), currency: $("currency").value };
+  $("mandate").value = JSON.stringify(mandate, null, 1);
+  const body = { regime_id: $("regime").value.trim(), return_set_id: $("rs").value.trim(),
+                 mandate, speed_mode: $("speed").value };
+  if ($("date").value.trim()) body.date = $("date").value.trim();
+  store.set("mandate", $("mandate").value); store.set("regime", body.regime_id); store.set("currency", mandate.currency);
+  return body;
+}
+
+async function doValidate() {
+  try {
+    const v = await post("/validate", request());
+    $("status").innerHTML = v.ok ? `<span class="ok">feasible: ${v.universe_size} instruments, ${v.constraint_rows} rows, month ${esc(v.date)}</span>`
+      : v.problems.map(p => `<div class="warn">${esc(p)}</div>`).join("");
+    if (v.notes.length) $("status").innerHTML += v.notes.map(n => `<div class="note">${esc(n)}</div>`).join("");
+  } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+}
+
+async function doRun() {
+  $("runBtn").disabled = true;
+  try {
+    const r = await post("/run", request());
+    if (r.status !== "succeeded") {
+      const s = await call(`/runs/${r.run_id}`);
+      $("status").innerHTML = `<span class="warn">${esc(s.error)}</span>`;
+      return;
+    }
+    $("status").innerHTML = `<span class="ok">${r.cached ? "answered from cache" : "solved"}: ${esc(r.artefact_id)}</span>`;
+    await showAllocation(r.artefact_id);
+  } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+  finally { $("runBtn").disabled = false; }
+}
+
+async function showAllocation(id) {
+  const [a, roles] = await Promise.all([call(`/allocation/${id}`), call(`/allocation/${id}/roles`)]);
+  const d = a.diagnostics;
+  $("panel").innerHTML = `
+    <div class="tiles">
+      <div class="tile"><div class="v">${fmt(d.objective, 4)}</div><div class="k">objective (floor ${fmt(d.objective_floor, 4)})</div></div>
+      <div class="tile"><div class="v">${pct(d.weight_leverage, 2)}</div><div class="k">of the objective the weights control</div></div>
+      <div class="tile"><div class="v">${fmt(a.raw_weight_sum, 6)}</div><div class="k">raw weight sum · budget ${a.budget_met ? "met" : "NOT met"}</div></div>
+      <div class="tile"><div class="v">${d.binding.length} / ${d.constraint_rows}</div><div class="k">rows binding · ${esc(d.solver_method)} · ${d.iterations} it.</div></div>
+      <div class="tile"><div class="v">${esc(a.date)}</div><div class="k">Regime month · ${esc(a.regime_id)}</div></div>
+      <div class="tile"><div class="v">${esc(a.currency || "source")}</div><div class="k">reporting currency · ${esc(a.return_set_id)}</div></div>
+    </div>
+    <div class="card"><h2>1. Portfolio return profile against the mandate curve</h2><p class="q">x'BB per state against the target, annualised log return. Crisis states shaded.</p><div id="c1" class="chart"></div></div>
+    <div class="card"><h2>2. Shortfall by state</h2><p class="q">Summed positive shortfall per state before squaring, with the client's regime distribution it is weighted by.</p><div id="c2" class="chart"></div></div>
+    <div class="side">
+      <div class="card"><h2>3. Weights by role, with the mandate's role bounds</h2><div id="c3" class="chart"></div></div>
+      <div class="card"><h2>5. Raw against renormalised weight sum</h2><div id="c5" class="chart" style="height:300px"></div><p class="note">The budget is read from the raw sum, before renormalising (Manual 15.2).</p></div>
+    </div>
+    <div class="card"><h2>4. Binding constraints</h2><p class="q">Which of the 75 rows are active. Floor rows below zero, ceiling rows above.</p><div id="c4" class="chart" style="height:320px"></div></div>
+    <div class="card"><h2>Portfolio map</h2><p class="q">Weight by role and home scenario.</p><div id="c6" class="chart" style="height:320px"></div></div>
+    <div class="card"><h2>Weights</h2><div class="scroll"><table><thead><tr><th>Instrument</th><th>Role</th><th>Weight</th><th>Raw</th><th>Profile coverage</th></tr></thead><tbody>
+      ${a.instruments.filter(i => i.weight > 1e-6).sort((x, y) => y.weight - x.weight).map(i => `<tr><td>${esc(i.name)}</td><td>${esc(i.role)}</td><td>${pct(i.weight, 2)}</td><td>${fmt(i.raw_weight, 5)}</td><td>${esc(i.coverage)}</td></tr>`).join("")}
+    </tbody></table></div>
+    ${a.coverage.warnings.map(w => `<p class="note warn">${esc(w)}</p>`).join("")}<p class="note">${esc(a.notice)}</p></div>`;
+  const cfg = { displaylogo: false, responsive: true };
+  Plotly.newPlot("c1", [
+    { x: STATES, y: a.curves.target, name: "mandate curve", mode: "lines+markers", line: { color: css("--s2"), dash: "dot" } },
+    { x: STATES, y: a.curves.achieved, name: "portfolio", mode: "lines+markers", line: { color: css("--s1") } },
+  ], layout({ shapes: [crisisBand()], xaxis: { title: { text: "state (1 crisis … 25 boom)" }, dtick: 2 }, yaxis: { title: { text: "annualised log return" }, tickformat: ".1%" } }), cfg);
+  Plotly.newPlot("c2", [
+    { x: STATES, y: a.curves.shortfall_by_state, type: "bar", name: "shortfall", marker: { color: css("--critical") } },
+    { x: STATES, y: a.curves.regime, name: "regime weight", mode: "lines", yaxis: "y2", line: { color: css("--s3") } },
+  ], layout({ shapes: [crisisBand()], xaxis: { title: { text: "state" }, dtick: 2 }, yaxis: { title: { text: "summed shortfall" } },
+              yaxis2: { overlaying: "y", side: "right", tickformat: ".0%", gridcolor: "rgba(0,0,0,0)", tickfont: { color: css("--muted") } } }), cfg);
+  const rnames = Object.keys(roles.weights_by_role);
+  Plotly.newPlot("c3", [
+    { x: rnames, y: rnames.map(r => roles.weights_by_role[r]), type: "bar", name: "weight", marker: { color: css("--s1") } },
+    { x: rnames, y: rnames.map(r => roles.bounds[r].lower), mode: "markers", name: "floor", marker: { symbol: "line-ew-open", size: 28, color: css("--ink-2") } },
+    { x: rnames, y: rnames.map(r => roles.bounds[r].upper), mode: "markers", name: "ceiling", marker: { symbol: "line-ew-open", size: 28, color: css("--critical") } },
+  ], layout({ yaxis: { tickformat: ".0%", range: [0, 1] } }), cfg);
+  const rows = Array.from({ length: 75 }, (_, i) => i + 1);
+  const active = new Map(d.binding.map(b => [b.row, b]));
+  Plotly.newPlot("c4", [{ x: rows, y: rows.map(r => active.has(r) ? (active.get(r).side === "floor" ? -1 : 1) : 0), type: "bar",
+    text: rows.map(r => active.has(r) ? `${active.get(r).dimension}:${active.get(r).category} ${active.get(r).side} ${fmt(active.get(r).bound, 3)}` : ""),
+    hovertemplate: "row %{x}<br>%{text}<extra></extra>", marker: { color: rows.map(r => active.has(r) ? (active.get(r).side === "floor" ? css("--s2") : css("--s1")) : css("--rest")) }, name: "binding" }],
+    layout({ showlegend: false, xaxis: { title: { text: "row" }, dtick: 5 }, yaxis: { tickvals: [-1, 0, 1], ticktext: ["floor", "", "ceiling"] } }), cfg);
+  Plotly.newPlot("c5", [{ x: ["raw", "renormalised"], y: [a.raw_weight_sum, a.instruments.reduce((s, i) => s + i.weight, 0)], type: "bar",
+    marker: { color: [a.budget_met ? css("--good") : css("--critical"), css("--s1")] }, text: [fmt(a.raw_weight_sum, 8), "1"], textposition: "outside" }],
+    layout({ showlegend: false, yaxis: { range: [0, 1.2] } }), cfg);
+  Plotly.newPlot("c6", [{ z: a.portfolio_map.grid, x: a.portfolio_map.scenarios, y: a.portfolio_map.roles, type: "heatmap",
+    colorscale: [[0, css("--surface")], [1, css("--s1")]], texttemplate: "%{z:.1%}", hovertemplate: "%{y} · %{x}: %{z:.2%}<extra></extra>" }],
+    layout({ showlegend: false, margin: { l: 100, r: 24, t: 16, b: 48 } }), cfg);
+}
+
+async function start() {
+  try {
+    const h = await call("/health");
+    $("sub").textContent = `${h.engine_version} · ${base()}`;
+  } catch (e) { $("sub").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+  $("regime").value = params.get("regime") || store.get("regime") || "RGM-e2658e8e9bbbc81e";
+  $("currency").value = params.get("currency") || store.get("currency") || "CHF";
+  try {
+    const instruments = await get(upstream("fmre") + "/v1/instruments");
+    $("mandate").value = store.get("mandate") || JSON.stringify(exampleMandate(instruments), null, 1);
+    await loadReturnSet();
+  } catch (e) {
+    $("status").innerHTML = `<span class="warn">fmre not reachable (${esc(e.message)}); enter the ids and mandate by hand.</span>`;
+    $("mandate").value = store.get("mandate") || "";
+  }
+}
+// The ReturnSet id fmre serves for this Regime in this currency: both enter it (PCP-11, PCP-18).
+async function loadReturnSet() {
+  const ccy = $("currency").value, regime = $("regime").value.trim();
+  $("status").innerHTML = "";
+  try {
+    const rs = await get(upstream("fmre") + "/v1/return-set?include_instruments=true&include_blocks=false&regime_id="
+      + encodeURIComponent(regime) + "&currency=" + encodeURIComponent(ccy));
+    $("rs").value = rs.return_set_id;
+    const noted = (rs.provenance.notes || []).map(n => (n.match(/in currency=([A-Za-z]+)/) || [])[1]).filter(Boolean);
+    const served = rs.provenance.currency || (noted.length === 1 ? noted[0] : null);
+    if (rs.provenance.regime_id !== regime) $("status").innerHTML += `<div class="warn">fmre did not stamp ${esc(regime)} on ${esc(rs.return_set_id)}: pcp refuses it (PCP-11).</div>`;
+    if (served !== ccy) $("status").innerHTML += `<div class="warn">fmre served ${esc(rs.return_set_id)} in ${esc(served || "no stated currency")}, not ${esc(ccy)}: pcp refuses it (PCP-18).</div>`;
+  } catch (e) {
+    $("status").innerHTML = `<span class="warn">fmre served no ReturnSet for ${esc(regime)} in ${esc(ccy)} (${esc(e.message)}); enter the id by hand.</span>`;
+  }
+}
+$("api").addEventListener("change", () => { store.set("api", $("api").value); start(); });
+$("currency").addEventListener("change", () => {
+  store.set("currency", $("currency").value);
+  try { $("mandate").value = JSON.stringify({ ...JSON.parse($("mandate").value), currency: $("currency").value }, null, 1); } catch (e) { /* hand-edited JSON: request() reports it */ }
+  loadReturnSet();
+});
+$("validateBtn").addEventListener("click", doValidate);
+$("runBtn").addEventListener("click", doRun);
+$("themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.dataset.theme = cur === "dark" ? "light" : "dark";
+});
+start();
+</script>
+</body>
+</html>

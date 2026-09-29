@@ -1,0 +1,180 @@
+# Portfolio Creation Program: default configuration.
+#
+# Everything the legacy Master Controller held in spreadsheet control cells lives here. No threshold,
+# preset, tolerance, or vocabulary is a magic constant in code. See decisions.md for why each value is
+# what it is.
+
+programme:
+  engine_version: "pcp@0.1.0"
+  # Attached by reporting/export.py to every written artefact, every brief, and every cockpit
+  # response. Not left to callers.
+  disclaimer: >
+    This is decision-support and research tooling, not investment advice. Every figure is
+    model-derived, not a forecast. Read the binding condition before the number.
+
+# ---------------------------------------------------------------------------
+# Consumed contracts. Read-only, by reference, never recomputed.
+# ---------------------------------------------------------------------------
+contracts:
+  # One Regime timeline per economy, keyed by the economy code the macro programme publishes.
+  regime_timeline_dir: "../Macro_Model/output/regime"
+  returnset: "../Fund_Map/artifacts/rs.json"
+
+  # Binding rule (spec section 3.2). A ReturnSet whose regime_id does not match the Regime being
+  # optimised against is rejected, not reconciled. There is no override flag: the alignment is wired
+  # upstream instead (decisions.md D11).
+  strict_regime_id: true
+
+  # Ingest refuses a ReturnSet that does not declare these. See decisions.md D2.
+  expected_values_unit: "annualised_decimal"
+  expected_horizon_years: 1.0
+
+# ---------------------------------------------------------------------------
+# Fixed vocabularies. Order is load-bearing: the constraint rows depend on it.
+# ---------------------------------------------------------------------------
+vocabularies:
+  # Ordered crisis-low to boom-high, matching state index 0 to 24 (decisions.md D4).
+  scenarios: [Crisis, Contraction, Stagnation, Expansion, Boom]
+  roles: [Gain, Income, Stabilisation, Protection]
+  phases: [Foundation, Build-up, Optimisation, Saturation]
+  capital_types: [Financial, Real, Others]
+  asset_classes: [Cash, Fixed Income, Equity, Real Assets, Alternative]
+  liquidity: [Daily, Quarterly, Yearly, Decade]
+  regions: [Switzerland, Europe, East Asia, South Asia, North America, South Pacific, Others]
+  currencies: [CHF, USD, EUR, RMB, GBP, JPY, HKD, AUD, INR, Others]
+
+  # The regime signal scope, kept separate from geography (decisions.md D15). Used to pick which
+  # economy's Regime applies to a block, never as a constraint dimension.
+  signal_scopes: [Europe, Americas, Asia, Sino, Global]
+
+# Applied on ingest so upstream spelling never reaches the optimiser (decisions.md D3, D5, D7).
+ingest_maps:
+  role:
+    Growth: Gain
+    Stabilization: Stabilisation
+  phase:
+    Maturing: Build-up
+    Optimizing: Optimisation
+  asset_class:
+    Real Estate: Real Assets
+
+# Any currency outside the nine named above folds into Others.
+state_grid: 25
+
+# ---------------------------------------------------------------------------
+# Constraint assembly. Order is the contract (decisions.md D18).
+# ---------------------------------------------------------------------------
+constraints:
+  block_order: [currency, region, role, capital_type, liquidity, esg, phase, asset_class]
+
+# ---------------------------------------------------------------------------
+# The country-weight adapter (decisions.md D10).
+# ---------------------------------------------------------------------------
+country_weights:
+  # Vector order is load-bearing and reproduces Market_Signal.m.
+  order: [China, EU, India, US, Switzerland, Brazil, UK]
+
+  # Which published Regime supplies each slot, and in what proportion.
+  #
+  # A slot is a weighted set rather than a single economy, because the euro area has no Regime of its
+  # own: the Penn World Table publishes no capital stock for the EMU aggregate, so `eurozone` cannot be
+  # assembled. The EU slot is therefore the euro-area members that do publish, weighted by GDP.
+  #
+  # Nesting costs nothing mathematically: the blend is a weighted sum of distributions either way, so a
+  # slot of {de: 0.6, fr: 0.4} at slot weight 0.25 is identical to de at 0.15 and fr at 0.10. Keeping the
+  # slot structure means the mandate's market scope still reads in the vocabulary the presets use.
+  #
+  # Each inner mapping must sum to 1. Add members as more euro-area economies are configured upstream.
+  economies_for_slot:
+    China:       { cn: 1.0 }
+    # Germany and France by their share of the two-economy total, from published 2025 World Bank GDP
+    # (5.051 and 3.366 trillion USD). Recompute when a third member becomes available.
+    EU:          { de: 0.6, fr: 0.4 }
+    India:       { in: 1.0 }
+    US:          { us: 1.0 }
+    Switzerland: { ch: 1.0 }
+    Brazil:      { br: 1.0 }
+    UK:          { gb: 1.0 }
+
+  presets:
+    Americas:    [0.10, 0.20, 0.00, 0.60, 0.00, 0.05, 0.05]
+    Europe:      [0.10, 0.40, 0.00, 0.20, 0.15, 0.00, 0.15]
+    Asia:        [0.55, 0.05, 0.25, 0.15, 0.00, 0.00, 0.00]
+    Sino:        [0.70, 0.10, 0.00, 0.20, 0.00, 0.00, 0.00]
+    Global:      [0.20, 0.25, 0.05, 0.30, 0.05, 0.05, 0.10]
+    # Used when a mandate names no recognised scope, reproducing the legacy else-branch.
+    equal:       [0.25, 0.25, 0.25, 0.25, 0.00, 0.00, 0.00]
+
+  # Set to a 7-length vector to override the preset for a run. Null means use the preset.
+  overwrite: null
+
+  # A slot with a non-zero weight whose economy has no published Regime timeline is a hard failure,
+  # not a silent renormalisation: the blend would otherwise misrepresent the mandate's scope.
+  require_all_weighted_economies: true
+
+# ---------------------------------------------------------------------------
+# Solver (decisions.md D20).
+# ---------------------------------------------------------------------------
+solver:
+  method: "SLSQP"
+  fallback_method: "trust-constr"
+  # Fixed start, so a given input set yields the same allocation. Reproduces the reference.
+  start_value: 0.5
+  speeds:
+    fast:
+      ftol: 1.0e-3
+      maxiter: 300
+    exact:
+      ftol: 1.0e-8
+      maxiter: 3000
+  # sum(x) is rounded to this many decimals when recording conditions_met, before renormalisation.
+  conditions_met_decimals: 1
+
+# ---------------------------------------------------------------------------
+# Run defaults. The cockpit and CLI override these per run.
+# ---------------------------------------------------------------------------
+run:
+  market: "Global"
+  currency: "CHF"
+  benchmark: "Swiss"
+  speed: "exact"
+  optimiser: "curve"          # curve | mv
+  # Months of history to re-optimise in backtest mode. The legacy ceiling was 240.
+  backtest_months: 0
+  max_backtest_months: 240
+  performance_review: false
+  # Selects among Regime variants the macro programme has published (decisions.md D12). The PCP does
+  # not rescale a signal it consumed.
+  regime_variant: "Default"
+
+# The legacy Expert_Controller flags.
+expert:
+  mv_optimiser: false
+  mv_risk_aversion: false
+  mv_market_risk: true
+  send_to_server: false
+  send_to_server_url: null
+  portfolio_challenge: false
+
+# ---------------------------------------------------------------------------
+# The mean-variance comparison branch (decisions.md D21).
+# ---------------------------------------------------------------------------
+mean_variance:
+  covariance_months: 24
+  # M_MV = 5 / mean(argmax(regime) + mean((1:25) * regime))
+  risk_aversion_numerator: 5.0
+  risk_aversion_scale: 1.25
+  risk_aversion_shortfall_multiple: 2.5
+  no_market_risk_value: 10.0
+  label: "comparison optimiser, not the model of record"
+
+# ---------------------------------------------------------------------------
+# Mandates and output.
+# ---------------------------------------------------------------------------
+paths:
+  mandates_dir: "mandates"
+  output_dir: "output"
+
+cockpit:
+  host: "127.0.0.1"
+  port: 8010

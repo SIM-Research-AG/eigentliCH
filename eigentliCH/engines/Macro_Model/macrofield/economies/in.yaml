@@ -1,0 +1,47 @@
+﻿# India.
+
+economy:
+  code: in
+  name: India
+  world_bank: IND
+  bis: IN
+  currency: INR
+
+data:
+  financial_capital:
+    # Not published on a comparable consolidated basis, so the fallback is expected. Book chapter 10.4
+    # places developing economies at 100 to 200 percent of GDP on the primary measure.
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    # Higher than the advanced-economy prior for the same reason as China. Weakly identified.
+    default_depreciation_rate: 0.06
+
+  stimulus:
+    proxy: fiscal_balance
+    reverse_sign: true
+
+calibration:
+  window:
+    # BIS total credit for India begins in 1981.
+    start: null
+    end: null
+
+notes:
+  - >
+    Latest BIS total credit to the non-financial sector is 186.2 percent of GDP, the lowest in the
+    panel and well below the 250 to 350 percent band. On the credit axis India is the one economy in
+    the panel that the phase classifier can place below the Phase 3 ceiling on saturation alone.
+  - >
+    India is therefore the panel's test of whether the earlier phases are reachable at all. If the
+    classifier cannot distinguish India from the United States, the axis is not discriminating and the
+    scale resolution in docs/MODEL_SPEC.md section 3 should be revisited.
+  - >
+    Book section 12.3 associates the Foundation and Build-up stages with favourable demographics and
+    substantial remaining productive opportunity, both of which apply here and should show in the Real
+    dimension of HoNI rather than only in the credit reading.
+  - >
+    Section 10.6 on data reliability applies with more force than for the OECD economies.
+

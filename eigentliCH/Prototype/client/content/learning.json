@@ -1,0 +1,334 @@
+{
+  "_about": {
+    "screen": "S-10 — learning path and capability review.",
+    "requirements": {
+      "R-190": "Units have prerequisites and evidence one or more capabilities. Both are keys into this file; nothing here is a free-text hint.",
+      "R-191": "Progression is expressed as capability statements the member can read. The sentence IS the progression — there is nothing else to show. See C-07.",
+      "R-192": "The rung scheme and the assessment method are NOT decided (D-01). Every `rung` below is null, and this file defines no ordering, no thresholds and no grouping that an ordering could be read out of.",
+      "R-193": "Three exits are named in the content: run your own affairs, offer a service, start a venture. Only the second and third touch the Market Place — see `touches_market_place` on each.",
+      "R-194": "No claim, anywhere, of federal or accredited status (NG-04). These are eigentliCH's own statements about what a member can do, and they are worth exactly what a reader thinks they are worth."
+    },
+    "provenance": "A16 — the estate's five curricula were discarded with the game layer they were authored for, so phase 6 started from nothing. Everything below was written against the capability model.",
+    "fictional": "A41 — this is demonstrable seed content, not real supply and not a syllabus anyone has taught. Every record carries `fictional: true`, and `services/knowledge.py` refuses to write a record that does not. A screenshot of this file must not be mistakable for a real offering.",
+    "language": "A12 — German is the authored language, de-CH default. The English is a draft translation and says so per string.",
+    "bodies": "No unit carries lesson prose. `body_ref` is null on all of them: the unit record, its prerequisites and what it evidences are the seeded thing. R-183 makes the same call for the life-event modules — ship the framework empty rather than filling it with generated text.",
+    "register": "The spec's own example sets the register: \"can explain what a Freizuegigkeitskonto in cash costs per year\". Specific, checkable, about money in Switzerland. Not course marketing.",
+    "forbidden": "R-143 — no mountain vocabulary in either language. C-07 — no game-mechanic vocabulary either; the constraint is about the product, not only the schema.",
+    "content_hooks": "Item 5: each item declares the INPUT or INPUTS that turn it personal, at most three. What is declared is which inputs are needed, never a prepared sentence — the finding itself is composed on the go by services/finding, against the Befund, with every figure verified afterwards. `wenn_sie_es_anbieten` declares nothing and therefore gets no tap: it says the same thing to everybody, which item 5 calls an editorial constraint rather than an engineering one."
+  },
+  "version": "learning@0.1.0",
+  "fictional": true,
+  "rung_scheme": null,
+  "rung_scheme_reason": "self_assessed_no_scheme_d01",
+  "_about_rung_scheme": "D-01 was answered on 2026-08-31 (A82): a capability is the member's own self-assessment, and eigentliCH never examines or certifies one (R-194). So `rung_scheme` is null permanently rather than pending, and this file no longer describes it as an open decision.",
+  "capabilities": [
+    {
+      "key": "freizuegigkeitskonto_kosten",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann erklären, was ein Freizügigkeitskonto, das in bar liegt, pro Jahr kostet — in Franken, nicht als Gebührensatz.",
+        "en": "Can explain what a Freizügigkeitskonto left in cash costs per year — in francs, not as a fee rate.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "saeule_3a_gestaffelt",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann für die eigenen Zahlen ausrechnen, wie viel Steuern der Bezug von zwei Säule-3a-Konten in zwei verschiedenen Jahren gegenüber einem einzigen Bezug spart.",
+        "en": "Can work out, on their own figures, how much tax is saved by drawing two Säule 3a accounts in two different years rather than both at once.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "fondskosten_in_franken",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann die laufenden Kosten eines Fonds vom eigenen Depotauszug in Franken pro Jahr umrechnen.",
+        "en": "Can convert a fund's ongoing charges into francs per year from their own custody statement.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "pk_einkauf_sperrfrist",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann benennen, wie lange nach einem Einkauf in die Pensionskasse kein Kapitalbezug möglich ist, und zeigen, wo das im eigenen Vorsorgeausweis steht.",
+        "en": "Can state how long after a buy-in to the Pensionskasse capital may not be drawn, and show where that appears on their own pension statement.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "franchise_rechnung",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann ausrechnen, ab welchen Arztkosten im Jahr die tiefste Franchise der Krankenversicherung günstiger wird als die höchste.",
+        "en": "Can work out at what level of annual medical costs the lowest health-insurance Franchise becomes cheaper than the highest.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "verrechnungssteuer_rueckfordern",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann auf der eigenen Steuererklärung zeigen, wo die Verrechnungssteuer zurückgefordert wird, und beziffern, wie viel es letztes Jahr war.",
+        "en": "Can show where withholding tax is reclaimed on their own tax return, and say how much it came to last year.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "hypothek_indirekte_amortisation",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann für die eigene Hypothek beziffern, was die indirekte Amortisation über die Säule 3a pro Jahr an Steuern spart und was sie an Zins kostet.",
+        "en": "Can put a figure, for their own mortgage, on what indirect amortisation through Säule 3a saves in tax each year and what it costs in interest.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "fixkosten_eines_monats",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann die eigenen festen Ausgaben eines Monats benennen und sagen, wie viele Monate davon das vorhandene Bargeld deckt.",
+        "en": "Can name their own fixed outgoings for one month and say how many months the cash they hold covers.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "lebensversicherung_sparteil",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann bei einer gemischten Lebensversicherung den Sparteil vom Risikoteil trennen und beide in Franken pro Jahr benennen.",
+        "en": "Can separate the savings part from the risk part of a mixed life insurance policy and state both in francs per year.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "eigene_verbindungen_offenlegen",
+      "fictional": true,
+      "rung": null,
+      "statement": {
+        "de": "Kann die eigenen wirtschaftlichen Verbindungen so aufschreiben, dass eine Gegenpartei sie ohne Nachfrage versteht.",
+        "en": "Can write down their own economic relationships so that a counterparty understands them without having to ask.",
+        "en_draft": true
+      }
+    }
+  ],
+  "units": [
+    {
+      "key": "was_geld_kostet",
+      "fictional": true,
+      "body_ref": null,
+      "prerequisites": [],
+      "capability_keys": [
+        "fondskosten_in_franken",
+        "freizuegigkeitskonto_kosten",
+        "lebensversicherung_sparteil"
+      ],
+      "exits": [],
+      "title": {
+        "de": "Was Ihr Geld kostet, bevor es etwas verdient",
+        "en": "What your money costs before it earns anything",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Jede Anlage, jedes Konto und jede Police kostet etwas, und der Betrag steht selten in Franken da. Hier rechnen Sie ihn für Ihre eigenen Unterlagen aus.",
+        "en": "Every holding, every account and every policy costs something, and the amount is rarely stated in francs. Here you work it out for your own paperwork.",
+        "en_draft": true
+      },
+      "personalises_with": [
+        "financial_stock"
+      ]
+    },
+    {
+      "key": "konten_die_liegen_bleiben",
+      "fictional": true,
+      "body_ref": null,
+      "prerequisites": [
+        "was_geld_kostet"
+      ],
+      "capability_keys": [
+        "freizuegigkeitskonto_kosten",
+        "saeule_3a_gestaffelt"
+      ],
+      "exits": [],
+      "title": {
+        "de": "Konten, die liegen bleiben",
+        "en": "Accounts that sit still",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Freizügigkeitskonten und Säule-3a-Konten werden eröffnet und dann jahrelang nicht angesehen. Was in der Zwischenzeit mit ihnen passiert, ist nachrechenbar.",
+        "en": "Freizügigkeit and Säule 3a accounts get opened and then go unexamined for years. What happens to them in the meantime can be worked out.",
+        "en_draft": true
+      },
+      "personalises_with": [
+        "financial_stock"
+      ]
+    },
+    {
+      "key": "steuern_die_sie_ausloesen",
+      "fictional": true,
+      "body_ref": null,
+      "prerequisites": [
+        "konten_die_liegen_bleiben"
+      ],
+      "capability_keys": [
+        "saeule_3a_gestaffelt",
+        "verrechnungssteuer_rueckfordern",
+        "pk_einkauf_sperrfrist"
+      ],
+      "exits": [],
+      "title": {
+        "de": "Steuern, die Sie selbst auslösen",
+        "en": "The tax you trigger yourself",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Wann Sie etwas beziehen, einzahlen oder zurückfordern, entscheiden Sie — und der Steuerbetrag hängt daran. Diese Einheit rechnet die Fälle durch, die jede und jeder hat.",
+        "en": "When you draw, pay in or reclaim is your decision, and the tax follows from it. This unit works through the cases everyone has.",
+        "en_draft": true
+      },
+      "personalises_with": [
+        "household_composition",
+        "financial_stock"
+      ]
+    },
+    {
+      "key": "was_ein_monat_kostet",
+      "fictional": true,
+      "body_ref": null,
+      "prerequisites": [],
+      "capability_keys": [
+        "fixkosten_eines_monats",
+        "franchise_rechnung"
+      ],
+      "exits": [],
+      "title": {
+        "de": "Was ein Monat bei Ihnen kostet",
+        "en": "What one month costs you",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Ein Monat Ihrer festen Ausgaben ist die einzige Zahl, aus der sich sagen lässt, wie lange Sie ohne Einkommen auskommen. Die meisten Leute kennen sie nicht.",
+        "en": "One month of your fixed outgoings is the only figure from which you can say how long you would last without income. Most people do not know theirs.",
+        "en_draft": true
+      },
+      "personalises_with": [
+        "financial_stock",
+        "income_position"
+      ]
+    },
+    {
+      "key": "die_eigene_hypothek",
+      "fictional": true,
+      "body_ref": null,
+      "prerequisites": [
+        "was_geld_kostet",
+        "was_ein_monat_kostet"
+      ],
+      "capability_keys": [
+        "hypothek_indirekte_amortisation",
+        "pk_einkauf_sperrfrist"
+      ],
+      "exits": [],
+      "title": {
+        "de": "Die eigene Hypothek nachrechnen",
+        "en": "Working through your own mortgage",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Zins, Amortisation und der Steuereffekt gehören zusammen und werden meist getrennt besprochen. Hier stehen sie nebeneinander, mit Ihren eigenen Zahlen.",
+        "en": "Interest, amortisation and the tax effect belong together and are usually discussed apart. Here they stand side by side, on your own figures.",
+        "en_draft": true
+      },
+      "personalises_with": [
+        "household_composition",
+        "income_position",
+        "financial_stock"
+      ]
+    },
+    {
+      "key": "wenn_sie_es_anbieten",
+      "fictional": true,
+      "body_ref": null,
+      "prerequisites": [
+        "was_geld_kostet",
+        "steuern_die_sie_ausloesen"
+      ],
+      "capability_keys": [
+        "eigene_verbindungen_offenlegen"
+      ],
+      "exits": [
+        "offer_a_service",
+        "start_a_venture"
+      ],
+      "title": {
+        "de": "Wenn Sie das selbst anbieten wollen",
+        "en": "If you want to offer this yourself",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Wer anderen etwas anbietet, schuldet ihnen zuerst die eigenen wirtschaftlichen Verbindungen — vollständig und ungefragt. Diese Einheit übt genau das.",
+        "en": "Anyone offering something to others owes them their own economic relationships first — in full and unasked. This unit practises exactly that.",
+        "en_draft": true
+      }
+    }
+  ],
+  "exits": [
+    {
+      "key": "run_own_affairs",
+      "fictional": true,
+      "touches_market_place": false,
+      "name": {
+        "de": "Die eigenen Angelegenheiten selbst führen",
+        "en": "Run your own affairs",
+        "en_draft": true
+      },
+      "description": {
+        "de": "Sie führen Ihre eigenen Finanzen und müssen niemanden dafür beauftragen. Dieser Ausgang endet bei Ihnen und geht nirgends weiter.",
+        "en": "You run your own finances and need not engage anyone to do it. This exit ends with you and leads nowhere else.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "offer_a_service",
+      "fictional": true,
+      "touches_market_place": true,
+      "name": {
+        "de": "Eine Dienstleistung anbieten",
+        "en": "Offer a service",
+        "en_draft": true
+      },
+      "description": {
+        "de": "Sie bieten anderen Mitgliedern an, was Sie können. Das führt in den Market Place, mit offengelegten wirtschaftlichen Verbindungen.",
+        "en": "You offer other members what you are able to do. That leads into the Market Place, with your economic relationships disclosed.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "start_a_venture",
+      "fictional": true,
+      "touches_market_place": true,
+      "name": {
+        "de": "Etwas Eigenes gründen",
+        "en": "Start a venture",
+        "en_draft": true
+      },
+      "description": {
+        "de": "Sie gründen etwas Eigenes und suchen dafür Mitgründerinnen, Kapital oder eine Nachfolge. Auch das führt in den Market Place.",
+        "en": "You start something of your own and look for co-founders, capital or a succession. That too leads into the Market Place.",
+        "en_draft": true
+      }
+    }
+  ]
+}

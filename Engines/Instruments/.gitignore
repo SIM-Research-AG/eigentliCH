@@ -1,0 +1,9 @@
+# The real configuration: it carries credentials. config.example.toml is the committed
+# template, and the password belongs in the environment rather than in either file.
+config.toml
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

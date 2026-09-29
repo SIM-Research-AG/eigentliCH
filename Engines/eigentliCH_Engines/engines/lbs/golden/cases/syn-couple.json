@@ -1,0 +1,132 @@
+{
+ "client_ref": "syn-couple",
+ "as_of": "2026-09-28",
+ "household": {
+  "composition_as_of": "2026-03-15",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 52,
+    "ahv": {
+     "contribution_years_missing": 2
+    }
+   },
+   {
+    "person_id": "p2",
+    "kind": "adult",
+    "age": 49,
+    "ahv": {
+     "contribution_years_missing": 5
+    }
+   },
+   {
+    "person_id": "p3",
+    "kind": "dependant",
+    "age": 12
+   }
+  ]
+ },
+ "positions": [
+  {
+   "position_id": "i-p1",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 110000.0,
+   "unit": "chf_per_year",
+   "owner": "p1"
+  },
+  {
+   "position_id": "pk-p1",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 310000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p1"
+  },
+  {
+   "position_id": "i-p2",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 64000.0,
+   "unit": "chf_per_year",
+   "owner": "p2"
+  },
+  {
+   "position_id": "pk-p2",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 120000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p2"
+  },
+  {
+   "position_id": "home",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 1250000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "real_asset",
+   "owner": "p1"
+  },
+  {
+   "position_id": "mortgage",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 780000.0,
+   "unit": "chf",
+   "stock_kind": "liability",
+   "owner": "p1"
+  },
+  {
+   "position_id": "cash",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 95000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "funds_goals": [
+    "g1"
+   ]
+  },
+  {
+   "position_id": "skills",
+   "role": "gain",
+   "capital_type": "human",
+   "magnitude": 40000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "owner": "p2"
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g1",
+   "kind": "other",
+   "target_amount": 180000.0,
+   "target_date": "2031-06-30",
+   "owners": [
+    "p1",
+    "p2"
+   ]
+  }
+ ],
+ "facts": {
+  "civil_status": "verheiratet"
+ },
+ "mandate": {
+  "goal_id": "g1",
+  "annual_contribution": 15000.0
+ }
+}

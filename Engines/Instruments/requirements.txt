@@ -1,0 +1,16 @@
+# Runtime. Four packages, and each one earns its place.
+#   fastapi          - the versioned HTTP surface the App is generated against (manual section 8)
+#   pydantic         - contract validation; frozen, extra=forbid (manual section 4)
+#   uvicorn          - the ASGI server
+#   psycopg[binary]  - the PostgreSQL driver
+#
+# Everything numerical is in engines/fund_map/numerics.py on the standard library, so
+# there is no numpy/scipy/pandas in the client path and no platform-dependent numerical
+# wheel to pin. See that module's docstring for why.
+#
+# There is no ORM and no migration framework either: the schema is one idempotent file,
+# and the queries are visible at their call sites.
+fastapi==0.115.6
+pydantic==2.10.4
+uvicorn==0.34.0
+psycopg[binary]==3.2.3

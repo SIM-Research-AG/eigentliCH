@@ -1,0 +1,71 @@
+# client: hh-0002
+# mandate: derived-fi-5y
+# market: Global
+# currency: CHF
+# as_of: 2024-12-31
+# regime_id: REG-53d939e6559e60d9
+# return_set_id: RS-5580cf25e9ecfdd8
+# engine_version: pcp@0.1.0
+# optimiser: curve
+# speed: fast
+# idempotency_key: 01bce49586460b0b6ab06642460fa58ff1872568bc869ed70e87164ddfbfa752
+# trace_id: TR-01bce49586460b0b
+# label: model-derived
+# values_unit: annualised_decimal
+# conditions_met: yes
+# disclaimer: This is decision-support and research tooling, not investment advice. Every figure is model-derived, not a forecast. Read the binding condition before the number.
+bb_id,name,ticker,weight,role,region_geo,region_scope,currency,asset_class,economic_phase,capital_type,liquidity,home_scenario,esg
+1,Fixed Holding,MXWO0FD Index,0.09999999999969036,Gain,Others,Europe,EUR,Equity,Saturation,Real,Decade,Stagnation,1.0
+2,CH Equities,MXCH Index,0.0,Gain,Switzerland,Europe,CHF,Equity,Saturation,Financial,Daily,Expansion,1.0
+3,EU Equities,MXEU Index,0.0749999999990623,Gain,Europe,Europe,EUR,Equity,Saturation,Financial,Daily,Expansion,1.0
+4,UK Equities,MXGB Index,0.0,Gain,Europe,Europe,GBP,Equity,Saturation,Financial,Daily,Expansion,1.0
+5,US Equities,MXUS Index,0.0,Gain,North America,Americas,USD,Equity,Saturation,Financial,Daily,Expansion,1.0
+6,Japan Equities,MXJP Index,0.0,Gain,East Asia,Asia,JPY,Equity,Saturation,Financial,Daily,Expansion,1.0
+7,China Equities,MXCN Index,0.0,Gain,East Asia,Sino,RMB,Equity,Optimisation,Financial,Daily,Expansion,1.0
+8,AU NZ Equities,MXAU Index,0.0,Gain,South Pacific,Asia,AUD,Equity,Saturation,Financial,Daily,Expansion,1.0
+9,EM Equities,MXEF Index,0.0,Gain,Others,Global,USD,Equity,Optimisation,Financial,Daily,Expansion,1.0
+10,Private Equity,LPX50TR Index,0.0,Gain,Europe,Europe,EUR,Equity,Saturation,Financial,Decade,Stagnation,1.0
+11,Structured Products,BHSTCR Index,1.941780070034376e-13,Income,North America,Americas,USD,Equity,Saturation,Financial,Daily,Stagnation,1.0
+12,China A Shares,SHASHR Index,0.0,Gain,East Asia,Sino,RMB,Equity,Optimisation,Financial,Daily,Expansion,1.0
+13,India Equities,MXIN Index,0.0,Gain,South Asia,Asia,INR,Equity,Build-up,Financial,Daily,Expansion,1.0
+14,ASEAN Equities,MXSO Index,2.0972112934790945e-13,Gain,East Asia,Asia,USD,Equity,Build-up,Financial,Daily,Expansion,1.0
+15,Asia ex Japan TR,NDUECAXJ Index,1.1252110354373014e-13,Gain,East Asia,Asia,USD,Equity,Build-up,Financial,Daily,Expansion,1.0
+16,Global Equities,MXWO Index,0.0,Gain,Others,Global,USD,Equity,Build-up,Financial,Daily,Expansion,1.0
+17,Global Real Estate indirect,IYR US Equity,0.0,Stabilisation,North America,Global,USD,Real Assets,Saturation,Financial,Quarterly,Expansion,1.0
+18,CHF Corporate Loans IG,SPCHICCT Index,0.1499999999971632,Income,Switzerland,Europe,CHF,Fixed Income,Saturation,Financial,Daily,Expansion,1.0
+19,EUR  Corporate Loans IG,LECPTRCH Index,0.0,Income,Europe,Europe,EUR,Fixed Income,Saturation,Financial,Daily,Expansion,1.0
+20,Global Bonds,BGAUTRCH Index,0.0,Income,Others,Americas,USD,Fixed Income,Saturation,Financial,Daily,Expansion,1.0
+21,Global Governmental Bonds,SBWGU Index,9.980904991200137e-14,Income,Others,Global,USD,Fixed Income,Saturation,Financial,Daily,Stagnation,1.0
+22,Global High Yields,LG30TRUU Index,1.0402789740550088e-13,Income,Others,Global,USD,Fixed Income,Saturation,Financial,Daily,Stagnation,1.0
+23,EM Government Bonds LC,GBIEMCOR Index,0.0,Income,Others,Global,USD,Fixed Income,Optimisation,Financial,Daily,Stagnation,1.0
+24,Private Debt,SPLGAL Index,0.0,Income,Others,Europe,EUR,Fixed Income,Saturation,Financial,Yearly,Expansion,1.0
+25,Asian JACI Bond Index,AJAC SP Equity,0.0,Income,East Asia,Asia,USD,Fixed Income,Build-up,Financial,Daily,Expansion,1.0
+26,Real Estate direct,WUPIIMM Index,0.24999999999542366,Stabilisation,Switzerland,Europe,CHF,Real Assets,Saturation,Real,Yearly,Stagnation,1.0
+27,Bloomberg Market Neutral HF,BHQEMN Index,3.37702088509266e-13,Stabilisation,Others,Global,USD,Alternative,Saturation,Financial,Quarterly,Contraction,1.0
+28,Global Macro,HEDGGLMA Index,0.0,Stabilisation,Others,Global,USD,Alternative,Saturation,Financial,Quarterly,Expansion,1.0
+29,Asia Multi Strategy HF,EHFI38 Index,0.0,Stabilisation,East Asia,Asia,USD,Alternative,Optimisation,Financial,Quarterly,Expansion,1.0
+30,Asia Pacific Arbitrage,EHFI244 Index,0.0,Stabilisation,East Asia,Asia,USD,Alternative,Optimisation,Financial,Quarterly,Crisis,1.0
+31,Asia Long Short Equities,EHFI252 Index,1.6864287743751956e-13,Stabilisation,East Asia,Asia,USD,Alternative,Optimisation,Financial,Quarterly,Contraction,1.0
+32,CHF Cash,PIPCHAI LX Equity,0.09999999999826145,Protection,Switzerland,Europe,CHF,Cash,Saturation,Financial,Daily,Contraction,1.0
+33,Precious Metals,XAU BGN Curncy,1.9073076451203866e-12,Protection,Others,Global,CHF,Alternative,Saturation,Real,Daily,Crisis,1.0
+34,Commodities,SPGCSI Index,0.0,Stabilisation,Others,Global,USD,Alternative,Saturation,Financial,Daily,Contraction,1.0
+35,USD Cash,BXIIBUS0 Index,2.6506574712447528e-14,Protection,North America,Americas,USD,Cash,Saturation,Financial,Daily,Contraction,1.0
+36,US Treasury TR Index,LUATTRUU Index,1.162125951005422e-13,Income,North America,Americas,USD,Fixed Income,Saturation,Financial,Daily,Contraction,1.0
+37,Long Volatility Index,VXTH Index,0.12500000000247097,Protection,North America,Global,USD,Alternative,Saturation,Financial,Quarterly,Crisis,1.0
+38,Bloomberg Hedge Fund,BHEDGE Index,5.291878046780362e-13,Stabilisation,Others,Global,USD,Alternative,Saturation,Financial,Quarterly,Contraction,1.0
+39,Infrastructure,SWIIT Index,0.0,Income,Switzerland,Europe,CHF,Alternative,Saturation,Real,Yearly,Stagnation,1.0
+40,MSCI AC World IMI,MIMUAWON Index,0.0,Gain,Others,Global,USD,Equity,Foundation,Financial,Daily,Expansion,1.0
+41,Bloomberg Multiverse (H-CHF),LF93TRCH Index,0.0,Income,Others,Global,CHF,Fixed Income,Saturation,Financial,Daily,Stagnation,1.0
+42,Swiss Performance Index,SPI Index,0.0,Gain,Switzerland,Europe,CHF,Equity,Saturation,Financial,Daily,Stagnation,1.0
+43,APAC Equities,MXAP Index,2.9415359036912974e-13,Gain,East Asia,Asia,USD,Equity,Build-up,Financial,Daily,Expansion,1.0
+44,Hang Seng Index,MXHK Index,3.5804692543515505e-14,Gain,East Asia,Asia,HKD,Equity,Build-up,Financial,Daily,Expansion,1.0
+45,Fundo World Equity,MXWO Index,0.0,Gain,Others,Global,USD,Equity,Build-up,Financial,Daily,Expansion,1.0
+46,Aktien Europe aktiv,MXEU Index,0.07499999999905506,Gain,Europe,Europe,EUR,Equity,Saturation,Financial,Daily,Expansion,1.0
+47,Mining Equities,MXWO Index,0.0,Gain,Others,Global,USD,Equity,Build-up,Financial,Daily,Expansion,1.0
+48,SXI Real Estate,SWIIT Index,0.0,Income,Switzerland,Europe,CHF,Real Assets,Saturation,Real,Yearly,Stagnation,1.0
+49,CS Long Vola,VXTH Index,0.1250000000024745,Protection,North America,Global,USD,Alternative,Saturation,Financial,Quarterly,Crisis,1.0
+50,Swiss Dividend Equity,CHDVD SE Equity,0.0,Gain,Switzerland,Europe,CHF,Equity,Saturation,Financial,Daily,Stagnation,1.0
+51,EUR Cash,PMMEURP SW Equity,1.4271916981298971e-13,Protection,Europe,Europe,EUR,Cash,Saturation,Financial,Daily,Contraction,1.0
+52,Digital Assets,XBTUSD Curncy,4.815592369224761e-13,Stabilisation,Others,Global,USD,Alternative,Build-up,Financial,Daily,Contraction,1.0
+53,Short MSCI US,M004US6$ Index,1.6381895839561027e-12,Protection,North America,Americas,USD,Alternative,Saturation,Financial,Daily,Crisis,1.0
+54,Trend Following,TRANDTP US Equity,0.0,Stabilisation,Others,Europe,CHF,Alternative,Saturation,Financial,Daily,Crisis,1.0

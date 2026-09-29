@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>eigentliCH</title>
+<!-- No external reference of any kind (C-05); no build step (A2): ES modules served as they are. -->
+<link rel="stylesheet" href="/style/tokens.css">
+<link rel="stylesheet" href="/style/app.css">
+</head>
+<body>
+  <a class="skip" href="#main" data-i18n="chrome.skip">Zum Inhalt springen</a>
+  <header class="chrome">
+    <a href="#/" class="wordmark">eigentliCH</a>
+    <nav class="doors" aria-label="Hauptnavigation" id="doors"></nav>
+    <div class="chrome-end">
+      <span class="who-name" id="who"></span>
+      <button type="button" class="add" id="switch" hidden data-i18n="chrome.switch">Person wechseln</button>
+      <span class="lang" id="lang"></span>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <div id="live" class="visually-hidden" role="status" aria-live="polite"></div>
+  <script type="module" src="/app/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1467 @@
+{
+ "version": "mp@1.1.0",
+ "built": "2026-09-29",
+ "contract_version": "pcp-mandate@1.0.0",
+ "min_instruments_per_role": 2,
+ "role_floor_levels": [
+  0.05,
+  0.1,
+  0.15
+ ],
+ "curve_presets": {
+  "key": "reference/target-curve-presets",
+  "version": "tcp@1.0.0"
+ },
+ "excluded_instruments": [
+  "INS-cs-long-vola",
+  "INS-short-msci-us"
+ ],
+ "presets": [
+  {
+   "key": "conservative-chf",
+   "name": "Conservative CHF",
+   "description": "Capital first: a CHF core of cash, hedged bonds and Swiss credit, a little Swiss equity, gold and market-neutral strategies. Target 1 % a year in every state.",
+   "curve_preset": "capital-preservation",
+   "curve_shift_pp": 0.0,
+   "curve_tilt_pp": 0.0,
+   "universe_by_role": {
+    "gain": [
+     "INS-swiss-dividend-equity",
+     "INS-swiss-performance-index",
+     "INS-global-equities"
+    ],
+    "income": [
+     "INS-chf-corporate-loans-ig",
+     "INS-sxi-real-estate",
+     "INS-global-high-yields"
+    ],
+    "stabilisation": [
+     "INS-bloomberg-market-neutral-hf",
+     "INS-global-macro"
+    ],
+    "protection": [
+     "INS-chf-cash",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-global-governmental-bonds",
+     "INS-precious-metals"
+    ]
+   },
+   "mandate": {
+    "contract_version": "pcp-mandate@1.0.0",
+    "name": "Conservative CHF",
+    "currency": "CHF",
+    "horizon_years": 1.0,
+    "curve_unit": "annualised_log_return",
+    "target_curve": [
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853,
+     0.009950330853
+    ],
+    "universe": [
+     "INS-chf-cash",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-global-governmental-bonds",
+     "INS-precious-metals",
+     "INS-chf-corporate-loans-ig",
+     "INS-sxi-real-estate",
+     "INS-global-high-yields",
+     "INS-bloomberg-market-neutral-hf",
+     "INS-global-macro",
+     "INS-swiss-dividend-equity",
+     "INS-swiss-performance-index",
+     "INS-global-equities"
+    ],
+    "max_single_position": 0.2,
+    "esg_min": 0.0,
+    "fixed_allocations": {},
+    "bounds": {
+     "currency": {
+      "CHF": {
+       "lower": 0.8,
+       "upper": 1.0
+      }
+     },
+     "role": {
+      "Gain": {
+       "lower": 0.1,
+       "upper": 0.3
+      },
+      "Income": {
+       "lower": 0.15,
+       "upper": 0.4
+      },
+      "Stabilisation": {
+       "lower": 0.05,
+       "upper": 0.25
+      },
+      "Protection": {
+       "lower": 0.25,
+       "upper": 0.6
+      }
+     },
+     "liquidity": {
+      "Daily": {
+       "lower": 0.6,
+       "upper": 1.0
+      }
+     },
+     "region": {
+      "Switzerland": {
+       "lower": 0.3,
+       "upper": 0.8
+      }
+     },
+     "asset_class": {
+      "Equity": {
+       "lower": 0.1,
+       "upper": 0.3
+      },
+      "Cash": {
+       "lower": 0.0,
+       "upper": 0.2
+      }
+     }
+    },
+    "bound_sources": {
+     "currency": "derived",
+     "role": "derived",
+     "liquidity": "derived",
+     "region": "policy",
+     "asset_class": "policy"
+    },
+    "regime_weights": {
+     "CH": 0.7,
+     "EU": 0.2,
+     "US": 0.1
+    }
+   },
+   "validation": {
+    "ok": true,
+    "checked_at": "2026-09-29T06:53:27+00:00",
+    "pcp_engine": "pcp@1.2.0",
+    "regime_id": "RGM-84547bcbce44aaa0",
+    "return_set_id": "RS-3a661c987bdf59cf",
+    "currency": "CHF",
+    "status_code": 200,
+    "problems": [],
+    "notes": [
+     "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)"
+    ],
+    "universe_size": 12,
+    "constraint_rows": 75,
+    "date": "2026-01-31",
+    "role_floor_checks": [
+     {
+      "role_floor": 0.05,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.1,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.15,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     }
+    ]
+   }
+  },
+  {
+   "key": "balanced-chf",
+   "name": "Balanced CHF",
+   "description": "The house's balanced mix for a Swiss client: 25 to 50 % equity (home and world), CHF credit and Swiss real estate, diversifiers and protection.",
+   "curve_preset": "balanced-blend",
+   "curve_shift_pp": 0.0,
+   "curve_tilt_pp": 0.0,
+   "universe_by_role": {
+    "gain": [
+     "INS-ch-equities",
+     "INS-swiss-performance-index",
+     "INS-global-equities",
+     "INS-us-equities",
+     "INS-eu-equities",
+     "INS-em-equities"
+    ],
+    "income": [
+     "INS-chf-corporate-loans-ig",
+     "INS-global-high-yields",
+     "INS-sxi-real-estate",
+     "INS-infrastructure"
+    ],
+    "stabilisation": [
+     "INS-global-macro",
+     "INS-trend-following"
+    ],
+    "protection": [
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-chf-cash",
+     "INS-precious-metals"
+    ]
+   },
+   "mandate": {
+    "contract_version": "pcp-mandate@1.0.0",
+    "name": "Balanced CHF",
+    "currency": "CHF",
+    "horizon_years": 1.0,
+    "curve_unit": "annualised_log_return",
+    "target_curve": [
+     -0.067850666908,
+     -0.051082790229,
+     -0.034902052009,
+     -0.019692633346,
+     -0.005816885322,
+     0.006180859075,
+     0.01597176951,
+     0.023032699111,
+     0.027225986254,
+     0.0291703773,
+     0.030335199796,
+     0.032079893463,
+     0.035560175399,
+     0.041333863493,
+     0.04850440906,
+     0.055907631938,
+     0.062599141757,
+     0.067565186162,
+     0.071110627458,
+     0.074272244375,
+     0.076868444257,
+     0.078903597595,
+     0.080196541994,
+     0.080657903017,
+     0.080104244242
+    ],
+    "universe": [
+     "INS-ch-equities",
+     "INS-swiss-performance-index",
+     "INS-global-equities",
+     "INS-us-equities",
+     "INS-eu-equities",
+     "INS-em-equities",
+     "INS-chf-corporate-loans-ig",
+     "INS-global-high-yields",
+     "INS-sxi-real-estate",
+     "INS-infrastructure",
+     "INS-global-macro",
+     "INS-trend-following",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-chf-cash",
+     "INS-precious-metals"
+    ],
+    "max_single_position": 0.15,
+    "esg_min": 0.0,
+    "fixed_allocations": {},
+    "bounds": {
+     "currency": {
+      "CHF": {
+       "lower": 0.5,
+       "upper": 1.0
+      }
+     },
+     "role": {
+      "Gain": {
+       "lower": 0.3,
+       "upper": 0.5
+      },
+      "Income": {
+       "lower": 0.15,
+       "upper": 0.35
+      },
+      "Stabilisation": {
+       "lower": 0.05,
+       "upper": 0.25
+      },
+      "Protection": {
+       "lower": 0.1,
+       "upper": 0.35
+      }
+     },
+     "liquidity": {
+      "Daily": {
+       "lower": 0.5,
+       "upper": 1.0
+      }
+     },
+     "region": {
+      "Switzerland": {
+       "lower": 0.2,
+       "upper": 0.6
+      }
+     },
+     "asset_class": {
+      "Equity": {
+       "lower": 0.25,
+       "upper": 0.5
+      },
+      "Cash": {
+       "lower": 0.0,
+       "upper": 0.15
+      }
+     }
+    },
+    "bound_sources": {
+     "currency": "derived",
+     "role": "derived",
+     "liquidity": "derived",
+     "region": "policy",
+     "asset_class": "policy"
+    },
+    "regime_weights": {
+     "CH": 0.5,
+     "EU": 0.25,
+     "US": 0.25
+    }
+   },
+   "validation": {
+    "ok": true,
+    "checked_at": "2026-09-29T06:53:32+00:00",
+    "pcp_engine": "pcp@1.2.0",
+    "regime_id": "RGM-84547bcbce44aaa0",
+    "return_set_id": "RS-3a661c987bdf59cf",
+    "currency": "CHF",
+    "status_code": 200,
+    "problems": [],
+    "notes": [
+     "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)"
+    ],
+    "universe_size": 15,
+    "constraint_rows": 75,
+    "date": "2026-01-31",
+    "role_floor_checks": [
+     {
+      "role_floor": 0.05,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.1,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.15,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     }
+    ]
+   }
+  },
+  {
+   "key": "growth-global",
+   "name": "Growth global",
+   "description": "Equity-led and world-wide, in USD: developed and emerging markets, private equity and miners, with bonds, real estate, commodities, hedge funds and treasuries as ballast.",
+   "curve_preset": "growth-tilt",
+   "curve_shift_pp": 0.0,
+   "curve_tilt_pp": 0.0,
+   "universe_by_role": {
+    "gain": [
+     "INS-msci-ac-world-imi",
+     "INS-us-equities",
+     "INS-eu-equities",
+     "INS-japan-equities",
+     "INS-em-equities",
+     "INS-china-equities",
+     "INS-india-equities",
+     "INS-uk-equities",
+     "INS-ch-equities",
+     "INS-private-equity",
+     "INS-mining-equities"
+    ],
+    "income": [
+     "INS-global-bonds",
+     "INS-global-real-estate-indirect"
+    ],
+    "stabilisation": [
+     "INS-commodities",
+     "INS-bloomberg-hedge-fund"
+    ],
+    "protection": [
+     "INS-us-treasury-tr-index",
+     "INS-usd-cash"
+    ]
+   },
+   "mandate": {
+    "contract_version": "pcp-mandate@1.0.0",
+    "name": "Growth global",
+    "currency": "USD",
+    "horizon_years": 1.0,
+    "curve_unit": "annualised_log_return",
+    "target_curve": [
+     -0.020202707318,
+     -0.01592615055,
+     -0.0117689836,
+     -0.007528266421,
+     -0.003305457009,
+     0.000799680171,
+     0.004987541511,
+     0.009157937785,
+     0.013212331472,
+     0.017348638335,
+     0.021467906615,
+     0.025472795973,
+     0.029558802242,
+     0.03362818098,
+     0.037584760327,
+     0.041621674691,
+     0.045642357879,
+     0.049551778829,
+     0.053540766928,
+     0.057513906201,
+     0.061377279675,
+     0.065319466121,
+     0.069246172737,
+     0.073064570857,
+     0.076961041136
+    ],
+    "universe": [
+     "INS-msci-ac-world-imi",
+     "INS-us-equities",
+     "INS-eu-equities",
+     "INS-japan-equities",
+     "INS-em-equities",
+     "INS-china-equities",
+     "INS-india-equities",
+     "INS-uk-equities",
+     "INS-ch-equities",
+     "INS-private-equity",
+     "INS-mining-equities",
+     "INS-global-bonds",
+     "INS-global-real-estate-indirect",
+     "INS-commodities",
+     "INS-bloomberg-hedge-fund",
+     "INS-us-treasury-tr-index",
+     "INS-usd-cash"
+    ],
+    "max_single_position": 0.15,
+    "esg_min": 0.0,
+    "fixed_allocations": {},
+    "bounds": {
+     "currency": {
+      "USD": {
+       "lower": 0.3,
+       "upper": 0.8
+      }
+     },
+     "role": {
+      "Gain": {
+       "lower": 0.6,
+       "upper": 0.85
+      },
+      "Income": {
+       "lower": 0.05,
+       "upper": 0.25
+      },
+      "Stabilisation": {
+       "lower": 0.0,
+       "upper": 0.15
+      },
+      "Protection": {
+       "lower": 0.05,
+       "upper": 0.2
+      }
+     },
+     "liquidity": {
+      "Daily": {
+       "lower": 0.7,
+       "upper": 1.0
+      }
+     },
+     "region": {
+      "North America": {
+       "lower": 0.2,
+       "upper": 0.5
+      }
+     },
+     "phase": {
+      "Saturation": {
+       "lower": 0.0,
+       "upper": 0.75
+      }
+     },
+     "asset_class": {
+      "Equity": {
+       "lower": 0.4,
+       "upper": 0.85
+      }
+     }
+    },
+    "bound_sources": {
+     "currency": "derived",
+     "role": "derived",
+     "liquidity": "derived",
+     "region": "policy",
+     "phase": "policy",
+     "asset_class": "policy"
+    },
+    "regime_market": "global"
+   },
+   "validation": {
+    "ok": true,
+    "checked_at": "2026-09-29T06:53:37+00:00",
+    "pcp_engine": "pcp@1.2.0",
+    "regime_id": "RGM-84547bcbce44aaa0",
+    "return_set_id": "RS-1ea9e447c3148ce1",
+    "currency": "USD",
+    "status_code": 200,
+    "problems": [],
+    "notes": [
+     "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)"
+    ],
+    "universe_size": 17,
+    "constraint_rows": 75,
+    "date": "2024-12-31",
+    "role_floor_checks": [
+     {
+      "role_floor": 0.05,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.1,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.15,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     }
+    ]
+   }
+  },
+  {
+   "key": "income-focus",
+   "name": "Income focus",
+   "description": "Carry first: investment-grade and high-yield credit, emerging and Asian bonds, private debt, real estate and infrastructure, Swiss dividend and world equity sleeves, market-neutral and macro strategies as stabilisers.",
+   "curve_preset": "role-income",
+   "curve_shift_pp": 0.0,
+   "curve_tilt_pp": 0.0,
+   "universe_by_role": {
+    "gain": [
+     "INS-swiss-dividend-equity",
+     "INS-global-equities"
+    ],
+    "income": [
+     "INS-chf-corporate-loans-ig",
+     "INS-eur-corporate-loans-ig",
+     "INS-global-high-yields",
+     "INS-em-government-bonds-lc",
+     "INS-asian-jaci-bond-index",
+     "INS-private-debt",
+     "INS-sxi-real-estate",
+     "INS-real-estate-direct",
+     "INS-infrastructure",
+     "INS-global-real-estate-indirect",
+     "INS-structured-products"
+    ],
+    "stabilisation": [
+     "INS-bloomberg-market-neutral-hf",
+     "INS-global-macro"
+    ],
+    "protection": [
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-chf-cash"
+    ]
+   },
+   "mandate": {
+    "contract_version": "pcp-mandate@1.0.0",
+    "name": "Income focus",
+    "currency": "CHF",
+    "horizon_years": 1.0,
+    "curve_unit": "annualised_log_return",
+    "target_curve": [
+     -0.067101803541,
+     -0.04908520769,
+     -0.02963480513,
+     -0.010454457904,
+     0.007074913672,
+     0.021467906615,
+     0.031207927124,
+     0.034787825486,
+     0.034594644764,
+     0.034014878587,
+     0.033434776086,
+     0.032854336871,
+     0.03266078224,
+     0.03469123979,
+     0.039797469874,
+     0.045928931888,
+     0.051358292275,
+     0.054204054014,
+     0.055056205748,
+     0.055718488756,
+     0.056285811011,
+     0.056663847118,
+     0.056758333819,
+     0.056663847118,
+     0.05619127965
+    ],
+    "universe": [
+     "INS-chf-corporate-loans-ig",
+     "INS-eur-corporate-loans-ig",
+     "INS-global-high-yields",
+     "INS-em-government-bonds-lc",
+     "INS-asian-jaci-bond-index",
+     "INS-private-debt",
+     "INS-sxi-real-estate",
+     "INS-real-estate-direct",
+     "INS-infrastructure",
+     "INS-global-real-estate-indirect",
+     "INS-swiss-dividend-equity",
+     "INS-global-equities",
+     "INS-structured-products",
+     "INS-bloomberg-market-neutral-hf",
+     "INS-global-macro",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-chf-cash"
+    ],
+    "max_single_position": 0.15,
+    "esg_min": 0.0,
+    "fixed_allocations": {},
+    "bounds": {
+     "currency": {
+      "CHF": {
+       "lower": 0.5,
+       "upper": 1.0
+      }
+     },
+     "role": {
+      "Gain": {
+       "lower": 0.0,
+       "upper": 0.25
+      },
+      "Income": {
+       "lower": 0.45,
+       "upper": 0.8
+      },
+      "Stabilisation": {
+       "lower": 0.0,
+       "upper": 0.2
+      },
+      "Protection": {
+       "lower": 0.1,
+       "upper": 0.35
+      }
+     },
+     "liquidity": {
+      "Daily": {
+       "lower": 0.4,
+       "upper": 1.0
+      }
+     },
+     "region": {
+      "Switzerland": {
+       "lower": 0.25,
+       "upper": 0.7
+      }
+     },
+     "asset_class": {
+      "Fixed Income": {
+       "lower": 0.3,
+       "upper": 0.7
+      },
+      "Real Assets": {
+       "lower": 0.1,
+       "upper": 0.4
+      }
+     }
+    },
+    "bound_sources": {
+     "currency": "derived",
+     "role": "derived",
+     "liquidity": "derived",
+     "region": "policy",
+     "asset_class": "policy"
+    },
+    "regime_weights": {
+     "CH": 0.6,
+     "EU": 0.25,
+     "US": 0.15
+    }
+   },
+   "validation": {
+    "ok": true,
+    "checked_at": "2026-09-29T06:53:42+00:00",
+    "pcp_engine": "pcp@1.2.0",
+    "regime_id": "RGM-84547bcbce44aaa0",
+    "return_set_id": "RS-3a661c987bdf59cf",
+    "currency": "CHF",
+    "status_code": 200,
+    "problems": [],
+    "notes": [
+     "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)"
+    ],
+    "universe_size": 17,
+    "constraint_rows": 75,
+    "date": "2026-01-31",
+    "role_floor_checks": [
+     {
+      "role_floor": 0.05,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.1,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.15,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     }
+    ]
+   }
+  },
+  {
+   "key": "crisis-resilient",
+   "name": "Crisis-resilient",
+   "description": "Built for the bad states: cash, treasuries and hedged bonds, gold, long volatility and trend following, market-neutral and arbitrage strategies, a little investment-grade credit and global bonds, a small equity sleeve.",
+   "curve_preset": "crisis-resilient",
+   "curve_shift_pp": 0.0,
+   "curve_tilt_pp": 0.0,
+   "universe_by_role": {
+    "gain": [
+     "INS-swiss-dividend-equity",
+     "INS-global-equities"
+    ],
+    "income": [
+     "INS-chf-corporate-loans-ig",
+     "INS-global-bonds"
+    ],
+    "stabilisation": [
+     "INS-trend-following",
+     "INS-global-macro",
+     "INS-bloomberg-market-neutral-hf",
+     "INS-asia-pacific-arbitrage"
+    ],
+    "protection": [
+     "INS-chf-cash",
+     "INS-usd-cash",
+     "INS-us-treasury-tr-index",
+     "INS-global-governmental-bonds",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-precious-metals",
+     "INS-long-volatility-index"
+    ]
+   },
+   "mandate": {
+    "contract_version": "pcp-mandate@1.0.0",
+    "name": "Crisis-resilient",
+    "currency": "CHF",
+    "horizon_years": 1.0,
+    "curve_unit": "annualised_log_return",
+    "target_curve": [
+     0.053540766928,
+     0.05192809286,
+     0.050407902544,
+     0.048790164169,
+     0.047169804476,
+     0.045642357879,
+     0.044016885417,
+     0.042388766492,
+     0.040853994008,
+     0.039220713153,
+     0.037584760327,
+     0.036042591347,
+     0.034401426717,
+     0.032757564238,
+     0.031207927124,
+     0.029558802242,
+     0.027906953253,
+     0.026349775323,
+     0.02469261259,
+     0.023032699111,
+     0.021467906615,
+     0.019802627296,
+     0.018134570195,
+     0.016562088299,
+     0.014888612494
+    ],
+    "universe": [
+     "INS-chf-cash",
+     "INS-usd-cash",
+     "INS-us-treasury-tr-index",
+     "INS-global-governmental-bonds",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-precious-metals",
+     "INS-long-volatility-index",
+     "INS-trend-following",
+     "INS-global-macro",
+     "INS-bloomberg-market-neutral-hf",
+     "INS-asia-pacific-arbitrage",
+     "INS-chf-corporate-loans-ig",
+     "INS-global-bonds",
+     "INS-swiss-dividend-equity",
+     "INS-global-equities"
+    ],
+    "max_single_position": 0.2,
+    "esg_min": 0.0,
+    "fixed_allocations": {},
+    "bounds": {
+     "currency": {
+      "CHF": {
+       "lower": 0.6,
+       "upper": 1.0
+      }
+     },
+     "role": {
+      "Gain": {
+       "lower": 0.05,
+       "upper": 0.25
+      },
+      "Income": {
+       "lower": 0.0,
+       "upper": 0.2
+      },
+      "Stabilisation": {
+       "lower": 0.15,
+       "upper": 0.4
+      },
+      "Protection": {
+       "lower": 0.3,
+       "upper": 0.7
+      }
+     },
+     "liquidity": {
+      "Daily": {
+       "lower": 0.5,
+       "upper": 1.0
+      }
+     },
+     "region": {
+      "North America": {
+       "lower": 0.0,
+       "upper": 0.4
+      }
+     },
+     "asset_class": {
+      "Cash": {
+       "lower": 0.05,
+       "upper": 0.3
+      },
+      "Equity": {
+       "lower": 0.05,
+       "upper": 0.25
+      },
+      "Alternative": {
+       "lower": 0.15,
+       "upper": 0.45
+      }
+     }
+    },
+    "bound_sources": {
+     "currency": "derived",
+     "role": "derived",
+     "liquidity": "derived",
+     "region": "policy",
+     "asset_class": "policy"
+    },
+    "regime_weights": {
+     "CH": 0.5,
+     "EU": 0.3,
+     "US": 0.2
+    }
+   },
+   "validation": {
+    "ok": true,
+    "checked_at": "2026-09-29T06:53:47+00:00",
+    "pcp_engine": "pcp@1.2.0",
+    "regime_id": "RGM-84547bcbce44aaa0",
+    "return_set_id": "RS-3a661c987bdf59cf",
+    "currency": "CHF",
+    "status_code": 200,
+    "problems": [],
+    "notes": [
+     "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)"
+    ],
+    "universe_size": 15,
+    "constraint_rows": 75,
+    "date": "2026-01-31",
+    "role_floor_checks": [
+     {
+      "role_floor": 0.05,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.1,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.15,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     }
+    ]
+   }
+  },
+  {
+   "key": "swiss-home-bias",
+   "name": "Swiss home bias",
+   "description": "At home in Switzerland: Swiss equities, CHF credit, Swiss real estate (listed and direct), CHF cash and hedged bonds, gold, CHF market-neutral and trend strategies, a world-equity and a private-equity sleeve.",
+   "curve_preset": "steady-return",
+   "curve_shift_pp": 0.0,
+   "curve_tilt_pp": 0.0,
+   "universe_by_role": {
+    "gain": [
+     "INS-ch-equities",
+     "INS-swiss-performance-index",
+     "INS-swiss-dividend-equity",
+     "INS-global-equities",
+     "INS-private-equity"
+    ],
+    "income": [
+     "INS-chf-corporate-loans-ig",
+     "INS-sxi-real-estate",
+     "INS-real-estate-direct"
+    ],
+    "stabilisation": [
+     "INS-bloomberg-market-neutral-hf",
+     "INS-trend-following"
+    ],
+    "protection": [
+     "INS-chf-cash",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-global-governmental-bonds",
+     "INS-precious-metals"
+    ]
+   },
+   "mandate": {
+    "contract_version": "pcp-mandate@1.0.0",
+    "name": "Swiss home bias",
+    "currency": "CHF",
+    "horizon_years": 1.0,
+    "curve_unit": "annualised_log_return",
+    "target_curve": [
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717,
+     0.034401426717
+    ],
+    "universe": [
+     "INS-ch-equities",
+     "INS-swiss-performance-index",
+     "INS-swiss-dividend-equity",
+     "INS-chf-corporate-loans-ig",
+     "INS-sxi-real-estate",
+     "INS-real-estate-direct",
+     "INS-chf-cash",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-global-governmental-bonds",
+     "INS-precious-metals",
+     "INS-bloomberg-market-neutral-hf",
+     "INS-trend-following",
+     "INS-global-equities",
+     "INS-private-equity"
+    ],
+    "max_single_position": 0.2,
+    "esg_min": 0.0,
+    "fixed_allocations": {},
+    "bounds": {
+     "currency": {
+      "CHF": {
+       "lower": 0.9,
+       "upper": 1.0
+      }
+     },
+     "role": {
+      "Gain": {
+       "lower": 0.25,
+       "upper": 0.55
+      },
+      "Income": {
+       "lower": 0.15,
+       "upper": 0.4
+      },
+      "Stabilisation": {
+       "lower": 0.0,
+       "upper": 0.25
+      },
+      "Protection": {
+       "lower": 0.1,
+       "upper": 0.35
+      }
+     },
+     "liquidity": {
+      "Daily": {
+       "lower": 0.5,
+       "upper": 1.0
+      }
+     },
+     "region": {
+      "Switzerland": {
+       "lower": 0.5,
+       "upper": 1.0
+      }
+     },
+     "capital_type": {
+      "Real": {
+       "lower": 0.05,
+       "upper": 0.3
+      }
+     },
+     "asset_class": {
+      "Equity": {
+       "lower": 0.25,
+       "upper": 0.55
+      }
+     }
+    },
+    "bound_sources": {
+     "currency": "derived",
+     "role": "derived",
+     "liquidity": "derived",
+     "region": "policy",
+     "capital_type": "policy",
+     "asset_class": "policy"
+    },
+    "regime_weights": {
+     "CH": 1.0
+    }
+   },
+   "validation": {
+    "ok": true,
+    "checked_at": "2026-09-29T06:53:51+00:00",
+    "pcp_engine": "pcp@1.2.0",
+    "regime_id": "RGM-84547bcbce44aaa0",
+    "return_set_id": "RS-3a661c987bdf59cf",
+    "currency": "CHF",
+    "status_code": 200,
+    "problems": [],
+    "notes": [
+     "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)"
+    ],
+    "universe_size": 14,
+    "constraint_rows": 75,
+    "date": "2026-01-31",
+    "role_floor_checks": [
+     {
+      "role_floor": 0.05,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.1,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.15,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     }
+    ]
+   }
+  },
+  {
+   "key": "sustainable-balanced",
+   "name": "Sustainable balanced",
+   "description": "A balanced European mix with an ESG floor of 0.8: European, Swiss, US and Japanese equity, euro and CHF credit, infrastructure, listed real estate, trend and macro.",
+   "curve_preset": "all-weather",
+   "curve_shift_pp": 0.0,
+   "curve_tilt_pp": 0.0,
+   "universe_by_role": {
+    "gain": [
+     "INS-eu-equities",
+     "INS-aktien-europe-aktiv",
+     "INS-ch-equities",
+     "INS-us-equities",
+     "INS-japan-equities"
+    ],
+    "income": [
+     "INS-eur-corporate-loans-ig",
+     "INS-chf-corporate-loans-ig",
+     "INS-infrastructure",
+     "INS-sxi-real-estate"
+    ],
+    "stabilisation": [
+     "INS-trend-following",
+     "INS-global-macro"
+    ],
+    "protection": [
+     "INS-eur-cash",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-global-governmental-bonds"
+    ]
+   },
+   "mandate": {
+    "contract_version": "pcp-mandate@1.0.0",
+    "name": "Sustainable balanced",
+    "currency": "EUR",
+    "horizon_years": 1.0,
+    "curve_unit": "annualised_log_return",
+    "target_curve": [
+     0.037295784744,
+     0.034980968895,
+     0.032854336871,
+     0.030917102635,
+     0.029267497681,
+     0.027712438567,
+     0.026447170015,
+     0.025277807184,
+     0.024399886824,
+     0.023618865599,
+     0.023130417389,
+     0.022837233903,
+     0.022739486969,
+     0.022837233903,
+     0.023130417389,
+     0.023618865599,
+     0.024399886824,
+     0.025277807184,
+     0.026447170015,
+     0.027712438567,
+     0.029267497681,
+     0.030917102635,
+     0.032854336871,
+     0.034980968895,
+     0.037295784744
+    ],
+    "universe": [
+     "INS-eu-equities",
+     "INS-aktien-europe-aktiv",
+     "INS-ch-equities",
+     "INS-us-equities",
+     "INS-japan-equities",
+     "INS-eur-corporate-loans-ig",
+     "INS-chf-corporate-loans-ig",
+     "INS-infrastructure",
+     "INS-sxi-real-estate",
+     "INS-trend-following",
+     "INS-global-macro",
+     "INS-eur-cash",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-global-governmental-bonds"
+    ],
+    "max_single_position": 0.15,
+    "esg_min": 0.8,
+    "fixed_allocations": {},
+    "bounds": {
+     "currency": {
+      "EUR": {
+       "lower": 0.4,
+       "upper": 1.0
+      }
+     },
+     "role": {
+      "Gain": {
+       "lower": 0.3,
+       "upper": 0.5
+      },
+      "Income": {
+       "lower": 0.15,
+       "upper": 0.35
+      },
+      "Stabilisation": {
+       "lower": 0.05,
+       "upper": 0.2
+      },
+      "Protection": {
+       "lower": 0.1,
+       "upper": 0.3
+      }
+     },
+     "liquidity": {
+      "Daily": {
+       "lower": 0.5,
+       "upper": 1.0
+      }
+     },
+     "region": {
+      "Europe": {
+       "lower": 0.3,
+       "upper": 0.7
+      }
+     },
+     "asset_class": {
+      "Equity": {
+       "lower": 0.25,
+       "upper": 0.5
+      }
+     }
+    },
+    "bound_sources": {
+     "currency": "derived",
+     "role": "derived",
+     "liquidity": "derived",
+     "region": "policy",
+     "asset_class": "policy"
+    },
+    "regime_market": "europe"
+   },
+   "validation": {
+    "ok": true,
+    "checked_at": "2026-09-29T06:53:57+00:00",
+    "pcp_engine": "pcp@1.2.0",
+    "regime_id": "RGM-84547bcbce44aaa0",
+    "return_set_id": "RS-9df2512d09408777",
+    "currency": "EUR",
+    "status_code": 200,
+    "problems": [],
+    "notes": [
+     "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)"
+    ],
+    "universe_size": 14,
+    "constraint_rows": 75,
+    "date": "2026-01-31",
+    "role_floor_checks": [
+     {
+      "role_floor": 0.05,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.1,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.15,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     }
+    ]
+   }
+  },
+  {
+   "key": "barbell-chf",
+   "name": "Barbell CHF",
+   "description": "Both ends, a thin middle: growth equities on one side, cash, treasuries, gold and long volatility on the other, with small credit and trend and macro sleeves so every role is held. Pairs with the U-profile curve.",
+   "curve_preset": "u-profile",
+   "curve_shift_pp": 0.0,
+   "curve_tilt_pp": 0.0,
+   "universe_by_role": {
+    "gain": [
+     "INS-us-equities",
+     "INS-msci-ac-world-imi",
+     "INS-ch-equities",
+     "INS-em-equities",
+     "INS-india-equities",
+     "INS-private-equity"
+    ],
+    "income": [
+     "INS-chf-corporate-loans-ig",
+     "INS-global-bonds"
+    ],
+    "stabilisation": [
+     "INS-trend-following",
+     "INS-global-macro"
+    ],
+    "protection": [
+     "INS-chf-cash",
+     "INS-us-treasury-tr-index",
+     "INS-global-governmental-bonds",
+     "INS-precious-metals",
+     "INS-long-volatility-index",
+     "INS-bloomberg-multiverse-h-chf"
+    ]
+   },
+   "mandate": {
+    "contract_version": "pcp-mandate@1.0.0",
+    "name": "Barbell CHF",
+    "currency": "CHF",
+    "horizon_years": 1.0,
+    "curve_unit": "annualised_log_return",
+    "target_curve": [
+     0.067658648474,
+     0.058646195433,
+     0.050407902544,
+     0.042867900227,
+     0.036042591347,
+     0.029947076368,
+     0.02469261259,
+     0.020194707286,
+     0.016562088299,
+     0.013705647056,
+     0.01163208423,
+     0.010346292054,
+     0.009950330853,
+     0.010346292054,
+     0.01163208423,
+     0.013705647056,
+     0.016562088299,
+     0.020194707286,
+     0.02469261259,
+     0.029947076368,
+     0.036042591347,
+     0.042867900227,
+     0.050407902544,
+     0.058646195433,
+     0.067658648474
+    ],
+    "universe": [
+     "INS-us-equities",
+     "INS-msci-ac-world-imi",
+     "INS-ch-equities",
+     "INS-em-equities",
+     "INS-india-equities",
+     "INS-private-equity",
+     "INS-chf-cash",
+     "INS-us-treasury-tr-index",
+     "INS-global-governmental-bonds",
+     "INS-precious-metals",
+     "INS-long-volatility-index",
+     "INS-bloomberg-multiverse-h-chf",
+     "INS-chf-corporate-loans-ig",
+     "INS-global-bonds",
+     "INS-trend-following",
+     "INS-global-macro"
+    ],
+    "max_single_position": 0.15,
+    "esg_min": 0.0,
+    "fixed_allocations": {},
+    "bounds": {
+     "currency": {
+      "CHF": {
+       "lower": 0.4,
+       "upper": 1.0
+      }
+     },
+     "role": {
+      "Gain": {
+       "lower": 0.3,
+       "upper": 0.6
+      },
+      "Income": {
+       "lower": 0.0,
+       "upper": 0.2
+      },
+      "Stabilisation": {
+       "lower": 0.0,
+       "upper": 0.2
+      },
+      "Protection": {
+       "lower": 0.3,
+       "upper": 0.6
+      }
+     },
+     "liquidity": {
+      "Daily": {
+       "lower": 0.6,
+       "upper": 1.0
+      }
+     },
+     "asset_class": {
+      "Equity": {
+       "lower": 0.25,
+       "upper": 0.6
+      }
+     }
+    },
+    "bound_sources": {
+     "currency": "derived",
+     "role": "derived",
+     "liquidity": "derived",
+     "asset_class": "policy"
+    },
+    "regime_market": "global"
+   },
+   "validation": {
+    "ok": true,
+    "checked_at": "2026-09-29T06:54:02+00:00",
+    "pcp_engine": "pcp@1.2.0",
+    "regime_id": "RGM-84547bcbce44aaa0",
+    "return_set_id": "RS-3a661c987bdf59cf",
+    "currency": "CHF",
+    "status_code": 200,
+    "problems": [],
+    "notes": [
+     "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)"
+    ],
+    "universe_size": 16,
+    "constraint_rows": 75,
+    "date": "2024-12-31",
+    "role_floor_checks": [
+     {
+      "role_floor": 0.05,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.1,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     },
+     {
+      "role_floor": 0.15,
+      "ok": true,
+      "status_code": 200,
+      "problems": []
+     }
+    ]
+   }
+  }
+ ],
+ "_about": "Ready mandates for the Parameters page, in pcp's shape (fractions; the curve as annualised log returns from the named curve preset). The client is filled in when a preset is applied. Model-derived research output; not investment advice."
+}

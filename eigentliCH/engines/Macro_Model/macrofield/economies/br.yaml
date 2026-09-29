@@ -1,0 +1,66 @@
+# Brazil.
+#
+# Added so the seven-slot country-weight blend the Portfolio Creation Program applies has a Regime for
+# every weighted slot. Brazil carries 0.05 in both the Americas and the Global presets, so neither can
+# be optimised without it.
+
+economy:
+  code: br
+  name: Brazil
+  world_bank: BRA
+  bis: BR
+  currency: BRL
+
+data:
+  financial_capital:
+    # As for China, the consolidated financial-asset stock of book chapter 10.4 is not published for
+    # Brazil on a basis comparable to the OECD financial accounts, so the fallback is expected to be
+    # used. Book chapter 10.4 notes that developing economies typically sit at 100 to 200 percent of
+    # GDP on the primary measure, so a fallback reading near that range is not evidence of an error.
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    # Above the advanced-economy prior, reflecting a younger and more construction-weighted capital
+    # stock. The same rationale as China, and equally weakly identified, so it is stress-tested in the
+    # sensitivity run.
+    default_depreciation_rate: 0.06
+
+  stimulus:
+    # Brazil publishes a general-government balance that captures the main discretionary channel, so
+    # the fiscal proxy is used rather than the net-new-credit proxy China needs. Policy lending through
+    # the development bank is a second channel this proxy does not capture, which is a known
+    # understatement rather than a neutral simplification.
+    proxy: fiscal_balance
+    reverse_sign: true
+
+calibration:
+  window:
+    # BIS total credit for Brazil begins well after the advanced-economy series, and the hyperinflation
+    # of the early 1990s makes the earliest observations hard to interpret in real terms. Left open so
+    # the loader takes the overlap and reports it rather than asserting a start date.
+    start: null
+    end: null
+
+notes:
+  - >
+    Total credit to the non-financial sector is far below the 250 to 350 percent band of book section
+    8.5, which places Brazil early on the saturation axis rather than late. That is the expected
+    reading for a developing economy and is the substantive contrast this slot contributes to the
+    blend: without it, the panel carries only late-cycle economies. The precise latest figure is taken
+    from the live BIS pull and reported with its vintage rather than recorded here.
+  - >
+    Data reliability warrants the same caution as China. Book section 10.6 treats measurement
+    reliability explicitly and section 10.7's multi-indicator approach is the framework's response.
+    Conclusions for Brazil should rest on the qualitative phase reading rather than on precise ratio
+    values.
+  - >
+    Not a reserve-currency issuer, so book section 12.2 places Brazil on the claim-holder side of the
+    International dimension, the opposite case from the United States. Real rates have historically
+    been high and volatile, which moves the Monetary dimension independently of the capital cycle, so a
+    Monetary reading that diverges from the saturation reading is expected here rather than anomalous.
+  - >
+    Currency depreciation against the reporting currency affects the level series but not the
+    saturation ratio, which is a ratio to domestic GDP. Any comparison against another economy should
+    be made on the ratio, not on the converted level.

@@ -1,0 +1,404 @@
+<!doctype html>
+<!--
+  HoNI test bench. Development only: not part of the system and not in the deploy folder.
+
+  A client of the engine's HTTP surface, nothing more. Served by the engine at "/", or
+  opened straight off disk, in which case it calls http://127.0.0.1:8002 (override with
+  ?api=http://host:port). Plotly from CDN, no build step (Engine Building Guide section 3).
+
+  Colour: sixteen countries cannot each carry a hue, so identity is by emphasis. The
+  selected country is series slot 1, an optional comparison country slot 2, everything else
+  recedes to grey; hover and the Table tab carry the rest. Sectors use slots 1 to 3, scores
+  the one-hue blue ramp. Palette validated with the dataviz validator, all pairs, both modes.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HoNI test bench</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --rest: #c3c2b7;
+    --critical: #d03b3b; --good: #0ca30c; --band: rgba(42,120,214,0.07);
+    --seq: #cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf,#184f95,#0d366b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --rest: #4a4a47; --band: rgba(57,135,229,0.10);
+      --seq: #104281,#184f95,#1c5cab,#256abf,#3987e5,#6da7ec,#b7d3f6;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --rest: #4a4a47; --band: rgba(57,135,229,0.10);
+    --seq: #104281,#184f95,#1c5cab,#256abf,#3987e5,#6da7ec,#b7d3f6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; }
+  #sub { color: var(--ink-2); font-size: 12px; }
+  #themeBtn { margin-left: auto; }
+  nav { display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--grid); overflow-x: auto; }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 12px;
+               color: var(--ink-2); font: inherit; cursor: pointer; white-space: nowrap; }
+  nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--s1); font-weight: 600; }
+  main { padding: 16px 24px 48px; max-width: 1280px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 16px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  input, select, button { font: inherit; color: var(--ink); background: var(--surface);
+                          border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  button.primary { background: var(--s1); color: #fff; border-color: var(--s1); cursor: pointer; }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px;
+          padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; }
+  .q { color: var(--ink-2); margin: 0 0 8px; font-size: 13px; }
+  .note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 12px 14px; }
+  .tile .v { font-size: 22px; font-weight: 600; }
+  .tile .k { color: var(--ink-2); font-size: 12px; }
+  .chart { width: 100%; height: 440px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  .scroll { overflow-x: auto; }
+  .warn { color: var(--ink); } .warn::before { content: "\26A0  "; color: var(--critical); }
+  .err { border-left: 3px solid var(--critical); }
+  code, pre { font: 12px ui-monospace, Consolas, monospace; }
+  pre { background: var(--page); padding: 8px; border-radius: 6px; overflow-x: auto; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Health of Nations Index · test bench</h1>
+  <span id="sub">connecting…</span>
+  <button id="themeBtn" type="button">Theme</button>
+</header>
+<nav id="tabs" role="tablist"></nav>
+<main>
+  <div class="filters">
+    <label>Engine <input id="api" size="24"></label>
+    <label>Snapshot <select id="snapshot"></select></label>
+    <label>Calibration <select id="calibration"></select></label>
+    <button class="primary" id="runBtn" type="button">Run</button>
+    <label>Year <select id="year"></select></label>
+    <label>Country <select id="country"></select></label>
+    <label>Compare with <select id="compare"></select></label>
+  </div>
+  <div id="panel"></div>
+</main>
+<script>
+"use strict";
+const DEFAULT_API = "http://127.0.0.1:8002";
+const params = new URLSearchParams(location.search);
+const store = { get(k) { try { return localStorage.getItem("honi." + k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem("honi." + k, v); } catch {} } };
+const $ = id => document.getElementById(id);
+$("api").value = params.get("api") || store.get("api") || (location.protocol === "file:" ? DEFAULT_API : location.origin);
+
+const state = { artefact: null, run: null, peers: null, ranges: null, tab: store.get("tab") || "run" };
+const SECTORS = [["financial", "Financial", "--s1"], ["international", "International", "--s2"], ["real", "Real", "--s3"]];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (v, d = 2) => v === null || v === undefined ? "n/a" : Number(v).toFixed(d);
+
+async function call(path, init) {
+  let r;
+  try { r = await fetch($("api").value.replace(/\/$/, "") + path, init); }
+  catch (e) { throw new Error(`cannot reach the engine at ${$("api").value}. Start honi and datafeed with their start.cmd.`); }
+  if (!r.ok) throw new Error(`${path} → ${r.status} ${(await r.text()).slice(0, 300)}`);
+  return r.json();
+}
+
+// ---- layout helpers -------------------------------------------------------
+function layout(extra = {}) {
+  const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false,
+                 tickfont: { color: css("--muted") }, titlefont: { color: css("--ink-2") } };
+  return Object.assign({
+    paper_bgcolor: css("--surface"), plot_bgcolor: css("--surface"),
+    font: { family: "system-ui, -apple-system, Segoe UI, sans-serif", color: css("--ink"), size: 12 },
+    margin: { l: 56, r: 24, t: 16, b: 48 }, hovermode: "closest", showlegend: true,
+    legend: { orientation: "h", y: -0.18, font: { color: css("--ink-2") } },
+    hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--axis"), font: { color: css("--ink") } },
+    xaxis: { ...axis }, yaxis: { ...axis },
+  }, extra);
+}
+const seqScale = () => css("--seq").split(",").map((c, i, a) => [i / (a.length - 1), c.trim()]);
+function plot(el, traces, lay) { Plotly.react(el, traces, layout(lay), { displaylogo: false, responsive: true }); }
+function card(title, question, note) {
+  const c = document.createElement("section"); c.className = "card";
+  c.innerHTML = `<h2>${title}</h2><p class="q">${question}</p>`;
+  const body = document.createElement("div"); c.append(body);
+  if (note) c.insertAdjacentHTML("beforeend", `<p class="note">${note}</p>`);
+  $("panel").append(c); return body;
+}
+function chartIn(host, h) { const d = document.createElement("div"); d.className = "chart"; if (h) d.style.height = h + "px"; host.append(d); return d; }
+
+// ---- data accessors -------------------------------------------------------
+const A = () => state.artefact;
+const yearIdx = () => A().years.indexOf(Number($("year").value));
+const colIdx = code => A().countries.findIndex(c => c.code === code);
+const column = (m, j) => m.map(r => r[j]);
+const nameOf = code => (A().countries.find(c => c.code === code) || {}).name || code;
+
+// ---- tabs -----------------------------------------------------------------
+const TABS = {
+  run: ["Run", renderRun], map: ["Map", renderMap], paths: ["Trajectories", renderPaths],
+  country: ["Country", renderCountry], peers: ["Peer spread", renderPeers],
+  coverage: ["Coverage", renderCoverage], calibration: ["Calibration", renderCalibration],
+  table: ["Table", renderTable],
+};
+for (const [id, [label]] of Object.entries(TABS)) {
+  const b = document.createElement("button"); b.textContent = label; b.role = "tab"; b.dataset.tab = id;
+  b.onclick = () => { state.tab = id; store.set("tab", id); render(); };
+  $("tabs").append(b);
+}
+
+function render() {
+  document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === state.tab));
+  $("panel").innerHTML = "";
+  if (!A() && state.tab !== "run" && state.tab !== "calibration") {
+    card("No artefact yet", "Run the engine first."); return;
+  }
+  Promise.resolve().then(TABS[state.tab][1]).catch(problem);
+}
+function problem(e) {
+  const c = card("Something went wrong", ""); c.parentElement.classList.add("err");
+  c.innerHTML = `<pre>${String(e.message || e)}</pre>`;
+}
+
+// ---- Run --------------------------------------------------------------------
+function renderRun() {
+  const r = state.run;
+  if (!r) { card("No run yet", "Pick a snapshot and a calibration, then Run. Re-running the same inputs is free: the engine answers from its cache."); return; }
+  const cov = r.coverage || {};
+  const tiles = card(`Run ${r.run_id}`, `Status <b>${r.status}</b> · ${fmt(r.wall_clock_ms, 0)} ms · artefact ${r.artefact_id || "none"}`);
+  tiles.innerHTML = `<div class="tiles">${[
+    ["Country-years", cov.country_years], ["Index cells missing", cov.index_cells_missing],
+    ["Sectors re-weighted", cov.sectors_reweighted], ["Sectors unscored", cov.sectors_unscored],
+    ["National unscored", cov.national_unscored]]
+    .map(([k, v]) => `<div class="tile"><div class="v">${v ?? "n/a"}</div><div class="k">${k}</div></div>`).join("")}</div>`;
+  if (r.error) { const e = card("Error", "Why the run failed."); e.parentElement.classList.add("err"); e.innerHTML = `<pre>${r.error}</pre>`; }
+  if (r.warnings && r.warnings.length) card("Warnings", "What the reader of this artefact should know.").innerHTML =
+    r.warnings.map(w => `<div class="warn">${w}</div>`).join("");
+  if (r.provenance) card("Provenance", "Where every number came from.").innerHTML = `<pre>${JSON.stringify(r.provenance, null, 2)}</pre>`;
+  if (A()) card("Notice", "").innerHTML = A().notice;
+}
+
+// ---- Map: capital saturation against HoNI -----------------------------------
+function renderMap() {
+  const i = yearIdx(), a = A(), sel = $("country").value, cmp = $("compare").value;
+  const mcap = a.index_raw.market_cap[i];
+  const pts = a.countries.map((c, j) => ({ c, x: a.capital_saturation[i][j], y: a.national[i][j], m: mcap[j] }))
+                         .filter(p => p.x !== null && p.y !== null);
+  const trace = (subset, color, name) => ({
+    type: "scatter", mode: "markers+text", name, x: subset.map(p => p.x), y: subset.map(p => p.y),
+    text: subset.map(p => p.c.code), textposition: "top center", textfont: { color: css("--ink-2"), size: 11 },
+    customdata: subset.map(p => [p.c.name, p.m]),
+    hovertemplate: "<b>%{customdata[0]}</b><br>capital saturation %{x:.2f}<br>HoNI %{y:.2f}<br>market cap %{customdata[1]:.2f} × GDP<extra></extra>",
+    marker: { color, size: subset.map(p => 10 + 14 * Math.sqrt(Math.max(p.m || 0, 0))), line: { color: css("--surface"), width: 2 } },
+  });
+  const rest = pts.filter(p => p.c.code !== sel && p.c.code !== cmp);
+  const traces = [trace(rest, css("--rest"), "Peer set")];
+  if (cmp) traces.push(trace(pts.filter(p => p.c.code === cmp), css("--s2"), nameOf(cmp)));
+  traces.push(trace(pts.filter(p => p.c.code === sel), css("--s1"), nameOf(sel)));
+  const host = card(`Where each country stands, ${$("year").value}`,
+    "Is a country's economy healthy relative to its peers, and how saturated with capital is it?",
+    "x: corporate + government + household debt as a multiple of GDP, plus financial-sector debt over GDP. Shaded: the 2.5 to 3.5 balanced zone of the capital saturation theory. Bubble area: equity market capitalisation over GDP. y is relative by construction: the best country scores 5 and the worst 1 every year.");
+  plot(chartIn(host, 520), traces, {
+    xaxis: { title: { text: "Capital saturation (× GDP)" }, gridcolor: css("--grid"), zeroline: false },
+    yaxis: { title: { text: "HoNI score" }, range: [0.6, 5.5], gridcolor: css("--grid"), zeroline: false },
+    shapes: [{ type: "rect", xref: "x", yref: "paper", x0: 2.5, x1: 3.5, y0: 0, y1: 1, fillcolor: css("--band"), line: { width: 0 }, layer: "below" }],
+  });
+}
+
+// ---- Trajectories -----------------------------------------------------------
+function renderPaths() {
+  const a = A(), host = card("How the relation developed over time",
+    "Has the country moved towards health, and did it do it by adding or shedding capital?",
+    "Each marker is one year; the path runs from the first to the last year of the window. Peers in grey.");
+  const path = (code, color, width, labels) => {
+    const j = colIdx(code);
+    return { type: "scatter", mode: labels ? "lines+markers+text" : "lines+markers", name: nameOf(code),
+      x: column(a.capital_saturation, j), y: column(a.national, j), customdata: a.years,
+      text: a.years.map((y, k) => labels && (k === 0 || k === a.years.length - 1) ? String(y) : ""),
+      textposition: "top center", textfont: { color: css("--ink-2") },
+      hovertemplate: `<b>${nameOf(code)}</b> %{customdata}<br>capital saturation %{x:.2f}<br>HoNI %{y:.2f}<extra></extra>`,
+      line: { color, width }, marker: { color, size: labels ? 8 : 5, line: { color: css("--surface"), width: labels ? 2 : 0 } } };
+  };
+  const sel = $("country").value, cmp = $("compare").value;
+  const traces = a.countries.filter(c => c.code !== sel && c.code !== cmp).map(c => ({ ...path(c.code, css("--rest"), 1, false), showlegend: false }));
+  if (cmp) traces.push(path(cmp, css("--s2"), 2, true));
+  traces.push(path(sel, css("--s1"), 2, true));
+  plot(chartIn(host, 520), traces, { xaxis: { title: { text: "Capital saturation (× GDP)" }, gridcolor: css("--grid") },
+                                     yaxis: { title: { text: "HoNI score" }, gridcolor: css("--grid") } });
+}
+
+// ---- Country ------------------------------------------------------------------
+async function renderCountry() {
+  const a = A(), code = $("country").value;
+  const c = await call(`/scores/${a.artefact_id}/countries/${code}`);
+  const lines = card(`${c.country.name}: national and sector scores`, "Which part of the economy carries the national score, and which drags it?",
+    "Sector scores are rescaled across the peer set each year, like the national score.");
+  const traces = SECTORS.map(([k, label, v]) => ({ type: "scatter", mode: "lines+markers+text", name: label, x: c.years, y: c.sectors[k],
+    text: c.years.map((_, i) => i === c.years.length - 1 ? label : ""), textposition: "middle right", textfont: { color: css("--ink-2") },
+    line: { color: css(v), width: 2 }, marker: { color: css(v), size: 6 }, hovertemplate: `${label} %{x}: %{y:.2f}<extra></extra>` }));
+  traces.push({ type: "scatter", mode: "lines", name: "National", x: c.years, y: c.national, line: { color: css("--ink"), width: 3 },
+                hovertemplate: "National %{x}: %{y:.2f}<extra></extra>" });
+  plot(chartIn(lines), traces, { hovermode: "x unified", yaxis: { range: [0.8, 5.2], title: { text: "Score" }, gridcolor: css("--grid") },
+                                 margin: { l: 56, r: 96, t: 16, b: 48 } });
+
+  const heat = card("Index scores", "Where exactly is the country strong or weak, and since when?",
+    "1 (worst) to 5 (best). A blank cell is missing data: it is excluded and the sector re-weighted, never scored as 1.");
+  const names = c.indices.map(i => i.index.replaceAll("_", " "));
+  plot(chartIn(heat, 520), [{ type: "heatmap", x: c.years, y: names, z: c.indices.map(i => i.score), zmin: 1, zmax: 5,
+    colorscale: seqScale(), xgap: 2, ygap: 2, customdata: c.indices.map(i => i.raw),
+    hovertemplate: "%{y}, %{x}<br>score %{z:.2f}<br>raw %{customdata:.4g}<extra></extra>", colorbar: { title: { text: "score" } } }],
+    { yaxis: { autorange: "reversed", automargin: true }, margin: { l: 180, r: 24, t: 16, b: 48 }, showlegend: false });
+}
+
+// ---- Peer spread ----------------------------------------------------------------
+async function renderPeers() {
+  const a = A();
+  if (!state.peers || state.peers.artefact_id !== a.artefact_id) state.peers = await call(`/peer-stats/${a.artefact_id}`);
+  const year = Number($("year").value), j = colIdx($("country").value), i = yearIdx();
+  const rows = state.peers.rows.filter(r => r.basis === "score" && r.year === year && r.n > 0);
+  const names = rows.map(r => r.index.replaceAll("_", " "));
+  const host = card(`Spread across the peer set, ${year}`, `How does ${nameOf($("country").value)} compare with the spread on each index?`,
+    "Box: quartiles across countries; whiskers: minimum and maximum. Dot: the selected country.");
+  plot(chartIn(host, 560), [
+    { type: "box", name: "Peer set", y: names, orientation: "h", q1: rows.map(r => r.p25), median: rows.map(r => r.median),
+      q3: rows.map(r => r.p75), lowerfence: rows.map(r => r.min), upperfence: rows.map(r => r.max),
+      fillcolor: css("--band"), line: { color: css("--muted"), width: 1 }, hoverinfo: "x" },
+    { type: "scatter", mode: "markers", name: nameOf($("country").value), y: names,
+      x: rows.map(r => a.index_scores[r.index][i][j]), marker: { color: css("--s1"), size: 10, line: { color: css("--surface"), width: 2 } },
+      hovertemplate: "%{y}: %{x:.2f}<extra></extra>" },
+  ], { xaxis: { range: [0.8, 5.2], title: { text: "Score" }, gridcolor: css("--grid") },
+       yaxis: { autorange: "reversed", automargin: true }, margin: { l: 180, r: 24, t: 16, b: 48 } });
+}
+
+// ---- Coverage -------------------------------------------------------------------
+function renderCoverage() {
+  const a = A(), cov = a.coverage;
+  const missing = a.countries.map((_, j) => a.years.map((_, i) => Object.values(a.index_raw).filter(m => m[i][j] === null).length));
+  const host = card("Missing indices per country-year", "Can each score be trusted, or does it rest on a thin set of indices?",
+    "Of 15 indices. Under calibration 1.0.0 a sector needs three of its five to be scored; see the Run tab for what was dropped.");
+  plot(chartIn(host, 480), [{ type: "heatmap", x: a.years, y: a.countries.map(c => c.name), z: missing, zmin: 0, zmax: 15,
+    colorscale: seqScale(), xgap: 2, ygap: 2, hovertemplate: "%{y}, %{x}: %{z} missing<extra></extra>", colorbar: { title: { text: "missing" } } }],
+    { yaxis: { autorange: "reversed", automargin: true }, margin: { l: 130, r: 24, t: 16, b: 48 }, showlegend: false });
+  const list = card("Series with gaps in the snapshot", "Which inputs does the data feed need to fix?");
+  const rows = [...cov.missing_series].sort((p, q) => q.missing_months - p.missing_months);
+  list.innerHTML = `<div class="scroll"><table><tr><th>Country</th><th>Series</th><th>Missing months</th><th>Of</th></tr>${
+    rows.map(r => `<tr><td>${nameOf(r.country)}</td><td style="text-align:left">${r.series_id}</td><td>${r.missing_months}</td><td>${r.total_months}</td></tr>`).join("")}</table></div>`;
+}
+
+// ---- Calibration ----------------------------------------------------------------
+async function renderCalibration() {
+  const version = $("calibration").value;
+  state.ranges = await call(`/ranges?version=${encodeURIComponent(version)}`);
+  const host = card(`Calibration ${state.ranges.calibration_version}`, "What turns a raw value into a score?",
+    "Ramp: 1 at min, 2.5 at mid, 5 at max (a descending triple means less is more). Tent: 5 at mid, falling to 1 at either end. Both are piecewise linear.");
+  const grid = document.createElement("div"); grid.className = "grid2"; host.append(grid);
+  for (const r of state.ranges.indices) {
+    const [a, b, c] = r.range, lo = Math.min(a, c), hi = Math.max(a, c), pad = (hi - lo) * 0.25;
+    const xs = [lo - pad, a, b, c, hi + pad].sort((p, q) => p - q);
+    const f = x => r.kind === "tent" ? (x <= a || x >= c ? 1 : x < b ? 1 + 4 * (x - a) / (b - a) : 1 + 4 * (c - x) / (c - b))
+      : (c > a ? (x <= a ? 1 : x < b ? 1 + 1.5 * (x - a) / (b - a) : x < c ? 2.5 + 2.5 * (x - b) / (c - b) : 5)
+               : (x >= a ? 1 : x > b ? 1 + 1.5 * (a - x) / (a - b) : x > c ? 2.5 + 2.5 * (b - x) / (b - c) : 5));
+    const cell = document.createElement("div");
+    cell.innerHTML = `<b>${r.index.replaceAll("_", " ")}</b> <span class="note">${r.sector} · ${r.kind} · [${r.range.join(", ")}]</span><div class="note">${r.definition}</div>`;
+    grid.append(cell);
+    plot(chartIn(cell, 180), [{ type: "scatter", mode: "lines", x: xs, y: xs.map(f), line: { color: css("--s1"), width: 2 },
+      hovertemplate: "raw %{x:.4g} → %{y:.2f}<extra></extra>" }],
+      { showlegend: false, margin: { l: 32, r: 12, t: 8, b: 28 }, yaxis: { range: [0.8, 5.2], gridcolor: css("--grid") } });
+  }
+}
+
+// ---- Table view -------------------------------------------------------------------
+function renderTable() {
+  const a = A(), host = card("National scores", "Every figure behind the charts, for reading without colour.", a.notice);
+  host.innerHTML = `<div class="scroll"><table><tr><th>Year</th>${a.countries.map(c => `<th title="${c.name}">${c.code}</th>`).join("")}</tr>${
+    a.years.map((y, i) => `<tr><td>${y}</td>${a.national[i].map(v => `<td>${fmt(v)}</td>`).join("")}</tr>`).join("")}</table></div>`;
+}
+
+// ---- wiring -------------------------------------------------------------------
+async function loadArtefact(runId) {
+  state.run = await call(`/runs/${runId}`);
+  state.artefact = state.run.artefact_id ? await call(`/artefacts/${state.run.artefact_id}`) : null;
+  if (state.artefact) {
+    const a = state.artefact, keep = sel => $(sel).value;
+    const year = keep("year"), country = keep("country") || store.get("country") || "CH", compare = keep("compare");
+    $("year").innerHTML = a.years.map(y => `<option>${y}</option>`).join("");
+    $("year").value = a.years.includes(Number(year)) ? year : a.years[a.years.length - 1];
+    const opts = a.countries.map(c => `<option value="${c.code}">${c.name}</option>`).join("");
+    $("country").innerHTML = opts; $("compare").innerHTML = `<option value="">none</option>` + opts;
+    $("country").value = a.countries.some(c => c.code === country) ? country : a.countries[0].code;
+    $("compare").value = compare;
+  }
+  store.set("run", runId);
+}
+
+async function run() {
+  $("runBtn").disabled = true;
+  try {
+    const accepted = await call("/run", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ snapshot_id: $("snapshot").value, calibration_version: $("calibration").value }) });
+    await loadArtefact(accepted.run_id);
+    if (state.run.status === "failed") state.tab = "run";
+  } catch (e) { $("panel").innerHTML = ""; problem(e); return; }
+  finally { $("runBtn").disabled = false; }
+  render();
+}
+
+// Snapshots come from datafeed directly: a development convenience, since honi itself only
+// ever asks datafeed for the snapshot a run names.
+async function loadSnapshots(datafeedUrl) {
+  let snaps = [];
+  try { snaps = await (await fetch(datafeedUrl.replace(/\/$/, "") + "/snapshots")).json(); } catch {}
+  const opts = snaps.map(s => `<option value="${s.snapshot_id}">${s.snapshot_id}${s.parent_id ? " (with public fills)" : " (raw)"}</option>`);
+  $("snapshot").innerHTML = opts.join("") || `<option value="">datafeed unreachable</option>`;
+  const remembered = store.get("snapshot");
+  if (remembered && snaps.some(s => s.snapshot_id === remembered)) $("snapshot").value = remembered;
+}
+
+async function start() {
+  try {
+    const [health, meta, versions] = await Promise.all([call("/health"), call("/meta"), call("/calibration/versions")]);
+    $("sub").textContent = `${health.engine_version} · store ${meta.store.dbname}.${meta.store.schema} @ ${meta.store.host} · upstream ${meta.upstream.datafeed} · development tool, not part of the system`;
+    await loadSnapshots(meta.upstream.datafeed);
+    $("calibration").innerHTML = versions.map(v => `<option value="${v.version}">${v.version}${v.active ? " (active)" : ""}</option>`).join("");
+    $("calibration").value = (versions.find(v => v.active) || versions[0]).version;
+    store.set("api", $("api").value);
+    const last = store.get("run");
+    if (last) { try { await loadArtefact(last); } catch { state.run = null; } }
+    if (!state.artefact) await run(); else render();
+  } catch (e) { $("sub").textContent = "not connected"; $("panel").innerHTML = ""; problem(e); }
+}
+
+$("snapshot").onchange = () => store.set("snapshot", $("snapshot").value);
+for (const id of ["year", "country", "compare"]) $(id).onchange = () => { if (id === "country") store.set("country", $(id).value); render(); };
+$("runBtn").onclick = run;
+$("api").onchange = start;
+$("themeBtn").onclick = () => {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const now = document.documentElement.dataset.theme || (dark ? "dark" : "light");
+  document.documentElement.dataset.theme = now === "dark" ? "light" : "dark";
+  store.set("theme", document.documentElement.dataset.theme); render();
+};
+if (store.get("theme")) document.documentElement.dataset.theme = store.get("theme");
+start();
+</script>
+</body>
+</html>

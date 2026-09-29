@@ -1,0 +1,1664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>macrofield cockpit</title>
+
+<!--
+  Plotly from a CDN. This is a local development tool served on loopback, not a shareable artifact, so a
+  CDN is acceptable here where it would not be elsewhere. If it fails to load the page says so plainly
+  rather than showing empty panels, and every number remains readable in the tables.
+-->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+
+<style>
+  :root {
+    --ground: #eceff4; --panel: #ffffff; --sunk: #f5f7fa;
+    --ink: #131720; --soft: #4a5364; --faint: #77808f;
+    --rule: #d3d9e3; --accent: #33456b; --signal: #9a6414;
+    --below: #2f6b4f; --inside: #9a6414; --above: #a13527;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+    /*
+      Categorical series palette, in FIXED slot order. Assigned per entity by SERIES_SLOT below and
+      never cycled, so a series keeps its colour when the trace count changes.
+
+      Three slots only, deliberately. This set clears every gate of the data-viz validator on the
+      all-pairs list against this page's own surfaces, in both modes: worst pair CVD deltaE 9.2 light
+      and 9.4 dark against a target of 8, worst normal-vision deltaE 24.0 light and 20.9 dark against a
+      floor of 15. A fourth slot cannot be added without dropping below those floors, so any chart
+      needing more than three series folds the surplus into a table rather than inventing a hue. Aqua
+      sits below 3:1 contrast on the light surface, which obliges the legend and the table views that
+      accompany every chart here.
+    */
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0e1117; --panel: #171b24; --sunk: #1d222c;
+      --ink: #e7eaf1; --soft: #a9b2c2; --faint: #7e8798;
+      --rule: #2b323f; --accent: #9db1e2; --signal: #dda758;
+      --below: #6cbb92; --inside: #dda758; --above: #e08175;
+
+      /* The same three hues, re-stepped for the dark surface and validated as a set against it. */
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 14px; }
+
+  header {
+    display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    padding: 0.9rem 1.25rem; background: var(--panel); border-bottom: 1px solid var(--rule);
+    position: sticky; top: 0; z-index: 10;
+  }
+  header h1 { margin: 0; font-size: 1rem; font-weight: 650; letter-spacing: -0.01em; }
+  header .version { font-family: var(--mono); font-size: 0.72rem; color: var(--faint); }
+  header .disclaimer { margin-left: auto; font-size: 0.72rem; color: var(--faint); max-width: 46ch; }
+
+  .layout { display: grid; grid-template-columns: 15rem 1fr; gap: 1rem; padding: 1rem 1.25rem 3rem; }
+  @media (max-width: 60rem) { .layout { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px; padding: 0.9rem 1rem; }
+  .panel h2 {
+    margin: 0 0 0.7rem; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--faint); font-weight: 500;
+  }
+  .stack { display: flex; flex-direction: column; gap: 1rem; }
+
+  button {
+    font: inherit; font-size: 0.82rem; padding: 0.4rem 0.7rem; border: 1px solid var(--rule);
+    background: var(--sunk); color: var(--ink); border-radius: 3px; cursor: pointer;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.primary { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .economy-list { display: flex; flex-direction: column; gap: 0.25rem; }
+  .economy-list button { text-align: left; display: flex; justify-content: space-between; gap: 0.5rem; }
+  .economy-list button.selected { border-color: var(--accent); background: var(--panel); color: var(--accent); font-weight: 600; }
+  .economy-list .tag { font-family: var(--mono); font-size: 0.66rem; color: var(--faint); }
+
+  .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.6rem; }
+  .metric { background: var(--sunk); border-radius: 3px; padding: 0.55rem 0.7rem; border-left: 3px solid var(--rule); }
+  .metric .label { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+  .metric .value { font-size: 1.15rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 0.15rem; }
+  .metric.below { border-left-color: var(--below); }
+  .metric.inside { border-left-color: var(--inside); }
+  .metric.above { border-left-color: var(--above); }
+  .metric.plain { border-left-color: var(--accent); }
+
+  .chart { width: 100%; height: 320px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 60rem) { .chart-row { grid-template-columns: 1fr; } }
+
+  table { border-collapse: collapse; width: 100%; font-size: 0.8rem; }
+  th, td { text-align: left; padding: 0.35rem 0.55rem; border-bottom: 1px solid var(--rule); }
+  th { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); font-weight: 500; }
+  td.num { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+  .scroll { overflow-x: auto; }
+
+  .chip { display: inline-block; font-family: var(--mono); font-size: 0.64rem; padding: 0.1rem 0.4rem; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .chip.ok { color: var(--below); background: color-mix(in srgb, var(--below) 15%, transparent); }
+  .chip.warn { color: var(--inside); background: color-mix(in srgb, var(--inside) 15%, transparent); }
+  .chip.bad { color: var(--above); background: color-mix(in srgb, var(--above) 15%, transparent); }
+
+  .notes { margin: 0; padding-left: 1.1rem; font-size: 0.78rem; color: var(--soft); }
+  .notes li { margin-bottom: 0.4rem; }
+
+  /* The projection label of brief section 6. Loud enough that it cannot be cropped out of a screenshot. */
+  .projected {
+    display: inline-block; font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--signal); border: 1px solid var(--signal);
+    border-radius: 2px; padding: 0.1rem 0.4rem; margin-left: 0.5rem;
+  }
+  .lede { margin: 0 0 0.8rem; font-size: 0.78rem; color: var(--soft); max-width: 92ch; }
+
+  .controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.6rem; }
+  .field { display: flex; flex-direction: column; gap: 0.2rem; }
+  .field label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--faint);
+  }
+  .field input, .field select {
+    font: inherit; font-size: 0.8rem; padding: 0.3rem 0.4rem; border: 1px solid var(--rule);
+    background: var(--sunk); color: var(--ink); border-radius: 3px; min-width: 0;
+  }
+  .field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .field .hint { font-size: 0.66rem; color: var(--faint); }
+  .field.changed input, .field.changed select { border-color: var(--signal); }
+  /* `blocked` is red because something cannot be done. `explain` is neutral because nothing is wrong and
+     the reader simply needs to know what they are looking at. Keeping them apart matters: a red rule on an
+     explanatory note reads as a defect, which is how the projection's join note was first mis-styled. */
+  .blocked, .explain { padding-left: 0.8rem; margin-bottom: 1rem; }
+  .blocked { border-left: 3px solid var(--above); }
+  .explain { border-left: 3px solid var(--accent); }
+  .blocked h3, .explain h3 { margin: 0 0 0.25rem; font-size: 0.82rem; font-weight: 600; }
+  .blocked p, .explain p { margin: 0.25rem 0; font-size: 0.78rem; color: var(--soft); }
+  .blocked code, .explain code { font-family: var(--mono); font-size: 0.72rem; }
+  .status { font-size: 0.8rem; color: var(--soft); min-height: 1.2em; }
+  .status.error { color: var(--above); }
+  pre.brief { white-space: pre-wrap; font-family: var(--sans); font-size: 0.82rem; line-height: 1.55; color: var(--soft); margin: 0; }
+  .muted { color: var(--faint); font-size: 0.78rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>macrofield cockpit</h1>
+  <span class="version" id="version">connecting</span>
+  <span class="disclaimer" id="disclaimer"></span>
+</header>
+
+<div class="layout">
+
+  <div class="stack">
+    <div class="panel">
+      <h2>Economies</h2>
+      <div class="economy-list" id="economies"><span class="muted">loading</span></div>
+    </div>
+    <div class="panel">
+      <h2>Data cache</h2>
+      <div id="cache"><span class="muted">loading</span></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="panel">
+      <div class="controls">
+        <button id="assemble" class="primary" disabled>Assemble</button>
+        <button id="calibrate" disabled>Calibrate</button>
+        <button id="board" disabled>Control board</button>
+        <button id="honi">Health of Nations</button>
+        <button id="derived" disabled>Derived indicators</button>
+        <button id="gold" disabled hidden>Stock to gold</button>
+        <button id="cycles" disabled>Cycles</button>
+        <button id="project" disabled>Project</button>
+        <button id="export" disabled>Export</button>
+        <button id="compare" disabled>Compare assembled</button>
+      </div>
+      <div class="status" id="status">Select an economy, then assemble it.</div>
+    </div>
+
+    <div class="panel" id="metrics-panel" hidden>
+      <h2>Position</h2>
+      <div class="metrics" id="metrics"></div>
+      <p class="muted" id="phase-rule" style="margin:0.8rem 0 0"></p>
+    </div>
+
+    <div class="panel" id="charts-panel" hidden>
+      <h2>Trajectory</h2>
+      <div class="chart" id="chart-state"></div>
+      <div class="chart-row">
+        <div class="chart" id="chart-ratios"></div>
+        <div class="chart" id="chart-fit"></div>
+      </div>
+    </div>
+
+    <div class="panel" id="trend-panel" hidden>
+      <h2>Turning points and direction</h2>
+      <p class="muted" style="margin-top:0">
+        The primary criteria. The model is judged on whether it turns when the economy turns, and on
+        direction, before its level. A coin toss scores 0.50 on direction.
+      </p>
+      <div class="scroll"><table id="trend"></table></div>
+    </div>
+
+    <div class="panel" id="board-panel" hidden>
+      <h2>Control board<span class="projected" id="board-label"></span></h2>
+      <p class="lede">
+        Every lever is a query parameter, so a board state is a shareable link and a reproducible run. The
+        two policy levers act <strong>forward</strong>, on the projected path, because a stimulus programme is
+        something done from a future date. They take the form
+        <code>mode:base&gt;target@start-end</code>, for example <code>pulse:1.0&gt;2.0@2027-2032</code>.
+      </p>
+      <div class="controls-grid" id="board-controls"></div>
+      <div class="controls" style="margin-top:.8rem">
+        <button id="board-apply" class="primary">Apply</button>
+        <button id="board-reset">Reset</button>
+        <button id="board-link">Copy link</button>
+      </div>
+      <div class="metrics" id="board-metrics" style="margin-top:1rem"></div>
+      <div class="explain" id="board-provenance" style="margin-top:1rem" hidden></div>
+      <div class="chart" id="chart-board-signal"></div>
+      <div class="chart-row">
+        <div class="chart" id="chart-board-super"></div>
+        <div class="chart" id="chart-board-path"></div>
+      </div>
+      <div class="scroll"><table id="board-table"></table></div>
+      <ul class="notes" id="board-notes"></ul>
+    </div>
+
+    <div class="panel" id="honi-panel" hidden>
+      <h2>Health of Nations, latest year</h2>
+      <p class="lede" id="honi-lede"></p>
+      <div class="chart" id="chart-honi"></div>
+      <div class="scroll"><table id="honi-table"></table></div>
+      <ul class="notes" id="honi-notes"></ul>
+    </div>
+
+    <div class="panel" id="derived-panel" hidden>
+      <h2>Derived indicators</h2>
+      <p class="lede" id="derived-lede"></p>
+      <div class="metrics" id="derived-metrics"></div>
+      <div class="chart-row" style="margin-top:1rem">
+        <div class="chart" id="chart-price-level"></div>
+        <div class="chart" id="chart-inflation"></div>
+      </div>
+      <div class="chart" id="chart-divergence"></div>
+      <h3 style="font-size:.95rem;margin:1.4rem 0 .3rem">Nominal against real</h3>
+      <p class="lede" id="real-view-lede"></p>
+      <div class="chart" id="chart-real-view"></div>
+      <ul class="notes" id="derived-notes"></ul>
+    </div>
+
+    <div class="panel" id="gold-panel" hidden>
+      <h2>Stock to gold<span class="projected" id="gold-label"></span></h2>
+      <p class="lede">
+        The three-driver equation of book chapter 24.2. Driver one is a liquidity impulse and supports
+        gold; drivers two and three are innovation-driven growth and the loss of currency backing. The
+        dominant driver selects the asset stance. The ratio is shown as stocks over gold, which is the
+        direction the book's Weimar figure uses, and the reciprocal is stated in the tiles.
+      </p>
+      <div class="metrics" id="gold-metrics"></div>
+      <div class="chart" id="chart-gold" style="margin-top:1rem"></div>
+      <div class="chart" id="chart-gold-drivers"></div>
+      <div class="scroll"><table id="gold-table"></table></div>
+      <ul class="notes" id="gold-notes"></ul>
+    </div>
+
+    <div class="panel" id="cycles-panel" hidden>
+      <h2>Cycle hierarchy</h2>
+      <p class="lede" id="cycles-lede"></p>
+      <div class="metrics" id="cycles-metrics"></div>
+      <div class="chart" id="chart-spectrum" style="margin-top:1rem"></div>
+      <div class="chart" id="chart-cycle-components"></div>
+      <div class="chart" id="chart-anchored-cycles"></div>
+      <div class="scroll"><table id="cycles-table"></table></div>
+      <ul class="notes" id="cycles-notes"></ul>
+    </div>
+
+    <div class="panel" id="projection-panel" hidden>
+      <h2>Projection<span class="projected" id="projection-label"></span></h2>
+      <p class="lede" id="projection-lede"></p>
+      <div class="metrics" id="projection-metrics"></div>
+      <div class="explain" id="projection-break" style="margin-top:1rem" hidden></div>
+      <div class="chart" id="chart-projection" style="margin-top:1rem"></div>
+      <div class="scroll"><table id="projection-table"></table></div>
+      <ul class="notes" id="projection-notes"></ul>
+    </div>
+
+    <div class="panel" id="unwired-panel" hidden>
+      <h2>Computed but not charted</h2>
+      <p class="lede">
+        These modules are complete and tested, and the dashboard still cannot draw them. Each is blocked
+        on an input that does not exist, and filling it would mean inventing the input, so the panel is
+        absent and this is the statement of why rather than a silence.
+      </p>
+      <div id="unwired"></div>
+    </div>
+
+    <div class="panel" id="quality-panel" hidden>
+      <h2>Data quality and provenance</h2>
+      <div class="scroll"><table id="quality"></table></div>
+      <h2 style="margin-top:1rem">Notes</h2>
+      <ul class="notes" id="notes"></ul>
+    </div>
+
+    <div class="panel" id="compare-panel" hidden>
+      <h2>Comparison</h2>
+      <div class="chart" id="chart-compare"></div>
+      <div class="scroll"><table id="compare-table"></table></div>
+    </div>
+
+    <div class="panel" id="brief-panel" hidden>
+      <h2>Brief</h2>
+      <pre class="brief" id="brief"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const state = { economies: [], selected: null, assembled: {}, band: [2.5, 3.5] };
+const el = (id) => document.getElementById(id);
+const plotly = () => (typeof Plotly !== "undefined" ? Plotly : null);
+
+function setStatus(text, isError) {
+  const node = el("status");
+  node.textContent = text;
+  node.className = isError ? "status error" : "status";
+}
+
+const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+/*
+  Every series in this dashboard takes its colour from this map, by entity rather than by position in a
+  trace list. Two consequences worth stating: financial capital is the same hue wherever it appears, so
+  the eye carries it between the trajectory, the ratios and the derived price levels; and hiding a trace
+  never repaints the survivors, which is what Plotly's default hue cycling would do.
+
+  Only three slots exist. See the palette comment in the stylesheet for why a fourth is not available.
+*/
+const SERIES_SLOT = {
+  output: 1, real_capital: 2, financial_capital: 3,
+  saturation: 1, real_over_output: 2, unsecured_over_output: 3,
+  real_price_level: 1, financial_price_level: 3,
+  real_inflation: 1, financial_inflation: 3, price_divergence: 1,
+  liquidity_credit_impulse: 1, innovation_growth: 2, capital_cycle_currency_stability: 3,
+  stock_to_gold: 1,
+  // The band-passed short cycles and the anchored long cycles are drawn on separate charts, because one
+  // is a deviation in a growth rate and the other is a position normalised to unit amplitude. They
+  // therefore reuse slots across the two charts: with only three slots, four distinct cycle hues do not
+  // exist, and two cycles that never share an axis may share a colour.
+  business: 1, credit: 2,
+  capital: 1, innovation: 3,
+};
+const SLOT_COUNT = 3;
+
+/** The colour for an entity. Unknown entities fall back to the ink colour rather than to a new hue. */
+function colourFor(entity) {
+  const slot = SERIES_SLOT[entity];
+  return slot ? token(`--series-${slot}`) : token("--soft");
+}
+
+/** A 2px line trace in the entity's own colour. Dashed marks anything the model produced. */
+function line(x, y, name, entity, options) {
+  return Object.assign({
+    x, y, name, type: "scatter", mode: "lines",
+    line: { width: 2, color: colourFor(entity), dash: (options || {}).dash },
+    connectgaps: false,
+  }, (options || {}).trace || {});
+}
+
+function themeLayout(title, extra) {
+  const ink = token("--ink");
+  const rule = token("--rule");
+  const faint = token("--faint");
+  return Object.assign({
+    title: { text: title, font: { size: 13 }, x: 0, xanchor: "left" },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: ink, size: 11 },
+    margin: { l: 60, r: 20, t: 36, b: 44 },
+    xaxis: { gridcolor: rule, zeroline: false, linecolor: rule, tickcolor: rule, tickfont: { color: faint } },
+    yaxis: { gridcolor: rule, zeroline: false, linecolor: rule, tickcolor: rule, tickfont: { color: faint } },
+    // A legend is always present for two or more series, so identity never rests on colour alone.
+    legend: { orientation: "h", y: -0.22, font: { size: 10 } },
+    hovermode: "x unified",
+  }, extra || {});
+}
+
+/** A horizontal band, used for the balanced saturation band on any chart that carries a ratio to GDP. */
+function bandShape(lower, upper) {
+  return {
+    type: "rect", xref: "paper", x0: 0, x1: 1, yref: "y", y0: lower, y1: upper,
+    fillcolor: token("--signal"), opacity: 0.12, line: { width: 0 }, layer: "below",
+  };
+}
+
+/** A zero rule, for any chart whose series legitimately cross zero. */
+function zeroLine() {
+  return {
+    type: "line", xref: "paper", x0: 0, x1: 1, yref: "y", y0: 0, y1: 0,
+    line: { color: token("--rule"), width: 1 }, layer: "below",
+  };
+}
+
+/*
+  Reveal a panel. This must happen BEFORE its charts are drawn, not after.
+
+  Plotly measures the container at plot time, and a container inside a `hidden` panel measures zero, so
+  Plotly silently falls back to its default 700px and `responsive: true` never corrects it: that option
+  listens for window resizes, and revealing a panel is not one. Every full-width chart here was rendering
+  at 49 per cent of its container until the order was fixed.
+*/
+function show(panelId) {
+  el(panelId).hidden = false;
+}
+
+const draw = (id, traces, layout) => {
+  if (!plotly()) return;
+  Plotly.newPlot(id, traces, layout, { displayModeBar: false, responsive: true });
+  // Belt and braces for the case where a container is still settling, for example the two-column row
+  // whose width depends on the grid resolving.
+  requestAnimationFrame(() => {
+    const node = el(id);
+    if (node && node.clientWidth) Plotly.Plots.resize(node);
+  });
+};
+
+const fmt = (value, digits) =>
+  value === null || value === undefined || Number.isNaN(value)
+    ? "n/a"
+    : value.toFixed(digits === undefined ? 2 : digits);
+
+const words = (key) => String(key).replace(/_/g, " ");
+
+function renderNotes(id, notes) {
+  const list = el(id);
+  list.innerHTML = "";
+  (notes || []).forEach((note) => {
+    const item = document.createElement("li");
+    item.textContent = note;
+    list.appendChild(item);
+  });
+}
+
+async function call(url, options) {
+  const response = await fetch(url, options || {});
+  if (!response.ok) throw new Error(`${url} returned ${response.status}`);
+  return response.json();
+}
+
+async function boot() {
+  try {
+    const health = await call("/api/health");
+    el("version").textContent = `v${health.version}`;
+    el("disclaimer").textContent = health.disclaimer;
+    state.band = health.saturation_band;
+    state.panels = health.panels || {};
+
+    // A panel the server has switched off is removed from the page rather than left to fail when its
+    // endpoint refuses. The stock-to-gold model is off by configuration, not missing.
+    if (state.panels.stock_gold) {
+      el("gold").hidden = false;
+    } else {
+      el("gold").remove();
+      const panel = el("gold-panel");
+      if (panel) panel.remove();
+    }
+  } catch (error) {
+    setStatus(`cannot reach the server: ${error.message}`, true);
+    return;
+  }
+  if (!plotly()) {
+    setStatus("Plotly did not load, so charts are unavailable. Every figure is still readable in the tables below.", true);
+  }
+  buildBoardControls();
+  await Promise.all([loadEconomies(), loadCache(), loadUnwired()]);
+}
+
+async function loadUnwired() {
+  const data = await call("/api/unwired");
+  el("unwired").innerHTML = data.unwired.map((row) => `
+    <div class="blocked">
+      <h3>${row.panel}</h3>
+      <p><code>${row.module}</code></p>
+      <p><strong>Blocked on:</strong> ${row.blocked_on}</p>
+      ${row.computable_now ? `<p><strong>Available now:</strong> ${row.computable_now}</p>` : ""}
+    </div>`).join("");
+  if (data.unwired.length) show("unwired-panel");
+}
+
+async function loadEconomies() {
+  const data = await call("/api/economies");
+  state.economies = data.economies;
+  const container = el("economies");
+  container.innerHTML = "";
+  data.economies.forEach((economy) => {
+    const button = document.createElement("button");
+    button.innerHTML = `<span>${economy.name}</span><span class="tag">${economy.code}</span>`;
+    button.onclick = () => select(economy.code, button);
+    container.appendChild(button);
+  });
+}
+
+async function loadCache() {
+  const data = await call("/api/cache");
+  const chip = data.ok ? '<span class="chip ok">verified</span>' : '<span class="chip bad">digest mismatch</span>';
+  el("cache").innerHTML = `
+    <div style="font-size:0.8rem">
+      <div>${data.entries} cached pull(s) ${chip}</div>
+      <div class="muted" style="margin-top:0.35rem">${data.stale.length} stale beyond ${data.staleness_days} days</div>
+      ${data.corrupt.length ? `<div class="muted" style="margin-top:0.35rem">${data.note}</div>` : ""}
+    </div>`;
+}
+
+//: Every button that needs an economy assembled first. Kept in one place so a new panel cannot be
+//: added without deciding whether it belongs here.
+const NEEDS_ASSEMBLY = ["calibrate", "board", "derived", "gold", "cycles", "project", "export"];
+
+function setAssemblyButtons(enabled) {
+  // A button may have been removed because its panel is switched off, so this tolerates absence.
+  NEEDS_ASSEMBLY.forEach((id) => {
+    const node = el(id);
+    if (node) node.disabled = !enabled;
+  });
+}
+
+function select(code, button) {
+  state.selected = code;
+  // Derived and projected series are per economy, so they must not survive a change of selection or the
+  // derived panel would overlay one economy's projection on another's observations.
+  state.lastDerived = null;
+  state.projectedDerived = null;
+  state.projectionStartIndex = null;
+  document.querySelectorAll("#economies button").forEach((b) => b.classList.remove("selected"));
+  button.classList.add("selected");
+  el("assemble").disabled = false;
+  const has = Boolean(state.assembled[code]);
+  setAssemblyButtons(has);
+  setStatus(has ? `${code} is assembled. Calibrate, project or export it.` : `Assemble ${code} to begin.`);
+}
+
+function bandClass(saturation) {
+  if (saturation > state.band[1]) return "above";
+  if (saturation >= state.band[0]) return "inside";
+  return "below";
+}
+
+function metric(label, value, klass) {
+  return `<div class="metric ${klass || "plain"}"><div class="label">${label}</div><div class="value">${value}</div></div>`;
+}
+
+el("assemble").onclick = async () => {
+  const code = state.selected;
+  setStatus(`assembling ${code}, this may take a minute on a cold cache`);
+  el("assemble").disabled = true;
+  try {
+    const data = await call(`/api/assemble/${code}`, { method: "POST" });
+    if (!data.ok) { setStatus(`${code} could not be assembled: ${data.error}`, true); return; }
+    state.assembled[code] = data;
+    renderAssembled(data);
+    setAssemblyButtons(true);
+    el("compare").disabled = Object.keys(state.assembled).length < 2;
+    setStatus(`${code} assembled over ${data.window[0]} to ${data.window[1]}. Calibrate to fit the model.`);
+  } catch (error) {
+    setStatus(error.message, true);
+  } finally {
+    el("assemble").disabled = false;
+  }
+};
+
+function renderAssembled(data) {
+  const d = data.diagnostics;
+  el("metrics").innerHTML = [
+    metric("Phase", d.phase, bandClass(d.saturation)),
+    metric("Credit saturation", d.saturation.toFixed(2), bandClass(d.saturation)),
+    metric("K_R / K_I", d.real_to_financial.toFixed(2), d.real_to_financial < 1 ? "above" : "plain"),
+    metric("Window", `${data.window[0]} to ${data.window[1]}`),
+  ].join("");
+  el("phase-rule").textContent = d.phase_rule ? `Selected by: ${d.phase_rule}` : "";
+  show("metrics-panel");
+
+  const p = data.series;
+  show("charts-panel");
+  const rebase = (values) => values.map((v) => (100 * v) / values[0]);
+  draw("chart-state", [
+    line(data.periods, rebase(p.output), "Output", "output"),
+    line(data.periods, rebase(p.real_capital), "Real capital", "real_capital"),
+    line(data.periods, rebase(p.financial_capital), "Financial capital", "financial_capital"),
+  ], themeLayout("Observed trajectory, first period = 100", {
+    yaxis: { title: { text: "Index, first period = 100", font: { size: 10 } } },
+  }));
+
+  draw("chart-ratios", [
+    line(data.periods, p.saturation, "Credit / GDP", "saturation"),
+    line(data.periods, p.real_over_output, "K_R / Y", "real_over_output"),
+    line(data.periods, p.unsecured_over_output, "Unsecured / Y", "unsecured_over_output"),
+  ], themeLayout("Ratios to output", {
+    shapes: [bandShape(state.band[0], state.band[1])],
+    yaxis: { title: { text: "Ratio to output", font: { size: 10 } } },
+  }));
+
+  const rows = [];
+  rows.push(`<tr><th>check</th><th>result</th></tr>`);
+  const integrity = data.integrity.ok
+    ? '<span class="chip ok">passed</span>'
+    : `<span class="chip bad">failed</span> ${data.integrity.failures.join("; ")}`;
+  rows.push(`<tr><td>Integrity</td><td>${integrity}</td></tr>`);
+  // IntegrityReport.as_dict() names these "warnings". An earlier version of this line read
+  // "questionable", which is the key plausibility.summarise() uses, and the panel silently showed nothing
+  // to review however many findings there were.
+  const warnings = data.plausibility.warnings || [];
+  rows.push(`<tr><td>Plausibility</td><td>${warnings.length
+    ? `<span class="chip warn">${warnings.length} to review</span>`
+    : '<span class="chip ok">nothing questionable</span>'}</td></tr>`);
+  Object.entries(data.vintage).forEach(([key, value]) => {
+    rows.push(`<tr><td>Vintage, ${key}</td><td class="muted">${value}</td></tr>`);
+  });
+  el("quality").innerHTML = rows.join("");
+  show("quality-panel");
+
+  const notes = el("notes");
+  notes.innerHTML = "";
+  (data.notes || []).concat(warnings).forEach((note) => {
+    const item = document.createElement("li");
+    item.textContent = note;
+    notes.appendChild(item);
+  });
+}
+
+el("calibrate").onclick = async () => {
+  const code = state.selected;
+  setStatus(`calibrating ${code}`);
+  el("calibrate").disabled = true;
+  try {
+    const data = await call(`/api/calibrate/${code}`, { method: "POST" });
+    if (!data.ok) { setStatus(`calibration failed: ${data.error}`, true); return; }
+    renderCalibration(data);
+    setStatus(data.integrated
+      ? `${code} calibrated and a trajectory was produced.`
+      : `${code} calibrated but no trajectory integrates, so turning points are unavailable.`);
+  } catch (error) {
+    setStatus(error.message, true);
+  } finally {
+    el("calibrate").disabled = false;
+  }
+};
+
+function renderCalibration(data) {
+  const report = data.report;
+  const table = [];
+  table.push("<tr><th>series</th><th>turning points found</th><th>lead, periods</th><th>direction</th><th>growth correlation</th><th>level, secondary</th></tr>");
+
+  if (!data.integrated) {
+    table.push(`<tr><td colspan="6" class="muted">${data.note}</td></tr>`);
+  } else {
+    Object.entries(data.trend).forEach(([name, verdict]) => {
+      const tp = verdict.primary.turning_points;
+      const dir = verdict.primary.directional_accuracy;
+      const fmt = (v, digits) => (v === null || v === undefined ? "n/a" : v.toFixed(digits === undefined ? 2 : digits));
+      const dirChip = dir === null ? "" : dir > 0.5 ? "ok" : "bad";
+      table.push(`<tr>
+        <td>${name}</td>
+        <td class="num">${tp.matched} of ${tp.observed_turning_points}</td>
+        <td class="num">${fmt(tp.mean_lead_lag_periods, 1)}</td>
+        <td class="num"><span class="chip ${dirChip}">${fmt(dir)}</span></td>
+        <td class="num">${fmt(verdict.primary.growth_correlation)}</td>
+        <td class="num muted">${fmt(verdict.secondary.level_relative_residual)}</td>
+      </tr>`);
+    });
+  }
+  table.push(`<tr><td>Weakly identified</td><td colspan="5" class="muted">${
+    report.weakly_identified.length ? report.weakly_identified.join(", ") : "none"
+  }</td></tr>`);
+  table.push(`<tr><td>Integration accuracy</td><td colspan="5" class="muted">${report.integration_accuracy}</td></tr>`);
+  el("trend").innerHTML = table.join("");
+  show("trend-panel");
+
+  if (data.integrated) {
+    // One entity, two readings of it, so both traces carry financial capital's own hue and the fitted
+    // one is dashed. A second colour here would imply a second quantity.
+    draw("chart-fit", [
+      line(data.periods, data.observed.K_I, "K_I observed", "financial_capital"),
+      line(data.periods, data.simulated.K_I, "K_I fitted", "financial_capital", { dash: "dash" }),
+    ], themeLayout("Fit against data, financial capital", {
+      yaxis: { title: { text: "Financial capital", font: { size: 10 } } },
+    }));
+  }
+}
+
+/* ------------------------------------------------------------------ control board */
+
+/*
+  The levers, in the order they appear. `key` is the query parameter the endpoint takes, so the form and the
+  API cannot drift apart, and a board state is reconstructible from the URL alone.
+*/
+const LEVERS = [
+  { key: "horizon", label: "Horizon, periods", value: "15", hint: "years projected" },
+  { key: "stimulus", label: "Stimulus, forward", value: "1.0", hint: "e.g. pulse:1.0>2.0@2027-2032" },
+  { key: "savings", label: "Savings rate, forward", value: "1.0", hint: "e.g. ramp:1.0>1.3@2027-2034" },
+  { key: "credit_uplift", label: "Credit uplift", value: "", hint: "blank keeps the configured 1.40" },
+  { key: "blend_weight", label: "Macro weight", value: "0.5", hint: "rest goes to the technical signal" },
+  { key: "taa_half_life_months", label: "TAA half-life, months", value: "6", hint: "how fast it fades" },
+  { key: "innovation_trough_year", label: "Innovation low", value: "2032", hint: "year of the low" },
+  { key: "innovation_period_years", label: "Innovation period", value: "47", hint: "years" },
+  { key: "capital_anchor_saturation", label: "Capital anchor", value: "3.5", hint: "saturation marking 90y in" },
+  { key: "tilt_base", label: "Tilt base", value: "1.0", hint: "higher is less responsive" },
+  { key: "assume_capital_crossing", label: "Assume a crossing", value: "false",
+    options: ["false", "true"], hint: "where 3.5 was never reached" },
+  { key: "scenario_name", label: "Scenario target", value: "",
+    options: ["", "depression", "hyperinflation", "stagflation", "deferral"], hint: "shown for comparison" },
+];
+
+function buildBoardControls() {
+  el("board-controls").innerHTML = LEVERS.map((lever) => {
+    const input = lever.options
+      ? `<select id="lever-${lever.key}">` +
+        lever.options.map((o) => `<option value="${o}"${o === lever.value ? " selected" : ""}>${o || "none"}</option>`).join("") +
+        `</select>`
+      : `<input id="lever-${lever.key}" value="${lever.value}" spellcheck="false">`;
+    return `<div class="field" id="field-${lever.key}">
+      <label for="lever-${lever.key}">${lever.label}</label>${input}
+      <span class="hint">${lever.hint}</span>
+    </div>`;
+  }).join("");
+}
+
+function boardParams() {
+  const params = new URLSearchParams();
+  LEVERS.forEach((lever) => {
+    const node = el(`lever-${lever.key}`);
+    const value = (node.value || "").trim();
+    // Mark anything moved off its default, so a board state is readable at a glance.
+    el(`field-${lever.key}`).className = value === lever.value ? "field" : "field changed";
+    if (value !== "") params.set(lever.key, value);
+  });
+  return params;
+}
+
+el("board").onclick = () => runBoard();
+el("board-apply").onclick = () => runBoard();
+el("board-reset").onclick = () => { buildBoardControls(); runBoard(); };
+el("board-link").onclick = async () => {
+  const url = `${location.origin}/api/scenario/${state.selected}?${boardParams()}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    setStatus("board state copied as a link");
+  } catch {
+    setStatus(url);
+  }
+};
+
+async function runBoard() {
+  const code = state.selected;
+  if (!code) { setStatus("select an economy first", true); return; }
+  setStatus(`running the board for ${code}`);
+  el("board-apply").disabled = true;
+  try {
+    const data = await call(`/api/scenario/${code}?${boardParams()}`, { method: "POST" });
+    if (!data.ok) { setStatus(`board failed at ${data.stage}: ${data.error}`, true); return; }
+    renderBoard(data);
+    const last = data.signals[data.signals.length - 1];
+    setStatus(`${code}: crisis weight ${fmt(last.weights.crisis)} at ${last.period}, ` +
+              `phase at end ${data.projection.phase_at_end}`);
+  } catch (error) {
+    setStatus(error.message, true);
+  } finally {
+    el("board-apply").disabled = false;
+  }
+}
+
+function renderBoard(data) {
+  show("board-panel");
+  el("board-label").textContent = data.projection.label;
+
+  const merged = data.merged;
+  const latest = data.signals[data.signals.length - 1];
+  const sweep = data.tilt_sweep && !data.tilt_sweep.error ? data.tilt_sweep : null;
+  const shape = merged ? merged.latest.shape : null;
+
+  el("board-metrics").innerHTML = [
+    metric("Integrated", `${data.projection.integrated_horizon} of ${data.projection.requested_horizon}`,
+      data.projection.fully_integrated ? "" : `${data.projection.extrapolated_periods} extrapolated`,
+      data.projection.fully_integrated ? "plain" : "above"),
+    metric("Phase at end", data.projection.phase_at_end),
+    // The crisis weight is quoted as a RANGE, not a point. The tilts have no source, so the sweep's spread
+    // is the honest error bar and the tile shows it rather than implying a precision the number lacks.
+    metric("Crisis weight",
+      sweep && sweep.crisis_range
+        ? `${fmt(sweep.crisis_range[0])} to ${fmt(sweep.crisis_range[1])}`
+        : fmt(latest.weights.crisis),
+      sweep && sweep.crisis_range
+        ? `${fmt(latest.weights.crisis)} at the configured tilts, ${latest.period}`
+        : `at ${latest.period}`,
+      latest.weights.crisis > 0.3 ? "above" : "plain"),
+    metric("Crisis tail", fmt(latest.tail_probability), "bins 1 to 5"),
+    shape ? metric("Merged shape", `bin ${fmt(shape.mean_bin, 1)}`, shape.shape.split(",")[0],
+      shape.modes > 1 ? "inside" : "plain") : "",
+  ].join("");
+
+  // Anything invented, and any internal contradiction, is stated above the charts rather than footnoted.
+  const invented = data.signals.filter((s) => s.provenance === "extrapolated" || s.provenance === "assumed");
+  const stale = null;
+  const reanchor = data.capital_reanchor;
+  const node = el("board-provenance");
+  const blocks = [];
+  if (invented.length) {
+    const kinds = Array.from(new Set(invented.map((s) => s.provenance)));
+    blocks.push(
+      `<h3>${invented.length} of ${data.signals.length} periods are ${kinds.join(" or ")}</h3>` +
+      `<p>From ${invented[0].period} onward the signal rests on values the model did not produce: ` +
+      `${kinds.includes("extrapolated") ? "the trajectory was continued past where it integrates" : ""}` +
+      `${kinds.includes("assumed") ? " the capital-cycle anchor was solved from a trend rather than observed" : ""}. ` +
+      `Read the ordering, not the dates.</p>`
+    );
+  }
+  if (reanchor) {
+    blocks.push(`<h3>The capital cycle restarts in ${reanchor.restart_year}</h3><p>${reanchor.detail}</p>`);
+  }
+  node.hidden = blocks.length === 0;
+  node.innerHTML = blocks.join("");
+  node.className = "explain";
+
+  /*
+    The signal chart: what the PCP would consume. Three series is exactly the palette's capacity, which is
+    why the macro, technical and merged distributions are the three shown and nothing else shares the frame.
+  */
+  const bins = Array.from({ length: 25 }, (_, i) => i + 1);
+  if (merged) {
+    const n = merged.merged.length - 1;
+    draw("chart-board-signal", [
+      { x: bins, y: merged.saa[n], name: "Macro, SAA", type: "bar",
+        marker: { color: token("--series-1") }, hovertemplate: "bin %{x}: %{y:.3f}<extra>SAA</extra>" },
+      { x: bins, y: merged.taa[n], name: "Technical, TAA", type: "bar",
+        marker: { color: token("--series-2") }, hovertemplate: "bin %{x}: %{y:.3f}<extra>TAA</extra>" },
+      line(bins, merged.merged[n], `Merged, ${fmt(merged.weight_saa * 100, 0)}:${fmt(merged.weight_taa * 100, 0)}`,
+        "financial_capital", { trace: { hovertemplate: "bin %{x}: %{y:.3f}<extra>merged</extra>" } }),
+    ], themeLayout(`Market risk signal at ${merged.latest.period}, 1 cautious to 25 aggressive`, {
+      barmode: "group", bargap: 0.25, hovermode: "closest",
+      yaxis: { title: { text: "Probability", font: { size: 10 } } },
+      xaxis: { title: { text: "State, 1 cautious to 25 aggressive", font: { size: 10 } },
+               tickmode: "array", tickvals: [1, 5, 10, 15, 20, 25] },
+    }));
+  }
+
+  // The superposition: total and alignment only. Both are dimensionless and bounded, so they share an axis
+  // legitimately; the four components live in the Cycles panel rather than being crammed in here.
+  const sup = data.superposition;
+  draw("chart-board-super", [
+    line(sup.periods, sup.total, "Interference total", "saturation"),
+    line(sup.periods, sup.alignment, "Alignment", "real_over_output"),
+  ], themeLayout("Cycle superposition, phase alignment", {
+    shapes: [zeroLine()],
+    yaxis: { title: { text: "Index", font: { size: 10 } }, range: [-1.05, 1.05] },
+  }));
+
+  // The saturation path, observed then projected, with the extrapolated tail distinguishable.
+  const split = data.observed_count;
+  const path = data.state.saturation;
+  const periods = data.periods;
+  const integratedEnd = split + data.projection.integrated_horizon;
+  draw("chart-board-path", [
+    line(periods.slice(0, split), path.slice(0, split), "Observed", "saturation"),
+    line(periods.slice(split - 1, integratedEnd), path.slice(split - 1, integratedEnd), "Integrated",
+      "saturation", { dash: "dash" }),
+    ...(data.projection.extrapolated_periods
+      ? [line(periods.slice(integratedEnd - 1), path.slice(integratedEnd - 1), "Extrapolated",
+          "unsecured_over_output", { dash: "dot" })]
+      : []),
+  ], themeLayout("Credit saturation under these controls", {
+    shapes: [bandShape(data.band[0], data.band[1])],
+    yaxis: { title: { text: "Credit over GDP", font: { size: 10 } } },
+  }));
+
+  // Table: what fired, what was assumed, and where the signal is going.
+  const rows = ["<tr><th>item</th><th>reading</th></tr>"];
+  Object.entries(latest.contributions || {}).forEach(([label, moved]) => {
+    rows.push(`<tr><td>Tilt, ${words(label)}</td><td class="num">crisis ${moved.crisis >= 0 ? "+" : ""}${fmt(moved.crisis, 3)}
+      &nbsp; boom ${moved.boom >= 0 ? "+" : ""}${fmt(moved.boom, 3)}</td></tr>`);
+  });
+  Object.entries(data.cycles || {}).forEach(([name, cycle]) => {
+    rows.push(`<tr><td>Cycle, ${name}</td><td>${
+      cycle.anchored
+        ? `anchored at ${fmt(cycle.reference_year, 1)} <span class="chip ${cycle.assumed ? "warn" : "ok"}">${cycle.provenance}</span>`
+        : '<span class="chip bad">not anchored</span>'
+    }</td></tr>`);
+  });
+  (data.projection.transitions || []).forEach((t) => {
+    rows.push(`<tr><td>Transition</td><td class="muted">${t.period}: ${t.from_phase} to ${t.to_phase}
+      (saturation ${fmt(t.saturation)})</td></tr>`);
+  });
+  if (sweep) {
+    rows.push(`<tr><td>Tilt sweep</td><td class="muted">crisis weight
+      ${fmt(sweep.crisis_range[0])} to ${fmt(sweep.crisis_range[1])} across scales
+      ${fmt(sweep.scales[0], 2)} to ${fmt(sweep.scales[sweep.scales.length - 1], 2)},
+      spread ${fmt(sweep.crisis_spread, 3)}. Rests most on
+      <strong>${words(sweep.dominant || "")}</strong>, which alone moves it
+      ${fmt((sweep.per_tilt[sweep.dominant] || {}).spread, 3)}.</td></tr>`);
+  }
+  if (data.scenario_target) {
+    const s = data.scenario_target;
+    rows.push(`<tr><td>Scenario target, ${s.name}</td><td class="muted">${
+      Object.entries(s.weights).map(([k, v]) => `${k.slice(0, 4)} ${fmt(v, 2)}`).join(", ")
+    }<br><span style="font-size:.72rem">${s.note}</span></td></tr>`);
+  }
+  el("board-table").innerHTML = rows.join("");
+
+  renderNotes("board-notes", []
+    .concat(data.notes || [])
+    .concat(data.projection.notes || [])
+    .concat(sweep ? sweep.notes : [])
+    .concat(merged ? merged.notes : [])
+    .concat(data.taa_notes || [])
+    .concat(sup.notes || []));
+}
+
+/* ------------------------------------------------------------------ Health of Nations */
+
+el("honi").onclick = async () => {
+  setStatus("scoring the Health of Nations panel");
+  try {
+    const data = await call("/api/honi");
+    if (!data.ok) { setStatus(`HoNI failed: ${data.error}`, true); return; }
+    renderHoni(data);
+    setStatus(`HoNI scored for ${data.period} across ${data.economies.length} of this programme's economies`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+};
+
+function renderHoni(data) {
+  show("honi-panel");
+
+  const rows = data.economies.slice().sort((a, b) => a.composite - b.composite);
+  const stages = data.stages || [];
+
+  el("honi-lede").textContent =
+    `Scored for ${data.period} from the published export, on the fixed 1 to 5 axis where ` +
+    `${data.direction.replace(/_/g, " ")}. Ordered least healthy first, which is the diagnostic ` +
+    `direction. This reading is comparable across years; the export's own composite, in the table, is a ` +
+    `within-year ranking and is not.`;
+
+  /*
+    Grouped bars: the three sub-indices per economy, with the composite as a direct label.
+
+    Bars rather than a radar, because the comparison a reader actually makes is economy against economy on
+    one dimension, which a radar makes hard. The stage bands are drawn behind as shaded regions so a score
+    can be read against the taxonomy without consulting the table.
+  */
+  const dimensionKeys = Object.keys((rows[0] || {}).dimensions || {});
+  const names = rows.map((r) => r.code.toUpperCase());
+
+  const traces = dimensionKeys.map((key, index) => ({
+    x: names,
+    y: rows.map((r) => r.dimensions[key].score),
+    name: rows[0].dimensions[key].label,
+    type: "bar",
+    marker: { color: token(`--series-${(index % SLOT_COUNT) + 1}`) },
+    hovertemplate: `%{x} ${rows[0].dimensions[key].label}: %{y:.2f}<extra></extra>`,
+  }));
+
+  traces.push({
+    x: names,
+    y: rows.map((r) => r.composite),
+    name: "Composite",
+    type: "scatter",
+    mode: "markers",
+    marker: { color: token("--ink"), symbol: "line-ew-open", size: 22, line: { width: 3 } },
+    hovertemplate: "%{x} composite: %{y:.2f}<extra></extra>",
+  });
+
+  // Stage bands behind the bars, so the taxonomy is visible on the axis itself.
+  const bands = stages.map((stage) => ({
+    type: "rect", xref: "paper", x0: 0, x1: 1, yref: "y",
+    y0: stage.lower, y1: stage.upper,
+    fillcolor: token("--signal"),
+    opacity: stages.indexOf(stage) % 2 === 0 ? 0.1 : 0.04,
+    line: { width: 0 }, layer: "below",
+  }));
+
+  draw("chart-honi", traces, themeLayout(`Sub-indices and composite, ${data.period}`, {
+    barmode: "group",
+    bargap: 0.32,
+    bargroupgap: 0.08,
+    shapes: bands,
+    hovermode: "closest",
+    yaxis: {
+      title: { text: `1 least healthy to 5 healthiest`, font: { size: 10 } },
+      range: [1, 5],
+    },
+  }));
+
+  const table = ["<tr><th>rank</th><th>economy</th><th>composite</th><th>stage</th>" +
+    dimensionKeys.map((k) => `<th>${rows[0].dimensions[k].label}</th>`).join("") +
+    "<th>export composite</th></tr>"];
+  rows.forEach((r) => {
+    const cells = dimensionKeys.map((k) => {
+      const d = r.dimensions[k];
+      const shortfall = d.coverage < 1
+        ? ` <span class="chip warn">${Math.round(d.coverage * 100)}%</span>`
+        : "";
+      return `<td class="num">${fmt(d.score)}${shortfall}</td>`;
+    }).join("");
+    table.push(`<tr>
+      <td class="num">${r.rank}</td>
+      <td>${r.code.toUpperCase()} <span class="muted">${r.sheet}</span></td>
+      <td class="num"><strong>${fmt(r.composite)}</strong></td>
+      <td>${r.stage || "n/a"}</td>
+      ${cells}
+      <td class="num muted">${fmt(r.published_composite)}</td>
+    </tr>`);
+  });
+  el("honi-table").innerHTML = table.join("");
+
+  const notes = [data.note, `Source: ${data.source.path}, panel of ${data.source.panel_size} economies.`];
+  (data.absent || []).forEach((entry) => {
+    notes.push(`${entry.code.toUpperCase()} is not scored: ${entry.reason}`);
+  });
+  // The cross-check note is the informative one; the two boilerplate notes repeat per economy.
+  const crossCheck = (rows.find((r) => r.code === "us") || rows[0] || {}).notes || [];
+  crossCheck.filter((n) => n.includes("export's own composite for")).forEach((n) => notes.push(n));
+  renderNotes("honi-notes", notes);
+}
+
+/* ------------------------------------------------------------------ derived indicators */
+
+el("derived").onclick = async () => {
+  const code = state.selected;
+  setStatus(`computing derived indicators for ${code}`);
+  try {
+    const data = await call(`/api/derived/${code}`, { method: "POST" });
+    if (!data.ok) { setStatus(`derived indicators failed: ${data.error}`, true); return; }
+    renderDerived(data);
+    setStatus(`derived indicators for ${code}, on a '${data.derived.assumption}' transaction frequency`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+};
+
+function renderDerived(data) {
+  /*
+    One series, split, rather than two series stitched.
+
+    When a projection has been run the server recomputes every derived indicator over the observed and
+    projected state TOGETHER and says where the projected portion begins. That matters because the price
+    levels are indices rebased to their series' first period: computing them over the projection alone
+    restarts the index at 100, which against an observed index in the thousands draws as a collapse to
+    zero. Splitting one jointly computed series keeps a single base, so the two portions are comparable
+    and the growth rate across the join is right.
+
+    The split overlaps by one point so the solid and dashed portions meet with no gap.
+  */
+  const joined = state.projectedDerived;
+  const source = joined || data.derived;
+  const split = joined ? state.projectionStartIndex : null;
+
+  const periods = source.periods;
+  const ind = source.indicators;
+  const series = (key) => (ind[key] ? ind[key].values : []);
+  const label = (key) => (ind[key] ? ind[key].label : words(key));
+
+  const pair = (key, entity) => {
+    const values = series(key);
+    if (split === null) {
+      return [line(periods, values, label(key), entity)];
+    }
+    return [
+      line(periods.slice(0, split), values.slice(0, split), label(key), entity),
+      line(
+        periods.slice(split - 1),
+        values.slice(split - 1),
+        `${label(key)}, projected`,
+        entity,
+        { dash: "dash" }
+      ),
+    ];
+  };
+
+  show("derived-panel");
+  el("derived-lede").textContent =
+    `Functions of the state path rather than new data, so nothing here needed a fetch. Transaction ` +
+    `frequency is unobserved and assumed '${source.assumption}', which is why the price levels ` +
+    `are indices and not levels.` +
+    (joined
+      ? ` The dashed continuations are the same indicators over the projected state, computed with the ` +
+        `observed ones on a single index base so the two are comparable.`
+      : ` Run Project to continue them over the projected state.`);
+
+  const latest = data.latest || {};
+  el("derived-metrics").innerHTML = ["real_inflation", "financial_inflation", "price_divergence", "real_interest_rate"]
+    .filter((key) => latest[key])
+    .map((key) => metric(latest[key].label, fmt(latest[key].value, 3)))
+    .join("");
+
+  // Price levels and inflation are separate charts because they are different quantities on different
+  // scales. Putting them on one frame would need two y-axes, and a dual axis invites the reader to
+  // compare two things that are not comparable.
+  draw("chart-price-level",
+    pair("real_price_level", "real_price_level").concat(pair("financial_price_level", "financial_price_level")),
+    themeLayout("Price levels, real against financial", {
+      yaxis: { title: { text: "Index, first period = 100", font: { size: 10 } } },
+    }));
+
+  draw("chart-inflation",
+    pair("real_inflation", "real_inflation").concat(pair("financial_inflation", "financial_inflation")),
+    themeLayout("Inflation, real against financial", {
+      shapes: [zeroLine()],
+      yaxis: { title: { text: "Fraction per period", font: { size: 10 } } },
+    }));
+
+  draw("chart-divergence", pair("price_divergence", "price_divergence"),
+    themeLayout("Price divergence, the real against financial gap", {
+      shapes: [zeroLine()],
+      showlegend: Boolean(joined),
+      yaxis: { title: { text: label("price_divergence"), font: { size: 10 } } },
+    }));
+
+  /*
+    The real view, as an overlay on the nominal reading rather than a replacement for it.
+
+    Each of the three state series appears twice: solid on the nominal basis, dashed on the real one, in the
+    entity's own colour. That is the same convention the projection uses for observed against projected, and
+    it keeps the comparison a reader actually makes, nominal against real for one quantity, on one line pair
+    rather than across two charts.
+
+    Both bases are rebased to 100 at the first period so three quantities of different size share one axis.
+    Rebasing is multiplicative, so it changes neither basis's growth rate.
+  */
+  const stateViews = data.state_views;
+  if (stateViews && !stateViews.error) {
+    const rebase = (values) => {
+      const first = values.find((v) => v !== null && Number.isFinite(v));
+      return first ? values.map((v) => (v === null ? null : (100 * v) / first)) : values;
+    };
+    const traces = [];
+    [["output", "Output"], ["real_capital", "Real capital"], ["financial_capital", "Financial capital"]]
+      .forEach(([key, label]) => {
+        const views = stateViews[key] || {};
+        if (views.nominal) {
+          traces.push(line(views.nominal.periods, rebase(views.nominal.values), `${label}, nominal`, key));
+        }
+        /*
+          One real view per series, and the order of preference is the argument.
+
+          Gold first, because it is the framework's own basis: chapter 11 computes its real-rate series with
+          the gold price, not CPI. Then CPI, the conventional measured index. The model's own price level is
+          last, because it is a model quantity rather than an observation and is circular for output.
+
+          Only one is drawn, so that three series stay within the palette's three slots and the chart remains
+          nominal-against-real rather than a four-way comparison. The others are in the response for anyone
+          who wants them.
+        */
+        const preference = [
+          ["real_gold", "real, gold"],
+          ["real_cpi", "real, CPI"],
+          ["real_model", "real, model"],
+        ];
+        const chosen = preference.find(([basis]) => views[basis]);
+        if (chosen) {
+          const real = views[chosen[0]];
+          traces.push(line(real.periods, rebase(real.values), `${label}, ${chosen[1]}`, key, { dash: "dash" }));
+        }
+      });
+
+    // Anything with no real view says why, since a quantity silently missing from a chart reads as an
+    // omission rather than as a statement.
+    const circular = Object.values(data.state_views_circular || {});
+    el("real-view-lede").textContent = [data.state_views_note].concat(circular).join(" ");
+    draw("chart-real-view", traces, themeLayout("The state on both bases, first period = 100", {
+      yaxis: { title: { text: "Index, first period = 100", font: { size: 10 } } },
+    }));
+  } else if (plotly()) {
+    Plotly.purge("chart-real-view");
+    el("real-view-lede").textContent = "";
+    el("chart-real-view").innerHTML =
+      `<p class="muted">The real view is unavailable: ${
+        (stateViews && stateViews.error) || "no deflator could be derived"
+      }</p>`;
+  }
+
+  const notes = (source.notes || []).slice();
+  if (stateViews && !stateViews.error) {
+    const out = stateViews.output || {};
+    const shown = out.real_gold || out.real_cpi || out.real_model;
+    if (shown) notes.push(...(shown.notes || []));
+  }
+  if (joined) {
+    notes.push(
+      "the projected indicators are a consequence of the projected state, so they inherit every " +
+      "assumption the projection makes, and they carry its label."
+    );
+    notes.push(
+      "the whole series is recomputed on one index base when a projection is shown, so the levels before " +
+      "the join differ from the observed-only view. The growth rates and the divergence do not."
+    );
+  }
+  renderNotes("derived-notes", notes);
+  state.lastDerived = data;
+}
+
+/* ------------------------------------------------------------------ stock to gold */
+
+el("gold").onclick = async () => {
+  const code = state.selected;
+  setStatus(`evaluating the three-driver gold model for ${code}`);
+  try {
+    const data = await call(`/api/stock-gold/${code}`, { method: "POST" });
+    if (!data.ok) { setStatus(`stock to gold failed: ${data.error}`, true); return; }
+    renderGold(data);
+    const last = data.dominant_driver[data.dominant_driver.length - 1];
+    setStatus(`${code}: the dominant gold driver is ${words(last)}`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+};
+
+function renderGold(data) {
+  const n = data.periods.length - 1;
+  show("gold-panel");
+  el("gold-label").textContent = data.label;
+
+  el("gold-metrics").innerHTML = [
+    metric("Stocks over gold", fmt(data.stock_to_gold[n])),
+    metric("Gold over stocks", fmt(data.gold_over_equity[n])),
+    metric("Dominant driver", words(data.dominant_driver[n])),
+    metric("Stance", words(data.stance[n])),
+    metric("Anchored at", `${data.anchor.period}`),
+  ].join("");
+
+  // The brief's quantity is stocks over gold. Its reciprocal is the modelled primitive and it is in the
+  // tiles above rather than on this axis: the two are reciprocals, so on one linear scale whichever is
+  // small becomes an unreadable flat line against the other.
+  draw("chart-gold", [
+    line(data.periods, data.stock_to_gold, "Stocks over gold", "stock_to_gold"),
+  ], themeLayout("Stock to gold ratio, anchored", {
+    showlegend: false,
+    yaxis: { title: { text: "Stocks over gold", font: { size: 10 } } },
+  }));
+
+  // The decomposition is the point of the chart. Each driver keeps its own hue and its sign is readable
+  // against the zero rule, so a reader can see which driver is carrying the ratio and in which direction.
+  draw("chart-gold-drivers", Object.keys(data.contributions).map((key) =>
+    line(data.periods, data.contributions[key], words(key), key)
+  ), themeLayout("Driver contributions to the change in the ratio", {
+    shapes: [zeroLine()],
+    yaxis: { title: { text: "Signed contribution", font: { size: 10 } } },
+  }));
+
+  // The table is the relief the palette's light-mode contrast warning obliges, and it carries the signs,
+  // which are the part of this model that was wrong until 2026-07-27.
+  const rows = ["<tr><th>driver</th><th>sign</th><th>latest contribution</th><th>stance when dominant</th></tr>"];
+  const stanceFor = {
+    liquidity_credit_impulse: "participatory",
+    innovation_growth: "value producing",
+    capital_cycle_currency_stability: "value preserving",
+  };
+  Object.keys(data.contributions).forEach((key) => {
+    const sign = data.signs[key] > 0 ? "+" : "-";
+    const dominant = data.dominant_driver[n] === key;
+    rows.push(`<tr>
+      <td>${dominant ? "<strong>" + words(key) + "</strong>" : words(key)}</td>
+      <td class="num">${sign}</td>
+      <td class="num">${fmt(data.contributions[key][n], 5)}</td>
+      <td>${stanceFor[key] || ""}</td>
+    </tr>`);
+  });
+  el("gold-table").innerHTML = rows.join("");
+
+  renderNotes("gold-notes", data.notes);
+}
+
+/* ------------------------------------------------------------------ cycles */
+
+el("cycles").onclick = async () => {
+  const code = state.selected;
+  setStatus(`decomposing the cycles of ${code}`);
+  try {
+    const data = await call(`/api/cycles/${code}`, { method: "POST" });
+    if (!data.ok) { setStatus(`cycle decomposition failed: ${data.error}`, true); return; }
+    renderCycles(data);
+    const found = Object.values(data.cycles).filter((c) => c.identifiable).length;
+    setStatus(`${code}: ${found} of ${Object.keys(data.cycles).length} cycles identifiable on this sample`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+};
+
+function renderCycles(data) {
+  const names = Object.keys(data.cycles);
+  const identifiable = names.filter((name) => data.cycles[name].identifiable);
+
+  show("cycles-panel");
+  el("cycles-lede").textContent =
+    `The business and credit cycles are decomposed from the log growth rate of ${words(data.series)}, ` +
+    `not its level: a band-pass of a trending level returns the trend. The innovation and capital cycles ` +
+    `are anchored from supplied structure instead, because a sample must span about two periods to ` +
+    `estimate a cycle and no national-accounts series is long enough for either.`;
+
+  // The two anchored cycles, stated as positions rather than left inside the table. These are the
+  // readings the anchoring exists to produce, so they lead the panel.
+  const anchored = data.anchored || {};
+  const tiles = [];
+  const capital = anchored.capital;
+  if (capital && capital.anchored) {
+    const overdue = capital.years_into_cycle_now - capital.period_years;
+    tiles.push(metric(
+      "Capital cycle",
+      `${fmt(capital.years_into_cycle_now, 0)} of ${fmt(capital.period_years, 0)}y`,
+      overdue > 0 ? "above" : "plain"
+    ));
+    tiles.push(metric(
+      overdue > 0 ? "Reordering overdue by" : "Reordering in",
+      `${fmt(Math.abs(overdue), 0)}y`,
+      overdue > 0 ? "above" : "plain"
+    ));
+    tiles.push(metric("Crossed 3.5 in", fmt(capital.reference_year, 1)));
+  } else if (capital) {
+    tiles.push(metric("Capital cycle", "not anchored", "below"));
+  }
+  const innovation = anchored.innovation;
+  if (innovation && innovation.anchored) {
+    const toTrough = innovation.years_to_reference;
+    tiles.push(metric(
+      toTrough >= 0 ? "Innovation low in" : "Innovation low was",
+      `${fmt(Math.abs(toTrough), 0)}y`,
+      "inside"
+    ));
+    tiles.push(metric("Innovation low at", fmt(innovation.reference_year, 0)));
+  }
+  el("cycles-metrics").innerHTML = tiles.join("");
+
+  // Prior periods as reference lines, since they are inputs to the band-pass and not results.
+  const priorLines = [];
+  const priorLabels = [];
+  names.forEach((name) => {
+    const period = data.cycles[name].prior_period;
+    if (!period) return;
+    priorLines.push({
+      type: "line", x0: period, x1: period, yref: "paper", y0: 0, y1: 1,
+      line: { color: token("--signal"), width: 1, dash: "dot" }, layer: "below",
+    });
+    priorLabels.push({
+      x: Math.log10(period), y: 1, xref: "x", yref: "paper", text: `${name} ${period}y`,
+      showarrow: false, textangle: -90, font: { size: 8, color: token("--signal") },
+      xanchor: "right", yanchor: "top",
+    });
+  });
+
+  // Explicit ticks at the periods that mean something, rather than Plotly's log minor ticks. Left to
+  // itself a log axis labels every decade as "2 3 4 5 6 7 8 9 10 2 3 4 ...", which reads as though the
+  // axis restarts. The prior periods are among the ticks so a reader can place them without the
+  // annotations.
+  const spectrumTicks = [2, 3.6, 5, 7, 10, 18, 30, 47, 90].filter(
+    (t) => t >= Math.min(...data.spectrum.periods) * 0.9
+  );
+
+  draw("chart-spectrum", [
+    line(data.spectrum.periods, data.spectrum.power, "Power", "output",
+      { trace: { hovertemplate: "%{x:.1f} years: %{y:.3g}<extra></extra>" } }),
+  ], themeLayout("Spectrum of the growth rate, with the prior periods marked", {
+    xaxis: {
+      type: "log",
+      title: { text: "Period, years, log scale", font: { size: 10 } },
+      gridcolor: token("--rule"),
+      tickmode: "array",
+      tickvals: spectrumTicks,
+      ticktext: spectrumTicks.map((t) => `${t}`),
+      tickfont: { color: token("--faint") },
+    },
+    yaxis: { title: { text: "Power", font: { size: 10 } }, tickfont: { color: token("--faint") } },
+    shapes: priorLines,
+    annotations: priorLabels,
+    showlegend: false,
+    hovermode: "closest",
+  }));
+
+  /*
+    Two charts, not one.
+
+    A band-passed component is a deviation in a growth rate, of order 0.02. An anchored component is a
+    position normalised to unit amplitude, because the anchor says where in the cycle the economy is and
+    not how large the cycle is. Drawing them on one axis would be a dual-axis chart in all but name, and
+    the band-passed cycles would be flat lines against the anchored ones.
+  */
+  const estimated = identifiable.filter((name) => data.cycles[name].source !== "anchored");
+  const anchoredNames = identifiable.filter((name) => data.cycles[name].source === "anchored");
+
+  const shown = estimated.slice(0, SLOT_COUNT);
+  const dropped = estimated.slice(SLOT_COUNT);
+  if (shown.length) {
+    draw("chart-cycle-components", shown.map((name) =>
+      line(data.periods, data.cycles[name].component, `${name}, ${fmt(data.cycles[name].estimated_period, 1)}y`, name)
+    ), themeLayout("Extracted cycle components, band pass", {
+      shapes: [zeroLine()],
+      yaxis: { title: { text: "Deviation in growth rate", font: { size: 10 } } },
+    }));
+  } else if (plotly()) {
+    Plotly.purge("chart-cycle-components");
+    el("chart-cycle-components").innerHTML =
+      '<p class="muted">No cycle is identifiable by band pass on this sample, so there is no component to draw.</p>';
+  }
+
+  if (anchoredNames.length) {
+    const marks = [];
+    const labels = [];
+    anchoredNames.forEach((name) => {
+      const reference = (anchored[name] || {}).reference_year;
+      if (reference === null || reference === undefined) return;
+      marks.push({
+        type: "line", x0: reference, x1: reference, yref: "paper", y0: 0, y1: 1,
+        line: { color: colourFor(name), width: 1, dash: "dot" }, layer: "below",
+      });
+      labels.push({
+        x: reference, y: 1, xref: "x", yref: "paper",
+        text: name === "innovation" ? `low ${fmt(reference, 0)}` : `3.5 crossed ${fmt(reference, 1)}`,
+        showarrow: false, textangle: -90, font: { size: 8, color: colourFor(name) },
+        xanchor: "right", yanchor: "top",
+      });
+    });
+
+    draw("chart-anchored-cycles", anchoredNames.map((name) =>
+      line(data.periods, data.cycles[name].component,
+        `${name}, ${fmt(data.cycles[name].estimated_period, 0)}y, anchored`, name)
+    ), themeLayout("Anchored long cycles, position at unit amplitude", {
+      shapes: [zeroLine()].concat(marks),
+      annotations: labels,
+      yaxis: {
+        title: { text: "Position, peak = 1, trough = -1", font: { size: 10 } },
+        range: [-1.15, 1.15],
+      },
+    }));
+  } else if (plotly()) {
+    Plotly.purge("chart-anchored-cycles");
+    el("chart-anchored-cycles").innerHTML =
+      '<p class="muted">Neither long cycle could be anchored, so there is no position to draw. ' +
+      'The capital cycle needs the saturation axis to reach its anchor ratio.</p>';
+  }
+
+  const rows = ["<tr><th>cycle</th><th>how positioned</th><th>period</th><th>band</th><th>sample</th><th>usable</th></tr>"];
+  names.forEach((name) => {
+    const c = data.cycles[name];
+    const isAnchored = c.source === "anchored";
+    // An anchored period is supplied and an estimated one is measured. They must not read alike.
+    const period = c.estimated_period === null ? "n/a" : fmt(c.estimated_period, 1) + "y";
+    rows.push(`<tr>
+      <td>${name}</td>
+      <td><span class="chip ${isAnchored ? "warn" : "ok"}">${isAnchored ? "anchored" : "band pass"}</span></td>
+      <td class="num">${period}${isAnchored && c.identifiable ? ' <span class="muted">supplied</span>' : ""}</td>
+      <td class="num muted">${fmt(c.band[0], 0)} to ${fmt(c.band[1], 0)}y</td>
+      <td class="num muted">${fmt(c.sample_years, 0)}y</td>
+      <td><span class="chip ${c.identifiable ? "ok" : "bad"}">${
+        c.identifiable ? "yes" : isAnchored ? "no anchor" : "sample too short"
+      }</span></td>
+    </tr>`);
+  });
+  const window = data.synchrony.current_window;
+  rows.push(`<tr><td>Synchronisation</td><td colspan="5" class="muted">${
+    window
+      ? `cycles in phase over ${window.start_period} to ${window.end_period} on this vintage: ${window.cycles_in_phase.join(", ")}`
+      : `no window on this vintage. ${data.synchrony.windows.length} historical window(s) detected.`
+  }</td></tr>`);
+  el("cycles-table").innerHTML = rows.join("");
+
+  const notes = [data.note].concat(data.synchrony.notes || []);
+  names.forEach((name) => (data.cycles[name].notes || []).forEach((note) => notes.push(`${name}: ${note}`)));
+  if (dropped.length) {
+    notes.push(
+      `${dropped.length} identifiable cycle(s) are in the table but not on the component chart ` +
+      `(${dropped.join(", ")}): only three series colours clear the accessibility floors, so a fourth ` +
+      `would not be distinguishable.`
+    );
+  }
+  renderNotes("cycles-notes", notes);
+}
+
+/* ------------------------------------------------------------------ projection */
+
+el("project").onclick = async () => {
+  const code = state.selected;
+  setStatus(`projecting ${code}`);
+  el("project").disabled = true;
+  try {
+    const data = await call(`/api/project/${code}?horizon=15`, { method: "POST" });
+    if (!data.ok) { setStatus(`projection failed: ${data.error}`, true); return; }
+    renderProjection(code, data);
+
+    // The endpoint already returns the derived indicators over the projected state. Re-render the
+    // derived panel so they appear as continuations, whichever order the two buttons were pressed in.
+    state.projectedDerived = data.derived || null;
+    state.projectionStartIndex = data.projection_start_index;
+    if (state.lastDerived) renderDerived(state.lastDerived);
+
+    setStatus(`${code} projected ${data.projection.horizon} periods, ending in ${data.projection.phase_at_end}`);
+  } catch (error) {
+    setStatus(error.message, true);
+  } finally {
+    el("project").disabled = false;
+  }
+};
+
+function renderProjection(code, data) {
+  const p = data.projection;
+  show("projection-panel");
+  el("projection-label").textContent = p.label;
+  el("projection-lede").textContent =
+    `A model consequence of the calibrated parameters, recomputed from this vintage. The levers are at ` +
+    `their base case (stimulus and savings multipliers of 1.0), so this is what the observed policy ` +
+    `stance implies rather than a scenario.`;
+
+  el("projection-metrics").innerHTML = [
+    metric("Horizon", `${p.horizon} periods`),
+    metric("Phase at end", p.phase_at_end),
+    metric("Saturation at end", fmt(p.saturation[p.saturation.length - 1])),
+    metric("K_R / K_I at end", fmt(p.real_to_financial[p.real_to_financial.length - 1])),
+  ].join("");
+
+  /*
+    Observed and projected saturation on one axis, because it is one quantity.
+
+    The projected trace is PREPENDED with the last observed point, so the two join as one continuous
+    line. The projection genuinely does continue from the observed end state, `projection.py` integrates
+    from `path.output[-1]` and its siblings, so leaving a gap between the last observation and the first
+    projected period misrepresented it as a separate series. It is dashed because a projected path must
+    be distinguishable from an observation without consulting the legend.
+  */
+  const assembled = state.assembled[code];
+  const traces = [];
+  let joinX = p.periods;
+  let joinY = p.saturation;
+  if (assembled) {
+    const observedPeriods = assembled.periods;
+    const observedSaturation = assembled.series.saturation;
+    traces.push(line(observedPeriods, observedSaturation, "Observed", "saturation"));
+    joinX = [observedPeriods[observedPeriods.length - 1]].concat(p.periods);
+    joinY = [observedSaturation[observedSaturation.length - 1]].concat(p.saturation);
+  }
+  traces.push(line(joinX, joinY, "Projected", "saturation", { dash: "dash" }));
+
+  draw("chart-projection", traces, themeLayout("Credit saturation, observed and projected", {
+    shapes: [bandShape(state.band[0], state.band[1])],
+    yaxis: { title: { text: "Credit to non-financial sector over GDP", font: { size: 10 } } },
+  }));
+
+  // Observed and projected share one axis, so the step at the join needs explaining or a reader takes it
+  // for a crash in the first projected period. This states what it is; it is not a warning.
+  const breakNode = el("projection-break");
+  if (data.join_break) {
+    breakNode.hidden = false;
+    breakNode.innerHTML =
+      `<h3>The projection continues the model's trajectory, not the observed series</h3>` +
+      `<p>${data.join_break.detail}</p>`;
+  } else {
+    breakNode.hidden = true;
+  }
+
+  const rows = ["<tr><th>criterion</th><th>Y</th><th>K_R</th><th>K_I</th></tr>"];
+  const reliability = p.reliability || {};
+  [
+    ["Turning-point hit rate", "turning_point_hit_rate", 2],
+    ["Directional accuracy", "directional_accuracy", 2],
+    ["Mean lead, periods", "mean_lead_lag_periods", 1],
+  ].forEach(([label, key, digits]) => {
+    const cell = (name) => {
+      const entry = reliability[name];
+      return entry ? fmt(entry[key], digits) : "n/a";
+    };
+    rows.push(`<tr><td>${label}</td><td class="num">${cell("Y")}</td><td class="num">${cell("K_R")}</td><td class="num">${cell("K_I")}</td></tr>`);
+  });
+  rows.push(`<tr><td>Measured on</td><td colspan="3" class="muted">${reliability.measured_on || "not reported"}</td></tr>`);
+
+  // Transitions are the substance of a projection: read the ordering, not the dates, which is what the
+  // confidence string on each transition says.
+  const transitions = p.transitions || [];
+  if (!transitions.length) {
+    rows.push('<tr><td>Transitions</td><td colspan="3" class="muted">none over the horizon</td></tr>');
+  } else {
+    transitions.forEach((t, index) => {
+      rows.push(`<tr>
+        <td>${index === 0 ? "Transitions" : ""}</td>
+        <td colspan="3" class="muted">${t.period}: ${t.from_phase} to ${t.to_phase}
+          (saturation ${fmt(t.saturation)})<br><span style="font-size:0.72rem">${t.confidence || ""}</span></td>
+      </tr>`);
+    });
+  }
+
+  const scenarios = Object.keys(p.scenarios || {});
+  rows.push(`<tr><td>Phase IV scenarios</td><td colspan="3" class="muted">${
+    scenarios.length
+      ? scenarios.join(", ")
+      : "not produced. Both resolutions are run only from inside Phase IV, since projecting a correction from outside it would be inventing a crisis."
+  }</td></tr>`);
+  el("projection-table").innerHTML = rows.join("");
+
+  renderNotes("projection-notes", (p.notes || []).concat(p.assumptions || [], [data.lever_note]));
+}
+
+el("export").onclick = async () => {
+  const code = state.selected;
+  setStatus(`exporting ${code}`);
+  try {
+    const data = await call(`/api/export/${code}`, { method: "POST" });
+    if (!data.ok) { setStatus(`export failed: ${data.error}`, true); return; }
+    el("brief").textContent = data.brief;
+    show("brief-panel");
+    setStatus(`wrote ${data.written.length} file(s): ${data.written.map((p) => p.split(/[\\/]/).pop()).join(", ")}`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+};
+
+el("compare").onclick = async () => {
+  try {
+    const data = await call("/api/compare");
+    const rows = ["<tr><th>economy</th><th>window</th><th>saturation</th><th>K_R/K_I</th><th>phase</th></tr>"];
+    data.economies.forEach((row) => {
+      rows.push(`<tr><td>${row.name}</td><td class="num muted">${row.window[0]}-${row.window[1]}</td>
+        <td class="num"><span class="chip ${bandClass(row.saturation)}">${row.saturation.toFixed(2)}</span></td>
+        <td class="num">${row.real_to_financial.toFixed(2)}</td><td>${row.phase}</td></tr>`);
+    });
+    rows.push(`<tr><td colspan="5" class="muted">${data.note}</td></tr>`);
+    el("compare-table").innerHTML = rows.join("");
+    show("compare-panel");
+
+    // Bars carry a status colour by band position, not a series colour: the encoding is state (below,
+    // inside, above the band), and each bar is directly labelled with its value so the reading never
+    // rests on the colour alone.
+    draw("chart-compare", [{
+      x: data.economies.map((r) => r.name),
+      y: data.economies.map((r) => r.saturation),
+      type: "bar",
+      marker: { color: data.economies.map((row) => token(`--${bandClass(row.saturation)}`)) },
+      text: data.economies.map((r) => r.saturation.toFixed(2)),
+      textposition: "outside",
+      textfont: { color: token("--soft"), size: 10 },
+      hovertemplate: "%{x}: %{y:.2f}<extra></extra>",
+    }], themeLayout("Credit saturation, latest period per economy", {
+      shapes: [bandShape(state.band[0], state.band[1])],
+      bargap: 0.38,
+      showlegend: false,
+      hovermode: "closest",
+      yaxis: { title: { text: "Credit to non-financial sector over GDP", font: { size: 10 } } },
+    }));
+    setStatus(`compared ${data.economies.length} assembled economies`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+};
+
+boot();
+</script>
+</body>
+</html>

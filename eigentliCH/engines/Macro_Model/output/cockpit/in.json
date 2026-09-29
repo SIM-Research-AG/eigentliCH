@@ -1,0 +1,303 @@
+{
+  "header": {
+    "economy": "in",
+    "calibration_window": {
+      "first": 2000,
+      "last": 2022
+    },
+    "data_vintage": {
+      "Y": "World Bank 2026-07-27",
+      "saturation": "BIS 2026-07-27",
+      "K_R_over_Y": "Penn World Table 10.01 (DOI 10.34894/QT5BCC)",
+      "p_s": "World Bank 2026-07-27",
+      "stimulus_share": "World Bank 2026-07-27",
+      "equity_share": "World Bank 2026-07-27",
+      "population_growth": "World Bank 2026-07-27"
+    },
+    "standardising_adjustments": {
+      "Y": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "saturation": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "K_R_over_Y": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "p_s": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "stimulus_share": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "capital_normalisation": {
+        "scale": 0.23776195693595062,
+        "target_capital_output_ratio": 0.9,
+        "observed_capital_output_ratio": 3.7852985885477297,
+        "preserves_real_to_financial_ratio": true,
+        "dynamics_neutral": true,
+        "rationale": "the highest published capital-to-output ratio over the window is 3.79, which makes the investment share r = 1 - K_R/Y equal -2.79 at that point. Wherever r is negative the reduced output equation Y_dot = (p_b Y + r K_I + S) / 2 drives output towards zero, so the system does not integrate. A common scale of 0.2378 applied to both capital stocks brings the maximum K_R/Y to 0.90, so r stays positive for every period and section 0.2's definition of it as a share holds throughout. The scale is applied to both stocks, so K_R/K_I and therefore the Phase 4 condition are unchanged, and being multiplicative it cannot alter growth rates, direction or turning points. The consequence is that K_R/Y cannot cross one inside the calibration window, so the production-versus-financial transition of section 0.5 is not observable on the normalised path."
+      }
+    },
+    "projection_label": "illustrative, model-derived",
+    "disclaimer": "This is model-derived research and decision support, not investment advice. Projected paths are consequences of the calibrated model rather than dated predictions.",
+    "notes": [
+      "the real-capital ratio is published through 2019 and extended to 2025 in ratio space. The extended values are computed, not published, and any output using them carries the extension label.",
+      "the highest published capital-to-output ratio over the window is 3.79, which makes the investment share r = 1 - K_R/Y equal -2.79 at that point. Wherever r is negative the reduced output equation Y_dot = (p_b Y + r K_I + S) / 2 drives output towards zero, so the system does not integrate. A common scale of 0.2378 applied to both capital stocks brings the maximum K_R/Y to 0.90, so r stays positive for every period and section 0.2's definition of it as a share holds throughout. The scale is applied to both stocks, so K_R/K_I and therefore the Phase 4 condition are unchanged, and being multiplicative it cannot alter growth rates, direction or turning points. The consequence is that K_R/Y cannot cross one inside the calibration window, so the production-versus-financial transition of section 0.5 is not observable on the normalised path.",
+      "K_R is reconstructed as the Penn World Table capital-to-output ratio multiplied by market-valued output, so it is market-valued by construction and no PPP conversion factor is involved. It is a reconstruction rather than a published level."
+    ]
+  },
+  "diagnostics": {
+    "phase": "Build-up",
+    "saturation": 1.7880000000000003,
+    "calibration": {
+      "economy": "in",
+      "window": {
+        "first": 2000,
+        "last": 2022,
+        "periods": 20
+      },
+      "converged": true,
+      "optimiser_message": "`xtol` termination condition is satisfied.",
+      "integration_accuracy": "reporting",
+      "fit_quality": {
+        "mean_relative_residual": 0.17528824201754886,
+        "per_series": {
+          "Y": 0.13727301881200488,
+          "K_R": 0.16348820537030495,
+          "K_I": 0.2251035018703367
+        }
+      },
+      "free_parameters": {
+        "p_p_scale": {
+          "value": 0.06608452162381646,
+          "standard_error": 0.040198919512590824,
+          "identifiability": "weakly identified: standard error is 61% of the value"
+        },
+        "p_b_scale": {
+          "value": 1.4252612105725133,
+          "standard_error": 1.1195075061903965,
+          "identifiability": "weakly identified: standard error is 79% of the value"
+        },
+        "alpha_scale": {
+          "value": 3.2769256468299868,
+          "standard_error": 1.0279959735597286,
+          "identifiability": "identified: standard error is 31% of the value"
+        },
+        "savings_scale": {
+          "value": 0.22874417592751523,
+          "standard_error": 0.04683098838890208,
+          "identifiability": "identified: standard error is 20% of the value"
+        },
+        "stimulus_scale": {
+          "value": 2.0930605962057602,
+          "standard_error": 0.3116385156287478,
+          "identifiability": "identified: standard error is 15% of the value"
+        },
+        "initial_output": {
+          "value": 423499437068.40564,
+          "standard_error": 38689685675.799194,
+          "identifiability": "identified: standard error is 9% of the value"
+        },
+        "initial_real": {
+          "value": 302282815927.14417,
+          "standard_error": 39028699237.84388,
+          "identifiability": "identified: standard error is 13% of the value"
+        },
+        "initial_financial": {
+          "value": 231987030089.6691,
+          "standard_error": 30927558824.917492,
+          "identifiability": "identified: standard error is 13% of the value"
+        }
+      },
+      "weakly_identified": [
+        "p_p_scale",
+        "p_b_scale"
+      ],
+      "identity_diagnostics": {
+        "p_p_mean_abs_residual": 0.23508424070103642,
+        "p_b_mean_abs_residual": 3.9052657291999227,
+        "alpha_mean_abs_residual": 0.9958010148398635,
+        "r_mean_abs_residual": 0.0,
+        "p_p_identity_implied_mean_output_growth": -113700193163.71985,
+        "identity_correction_departures": {
+          "p_p_scale": 0.933915,
+          "p_b_scale": 0.425261,
+          "alpha_scale": 2.276926
+        },
+        "worst_identity_correction": "alpha_scale",
+        "worst_identity_correction_departure": 2.2769256468299868
+      },
+      "two_body_worst_relative_residual": 3.41159620118269e-17,
+      "derivative_smoothing": {
+        "method": "savitzky_golay",
+        "window_years": 5,
+        "polynomial_order": 2,
+        "p_b_source": "population_growth",
+        "p_b_note": "p_b taken from the observed population growth rate, which is the quantity section 0.2 says it tracks and which is dimensionally a rate. Its mean over the window is 0.0145. The formula the same section writes, (Y_dot + K_R_dot) / K_I_dot, averages 3.228 over this window, which is a flow ratio rather than a rate and is dimensionally inconsistent with the use the output equation puts p_b to. That discrepancy is a property of the source definition and is reported rather than patched.",
+        "note": "alpha, p_p and p_b are all defined through time derivatives, so this choice propagates into every one of them and into the fitted free parameters"
+      },
+      "notes": [
+        "the p_p identity, taken together with the real-capital equation, implies negative output growth over this window. That is the documented over-determination, not a finding about the economy: the identity is reported and not enforced, so the calibration is unaffected.",
+        "the identity corrections had to move materially away from one to fit the trajectory, the largest being alpha_scale at 3.277, a departure of 228%. A correction of one would mean the definitions of section 0.2 and the equations of motion agree; this is how far they do not. The correction is reported rather than constrained, because constraining it would make the calibration fail instead of making the inconsistency visible.",
+        "weakly identified parameters: p_p_scale, p_b_scale. Brief section 4 requires these to be held to plausible priors and stress-tested rather than over-fitted, which is what calibration/validate.py does."
+      ]
+    }
+  },
+  "series": {
+    "state": {
+      "Y_observed": [
+        468395521654.458,
+        485440139204.171,
+        514939140318.756,
+        607700687237.318,
+        709152728830.775,
+        820383763511.445,
+        940259888787.721,
+        1216736438834.96,
+        1198895139005.92,
+        1341888016994.9,
+        1675615519484.96,
+        1823051829894.55,
+        1827637590410.41,
+        1856721507621.58,
+        2039126479154.52,
+        2103588360044.94,
+        2294796885663.16,
+        2651474262755.45,
+        2702929641648.74,
+        3249938492013.47
+      ],
+      "K_R_observed": [
+        280107020636.658,
+        307971255007.4899,
+        343928926003.6295,
+        415936598545.70483,
+        501945121511.2814,
+        569080233443.9064,
+        664244351046.3564,
+        884424362754.141,
+        944589216260.6339,
+        1135819288276.222,
+        1404032103663.315,
+        1573496186701.966,
+        1563928332413.5571,
+        1666921019924.5742,
+        1835213831239.0679,
+        1853447117829.3289,
+        2002400158992.4807,
+        2302520262832.9155,
+        2331601871653.028,
+        2775812441906.5493
+      ],
+      "K_I_observed": [
+        211679854757.74515,
+        207462258579.3318,
+        237076766226.73755,
+        307248999520.82697,
+        382739095332.824,
+        489497279614.6637,
+        615042017211.8761,
+        989498374882.2902,
+        718909121246.7222,
+        927141476719.6398,
+        1166440325948.35,
+        1098672002084.3682,
+        1139706588217.7227,
+        1079515443848.8682,
+        1264026640435.6367,
+        1298705707803.0232,
+        1328563263811.179,
+        1753819930477.8008,
+        2098653483979.1426,
+        2186995511898.0945
+      ],
+      "Y_simulated": [
+        423499437068.40564,
+        530707974613.4677,
+        617462092125.6844,
+        687213725276.4381,
+        748705090355.6364,
+        806405811352.3545,
+        861505773166.3201,
+        901355253759.6846,
+        963349227518.439,
+        1111735911231.4084,
+        1303398217999.2158,
+        1513341209871.0347,
+        1762235464200.5588,
+        2039939815055.1978,
+        2297269618423.665,
+        2480120219030.6333,
+        2606452931068.4653,
+        2700558296868.1484,
+        2733844399501.647,
+        3184297632312.4995
+      ],
+      "K_R_simulated": [
+        302282815927.14417,
+        387072958188.51904,
+        454686532543.02783,
+        516029230901.9501,
+        579629484210.6149,
+        643655768422.3369,
+        715823134351.0159,
+        799358041700.4785,
+        869009768945.7587,
+        960915105930.9476,
+        1107085187962.2654,
+        1296226126550.0825,
+        1522940619402.658,
+        1775078670648.9426,
+        2025873364863.184,
+        2238002989886.35,
+        2414792414033.5435,
+        2558966781285.8413,
+        2648894386037.6143,
+        2996711749689.5503
+      ],
+      "K_I_simulated": [
+        231987030089.6691,
+        220822937555.0846,
+        247822389484.0628,
+        294940368518.67773,
+        351034658516.97424,
+        426272337918.75275,
+        503212945304.8747,
+        551766795117.9359,
+        659264586834.6417,
+        828134730296.478,
+        954903653581.6547,
+        1031334883779.3564,
+        1090701581739.8927,
+        1159532813621.5105,
+        1247912581483.892,
+        1381025746268.8127,
+        1553177553258.587,
+        1782573821695.9592,
+        2095253499264.388,
+        3948592570387.632
+      ]
+    }
+  }
+}

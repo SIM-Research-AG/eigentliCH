@@ -1,0 +1,90 @@
+# DERIVED MANDATE. Generated from BalanceSheetSnapshot BSS-8cd1dc6767242895.
+# Do not edit: it is regenerated from the household's position and goal.
+#
+# household      hh-0013
+# goal           fi, 2,250,000 in 5y at 90% confidence
+# required       6.2964% a year, in expectation under the house view
+# curve          4.0148% in state 0 rising to 9.0148% in state 24 (state_dependent=True)
+# regime         REG-38d91c1a0da0ef1e
+# bound sources  {'derived': 3, 'policy': 5}
+#
+# The curve's SHAPE is CIO policy and the LEVEL is derived. The ramp asks less of a crisis than of
+# a boom, which no household model here can supply; the block shift that sets the level is chosen
+# so the curve's house-view expectation equals the required return above. DECISIONS.md M50.
+#
+# The single max_single_position below is the tightest of the per-instrument caps this mandate
+# derived, because the Optimiser's schema takes one scalar. That is conservative: instruments with
+# a smaller crisis loss could safely carry more. Per-instrument caps need a schema change there.
+client: hh-0013
+mandate: derived-fi-5y
+market: Global
+currency: CHF
+benchmark: Swiss
+horizon_years: 1.0
+max_single_position: 0.5297659908059382
+esg_min: 0.0
+target_curve:
+- 0.04014813899202923
+- 0.04223147232536256
+- 0.044314805658695895
+- 0.04639813899202923
+- 0.04848147232536256
+- 0.050564805658695894
+- 0.052648138992029234
+- 0.054731472325362567
+- 0.0568148056586959
+- 0.058898138992029225
+- 0.060981472325362565
+- 0.0630648056586959
+- 0.06514813899202923
+- 0.06723147232536256
+- 0.0693148056586959
+- 0.07139813899202924
+- 0.07348147232536256
+- 0.0755648056586959
+- 0.07764813899202923
+- 0.07973147232536257
+- 0.0818148056586959
+- 0.08389813899202923
+- 0.08598147232536257
+- 0.0880648056586959
+- 0.09014813899202924
+universe:
+- 17
+- 18
+- 32
+- 33
+- 37
+- 40
+- 42
+- 54
+fixed_allocations: {}
+bounds:
+  liquidity:
+    Daily:
+      lower: 0.3
+      upper: 1.0
+    Decade:
+      lower: 0.0
+      upper: 0.1
+  currency:
+    CHF:
+      lower: 0.5
+      upper: 1.0
+  role:
+    Protection:
+      lower: 0.05
+      upper: 0.5
+    Gain:
+      lower: 0.2
+      upper: 0.7
+    Income:
+      lower: 0.1
+      upper: 0.4
+    Stabilisation:
+      lower: 0.1
+      upper: 0.4
+  asset_class:
+    Cash:
+      lower: 0.0
+      upper: 0.4

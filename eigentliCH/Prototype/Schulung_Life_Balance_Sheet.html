@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Life Balance Sheet — Schulung</title>
+<style>
+:root{
+  color-scheme:light dark;
+  /* Neutrals carry a violet bias rather than sitting at pure grey: the accent is violet, and a
+     neutral that shares its hue reads as chosen instead of inherited. */
+  --bg:#FFFFFF; --ink:#1A1740; --soft:#5D4591; --line:#ECE8F4; --tint:#F6F4FB;
+  --surface:#FFFFFF; --acc:#A059C1; --warn:#C1445A; --ok:#2E7D64;
+  --warn-bg:#FDF3F5; --warn-line:#F0D3DA; --ok-bg:#F1F8F5; --ok-line:#CFE6DC;
+  --g1:#8890e7; --g2:#A059C1; --g3:#FEA479; --g4:#FFE8A1;
+}
+/* The un-stamped default: most readers never choose a theme, so only the OS preference separates
+   the two here. Guarded so an explicit light choice still beats a dark system. */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14111F; --ink:#EDE8F6; --soft:#A99BC6; --line:#2B2442; --tint:#1D1830;
+    --surface:#221C38; --acc:#C08AE0; --warn:#E8879A; --ok:#6FBF9E;
+    --warn-bg:#2A1922; --warn-line:#4A2A36; --ok-bg:#16261F; --ok-line:#2C4A3C;
+  }
+}
+/* And the explicit dark choice, so the toggle wins in that direction too. */
+:root[data-theme="dark"]{
+  --bg:#14111F; --ink:#EDE8F6; --soft:#A99BC6; --line:#2B2442; --tint:#1D1830;
+  --surface:#221C38; --acc:#C08AE0; --warn:#E8879A; --ok:#6FBF9E;
+  --warn-bg:#2A1922; --warn-line:#4A2A36; --ok-bg:#16261F; --ok-line:#2C4A3C;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+     font:17px/1.66 "Iowan Old Style","Palatino Linotype",Georgia,serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:52px 28px 110px}
+.ey{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--acc)}
+h1{font-family:ui-sans-serif,system-ui,sans-serif;font-size:40px;line-height:1.1;margin:12px 0 8px;
+   font-weight:800;letter-spacing:-.025em}
+.sub{font-family:ui-sans-serif,system-ui,sans-serif;font-size:14px;color:var(--soft);margin:0}
+.lede{font-size:20px;line-height:1.58;margin:20px 0 0}
+.rule{height:3px;border-radius:3px;margin:26px 0 34px;
+      background:linear-gradient(110deg,var(--g1),var(--g2) 40%,var(--g3) 80%,var(--g4))}
+h2{font-family:ui-sans-serif,system-ui,sans-serif;font-size:16px;margin:52px 0 12px;padding-top:18px;
+   border-top:1px solid var(--line);font-weight:700}
+h2 .ix{display:inline-block;min-width:2.2em;color:var(--acc);font-variant-numeric:tabular-nums}
+h3{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.5px;margin:28px 0 6px;font-weight:700}
+p{margin:13px 0}
+.box{background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:20px 0}
+.box.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+.box.ok{background:var(--ok-bg);border-color:var(--ok-line)}
+.box p:first-of-type{margin-top:0}.box p:last-child{margin-bottom:0}
+.tag{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+     text-transform:uppercase;display:block;margin-bottom:6px}
+.tag.wn{color:var(--warn)}.tag.o{color:var(--ok)}.tag.n{color:var(--acc)}
+.pull{font-size:22px;line-height:1.45;margin:26px 0;padding-left:20px;border-left:3px solid var(--acc);
+      color:var(--ink)}
+table{border-collapse:collapse;width:100%;margin:18px 0;
+      font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);
+   border-bottom:1.5px solid var(--line);padding:0 10px 8px 0;font-weight:700}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.sum td{font-weight:700;border-bottom:2px solid var(--ink)}
+.ch{width:100%;height:auto;display:block;margin:22px 0 8px;overflow:visible}
+.cl{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;
+    fill:var(--soft)}
+.cax{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10.5px;fill:var(--soft)}
+.cs{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11.5px;fill:var(--soft)}
+.cin{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;font-weight:700;fill:#fff}
+.cser{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12.5px;font-weight:700}
+.cmk{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11.5px;font-weight:700;
+     font-variant-numeric:tabular-nums}
+.crow{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12.5px;font-weight:700;fill:var(--ink)}
+.cnode{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12.5px;font-weight:700;fill:var(--ink)}
+/* The node body takes the surface token, not white: a white box under ink-coloured text
+   is unreadable the moment the ink turns light. */
+.cnodebox{fill:var(--surface);stroke:var(--acc);stroke-width:1.8}
+.cfill{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;font-weight:700;fill:var(--ink)}
+.cempty{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;fill:var(--soft);opacity:.7}
+/* Text inside an SVG takes a token like any other text. A literal ink value is invisible
+   the moment the ground changes, which is what the dark pass found. */
+.cink{fill:var(--ink)}
+.csoft{fill:var(--soft)}
+.cring{stroke:var(--bg);stroke-width:2}
+.grid{stroke:var(--line);stroke-width:1}
+.cap{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11.5px;color:var(--soft);margin:2px 0 24px}
+ul{margin:13px 0;padding-left:22px}li{margin:7px 0}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:var(--tint);
+     border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.toc{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.5px;columns:2;column-gap:36px;
+     margin:20px 0 8px}
+.toc a{display:block;padding:5px 0;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+a:focus-visible,.toc a:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:3px}
+.toc a:hover{color:var(--acc)}
+.toc .n{color:var(--acc);font-variant-numeric:tabular-nums;margin-right:10px}
+.foot{margin-top:54px;padding-top:20px;border-top:1px solid var(--line);
+      font-family:ui-sans-serif,system-ui,sans-serif;font-size:11.5px;color:var(--soft)}
+a{color:var(--acc)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{body{font-size:11pt}.wrap{padding:0;max-width:none}h2{page-break-after:avoid}
+  .box,table,.ch{page-break-inside:avoid}}
+@media (max-width:640px){.toc{columns:1}h1{font-size:30px}}
+</style></head><body>
+<div class="wrap">
+<div class="ey">Schulung</div>
+<h1>Das Life Balance Sheet</h1>
+<p class="sub">Die persönliche Bilanz als Steuerungsmodell · Grundlagen, Modell, Grenzen</p>
+<p class="lede">Ein Leben führen wie eine Pensionskasse: nicht fragen, wie viel da ist, sondern ob es reicht — termingerecht, unter Unsicherheit, mit einer Marge.</p>
+<div class="rule"></div>
+<div class="toc">
+<a href="#s1"><span class="n">01</span>Die Frage, die eine Pensionskasse stellt</a>
+<a href="#s2"><span class="n">02</span>Was auf der Bilanz steht</a>
+<a href="#s3"><span class="n">03</span>Warum das Nettovermögen der falsche Wert ist</a>
+<a href="#s4"><span class="n">04</span>Expertise: was eine Ausbildung wert ist</a>
+<a href="#s5"><span class="n">05</span>Ziele sind Verbindlichkeiten, keine Wünsche</a>
+<a href="#s6"><span class="n">06</span>Zeit: die Grösse, die man nicht leihen kann</a>
+<a href="#s7"><span class="n">07</span>Der Regelkreis, den eine Sparquote nicht sieht</a>
+<a href="#s8"><span class="n">08</span>Die Zyklen: woher die Zustände kommen</a>
+<a href="#s9"><span class="n">09</span>Von einem Zyklus zu einer Verteilung</a>
+<a href="#s10"><span class="n">10</span>Das Umfeld: fünf Szenarien, 25 Zustände</a>
+<a href="#s11"><span class="n">11</span>Was ein Instrument tut, nicht was es ist</a>
+<a href="#s12"><span class="n">12</span>Wie gut diese Zahlen bekannt sind</a>
+<a href="#s13"><span class="n">13</span>Ehrliche Grenzen</a>
+</div>
+<h2 id="s1"><span class="ix">01</span>Die Frage, die eine Pensionskasse stellt</h2>
+
+<p>Eine Pensionskasse misst ihren Erfolg nicht am Kassenbestand. Sie stellt eine härtere Frage:
+<b>decken meine Vermögenswerte meine Verbindlichkeiten bei Fälligkeit — unter Unsicherheit, mit einer
+Sicherheitsmarge?</b></p>
+
+<p>Das ist die richtige Frage für einen Haushalt. Sie lässt sich aber nicht einmal stellen, solange nur
+Geld auf der Bilanz steht. Drei Umdeutungen tragen das Modell:</p>
+
+<ul>
+<li><b>Kapitalien sind Vermögenswerte.</b> Nicht nur Geld — auch Expertise, Netzwerk und Gesundheit.
+Jedes trägt Wert über die Zeit, wirft einen Ertrag ab und verfällt ohne Pflege.</li>
+<li><b>Ziele sind Verbindlichkeiten.</b> Ein Betrag, fällig zu einem Datum, mit einer geforderten
+Erfolgswahrscheinlichkeit. Ein Ziel ohne geforderte Konfidenz lässt sich gegen nichts abwägen — es ist
+ein Wunsch, und das Modell behandelt es als einen.</li>
+<li><b>Zeit ist die bindende Restriktion.</b> Geld lässt sich leihen und verzinsen. Der Tag nicht.</li>
+</ul>
+
+<div class="pull">Die knappe Grösse ist nicht das Geld. Das meiste, was das Modell tut, ist
+herauszufinden, wohin die nächste Stunde gehört.</div>
+
+<h2 id="s2"><span class="ix">02</span>Was auf der Bilanz steht</h2>
+
+<p>Links die Aktiven, rechts die Verbindlichkeiten. Neu daran ist nicht die Form, sondern was mitzählt.</p>
+<svg viewBox="0 0 860 330" role="img" class="ch" aria-label="Die persönliche Bilanz">
+<text x="0" y="14" class="cl">AKTIVEN</text>
+<text x="452.0" y="14" class="cl">VERBINDLICHKEITEN</text>
+<rect x="0" y="26" width="408.0" height="52" rx="8" fill="#8A4FC4" opacity="0.13" stroke="#8A4FC4" stroke-width="1.5"/>
+<rect x="0" y="26" width="5" height="52" rx="2.5" fill="#8A4FC4"/>
+<text x="16" y="47" class="cfill">Liquides Vermögen</text>
+<text x="16" y="65" class="cs">Konto, Wertschriften — was morgen zahlbar ist</text>
+<rect x="0" y="86" width="408.0" height="52" rx="8" fill="#0089A7" opacity="0.13" stroke="#0089A7" stroke-width="1.5"/>
+<rect x="0" y="86" width="5" height="52" rx="2.5" fill="#0089A7"/>
+<text x="16" y="107" class="cfill">Reale Vermögenswerte</text>
+<text x="16" y="125" class="cs">Liegenschaft, Beteiligung — Wert, der nicht ausgabefähig ist</text>
+<rect x="0" y="146" width="408.0" height="52" rx="8" fill="#4C6B1F" opacity="0.13" stroke="#4C6B1F" stroke-width="1.5"/>
+<rect x="0" y="146" width="5" height="52" rx="2.5" fill="#4C6B1F"/>
+<text x="16" y="167" class="cfill">Expertise</text>
+<text x="16" y="185" class="cs">was Sie können</text>
+<rect x="0" y="206" width="408.0" height="52" rx="8" fill="#4C6B1F" opacity="0.13" stroke="#4C6B1F" stroke-width="1.5"/>
+<rect x="0" y="206" width="5" height="52" rx="2.5" fill="#4C6B1F"/>
+<text x="16" y="227" class="cfill">Netzwerk</text>
+<text x="16" y="245" class="cs">wer für Sie eintritt</text>
+<rect x="0" y="266" width="408.0" height="52" rx="8" fill="#4C6B1F" opacity="0.13" stroke="#4C6B1F" stroke-width="1.5"/>
+<rect x="0" y="266" width="5" height="52" rx="2.5" fill="#4C6B1F"/>
+<text x="16" y="287" class="cfill">Gesundheit</text>
+<text x="16" y="305" class="cs">der Multiplikator auf alles andere</text>
+<rect x="452.0" y="26" width="408.0" height="52" rx="8" fill="#C46A15" opacity="0.13" stroke="#C46A15" stroke-width="1.5"/>
+<rect x="452.0" y="26" width="5" height="52" rx="2.5" fill="#C46A15"/>
+<text x="468.0" y="47" class="cfill">Schulden</text>
+<text x="468.0" y="65" class="cs">die einzige Verbindlichkeit, die jede Bilanz führt</text>
+<rect x="452.0" y="86" width="408.0" height="52" rx="8" fill="#A059C1" opacity="0.13" stroke="#A059C1" stroke-width="1.5"/>
+<rect x="452.0" y="86" width="5" height="52" rx="2.5" fill="#A059C1"/>
+<text x="468.0" y="107" class="cfill">Wohneigentum 2034</text>
+<text x="468.0" y="125" class="cs">1'100'000, fällig 2034, Konfidenz 80 %</text>
+<rect x="452.0" y="146" width="408.0" height="52" rx="8" fill="#A059C1" opacity="0.13" stroke="#A059C1" stroke-width="1.5"/>
+<rect x="452.0" y="146" width="5" height="52" rx="2.5" fill="#A059C1"/>
+<text x="468.0" y="167" class="cfill">Ruhestand ab 65</text>
+<text x="468.0" y="185" class="cs">eine Entnahme, kein Betrag</text>
+<rect x="452.0" y="206" width="408.0" height="52" rx="8" fill="#5d4591" opacity="0.13" stroke="#5d4591" stroke-width="1.5"/>
+<rect x="452.0" y="206" width="5" height="52" rx="2.5" fill="#5d4591"/>
+<text x="468.0" y="227" class="cfill">Ausbildung der Kinder</text>
+<text x="468.0" y="245" class="cs">kein Datum, kein Betrag — noch ein Wunsch</text>
+<line x1="430.0" y1="20" x2="430.0" y2="310" stroke="#ECE8F4" stroke-width="2"/>
+</svg>
+<p>Das Finanzvermögen wird <b>dreifach</b> geführt und nicht als eine Zahl: liquides Vermögen, reale
+Vermögenswerte, Schulden. Eine einzige Zahl kann keine ehrliche Finanzgeschichte erzählen — das Haus, in
+dem Sie wohnen, ist Vermögen, aber es ist keine Quelle für ein Ziel.</p>
+<p>Daneben stehen drei Bestände, die keine Cashflow-Projektion führt. <b>Expertise</b> ist, was Sie
+können. <b>Netzwerk</b> ist, wer für Sie eintritt. <b>Gesundheit</b> ist der Multiplikator auf alles
+andere: sie entscheidet, wie viel von Ihrer Verdienstfähigkeit tatsächlich verfügbar ist.</p>
+
+<h2 id="s3"><span class="ix">03</span>Warum das Nettovermögen der falsche Wert ist</h2>
+
+<p>Zwei Haushalte, dasselbe Nettovermögen. Für das, was die meisten Menschen mit Unabhängigkeit meinen,
+haben sie nicht dieselbe Lage.</p>
+<svg viewBox="0 0 860 210" role="img" class="ch" aria-label="Gleiches Nettovermögen">
+<text x="0" y="14" class="cl">ZWEIMAL 500'000 NETTOVERMÖGEN</text>
+<text x="136" y="54" class="crow" text-anchor="end">Haushalt A</text>
+<rect x="150.0" y="34" width="67.3" height="30" rx="4" fill="#8A4FC4"><title>liquide: 120'000</title></rect>
+<rect x="219.3" y="34" width="402.4" height="30" rx="4" fill="#0089A7"><title>real: 700'000</title></rect>
+<text x="229.3" y="54" class="cin">700'000</text>
+<rect x="150.0" y="68" width="184.9" height="16" rx="3" fill="#C46A15" opacity="0.85"><title>Schulden 320'000</title></rect>
+<text x="344.9" y="81" class="cs">Schulden 320'000</text>
+<text x="680" y="54" class="cmk cink">verfügbar 120'000</text>
+<text x="136" y="132" class="crow" text-anchor="end">Haushalt B</text>
+<rect x="150.0" y="112" width="275.3" height="30" rx="4" fill="#8A4FC4"><title>liquide: 480'000</title></rect>
+<text x="160.0" y="132" class="cin">480'000</text>
+<rect x="427.3" y="112" width="125.1" height="30" rx="4" fill="#0089A7"><title>real: 220'000</title></rect>
+<text x="437.3" y="132" class="cin">220'000</text>
+<rect x="150.0" y="146" width="115.6" height="16" rx="3" fill="#C46A15" opacity="0.85"><title>Schulden 200'000</title></rect>
+<text x="275.6" y="159" class="cs">Schulden 200'000</text>
+<text x="680" y="132" class="cmk cink">verfügbar 480'000</text>
+<rect x="150" y="188" width="10" height="10" rx="2" fill="#8A4FC4"/>
+<text x="165" y="197" class="cs">liquides Vermögen</text>
+<rect x="320" y="188" width="10" height="10" rx="2" fill="#0089A7"/>
+<text x="335" y="197" class="cs">reale Vermögenswerte</text>
+<rect x="520" y="188" width="10" height="10" rx="2" fill="#C46A15" opacity="0.85"/>
+<text x="535" y="197" class="cs">Schulden</text>
+</svg>
+<p class="cap">Beide Haushalte: 500'000 netto. Die Zahlen sind erfunden.</p>
+<p>Haushalt A hat 700'000 in einer Liegenschaft und 120'000 auf dem Konto. Haushalt B hat es umgekehrt.
+Beide sind nach der üblichen Rechnung gleich vermögend. Nur einer von beiden kann ein Ziel bezahlen, das
+in drei Jahren fällig wird.</p>
+<div class="box"><span class="tag n">Der Punkt</span>
+<p>Das Verrechnen der drei Vermögensformen zu einer Zahl verbirgt genau das, was darüber entscheidet, ob
+der Plan aufgeht. Deshalb führt das Modell sie getrennt und prüft ein Ziel gegen das, was tatsächlich
+erreichbar ist — nicht gegen die Summe.</p></div>
+
+<h2 id="s4"><span class="ix">04</span>Expertise: was eine Ausbildung wert ist</h2>
+
+<p>Damit Expertise ein Vermögenswert sein kann, muss sie einen Preis haben. Den liefert die Statistik:
+das Bundesamt für Statistik veröffentlicht die Medianlöhne nach Ausbildung, und das Modell ist an sie
+geknüpft.</p>
+<svg viewBox="0 0 860 264" role="img" class="ch" aria-label="Medianlöhne nach Ausbildung">
+<text x="0" y="14" class="cl">MEDIANLOHN 2024 · CHF PRO MONAT, 100-PROZENT-STELLE</text>
+<text x="236" y="48" class="crow" text-anchor="end">Universitäre Hochschule</text>
+<rect x="250" y="28" width="547.2" height="26" rx="4" fill="#8A4FC4" opacity="0.30"><title>mit Kaderfunktion: 14'409</title></rect>
+<rect x="250" y="28" width="328.3" height="26" rx="4" fill="#8A4FC4"><title>ohne Kaderfunktion: 8'645</title></rect>
+<text x="586.3" y="46" class="cmk" fill="#fff" text-anchor="end">8'645</text>
+<text x="805.2" y="46" class="cmk" class="csoft">14'409</text>
+<text x="236" y="88" class="crow" text-anchor="end">Fachhochschule FH</text>
+<rect x="250" y="68" width="444.3" height="26" rx="4" fill="#8A4FC4" opacity="0.30"><title>mit Kaderfunktion: 11'701</title></rect>
+<rect x="250" y="68" width="316.8" height="26" rx="4" fill="#8A4FC4"><title>ohne Kaderfunktion: 8'342</title></rect>
+<text x="574.8" y="86" class="cmk" fill="#fff" text-anchor="end">8'342</text>
+<text x="702.3" y="86" class="cmk" class="csoft">11'701</text>
+<text x="236" y="128" class="crow" text-anchor="end">Höhere Berufsausbildung</text>
+<rect x="250" y="108" width="398.3" height="26" rx="4" fill="#8A4FC4" opacity="0.30"><title>mit Kaderfunktion: 10'489</title></rect>
+<rect x="250" y="108" width="298.1" height="26" rx="4" fill="#8A4FC4"><title>ohne Kaderfunktion: 7'849</title></rect>
+<text x="556.1" y="126" class="cmk" fill="#fff" text-anchor="end">7'849</text>
+<text x="656.3" y="126" class="cmk" class="csoft">10'489</text>
+<text x="236" y="168" class="crow" text-anchor="end">Berufsausbildung (EFZ)</text>
+<rect x="250" y="148" width="313.4" height="26" rx="4" fill="#8A4FC4" opacity="0.30"><title>mit Kaderfunktion: 8'252</title></rect>
+<rect x="250" y="148" width="234.0" height="26" rx="4" fill="#8A4FC4"><title>ohne Kaderfunktion: 6'162</title></rect>
+<text x="492.0" y="166" class="cmk" fill="#fff" text-anchor="end">6'162</text>
+<text x="571.4" y="166" class="cmk" class="csoft">8'252</text>
+<text x="236" y="208" class="crow" text-anchor="end">Unternehmensinterne Ausbildung</text>
+<rect x="250" y="188" width="265.4" height="26" rx="4" fill="#8A4FC4" opacity="0.30"><title>mit Kaderfunktion: 6'989</title></rect>
+<rect x="250" y="188" width="207.2" height="26" rx="4" fill="#8A4FC4"><title>ohne Kaderfunktion: 5'456</title></rect>
+<text x="465.2" y="206" class="cmk" fill="#fff" text-anchor="end">5'456</text>
+<text x="523.4" y="206" class="cmk" class="csoft">6'989</text>
+<rect x="250" y="234" width="10" height="10" rx="2" fill="#8A4FC4"/>
+<text x="265" y="243" class="cs">ohne Kaderfunktion</text>
+<rect x="440" y="234" width="10" height="10" rx="2" fill="#8A4FC4" opacity="0.30"/>
+<text x="455" y="243" class="cs">oberes oder mittleres Kader</text>
+</svg>
+<p class="cap">Quelle: Bundesamt für Statistik, Schweizerische Lohnstrukturerhebung — Löhne 2024,
+Pressekonferenz Bern, 25. November 2025. Standardisierter Bruttomonatslohn, umgerechnet auf 4 1/3 Wochen
+zu 40 Arbeitsstunden.</p>
+
+<p>Zwei Dinge daran sind wichtiger, als sie aussehen.</p>
+
+<p><b>Erstens ist die Tabelle zwei Spalten breit.</b> Bei derselben universitären Ausbildung beträgt der
+Schritt von «ohne Kaderfunktion» ins Kader <b>5'764 Franken im Monat</b>. Der ganze Abstand
+von der Berufslehre zur Universität — ohne Kaderfunktion — beträgt 2'483. <b>Die Funktion im
+Unternehmen wiegt mehr als der Abschluss.</b> Ein Modell mit nur einer Bildungsachse übersieht die
+grössere der beiden Grössen.</p>
+
+<p><b>Zweitens ist ein Median keine Prognose.</b> Die Hälfte aller Beschäftigten in einer Kategorie
+verdient weniger und die Hälfte mehr, und die Streuung innerhalb einer Kategorie ist grösser als der
+Abstand zwischen zwei Kategorien: über die ganze Wirtschaft liegt das oberste Zehntel bei
+12'526 und das unterste bei 4'635, ein Faktor von
+2,7. Der Median von 7'024 ist ein Bezugspunkt und keine Aussage über
+eine Person.</p>
+
+<h2 id="s5"><span class="ix">05</span>Ziele sind Verbindlichkeiten, keine Wünsche</h2>
+
+<p>Eine Verbindlichkeit hat drei Angaben, und ohne alle drei ist sie keine:</p>
+<table>
+<tr><th>Angabe</th><th>Warum ohne sie nichts geht</th></tr>
+<tr><td><b>Betrag</b></td><td>Ohne Betrag gibt es nichts zu decken.</td></tr>
+<tr><td><b>Datum</b></td><td>Ohne Datum gibt es keinen Horizont, also keine geforderte Rendite und
+keine Liquiditätsanforderung.</td></tr>
+<tr><td><b>Konfidenz</b></td><td>Ohne geforderte Erfolgswahrscheinlichkeit lässt sich das Ziel gegen
+kein anderes abwägen. «Wichtig» ist keine Zahl.</td></tr>
+</table>
+
+<p>Aus den drei folgt eine geforderte Rendite. Und hier zeigt sich der Nutzen der Trennung sofort: die
+geforderte Rendite wird gegen das <b>erreichbare</b> Vermögen gerechnet, nicht gegen die Bilanzsumme.</p>
+
+<div class="box warn"><span class="tag wn">Ein Fehler, der teuer aussieht und keiner ist</span>
+<p>Ein Wohnziel über 1,1 Millionen erzeugt eine geforderte Rendite von über 30 Prozent im Jahr, wenn der
+ganze Kaufpreis als Zielbetrag gesetzt wird. Das ist arithmetisch richtig und praktisch unsinnig: gekauft
+wird mit Eigenmitteln und einer Hypothek. Nötig sind 20 Prozent, nicht 100.</p>
+<p><b>Die zweite Prüfung ist die, an der es tatsächlich scheitert.</b> Die Tragbarkeit rechnet mit einem
+kalkulatorischen Zins von 5 Prozent, einem Prozent Unterhalt und der Amortisation — und erlaubt dafür
+höchstens ein Drittel des Bruttoeinkommens. Wer die Eigenmittel zusammenspart und die Tragbarkeit
+verfehlt, hat kein Anlageproblem. Er hat ein Einkommensproblem, und das ist ein anderes Gespräch.</p></div>
+
+<h2 id="s6"><span class="ix">06</span>Zeit: die Grösse, die man nicht leihen kann</h2>
+
+<p>Das Modell teilt die produktive Woche — 100 Stunden, also Wachzeit abzüglich
+Weg, Haushalt und dem, was ohnehin getan werden muss — in vier Verwendungen und einen Rest:
+Erwerbsarbeit, Lernen, Netzwerk, Erholung, freie Zeit.</p>
+
+<p>Jede der drei investierbaren Verwendungen hat eine <b>eigene</b> Ertragskurve, und die Unterschiede
+sind der eigentliche Inhalt.</p>
+<svg viewBox="0 0 860 300" role="img" class="ch" aria-label="Ertrag der investierten Zeit">
+<text x="0" y="14" class="cl">WAS EINE STUNDE PRO WOCHE BRINGT</text>
+<line x1="60.0" y1="34" x2="60.0" y2="254" class="grid"/>
+<text x="60.0" y="272" class="cax" text-anchor="middle">0</text>
+<line x1="147.1" y1="34" x2="147.1" y2="254" class="grid"/>
+<text x="147.1" y="272" class="cax" text-anchor="middle">10</text>
+<line x1="234.3" y1="34" x2="234.3" y2="254" class="grid"/>
+<text x="234.3" y="272" class="cax" text-anchor="middle">20</text>
+<line x1="321.4" y1="34" x2="321.4" y2="254" class="grid"/>
+<text x="321.4" y="272" class="cax" text-anchor="middle">30</text>
+<line x1="408.6" y1="34" x2="408.6" y2="254" class="grid"/>
+<text x="408.6" y="272" class="cax" text-anchor="middle">40</text>
+<line x1="495.7" y1="34" x2="495.7" y2="254" class="grid"/>
+<text x="495.7" y="272" class="cax" text-anchor="middle">50</text>
+<line x1="582.9" y1="34" x2="582.9" y2="254" class="grid"/>
+<text x="582.9" y="272" class="cax" text-anchor="middle">60</text>
+<line x1="670.0" y1="34" x2="670.0" y2="254" class="grid"/>
+<text x="670.0" y="272" class="cax" text-anchor="middle">70</text>
+<text x="365" y="290" class="cs" text-anchor="middle">Stunden pro Woche</text>
+<polyline points="60.0,254.0 68.7,245.6 77.4,237.6 86.1,230.0 94.9,222.8 103.6,215.9 112.3,209.4 121.0,203.1 129.7,197.2 138.4,191.6 147.1,186.2 155.9,181.1 164.6,176.3 173.3,171.7 182.0,167.3 190.7,163.1 199.4,159.1 208.1,155.4 216.9,151.8 225.6,148.4 234.3,145.1 243.0,142.0 251.7,139.1 260.4,136.3 269.1,133.6 277.9,131.1 286.6,128.7 295.3,126.4 304.0,124.2 312.7,122.2 321.4,120.2 330.1,118.3 338.9,116.5 347.6,114.8 356.3,113.2 365.0,111.7 373.7,110.2 382.4,108.8 391.1,107.5 399.9,106.3 408.6,105.1 417.3,103.9 426.0,102.8 434.7,101.8 443.4,100.8 452.1,99.9 460.9,99.0 469.6,98.2 478.3,97.4 487.0,96.6 495.7,95.9 504.4,95.2 513.1,94.5 521.9,93.9 530.6,93.3 539.3,92.8 548.0,92.2 556.7,91.7 565.4,91.2 574.1,90.8 582.9,90.3 591.6,89.9 600.3,89.5 609.0,89.1 617.7,88.8 626.4,88.4 635.1,88.1 643.9,87.8 652.6,87.5 661.3,87.2 670.0,86.9" fill="none" stroke="#8A4FC4" stroke-width="2.6"/>
+<text x="680" y="90.9" class="cser" fill="#8A4FC4">Lernen</text>
+<text x="680" y="105.9" class="cs">Knick bei 20 Stunden</text>
+<polyline points="60.0,254.0 68.7,245.8 77.4,238.4 86.1,231.7 94.9,225.6 103.6,220.1 112.3,215.1 121.0,210.6 129.7,206.6 138.4,202.9 147.1,199.6 155.9,196.5 164.6,193.8 173.3,191.3 182.0,189.1 190.7,187.1 199.4,185.3 208.1,183.6 216.9,182.1 225.6,180.8 234.3,179.5 243.0,178.4 251.7,177.4 260.4,176.5 269.1,175.7 277.9,174.9 286.6,174.3 295.3,173.7 304.0,173.1 312.7,172.6 321.4,172.2 330.1,171.8 338.9,171.4 347.6,171.1 356.3,170.7 365.0,170.5 373.7,170.2 382.4,170.0 391.1,169.8 399.9,169.6 408.6,169.5 417.3,169.3 426.0,169.2 434.7,169.0 443.4,168.9 452.1,168.8 460.9,168.7 469.6,168.7 478.3,168.6 487.0,168.5 495.7,168.5 504.4,168.4 513.1,168.3 521.9,168.3 530.6,168.3 539.3,168.2 548.0,168.2 556.7,168.2 565.4,168.1 574.1,168.1 582.9,168.1 591.6,168.1 600.3,168.0 609.0,168.0 617.7,168.0 626.4,168.0 635.1,168.0 643.9,168.0 652.6,168.0 661.3,168.0 670.0,168.0" fill="none" stroke="#C46A15" stroke-width="2.6"/>
+<text x="680" y="172.0" class="cser" fill="#C46A15">Netzwerk</text>
+<text x="680" y="187.0" class="cs">Knick bei 10 Stunden</text>
+<polyline points="60.0,254.0 68.7,229.7 77.4,219.6 86.1,211.8 94.9,205.3 103.6,199.6 112.3,194.4 121.0,189.6 129.7,185.1 138.4,181.0 147.1,177.0 155.9,173.2 164.6,169.7 173.3,166.2 182.0,162.9 190.7,159.7 199.4,156.6 208.1,153.6 216.9,150.7 225.6,147.9 234.3,145.1 243.0,142.4 251.7,139.8 260.4,137.2 269.1,134.7 277.9,132.3 286.6,129.9 295.3,127.5 304.0,125.2 312.7,122.9 321.4,120.6 330.1,118.4 338.9,116.3 347.6,114.1 356.3,112.0 365.0,110.0 373.7,107.9 382.4,105.9 391.1,103.9 399.9,102.0 408.6,100.0 417.3,98.1 426.0,96.2 434.7,94.3 443.4,92.5 452.1,90.7 460.9,88.9 469.6,87.1 478.3,85.3 487.0,83.6 495.7,81.8 504.4,80.1 513.1,78.4 521.9,76.7 530.6,75.1 539.3,73.4 548.0,71.8 556.7,70.2 565.4,68.6 574.1,67.0 582.9,65.4 591.6,63.8 600.3,62.3 609.0,60.7 617.7,59.2 626.4,57.7 635.1,56.2 643.9,54.7 652.6,53.2 661.3,51.8 670.0,50.3" fill="none" stroke="#0089A7" stroke-width="2.6"/>
+<text x="680" y="54.3" class="cser" fill="#0089A7">Erholung</text>
+<text x="680" y="69.3" class="cs">kein Knick — Wurzel</text>
+<circle cx="234.3" cy="145.1" r="5" fill="#8A4FC4" class="cring"/>
+<circle cx="147.1" cy="199.6" r="5" fill="#C46A15" class="cring"/>
+</svg>
+
+<ul>
+<li><b>Netzwerk knickt bei 10 Stunden.</b> 63 Prozent des Nutzens sind nach zehn Stunden erreicht,
+86 Prozent nach zwanzig. Darüber bringt es fast nichts mehr.</li>
+<li><b>Lernen knickt bei 20 Stunden</b> — bei der doppelten Skala. Tiefe Arbeit nimmt anhaltende Stunden
+auf, bevor sie aufhört zu zahlen.</li>
+<li><b>Erholung hat gar keinen Knick.</b> Eine Wurzelfunktion: doppelt so viel Ruhe bringt das
+1,41-Fache, viermal so viel das Doppelte. Lange Erholung hilft weiter, nur je Stunde weniger.</li>
+</ul>
+
+<p>Dass es drei verschiedene Formen sind und nicht eine, ist eine Entscheidung und kein Zufall. Eine
+Potenzfunktion hat überall dieselbe Elastizität und kann deshalb keinen Knick abbilden — sie hätte für
+das Netzwerk behauptet, die Stunden 20 bis 30 brächten noch fast so viel wie die ersten zehn.</p>
+
+<h2 id="s7"><span class="ix">07</span>Der Regelkreis, den eine Sparquote nicht sieht</h2>
+
+<p>Die Gesundheit trägt die Rückkopplung, die dieses Modell zu einem Modell macht und nicht zu einer
+Ansammlung. Bis 50 Stunden pro Woche zerfällt sie mit einer festen Rate. Darüber beschleunigt der
+Zerfall.</p>
+<svg viewBox="0 0 860 250" role="img" class="ch" aria-label="Der Gesundheitszerfall">
+<text x="0" y="14" class="cl">WIE SCHNELL GESUNDHEIT ZERFÄLLT · NACH ARBEITSZEIT</text>
+<line x1="60.0" y1="34" x2="60.0" y2="204" class="grid"/>
+<text x="60.0" y="222" class="cax" text-anchor="middle">0</text>
+<line x1="145.7" y1="34" x2="145.7" y2="204" class="grid"/>
+<text x="145.7" y="222" class="cax" text-anchor="middle">10</text>
+<line x1="231.4" y1="34" x2="231.4" y2="204" class="grid"/>
+<text x="231.4" y="222" class="cax" text-anchor="middle">20</text>
+<line x1="317.1" y1="34" x2="317.1" y2="204" class="grid"/>
+<text x="317.1" y="222" class="cax" text-anchor="middle">30</text>
+<line x1="402.9" y1="34" x2="402.9" y2="204" class="grid"/>
+<text x="402.9" y="222" class="cax" text-anchor="middle">40</text>
+<line x1="488.6" y1="34" x2="488.6" y2="204" class="grid"/>
+<text x="488.6" y="222" class="cax" text-anchor="middle">50</text>
+<line x1="574.3" y1="34" x2="574.3" y2="204" class="grid"/>
+<text x="574.3" y="222" class="cax" text-anchor="middle">60</text>
+<line x1="660.0" y1="34" x2="660.0" y2="204" class="grid"/>
+<text x="660.0" y="222" class="cax" text-anchor="middle">70</text>
+<rect x="488.6" y="34" width="171.4" height="170" fill="#C1445A" opacity="0.06"/>
+<line x1="488.6" y1="34" x2="488.6" y2="204" stroke="#C1445A" stroke-width="1.6" stroke-dasharray="5 4"/>
+<text x="496.6" y="48" class="cmk" fill="#C1445A">50 Stunden</text>
+<polyline points="60.0,167.0 68.6,167.0 77.1,167.0 85.7,167.0 94.3,167.0 102.9,167.0 111.4,167.0 120.0,167.0 128.6,167.0 137.1,167.0 145.7,167.0 154.3,167.0 162.9,167.0 171.4,167.0 180.0,167.0 188.6,167.0 197.1,167.0 205.7,167.0 214.3,167.0 222.9,167.0 231.4,167.0 240.0,167.0 248.6,167.0 257.1,167.0 265.7,167.0 274.3,167.0 282.9,167.0 291.4,167.0 300.0,167.0 308.6,167.0 317.1,167.0 325.7,167.0 334.3,167.0 342.9,167.0 351.4,167.0 360.0,167.0 368.6,167.0 377.1,167.0 385.7,167.0 394.3,167.0 402.9,167.0 411.4,167.0 420.0,167.0 428.6,167.0 437.1,167.0 445.7,167.0 454.3,167.0 462.9,167.0 471.4,167.0 480.0,167.0 488.6,167.0 497.1,161.5 505.7,156.0 514.3,150.4 522.9,144.9 531.4,139.3 540.0,133.8 548.6,128.2 557.1,122.7 565.7,117.2 574.3,111.6 582.9,106.1 591.4,100.5 600.0,95.0 608.6,89.4 617.1,83.9 625.7,78.3 634.3,72.8 642.9,67.3 651.4,61.7 660.0,56.2" fill="none" stroke="#C1445A" stroke-width="2.8"/>
+<text x="670" y="60.2" class="cser" fill="#C1445A">4× so schnell</text>
+<text x="670" y="75.2" class="cs">bei 70 statt 40 Stunden</text>
+<text x="360" y="240" class="cs" text-anchor="middle">Erwerbsarbeit, Stunden pro Woche</text>
+</svg>
+<p class="cap">Aus den Gleichungen des Modells gelesen, nicht illustriert.</p>
+
+<p>Bei 70 Stunden zerfällt die Gesundheit viermal so schnell wie bei 40. Und weil die Gesundheit als
+Multiplikator direkt auf das Einkommen wirkt, kauft die 60. Arbeitsstunde Einkommen heute und verkauft
+Einkommen morgen. Ein Planungswerkzeug, das nur die Sparquote sieht, verbucht das als Fortschritt.</p>
+
+<p>Derselbe Kreis läuft auch in die andere Richtung, und das ist die unbequemere Hälfte:</p>
+<svg viewBox="0 0 860 260" role="img" class="ch" aria-label="Die Kopplung">
+<text x="0" y="14" class="cl">WARUM WENIGER AUSGEBEN NICHT EINDEUTIG GUT IST</text>
+<line x1="192" y1="54" x2="368" y2="41" stroke="#A059C1" stroke-width="2" marker-end="url(#tip)" opacity="0.7"/>
+<line x1="489" y1="49" x2="641" y2="121" stroke="#A059C1" stroke-width="2" marker-end="url(#tip)" opacity="0.7"/>
+<line x1="639" y1="136" x2="441" y2="194" stroke="#A059C1" stroke-width="2" marker-end="url(#tip)" opacity="0.7"/>
+<line x1="326" y1="185" x2="184" y2="70" stroke="#A059C1" stroke-width="2" marker-end="url(#tip)" opacity="0.7"/>
+<defs><marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#A059C1"/></marker></defs>
+<rect x="68" y="35" width="124" height="40" rx="20" class="cnodebox"/>
+<text x="130" y="60" class="cnode" text-anchor="middle">Lebensstandard</text>
+<rect x="368" y="20" width="124" height="40" rx="20" class="cnodebox"/>
+<text x="430" y="45" class="cnode" text-anchor="middle">Netzwerk</text>
+<rect x="638" y="110" width="124" height="40" rx="20" class="cnodebox"/>
+<text x="700" y="135" class="cnode" text-anchor="middle">Einkommen</text>
+<rect x="318" y="180" width="124" height="40" rx="20" class="cnodebox"/>
+<text x="380" y="205" class="cnode" text-anchor="middle">Vermögen</text>
+<text x="430" y="234" class="cs" text-anchor="middle">Jeder Pfeil wirkt in beide Richtungen. Der Kreis dreht sich nach unten so gut wie nach oben.</text>
+<text x="430" y="252" class="cmk cink" text-anchor="middle">Wer hart genug kürzt, spart sich aus dem eigenen Einkommen heraus.</text>
+</svg>
+
+<div class="box"><span class="tag n">Die Konsequenz</span>
+<p>Ein gehaltener Lebensstandard hält Sie in den Räumen und Mitgliedschaften, die die Obergrenze Ihres
+Netzwerks anheben. Das Netzwerk hebt das Einkommen, das Einkommen speist das Vermögen. <b>Wer hart genug
+kürzt, spart sich aus dem eigenen Einkommen heraus</b> — und jedes Werkzeug, das nur die Sparquote misst,
+würde genau das als Erfolg zählen.</p>
+<p>Deshalb ist die Sparquote in diesem Modell <b>ein Ergebnis und kein Regler</b>. Sie ergibt sich aus
+Einkommen minus Konsum. Man stellt sie nicht ein.</p></div>
+
+<h2 id="s8"><span class="ix">08</span>Die Zyklen: woher die Zustände kommen</h2>
+
+<p>Der zweite Teil des Modells beschreibt nicht den Haushalt, sondern das Umfeld. Er beginnt bei etwas,
+das älter ist als jede Quartalszahl: die Wirtschaft bewegt sich in überlagerten Zyklen von sehr
+verschiedener Länge.</p>
+<svg viewBox="0 0 860 288" role="img" class="ch" aria-label="Die sechs Zyklen">
+<text x="0" y="14" class="cl">DIE SECHS ZYKLEN · PERIODE IN JAHREN, LOGARITHMISCH</text>
+<line x1="150.0" y1="22" x2="150.0" y2="246" class="grid"/>
+<text x="150.0" y="262" class="cax" text-anchor="middle">3</text>
+<line x1="237.5" y1="22" x2="237.5" y2="246" class="grid"/>
+<text x="237.5" y="262" class="cax" text-anchor="middle">5</text>
+<line x1="356.2" y1="22" x2="356.2" y2="246" class="grid"/>
+<text x="356.2" y="262" class="cax" text-anchor="middle">10</text>
+<line x1="474.9" y1="22" x2="474.9" y2="246" class="grid"/>
+<text x="474.9" y="262" class="cax" text-anchor="middle">20</text>
+<line x1="631.8" y1="22" x2="631.8" y2="246" class="grid"/>
+<text x="631.8" y="262" class="cax" text-anchor="middle">50</text>
+<line x1="750.6" y1="22" x2="750.6" y2="246" class="grid"/>
+<text x="750.6" y="262" class="cax" text-anchor="middle">100</text>
+<text x="136" y="38" class="crow" text-anchor="end">Fundamentalpuls</text>
+<text x="136" y="53" class="cs" text-anchor="end">3,6 Jahre</text>
+<circle cx="181.2" cy="38" r="8" fill="#C9B0E4" class="cring"><title>Fundamentalpuls: 3,6 Jahre, marginal</title></circle>
+<text x="195.2" y="42" class="cs">3,6 Jahre gegen Jahresdaten — 3,6 Messpunkte pro Zyklus</text>
+<text x="136" y="74" class="crow" text-anchor="end">Konjunktur</text>
+<text x="136" y="89" class="cs" text-anchor="end">7,0 Jahre</text>
+<circle cx="295.1" cy="74" r="8" fill="#432C6B" class="cring"><title>Konjunktur: 7,0 Jahre, gemessen</title></circle>
+<text x="309.1" y="78" class="cs">bandpassgefiltert aus der Produktionslücke</text>
+<text x="136" y="110" class="crow" text-anchor="end">Kredit</text>
+<text x="136" y="125" class="cs" text-anchor="end">18,0 Jahre</text>
+<circle cx="456.9" cy="110" r="8" fill="#432C6B" class="cring"><title>Kredit: 18,0 Jahre, gemessen</title></circle>
+<text x="470.9" y="114" class="cs">bandpassgefiltert</text>
+<text x="136" y="146" class="crow" text-anchor="end">Innovation</text>
+<text x="136" y="161" class="cs" text-anchor="end">47,0 Jahre</text>
+<circle cx="621.2" cy="146" r="8" fill="#7E63AE" class="cring"><title>Innovation: 47,0 Jahre, gesetzt</title></circle>
+<text x="607.2" y="150" class="cs" text-anchor="end">verankert an einem Tief 2032, weltweit gleich</text>
+<text x="136" y="182" class="crow" text-anchor="end">Kapital</text>
+<text x="136" y="197" class="cs" text-anchor="end">90,0 Jahre</text>
+<circle cx="732.5" cy="182" r="8" fill="#7E63AE" class="cring"><title>Kapital: 90,0 Jahre, gesetzt</title></circle>
+<text x="718.5" y="186" class="cs" text-anchor="end">verankert an der Sättigung 3.5</text>
+<text x="136" y="218" class="crow" text-anchor="end">Hegemonialfolge</text>
+<text x="136" y="233" class="cs" text-anchor="end">130,0 Jahre</text>
+<circle cx="795.5" cy="218" r="8" fill="#7E63AE" class="cring"><title>Hegemonialfolge: 130,0 Jahre, gesetzt</title></circle>
+<text x="781.5" y="222" class="cs" text-anchor="end">verankert an einem Hoch 1945 · nicht im Interferenzmass</text>
+<circle cx="155" cy="272" r="5" fill="#432C6B"/>
+<text x="166" y="276" class="cs">gemessen</text>
+<circle cx="285" cy="272" r="5" fill="#7E63AE"/>
+<text x="296" y="276" class="cs">gesetzt</text>
+<circle cx="415" cy="272" r="5" fill="#C9B0E4"/>
+<text x="426" y="276" class="cs">marginal</text>
+</svg>
+<p class="cap">Perioden aus der Frequenzanalyse einer achthundertjährigen Realrenditereihe. Die Skala
+ist logarithmisch, sonst läge alles links zusammen.</p>
+
+<h3>Warum drei davon nicht gemessen werden</h3>
+<p>Ein Zyklus lässt sich nicht aus einer Stichprobe schätzen, die kürzer ist als ein paar seiner
+Perioden. Ein 90-Jahre-Kapitalzyklus bräuchte rund zwei Jahrhunderte Jahresdaten. Volkswirtschaftliche
+Gesamtrechnungen liefern fünfzig bis sechzig Jahre.</p>
+<p>Ein Filter liefert trotzdem eine Zahl. Sie bedeutet nur nichts. <b>Die ehrliche Antwort wäre, den
+Zyklus als nicht identifizierbar zu melden</b> — und genau das tut das Modell überall dort, wo es keine
+zusätzliche Information gibt. Für die drei langen Zyklen gibt es sie:</p>
+<ul>
+<li><b>Kapital</b> — verankert an der Kreditsättigung. Wo das Verhältnis von Kredit zum
+nichtfinanziellen Sektor über BIP den Wert 3,5
+kreuzt, ist der Zyklus 90 Jahre alt.</li>
+<li><b>Innovation</b> — verankert an einem Tief im Jahr
+2032, für jede Volkswirtschaft gleich, weil es ein globaler
+technologischer Zyklus ist und kein nationaler.</li>
+<li><b>Hegemonialfolge</b> — verankert an einem <b>Hoch</b> 1945, dem Abschluss der Ablösung von
+Grossbritannien durch die Vereinigten Staaten zwischen 1914 und 1945. Der einzige Anker auf einem
+Gipfel statt auf einem Tal.</li>
+</ul>
+<div class="box"><span class="tag n">Und einer wird absichtlich herausgehalten</span>
+<p>Die Hegemonialfolge wird positioniert, gezeichnet und berichtet — aber sie geht <b>nicht</b> in das
+Interferenzmass ein. Ein 130-Jahre-Zyklus verändert sich über jedes Fenster, das dieses System
+betrachtet, kaum. In ein normiertes Gleichlaufmass eingelassen, würde er vor allem eine
+Beinahe-Konstante beitragen und das Mass verwässern, ohne etwas zu erklären.</p></div>
+
+<h3>Gleichlauf ist der Zustand grösster Fragilität</h3>
+<p>Der interessante Moment ist nicht der einzelne Zyklus, sondern das Fenster, in dem mehrere
+gleichzeitig ihren Gipfel erreichen — konstruktive Interferenz. Das Modell erklärt ein solches Fenster,
+wenn mindestens
+3 Zyklen innerhalb von
+0,5 Radiant beieinanderliegen. Dort steht die
+Volkswirtschaft am anfälligsten.</p>
+
+<h3>Die Sättigungsachse</h3>
+<svg viewBox="0 0 860 150" role="img" class="ch" aria-label="Kapitalsättigung">
+<text x="0" y="14" class="cl">KAPITALSÄTTIGUNG · KREDIT AN DEN NICHTFINANZIELLEN SEKTOR ÜBER BIP</text>
+<rect x="60" y="34" width="740" height="26" rx="4" fill="#ECE8F4"/>
+<rect x="368.3" y="34" width="123.3" height="26" rx="4" fill="#0089A7" opacity="0.45"><title>ausgewogenes Band</title></rect>
+<line x1="60.0" y1="60" x2="60.0" y2="68" stroke="#5d4591" stroke-width="1"/>
+<text x="60.0" y="82" class="cax" text-anchor="middle">0</text>
+<line x1="183.3" y1="60" x2="183.3" y2="68" stroke="#5d4591" stroke-width="1"/>
+<text x="183.3" y="82" class="cax" text-anchor="middle">1</text>
+<line x1="306.7" y1="60" x2="306.7" y2="68" stroke="#5d4591" stroke-width="1"/>
+<text x="306.7" y="82" class="cax" text-anchor="middle">2</text>
+<line x1="430.0" y1="60" x2="430.0" y2="68" stroke="#5d4591" stroke-width="1"/>
+<text x="430.0" y="82" class="cax" text-anchor="middle">3</text>
+<line x1="553.3" y1="60" x2="553.3" y2="68" stroke="#5d4591" stroke-width="1"/>
+<text x="553.3" y="82" class="cax" text-anchor="middle">4</text>
+<line x1="676.7" y1="60" x2="676.7" y2="68" stroke="#5d4591" stroke-width="1"/>
+<text x="676.7" y="82" class="cax" text-anchor="middle">5</text>
+<line x1="800.0" y1="60" x2="800.0" y2="68" stroke="#5d4591" stroke-width="1"/>
+<text x="800.0" y="82" class="cax" text-anchor="middle">6</text>
+<text x="430.0" y="51" class="cmk cink" text-anchor="middle">ausgewogen 2,5–3,5</text>
+<line x1="491.7" y1="26" x2="491.7" y2="96" stroke="#C1445A" stroke-width="2"/>
+<text x="491.7" y="110" class="cmk" fill="#C1445A" text-anchor="middle">3,5 · hier ist der Kapitalzyklus 90 Jahre alt</text>
+<text x="800.0" y="142" class="cs" text-anchor="end">über 6,0 verweigert das Modell die Auskunft</text>
+</svg>
+<p>Das ausgewogene Band liegt zwischen 2,5 und
+3,5. Der obere Rand ist zugleich der Ankerpunkt des
+Kapitalzyklus: es ist derselbe Wert, an dem die Phasenklassifikation die Grenze zieht, und nicht zwei
+Zahlen, die zufällig nahe beieinanderliegen. Oberhalb von 6,0 verweigert
+das Modell die Auskunft, statt zu extrapolieren.</p>
+
+<h2 id="s9"><span class="ix">09</span>Von einem Zyklus zu einer Verteilung</h2>
+
+<p>Damit die Zyklen mit allem anderen zusammengerechnet werden können, landen sie auf derselben Achse
+wie das Marktrisikosignal: 25 Felder, von vorsichtig nach offensiv geordnet.</p>
+<svg viewBox="0 0 860 260" role="img" class="ch" aria-label="Die 25-Bin-Achse">
+<text x="0" y="14" class="cl">DIE ACHSE · BIN 1 VORSICHTIG, BIN 25 OFFENSIV</text>
+<rect x="40.0" y="26" width="154.0" height="30" rx="4" fill="#EDE4F6"><title>Krise: Bin 1 bis 5</title></rect>
+<text x="118.0" y="46" text-anchor="middle" class="cmk" fill="#1A1740">Krise</text>
+<text x="118.0" y="70" text-anchor="middle" class="cax">1–5</text>
+<rect x="196.0" y="26" width="154.0" height="30" rx="4" fill="#C9B0E4"><title>Kontraktion: Bin 6 bis 10</title></rect>
+<text x="274.0" y="46" text-anchor="middle" class="cmk" fill="#1A1740">Kontraktion</text>
+<text x="274.0" y="70" text-anchor="middle" class="cax">6–10</text>
+<rect x="352.0" y="26" width="154.0" height="30" rx="4" fill="#A276CE"><title>Stagnation: Bin 11 bis 15</title></rect>
+<text x="430.0" y="46" text-anchor="middle" class="cmk" fill="#1A1740">Stagnation</text>
+<text x="430.0" y="70" text-anchor="middle" class="cax">11–15</text>
+<rect x="508.0" y="26" width="154.0" height="30" rx="4" fill="#7B45B0"><title>Expansion: Bin 16 bis 20</title></rect>
+<text x="586.0" y="46" text-anchor="middle" class="cmk" fill="#fff">Expansion</text>
+<text x="586.0" y="70" text-anchor="middle" class="cax">16–20</text>
+<rect x="664.0" y="26" width="154.0" height="30" rx="4" fill="#54217F"><title>Boom: Bin 21 bis 25</title></rect>
+<text x="742.0" y="46" text-anchor="middle" class="cmk" fill="#fff">Boom</text>
+<text x="742.0" y="70" text-anchor="middle" class="cax">21–25</text>
+<text x="40" y="104" class="cl">DIESELBE POSITION, DREI BREITEN</text>
+<polyline points="55.6,200.0 86.8,200.0 118.0,200.0 149.2,200.0 180.4,200.0 211.6,200.0 242.8,200.0 274.0,200.0 305.2,200.0 336.4,199.8 367.6,199.1 398.8,196.6 430.0,189.4 461.2,174.7 492.4,152.7 523.6,131.2 554.8,122.0 586.0,131.2 617.2,152.7 648.4,174.7 679.6,189.4 710.8,196.6 742.0,199.1 773.2,199.8 804.4,200.0" fill="none" stroke="#432C6B" stroke-width="2.4"/>
+<polyline points="55.6,199.5 86.8,199.1 118.0,198.5 149.2,197.3 180.4,195.6 211.6,193.1 242.8,189.4 274.0,184.6 305.2,178.3 336.4,170.7 367.6,162.0 398.8,152.7 430.0,143.4 461.2,134.8 492.4,128.0 523.6,123.5 554.8,122.0 586.0,123.5 617.2,128.0 648.4,134.8 679.6,143.4 710.8,152.7 742.0,162.0 773.2,170.7 804.4,178.3" fill="none" stroke="#7E63AE" stroke-width="2.4"/>
+<polyline points="55.6,194.3 86.8,192.1 118.0,189.4 149.2,186.1 180.4,182.1 211.6,177.3 242.8,171.9 274.0,165.9 305.2,159.4 336.4,152.7 367.6,146.0 398.8,139.6 430.0,133.7 461.2,128.8 492.4,125.1 523.6,122.8 554.8,122.0 586.0,122.8 617.2,125.1 648.4,128.8 679.6,133.7 710.8,139.6 742.0,146.0 773.2,152.7 804.4,159.4" fill="none" stroke="#C9B0E4" stroke-width="2.4"/>
+<line x1="554.8" y1="114" x2="554.8" y2="200" stroke="#A059C1" stroke-width="1.4" stroke-dasharray="4 4"/>
+<rect x="40" y="214" width="18" height="3" fill="#432C6B"/>
+<text x="64" y="220" class="cs">gemessener Zyklus</text>
+<rect x="250" y="214" width="18" height="3" fill="#7E63AE"/>
+<text x="274" y="220" class="cs">gesetzter Anker</text>
+<rect x="460" y="214" width="18" height="3" fill="#C9B0E4"/>
+<text x="484" y="220" class="cs">Fundamentalpuls</text>
+<text x="40" y="244" class="cs">Je weniger die Position wert ist, desto breiter der Kern — und desto weniger sagt der Zyklus über den Zustand.</text>
+</svg>
+
+<h3>Die Position kommt aus dem Niveau, nicht aus der Phase</h3>
+<p>Jeder Zyklus hat eine Phase, und sein Niveau ist <code>u = cos(Phase)</code>. Die Mitte des Feldes
+ist dann <code>13 + 12u</code>: ein Tal landet auf Feld 1, die Mitte auf 13, ein Gipfel auf 25.</p>
+<p>Über das Niveau und nicht über die Phase, weil die Achse eine Risikohaltung meint. Die Phase linear
+abzubilden würde die Achse einmal pro Zyklus durchlaufen und das Tal an beide Enden legen — und das
+heisst die Achse nicht.</p>
+
+<div class="box warn"><span class="tag wn">Ein Vorzeichen, das einmal falsch stand</span>
+<p>Ein Gipfel in der eigenen Grösse eines Zyklus ist nicht immer das offensive Ende. Für die
+wachstumsbasierten Zyklen stimmt es. Für den <b>Kapitalzyklus ist es genau umgekehrt</b>: seine Phase 0
+ist die Kreditsättigung bei 3,5 — der Punkt
+höchster Fragilität.</p>
+<p>Solange dieser Gipfel auf Feld 25 abgebildet wurde, behauptete das Modell, die Volkswirtschaft sei
+am risikofreudigsten genau dann, wenn sie am gesättigtsten ist. Sichtbar wurde es daran, dass die
+gedruckte Verteilung den Kapitalzyklus bei Feld 21,9 zeigte, während die Volkswirtschaft nahe an einer
+Krise las. Jeder Zyklus trägt jetzt eine <b>Orientierung</b>: +1, wenn sein Gipfel ans offensive Ende
+gehört, −1, wenn ans vorsichtige. An der Phasenmechanik änderte sich nichts.</p></div>
+
+<h3>Die Breite ist der ehrliche Teil</h3>
+<p>Eine Zyklusposition ist kein Punkt und darf nicht als einer gezeichnet werden. Wie breit der Kern
+ist, folgt daraus, <b>was die Position wert ist</b>:</p>
+<table>
+<tr><th>Herkunft</th><th>Breite</th><th>Warum</th></tr>
+<tr><td><b>gemessen</b></td><td class="n">schmal</td><td>Skaliert mit 1/√(Perioden in der Stichprobe).
+Ein über dreissig Perioden beobachteter Zyklus spricht präziser als einer über drei.</td></tr>
+<tr><td><b>gesetzt</b></td><td class="n">breit</td><td>Der Anker sagt, <i>wo</i> im Zyklus wir stehen.
+Das ist eine strukturelle Annahme und keine Messung, und sie darf nicht so sicher sprechen wie eine.</td></tr>
+<tr><td><b>angenommen</b></td><td class="n">am breitesten</td><td>Ein Anker, der aus einem Trend
+fortgeschrieben statt beobachtet wurde.</td></tr>
+<tr><td><b>marginal</b></td><td class="n">am breitesten</td><td>Der Fundamentalpuls mit
+3,6 Jahren gegen Jahresdaten: 3,6 Messpunkte pro
+Zyklus. Seine Phase ist die unzuverlässigste der Menge, und sein Kern sagt das.</td></tr>
+</table>
+
+<h3>Eine Verteilung und nicht ein Zustand</h3>
+<p>Was am Ende veröffentlicht wird, ist pro Periode ein Vektor über alle 25 Felder — nie
+eine einzelne Zahl. Ein einzelner Zustand pro Periode würde den Verbraucher zwingen, aus einem Pfad eine
+Verteilung zu machen, und das ist eine Modellentscheidung, für die er keine Grundlage hat.</p>
+<p>Die Frequenz ist monatlich, die makroökonomische Beurteilung jährlich — und die jährliche wird über
+ihre zwölf Monate <b>gehalten</b> und nicht interpoliert. Interpolieren würde Messwerte zwischen zwei
+Beobachtungen erfinden, die niemand beurteilt hat. Halten behauptet nur, was die Beurteilung sagte,
+solange sie galt.</p>
+<p class="cap">Die Kennung des Regimes ist ein Hash der Nutzlast und enthält keine Uhrzeit: identische
+Eingaben ergeben dieselbe Kennung, und ein Verbraucher kann zwei Artefakte vergleichen. Das Datum eines
+Regimes ist der letzte abgedeckte Monat, nicht der Tag, an dem die Datei geschrieben wurde.</p>
+
+<h2 id="s10"><span class="ix">10</span>Das Umfeld: fünf Szenarien, 25 Zustände</h2>
+
+<p>Aus den überlagerten Zyklen und dem monatlichen Marktrisikosignal entsteht am Ende eine einzige
+Grösse: die Wahrscheinlichkeit jedes der fünf Szenarien. Jede Renditezahl in diesem Modell ist eine
+Zahl <b>pro Zustand</b> — nie ein Mittelwert allein.</p>
+<svg viewBox="0 0 860 190" role="img" class="ch" aria-label="Die fünf Szenarien">
+<text x="0" y="14" class="cl">WAHRSCHEINLICHKEIT DER FÜNF SZENARIEN · HAUSMEINUNG</text>
+<text x="116" y="42" class="crow" text-anchor="end">Krise</text>
+<rect x="130" y="26" width="447.0" height="22" rx="4" fill="#EDE4F6"><title>Krise: 21.0%</title></rect>
+<text x="587.0" y="42" class="cmk csoft">21,0 %</text>
+<text x="116" y="74" class="crow" text-anchor="end">Kontraktion</text>
+<rect x="130" y="58" width="489.7" height="22" rx="4" fill="#C9B0E4"><title>Kontraktion: 23.0%</title></rect>
+<text x="629.7" y="74" class="cmk csoft">23,0 %</text>
+<text x="116" y="106" class="crow" text-anchor="end">Stagnation</text>
+<rect x="130" y="90" width="521.7" height="22" rx="4" fill="#A276CE"><title>Stagnation: 24.5%</title></rect>
+<text x="661.7" y="106" class="cmk csoft">24,5 %</text>
+<text x="116" y="138" class="crow" text-anchor="end">Expansion</text>
+<rect x="130" y="122" width="412.2" height="22" rx="4" fill="#7B45B0"><title>Expansion: 19.3%</title></rect>
+<text x="552.2" y="138" class="cmk csoft">19,3 %</text>
+<text x="116" y="170" class="crow" text-anchor="end">Boom</text>
+<rect x="130" y="154" width="262.1" height="22" rx="4" fill="#54217F"><title>Boom: 12.3%</title></rect>
+<text x="402.1" y="170" class="cmk csoft">12,3 %</text>
+</svg>
+<p class="cap">Hausmeinung aus dem veröffentlichten ReturnSet, Stand 2024-12-31. Population,
+nicht Person: diese Seite ist für alle Leserinnen und Leser identisch. Der Weltwert ist eine Mischung
+aus sieben Volkswirtschaften — China 25%, EU 25%, US 30%, Switzerland 5%, Brazil 5%, UK 10% — und diese
+Mischung ist selbst ein Regime mit eigener Kennung, weil ein ReturnSet unter genau einem Regime
+geschätzt wird.</p>
+<p>Bemerkenswert daran ist die Form. Krise und Kontraktion tragen zusammen mehr Wahrscheinlichkeit als
+Expansion und Boom. Ein Modell, das mit einer erwarteten Rendite arbeitet, presst genau diese Asymmetrie
+in eine einzige Zahl und verliert sie.</p>
+
+<h2 id="s11"><span class="ix">11</span>Was ein Instrument tut, nicht was es ist</h2>
+
+<p>Ein Baustein wird in diesem Modell nicht nach seiner Anlageklasse ausgewählt, sondern nach seiner
+<b>Rolle</b> — danach, wann er zahlt.</p>
+<table>
+<tr><th>Rolle</th><th>Was sie tut</th></tr>
+<tr><td><b>Wertsteigerung</b></td><td>steigt mit dem Umfeld</td></tr>
+<tr><td><b>Ertrag</b></td><td>zahlt eine stetige Ausschüttung</td></tr>
+<tr><td><b>Stabilisierung</b></td><td>ist in der Kontraktion am stärksten — zahlt vor dem Schaden,
+nicht währenddessen</td></tr>
+<tr><td><b>Absicherung</b></td><td>zahlt genau dann, wenn nichts anderes zahlt, und kostet die übrige
+Zeit etwas</td></tr>
+</table>
+<p>Die Tabelle unten macht das konkret. Sie ist nach der Krisenspalte sortiert.</p>
+<svg viewBox="0 0 860 296" role="img" class="ch" aria-label="Auszahlungsprofile">
+<text x="0" y="14" class="cl">WAS JEDER BAUSTEIN IN JEDEM SZENARIO LIEFERT · PROZENT PRO JAHR</text>
+<text x="271" y="28" class="cax" text-anchor="middle">Krise</text>
+<text x="393" y="28" class="cax" text-anchor="middle">Kontraktion</text>
+<text x="515" y="28" class="cax" text-anchor="middle">Stagnation</text>
+<text x="637" y="28" class="cax" text-anchor="middle">Expansion</text>
+<text x="759" y="28" class="cax" text-anchor="middle">Boom</text>
+<text x="198" y="53" class="crow" text-anchor="end">Precious Metals</text>
+<rect x="211.0" y="36" width="120.0" height="24" rx="3" fill="#54217F"><title>Krise: 36.71%</title></rect>
+<text x="271.0" y="52" text-anchor="middle" class="cmk" fill="#fff">+36.7</text>
+<rect x="333.0" y="36" width="120.0" height="24" rx="3" fill="#A276CE"><title>Kontraktion: 3.54%</title></rect>
+<text x="393.0" y="52" text-anchor="middle" class="cmk" fill="#fff">+3.5</text>
+<rect x="455.0" y="36" width="120.0" height="24" rx="3" fill="#54217F"><title>Stagnation: 26.58%</title></rect>
+<text x="515.0" y="52" text-anchor="middle" class="cmk" fill="#fff">+26.6</text>
+<rect x="577.0" y="36" width="120.0" height="24" rx="3" fill="#A276CE"><title>Expansion: -4.78%</title></rect>
+<text x="637.0" y="52" text-anchor="middle" class="cmk" fill="#1A1740">-4.8</text>
+<rect x="699.0" y="36" width="120.0" height="24" rx="3" fill="#A276CE"><title>Boom: 0.00%</title></rect>
+<text x="759.0" y="52" text-anchor="middle" class="cmk" fill="#1A1740">+0.0</text>
+<text x="198" y="83" class="crow" text-anchor="end">Long Volatility Index</text>
+<rect x="211.0" y="66" width="120.0" height="24" rx="3" fill="#54217F"><title>Krise: 29.38%</title></rect>
+<text x="271.0" y="82" text-anchor="middle" class="cmk" fill="#fff">+29.4</text>
+<rect x="333.0" y="66" width="120.0" height="24" rx="3" fill="#54217F"><title>Kontraktion: 22.85%</title></rect>
+<text x="393.0" y="82" text-anchor="middle" class="cmk" fill="#fff">+22.9</text>
+<rect x="455.0" y="66" width="120.0" height="24" rx="3" fill="#7B45B0"><title>Stagnation: 15.08%</title></rect>
+<text x="515.0" y="82" text-anchor="middle" class="cmk" fill="#fff">+15.1</text>
+<rect x="577.0" y="66" width="120.0" height="24" rx="3" fill="#54217F"><title>Expansion: 29.72%</title></rect>
+<text x="637.0" y="82" text-anchor="middle" class="cmk" fill="#fff">+29.7</text>
+<rect x="699.0" y="66" width="120.0" height="24" rx="3" fill="#A276CE"><title>Boom: -3.00%</title></rect>
+<text x="759.0" y="82" text-anchor="middle" class="cmk" fill="#1A1740">-3.0</text>
+<text x="198" y="113" class="crow" text-anchor="end">Trend Following</text>
+<rect x="211.0" y="96" width="120.0" height="24" rx="3" fill="#A276CE"><title>Krise: 5.47%</title></rect>
+<text x="271.0" y="112" text-anchor="middle" class="cmk" fill="#fff">+5.5</text>
+<rect x="333.0" y="96" width="120.0" height="24" rx="3" fill="#A276CE"><title>Kontraktion: -2.32%</title></rect>
+<text x="393.0" y="112" text-anchor="middle" class="cmk" fill="#1A1740">-2.3</text>
+<rect x="455.0" y="96" width="120.0" height="24" rx="3" fill="#A276CE"><title>Stagnation: -1.86%</title></rect>
+<text x="515.0" y="112" text-anchor="middle" class="cmk" fill="#1A1740">-1.9</text>
+<rect x="577.0" y="96" width="120.0" height="24" rx="3" fill="#A276CE"><title>Expansion: 5.88%</title></rect>
+<text x="637.0" y="112" text-anchor="middle" class="cmk" fill="#fff">+5.9</text>
+<rect x="699.0" y="96" width="120.0" height="24" rx="3" fill="#7B45B0"><title>Boom: 7.00%</title></rect>
+<text x="759.0" y="112" text-anchor="middle" class="cmk" fill="#fff">+7.0</text>
+<text x="198" y="143" class="crow" text-anchor="end">CHF Cash</text>
+<rect x="211.0" y="126" width="120.0" height="24" rx="3" fill="#A276CE"><title>Krise: 0.93%</title></rect>
+<text x="271.0" y="142" text-anchor="middle" class="cmk" fill="#1A1740">+0.9</text>
+<rect x="333.0" y="126" width="120.0" height="24" rx="3" fill="#A276CE"><title>Kontraktion: 0.94%</title></rect>
+<text x="393.0" y="142" text-anchor="middle" class="cmk" fill="#1A1740">+0.9</text>
+<rect x="455.0" y="126" width="120.0" height="24" rx="3" fill="#A276CE"><title>Stagnation: 1.09%</title></rect>
+<text x="515.0" y="142" text-anchor="middle" class="cmk" fill="#1A1740">+1.1</text>
+<rect x="577.0" y="126" width="120.0" height="24" rx="3" fill="#A276CE"><title>Expansion: 2.03%</title></rect>
+<text x="637.0" y="142" text-anchor="middle" class="cmk" fill="#1A1740">+2.0</text>
+<rect x="699.0" y="126" width="120.0" height="24" rx="3" fill="#A276CE"><title>Boom: 2.00%</title></rect>
+<text x="759.0" y="142" text-anchor="middle" class="cmk" fill="#1A1740">+2.0</text>
+<text x="198" y="173" class="crow" text-anchor="end">CHF Corporate Loans IG</text>
+<rect x="211.0" y="156" width="120.0" height="24" rx="3" fill="#A276CE"><title>Krise: -5.93%</title></rect>
+<text x="271.0" y="172" text-anchor="middle" class="cmk" fill="#1A1740">-5.9</text>
+<rect x="333.0" y="156" width="120.0" height="24" rx="3" fill="#A276CE"><title>Kontraktion: 0.13%</title></rect>
+<text x="393.0" y="172" text-anchor="middle" class="cmk" fill="#1A1740">+0.1</text>
+<rect x="455.0" y="156" width="120.0" height="24" rx="3" fill="#A276CE"><title>Stagnation: -0.41%</title></rect>
+<text x="515.0" y="172" text-anchor="middle" class="cmk" fill="#1A1740">-0.4</text>
+<rect x="577.0" y="156" width="120.0" height="24" rx="3" fill="#7B45B0"><title>Expansion: 8.68%</title></rect>
+<text x="637.0" y="172" text-anchor="middle" class="cmk" fill="#fff">+8.7</text>
+<rect x="699.0" y="156" width="120.0" height="24" rx="3" fill="#A276CE"><title>Boom: 2.43%</title></rect>
+<text x="759.0" y="172" text-anchor="middle" class="cmk" fill="#1A1740">+2.4</text>
+<text x="198" y="203" class="crow" text-anchor="end">Global Real Estate indirec</text>
+<rect x="211.0" y="186" width="120.0" height="24" rx="3" fill="#C9B0E4"><title>Krise: -10.13%</title></rect>
+<text x="271.0" y="202" text-anchor="middle" class="cmk" fill="#1A1740">-10.1</text>
+<rect x="333.0" y="186" width="120.0" height="24" rx="3" fill="#A276CE"><title>Kontraktion: 0.14%</title></rect>
+<text x="393.0" y="202" text-anchor="middle" class="cmk" fill="#1A1740">+0.1</text>
+<rect x="455.0" y="186" width="120.0" height="24" rx="3" fill="#A276CE"><title>Stagnation: 1.69%</title></rect>
+<text x="515.0" y="202" text-anchor="middle" class="cmk" fill="#1A1740">+1.7</text>
+<rect x="577.0" y="186" width="120.0" height="24" rx="3" fill="#A276CE"><title>Expansion: 4.73%</title></rect>
+<text x="637.0" y="202" text-anchor="middle" class="cmk" fill="#fff">+4.7</text>
+<rect x="699.0" y="186" width="120.0" height="24" rx="3" fill="#A276CE"><title>Boom: 3.25%</title></rect>
+<text x="759.0" y="202" text-anchor="middle" class="cmk" fill="#fff">+3.2</text>
+<text x="198" y="233" class="crow" text-anchor="end">Swiss Performance Index</text>
+<rect x="211.0" y="216" width="120.0" height="24" rx="3" fill="#EDE4F6"><title>Krise: -32.29%</title></rect>
+<text x="271.0" y="232" text-anchor="middle" class="cmk" fill="#1A1740">-32.3</text>
+<rect x="333.0" y="216" width="120.0" height="24" rx="3" fill="#A276CE"><title>Kontraktion: 4.66%</title></rect>
+<text x="393.0" y="232" text-anchor="middle" class="cmk" fill="#fff">+4.7</text>
+<rect x="455.0" y="216" width="120.0" height="24" rx="3" fill="#7B45B0"><title>Stagnation: 12.30%</title></rect>
+<text x="515.0" y="232" text-anchor="middle" class="cmk" fill="#fff">+12.3</text>
+<rect x="577.0" y="216" width="120.0" height="24" rx="3" fill="#A276CE"><title>Expansion: -1.01%</title></rect>
+<text x="637.0" y="232" text-anchor="middle" class="cmk" fill="#1A1740">-1.0</text>
+<rect x="699.0" y="216" width="120.0" height="24" rx="3" fill="#7B45B0"><title>Boom: 9.67%</title></rect>
+<text x="759.0" y="232" text-anchor="middle" class="cmk" fill="#fff">+9.7</text>
+<text x="198" y="263" class="crow" text-anchor="end">MSCI AC World IMI</text>
+<rect x="211.0" y="246" width="120.0" height="24" rx="3" fill="#EDE4F6"><title>Krise: -39.33%</title></rect>
+<text x="271.0" y="262" text-anchor="middle" class="cmk" fill="#1A1740">-39.3</text>
+<rect x="333.0" y="246" width="120.0" height="24" rx="3" fill="#A276CE"><title>Kontraktion: 3.32%</title></rect>
+<text x="393.0" y="262" text-anchor="middle" class="cmk" fill="#fff">+3.3</text>
+<rect x="455.0" y="246" width="120.0" height="24" rx="3" fill="#A276CE"><title>Stagnation: 4.31%</title></rect>
+<text x="515.0" y="262" text-anchor="middle" class="cmk" fill="#fff">+4.3</text>
+<rect x="577.0" y="246" width="120.0" height="24" rx="3" fill="#7B45B0"><title>Expansion: 18.21%</title></rect>
+<text x="637.0" y="262" text-anchor="middle" class="cmk" fill="#fff">+18.2</text>
+<rect x="699.0" y="246" width="120.0" height="24" rx="3" fill="#7B45B0"><title>Boom: 9.67%</title></rect>
+<text x="759.0" y="262" text-anchor="middle" class="cmk" fill="#fff">+9.7</text>
+</svg>
+<p>Vergleichen Sie die Zeile <b>Long Volatility Index</b> mit der Zeile <b>Swiss Performance Index</b>.
+In der Krise liefert die erste <b>+29,4 Prozent</b> und die zweite <b>−32,3 Prozent</b>. Im Boom kehrt
+sich das um: −3,0 gegen +9,7. Genau deshalb gibt es die Rolle «Absicherung»: sie ist nicht die bessere Anlage, sie ist die
+Anlage mit dem anderen Vorzeichen zum richtigen Zeitpunkt — und sie kostet die übrige Zeit etwas.</p>
+
+<h2 id="s12"><span class="ix">12</span>Wie gut diese Zahlen bekannt sind</h2>
+
+<p>Das ist die unbequeme Tafel, und sie gehört in eine Schulung, weil sie im Datensatz selbst steht.</p>
+<svg viewBox="0 0 860 240" role="img" class="ch" aria-label="Qualität der Schätzung">
+<text x="0" y="14" class="cl">WIE GUT JEDE ZAHL BEKANNT IST · 25 ZUSTÄNDE JE BAUSTEIN</text>
+<text x="198" y="39" class="crow" text-anchor="end">Global Real Estate indirec</text>
+<rect x="210.0" y="26" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 0: gesetzt</title></rect>
+<rect x="235.2" y="26" width="24.2" height="17" fill="#432C6B"><title>Zustand 1: gemessen</title></rect>
+<rect x="260.4" y="26" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 2: interpoliert</title></rect>
+<rect x="285.6" y="26" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 3: interpoliert</title></rect>
+<rect x="310.8" y="26" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 4: interpoliert</title></rect>
+<rect x="336.0" y="26" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 5: interpoliert</title></rect>
+<rect x="361.2" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 6: gemessen, gestutzt</title></rect>
+<rect x="386.4" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 7: gemessen, gestutzt</title></rect>
+<rect x="411.6" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 8: gemessen, gestutzt</title></rect>
+<rect x="436.8" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 9: gemessen, gestutzt</title></rect>
+<rect x="462.0" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 10: gemessen, gestutzt</title></rect>
+<rect x="487.2" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 11: gemessen, gestutzt</title></rect>
+<rect x="512.4" y="26" width="24.2" height="17" fill="#432C6B"><title>Zustand 12: gemessen</title></rect>
+<rect x="537.6" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 13: gemessen, gestutzt</title></rect>
+<rect x="562.8" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 14: gemessen, gestutzt</title></rect>
+<rect x="588.0" y="26" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 15: interpoliert</title></rect>
+<rect x="613.2" y="26" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 16: interpoliert</title></rect>
+<rect x="638.4" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 17: gemessen, gestutzt</title></rect>
+<rect x="663.6" y="26" width="24.2" height="17" fill="#7E63AE"><title>Zustand 18: gemessen, gestutzt</title></rect>
+<rect x="688.8" y="26" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 19: gesetzt</title></rect>
+<rect x="714.0" y="26" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 20: gesetzt</title></rect>
+<rect x="739.2" y="26" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 21: gesetzt</title></rect>
+<rect x="764.4" y="26" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 22: gesetzt</title></rect>
+<rect x="789.6" y="26" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 23: gesetzt</title></rect>
+<rect x="814.8" y="26" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 24: gesetzt</title></rect>
+<text x="198" y="61" class="crow" text-anchor="end">CHF Corporate Loans IG</text>
+<rect x="210.0" y="48" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 0: gesetzt</title></rect>
+<rect x="235.2" y="48" width="24.2" height="17" fill="#432C6B"><title>Zustand 1: gemessen</title></rect>
+<rect x="260.4" y="48" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 2: interpoliert</title></rect>
+<rect x="285.6" y="48" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 3: interpoliert</title></rect>
+<rect x="310.8" y="48" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 4: interpoliert</title></rect>
+<rect x="336.0" y="48" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 5: interpoliert</title></rect>
+<rect x="361.2" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 6: gemessen, gestutzt</title></rect>
+<rect x="386.4" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 7: gemessen, gestutzt</title></rect>
+<rect x="411.6" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 8: gemessen, gestutzt</title></rect>
+<rect x="436.8" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 9: gemessen, gestutzt</title></rect>
+<rect x="462.0" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 10: gemessen, gestutzt</title></rect>
+<rect x="487.2" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 11: gemessen, gestutzt</title></rect>
+<rect x="512.4" y="48" width="24.2" height="17" fill="#432C6B"><title>Zustand 12: gemessen</title></rect>
+<rect x="537.6" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 13: gemessen, gestutzt</title></rect>
+<rect x="562.8" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 14: gemessen, gestutzt</title></rect>
+<rect x="588.0" y="48" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 15: interpoliert</title></rect>
+<rect x="613.2" y="48" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 16: interpoliert</title></rect>
+<rect x="638.4" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 17: gemessen, gestutzt</title></rect>
+<rect x="663.6" y="48" width="24.2" height="17" fill="#7E63AE"><title>Zustand 18: gemessen, gestutzt</title></rect>
+<rect x="688.8" y="48" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 19: gesetzt</title></rect>
+<rect x="714.0" y="48" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 20: gesetzt</title></rect>
+<rect x="739.2" y="48" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 21: gesetzt</title></rect>
+<rect x="764.4" y="48" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 22: gesetzt</title></rect>
+<rect x="789.6" y="48" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 23: gesetzt</title></rect>
+<rect x="814.8" y="48" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 24: gesetzt</title></rect>
+<text x="198" y="83" class="crow" text-anchor="end">CHF Cash</text>
+<rect x="210.0" y="70" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 0: gesetzt</title></rect>
+<rect x="235.2" y="70" width="24.2" height="17" fill="#432C6B"><title>Zustand 1: gemessen</title></rect>
+<rect x="260.4" y="70" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 2: interpoliert</title></rect>
+<rect x="285.6" y="70" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 3: interpoliert</title></rect>
+<rect x="310.8" y="70" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 4: interpoliert</title></rect>
+<rect x="336.0" y="70" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 5: interpoliert</title></rect>
+<rect x="361.2" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 6: gemessen, gestutzt</title></rect>
+<rect x="386.4" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 7: gemessen, gestutzt</title></rect>
+<rect x="411.6" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 8: gemessen, gestutzt</title></rect>
+<rect x="436.8" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 9: gemessen, gestutzt</title></rect>
+<rect x="462.0" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 10: gemessen, gestutzt</title></rect>
+<rect x="487.2" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 11: gemessen, gestutzt</title></rect>
+<rect x="512.4" y="70" width="24.2" height="17" fill="#432C6B"><title>Zustand 12: gemessen</title></rect>
+<rect x="537.6" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 13: gemessen, gestutzt</title></rect>
+<rect x="562.8" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 14: gemessen, gestutzt</title></rect>
+<rect x="588.0" y="70" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 15: interpoliert</title></rect>
+<rect x="613.2" y="70" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 16: interpoliert</title></rect>
+<rect x="638.4" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 17: gemessen, gestutzt</title></rect>
+<rect x="663.6" y="70" width="24.2" height="17" fill="#7E63AE"><title>Zustand 18: gemessen, gestutzt</title></rect>
+<rect x="688.8" y="70" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 19: gesetzt</title></rect>
+<rect x="714.0" y="70" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 20: gesetzt</title></rect>
+<rect x="739.2" y="70" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 21: gesetzt</title></rect>
+<rect x="764.4" y="70" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 22: gesetzt</title></rect>
+<rect x="789.6" y="70" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 23: gesetzt</title></rect>
+<rect x="814.8" y="70" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 24: gesetzt</title></rect>
+<text x="198" y="105" class="crow" text-anchor="end">Precious Metals</text>
+<rect x="210.0" y="92" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 0: gesetzt</title></rect>
+<rect x="235.2" y="92" width="24.2" height="17" fill="#432C6B"><title>Zustand 1: gemessen</title></rect>
+<rect x="260.4" y="92" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 2: interpoliert</title></rect>
+<rect x="285.6" y="92" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 3: interpoliert</title></rect>
+<rect x="310.8" y="92" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 4: interpoliert</title></rect>
+<rect x="336.0" y="92" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 5: interpoliert</title></rect>
+<rect x="361.2" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 6: gemessen, gestutzt</title></rect>
+<rect x="386.4" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 7: gemessen, gestutzt</title></rect>
+<rect x="411.6" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 8: gemessen, gestutzt</title></rect>
+<rect x="436.8" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 9: gemessen, gestutzt</title></rect>
+<rect x="462.0" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 10: gemessen, gestutzt</title></rect>
+<rect x="487.2" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 11: gemessen, gestutzt</title></rect>
+<rect x="512.4" y="92" width="24.2" height="17" fill="#432C6B"><title>Zustand 12: gemessen</title></rect>
+<rect x="537.6" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 13: gemessen, gestutzt</title></rect>
+<rect x="562.8" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 14: gemessen, gestutzt</title></rect>
+<rect x="588.0" y="92" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 15: interpoliert</title></rect>
+<rect x="613.2" y="92" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 16: interpoliert</title></rect>
+<rect x="638.4" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 17: gemessen, gestutzt</title></rect>
+<rect x="663.6" y="92" width="24.2" height="17" fill="#7E63AE"><title>Zustand 18: gemessen, gestutzt</title></rect>
+<rect x="688.8" y="92" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 19: gesetzt</title></rect>
+<rect x="714.0" y="92" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 20: gesetzt</title></rect>
+<rect x="739.2" y="92" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 21: gesetzt</title></rect>
+<rect x="764.4" y="92" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 22: gesetzt</title></rect>
+<rect x="789.6" y="92" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 23: gesetzt</title></rect>
+<rect x="814.8" y="92" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 24: gesetzt</title></rect>
+<text x="198" y="127" class="crow" text-anchor="end">Long Volatility Index</text>
+<rect x="210.0" y="114" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 0: gesetzt</title></rect>
+<rect x="235.2" y="114" width="24.2" height="17" fill="#432C6B"><title>Zustand 1: gemessen</title></rect>
+<rect x="260.4" y="114" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 2: interpoliert</title></rect>
+<rect x="285.6" y="114" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 3: interpoliert</title></rect>
+<rect x="310.8" y="114" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 4: interpoliert</title></rect>
+<rect x="336.0" y="114" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 5: interpoliert</title></rect>
+<rect x="361.2" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 6: gemessen, gestutzt</title></rect>
+<rect x="386.4" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 7: gemessen, gestutzt</title></rect>
+<rect x="411.6" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 8: gemessen, gestutzt</title></rect>
+<rect x="436.8" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 9: gemessen, gestutzt</title></rect>
+<rect x="462.0" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 10: gemessen, gestutzt</title></rect>
+<rect x="487.2" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 11: gemessen, gestutzt</title></rect>
+<rect x="512.4" y="114" width="24.2" height="17" fill="#432C6B"><title>Zustand 12: gemessen</title></rect>
+<rect x="537.6" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 13: gemessen, gestutzt</title></rect>
+<rect x="562.8" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 14: gemessen, gestutzt</title></rect>
+<rect x="588.0" y="114" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 15: interpoliert</title></rect>
+<rect x="613.2" y="114" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 16: interpoliert</title></rect>
+<rect x="638.4" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 17: gemessen, gestutzt</title></rect>
+<rect x="663.6" y="114" width="24.2" height="17" fill="#7E63AE"><title>Zustand 18: gemessen, gestutzt</title></rect>
+<rect x="688.8" y="114" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 19: gesetzt</title></rect>
+<rect x="714.0" y="114" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 20: gesetzt</title></rect>
+<rect x="739.2" y="114" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 21: gesetzt</title></rect>
+<rect x="764.4" y="114" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 22: gesetzt</title></rect>
+<rect x="789.6" y="114" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 23: gesetzt</title></rect>
+<rect x="814.8" y="114" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 24: gesetzt</title></rect>
+<text x="198" y="149" class="crow" text-anchor="end">MSCI AC World IMI</text>
+<rect x="210.0" y="136" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 0: gesetzt</title></rect>
+<rect x="235.2" y="136" width="24.2" height="17" fill="#432C6B"><title>Zustand 1: gemessen</title></rect>
+<rect x="260.4" y="136" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 2: interpoliert</title></rect>
+<rect x="285.6" y="136" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 3: interpoliert</title></rect>
+<rect x="310.8" y="136" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 4: interpoliert</title></rect>
+<rect x="336.0" y="136" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 5: interpoliert</title></rect>
+<rect x="361.2" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 6: gemessen, gestutzt</title></rect>
+<rect x="386.4" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 7: gemessen, gestutzt</title></rect>
+<rect x="411.6" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 8: gemessen, gestutzt</title></rect>
+<rect x="436.8" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 9: gemessen, gestutzt</title></rect>
+<rect x="462.0" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 10: gemessen, gestutzt</title></rect>
+<rect x="487.2" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 11: gemessen, gestutzt</title></rect>
+<rect x="512.4" y="136" width="24.2" height="17" fill="#432C6B"><title>Zustand 12: gemessen</title></rect>
+<rect x="537.6" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 13: gemessen, gestutzt</title></rect>
+<rect x="562.8" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 14: gemessen, gestutzt</title></rect>
+<rect x="588.0" y="136" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 15: interpoliert</title></rect>
+<rect x="613.2" y="136" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 16: interpoliert</title></rect>
+<rect x="638.4" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 17: gemessen, gestutzt</title></rect>
+<rect x="663.6" y="136" width="24.2" height="17" fill="#7E63AE"><title>Zustand 18: gemessen, gestutzt</title></rect>
+<rect x="688.8" y="136" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 19: gesetzt</title></rect>
+<rect x="714.0" y="136" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 20: gesetzt</title></rect>
+<rect x="739.2" y="136" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 21: gesetzt</title></rect>
+<rect x="764.4" y="136" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 22: gesetzt</title></rect>
+<rect x="789.6" y="136" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 23: gesetzt</title></rect>
+<rect x="814.8" y="136" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 24: gesetzt</title></rect>
+<text x="198" y="171" class="crow" text-anchor="end">Swiss Performance Index</text>
+<rect x="210.0" y="158" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 0: gesetzt</title></rect>
+<rect x="235.2" y="158" width="24.2" height="17" fill="#432C6B"><title>Zustand 1: gemessen</title></rect>
+<rect x="260.4" y="158" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 2: interpoliert</title></rect>
+<rect x="285.6" y="158" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 3: interpoliert</title></rect>
+<rect x="310.8" y="158" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 4: interpoliert</title></rect>
+<rect x="336.0" y="158" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 5: interpoliert</title></rect>
+<rect x="361.2" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 6: gemessen, gestutzt</title></rect>
+<rect x="386.4" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 7: gemessen, gestutzt</title></rect>
+<rect x="411.6" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 8: gemessen, gestutzt</title></rect>
+<rect x="436.8" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 9: gemessen, gestutzt</title></rect>
+<rect x="462.0" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 10: gemessen, gestutzt</title></rect>
+<rect x="487.2" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 11: gemessen, gestutzt</title></rect>
+<rect x="512.4" y="158" width="24.2" height="17" fill="#432C6B"><title>Zustand 12: gemessen</title></rect>
+<rect x="537.6" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 13: gemessen, gestutzt</title></rect>
+<rect x="562.8" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 14: gemessen, gestutzt</title></rect>
+<rect x="588.0" y="158" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 15: interpoliert</title></rect>
+<rect x="613.2" y="158" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 16: interpoliert</title></rect>
+<rect x="638.4" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 17: gemessen, gestutzt</title></rect>
+<rect x="663.6" y="158" width="24.2" height="17" fill="#7E63AE"><title>Zustand 18: gemessen, gestutzt</title></rect>
+<rect x="688.8" y="158" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 19: gesetzt</title></rect>
+<rect x="714.0" y="158" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 20: gesetzt</title></rect>
+<rect x="739.2" y="158" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 21: gesetzt</title></rect>
+<rect x="764.4" y="158" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 22: gesetzt</title></rect>
+<rect x="789.6" y="158" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 23: gesetzt</title></rect>
+<rect x="814.8" y="158" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 24: gesetzt</title></rect>
+<text x="198" y="193" class="crow" text-anchor="end">Trend Following</text>
+<rect x="210.0" y="180" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 0: gesetzt</title></rect>
+<rect x="235.2" y="180" width="24.2" height="17" fill="#432C6B"><title>Zustand 1: gemessen</title></rect>
+<rect x="260.4" y="180" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 2: interpoliert</title></rect>
+<rect x="285.6" y="180" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 3: interpoliert</title></rect>
+<rect x="310.8" y="180" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 4: interpoliert</title></rect>
+<rect x="336.0" y="180" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 5: interpoliert</title></rect>
+<rect x="361.2" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 6: gemessen, gestutzt</title></rect>
+<rect x="386.4" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 7: gemessen, gestutzt</title></rect>
+<rect x="411.6" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 8: gemessen, gestutzt</title></rect>
+<rect x="436.8" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 9: gemessen, gestutzt</title></rect>
+<rect x="462.0" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 10: gemessen, gestutzt</title></rect>
+<rect x="487.2" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 11: gemessen, gestutzt</title></rect>
+<rect x="512.4" y="180" width="24.2" height="17" fill="#432C6B"><title>Zustand 12: gemessen</title></rect>
+<rect x="537.6" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 13: gemessen, gestutzt</title></rect>
+<rect x="562.8" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 14: gemessen, gestutzt</title></rect>
+<rect x="588.0" y="180" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 15: interpoliert</title></rect>
+<rect x="613.2" y="180" width="24.2" height="17" fill="#B9A8D4"><title>Zustand 16: interpoliert</title></rect>
+<rect x="638.4" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 17: gemessen, gestutzt</title></rect>
+<rect x="663.6" y="180" width="24.2" height="17" fill="#7E63AE"><title>Zustand 18: gemessen, gestutzt</title></rect>
+<rect x="688.8" y="180" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 19: gesetzt</title></rect>
+<rect x="714.0" y="180" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 20: gesetzt</title></rect>
+<rect x="739.2" y="180" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 21: gesetzt</title></rect>
+<rect x="764.4" y="180" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 22: gesetzt</title></rect>
+<rect x="789.6" y="180" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 23: gesetzt</title></rect>
+<rect x="814.8" y="180" width="24.2" height="17" fill="#E7E2EF"><title>Zustand 24: gesetzt</title></rect>
+<rect x="210" y="210" width="11" height="11" rx="2" fill="#E7E2EF"/>
+<text x="226" y="219" class="cs">gesetzt 56 (28%)</text>
+<rect x="390" y="210" width="11" height="11" rx="2" fill="#B9A8D4"/>
+<text x="406" y="219" class="cs">interpoliert 48 (24%)</text>
+<rect x="570" y="210" width="11" height="11" rx="2" fill="#7E63AE"/>
+<text x="586" y="219" class="cs">gemessen, gestutzt 80 (40%)</text>
+<rect x="750" y="210" width="11" height="11" rx="2" fill="#432C6B"/>
+<text x="766" y="219" class="cs">gemessen 16 (8%)</text>
+</svg>
+<p>Von den 200 Zellen — acht Bausteine mal 25 Zustände — sind
+<b>16 gemessen</b>, also 8%.
+80 sind gemessen und gestutzt, 48 sind zwischen zwei
+Punkten interpoliert, und <b>56 sind gesetzt</b> — Startwerte, für die keine Beobachtung
+vorliegt.</p>
+<p>Schauen Sie, <b>wo</b> die hellen Felder liegen: fast alle an den Rändern. Also in der Krise und im
+Boom, und damit genau dort, wo sich eine Anlage entscheidet. Jeder Baustein trägt im Datensatz die
+Angabe <code>coverage: seed</code>. Keine dieser Kurven ist eine Zeitreihe.</p>
+<div class="box ok"><span class="tag o">Warum das hier steht und nicht im Anhang</span>
+<p>Ein Modell, das läuft, ist nicht dasselbe wie ein Modell, das etwas Wahres über einen bestimmten
+Haushalt zu einem bestimmten Zeitpunkt sagt. Manche Parameter sind aus einem einzelnen Leben gar nicht
+identifizierbar. Die ehrliche Antwort darauf ist, sie aus Vorwissen zu setzen, sie zu stressen und jedes
+Ergebnis, das unter plausibler Variation kippt, als <b>unbestimmt</b> zu melden statt als geklärt. Das
+ist eine Disziplin und keine Codezeile, und sie muss von Anfang an eingebaut sein.</p></div>
+
+<h2 id="s13"><span class="ix">13</span>Ehrliche Grenzen</h2>
+
+<p>Was dieses Modell nicht kann, und was keine Version davon können wird:</p>
+<ul>
+<li><b>Es sagt Ihnen nicht, was Sie tun sollen.</b> Es rechnet aus, was jede Möglichkeit kostet und was
+sie bringt. Die Wahl trifft ein Mensch — Sie, oder jemand mit einer Zulassung.</li>
+<li><b>Es sagt nichts über eine einzelne Person, was nur über eine Gruppe bekannt ist.</b> Ein Median
+ist ein Bezugspunkt. Die Streuung innerhalb einer Ausbildungsstufe ist grösser als der Abstand zwischen
+zwei Stufen.</li>
+<li><b>Es prognostiziert keine Renditen.</b> Es führt Profile über Zustände. Welcher Zustand eintritt,
+weiss es nicht.</li>
+<li><b>Es rechnet mit dem, was erfasst ist.</b> Eine fehlende Angabe wird als fehlend geführt und nie
+als null — ein Mensch, dessen Netzwerk niemand erfasst hat, ist kein Mensch ohne Netzwerk. Das klingt
+nach einer Kleinigkeit und entscheidet in der Praxis darüber, ob ein Bericht die Wahrheit sagt oder eine
+Beleidigung ausrechnet.</li>
+</ul>
+<div class="pull">Niemand fragt, was sein Portfolio gemacht hat. Gefragt wird, ob das Leben, das man
+will, bezahlbar ist — und was dafür zu tun wäre.</div>
+
+<div class="foot">Alle Lohnzahlen stammen aus der Schweizerischen Lohnstrukturerhebung 2024 des Bundesamts für Statistik. Alle Szenario- und Instrumentenzahlen stammen aus dem veröffentlichten ReturnSet, Stand 2024-12-31. Die Sättigungs- und Zerfallskurven sind beim Erzeugen dieser Seite aus den Gleichungen des Modells gelesen und nicht nachgezeichnet. <b>Die Beispielhaushalte sind erfunden</b>; es sind keine Angaben einer realen Person in diesem Dokument enthalten.</div>
+</div></body></html>

@@ -1,0 +1,351 @@
+{
+ "rows": [
+  {
+   "case": "Young professional",
+   "M77": false,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 354.2,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.0,
+   "confidence": 0.65,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Independence by fifty",
+   "M77": false,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 375.9,
+   "success": true,
+   "outcome": "plan",
+   "p_goal": 0.47,
+   "confidence": 0.85,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Near-retiree",
+   "M77": false,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 17.0,
+   "success": true,
+   "outcome": "plan",
+   "p_goal": 0.0,
+   "confidence": 0.9,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Entrepreneur",
+   "M77": false,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 79.3,
+   "success": false,
+   "outcome": "goal_not_fundable",
+   "p_goal": 0.12,
+   "confidence": 0.8,
+   "meets_confidence": false,
+   "shortfall": 48881.88
+  },
+  {
+   "case": "Tail shock",
+   "M77": false,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 49.7,
+   "success": false,
+   "outcome": "goal_not_fundable",
+   "p_goal": 0.325,
+   "confidence": 0.85,
+   "meets_confidence": false,
+   "shortfall": 15182.65
+  },
+  {
+   "case": "Nicolas",
+   "M77": false,
+   "scaled": false,
+   "M_opt": 32,
+   "seconds": 884.6,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.775,
+   "confidence": 0.9,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Young professional",
+   "M77": false,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 1000.9,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.0,
+   "confidence": 0.65,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Independence by fifty",
+   "M77": false,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 651.8,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.49,
+   "confidence": 0.85,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Near-retiree",
+   "M77": false,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 24.2,
+   "success": true,
+   "outcome": "plan",
+   "p_goal": 0.26,
+   "confidence": 0.9,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Entrepreneur",
+   "M77": false,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 157.2,
+   "success": false,
+   "outcome": "goal_not_fundable",
+   "p_goal": 0.12,
+   "confidence": 0.8,
+   "meets_confidence": false,
+   "shortfall": 48881.88
+  },
+  {
+   "case": "Tail shock",
+   "M77": false,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 68.0,
+   "success": false,
+   "outcome": "goal_not_fundable",
+   "p_goal": 0.325,
+   "confidence": 0.85,
+   "meets_confidence": false,
+   "shortfall": 15182.65
+  },
+  {
+   "case": "Nicolas",
+   "M77": false,
+   "scaled": true,
+   "M_opt": 32,
+   "seconds": 388.1,
+   "success": false,
+   "outcome": "goal_not_fundable",
+   "p_goal": 0.785,
+   "confidence": 0.9,
+   "meets_confidence": false,
+   "shortfall": 9779.81
+  },
+  {
+   "case": "Young professional",
+   "M77": true,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 206.8,
+   "success": false,
+   "outcome": "goal_not_fundable",
+   "p_goal": 0.095,
+   "confidence": 0.65,
+   "meets_confidence": false,
+   "shortfall": 15459.33
+  },
+  {
+   "case": "Independence by fifty",
+   "M77": true,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 454.1,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.0,
+   "confidence": 0.85,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Near-retiree",
+   "M77": true,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 199.8,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.98,
+   "confidence": 0.9,
+   "meets_confidence": true,
+   "shortfall": null
+  },
+  {
+   "case": "Entrepreneur",
+   "M77": true,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 365.8,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.0,
+   "confidence": 0.8,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Tail shock",
+   "M77": true,
+   "scaled": false,
+   "M_opt": 8,
+   "seconds": 267.8,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.0,
+   "confidence": 0.85,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Nicolas",
+   "M77": true,
+   "scaled": false,
+   "M_opt": 32,
+   "seconds": 1138.2,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.14,
+   "confidence": 0.9,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Young professional",
+   "M77": true,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 561.6,
+   "success": false,
+   "outcome": "goal_not_fundable",
+   "p_goal": 0.095,
+   "confidence": 0.65,
+   "meets_confidence": false,
+   "shortfall": 15459.33
+  },
+  {
+   "case": "Independence by fifty",
+   "M77": true,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 234.6,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.0,
+   "confidence": 0.85,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Near-retiree",
+   "M77": true,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 56.4,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.0,
+   "confidence": 0.9,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Entrepreneur",
+   "M77": true,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 224.1,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.11,
+   "confidence": 0.8,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Tail shock",
+   "M77": true,
+   "scaled": true,
+   "M_opt": 8,
+   "seconds": 103.9,
+   "success": false,
+   "outcome": "undetermined",
+   "p_goal": 0.0,
+   "confidence": 0.85,
+   "meets_confidence": false,
+   "shortfall": null
+  },
+  {
+   "case": "Nicolas",
+   "M77": true,
+   "scaled": true,
+   "M_opt": 32,
+   "seconds": 228.6,
+   "success": false,
+   "outcome": "goal_not_fundable",
+   "p_goal": 0.815,
+   "confidence": 0.9,
+   "meets_confidence": false,
+   "shortfall": 13198.75
+  }
+ ],
+ "summary": [
+  {
+   "M77": false,
+   "scaled": false,
+   "publishable": 2,
+   "cases": [
+    "Independence by fifty",
+    "Near-retiree"
+   ]
+  },
+  {
+   "M77": false,
+   "scaled": true,
+   "publishable": 1,
+   "cases": [
+    "Near-retiree"
+   ]
+  },
+  {
+   "M77": true,
+   "scaled": false,
+   "publishable": 0,
+   "cases": []
+  },
+  {
+   "M77": true,
+   "scaled": true,
+   "publishable": 0,
+   "cases": []
+  }
+ ],
+ "union": [
+  "Independence by fifty",
+  "Near-retiree"
+ ]
+}

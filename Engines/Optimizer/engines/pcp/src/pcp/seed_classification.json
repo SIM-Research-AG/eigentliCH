@@ -1,0 +1,350 @@
+{
+ "_note": "Interim classification of the fmre universe for pcp's constraint block (PCP-06): economic phase, home scenario and ESG score, which fmre's register does not carry, and liquidity and region where the register holds none. Taken from the prototype's published 54-instrument universe (andersCH-prototype_old/legacy/pre-universe-cut/rs.json), the file fmre's register was imported from. Every ESG score there is 1.0, so the ESG row stays inert until real scores exist. Part of the seed calibrations: a change is a new calibration version.",
+ "instruments": {
+  "INS-aktien-europe-aktiv": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Aktien Europe aktiv",
+   "phase": "Saturation"
+  },
+  "INS-apac-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "APAC Equities",
+   "phase": "Maturing"
+  },
+  "INS-asean-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "ASEAN Equities",
+   "phase": "Maturing"
+  },
+  "INS-asia-ex-japan-tr": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Asia ex Japan TR",
+   "phase": "Maturing"
+  },
+  "INS-asia-long-short-equities": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "name": "Asia Long Short Equities",
+   "phase": "Optimizing"
+  },
+  "INS-asia-multi-strategy-hf": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Asia Multi Strategy HF",
+   "phase": "Optimizing"
+  },
+  "INS-asia-pacific-arbitrage": {
+   "esg": 1.0,
+   "home_scenario": "Crisis",
+   "name": "Asia Pacific Arbitrage",
+   "phase": "Optimizing"
+  },
+  "INS-asian-jaci-bond-index": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Asian JACI Bond Index",
+   "phase": "Maturing"
+  },
+  "INS-au-nz-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "AU NZ Equities",
+   "phase": "Saturation"
+  },
+  "INS-bloomberg-hedge-fund": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "name": "Bloomberg Hedge Fund",
+   "phase": "Saturation"
+  },
+  "INS-bloomberg-market-neutral-hf": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "liquidity": "Quarterly",
+   "name": "Bloomberg Market Neutral HF",
+   "phase": "Saturation",
+   "region": "Others"
+  },
+  "INS-bloomberg-multiverse-h-chf": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "Bloomberg Multiverse (H-CHF)",
+   "phase": "Saturation"
+  },
+  "INS-ch-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "CH Equities",
+   "phase": "Saturation"
+  },
+  "INS-chf-cash": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "liquidity": "Daily",
+   "name": "CHF Cash",
+   "phase": "Saturation",
+   "region": "Switzerland"
+  },
+  "INS-chf-corporate-loans-ig": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "CHF Corporate Loans IG",
+   "phase": "Saturation"
+  },
+  "INS-china-a-shares": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "China A Shares",
+   "phase": "Optimizing"
+  },
+  "INS-china-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "China Equities",
+   "phase": "Optimizing"
+  },
+  "INS-commodities": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "name": "Commodities",
+   "phase": "Saturation"
+  },
+  "INS-cs-long-vola": {
+   "esg": 1.0,
+   "home_scenario": "Crisis",
+   "name": "CS Long Vola",
+   "phase": "Saturation"
+  },
+  "INS-digital-assets": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "name": "Digital Assets",
+   "phase": "Maturing"
+  },
+  "INS-em-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "EM Equities",
+   "phase": "Optimizing"
+  },
+  "INS-em-government-bonds-lc": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "EM Government Bonds LC",
+   "phase": "Optimizing"
+  },
+  "INS-eu-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "EU Equities",
+   "phase": "Saturation"
+  },
+  "INS-eur-cash": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "name": "EUR Cash",
+   "phase": "Saturation"
+  },
+  "INS-eur-corporate-loans-ig": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "EUR  Corporate Loans IG",
+   "phase": "Saturation"
+  },
+  "INS-fixed-holding": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "Fixed Holding",
+   "phase": "Saturation"
+  },
+  "INS-fundo-world-equity": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Fundo World Equity",
+   "phase": "Maturing"
+  },
+  "INS-global-bonds": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Global Bonds",
+   "phase": "Saturation"
+  },
+  "INS-global-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "liquidity": "Daily",
+   "name": "Global Equities",
+   "phase": "Maturing",
+   "region": "Others"
+  },
+  "INS-global-governmental-bonds": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "liquidity": "Daily",
+   "name": "Global Governmental Bonds",
+   "phase": "Saturation",
+   "region": "Others"
+  },
+  "INS-global-high-yields": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "liquidity": "Daily",
+   "name": "Global High Yields",
+   "phase": "Saturation",
+   "region": "Others"
+  },
+  "INS-global-macro": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "liquidity": "Quarterly",
+   "name": "Global Macro",
+   "phase": "Saturation",
+   "region": "Others"
+  },
+  "INS-global-real-estate-indirect": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "liquidity": "Quarterly",
+   "name": "Global Real Estate indirect",
+   "phase": "Saturation",
+   "region": "North America"
+  },
+  "INS-hang-seng-index": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Hang Seng Index",
+   "phase": "Maturing"
+  },
+  "INS-india-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "India Equities",
+   "phase": "Maturing"
+  },
+  "INS-infrastructure": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "Infrastructure",
+   "phase": "Saturation"
+  },
+  "INS-japan-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Japan Equities",
+   "phase": "Saturation"
+  },
+  "INS-long-volatility-index": {
+   "esg": 1.0,
+   "home_scenario": "Crisis",
+   "liquidity": "Quarterly",
+   "name": "Long Volatility Index",
+   "phase": "Saturation",
+   "region": "North America"
+  },
+  "INS-mining-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Mining Equities",
+   "phase": "Maturing"
+  },
+  "INS-msci-ac-world-imi": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "MSCI AC World IMI",
+   "phase": "Foundation"
+  },
+  "INS-precious-metals": {
+   "esg": 1.0,
+   "home_scenario": "Crisis",
+   "liquidity": "Daily",
+   "name": "Precious Metals",
+   "phase": "Saturation",
+   "region": "Others"
+  },
+  "INS-private-debt": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "Private Debt",
+   "phase": "Saturation"
+  },
+  "INS-private-equity": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "liquidity": "Decade",
+   "name": "Private Equity",
+   "phase": "Saturation",
+   "region": "Europe"
+  },
+  "INS-real-estate-direct": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "Real Estate direct",
+   "phase": "Saturation"
+  },
+  "INS-short-msci-us": {
+   "esg": 1.0,
+   "home_scenario": "Crisis",
+   "name": "Short MSCI US",
+   "phase": "Saturation"
+  },
+  "INS-structured-products": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "Structured Products",
+   "phase": "Saturation"
+  },
+  "INS-swiss-dividend-equity": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "Swiss Dividend Equity",
+   "phase": "Saturation"
+  },
+  "INS-swiss-performance-index": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "Swiss Performance Index",
+   "phase": "Saturation"
+  },
+  "INS-sxi-real-estate": {
+   "esg": 1.0,
+   "home_scenario": "Stagnation",
+   "name": "SXI Real Estate",
+   "phase": "Saturation"
+  },
+  "INS-trend-following": {
+   "esg": 1.0,
+   "home_scenario": "Crisis",
+   "name": "Trend Following",
+   "phase": "Saturation"
+  },
+  "INS-uk-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "UK Equities",
+   "phase": "Saturation"
+  },
+  "INS-us-equities": {
+   "esg": 1.0,
+   "home_scenario": "Expansion",
+   "name": "US Equities",
+   "phase": "Saturation"
+  },
+  "INS-us-treasury-tr-index": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "name": "US Treasury TR Index",
+   "phase": "Saturation"
+  },
+  "INS-usd-cash": {
+   "esg": 1.0,
+   "home_scenario": "Contraction",
+   "name": "USD Cash",
+   "phase": "Saturation"
+  }
+ },
+ "source": "C:\\Users\\nicol\\Desktop\\SIM_NAS\\Projects\\andersCH-prototype_old\\andersCH-prototype_old\\legacy\\pre-universe-cut\\rs.json"
+}

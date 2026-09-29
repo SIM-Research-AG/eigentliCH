@@ -1,0 +1,20 @@
+{
+  "name": "return_estimation",
+  "home": "Fund_Map",
+  "runtime": "subprocess",
+  "model_version": "re@0.2.0",
+  "timeout_s": 1800,
+  "inputs": {
+    "scope": "str",
+    "horizon_years": "float",
+    "publish": "bool",
+    "source": "str",
+    "regime_id": "str|null"
+  },
+  "notes": "Own venv: pandas pinned <3 because the regime-timeline round-trip fails on pandas 3 index dtypes.",
+  "ip_owner": "SIM Research",
+  "ip_owner_declared_on": "2026-08-30",
+  "outputs": {
+    "contract": "ReturnSet"
+  }
+}

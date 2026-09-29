@@ -1,0 +1,60 @@
+# Switzerland.
+#
+# Added so the seven-slot country-weight blend the Portfolio Creation Program applies has a Regime for
+# every weighted slot. Switzerland carries 0.15 in the Europe preset and 0.05 in the Global preset, so
+# a Europe or Global mandate cannot be optimised without it.
+
+economy:
+  code: ch
+  name: Switzerland
+  world_bank: CHE
+  bis: CH
+  currency: CHF
+
+data:
+  financial_capital:
+    # The Swiss National Bank publishes financial accounts on the OECD basis, so the consolidated
+    # measure of book chapter 10.4 is available and the fallback should not be needed. If the fallback
+    # is used, that is a data-availability finding and not a property of the economy.
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    # The advanced-economy prior, as for the United States and the United Kingdom. Weakly identified,
+    # so it is held to the prior and stress-tested rather than fitted.
+    default_depreciation_rate: 0.05
+
+  stimulus:
+    proxy: fiscal_balance
+    reverse_sign: true
+
+calibration:
+  window:
+    # Left open so the loader takes the overlap of the available series and reports it, rather than
+    # asserting a window the data may not support.
+    start: null
+    end: null
+
+notes:
+  - >
+    Switzerland is the base currency of the mandates this Regime feeds, so its reading is not only one
+    input among seven: it is the currency in which most portfolios using this panel are reported. That
+    makes its International dimension the reference point rather than a comparison.
+  - >
+    Total credit to the non-financial sector is high for an advanced economy, driven by household
+    mortgage debt against a durable rather than a distressed housing market. Book section 8.5 derives
+    the 250 to 350 percent band, and a Swiss reading inside or above it reflects mortgage structure and
+    should not be read as distress on the saturation axis alone. The HoNI dimensions are where a
+    genuine fragility would show. The precise latest figure is deliberately not recorded here: it is
+    taken from the live BIS pull and reported with its vintage.
+  - >
+    The franc is a safe-haven currency without being a primary reserve issuer, which book section 12.2
+    treats as its own International-dimension case, distinct from both the United States and from a
+    claim-holding developing economy. Capital inflows during global stress compress domestic yields
+    independently of the domestic capital cycle, so the Monetary dimension can move against the
+    domestic reading.
+  - >
+    A small open economy, so the External dimensions carry more of the signal than they do for the
+    United States. Conclusions should rest on the qualitative phase reading where the external series
+    dominate.

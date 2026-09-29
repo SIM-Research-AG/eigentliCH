@@ -1,0 +1,439 @@
+[
+ {
+  "name": "Adrian Hollenstein",
+  "q": "Zweitwohnung oder früher aufhören, beides geht vermutlich nicht?",
+  "n": 1,
+  "top": 481,
+  "why": null,
+  "titles": [
+   "BVG: berufliche Vorsorge · Berufliche Vorsorge (BVG): Obligatorium, Grenzbeträge, Altersguthaben und Rentenbezug · 7 Vorbezug für Wohneigentum"
+  ]
+ },
+ {
+  "name": "Aline Perret",
+  "q": "Wie viel Eigenkapital brauchen wir 2033 wirklich?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Andreas Sutter",
+  "q": "Kann ich in vier Jahren aufhören, ohne den Lebensstandard zu ändern?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Anita Portmann",
+  "q": "Was bringt mir ein Wiedereinstieg mit 50 % finanziell wirklich?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Barbara Stucki",
+  "q": "Kann ich alleine Eigentum kaufen, oder ist das ohne zweites Einkommen unrealistisch?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Beat Amrein",
+  "q": "Halte ich dieses Pensum bis 63 durch, und was kostet es mich, wenn nicht?",
+  "n": 3,
+  "top": 479,
+  "why": null,
+  "titles": [
+   "Methodik der Standortbestimmung · How a gameplan is calculated · 11 The paths, at a return of zero and then with one",
+   "Methodik der Standortbestimmung · How a gameplan is calculated · 08 Income from 65 · Pillar 2 as an annuity",
+   "Methodik der Standortbestimmung · How a gameplan is calculated · 05 Whether the answers can all be true at once"
+  ]
+ },
+ {
+  "name": "Bruno Meili",
+  "q": "Was kostet mich die Frühpensionierung in der AHV und in der Pensionskasse?",
+  "n": 2,
+  "top": 636,
+  "why": null,
+  "titles": [
+   "AHV: Beiträge und flexibler Rentenbezug · 8 Beiträge während des Vorbezugs",
+   "BVG: berufliche Vorsorge · Berufliche Vorsorge (BVG): Obligatorium, Grenzbeträge, Altersguthaben und Rentenbezug · 6 Ab wann bezogen werden kann"
+  ]
+ },
+ {
+  "name": "Christoph Lüthi",
+  "q": "Zuerst den Kredit tilgen oder die Vorsorge aufbauen?",
+  "n": 2,
+  "top": 495,
+  "why": null,
+  "titles": [
+   "Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge · Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge (WEF) · 1 Wofür die Mittel verwendet werden dürfen",
+   "Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge · Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge (WEF) · 8 Verpfändung als die andere Möglichkeit"
+  ]
+ },
+ {
+  "name": "Claudia Item",
+  "q": "Amortisieren oder das Geld anlegen, was bringt uns mehr?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Corinne Bachmann",
+  "q": "Ist die Ausbildung meines Sohnes gesichert, wenn mir etwas zustösst?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Céline Bornand",
+  "q": "Lohnt sich für mich der freiwillige Anschluss an eine Pensionskasse?",
+  "n": 1,
+  "top": 486,
+  "why": null,
+  "titles": [
+   "BVG: berufliche Vorsorge · Berufliche Vorsorge (BVG): Obligatorium, Grenzbeträge, Altersguthaben und Rentenbezug · 1 Wer obligatorisch versichert ist"
+  ]
+ },
+ {
+  "name": "Dario Moser",
+  "q": "Kaufen wir jetzt in Zug oder warten wir und investieren weiter?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Elsbeth Hürlimann",
+  "q": "Was bedeutet das Ende der Unterhaltszahlungen 2028 für meine Ausgaben?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Esther Widmer",
+  "q": "Wie teile ich mein Vermögen ein, damit es bis 95 reicht?",
+  "n": 3,
+  "top": 701,
+  "why": null,
+  "titles": [
+   "Risiko und Horizont — zwei Begriffe, die selten dasselbe meinen",
+   "Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge · Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge (WEF) · 4 Mindestbetrag, Fünfjahresfrist und die Grenze ab 50",
+   "AHV: Altersrente und Berechnung · AHV: die Altersrente, ihre Berechnung und die 13. Altersrente · 6 Woraus die Rente gerechnet wird"
+  ]
+ },
+ {
+  "name": "Fabienne Gerber",
+  "q": "Wie wirkt sich mein Teilzeitpensum langfristig auf die Rente aus?",
+  "n": 2,
+  "top": 550,
+  "why": null,
+  "titles": [
+   "BVG: berufliche Vorsorge · Berufliche Vorsorge (BVG): Obligatorium, Grenzbeträge, Altersguthaben und Rentenbezug · 3 Die Grenzbeträge",
+   "AHV: Beiträge und flexibler Rentenbezug · 7 Vorbezug und Aufschub der Altersrente"
+  ]
+ },
+ {
+  "name": "Fabio Righetti",
+  "q": "Was ändert sich, wenn die Unterhaltszahlung 2030 endet?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Franziska Ott",
+  "q": "Trage ich das Studium und meine eigene Vorsorge gleichzeitig?",
+  "n": 1,
+  "top": 567,
+  "why": null,
+  "titles": [
+   "Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge · Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge (WEF) · 1 Wofür die Mittel verwendet werden dürfen"
+  ]
+ },
+ {
+  "name": "Hansruedi Bigler",
+  "q": "Wie übergebe ich den Hof, ohne meine Altersvorsorge aufzugeben?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Isabelle Chevalley",
+  "q": "Können wir die Ferienwohnung halten und trotzdem mit 60 aufhören?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Jasmin Keller",
+  "q": "Womit fange ich überhaupt an?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Jonas Rickenbacher",
+  "q": "Wie viel Krypto darf im Depot bleiben, ohne den Plan zu gefährden?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Kurt Wiederkehr",
+  "q": "Rente, Kapital oder gemischt, was passt zu unserer Situation?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Lea Hofmann",
+  "q": "Wie viel muss ich sparen, damit eine eigene Wohnung überhaupt realistisch wird?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Luca Ferrari",
+  "q": "Kann ich expandieren, oder muss ich zuerst das Familiendarlehen abbauen?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Lukas Marti",
+  "q": "Eigentum in Zug kaufen oder weiter mieten und investieren?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Marco Tanner",
+  "q": "Wie strukturiere ich den Verkauf, damit die Steuerlast tragbar bleibt?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Michele Bernasconi",
+  "q": "Ist die Belehnung auf beiden Liegenschaften noch tragbar?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Miriam Schwarz",
+  "q": "Wie hole ich die fehlenden AHV-Jahre aus dem Ausland auf?",
+  "n": 1,
+  "top": 467,
+  "why": null,
+  "titles": [
+   "Methodik der Standortbestimmung · How a gameplan is calculated · 08 Income from 65"
+  ]
+ },
+ {
+  "name": "Monika Brülhart",
+  "q": "Halten die Ausbildungskosten und die Frühpensionierung gleichzeitig?",
+  "n": 1,
+  "top": 529,
+  "why": null,
+  "titles": [
+   "AHV: Beiträge und flexibler Rentenbezug · 8 Beiträge während des Vorbezugs"
+  ]
+ },
+ {
+  "name": "Nadja Furrer",
+  "q": "Tragen wir das Haus auch, wenn die Zinsen deutlich steigen?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Nicola Fontana",
+  "q": "Wie baue ich mit wenig Kapital eine eigene Firma auf?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Noemi Bruhin",
+  "q": "Warum habe ich mit zwei Stellen kein Pensionskassenguthaben?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Patrick Stauffer",
+  "q": "Wann habe ich nach der Scheidung wieder finanziellen Spielraum?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Peter Stalder",
+  "q": "Wie übertrage ich das Ferienhaus, ohne die Kinder zu überfordern?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Ramon Cadonau",
+  "q": "Was passiert mit meinem Plan, wenn ich mich verletze?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Regula Amstutz",
+  "q": "Wie teilen wir bei Gütertrennung sinnvoll auf, wenn einer deutlich mehr hat?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Reto Schlegel",
+  "q": "Wie bereite ich die Nachfolge vor, ohne meine Vorsorge daran zu hängen?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Roman Steinegger",
+  "q": "Wie mache ich mich vom Wert meiner eigenen Firma unabhängig?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Sabrina Wyss",
+  "q": "Was fehlt mir, um mit 60 aufzuhören?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Seraina Derungs",
+  "q": "Was bedeutet die Teilzeit für meine eigene Vorsorge?",
+  "n": 1,
+  "top": 487,
+  "why": null,
+  "titles": [
+   "Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge · Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge (WEF) · 1 Wofür die Mittel verwendet werden dürfen"
+  ]
+ },
+ {
+  "name": "Severin Gasser",
+  "q": "Können wir den Umbau finanzieren, ohne die Tragbarkeit zu verlieren?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Silvia Rüegg",
+  "q": "Halten unsere Ausgaben, wenn wir beide 95 werden?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Simon Näf",
+  "q": "Wie früh kann ich mit dieser Sparquote aufhören zu arbeiten?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Stefan Kunz",
+  "q": "Wie gross ist meine Vorsorgelücke wirklich?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Tanja Egli",
+  "q": "Wie viel meines Vermögens hängt an der eigenen Firma, und ist das zu viel?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Thomas Odermatt",
+  "q": "Welche Einkäufe in die Pensionskasse lohnen sich vor 62 noch?",
+  "n": 1,
+  "top": 702,
+  "why": null,
+  "titles": [
+   "Die zweite Säule — wie eine Pensionskasse rechnet"
+  ]
+ },
+ {
+  "name": "Timo Brunner",
+  "q": "Reicht unser Sparen für ein Eigenheim in sieben Jahren?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ },
+ {
+  "name": "Ursula Kobel",
+  "q": "Wie viel darf ich pro Jahr ausgeben, damit es sicher reicht?",
+  "n": 6,
+  "top": 517,
+  "why": null,
+  "titles": [
+   "AHV: Beiträge und flexibler Rentenbezug · 5 Die Beträge",
+   "BVG: berufliche Vorsorge · Berufliche Vorsorge (BVG): Obligatorium, Grenzbeträge, Altersguthaben und Rentenbezug · 1 Wer obligatorisch versichert ist",
+   "Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge · Wohneigentumsförderung mit Mitteln der beruflichen Vorsorge (WEF) · 4 Mindestbetrag, Fünfjahresfrist und die Grenze ab 50"
+  ]
+ },
+ {
+  "name": "Verena Signer",
+  "q": "Sollen wir das Pensionskassenkapital beziehen oder die Rente nehmen?",
+  "n": 1,
+  "top": 492,
+  "why": null,
+  "titles": [
+   "BVG: berufliche Vorsorge · Berufliche Vorsorge (BVG): Obligatorium, Grenzbeträge, Altersguthaben und Rentenbezug · 6 Ab wann bezogen werden kann"
+  ]
+ },
+ {
+  "name": "Yves Delacrétaz",
+  "q": "Wie viel Reserve brauche ich bei schwankendem Einkommen und drei Kindern?",
+  "n": 0,
+  "top": null,
+  "why": "nothing in the corpus reached the relevance floor for this question (floor 540 per mille, mode vector)",
+  "titles": []
+ }
+]

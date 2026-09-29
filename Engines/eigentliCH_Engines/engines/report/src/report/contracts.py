@@ -1,0 +1,584 @@
+"""Contracts: every model ``report`` consumes or produces.
+
+Inbound, from upstream engines, mirrored here and never imported (Engine Building Guide section 1). Each
+mirror is partial: the fields the report reads, the version pinned exactly, everything else ignored.
+
+* ``Allocation`` from ``pcp`` (``pcp-allocation@1.0.0``), ``GET /allocation/{id}`` on 8007.
+* ``LifeBalanceSheet`` from ``lbs`` (``lbs-balance-sheet@1.0.0``), ``GET /artefacts/{id}`` on 8013. Mirrored
+  from lbs's final ``contracts.py`` of 28.09.2026; a section lbs could not compute (``status:
+  not_available``) is read as such and reported as a stated fact, never as a number (REP-09).
+
+Own contracts, frozen, extra fields forbidden:
+
+* ``ReportRequest`` (``report-request@1.0.0``), body of ``POST /run`` and ``POST /report``.
+* ``Report`` (``report@1.0.0``): the facts (every figure with its source: engine, artefact id and JSON
+  path), the sections in their fixed order with their prose and its check, the rendered HTML, the
+  provenance and the notice.
+* ``Calibration`` (``report-calibration@1.0.0``): prose generation, the number check, the reject rules and
+  the section texts. Immutable per version.
+"""
+
+from __future__ import annotations
+
+import math
+import re
+from typing import Any, Literal, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+CONTRACT_VERSIONS: dict[str, str] = {
+    "ReportRequest": "report-request@1.0.0",
+    "Report": "report@1.0.0",
+    "Calibration": "report-calibration@1.0.0",
+    "Allocation(pcp)": "pcp-allocation@1.0.0",
+    "LifeBalanceSheet(lbs)": "lbs-balance-sheet@1.0.0",
+}
+
+NOTICE = "Model-derived research output. Not investment advice."
+
+Language = Literal["de", "en"]
+EngineName = Literal["pcp", "lbs"]
+
+_REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,79}$")
+
+
+class _Frozen(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class _Upstream(BaseModel):
+    """A partial mirror: reads the named fields, ignores the rest."""
+
+    model_config = ConfigDict(frozen=True, extra="ignore")
+
+
+# ---------------------------------------------------------------------------
+# Upstream mirrors: pcp
+# ---------------------------------------------------------------------------
+
+class InstrumentWeight(_Upstream):
+    instrument_id: str
+    name: str
+    role: str
+    weight: float
+    coverage: str
+
+
+class PortfolioMap(_Upstream):
+    roles: tuple[str, ...]
+    scenarios: tuple[str, ...]
+
+
+class Diagnostics(_Upstream):
+    objective: float
+    objective_floor: float
+    weight_leverage: Optional[float]
+    solver_method: str
+    solver_status: str
+    success: bool
+    constraint_rows: int
+    binding: tuple[dict[str, Any], ...]
+    notes: tuple[str, ...] = ()
+
+
+class Coverage(_Upstream):
+    weight_on_weak_profiles: float
+    warnings: tuple[str, ...] = ()
+
+
+class AllocationProvenance(_Upstream):
+    snapshot_id: str
+    as_of: str
+    date: str
+    engine_version: str
+    calibration_version: str
+
+
+class Allocation(_Upstream):
+    """``pcp-allocation@1.0.0``, as ``report`` reads it."""
+
+    contract_version: Literal["pcp-allocation@1.0.0"]
+    artefact_id: str
+    regime_id: str
+    return_set_id: str
+    mandate_id: str
+    client: str
+    mandate_name: str
+    date: str
+    calibration_version: str
+    release_state: Literal["unreleased"]
+    instruments: tuple[InstrumentWeight, ...]
+    budget_met: bool
+    weights_by_role: dict[str, float]
+    portfolio_map: PortfolioMap
+    diagnostics: Diagnostics
+    coverage: Coverage
+    provenance: AllocationProvenance
+
+
+# ---------------------------------------------------------------------------
+# Upstream mirrors: lbs
+# ---------------------------------------------------------------------------
+
+class LbsTotals(_Upstream):
+    financial_assets: Optional[float]
+    human_assets: Optional[float]
+    total_assets: Optional[float]
+    liabilities: Optional[float]
+    net_worth: Optional[float]
+    identity_holds: Optional[bool]
+    by_vessel: dict[str, Optional[float]]
+    drawable: Optional[float]
+    household_income: Optional[float]
+    household_income_basis: str
+
+
+class LbsGridCell(_Upstream):
+    role: str
+    capital_type: str
+    display: str
+    assets_chf: Optional[float]
+    liabilities_chf: Optional[float]
+    flows_chf_per_year: Optional[float]
+
+
+class LbsHouseholdPerson(_Upstream):
+    person_id: str
+    kind: str
+    age: Optional[int]
+
+
+class LbsHousehold(_Upstream):
+    stated: bool
+    composition_as_of: Optional[str]
+    adults: tuple[LbsHouseholdPerson, ...]
+    dependants: tuple[LbsHouseholdPerson, ...]
+
+
+class LbsNotAvailable(_Upstream):
+    """A section lbs could not compute. The report states it, with its reason; it never becomes a number."""
+
+    status: Literal["not_available"]
+    reason: str
+    record: Optional[str] = None
+
+
+class LbsCapital(_Upstream):
+    key: Literal["E", "N", "H"]
+    value: Optional[float]
+    absent_because: Optional[str] = None
+
+
+class LbsHumanCapital(_Upstream):
+    person_id: str
+    E: LbsCapital
+    N: LbsCapital
+    H: LbsCapital
+    earning_power: LbsNotAvailable
+
+
+class LbsAhv(_Upstream):
+    status: Literal["available"]
+    monthly: float
+    yearly: float
+    years: Optional[int]
+    at_minimum: bool
+    at_maximum: bool
+
+
+class LbsBvg(_Upstream):
+    status: Literal["available"]
+    from_age: int
+    to_age: int
+    opening_balance: float
+    closing_balance: float
+    interest_rate: float
+    conversion_rate: float
+    monthly_pension: float
+    yearly_pension: float
+
+
+class LbsPensions(_Upstream):
+    person_id: str
+    ahv: Union[LbsAhv, LbsNotAvailable] = Field(discriminator="status")
+    bvg: Union[LbsBvg, LbsNotAvailable] = Field(discriminator="status")
+
+
+class LbsCoupleCap(_Upstream):
+    status: Literal["available"]
+    uncapped_monthly: float
+    monthly: float
+    yearly: float
+    cap_binds: bool
+
+
+class LbsProperty(_Upstream):
+    goal_id: str
+    verdict: str
+    price_chf: Optional[float]
+    target_date: Optional[str]
+    binds_on: tuple[str, ...] = ()
+    undetermined_because: tuple[str, ...] = ()
+
+
+class LbsLiquidity(_Upstream):
+    goal_id: str
+    gap_chf: Optional[float]
+    due_date: str
+    reason: str
+
+
+class LbsRetirement(_Upstream):
+    goal_id: str
+    verdict: str
+    needs_per_year: Optional[float]
+    covered_per_year: Optional[float]
+    shortfall_per_year: Optional[float]
+    undetermined_because: tuple[str, ...] = ()
+
+
+class LbsRiskProfile(_Upstream):
+    status: Literal["available"]
+    value: Optional[float]
+    binds_on: Optional[str]
+
+
+class LbsMandateProposal(_Upstream):
+    status: Literal["available"]
+    name: str
+    goal_id: str
+    goal_kind: str
+    target_chf: Optional[float]
+    goal_horizon_years: Optional[float]
+    drawable_chf: Optional[float]
+    annual_contribution: Optional[float]
+    required_return: Optional[float]
+    feasible: Optional[bool]
+    complete: bool
+    release_state: Literal["unreleased"]
+
+
+class LbsGap(_Upstream):
+    section: str
+    input: str
+    kind: str
+    reason: str
+
+
+class LbsProvenance(_Upstream):
+    engine_version: str
+    calibration_version: str
+    as_of: str
+
+
+class LifeBalanceSheet(_Upstream):
+    """``lbs-balance-sheet@1.0.0``, as ``report`` reads it (lbs contracts.py, final on 28.09.2026)."""
+
+    contract_version: Literal["lbs-balance-sheet@1.0.0"]
+    artefact_id: str
+    client_ref: str
+    as_of: str
+    calibration_version: str
+    household: LbsHousehold
+    grid: tuple[LbsGridCell, ...]
+    totals: LbsTotals
+    human_capital: tuple[LbsHumanCapital, ...]
+    pensions: tuple[LbsPensions, ...]
+    couple_cap: Union[LbsCoupleCap, LbsNotAvailable] = Field(discriminator="status")
+    property: tuple[LbsProperty, ...]
+    liquidity: tuple[LbsLiquidity, ...]
+    retirement: tuple[LbsRetirement, ...]
+    risk_profile: Union[LbsRiskProfile, LbsNotAvailable] = Field(discriminator="status")
+    mandate_proposal: Union[LbsMandateProposal, LbsNotAvailable] = Field(discriminator="status")
+    gaps: tuple[LbsGap, ...]
+    provenance: LbsProvenance
+
+
+# ---------------------------------------------------------------------------
+# In
+# ---------------------------------------------------------------------------
+
+class SourceRef(_Frozen):
+    engine: EngineName
+    artefact_id: str = Field(min_length=1, max_length=80)
+
+
+class DisplayFact(_Frozen):
+    """A fact the caller supplies for display, such as the client's name. Shown in the header as given; the
+    model never sees it (REP-06)."""
+
+    key: str
+    label: str = Field(min_length=1, max_length=200)
+    value: Union[float, str]
+    source: str = Field(min_length=1, max_length=200)
+
+    @field_validator("key")
+    @classmethod
+    def _key(cls, value: str) -> str:
+        if not _REF.match(value):
+            raise ValueError(f"display fact key {value!r} must be 1 to 80 characters of letters, digits and _.:-")
+        return value
+
+    @field_validator("value")
+    @classmethod
+    def _finite(cls, value: Union[float, str]) -> Union[float, str]:
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError("a display fact value must be finite")
+        return value
+
+
+class ReportRequest(_Frozen):
+    contract_version: Literal["report-request@1.0.0"] = "report-request@1.0.0"
+    #: Opaque to this engine. Checked against the ``client_ref`` an upstream artefact carries, when it has one.
+    client_ref: str
+    kind: Literal["report", "update"]
+    language: Language
+    #: The artefacts the report draws on, at most one per engine.
+    sources: tuple[SourceRef, ...] = Field(min_length=1)
+    #: For an update: the report it states the changes against. Must be this client's.
+    previous_report_id: Optional[str] = None
+    display_facts: tuple[DisplayFact, ...] = ()
+    #: ``False`` renders the report without model prose.
+    prose: bool = True
+    calibration_version: Optional[str] = None
+    #: Since engine 1.2.0, optional (REP-25): the report this one revises (a ``REP-...`` id of this client's),
+    #: and the curator's remark that asks for the revision. Both enter the request id and so the idempotency
+    #: key, so a revision is a distinct artefact; the note is printed on the page as the curator's remark and
+    #: never reaches the model. Left out of the request id when absent, so a request without them keeps its key.
+    revision_of: Optional[str] = Field(default=None, min_length=1, max_length=80)
+    revision_note: Optional[str] = Field(default=None, min_length=1, max_length=4000)
+
+    @field_validator("client_ref")
+    @classmethod
+    def _ref(cls, value: str) -> str:
+        if not _REF.match(value):
+            raise ValueError(f"client_ref {value!r} must be 1 to 80 characters of letters, digits and _.:-")
+        return value
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "ReportRequest":
+        engines = [s.engine for s in self.sources]
+        if len(set(engines)) != len(engines):
+            raise ValueError("at most one source artefact per engine")
+        if (self.kind == "update") != (self.previous_report_id is not None):
+            raise ValueError("an update names previous_report_id, and only an update does")
+        keys = [f.key for f in self.display_facts]
+        if len(set(keys)) != len(keys):
+            raise ValueError("display fact keys must be unique")
+        if self.revision_note is not None:
+            if not self.revision_note.strip():
+                raise ValueError("revision_note must not be blank")
+            if self.revision_of is None:
+                raise ValueError("a revision_note belongs to a revision: name revision_of")
+        return self
+
+
+# ---------------------------------------------------------------------------
+# Calibration
+# ---------------------------------------------------------------------------
+
+class ProseGeneration(_Frozen):
+    max_tokens: int = Field(ge=32, le=4096)
+    temperature: float = Field(ge=0.0, le=2.0)
+    seed: Optional[int] = None
+    #: Drafts per section while a draft is rejected or carries an unverified number.
+    attempts: int = Field(ge=1, le=4)
+    min_words: int = Field(ge=1)
+    max_words: int = Field(ge=10)
+
+
+class NumberCheck(_Frozen):
+    min_checked_digits: int = Field(ge=1, le=6)
+    rounding_decimals: tuple[int, ...]
+    relative_tolerance: float = Field(gt=0.0, le=1e-3)
+
+
+class RejectRules(_Frozen):
+    """Ways a draft is wrong without a wrong number (prior art ``desktop/sectionprose._reject``)."""
+
+    advice: dict[str, tuple[str, ...]]
+    wrong_currency: tuple[str, ...]
+    echoes: tuple[str, ...]
+    max_upper_share: float = Field(gt=0.0, le=1.0)
+
+
+class Calibration(_Frozen):
+    contract_version: Literal["report-calibration@1.0.0"] = "report-calibration@1.0.0"
+    version: str
+    parent_version: Optional[str] = None
+    note: str = ""
+    prose: ProseGeneration
+    number_check: NumberCheck
+    reject: RejectRules
+    #: A position is listed when its weight is at least this share.
+    position_min_weight: float = Field(ge=0.0, lt=1.0)
+    #: Per section key, per language: what the connecting sentences are asked to say. A section without an
+    #: entry gets no prose, which is the safe direction (REP-05).
+    slots: dict[str, dict[str, str]]
+
+    @field_validator("version")
+    @classmethod
+    def _semver(cls, value: str) -> str:
+        if not re.match(r"^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$", value):
+            raise ValueError(f"calibration version {value!r} is not semantic")
+        return value
+
+    @model_validator(mode="after")
+    def _languages(self) -> "Calibration":
+        for key, asks in self.slots.items():
+            if set(asks) != {"de", "en"}:
+                raise ValueError(f"slot {key!r} must be asked in de and en")
+        if set(self.reject.advice) != {"de", "en"}:
+            raise ValueError("the advice phrases must be given for de and en")
+        if self.prose.min_words >= self.prose.max_words:
+            raise ValueError("prose.min_words must be below prose.max_words")
+        return self
+
+
+# ---------------------------------------------------------------------------
+# Out
+# ---------------------------------------------------------------------------
+
+class FactSource(_Frozen):
+    #: ``pcp``, ``lbs``, ``report`` (a previous report) or ``caller`` (a display fact).
+    engine: str
+    #: The artefact the value was read from. For a display fact, the request id (``RRQ-...``).
+    artefact_id: str
+    contract_version: str
+    #: JSON pointer into that artefact (RFC 6901).
+    path: str
+
+
+Unit = Literal["chf", "chf_per_year", "share", "count", "number", "text", "date", "flag"]
+
+
+class Fact(_Frozen):
+    fact_id: str
+    section: str
+    label: str
+    value: Union[bool, float, str, None]
+    unit: Unit
+    #: The value as the report prints it, in the report's language.
+    display: str
+    #: Where the value comes from: one source, or two for a change (previous and current).
+    sources: tuple[FactSource, ...] = Field(min_length=1)
+    #: How the code derived the value, when it is not read verbatim ("count of ...", "current - previous").
+    derivation: Optional[str] = None
+    #: For a change: the previous value.
+    previous: Union[bool, float, str, None] = None
+
+
+ProseStatus = Literal["verified", "flagged", "rejected", "unavailable", "not_requested", "no_slot"]
+
+
+class Section(_Frozen):
+    key: str
+    title: str
+    fact_ids: tuple[str, ...]
+    #: The model's connecting sentences. Rendered only when ``prose_status`` is ``verified``.
+    prose: Optional[str] = None
+    prose_status: ProseStatus
+    prose_model: Optional[str] = None
+    #: Numbers in the prose that match none of this section's facts.
+    unverified_numbers: tuple[str, ...] = ()
+    prose_attempts: int = 0
+    #: Why there is no verified prose, in plain words.
+    prose_note: Optional[str] = None
+
+
+class SourceUse(_Frozen):
+    engine: str
+    artefact_id: str
+    contract_version: str
+    #: sha256 of the artefact as received.
+    sha256: str
+    url: str
+
+
+class ModelUse(_Frozen):
+    service: str
+    host: str
+    model: str
+    prompt_version: str
+    prompt_hash: str
+
+
+class ReportProvenance(_Frozen):
+    engine_version: str
+    contract_versions: dict[str, str]
+    calibration_version: str
+    calibration_hash: str
+    idempotency_key: str
+    #: Content hash of the request: the artefact id display facts cite.
+    request_id: str
+    sources: tuple[SourceUse, ...]
+    previous_report_id: Optional[str]
+    #: ``None`` when no prose was asked for.
+    model: Optional[ModelUse]
+    label: Literal["model-derived"] = "model-derived"
+
+
+class Report(_Frozen):
+    contract_version: Literal["report@1.0.0"] = "report@1.0.0"
+    artefact_id: str
+    client_ref: str
+    kind: Literal["report", "update"]
+    language: Language
+    title: str
+    previous_report_id: Optional[str]
+    #: Since engine 1.2.0, optional (REP-25): the report this one revises and the curator's remark, as requested.
+    revision_of: Optional[str] = None
+    revision_note: Optional[str] = None
+    #: The as-of date of the newest source, the date the report speaks for.
+    as_of: str
+    facts: tuple[Fact, ...]
+    sections: tuple[Section, ...]
+    #: Whether everything asked for was produced. ``False`` when the model could not be reached: the report
+    #: stands without prose, and a repeat of the request tries again (REP-07).
+    complete: bool
+    warnings: tuple[str, ...] = ()
+    #: Self-contained HTML in the house style, rendered from the fields above.
+    html: str
+    provenance: ReportProvenance
+    notice: str = NOTICE
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "Report":
+        ids = [f.fact_id for f in self.facts]
+        if len(set(ids)) != len(ids):
+            raise ValueError("fact ids must be unique")
+        known = set(ids)
+        for s in self.sections:
+            missing = [i for i in s.fact_ids if i not in known]
+            if missing:
+                raise ValueError(f"section {s.key} names unknown facts {missing}")
+        return self
+
+
+# ---------------------------------------------------------------------------
+# Runs
+# ---------------------------------------------------------------------------
+
+RunState = Literal["queued", "running", "succeeded", "failed"]
+
+
+class RunAccepted(_Frozen):
+    run_id: str
+    status: RunState
+    artefact_id: Optional[str]
+    idempotency_key: str
+    cached: bool
+
+
+class RunStatus(_Frozen):
+    run_id: str
+    status: RunState
+    idempotency_key: str
+    started_at: str
+    finished_at: Optional[str]
+    wall_clock_ms: Optional[float]
+    request: ReportRequest
+    artefact_id: Optional[str]
+    warnings: tuple[str, ...]
+    provenance: Optional[ReportProvenance]
+    error: Optional[str]

@@ -1,0 +1,20 @@
+{
+  "name": "score_engine",
+  "home": "Master_Model",
+  "runtime": "in_process",
+  "model_version": "score@0.1.0",
+  "timeout_s": 30,
+  "inputs": {
+    "household_id": "str",
+    "stream": "EventStream|null",
+    "events": "list|null",
+    "months_observed": "int",
+    "regime": "RegimeRef|null"
+  },
+  "notes": "ANALYTICAL household standing, not a game mechanic. A6 in DECISIONS.md scopes the C-07 grep to the member model layer for exactly this reason. Its output must never be rendered to a member as a level, a rank or a progress meter (C-07, R-006, R-113).",
+  "ip_owner": "SIM Research",
+  "ip_owner_declared_on": "2026-08-30",
+  "outputs": {
+    "contract": "Score"
+  }
+}

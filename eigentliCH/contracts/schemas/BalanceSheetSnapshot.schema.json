@@ -1,0 +1,546 @@
+{
+  "$defs": {
+    "Bound": {
+      "additionalProperties": false,
+      "description": "One allocation bound, with where it came from.",
+      "properties": {
+        "lower": {
+          "default": 0.0,
+          "title": "Lower",
+          "type": "number"
+        },
+        "rationale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rationale"
+        },
+        "source": {
+          "$ref": "#/$defs/BoundSource",
+          "default": "policy"
+        },
+        "upper": {
+          "default": 1.0,
+          "title": "Upper",
+          "type": "number"
+        }
+      },
+      "title": "Bound",
+      "type": "object"
+    },
+    "BoundSource": {
+      "description": "Where an allocation bound came from.\n\nThe distinction a reader of a Recommendation needs: which limits are the household's own economics, and\nwhich are house policy. Those are different kinds of fact and must not be presented identically. See\narchitecture/DESIGN_snapshot_to_mandate.md section 5.5.",
+      "enum": [
+        "derived",
+        "policy",
+        "curator_override"
+      ],
+      "title": "BoundSource",
+      "type": "string"
+    },
+    "Costates": {
+      "additionalProperties": false,
+      "description": "The household problem's dual variables: the marginal value of each stock.\n\n`lam_W` is the costate on `W_L`, so it prices a franc of the marketable portfolio at the margin. The\nratios against `lam_E` and `lam_N` are the household's own exchange rates between saving and\nself-investment, and they say how *ambitious* a mandate should be: a household whose expertise is worth\nfar more at the margin than its portfolio is better served investing in itself.",
+      "properties": {
+        "lam_E": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lam E"
+        },
+        "lam_N": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lam N"
+        },
+        "lam_W": {
+          "title": "Lam W",
+          "type": "number"
+        }
+      },
+      "required": [
+        "lam_W"
+      ],
+      "title": "Costates",
+      "type": "object"
+    },
+    "DerivedMandate": {
+      "additionalProperties": false,
+      "description": "What the Optimiser needs, derived from the household where possible.\n\nThe `esg_min` is a household preference rather than a derived quantity, and says so.",
+      "properties": {
+        "bounds": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "$ref": "#/$defs/Bound"
+            },
+            "type": "object"
+          },
+          "title": "Bounds",
+          "type": "object"
+        },
+        "curve": {
+          "$ref": "#/$defs/MandateCurve"
+        },
+        "esg_min": {
+          "default": 0.0,
+          "title": "Esg Min",
+          "type": "number"
+        },
+        "position_cap": {
+          "$ref": "#/$defs/PositionCap"
+        },
+        "reporting_currency": {
+          "default": "CHF",
+          "title": "Reporting Currency",
+          "type": "string"
+        },
+        "universe": {
+          "default": [],
+          "items": {
+            "type": "integer"
+          },
+          "title": "Universe",
+          "type": "array"
+        }
+      },
+      "required": [
+        "curve",
+        "position_cap"
+      ],
+      "title": "DerivedMandate",
+      "type": "object"
+    },
+    "GoalRef": {
+      "additionalProperties": false,
+      "description": "The goal the mandate serves.",
+      "properties": {
+        "buffer": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Buffer"
+        },
+        "epsilon": {
+          "title": "Epsilon",
+          "type": "number"
+        },
+        "feasible": {
+          "default": true,
+          "title": "Feasible",
+          "type": "boolean"
+        },
+        "horizon_years": {
+          "title": "Horizon Years",
+          "type": "number"
+        },
+        "kind": {
+          "description": "fi | home | company | retirement",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "description": "at_deadline | by_deadline",
+          "title": "Mode",
+          "type": "string"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        }
+      },
+      "required": [
+        "kind",
+        "mode",
+        "horizon_years",
+        "epsilon"
+      ],
+      "title": "GoalRef",
+      "type": "object"
+    },
+    "HouseholdPosition": {
+      "additionalProperties": false,
+      "description": "The wealth and capital stocks, as the Life Balance Sheet models them.\n\nWealth is split three ways because one scalar cannot tell an honest financial story: the residence you\nlive in is not spendable. `drawable` is the quantity a goal is actually tested against.",
+      "properties": {
+        "D": {
+          "title": "D",
+          "type": "number"
+        },
+        "E": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "E"
+        },
+        "H": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "H"
+        },
+        "N": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N"
+        },
+        "W_L": {
+          "title": "W L",
+          "type": "number"
+        },
+        "W_R": {
+          "title": "W R",
+          "type": "number"
+        },
+        "h_res": {
+          "default": 0.0,
+          "title": "H Res",
+          "type": "number"
+        }
+      },
+      "required": [
+        "W_L",
+        "W_R",
+        "D"
+      ],
+      "title": "HouseholdPosition",
+      "type": "object"
+    },
+    "MandateCurve": {
+      "additionalProperties": false,
+      "description": "The target return curve the Optimiser fits to: 25 points, annualised decimals.\n\n`required_return` is the scalar the curve was built from, kept alongside because it is the interpretable\nquantity: the return that makes the goal attainable at the stated confidence.",
+      "properties": {
+        "derivation": {
+          "default": "required return that clears the goal at the solved confidence level",
+          "title": "Derivation",
+          "type": "string"
+        },
+        "epsilon": {
+          "title": "Epsilon",
+          "type": "number"
+        },
+        "horizon_years": {
+          "title": "Horizon Years",
+          "type": "number"
+        },
+        "points": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "required_return": {
+          "title": "Required Return",
+          "type": "number"
+        },
+        "state_dependent": {
+          "default": false,
+          "title": "State Dependent",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "points",
+        "required_return",
+        "epsilon",
+        "horizon_years"
+      ],
+      "title": "MandateCurve",
+      "type": "object"
+    },
+    "PositionCap": {
+      "additionalProperties": false,
+      "description": "The maximum weight one building block may carry.\n\nPer instrument, not one scalar. Severity is read from each block's published crisis-state return rather\nthan assumed, so cash needs no cap while an equity block losing 35 percent in crisis gets a tight one.\nSee DESIGN_snapshot_to_mandate.md section 3.4.",
+      "properties": {
+        "derived": {
+          "default": true,
+          "title": "Derived",
+          "type": "boolean"
+        },
+        "per_instrument": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Per Instrument",
+          "type": "object"
+        },
+        "policy_cap": {
+          "default": 1.0,
+          "title": "Policy Cap",
+          "type": "number"
+        }
+      },
+      "title": "PositionCap",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Where a value came from.\n\n`as_of` is the date the data describes. It is deliberately not the time the object was built: see the\nmodule docstring.",
+      "properties": {
+        "as_of": {
+          "description": "The date the value describes, ISO or YYYY-MM",
+          "title": "As Of",
+          "type": "string"
+        },
+        "model_version": {
+          "description": "Version of the engine or model that produced it",
+          "title": "Model Version",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "reliability": {
+          "$ref": "#/$defs/Reliability",
+          "default": "derived"
+        },
+        "source": {
+          "description": "Publishing institution, engine, or person",
+          "title": "Source",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "source",
+        "as_of",
+        "model_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RegimeRef": {
+      "additionalProperties": false,
+      "description": "A reference to a published Regime timeline.\n\nThis is what a per-user contract carries. `regime_id` is the load-bearing field: every downstream\nartefact stamps it, and any two artefacts that must be consistent are checked on it.",
+      "properties": {
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "crisis_tail": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Crisis Tail"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        },
+        "regime_id": {
+          "title": "Regime Id",
+          "type": "string"
+        },
+        "regime_timeline_id": {
+          "title": "Regime Timeline Id",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Economy code or blended market scope, for example 'Global' or 'ch'",
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "regime_id",
+        "regime_timeline_id",
+        "scope",
+        "as_of",
+        "model_version"
+      ],
+      "title": "RegimeRef",
+      "type": "object"
+    },
+    "Reliability": {
+      "description": "How far a value can be trusted. Mirrors the macro programme's ladder.\n\n`SYNTHETIC` must never reach a client-facing surface or a regulated decision. The ground rules forbid\nfilling a gap with placeholder data, so this level exists to make a breach detectable rather than to\npermit one.",
+      "enum": [
+        "published",
+        "derived",
+        "interpolated",
+        "synthetic"
+      ],
+      "title": "Reliability",
+      "type": "string"
+    },
+    "Sourced": {
+      "additionalProperties": false,
+      "description": "A number with its provenance attached, for values a human will read.",
+      "properties": {
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "value",
+        "provenance"
+      ],
+      "title": "Sourced",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One household's position at a point in time, plus the mandate derived from it.\n\nThe first per-user contract, and therefore the privacy boundary. It references the Regime it was\ncomputed under rather than embedding it.",
+  "properties": {
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "costates": {
+      "$ref": "#/$defs/Costates"
+    },
+    "diagnostics": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Sourced"
+      },
+      "title": "Diagnostics",
+      "type": "object"
+    },
+    "goal": {
+      "$ref": "#/$defs/GoalRef"
+    },
+    "household_id": {
+      "title": "Household Id",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "mandate": {
+      "$ref": "#/$defs/DerivedMandate"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "position": {
+      "$ref": "#/$defs/HouseholdPosition"
+    },
+    "regime": {
+      "$ref": "#/$defs/RegimeRef"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trace Id"
+    }
+  },
+  "required": [
+    "as_of",
+    "model_version",
+    "household_id",
+    "position",
+    "goal",
+    "costates",
+    "mandate",
+    "regime"
+  ],
+  "title": "BalanceSheetSnapshot",
+  "type": "object",
+  "x-contract-version": "0.1.0",
+  "x-regulated": "Education"
+}

@@ -1,0 +1,87 @@
+# DERIVED MANDATE. Generated from BalanceSheetSnapshot BSS-53c8d62f034650dd.
+# Do not edit: it is regenerated from the household's position and goal.
+#
+# household      hh-0001
+# goal           fi, 2,000,000 in 10y at 90% confidence
+# required       15.6150% a year, in expectation under the house view
+# curve          13.3334% in state 0 rising to 18.3334% in state 24 (state_dependent=True)
+# regime         REG-38d91c1a0da0ef1e
+# bound sources  {'derived': 2, 'policy': 5}
+#
+# The curve's SHAPE is CIO policy and the LEVEL is derived. The ramp asks less of a crisis than of
+# a boom, which no household model here can supply; the block shift that sets the level is chosen
+# so the curve's house-view expectation equals the required return above. DECISIONS.md M50.
+#
+# The single max_single_position below is the tightest of the per-instrument caps this mandate
+# derived, because the Optimiser's schema takes one scalar. That is conservative: instruments with
+# a smaller crisis loss could safely carry more. Per-instrument caps need a schema change there.
+client: hh-0001
+mandate: derived-fi-10y
+market: Global
+currency: CHF
+benchmark: Swiss
+horizon_years: 1.0
+max_single_position: 1.0
+esg_min: 0.0
+target_curve:
+- 0.13333384511434193
+- 0.13541717844767526
+- 0.13750051178100858
+- 0.13958384511434194
+- 0.14166717844767526
+- 0.1437505117810086
+- 0.14583384511434191
+- 0.14791717844767527
+- 0.1500005117810086
+- 0.15208384511434192
+- 0.15416717844767525
+- 0.1562505117810086
+- 0.15833384511434193
+- 0.16041717844767525
+- 0.1625005117810086
+- 0.16458384511434193
+- 0.16666717844767526
+- 0.16875051178100858
+- 0.1708338451143419
+- 0.17291717844767526
+- 0.1750005117810086
+- 0.17708384511434194
+- 0.17916717844767527
+- 0.1812505117810086
+- 0.18333384511434192
+universe:
+- 17
+- 18
+- 32
+- 33
+- 37
+- 40
+- 42
+- 54
+fixed_allocations: {}
+bounds:
+  liquidity:
+    Daily:
+      lower: 0.1
+      upper: 1.0
+  currency:
+    CHF:
+      lower: 0.5
+      upper: 1.0
+  role:
+    Protection:
+      lower: 0.05
+      upper: 0.5
+    Gain:
+      lower: 0.2
+      upper: 0.7
+    Income:
+      lower: 0.1
+      upper: 0.4
+    Stabilisation:
+      lower: 0.1
+      upper: 0.4
+  asset_class:
+    Cash:
+      lower: 0.0
+      upper: 0.4

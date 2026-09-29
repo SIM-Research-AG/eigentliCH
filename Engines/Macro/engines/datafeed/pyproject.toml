@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datafeed"
+version = "1.0.0"
+description = "Data Feed engine: immutable source-data snapshots served as aligned panels. Not investment advice."
+requires-python = ">=3.11"
+# Runtime. All on the Engine Building Guide allowlist except psycopg (decision D-05).
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+    "pydantic==2.10.4",
+    "numpy>=2.0,<3",
+    "PyYAML>=6.0,<7",
+    "httpx==0.28.1",
+    "psycopg[binary]==3.2.3",
+]
+
+[project.optional-dependencies]
+# The importer and the tests. Never in the deploy folder.
+dev = [
+    "pytest==8.3.4",
+    "hypothesis>=6.100",
+    "scipy>=1.11",       # etl/matlab.py reads M_TS.mat
+    "openpyxl==3.1.5",   # etl/matlab.py reads the ticker sheets
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+datafeed = ["schema.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

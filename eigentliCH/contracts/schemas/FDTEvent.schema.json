@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Where a value came from.\n\n`as_of` is the date the data describes. It is deliberately not the time the object was built: see the\nmodule docstring.",
+      "properties": {
+        "as_of": {
+          "description": "The date the value describes, ISO or YYYY-MM",
+          "title": "As Of",
+          "type": "string"
+        },
+        "model_version": {
+          "description": "Version of the engine or model that produced it",
+          "title": "Model Version",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "reliability": {
+          "$ref": "#/$defs/Reliability",
+          "default": "derived"
+        },
+        "source": {
+          "description": "Publishing institution, engine, or person",
+          "title": "Source",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "source",
+        "as_of",
+        "model_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Reliability": {
+      "description": "How far a value can be trusted. Mirrors the macro programme's ladder.\n\n`SYNTHETIC` must never reach a client-facing surface or a regulated decision. The ground rules forbid\nfilling a gap with placeholder data, so this level exists to make a breach detectable rather than to\npermit one.",
+      "enum": [
+        "published",
+        "derived",
+        "interpolated",
+        "synthetic"
+      ],
+      "title": "Reliability",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One event in a household's history.\n\nFrozen and content-addressed. A correction supersedes rather than edits.",
+  "properties": {
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "body": {
+      "additionalProperties": true,
+      "title": "Body",
+      "type": "object"
+    },
+    "household_id": {
+      "title": "Household Id",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "kind": {
+      "title": "Kind",
+      "type": "string"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "origin": {
+      "default": "client",
+      "title": "Origin",
+      "type": "string"
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Provenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "sequence": {
+      "title": "Sequence",
+      "type": "integer"
+    },
+    "supersedes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supersedes"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trace Id"
+    }
+  },
+  "required": [
+    "as_of",
+    "model_version",
+    "household_id",
+    "sequence",
+    "kind",
+    "occurred_at"
+  ],
+  "title": "FDTEvent",
+  "type": "object",
+  "x-contract-version": "0.1.0",
+  "x-regulated": "n/a"
+}

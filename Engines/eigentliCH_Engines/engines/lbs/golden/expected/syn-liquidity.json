@@ -1,0 +1,132 @@
+{
+ "seed": {
+  "liquidity": {
+   "g1": {
+    "gap_chf": 63000.0,
+    "due_date": "2029-12-31",
+    "reason": "funding_is_illiquid",
+    "lever": "add_a_monthly_contribution",
+    "requires_curator": false,
+    "considered": [
+     {
+      "lever": "move_funding_to_a_liquid_form",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "move_the_goal_date",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "add_a_monthly_contribution",
+      "verdict": "closes"
+     }
+    ]
+   },
+   "g2": null,
+   "g3": null,
+   "g4": {
+    "gap_chf": 45000.0,
+    "due_date": "2026-01-31",
+    "reason": "funding_is_illiquid",
+    "lever": "reduce_the_goal_size",
+    "requires_curator": false,
+    "considered": [
+     {
+      "lever": "move_funding_to_a_liquid_form",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "move_the_goal_date",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "add_a_monthly_contribution",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "reduce_the_goal_size",
+      "verdict": "closes"
+     }
+    ]
+   }
+  },
+  "observations": {
+   "g1": [
+    "dated_but_funding_is_illiquid"
+   ],
+   "g2": [
+    "liquidity_not_stated"
+   ],
+   "g3": [],
+   "g4": [
+    "dated_but_funding_is_illiquid"
+   ]
+  },
+  "composition_expired": true
+ },
+ "approved": {
+  "liquidity": {
+   "g1": {
+    "gap_chf": 63000.0,
+    "due_date": "2029-12-31",
+    "reason": "funding_is_illiquid",
+    "lever": "add_a_monthly_contribution",
+    "requires_curator": false,
+    "considered": [
+     {
+      "lever": "move_funding_to_a_liquid_form",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "move_the_goal_date",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "add_a_monthly_contribution",
+      "verdict": "closes"
+     }
+    ]
+   },
+   "g2": null,
+   "g3": null,
+   "g4": {
+    "gap_chf": 45000.0,
+    "due_date": "2026-01-31",
+    "reason": "funding_is_illiquid",
+    "lever": "reduce_the_goal_size",
+    "requires_curator": false,
+    "considered": [
+     {
+      "lever": "move_funding_to_a_liquid_form",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "move_the_goal_date",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "add_a_monthly_contribution",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "reduce_the_goal_size",
+      "verdict": "closes"
+     }
+    ]
+   }
+  },
+  "observations": {
+   "g1": [
+    "dated_but_funding_is_illiquid"
+   ],
+   "g2": [
+    "liquidity_not_stated"
+   ],
+   "g3": [],
+   "g4": [
+    "dated_but_funding_is_illiquid"
+   ]
+  },
+  "composition_expired": true
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "built_by": "dev/build_golden_corrected.py",
+ "corrected": {
+  "hash": "CAL-6e23bd89792ac4dc",
+  "version": "1.2.0"
+ },
+ "corrections": {
+  "capacity_horizon_is_years_to_the_planned_age": "without a dated goal the capacity horizon is plan_until_age less the age, in years; the prototype used the age itself",
+  "required_return_search_reaches_its_ceiling": "the required-return search now tests its stated 1000 percent ceiling; the prototype stopped at 800",
+  "unstated_vessel_is_a_gap": "a stock without a vessel is a named gap, neither hard equity nor free wealth; the prototype counted it as both",
+  "zero_income_is_a_stated_zero": "a stated zero income is zero; the prototype read it as no income"
+ },
+ "engine_version": "lbs@1.2.0",
+ "layer_a_cases": [
+  "db-01",
+  "db-02",
+  "db-03",
+  "db-04",
+  "db-05",
+  "db-06",
+  "db-07",
+  "db-08",
+  "syn-couple",
+  "syn-liquidity",
+  "syn-property-1",
+  "syn-property-2",
+  "syn-property-3",
+  "syn-property-4",
+  "syn-property-5"
+ ],
+ "quirk_cases": {
+  "q-ceiling": "the goal needs 850 percent a year: above the prototype's effective 800 percent, below the stated 1000 percent ceiling; the contribution is stated as 0",
+  "q-horizon": "no goal is dated; plan_until_age 65 at age 55 is a 10-year horizon, not one of 65 years",
+  "q-no-vessel": "a funding stock of 100'000 states no vessel: neither hard equity nor free wealth",
+  "q-zero-income": "an income position of 0 is a stated zero (unpaid leave), not an unknown income"
+ },
+ "reproduction": {
+  "hash": "CAL-e69eb8fc77af48a3",
+  "version": "1.1.0"
+ },
+ "tolerance": "1e-9 relative on every number (absolute near zero), every other leaf exactly"
+}

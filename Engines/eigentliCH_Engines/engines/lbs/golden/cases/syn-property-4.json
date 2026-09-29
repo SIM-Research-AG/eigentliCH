@@ -1,0 +1,72 @@
+{
+ "client_ref": "syn-property-4",
+ "as_of": "2026-09-28",
+ "household": {
+  "composition_as_of": "2026-09-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 35
+   }
+  ]
+ },
+ "positions": [
+  {
+   "position_id": "a1",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 276600,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "funds_goals": [
+    "g1"
+   ]
+  },
+  {
+   "position_id": "a3",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 8600,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_3a",
+   "owner": "p1",
+   "funds_goals": [
+    "g1"
+   ]
+  },
+  {
+   "position_id": "i1",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 175000,
+   "unit": "chf_per_year",
+   "owner": "p1"
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g1",
+   "kind": "property",
+   "target_amount": 1100000,
+   "target_date": "2034-12-31",
+   "occupancy": "owner_occupied_primary",
+   "owners": [
+    "p1"
+   ]
+  }
+ ],
+ "facts": {
+  "civil_status": "ledig",
+  "has_no_liabilities": true
+ },
+ "mandate": {
+  "goal_id": "g1",
+  "annual_contribution": 12000.0
+ }
+}

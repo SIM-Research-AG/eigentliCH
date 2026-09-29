@@ -1,0 +1,17 @@
+{
+  "_about": {
+    "open_decision": "D-07 — the English name for the destination.",
+    "requirement": "\"All destination copy comes from a single content key. Do not scatter the phrase through templates.\"",
+    "resolved": "Decided by Nicolas Bürkler on 30 August 2026: the build specification's own §1 phrasing is the phrase, promoted from prose into this key. No new coinage.",
+    "why_one_key": "This is the phrase most likely to be revised, and the one a template would most naturally inline. One key means a revision is one edit — and means a search for the phrase finds the decision rather than forty copies of its consequence.",
+    "usage": "Read via `eigentlich.content.destination(language)`. There is deliberately no fallback literal: if this file is missing, the loader raises rather than rendering an invented phrase.",
+    "forbidden": "R-143 / principle 10 — the destination is stated plainly. Metaphor belongs in the marketing surfaces, never here."
+  },
+
+  "destination": {
+    "en": "a self-determined life",
+    "de": "ein selbstbestimmtes Leben",
+    "de_draft": false,
+    "en_source": "andersCH-build-spec.html §1, 'Destination is a self-determined life'"
+  }
+}

@@ -1,0 +1,927 @@
+<title>eigentliCH · Erfassung</title>
+<style>
+:root{--ink:#1A1740;--soft:#5d4591;--line:#ECE8F4;--tint:#F6F4FB;--acc:#A059C1;--ok:#2E7D64;
+      --g1:#8890e7;--g2:#A059C1;--g3:#FEA479;--g4:#FFE8A1;--paper:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+     font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:44px 24px 130px}
+.ey{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--acc)}
+h1{font-size:33px;line-height:1.14;margin:10px 0 10px;font-weight:800;letter-spacing:-.02em}
+.lede{font-size:17px;line-height:1.55;margin:0;max-width:64ch}
+.rule{height:3px;border-radius:3px;margin:22px 0 26px;
+      background:linear-gradient(110deg,var(--g1),var(--g2) 40%,var(--g3) 80%,var(--g4))}
+h2{font-size:18px;margin:0;font-weight:700}
+section{border:1px solid var(--line);border-radius:14px;margin:14px 0;overflow:hidden}
+section>header{padding:15px 20px;cursor:pointer;display:flex;gap:12px;align-items:baseline;
+               background:var(--tint);border-bottom:1px solid var(--line)}
+section>header .n{font-variant-numeric:tabular-nums;color:var(--acc);font-weight:700;min-width:1.7em}
+section>header .mark{margin-left:auto;font-size:20px;line-height:1;color:var(--soft)}
+.seclede{padding:0 20px;margin:15px 0 0;color:var(--soft);font-size:14.5px;max-width:62ch}
+.fields{padding:4px 20px 20px}
+.f{padding:17px 0;border-bottom:1px solid var(--line)}
+.f:last-child{border-bottom:0}
+.f>label{display:block;font-weight:700;font-size:15px;margin-bottom:3px}
+.why{color:var(--soft);font-size:14px;margin:3px 0 10px;max-width:62ch}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--paper);
+  border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;width:100%;max-width:420px}
+textarea{min-height:76px;max-width:100%;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px;border-color:var(--acc)}
+.unit{display:inline-block;margin-left:9px;color:var(--soft);font-size:13.5px;font-weight:400}
+.box{background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:15px 19px;margin:20px 0}
+.box.ok{background:#F1F8F5;border-color:#CFE6DC}
+.box p:first-child{margin-top:0}.box p:last-child{margin-bottom:0}
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;display:block;
+     margin-bottom:5px;color:var(--acc)}
+.tag.o{color:var(--ok)}
+/* repeatable objects */
+.rows{padding:6px 20px 8px}
+.row{border:1px solid var(--line);border-radius:12px;padding:6px 16px 14px;margin:14px 0;position:relative}
+.row>.rowhead{display:flex;align-items:baseline;gap:10px;padding:10px 0 2px}
+.row>.rowhead b{font-size:14.5px}
+.row .drop{margin-left:auto;font-size:13px;font-weight:700;color:var(--soft);background:none;
+           border:0;cursor:pointer;padding:4px 6px}
+.row .drop:hover{color:var(--acc)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+@media (max-width:620px){.grid{grid-template-columns:1fr}}
+.grid .f{padding:12px 0}
+.grid .f>label{font-size:14px}
+.grid input,.grid select{max-width:100%}
+.addrow{margin:6px 20px 20px}
+.bar{position:sticky;bottom:0;background:var(--paper);border-top:1px solid var(--line);
+     padding:12px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;z-index:5}
+button{font:inherit;font-size:14px;font-weight:700;border-radius:9px;padding:9px 15px;cursor:pointer;
+       border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+button.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+button:hover{border-color:var(--acc)}
+.status{color:var(--soft);font-size:13.5px;margin-left:auto}
+@media print{.bar,.addrow,.drop{display:none}section>header{cursor:default}
+  .fields,.seclede,.rows{display:block !important}
+  body{font-size:10.5pt}.wrap{padding:0;max-width:none}section{page-break-inside:avoid;border-color:#ccc}}
+</style>
+<div class="wrap">
+<div class="ey">eigentliCH</div>
+<h1>Ihre Angaben</h1>
+<p class="lede">Nehmen Sie sich Zeit und füllen Sie aus, was Sie zur Hand haben. Was Sie leer lassen, bleibt leer — jede Rechnung sagt später selbst, was ihr gefehlt hat.</p>
+<div class="rule"></div>
+<div class="box">
+<span class="tag">Bevor Sie beginnen</span>
+<p>Legen Sie wenn möglich Ihren <b>Vorsorgeausweis</b> und die letzte <b>Steuererklärung</b> bereit. Die beiden beantworten zusammen etwa die Hälfte der Fragen.</p>
+<p>Der Bogen läuft ohne Netz. Ihre Eingaben bleiben in diesem Browser, bis Sie sie unten als Datei speichern. Sie können jederzeit aufhören und später mit «Datei laden» weitermachen.</p>
+</div>
+<section open-state="1">
+<header><span class="n">01</span><h2>Zu zweit ausfüllen</h2><span class="mark">−</span></header>
+<p class="seclede">Wer als Paar plant, füllt diesen Bogen zweimal aus — einmal jede Person. Beide Dateien tragen denselben Code, und daran werden sie später zusammengeführt.</p>
+<div class="fields">
+<div class="f">
+<label for="f_household_code">Gemeinsamer Code</label>
+<p class="why">Denken Sie sich ein Wort aus und tragen Sie beide dasselbe ein. Es muss nichts bedeuten und nichts geheim sein — es dient nur dazu, die zwei Dateien einander zuzuordnen.</p>
+<input id="f_household_code" name="household_code" type="text" placeholder="z. B. seeblick">
+</div>
+<div class="f">
+<label for="f_person_label">Für wen ist dieser Bogen</label>
+<p class="why">Ihr Vorname genügt. So ist später erkennbar, welcher Bogen zu wem gehört.</p>
+<input id="f_person_label" name="person_label" type="text">
+</div>
+<div class="f">
+<label for="f_filling_alone">Füllen Sie allein aus</label>
+<p class="why">Die Tragbarkeitsrechnung einer Bank stellt auf das Einkommen des ganzen Haushalts ab. Ohne den zweiten Bogen rechnet sie mit einem Einkommen — und das Ergebnis ist dann für einen Haushalt, den es so nicht gibt.</p>
+<select id="f_filling_alone" name="filling_alone"><option value=""></option><option>ja, ich plane allein</option><option>nein, mein Partner füllt auch aus</option><option>nein, aber allein für heute</option></select>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">02</span><h2>Person und Haushalt</h2><span class="mark">−</span></header>
+<p class="seclede">Drei Dinge hängen daran, die sich sonst nicht herleiten lassen: der AHV-Weg, der Steuerweg und die Frage, wem ein Ziel gehört.</p>
+<div class="fields">
+<div class="f">
+<label for="f_birth_year">Geburtsjahr</label>
+<p class="why">Das Referenzalter hängt am Jahrgang, und die Altersgutschriften der Pensionskasse steigen mit dem Alter.</p>
+<input id="f_birth_year" name="birth_year" type="number" step="any">
+</div>
+<div class="f">
+<label for="f_canton">Wohnkanton</label>
+<p class="why">Steuern und einzelne Vorsorgeregeln sind kantonal.</p>
+<input id="f_canton" name="canton" type="text">
+</div>
+<div class="f">
+<label for="f_municipality">Gemeinde</label>
+<p class="why">Der Steuerfuss ist kommunal und kann innerhalb eines Kantons stark abweichen.</p>
+<input id="f_municipality" name="municipality" type="text">
+</div>
+<div class="f">
+<label for="f_civil_status">Zivilstand</label>
+<p class="why">Bei unverheirateten Paaren gibt es kein gesetzliches Erbrecht — oft die grösste Lücke im Plan.</p>
+<select id="f_civil_status" name="civil_status"><option value=""></option><option>ledig</option><option>ledig, mit Partner</option><option>verheiratet</option><option>eingetragene Partnerschaft</option><option>geschieden</option><option>verwitwet</option></select>
+</div>
+<div class="f">
+<label for="f_married_since">Verheiratet seit</label>
+<p class="why">Die während der Ehe erzielten Einkommen werden für die AHV hälftig geteilt.</p>
+<input id="f_married_since" name="married_since" type="number" step="any">
+</div>
+<div class="f">
+<label for="f_matrimonial_regime">Güterstand</label>
+<p class="why">Ohne Ehevertrag gilt die Errungenschaftsbeteiligung. Viele wissen das nicht.</p>
+<select id="f_matrimonial_regime" name="matrimonial_regime"><option value=""></option><option>Errungenschaftsbeteiligung</option><option>Gütertrennung</option><option>Gütergemeinschaft</option><option>weiss ich nicht</option></select>
+</div>
+<div class="f">
+<label for="f_household">Wer gehört zum Haushalt</label>
+<p class="why">Die Tragbarkeitsrechnung stellt auf das Haushaltseinkommen ab, nicht auf Ihres allein.</p>
+<textarea id="f_household" name="household"></textarea>
+</div>
+<div class="f">
+<label for="f_children_birth_years">Geburtsjahre der Kinder</label>
+<p class="why">Für Jahre mit Kindern unter 16 rechnet die AHV Erziehungsgutschriften an, die die Rente erhöhen.</p>
+<input id="f_children_birth_years" name="children_birth_years" type="text" placeholder="2011, 2014">
+</div>
+<div class="f">
+<label for="f_child_costs">Kosten der Kinder pro Jahr</label>
+<p class="why">Eine Verpflichtung mit einem Enddatum, die den Spielraum in genau den Jahren bindet, in denen er am grössten wäre.</p>
+<input id="f_child_costs" name="child_costs" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_dependants_other">Weitere unterstützte Personen</label>
+<p class="why">Unterhalt an Eltern oder Angehörige ist eine Verpflichtung wie jede andere.</p>
+<textarea id="f_dependants_other" name="dependants_other"></textarea>
+</div>
+<div class="f">
+<label for="f_alimony">Unterhaltszahlungen</label>
+<p class="why">Was Sie zahlen oder erhalten. Beides ist steuerlich relevant und beides bindet Spielraum.</p>
+<textarea id="f_alimony" name="alimony"></textarea>
+</div>
+<div class="f">
+<label for="f_nationality">Staatsangehörigkeit</label>
+<p class="why">Sie entscheidet mit, ob Vorsorgekapital beim Wegzug ausbezahlt werden darf und welche Abkommen gelten.</p>
+<input id="f_nationality" name="nationality" type="text">
+</div>
+<div class="f">
+<label for="f_permit">Aufenthaltsbewilligung</label>
+<p class="why">Bei einer B-Bewilligung wird die Steuer meist an der Quelle abgezogen; eine C-Bewilligung ändert das. Für die Barauszahlung der Pensionskasse beim Wegzug gelten je nach Status andere Regeln.</p>
+<select id="f_permit" name="permit"><option value=""></option><option>Schweizer Bürgerin oder Bürger</option><option>C (Niederlassung)</option><option>B (Aufenthalt)</option><option>L (Kurzaufenthalt)</option><option>G (Grenzgänger)</option><option>andere</option></select>
+</div>
+<div class="f">
+<label for="f_years_in_switzerland">Seit wann in der Schweiz</label>
+<p class="why">Jahre ohne Schweizer Beiträge sind der häufigste Grund für eine Rentenlücke.</p>
+<input id="f_years_in_switzerland" name="years_in_switzerland" type="number" step="any"><span class="unit">Jahr</span>
+</div>
+<div class="f">
+<label for="f_plans_to_leave">Planen Sie, die Schweiz zu verlassen</label>
+<p class="why">Ein Wegzug ändert fast alles: was mit der Pensionskasse geschieht, ob die Säule 3a fällig wird, und welches Land besteuert.</p>
+<select id="f_plans_to_leave" name="plans_to_leave"><option value=""></option><option>nein</option><option>vielleicht später</option><option>ja, geplant</option><option>ich pendle bereits</option></select>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">03</span><h2>Arbeit und Einkommen</h2><span class="mark">−</span></header>
+<p class="seclede">Das Humankapital ist bei den meisten Menschen der grösste Vermögenswert, und der einzige, der nicht auf einem Konto steht.</p>
+<div class="fields">
+<div class="f">
+<label for="f_employment">Anstellungsverhältnis</label>
+<p class="why">Ob Sie angestellt oder selbständig sind, entscheidet, welche Vorsorgeregeln überhaupt gelten.</p>
+<select id="f_employment" name="employment"><option value=""></option><option>angestellt</option><option>selbständig</option><option>beides</option><option>nicht erwerbstätig</option><option>in Ausbildung</option><option>pensioniert</option></select>
+</div>
+<div class="f">
+<label for="f_self_employed_form">Rechtsform bei Selbständigkeit</label>
+<p class="why">Wer eine AG oder GmbH führt, ist arbeitsrechtlich angestellt und der beruflichen Vorsorge unterstellt.</p>
+<select id="f_self_employed_form" name="self_employed_form"><option value=""></option><option>Einzelfirma</option><option>GmbH</option><option>AG</option><option>nicht selbständig</option></select>
+</div>
+<div class="f">
+<label for="f_employer">Arbeitgeberin</label>
+<p class="why">Wer Lohn und Vorsorge und allenfalls Aktien vom selben Unternehmen hat, hat ein Klumpenrisiko.</p>
+<input id="f_employer" name="employer" type="text">
+</div>
+<div class="f">
+<label for="f_income_gross">Bruttolohn pro Jahr</label>
+<p class="why">Die Grösse, an der die meisten anderen hängen.</p>
+<input id="f_income_gross" name="income_gross" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_income_variable">Variabler Anteil (Bonus)</label>
+<p class="why">Banken rechnen einen Bonus nur teilweise oder gar nicht an.</p>
+<input id="f_income_variable" name="income_variable" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_pensum">Pensum</label>
+<p class="why">Der Koordinationsabzug ist ein fester Betrag, kein Prozentsatz — ein kleines Pensum trifft er härter.</p>
+<input id="f_pensum" name="pensum" type="number" step="any"><span class="unit">%</span>
+</div>
+<div class="f">
+<label for="f_work_until_age">Bis zu welchem Alter wollen Sie arbeiten</label>
+<p class="why">Zwischen dem Ausstieg und dem Einsetzen der Renten liegt die teuerste Phase des Plans: nichts kommt herein und der Bezug läuft.</p>
+<input id="f_work_until_age" name="work_until_age" type="number" step="any"><span class="unit">Jahre</span>
+</div>
+<div class="f">
+<label for="f_company_value">Wert des eigenen Unternehmens</label>
+<p class="why">Oft die grösste Einzelposition und die am schwersten verkäufliche.</p>
+<input id="f_company_value" name="company_value" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_company_income">Ausschüttung aus dem Unternehmen</label>
+<p class="why">Eine Ausschüttung ist ein Fluss und kein Lohn; steuerlich und für die AHV gilt anderes.</p>
+<input id="f_company_income" name="company_income" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_income_other">Weitere Einkünfte</label>
+<p class="why">Renten, Unterhalt, Verwaltungsratshonorare, Nebenerwerb. Mieteinnahmen erfassen Sie beim jeweiligen Objekt.</p>
+<textarea id="f_income_other" name="income_other"></textarea>
+</div>
+<div class="f">
+<label for="f_thirteenth_salary">13. Monatslohn im Bruttolohn enthalten</label>
+<p class="why">Damit derselbe Lohn nicht einmal mit und einmal ohne gerechnet wird.</p>
+<select id="f_thirteenth_salary" name="thirteenth_salary"><option value=""></option><option>ja</option><option>nein</option><option>kein 13. Monatslohn</option></select>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">04</span><h2>Erste Säule (AHV)</h2><span class="mark">−</span></header>
+<p class="seclede">Die einzige Säule, deren Höhe nach oben begrenzt ist — und die bei den meisten trotzdem den grössten Teil des Bodens bildet.</p>
+<div class="fields">
+<div class="f">
+<label for="f_ahv_years_missing">Fehlende Beitragsjahre</label>
+<p class="why">Ein fehlendes Jahr kostet in der Regel mindestens ein Vierundvierzigstel der Rente, lebenslang.</p>
+<input id="f_ahv_years_missing" name="ahv_years_missing" type="number" step="any"><span class="unit">Jahre</span>
+</div>
+<div class="f">
+<label for="f_ahv_years_abroad">Jahre im Ausland</label>
+<p class="why">Jahre ohne Schweizer Beiträge sind der häufigste Grund für eine Lücke.</p>
+<input id="f_ahv_years_abroad" name="ahv_years_abroad" type="number" step="any"><span class="unit">Jahre</span>
+</div>
+<div class="f">
+<label for="f_ahv_mdje_known">Massgebendes Durchschnittseinkommen, falls bekannt</label>
+<p class="why">Die AHV rechnet mit dem aufgewerteten Durchschnitt Ihres ganzen Erwerbslebens, nicht mit dem heutigen Lohn. Steht auf dem Auszug des individuellen Kontos.</p>
+<input id="f_ahv_mdje_known" name="ahv_mdje_known" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_ahv_ik_requested">IK-Auszug bestellt</label>
+<p class="why">Der Auszug ist kostenlos und die einzige Möglichkeit, eine Lücke zu sehen, bevor sie verjährt ist.</p>
+<select id="f_ahv_ik_requested" name="ahv_ik_requested"><option value=""></option><option>ja</option><option>nein</option><option>weiss ich nicht</option></select>
+</div>
+<div class="f">
+<label for="f_care_credit_years">Jahre mit Betreuungsgutschrift</label>
+<p class="why">Wer Angehörige pflegt, kann Betreuungsgutschriften anrechnen lassen — sie erhöhen die Rente.</p>
+<input id="f_care_credit_years" name="care_credit_years" type="number" step="any"><span class="unit">Jahre</span>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">05</span><h2>Zweite Säule (Pensionskasse)</h2><span class="mark">−</span></header>
+<p class="seclede">Die Säule, in der jemand versichert sein kann, ohne es zu wissen. Der Vorsorgeausweis beantwortet die meisten dieser Fragen auf einer Seite.</p>
+<div class="fields">
+<div class="f">
+<label for="f_pillar2_fund">Name der Pensionskasse</label>
+<p class="why">Was über das Obligatorium hinausgeht, steht im Reglement Ihrer Kasse und nirgends sonst.</p>
+<input id="f_pillar2_fund" name="pillar2_fund" type="text">
+</div>
+<div class="f">
+<label for="f_pillar2">Aktuelles Altersguthaben</label>
+<p class="why">Der Ausgangspunkt jeder Hochrechnung.</p>
+<input id="f_pillar2" name="pillar2" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_pillar2_obligatory_part">Davon obligatorisch</label>
+<p class="why">Der Mindestumwandlungssatz von 6,8 % gilt nur für den obligatorischen Teil.</p>
+<input id="f_pillar2_obligatory_part" name="pillar2_obligatory_part" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_pillar2_buyin">Möglicher Einkauf</label>
+<p class="why">Der grösste Hebel, den eine Person über 50 noch hat — und einer, der gestaffelt mehr bringt als auf einmal.</p>
+<input id="f_pillar2_buyin" name="pillar2_buyin" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_pillar2_voluntary">Freiwillig versichert</label>
+<p class="why">Ohne Arbeitgeber besteht kein Obligatorium; freiwillig geht es trotzdem, und das entscheidet, welcher 3a-Höchstbetrag gilt.</p>
+<select id="f_pillar2_voluntary" name="pillar2_voluntary"><option value=""></option><option>ja</option><option>nein</option><option>weiss ich nicht</option></select>
+</div>
+<div class="f">
+<label for="f_pillar2_conversion_rate">Umwandlungssatz laut Ausweis</label>
+<p class="why">Der effektive Satz Ihrer Kasse, der auf dem überobligatorischen Teil tiefer sein darf als 6,8 %.</p>
+<input id="f_pillar2_conversion_rate" name="pillar2_conversion_rate" type="number" step="any"><span class="unit">%</span>
+</div>
+<div class="f">
+<label for="f_pillar2_early_retirement_age">Frühestes Rücktrittsalter laut Reglement</label>
+<p class="why">Das Gesetz nennt 63; viele Reglemente erlauben früher.</p>
+<input id="f_pillar2_early_retirement_age" name="pillar2_early_retirement_age" type="number" step="any"><span class="unit">Jahre</span>
+</div>
+<div class="f">
+<label for="f_pillar2_wef_taken">Bereits bezogener Vorbezug (WEF)</label>
+<p class="why">Ein Vorbezug kürzt Rente und Risikoschutz und ist bei der Planung leicht vergessen.</p>
+<input id="f_pillar2_wef_taken" name="pillar2_wef_taken" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_pillar2_survivor_cover">Hinterlassenenleistung laut Ausweis</label>
+<p class="why">Die Zahl, die zählt, wenn das Einkommen wegfällt — und die ein Vorbezug mit senkt.</p>
+<input id="f_pillar2_survivor_cover" name="pillar2_survivor_cover" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_pillar2_disability_cover">Invalidenrente laut Ausweis</label>
+<p class="why">Dasselbe für den Fall, dass Sie nicht mehr arbeiten können.</p>
+<input id="f_pillar2_disability_cover" name="pillar2_disability_cover" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">06</span><h2>Dritte Säule</h2><span class="mark">−</span></header>
+<p class="seclede">Gebunden und frei. Der Unterschied ist der Steuerabzug und die Frage, wann Sie herankommen.</p>
+<div class="fields">
+<div class="f">
+<label for="f_pillar3a_total">Guthaben Säule 3a insgesamt</label>
+<p class="why">Zählt bei selbstgenutztem Wohneigentum als harte Eigenmittel.</p>
+<input id="f_pillar3a_total" name="pillar3a_total" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_pillar3a_accounts">Anzahl 3a-Konten</label>
+<p class="why">Der Bezug wird separat besteuert, und Staffelung über mehrere Jahre senkt den Satz.</p>
+<input id="f_pillar3a_accounts" name="pillar3a_accounts" type="number" step="any">
+</div>
+<div class="f">
+<label for="f_pillar3a_contribution">Einzahlung pro Jahr</label>
+<p class="why">2026 höchstens 7 258 mit Pensionskasse, 36 288 ohne.</p>
+<input id="f_pillar3a_contribution" name="pillar3a_contribution" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_pillar3a_in_securities">Davon in Wertschriften angelegt</label>
+<p class="why">Ein 3a-Konto auf dem Sparkonto über dreissig Jahre ist eine Entscheidung, auch wenn sie nie getroffen wurde.</p>
+<input id="f_pillar3a_in_securities" name="pillar3a_in_securities" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_pillar3b">Freie Vorsorge (Säule 3b)</label>
+<p class="why">Lebensversicherungen, Sparpläne, alles ohne Bindung und ohne Abzug.</p>
+<input id="f_pillar3b" name="pillar3b" type="number" step="any"><span class="unit">CHF</span>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">07</span><h2>Wohneigentum</h2><span class="mark">−</span></header>
+<p class="seclede">Ein Eintrag je Objekt. Ob Sie selbst darin wohnen, entscheidet über den Eigenmittelsatz und darüber, ob Vorsorgekapital eingesetzt werden darf — und das ist je Objekt verschieden.</p>
+<div class="rows" data-repeat="properties"></div>
+<div class="addrow"><button type="button" data-key="properties">Weiteres Objekt erfassen</button></div>
+</section>
+<section open-state="1">
+<header><span class="n">08</span><h2>Schulden ausser Hypotheken</h2><span class="mark">−</span></header>
+<p class="seclede">Alles, was zurückzuzahlen ist und nicht an einer Liegenschaft hängt.</p>
+<div class="fields">
+<div class="f">
+<label for="f_other_debt">Kredite, Leasing, Steuerschuld</label>
+<p class="why">Je Schuld: wofür, wie viel offen, welcher Zins, bis wann.</p>
+<textarea id="f_other_debt" name="other_debt"></textarea>
+</div>
+<div class="f">
+<label for="f_debt_private">Private Darlehen</label>
+<p class="why">Geld von Familie oder Freunden. Auch ohne Vertrag ist es eine Schuld.</p>
+<textarea id="f_debt_private" name="debt_private"></textarea>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">09</span><h2>Übriges Vermögen</h2><span class="mark">−</span></header>
+<p class="seclede">Alles, was weder Vorsorge noch Liegenschaft ist.</p>
+<div class="fields">
+<div class="f">
+<label for="f_cash">Konto und Bargeld</label>
+<p class="why">Der Teil, an den Sie morgen herankommen.</p>
+<input id="f_cash" name="cash" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_securities">Wertschriften</label>
+<p class="why">Frei verfügbar, aber mit Kursrisiko — beides zählt.</p>
+<input id="f_securities" name="securities" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_crypto_value">Kryptowährungen</label>
+<p class="why">Ein Vermögenswert mit eigenem Risiko und eigener Steuerbehandlung.</p>
+<input id="f_crypto_value" name="crypto_value" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_gold_value">Edelmetalle und Sammlungen</label>
+<p class="why">Zählt erst, wenn es verkauft ist — vorher ist es ein Wert auf dem Papier.</p>
+<input id="f_gold_value" name="gold_value" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_loans_given">Ausgeliehenes Geld</label>
+<p class="why">Ein Vermögenswert, dessen Rückfluss Sie selbst am besten einschätzen.</p>
+<input id="f_loans_given" name="loans_given" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_loans_given_risk">Kommt es zurück?</label>
+<p class="why">In Ihren eigenen Worten.</p>
+<textarea id="f_loans_given_risk" name="loans_given_risk"></textarea>
+</div>
+<div class="f">
+<label for="f_inheritance_expected">Erwartetes Erbe</label>
+<p class="why">Kein Vermögenswert, aber oft die Grösse, an der eine ganze Planung hängt.</p>
+<textarea id="f_inheritance_expected" name="inheritance_expected"></textarea>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">10</span><h2>Ausgaben</h2><span class="mark">−</span></header>
+<p class="seclede">Die Seite, die in den meisten Erfassungen fehlt und jede Rechnung verschiebt.</p>
+<div class="fields">
+<div class="f">
+<label for="f_spend_now">Ausgaben pro Jahr, heute</label>
+<p class="why">Die Differenz zu Ihrem Einkommen ist das, worauf jede Jahreszahl aufbaut.</p>
+<input id="f_spend_now" name="spend_now" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_spend_later">Ausgaben pro Jahr, ab Pensionierung</label>
+<p class="why">Meist tiefer als heute, aber nicht um so viel wie erwartet.</p>
+<input id="f_spend_later" name="spend_later" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_tax_paid">Steuern pro Jahr</label>
+<p class="why">Ohne diese Zahl ist eine Sparrate aus Brutto minus Ausgaben zu hoch — und alle Jahreszahlen zu früh.</p>
+<input id="f_tax_paid" name="tax_paid" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_one_off_planned">Grössere geplante Ausgaben</label>
+<p class="why">Auto, Renovation, Ausbildung, Hochzeit — alles, was einmalig und gross ist.</p>
+<textarea id="f_one_off_planned" name="one_off_planned"></textarea>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">11</span><h2>Absicherung</h2><span class="mark">−</span></header>
+<p class="seclede">Was passiert, wenn das Einkommen wegfällt. Die Fragen, die niemand gern stellt und die am meisten kosten, wenn sie offen bleiben.</p>
+<div class="fields">
+<div class="f">
+<label for="f_insurance_life">Todesfallsumme</label>
+<p class="why">Was den Hinterbliebenen zusteht, zusätzlich zu AHV und Pensionskasse.</p>
+<input id="f_insurance_life" name="insurance_life" type="number" step="any"><span class="unit">CHF</span>
+</div>
+<div class="f">
+<label for="f_insurance_disability">Erwerbsunfähigkeitsrente</label>
+<p class="why">Die IV allein deckt selten mehr als die Hälfte.</p>
+<input id="f_insurance_disability" name="insurance_disability" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_insurance_ktg">Krankentaggeld</label>
+<p class="why">Ohne Taggeldversicherung endet die Lohnfortzahlung nach wenigen Wochen bis Monaten.</p>
+<select id="f_insurance_ktg" name="insurance_ktg"><option value=""></option><option>ja, über Arbeitgeber</option><option>ja, privat</option><option>nein</option><option>weiss ich nicht</option></select>
+</div>
+<div class="f">
+<label for="f_insurance_health_model">Krankenkassenmodell und Franchise</label>
+<p class="why">Eine der wenigen Ausgaben, die sich jedes Jahr ohne Aufwand senken lassen.</p>
+<input id="f_insurance_health_model" name="insurance_health_model" type="text">
+</div>
+<div class="f">
+<label for="f_insurance_other">Weitere Versicherungen</label>
+<p class="why">Haftpflicht, Hausrat, Rechtsschutz, Gebäude.</p>
+<textarea id="f_insurance_other" name="insurance_other"></textarea>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">12</span><h2>Rechtliche Dokumente</h2><span class="mark">−</span></header>
+<p class="seclede">Bei unverheirateten Paaren ist das regelmässig die grösste Lücke im ganzen Plan.</p>
+<div class="fields">
+<div class="f">
+<label for="f_legal_will">Testament</label>
+<p class="why">Ohne Testament gilt die gesetzliche Erbfolge, und darin kommt ein Partner ohne Trauschein nicht vor.</p>
+<select id="f_legal_will" name="legal_will"><option value=""></option><option>ja</option><option>nein</option><option>in Arbeit</option></select>
+</div>
+<div class="f">
+<label for="f_legal_marriage_contract">Ehevertrag</label>
+<p class="why">Ändert, wem was gehört.</p>
+<select id="f_legal_marriage_contract" name="legal_marriage_contract"><option value=""></option><option>ja</option><option>nein</option></select>
+</div>
+<div class="f">
+<label for="f_legal_cohabitation">Konkubinatsvertrag</label>
+<p class="why">Der einzige Vertrag, der ein unverheiratetes Paar regelt.</p>
+<select id="f_legal_cohabitation" name="legal_cohabitation"><option value=""></option><option>ja</option><option>nein</option><option>nicht zutreffend</option></select>
+</div>
+<div class="f">
+<label for="f_legal_power_of_attorney">Vorsorgeauftrag</label>
+<p class="why">Wer entscheidet, wenn Sie es nicht mehr können. Ohne Auftrag entscheidet die Behörde.</p>
+<select id="f_legal_power_of_attorney" name="legal_power_of_attorney"><option value=""></option><option>ja</option><option>nein</option><option>in Arbeit</option></select>
+</div>
+<div class="f">
+<label for="f_legal_patient_decree">Patientenverfügung</label>
+<p class="why">Dieselbe Frage für medizinische Entscheide.</p>
+<select id="f_legal_patient_decree" name="legal_patient_decree"><option value=""></option><option>ja</option><option>nein</option><option>in Arbeit</option></select>
+</div>
+<div class="f">
+<label for="f_legal_beneficiary">Begünstigungen aktuell</label>
+<p class="why">Bei 3a und Lebensversicherung gilt die Begünstigungsordnung, nicht das Testament.</p>
+<select id="f_legal_beneficiary" name="legal_beneficiary"><option value=""></option><option>ja, geprüft</option><option>nein</option><option>weiss ich nicht</option></select>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">13</span><h2>Anlegen: Erfahrung und Grenzen</h2><span class="mark">−</span></header>
+<p class="seclede">Zwei Zahlen, die sich in den meisten Erfassungen widersprechen — und ein Verhalten, das mehr sagt als beide.</p>
+<div class="fields">
+<div class="f">
+<label for="f_max_loss_pct">Maximal tragbarer Verlust</label>
+<p class="why">In einem schlechten Jahr, auf dem angelegten Teil.</p>
+<input id="f_max_loss_pct" name="max_loss_pct" type="number" step="any"><span class="unit">%</span>
+</div>
+<div class="f">
+<label for="f_expected_return_pct">Erwartete Rendite</label>
+<p class="why">Was Sie erwarten. Wenn es nicht zur Verlustgrenze passt, ist das die interessantere Erkenntnis.</p>
+<input id="f_expected_return_pct" name="expected_return_pct" type="number" step="any"><span class="unit">%/Jahr</span>
+</div>
+<div class="f">
+<label for="f_crisis_behaviour">Was haben Sie 2008 oder 2022 getan</label>
+<p class="why">Verhalten ist aussagekräftiger als jede Selbsteinschätzung.</p>
+<select id="f_crisis_behaviour" name="crisis_behaviour"><option value=""></option><option>nichts, ich blieb investiert</option><option>nachgekauft</option><option>teilweise verkauft</option><option>alles verkauft</option><option>ich war nicht investiert</option><option>noch nie investiert</option></select>
+</div>
+<div class="f">
+<label for="f_investment_experience">Womit haben Sie Erfahrung</label>
+<p class="why">Fonds, Einzelaktien, Immobilien, Krypto, gar nichts — alles ist eine gültige Antwort.</p>
+<textarea id="f_investment_experience" name="investment_experience"></textarea>
+</div>
+<div class="f">
+<label for="f_liquidity_reserve_months">Reserve in Monatsausgaben</label>
+<p class="why">Der Puffer entscheidet, ob ein Kursrückgang eine Zahl oder ein Problem ist.</p>
+<input id="f_liquidity_reserve_months" name="liquidity_reserve_months" type="number" step="any"><span class="unit">Monate</span>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">14</span><h2>Nachhaltigkeit</h2><span class="mark">−</span></header>
+<p class="seclede">Zwei verschiedene Fragen, die fast überall zu einer verschmolzen werden. Was Sie nicht besitzen wollen, ist eine Ja-Nein-Frage. Wie viel des Portfolios einen Standard erfüllen soll, ist ein Anteil. Wer «alles ausser Waffen» sagt, hat die erste beantwortet und die zweite nicht.</p>
+<div class="fields">
+<div class="f">
+<label for="f_esg_exclusions">Was möchten Sie nicht besitzen</label>
+<p class="why">Nennen Sie, was für Sie nicht in Frage kommt — zum Beispiel Waffen, fossile Energie, Tabak, Kernkraft, Glücksspiel, Tierversuche oder Kinderarbeit in der Lieferkette. Mehrere Angaben, durch Komma getrennt. Eine Ausschlussliste verkleinert die Auswahl und kann ein Ziel schwerer erreichbar machen; das wird Ihnen dann gesagt und nicht stillschweigend gelockert.</p>
+<textarea id="f_esg_exclusions" name="esg_exclusions" placeholder="Waffen, Tabak"></textarea>
+</div>
+<div class="f">
+<label for="f_esg_minimum">Wie viel des Portfolios soll nachhaltig sein</label>
+<p class="why">Das ist eine Aussage darüber, wie viel Sie dafür aufzugeben bereit sind — keine Messung. Eine einzelne Nachhaltigkeitszahl fasst ein Dutzend Dinge zusammen, die sich nicht vergleichen lassen.</p>
+<select id="f_esg_minimum" name="esg_minimum"><option value=""></option><option>keine Vorgabe</option><option>wenn möglich</option><option>mehrheitlich</option><option>vollständig</option></select>
+</div>
+<div class="f">
+<label for="f_esg_why">Worum geht es Ihnen dabei</label>
+<p class="why">Freiwillig. Wer den Grund kennt, kann den Ausschluss besser umsetzen als wer nur die Liste hat.</p>
+<textarea id="f_esg_why" name="esg_why"></textarea>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">15</span><h2>Ziele</h2><span class="mark">−</span></header>
+<p class="seclede">Jedes Ziel braucht einen Betrag, ein Jahr und — bei Wohneigentum — die Antwort auf eine einzige weitere Frage.</p>
+<div class="fields">
+<div class="f">
+<label for="f_goals">Ihre Ziele</label>
+<p class="why">Je Ziel: Was, wie viel, bis wann. Mehrere Ziele sind der Normalfall.</p>
+<textarea id="f_goals" name="goals" placeholder="Wohneigentum, 1'500'000, 2038"></textarea>
+</div>
+<div class="f">
+<label for="f_goal_occupancy">Bei Wohneigentum: selbst bewohnt?</label>
+<p class="why">Entscheidet über 20, 25 oder 30 Prozent Eigenmittel und darüber, ob Vorsorgekapital eingesetzt werden darf.</p>
+<select id="f_goal_occupancy" name="goal_occupancy"><option value=""></option><option>Ich wohne selbst darin</option><option>Ein Zweit- oder Ferienobjekt</option><option>Ich vermiete es</option></select>
+</div>
+<div class="f">
+<label for="f_goal_confidence">Wie fest stehen diese Ziele</label>
+<p class="why">Ein Ziel, das nachjustiert werden darf, ist ein besseres Ziel.</p>
+<select id="f_goal_confidence" name="goal_confidence"><option value=""></option><option>fest</option><option>70 % — ich kann nachjustieren</option><option>eine Idee</option></select>
+</div>
+<div class="f">
+<label for="f_plan_until_age">Planungshorizont</label>
+<p class="why">Bis zu welchem Alter soll das Geld reichen.</p>
+<input id="f_plan_until_age" name="plan_until_age" type="number" step="any"><span class="unit">Jahre</span>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">16</span><h2>Humankapital</h2><span class="mark">−</span></header>
+<p class="seclede">Der grösste Vermögenswert der meisten Menschen, und der einzige, der in keiner Bilanz steht.</p>
+<div class="fields">
+<div class="f">
+<label for="f_qualification_highest">Höchster Abschluss</label>
+<p class="why">Das Ausbildungsniveau bestimmt die Lohnpyramide — so das Bundesamt für Statistik. Die fünf Antworten sind seine Kategorien, damit hinter jeder ein veröffentlichter Medianlohn steht.</p>
+<select id="f_qualification_highest" name="qualification_highest"><option value=""></option><option>Universitäre Hochschule</option><option>Fachhochschule FH</option><option>Höhere Berufsausbildung</option><option>Berufsausbildung (EFZ)</option><option>Unternehmensinterne Ausbildung</option></select>
+</div>
+<div class="f">
+<label for="f_qualification_year">Jahr des Abschlusses</label>
+<p class="why">Ein Abschluss von letztem Jahr und einer von vor dreissig Jahren sind nicht dasselbe Kapital. Eine laufende Weiterbildung setzt das zurück.</p>
+<input id="f_qualification_year" name="qualification_year" type="number" step="any"><span class="unit">Jahr</span>
+</div>
+<div class="f">
+<label for="f_years_in_field">Jahre im heutigen Tätigkeitsfeld</label>
+<p class="why">Erfahrung zählt und sättigt: das zehnte Jahr in einem Feld ist nicht das erste.</p>
+<input id="f_years_in_field" name="years_in_field" type="number" step="any"><span class="unit">Jahre</span>
+</div>
+<div class="f">
+<label for="f_kader">Führungsfunktion</label>
+<p class="why">Bei gleicher Ausbildung entscheidet die Funktion stärker über den Lohn als der Abschluss: der Schritt ins Kader ist beim Hochschulabschluss 5'764 Franken im Monat wert, der ganze Abstand von der Berufslehre zur Universität sind 2'483.</p>
+<select id="f_kader" name="kader"><option value=""></option><option>Keine Führungsfunktion</option><option>Oberes oder mittleres Kader</option><option>Oberste Führung</option></select>
+</div>
+<div class="f">
+<label for="f_sector">Branche</label>
+<p class="why">Nur nötig, wenn Sie oberste Führung angegeben haben: dort liegt zwischen Gastronomie und Banken der Faktor sechs, und ohne die Branche sagt die Zahl fast nichts.</p>
+<select id="f_sector" name="sector"><option value=""></option><option>Banken</option><option>Pharmaindustrie</option><option>Versicherungen</option><option>Informationstechnologie</option><option>Maschinenbau</option><option>Beherbergung</option><option>Gastronomie</option><option>andere Branche</option></select>
+</div>
+<div class="f">
+<label for="f_education">Ausbildung und Stärken</label>
+<p class="why">Was Sie können, ist eine Position wie jede andere. Hier steht das, wofür es oben keine Kategorie gibt.</p>
+<textarea id="f_education" name="education"></textarea>
+</div>
+<div class="f">
+<label for="f_education_recent">Weiterbildung, laufend oder geplant</label>
+<p class="why">Bei einem Wohnziel, das am Einkommen scheitert, ist das oft der einzige Hebel, der wirkt.</p>
+<textarea id="f_education_recent" name="education_recent"></textarea>
+</div>
+<div class="f">
+<label for="f_education_budget">Budget dafür</label>
+<p class="why">Pro Jahr.</p>
+<input id="f_education_budget" name="education_budget" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_hours_learning">Lernen und Weiterbildung pro Woche</label>
+<p class="why">Der Knick liegt bei 20 Stunden: darunter zahlt jede zusätzliche Stunde noch deutlich, darüber immer weniger.</p>
+<input id="f_hours_learning" name="hours_learning" type="number" step="any"><span class="unit">Stunden/Woche</span>
+</div>
+<div class="f">
+<label for="f_network_people">Menschen, die Sie beruflich weiterempfehlen würden</label>
+<p class="why">Ein Netzwerk ist die Absicherung des Einkommens, die keine Prämie kostet.</p>
+<input id="f_network_people" name="network_people" type="number" step="any">
+</div>
+<div class="f">
+<label for="f_network_reach">Wie weit reichen diese Kontakte?</label>
+<p class="why">Drei Namen aus der Geschäftsleitung sind ein anderes Netzwerk als drei aus dem eigenen Team. Die Anzahl allein kann das nicht unterscheiden.</p>
+<select id="f_network_reach" name="network_reach"><option value=""></option><option>im eigenen Team</option><option>im eigenen Unternehmen</option><option>in der Branche</option><option>über die Branche hinaus</option></select>
+</div>
+<div class="f">
+<label for="f_hours_network">Berufliche Kontakte pro Woche</label>
+<p class="why">Hier liegt der Knick bei 10 Stunden. Mehr als 30 bringt fast nichts.</p>
+<input id="f_hours_network" name="hours_network" type="number" step="any"><span class="unit">Stunden/Woche</span>
+</div>
+<div class="f">
+<label for="f_mandates">Mandate und Nebenerwerbe</label>
+<p class="why">Mehrere kleine, voneinander unabhängige Einkommen sind stabiler als ein grosses.</p>
+<input id="f_mandates" name="mandates" type="number" step="any">
+</div>
+<div class="f">
+<label for="f_health">Gesundheit</label>
+<p class="why">Im Modell eine Finanzgrösse: sie entscheidet, wie lange das Humankapital trägt.</p>
+<select id="f_health" name="health"><option value=""></option><option>1 — sehr gut</option><option>0.85</option><option>0.7</option><option>0.5</option><option>eingeschränkt</option></select>
+</div>
+<div class="f">
+<label for="f_rest_hours">Erholung pro Woche</label>
+<p class="why">Der Topf, aus dem eine Weiterbildung bezahlt wird.</p>
+<select id="f_rest_hours" name="rest_hours"><option value=""></option><option>unter 10</option><option>10–20</option><option>20–30</option><option>über 30</option></select>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">17</span><h2>Steuern</h2><span class="mark">−</span></header>
+<p class="seclede">Der grösste einzelne Ausgabenposten in fast jedem Plan.</p>
+<div class="fields">
+<div class="f">
+<label for="f_tax_marginal_rate">Grenzsteuersatz, falls bekannt</label>
+<p class="why">Entscheidet, was ein 3a-Beitrag oder ein PK-Einkauf tatsächlich spart.</p>
+<input id="f_tax_marginal_rate" name="tax_marginal_rate" type="number" step="any"><span class="unit">%</span>
+</div>
+<div class="f">
+<label for="f_tax_wealth">Vermögenssteuer pro Jahr</label>
+<p class="why">Eine Steuer auf den Bestand, nicht auf den Ertrag — bei tiefen Zinsen spürbar.</p>
+<input id="f_tax_wealth" name="tax_wealth" type="number" step="any"><span class="unit">CHF/Jahr</span>
+</div>
+<div class="f">
+<label for="f_tax_deductions_used">Genutzte Abzüge</label>
+<p class="why">3a, Einkauf, Weiterbildung, Liegenschaftsunterhalt, Spenden, Pendlerkosten.</p>
+<textarea id="f_tax_deductions_used" name="tax_deductions_used"></textarea>
+</div>
+<div class="f">
+<label for="f_tax_church">Kirchensteuerpflichtig</label>
+<p class="why">Kantonal verschieden.</p>
+<select id="f_tax_church" name="tax_church"><option value=""></option><option>ja</option><option>nein</option></select>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">18</span><h2>Was noch kommt</h2><span class="mark">−</span></header>
+<p class="seclede">Ein Plan, der die nächsten fünf Jahre nicht kennt, plant an ihnen vorbei.</p>
+<div class="fields">
+<div class="f">
+<label for="f_planned_events">Geplante Veränderungen</label>
+<p class="why">Heirat, Kind, Pensumswechsel, Sabbatical, Umzug, Selbständigkeit, Erbschaft, Trennung — alles, wovon Sie heute schon wissen, auch wenn es unsicher ist.</p>
+<textarea id="f_planned_events" name="planned_events"></textarea>
+</div>
+<div class="f">
+<label for="f_business_succession">Nachfolge im eigenen Unternehmen</label>
+<p class="why">Falls Sie ein Unternehmen haben: was damit geschehen soll, wenn Sie aufhören.</p>
+<textarea id="f_business_succession" name="business_succession"></textarea>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">19</span><h2>Was Sie bereits haben</h2><span class="mark">−</span></header>
+<p class="seclede">Damit nichts doppelt aufgebaut wird und niemand zweimal dasselbe fragt.</p>
+<div class="fields">
+<div class="f">
+<label for="f_investments_detail">Wie ist Ihr Geld angelegt</label>
+<p class="why">Je Anlage: was, bei wem, ungefähr wie viel. Fonds, ETF, Einzelaktien, Sparkonto, Lebensversicherung, Beteiligungen.</p>
+<textarea id="f_investments_detail" name="investments_detail"></textarea>
+</div>
+<div class="f">
+<label for="f_banks">Banken und Vorsorgestiftungen</label>
+<p class="why">Wo Ihre Konten und Depots liegen. Verstreute Konten sind der häufigste Grund, warum eine Übersicht unvollständig bleibt.</p>
+<textarea id="f_banks" name="banks"></textarea>
+</div>
+<div class="f">
+<label for="f_advisors">Wer Sie heute berät</label>
+<p class="why">Bank, Versicherungsberatung, Treuhand, Notariat. Damit niemand gegen jemanden arbeitet, von dem er nichts weiss.</p>
+<textarea id="f_advisors" name="advisors"></textarea>
+</div>
+<div class="f">
+<label for="f_documents_where">Wo Ihre Unterlagen liegen</label>
+<p class="why">Physisch und digital. Eine Vollmacht, die niemand findet, wirkt wie keine.</p>
+<textarea id="f_documents_where" name="documents_where"></textarea>
+</div>
+</div>
+</section>
+<section open-state="1">
+<header><span class="n">20</span><h2>Ihre eigene Frage</h2><span class="mark">−</span></header>
+<p class="seclede">Am Ende, weil die Antwort meistens anders aussieht als die Frage — und weil sie steuert, was zuerst gerechnet wird.</p>
+<div class="fields">
+<div class="f">
+<label for="f_main_question">Was möchten Sie wissen</label>
+<p class="why">In Ihren eigenen Worten, so ungenau wie nötig.</p>
+<textarea id="f_main_question" name="main_question"></textarea>
+</div>
+<div class="f">
+<label for="f_involvement">Wie stark wollen Sie beteiligt sein</label>
+<p class="why">Von «erklären Sie mir alles» bis «machen Sie das».</p>
+<select id="f_involvement" name="involvement"><option value=""></option><option>Ich will alles verstehen</option><option>Die wichtigsten Entscheide</option><option>So wenig wie möglich</option></select>
+</div>
+</div>
+</section>
+<div class="box ok">
+<span class="tag o">Wenn Sie fertig sind</span>
+<p>Speichern Sie die Datei und geben Sie sie weiter. Wer als Paar plant, macht das zweimal — einmal jede Person, beide mit demselben Code aus Abschnitt 01.</p>
+</div>
+</div>
+<div class="bar">
+<button id="save" class="primary" type="button">Als Datei speichern</button>
+<button id="pick" type="button">Datei laden</button>
+<input id="file" type="file" accept="application/json" style="display:none">
+<button id="openall" type="button">Alle öffnen</button>
+<button id="closeall" type="button">Alle schliessen</button>
+<button id="clear" type="button">Zurücksetzen</button>
+<span id="status" class="status"></span>
+</div>
+<script>
+const FIELDS = [{"key": "household_code", "kind": "text"}, {"key": "person_label", "kind": "text"}, {"key": "filling_alone", "kind": "choice"}, {"key": "birth_year", "kind": "number"}, {"key": "canton", "kind": "text"}, {"key": "municipality", "kind": "text"}, {"key": "civil_status", "kind": "choice"}, {"key": "married_since", "kind": "number"}, {"key": "matrimonial_regime", "kind": "choice"}, {"key": "household", "kind": "textarea"}, {"key": "children_birth_years", "kind": "text"}, {"key": "child_costs", "kind": "number"}, {"key": "dependants_other", "kind": "textarea"}, {"key": "alimony", "kind": "textarea"}, {"key": "nationality", "kind": "text"}, {"key": "permit", "kind": "choice"}, {"key": "years_in_switzerland", "kind": "number"}, {"key": "plans_to_leave", "kind": "choice"}, {"key": "employment", "kind": "choice"}, {"key": "self_employed_form", "kind": "choice"}, {"key": "employer", "kind": "text"}, {"key": "income_gross", "kind": "number"}, {"key": "income_variable", "kind": "number"}, {"key": "pensum", "kind": "number"}, {"key": "work_until_age", "kind": "number"}, {"key": "company_value", "kind": "number"}, {"key": "company_income", "kind": "number"}, {"key": "income_other", "kind": "textarea"}, {"key": "thirteenth_salary", "kind": "choice"}, {"key": "ahv_years_missing", "kind": "number"}, {"key": "ahv_years_abroad", "kind": "number"}, {"key": "ahv_mdje_known", "kind": "number"}, {"key": "ahv_ik_requested", "kind": "choice"}, {"key": "care_credit_years", "kind": "number"}, {"key": "pillar2_fund", "kind": "text"}, {"key": "pillar2", "kind": "number"}, {"key": "pillar2_obligatory_part", "kind": "number"}, {"key": "pillar2_buyin", "kind": "number"}, {"key": "pillar2_voluntary", "kind": "choice"}, {"key": "pillar2_conversion_rate", "kind": "number"}, {"key": "pillar2_early_retirement_age", "kind": "number"}, {"key": "pillar2_wef_taken", "kind": "number"}, {"key": "pillar2_survivor_cover", "kind": "number"}, {"key": "pillar2_disability_cover", "kind": "number"}, {"key": "pillar3a_total", "kind": "number"}, {"key": "pillar3a_accounts", "kind": "number"}, {"key": "pillar3a_contribution", "kind": "number"}, {"key": "pillar3a_in_securities", "kind": "number"}, {"key": "pillar3b", "kind": "number"}, {"key": "other_debt", "kind": "textarea"}, {"key": "debt_private", "kind": "textarea"}, {"key": "cash", "kind": "number"}, {"key": "securities", "kind": "number"}, {"key": "crypto_value", "kind": "number"}, {"key": "gold_value", "kind": "number"}, {"key": "loans_given", "kind": "number"}, {"key": "loans_given_risk", "kind": "textarea"}, {"key": "inheritance_expected", "kind": "textarea"}, {"key": "spend_now", "kind": "number"}, {"key": "spend_later", "kind": "number"}, {"key": "tax_paid", "kind": "number"}, {"key": "one_off_planned", "kind": "textarea"}, {"key": "insurance_life", "kind": "number"}, {"key": "insurance_disability", "kind": "number"}, {"key": "insurance_ktg", "kind": "choice"}, {"key": "insurance_health_model", "kind": "text"}, {"key": "insurance_other", "kind": "textarea"}, {"key": "legal_will", "kind": "choice"}, {"key": "legal_marriage_contract", "kind": "choice"}, {"key": "legal_cohabitation", "kind": "choice"}, {"key": "legal_power_of_attorney", "kind": "choice"}, {"key": "legal_patient_decree", "kind": "choice"}, {"key": "legal_beneficiary", "kind": "choice"}, {"key": "max_loss_pct", "kind": "number"}, {"key": "expected_return_pct", "kind": "number"}, {"key": "crisis_behaviour", "kind": "choice"}, {"key": "investment_experience", "kind": "textarea"}, {"key": "liquidity_reserve_months", "kind": "number"}, {"key": "esg_exclusions", "kind": "textarea"}, {"key": "esg_minimum", "kind": "choice"}, {"key": "esg_why", "kind": "textarea"}, {"key": "goals", "kind": "textarea"}, {"key": "goal_occupancy", "kind": "choice"}, {"key": "goal_confidence", "kind": "choice"}, {"key": "plan_until_age", "kind": "number"}, {"key": "qualification_highest", "kind": "choice"}, {"key": "qualification_year", "kind": "number"}, {"key": "years_in_field", "kind": "number"}, {"key": "kader", "kind": "choice"}, {"key": "sector", "kind": "choice"}, {"key": "education", "kind": "textarea"}, {"key": "education_recent", "kind": "textarea"}, {"key": "education_budget", "kind": "number"}, {"key": "hours_learning", "kind": "number"}, {"key": "network_people", "kind": "number"}, {"key": "network_reach", "kind": "choice"}, {"key": "hours_network", "kind": "number"}, {"key": "mandates", "kind": "number"}, {"key": "health", "kind": "choice"}, {"key": "rest_hours", "kind": "choice"}, {"key": "tax_marginal_rate", "kind": "number"}, {"key": "tax_wealth", "kind": "number"}, {"key": "tax_deductions_used", "kind": "textarea"}, {"key": "tax_church", "kind": "choice"}, {"key": "planned_events", "kind": "textarea"}, {"key": "business_succession", "kind": "textarea"}, {"key": "investments_detail", "kind": "textarea"}, {"key": "banks", "kind": "textarea"}, {"key": "advisors", "kind": "textarea"}, {"key": "documents_where", "kind": "textarea"}, {"key": "main_question", "kind": "textarea"}, {"key": "involvement", "kind": "choice"}];
+const REPEATS = [{"key": "properties", "label": "Objekt", "fields": [{"key": "kind", "label": "Art", "kind": "choice", "options": ["Wohnung", "Einfamilienhaus", "Ferienobjekt", "Bauland", "anderes"], "unit": ""}, {"key": "place", "label": "Ort", "kind": "text", "options": [], "unit": ""}, {"key": "value", "label": "Verkehrswert", "kind": "number", "options": [], "unit": "CHF"}, {"key": "occupancy", "label": "Nutzung", "kind": "choice", "options": ["Ich wohne selbst darin", "Ein Zweit- oder Ferienobjekt", "Ich vermiete es"], "unit": ""}, {"key": "own_share", "label": "Ihr Anteil", "kind": "number", "options": [], "unit": "%"}, {"key": "mortgage", "label": "Hypothek", "kind": "number", "options": [], "unit": "CHF"}, {"key": "rate", "label": "Zinssatz", "kind": "number", "options": [], "unit": "%"}, {"key": "fixed_until", "label": "Fest bis", "kind": "number", "options": [], "unit": "Jahr"}, {"key": "amortisation", "label": "Amortisation pro Jahr", "kind": "number", "options": [], "unit": "CHF"}, {"key": "amortisation_kind", "label": "Art der Amortisation", "kind": "choice", "options": ["direkt", "indirekt über Säule 3a", "keine"], "unit": ""}, {"key": "rent_income", "label": "Mieteinnahmen", "kind": "number", "options": [], "unit": "CHF/Jahr"}, {"key": "renovation_due", "label": "Anstehender Unterhalt", "kind": "text", "options": [], "unit": ""}]}];
+const KEY = 'eigentlichIntakeDraft';
+
+function values() {
+  const out = {};
+  for (const f of FIELDS) {
+    const el = document.getElementById('f_' + f.key);
+    if (!el) continue;
+    const v = String(el.value).trim();
+    if (v !== '') out[f.key] = (f.kind === 'number' && !isNaN(Number(v))) ? Number(v) : v;
+  }
+  for (const r of REPEATS) {
+    const rows = [];
+    for (const node of document.querySelectorAll('[data-repeat="' + r.key + '"] .row')) {
+      const row = {};
+      for (const fd of r.fields) {
+        const el = node.querySelector('[data-sub="' + fd.key + '"]');
+        if (!el) continue;
+        const v = String(el.value).trim();
+        if (v !== '') row[fd.key] = (fd.kind === 'number' && !isNaN(Number(v))) ? Number(v) : v;
+      }
+      if (Object.keys(row).length) rows.push(row);
+    }
+    if (rows.length) out[r.key] = rows;
+  }
+  return out;
+}
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(values())); } catch (e) {} }
+function say(t) { document.getElementById('status').textContent = t; }
+
+function addRow(key, data) {
+  const host = document.querySelector('[data-repeat="' + key + '"]');
+  const spec = REPEATS.find(r => r.key === key);
+  const node = document.createElement('div');
+  node.className = 'row';
+  let html = '<div class="rowhead"><b></b><button type="button" class="drop">entfernen</button></div>'
+           + '<div class="grid">';
+  for (const fd of spec.fields) {
+    // In a two-column row the input is full width, so a trailing unit wraps onto its own line.
+    // It goes in the label instead, where it reads as part of the question.
+    const lab = fd.label + (fd.unit ? ' <span class="unit">' + fd.unit + '</span>' : '');
+    let ctl;
+    if (fd.kind === 'choice') {
+      ctl = '<select data-sub="' + fd.key + '"><option value=""></option>'
+          + fd.options.map(o => '<option>' + o + '</option>').join('') + '</select>';
+    } else {
+      ctl = '<input data-sub="' + fd.key + '" type="'
+          + (fd.kind === 'number' ? 'number" step="any' : 'text') + '">';
+    }
+    html += '<div class="f"><label>' + lab + '</label>' + ctl + '</div>';
+  }
+  node.innerHTML = html + '</div>';
+  host.appendChild(node);
+  node.querySelector('.drop').addEventListener('click', () => { node.remove(); renumber(key); save(); });
+  if (data) {
+    for (const [k, v] of Object.entries(data)) {
+      const el = node.querySelector('[data-sub="' + k + '"]');
+      if (el) el.value = v;
+    }
+  }
+  renumber(key);
+  return node;
+}
+
+function renumber(key) {
+  const spec = REPEATS.find(r => r.key === key);
+  document.querySelectorAll('[data-repeat="' + key + '"] .row').forEach((n, i) => {
+    n.querySelector('.rowhead b').textContent = spec.label + ' ' + (i + 1);
+  });
+}
+
+function fill(raw) {
+  let n = 0;
+  for (const [k, v] of Object.entries(raw)) {
+    const spec = REPEATS.find(r => r.key === k);
+    if (spec && Array.isArray(v)) {
+      document.querySelectorAll('[data-repeat="' + k + '"] .row').forEach(x => x.remove());
+      v.forEach(row => { addRow(k, row); n++; });
+      continue;
+    }
+    const el = document.getElementById('f_' + k);
+    if (el) { el.value = v; n++; }
+  }
+  return n;
+}
+
+function download() {
+  const payload = {
+    schema_version: 'intake@1.1',
+    meta: { collected: new Date().toISOString().slice(0, 10), source: 'intake.html' },
+    raw: values()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const who = (payload.raw.person_label || 'bogen').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  // `eigentlich-` since 21 September 2026. The 60 files already collected keep their `andersch-`
+  // prefix: a submission's filename is the record of what was received, and `load_submission`
+  // keys on the `onboarding-` marker rather than on the brand, so both load without a glob change.
+  a.download = 'eigentlich-' + who + '-' + payload.meta.collected + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  say('Gespeichert.');
+}
+
+function toggle(s, open) {
+  s.setAttribute('open-state', open ? '1' : '0');
+  s.querySelectorAll('.fields,.seclede,.rows,.addrow').forEach(function (n) {
+    n.style.display = open ? '' : 'none';
+  });
+  const m = s.querySelector('.mark'); if (m) m.textContent = open ? '\u2212' : '+';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('section').forEach(function (s) {
+    s.querySelector('header').addEventListener('click', function () {
+      toggle(s, s.getAttribute('open-state') !== '1');
+    });
+  });
+  document.querySelectorAll('.addrow button').forEach(function (b) {
+    b.addEventListener('click', function () { addRow(b.dataset.key); save(); });
+  });
+  document.addEventListener('input', save);
+  document.getElementById('save').addEventListener('click', download);
+  document.getElementById('openall').addEventListener('click', function () {
+    document.querySelectorAll('section').forEach(function (s) { toggle(s, true); });
+  });
+  document.getElementById('closeall').addEventListener('click', function () {
+    document.querySelectorAll('section').forEach(function (s) { toggle(s, false); });
+  });
+  document.getElementById('pick').addEventListener('click', function () {
+    document.getElementById('file').click();
+  });
+  document.getElementById('file').addEventListener('change', function (e) {
+    const file = e.target.files[0]; if (!file) return;
+    const r = new FileReader();
+    r.onload = function () {
+      try { const d = JSON.parse(r.result); say('Geladen: ' + fill(d.raw || d) + ' Angaben.'); save(); }
+      catch (err) { say('Diese Datei liess sich nicht lesen.'); }
+    };
+    r.readAsText(file);
+  });
+  document.getElementById('clear').addEventListener('click', function () {
+    if (!confirm('Alle Angaben in diesem Browser loeschen?')) return;
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    FIELDS.forEach(function (f) { const el = document.getElementById('f_' + f.key); if (el) el.value = ''; });
+    REPEATS.forEach(function (r) {
+      document.querySelectorAll('[data-repeat="' + r.key + '"] .row').forEach(function (n) { n.remove(); });
+    });
+    say('Geloescht.');
+  });
+
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+  if (saved) say('Entwurf wiederhergestellt: ' + fill(saved) + ' Angaben.');
+  REPEATS.forEach(function (r) {
+    if (!document.querySelector('[data-repeat="' + r.key + '"] .row')) addRow(r.key);
+  });
+});
+</script>

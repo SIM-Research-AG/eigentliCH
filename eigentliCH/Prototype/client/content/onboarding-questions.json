@@ -1,0 +1,967 @@
+{
+ "_about": {
+  "requirement": "S-01. Establish enough to render the role grid with at least one position and one goal (R-102).",
+  "decision": "A25 / A31 — reconsidered against Position and Goal rather than re-pointed from the existing 78. Reviewed by Nicolas Bürkler on 30 August 2026.",
+  "provenance": "Wording marked `carried` is verbatim from client/reference/questions-onb-0.1.3.json, which was refined across five schema versions and three real interviews. `reworded` and `new` are drafts.",
+  "language": "German is the authored language (A12). English is a draft translation and is marked as such.",
+  "resumability": "R-101 — partial state persists PER QUESTION, not per session. Each answer is its own row; see OnboardingAnswer.",
+  "required": "Only `employment_position` is required. R-020 makes a position valid with one row filled, and R-102 asks for one Position and a Goal only IF stated. Household composition is asked FIRST and is still not required: a member who skips it gets a plan, and every finding that rests on it reports that it could not be determined rather than assuming a household of one (A108).",
+  "open": "The original questionnaire opened with `goal_kinds`, a multi-select that GATED everything after it — 'Was Sie hier nicht antippen, wird später nicht abgefragt'. That gating is what made 78 questions tolerable. It is dropped here on the claim that the role grid does the same job better: a member adds a cell when ready rather than declaring up front what they will be asked. That is a claim, not a fact, and it is the largest departure in this file.",
+  "household_first": "Item 3 of the update script: 'Household composition is asked first, before anything else. The AHV path, the tax path and goal ownership all depend on it.' It is `order: 0` rather than renumbering the four that were here, so the existing orders keep matching the wording they were refined with.",
+  "five_keys": "Added 4 September 2026. `tools/load_submission.py` had reported the same five as unstorable against every real submission since 30 August; the owner named them and they are carried verbatim from the reference questionnaire rather than redrafted. All five are `required: false` and ordered AFTER the existing five, so the light-intake floor does not move — which is what the sim-tech task asked to be confirmed rather than assumed. They fill `member_fact` rather than a column, so a sixth key is an entry in this file and no code at all.",
+  "_note_human_capital": "Eight questions added 6 September 2026 so that the three person-scoped capitals E, N and H can be computed from what a member said rather than from a state block someone filled in by hand. Five feed expertise and responsibility, one feeds the network, two feed the time budget. No code changed to add them: `services/member_fact` reads its registry from this file, which is the property that was built and tested for exactly this."
+ },
+ "version": "onb2@0.1.0",
+ "questions": [
+  {
+   "key": "household_composition",
+   "order": 0,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "update script v2.1, item 3",
+   "type": "household",
+   "fills": {
+    "entity": "household",
+    "field": "composition"
+   },
+   "question": {
+    "de": "Wer gehört zu Ihrem Haushalt?",
+    "en": "Who is in your household?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Das steht am Anfang, weil daran drei Dinge hängen, die sich sonst nicht herleiten lassen: der AHV-Weg, der Steuerweg und die Frage, wem ein Ziel gehört. Es ist die einzige Angabe, die das System nicht selbst bemerken kann, wenn sie sich ändert.",
+    "en": "This comes first because three things hang on it that cannot be derived otherwise: the AHV path, the tax path, and whose goal is whose. It is the one input the system cannot notice changing on its own.",
+    "en_draft": true
+   },
+   "_shape": {
+    "value": "{ adults: [label, ...], dependants: [label, ...], as_of: 'YYYY-MM-DD' }",
+    "first_adult_is_the_member": "The member answering is the first adult, and `services/onboarding` is what attaches their account to that row. The client does not send a member id: it does not have one to send that the server would trust, and a composition that named an account would be a composition a client could point at somebody else.",
+    "as_of": "The date the composition DESCRIBES, not the day it was typed — a curator recording a session held last week stamps last week, and every currency judgement downstream measures from this end. See models/household.py.",
+    "why_not_written_on_answer": "`record_answer` writes one row and no plan mutation, by design. A Household is `PlanMutable`, so writing one needs a Decision (C-09) — it is therefore written by `complete()`, in the same transaction as the first Position and Goal. The ANSWER is still stored the moment it is given, which is what R-101's resumability actually asks for."
+   }
+  },
+  {
+   "key": "employment_position",
+   "order": 1,
+   "required": true,
+   "provenance": "reworded",
+   "derived_from": "employment",
+   "type": "text",
+   "fills": {
+    "entity": "position",
+    "field": "label",
+    "role": "income",
+    "capital_type": "human"
+   },
+   "question": {
+    "de": "Womit verdienen Sie heute Ihr Geld?",
+    "en": "How do you earn your money today?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Das ist Ihre erste Position: Ihre Arbeitskraft, eingesetzt für Einkommen. Sie steht im Raster unter Einkommen — menschliches Kapital, weil sie an Ihnen hängt und nicht an einem Konto.",
+    "en": "This is your first position: your capacity to work, put to earning. It sits in the grid under Income — human capital, because it belongs to you rather than to an account.",
+    "en_draft": true
+   },
+   "_note": "The original asked 'angestellt oder selbständig' as a dropdown because it routed pension logic. That is a Position.description detail now, not the question. The member names their own position rather than picking a category."
+  },
+  {
+   "key": "employment_magnitude",
+   "order": 2,
+   "required": false,
+   "provenance": "carried",
+   "derived_from": "income_gross",
+   "type": "number",
+   "unit": "chf_per_year",
+   "min": 0,
+   "max": 5000000,
+   "fills": {
+    "entity": "position",
+    "field": "magnitude",
+    "magnitude_unit": "chf_per_year"
+   },
+   "question": {
+    "de": "Ihr Bruttoeinkommen pro Jahr?",
+    "en": "Your gross income per year?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Wenn Sie eine Zahl nennen, nutzt das Modell sie direkt statt der Ableitung aus Bildung und Netzwerk.",
+    "en": "If you give a figure, the model uses it directly rather than deriving one from education and network.",
+    "en_draft": true
+   },
+   "_note": "Wording untouched from the original. Skippable — A30: a position without an amount is a full position."
+  },
+  {
+   "key": "employment_time_basis",
+   "order": 3,
+   "required": false,
+   "provenance": "carried",
+   "derived_from": "hours_per_week",
+   "type": "number",
+   "unit": "hours_per_week",
+   "min": 0,
+   "max": 100,
+   "fills": {
+    "entity": "position",
+    "field": "time_basis"
+   },
+   "question": {
+    "de": "Wie viele Stunden pro Woche arbeiten Sie tatsächlich? Ehrlich gezählt — inklusive Reisen und Abendveranstaltungen.",
+    "en": "How many hours a week do you actually work? Counted honestly — including travel and evening events.",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Bei menschlichem Kapital ist Zeit die bindende Grenze. Was Sie können, nützt nur so weit, wie Stunden da sind.",
+    "en": "For human capital, time is the binding constraint. What you can do only helps as far as the hours reach.",
+    "en_draft": true
+   },
+   "_note": "Question wording carried; the why line is REWRITTEN. The original read 'das Modell rechnet mit rund 100 verfügbaren Stunden und bestraft Dauerbelastung über etwa 50' — two figures, which under C-02 belong in a versioned AssumptionSet rather than in a question. The replacement makes the same point without asserting a number the code cannot show the source of."
+  },
+  {
+   "key": "first_goal",
+   "order": 4,
+   "required": false,
+   "provenance": "reworded",
+   "derived_from": "goals + goal_kinds",
+   "type": "goal_template",
+   "fills": {
+    "entity": "goal",
+    "field": "name",
+    "template_field": "template"
+   },
+   "question": {
+    "de": "Auf welches finanzielle Ziel arbeiten Sie hin? Wählen Sie eines aus — oder benennen Sie Ihr eigenes.",
+    "en": "What financial goal are you working toward? Choose one — or name your own.",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Ein Ziel genügt für den Anfang. Sie können später weitere erfassen und dieses jederzeit ändern, und ein Ziel darf dieselben Mittel beanspruchen wie ein anderes — Ihr Vermögen wird nicht aufgeteilt.",
+    "en": "One goal is enough to begin with. You can record more later and change this one at any time, and one goal may draw on the same holdings as another — your wealth is not divided up.",
+    "en_draft": true
+   },
+   "_note": "Wording is the owner's own, given on 31 August 2026 after testing the application: «Auf welches finanzielle Ziel arbeiten Sie hin würde besser sein». The question it replaces was «Wofür ist das Geld da?», and the reason it was wrong is worth keeping — asking what the money is FOR invites an expense (a kitchen, a car), and an expense stored in a Goal is not what a Goal models. Asking what the member is working TOWARD asks for the thing Goal actually holds.",
+   "_note_why": "The `why` line still fits — both sentences are R-030 work, and the member is told in the question that creates their first goal that goals never partition holdings. One clause was added: that this goal can be changed later. That was not true when the line was written (there was no route), it is now, and a member deciding what to type is exactly who needs to know it.",
+   "_note_type": "`goal_template` rather than `text`, and the second half of the owner's report: «We have the potential goals already defined and when in the onboarding the system ask for a goal, then we should immediately fill that goal out.» The answer is `{\"template\": <key>, \"name\": <text>}` and `services/onboarding.complete` writes both onto the Goal. A plain string is still accepted and still lands as a name with no template — that is what every answer stored before this change looks like, and re-pointing them would be inventing a template the member never chose.",
+   "_note_dropped": "«mit Jahr und Betrag, wenn Sie beides schon wissen» is gone. Onboarding never stored a year or an amount: `fills` names one field, so «Wohneigentum 2031» became the goal's NAME. The question was asking for two things it then threw into one string, and the goal screen (S-04) has real fields for both."
+  },
+  {
+   "key": "canton",
+   "order": 5,
+   "required": false,
+   "provenance": "carried",
+   "derived_from": "canton",
+   "type": "choice",
+   "options": [
+    {
+     "value": "Aargau",
+     "label": {
+      "de": "Aargau"
+     }
+    },
+    {
+     "value": "Appenzell Ausserrhoden",
+     "label": {
+      "de": "Appenzell Ausserrhoden"
+     }
+    },
+    {
+     "value": "Appenzell Innerrhoden",
+     "label": {
+      "de": "Appenzell Innerrhoden"
+     }
+    },
+    {
+     "value": "Basel-Landschaft",
+     "label": {
+      "de": "Basel-Landschaft"
+     }
+    },
+    {
+     "value": "Basel-Stadt",
+     "label": {
+      "de": "Basel-Stadt"
+     }
+    },
+    {
+     "value": "Bern",
+     "label": {
+      "de": "Bern"
+     }
+    },
+    {
+     "value": "Freiburg",
+     "label": {
+      "de": "Freiburg"
+     }
+    },
+    {
+     "value": "Genf",
+     "label": {
+      "de": "Genf"
+     }
+    },
+    {
+     "value": "Glarus",
+     "label": {
+      "de": "Glarus"
+     }
+    },
+    {
+     "value": "Graubünden",
+     "label": {
+      "de": "Graubünden"
+     }
+    },
+    {
+     "value": "Jura",
+     "label": {
+      "de": "Jura"
+     }
+    },
+    {
+     "value": "Luzern",
+     "label": {
+      "de": "Luzern"
+     }
+    },
+    {
+     "value": "Neuchâtel",
+     "label": {
+      "de": "Neuchâtel"
+     }
+    },
+    {
+     "value": "Nidwalden",
+     "label": {
+      "de": "Nidwalden"
+     }
+    },
+    {
+     "value": "Obwalden",
+     "label": {
+      "de": "Obwalden"
+     }
+    },
+    {
+     "value": "Schaffhausen",
+     "label": {
+      "de": "Schaffhausen"
+     }
+    },
+    {
+     "value": "Schwyz",
+     "label": {
+      "de": "Schwyz"
+     }
+    },
+    {
+     "value": "Solothurn",
+     "label": {
+      "de": "Solothurn"
+     }
+    },
+    {
+     "value": "St. Gallen",
+     "label": {
+      "de": "St. Gallen"
+     }
+    },
+    {
+     "value": "Tessin",
+     "label": {
+      "de": "Tessin"
+     }
+    },
+    {
+     "value": "Thurgau",
+     "label": {
+      "de": "Thurgau"
+     }
+    },
+    {
+     "value": "Uri",
+     "label": {
+      "de": "Uri"
+     }
+    },
+    {
+     "value": "Waadt",
+     "label": {
+      "de": "Waadt"
+     }
+    },
+    {
+     "value": "Wallis",
+     "label": {
+      "de": "Wallis"
+     }
+    },
+    {
+     "value": "Zug",
+     "label": {
+      "de": "Zug"
+     }
+    },
+    {
+     "value": "Zürich",
+     "label": {
+      "de": "Zürich"
+     }
+    },
+    {
+     "value": "Wohnsitz im Ausland",
+     "label": {
+      "de": "Wohnsitz im Ausland"
+     }
+    }
+   ],
+   "fills": {
+    "entity": "member_fact",
+    "key": "canton",
+    "data_class": "K1"
+   },
+   "question": {
+    "de": "In welchem Kanton wohnen Sie?",
+    "en": "Which canton do you live in?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Für die Steuerberechnung. Zwischen Zug und Genf liegt bei gleichem Einkommen ein Faktor, der jeden Plan verändert — deshalb sind alle 26 aufgeführt und nicht die grössten acht.",
+    "en": "For the tax calculation. Between Zug and Geneva the same income carries a factor that changes every plan — which is why all 26 are listed rather than the largest eight.",
+    "en_draft": true
+   },
+   "_note": "One of the five keys the owner named on 4 September 2026. Wording, options and reason are verbatim from the reference questionnaire; nothing here was drafted.",
+   "_note_options": "Twenty-seven options, not twenty-six. The reference ends with «Wohnsitz im Ausland», and it is carried: a member living abroad has no canton and needs an answer that says so, rather than picking the one they left. Storing that under the key `canton` reads oddly and is the instrument's own shape."
+  },
+  {
+   "key": "civil_status",
+   "order": 6,
+   "required": false,
+   "provenance": "carried",
+   "derived_from": "civil_status",
+   "type": "choice",
+   "options": [
+    {
+     "value": "ledig",
+     "label": {
+      "de": "ledig"
+     }
+    },
+    {
+     "value": "ledig, mit Partner",
+     "label": {
+      "de": "ledig, mit Partner"
+     }
+    },
+    {
+     "value": "verheiratet",
+     "label": {
+      "de": "verheiratet"
+     }
+    },
+    {
+     "value": "eingetragene Partnerschaft",
+     "label": {
+      "de": "eingetragene Partnerschaft"
+     }
+    },
+    {
+     "value": "geschieden",
+     "label": {
+      "de": "geschieden"
+     }
+    },
+    {
+     "value": "verwitwet",
+     "label": {
+      "de": "verwitwet"
+     }
+    }
+   ],
+   "fills": {
+    "entity": "member_fact",
+    "key": "civil_status",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Und Ihr Zivilstand?",
+    "en": "And your civil status?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Bei unverheirateten Paaren gibt es kein gesetzliches Erbrecht — das ist oft die grösste Lücke im ganzen Plan.",
+    "en": "Unmarried couples have no statutory right of inheritance — often the largest gap in the whole plan.",
+    "en_draft": true
+   },
+   "_note": "One of the five keys the owner named on 4 September 2026. Carried verbatim.",
+   "_note_options": "Six options, and the second one is the reason to carry rather than redraft. «ledig, mit Partner» is not a legal civil status — it is a legal status plus a living arrangement — and a five-option set of the legal statuses alone could not hold it. One of the six real submissions answers exactly that, so a tidier list would have recorded a false answer, which is the Renzo case again. It is kept, and the partner also appears as a second adult in `household_composition`; the two are not reconciled here and must not be, since a member may state either without the other."
+  },
+  {
+   "key": "education",
+   "order": 7,
+   "required": false,
+   "provenance": "carried",
+   "derived_from": "education",
+   "type": "text",
+   "fills": {
+    "entity": "member_fact",
+    "key": "education",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Ihre Ausbildung — und worin Sie tatsächlich zu den Besten gehören.",
+    "en": "Your education — and what you are genuinely among the best at.",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Die zweite Hälfte ist die wichtigere. „Ich kann eine Organisation durch eine Restrukturierung führen“ ist eine brauchbare Antwort.",
+    "en": "The second half is the more important one. “I can lead an organisation through a restructuring” is a usable answer.",
+    "en_draft": true
+   },
+   "_note": "One of the five keys the owner named on 4 September 2026. Carried verbatim.",
+   "_note_not_scored": "Stored and never scored. `services/identities.expertise_scale` reads the FOUR STRUCTURED answers around this question — education_recent, education_planned, education_hours, education_budget — and its docstring states that the free-text answer is not read there and must not be, because scoring free text deterministically is impossible and a language model doing it is the line the schema draws. Those four are not among the five keys and remain unstored."
+  },
+  {
+   "key": "network_people",
+   "order": 8,
+   "required": false,
+   "provenance": "carried",
+   "derived_from": "network_people",
+   "type": "number",
+   "unit": "Personen",
+   "min": 0,
+   "max": 200,
+   "fills": {
+    "entity": "member_fact",
+    "key": "network_people",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Wie viele Menschen könnten Sie diese Woche anrufen und um etwas Substanzielles bitten — und würden es tun?",
+    "en": "How many people could you call this week and ask for something substantial — and would actually do it?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Nicht die Zahl der Kontakte, sondern der belastbaren. Dieser Wert hat oft den grössten Spielraum von allen.",
+    "en": "Not the number of contacts, but of the ones that hold. This value often has the most room of any of them.",
+    "en_draft": true
+   },
+   "_note": "One of the five keys the owner named on 4 September 2026. Carried verbatim, including the bounds.",
+   "_note_mandates": "`services/identities.net_scale` takes people AND mandates, and `mandates` is a sixth question in the reference file with the same section and group. It is deliberately not added: the owner named five. Adding it is now one entry in this file and no code at all, which is the point of building it this way."
+  },
+  {
+   "key": "health",
+   "order": 9,
+   "required": false,
+   "provenance": "carried",
+   "derived_from": "health",
+   "type": "number",
+   "min": 0,
+   "max": 1,
+   "fills": {
+    "entity": "member_fact",
+    "key": "health",
+    "data_class": "K3"
+   },
+   "question": {
+    "de": "Wie beurteilen Sie Ihre Belastbarkeit — von 0 bis 1?",
+    "en": "How would you assess your resilience — from 0 to 1?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Gesundheit ist im Modell ein Multiplikator direkt auf Ihr Einkommen. 0,85 heisst „gut, aber ich merke etwas“.",
+    "en": "In the model, health is a multiplier directly on your income. 0.85 means “good, but I notice something”.",
+    "en_draft": true
+   },
+   "_note": "One of the five keys the owner named on 4 September 2026. Carried verbatim, and asked LAST of the five deliberately: it is the most intrusive question in the instrument and there is no reason for it to stand between a member and the rest.",
+   "_note_class": "The only K3 answer collected anywhere in the intake. A person's own statement about their body is the most sensitive value this application stores, and `models/member_fact.py` classifies the whole entity K3 on account of this one key so that the C-04 log filter — which drops by field NAME — covers it.",
+   "_note_not_a_score": "**A bounded number, not a scale the member is placed on.** Never rendered as a position, a bar or a comparison, and never set beside another member's. C-07 and R-113 forbid scoring a member, and a 0-to-1 figure about a person is one render away from being a score of them - so the rule is about the RENDERING and it is unchanged. The member's own self-assessment, on D-01's treatment of capabilities: never tested, never graded, never compared.",
+   "_note_why_not_a_list": "Seven discrete readings until 21 September 2026 - 0.60, 0.70, 0.80, 0.85, 0.90, 0.95, 1.00 - and the ruling that removed them is A173. The list was irregular: coarse below 0.80 and fine above it, with a gap between 0.70 and 0.80 and none anywhere else. Four of fifty submissions answered 0.75 and landed exactly in it, and R-020 forbids rounding a member's own answer to the nearest option, so all four were refused at `onboarding.complete` and could not be loaded at all. The owner's ruling: any number between 0 and 1. `services/human_capital.py` already read a bare number in that range - 'Read as a bare number; not a published option' - so the instrument was the only thing refusing what the model could already use."
+  },
+  {
+   "key": "matrimonial_regime",
+   "order": 10,
+   "required": false,
+   "provenance": "restored",
+   "derived_from": "matrimonial_regime, dropped by onb@0.1.3",
+   "type": "choice",
+   "options": [
+    {
+     "value": "errungenschaftsbeteiligung",
+     "label": {
+      "de": "Errungenschaftsbeteiligung (der Normalfall)"
+     }
+    },
+    {
+     "value": "gütertrennung",
+     "label": {
+      "de": "Gütertrennung"
+     }
+    },
+    {
+     "value": "gütergemeinschaft",
+     "label": {
+      "de": "Gütergemeinschaft"
+     }
+    },
+    {
+     "value": "weiss ich nicht",
+     "label": {
+      "de": "Weiss ich nicht"
+     }
+    }
+   ],
+   "fills": {
+    "entity": "member_fact",
+    "key": "matrimonial_regime",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Falls Sie verheiratet sind: welcher Güterstand gilt?",
+    "en": "If you are married: which matrimonial property regime applies?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Der Güterstand entscheidet, wem das Vermögen bei einer Trennung oder im Todesfall gehört. Ohne Ehevertrag gilt die Errungenschaftsbeteiligung — viele wissen das nicht, und «weiss ich nicht» ist hier eine ehrlichere Antwort als eine geratene.",
+    "en": "The regime decides who owns what on a separation or a death. Without a marriage contract it is Errungenschaftsbeteiligung — many people do not know that, and «I don't know» is a more honest answer here than a guessed one.",
+    "en_draft": true
+   },
+   "_note": "Restored 5 September 2026, one of the eighteen `onb@0.1.3` dropped (A138). It has a home today because a `member_fact` is a free key at a declared data class, and A127's mechanism makes that one entry and no code. **The fourth option is deliberate**: A112 already freezes a jointly owned goal rather than splitting it by any rule, so a wrong regime is worse than a missing one."
+  },
+  {
+   "key": "self_employed_form",
+   "order": 11,
+   "required": false,
+   "provenance": "restored",
+   "derived_from": "self_employed_form, dropped by onb@0.1.3",
+   "type": "choice",
+   "options": [
+    {
+     "value": "einzelfirma",
+     "label": {
+      "de": "Einzelfirma"
+     }
+    },
+    {
+     "value": "gmbh",
+     "label": {
+      "de": "GmbH"
+     }
+    },
+    {
+     "value": "ag",
+     "label": {
+      "de": "AG"
+     }
+    },
+    {
+     "value": "nicht selbständig",
+     "label": {
+      "de": "Ich bin nicht selbständig"
+     }
+    }
+   ],
+   "fills": {
+    "entity": "member_fact",
+    "key": "self_employed_form",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Falls Sie selbständig sind: in welcher Form?",
+    "en": "If you are self-employed: in what form?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Die Rechtsform entscheidet, welche Vorsorgeregeln überhaupt gelten. Wer eine AG oder GmbH führt, ist arbeitsrechtlich angestellt und der beruflichen Vorsorge unterstellt; eine Einzelfirma ist es nicht, und der Höchstbetrag der Säule 3a ist dann ein anderer.",
+    "en": "The legal form decides which pension rules apply at all. Someone running an AG or GmbH is an employee in law and subject to occupational pension; a sole proprietorship is not, and the pillar 3a maximum is then a different one.",
+    "en_draft": true
+   },
+   "_note": "Restored 5 September 2026 (A138). The fourth option exists because this question is asked of everybody -- a member who is not self-employed must be able to say so rather than skip and leave the reader unable to tell a decline from a non-case."
+  },
+  {
+   "key": "pillar2_voluntary",
+   "order": 12,
+   "required": false,
+   "provenance": "restored",
+   "derived_from": "pillar2_voluntary, dropped by onb@0.1.3",
+   "type": "choice",
+   "options": [
+    {
+     "value": "ja",
+     "label": {
+      "de": "Ja, freiwillig versichert"
+     }
+    },
+    {
+     "value": "nein",
+     "label": {
+      "de": "Nein"
+     }
+    },
+    {
+     "value": "weiss ich nicht",
+     "label": {
+      "de": "Weiss ich nicht"
+     }
+    }
+   ],
+   "fills": {
+    "entity": "member_fact",
+    "key": "pillar2_voluntary",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Zahlen Sie freiwillig in eine Pensionskasse ein?",
+    "en": "Do you pay into an occupational pension voluntarily?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Ohne Arbeitgeber besteht kein Obligatorium in der beruflichen Vorsorge, freiwillig geht es trotzdem. Die Antwort entscheidet, welcher Höchstbetrag für die Säule 3a gilt — und das ist der grösste Unterschied, den eine einzelne Angabe hier macht.",
+    "en": "Without an employer there is no occupational pension obligation, but voluntary cover is possible. The answer decides which pillar 3a maximum applies — the largest difference any single answer here makes.",
+    "en_draft": true
+   },
+   "_note": "Restored 5 September 2026 (A138). One archived file answers yes. Pairs with `self_employed_form`: together they decide which of the two 3a maxima applies, which `content/knowledge/saeule-3a-hoechstbetrag.md` states and the build could not previously determine."
+  },
+  {
+   "key": "qualification_highest",
+   "order": 13,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "human capital, 6 September 2026",
+   "type": "choice",
+   "options": [
+    {
+     "value": "Universitäre Hochschule",
+     "label": {
+      "de": "Universitäre Hochschule"
+     }
+    },
+    {
+     "value": "Fachhochschule FH",
+     "label": {
+      "de": "Fachhochschule FH"
+     }
+    },
+    {
+     "value": "Höhere Berufsausbildung",
+     "label": {
+      "de": "Höhere Berufsausbildung"
+     }
+    },
+    {
+     "value": "Berufsausbildung (EFZ)",
+     "label": {
+      "de": "Berufsausbildung (EFZ)"
+     }
+    },
+    {
+     "value": "Unternehmensinterne Ausbildung",
+     "label": {
+      "de": "Unternehmensinterne Ausbildung"
+     }
+    }
+   ],
+   "_note_source": "BFS, Schweizerische Lohnstrukturerhebung — Löhne 2024, BFS-Pressekonferenz Bern 25.11.2025. Wiedergegeben in knowledge/BFS_Lohnstrukturerhebung.md.",
+   "_note_five_and_not_seven": "Exactly the BFS's five categories. An earlier draft of `human-capital.json` offered seven, adding Maturität, Doktorat and obligatorische Schule — none of which has a separate median in the published table. A rung with no median behind it is a guess wearing a label, so they are gone and an answer outside these five leaves expertise ABSENT.",
+   "_note_free_text_stays": "This does not replace `education`. That question stays, and it is where a person says the thing no rung has a name for; it is also what a curator reads when mapping someone whose answer predates this question.",
+   "fills": {
+    "entity": "member_fact",
+    "key": "qualification_highest",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Welchen höchsten Abschluss haben Sie?",
+    "en": "What is your highest qualification?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Das Ausbildungsniveau bestimmt die allgemeine Lohnpyramide — so das BFS. Die fünf Antworten sind seine Kategorien, damit hinter jeder ein veröffentlichter Medianlohn steht und nicht eine Einschätzung von uns.",
+    "en": "Education level sets the wage pyramid, in the BFS's own words. The five answers are its categories, so that every one has a published median behind it rather than a guess of ours.",
+    "en_draft": true
+   }
+  },
+  {
+   "key": "qualification_year",
+   "order": 14,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "human capital, 6 September 2026",
+   "type": "number",
+   "unit": "Jahr",
+   "min": 1950,
+   "max": 2100,
+   "fills": {
+    "entity": "member_fact",
+    "key": "qualification_year",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "In welchem Jahr haben Sie diesen Abschluss gemacht?",
+    "en": "In which year did you complete it?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Ein Abschluss von letztem Jahr und einer von vor dreissig Jahren sind nicht dasselbe Kapital. Eine laufende Weiterbildung setzt das zurück.",
+    "en": "A qualification finished last year and one finished thirty years ago are not the same capital. Training under way resets it.",
+    "en_draft": true
+   }
+  },
+  {
+   "key": "years_in_field",
+   "order": 15,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "human capital, 6 September 2026",
+   "type": "number",
+   "unit": "Jahre",
+   "min": 0,
+   "max": 60,
+   "fills": {
+    "entity": "member_fact",
+    "key": "years_in_field",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Wie viele Jahre arbeiten Sie in Ihrem heutigen Tätigkeitsfeld?",
+    "en": "How many years have you worked in your current field?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Erfahrung zählt und sättigt: das zehnte Jahr in einem Feld ist nicht das erste.",
+    "en": "Experience counts and saturates: the tenth year in a field is not the first.",
+    "en_draft": true
+   }
+  },
+  {
+   "key": "kader",
+   "order": 16,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "human capital, 6 September 2026",
+   "type": "choice",
+   "options": [
+    {
+     "value": "Keine Führungsfunktion",
+     "label": {
+      "de": "Keine Führungsfunktion"
+     }
+    },
+    {
+     "value": "Oberes oder mittleres Kader",
+     "label": {
+      "de": "Oberes oder mittleres Kader"
+     }
+    },
+    {
+     "value": "Oberste Führung",
+     "label": {
+      "de": "Oberste Führung"
+     }
+    }
+   ],
+   "_note_source": "BFS, Schweizerische Lohnstrukturerhebung — Löhne 2024, BFS-Pressekonferenz Bern 25.11.2025. Wiedergegeben in knowledge/BFS_Lohnstrukturerhebung.md.",
+   "_note_the_finding": "This is the dimension the income model was missing. Three real members earned above what it could produce at ANY expertise and network, and all three are senior. Added 6 September 2026.",
+   "fills": {
+    "entity": "member_fact",
+    "key": "kader",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Haben Sie eine Führungsfunktion?",
+    "en": "Do you hold a management function?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Bei gleicher Ausbildung entscheidet die Funktion im Unternehmen stärker über den Lohn als der Abschluss. Der Schritt ins Kader ist beim Hochschulabschluss 5'764 Franken im Monat wert — der ganze Abstand von der Berufslehre zur Universität sind 2'483.",
+    "en": "At the same education, the function in the company decides the wage more than the qualification does. For a university graduate the step into management is worth 5'764 francs a month; the whole distance from apprenticeship to university is 2'483.",
+    "en_draft": true
+   }
+  },
+  {
+   "key": "sector",
+   "order": 17,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "human capital, 6 September 2026",
+   "type": "choice",
+   "options": [
+    {
+     "value": "Banken",
+     "label": {
+      "de": "Banken"
+     }
+    },
+    {
+     "value": "Pharmaindustrie",
+     "label": {
+      "de": "Pharmaindustrie"
+     }
+    },
+    {
+     "value": "Versicherungen",
+     "label": {
+      "de": "Versicherungen"
+     }
+    },
+    {
+     "value": "Informationstechnologie",
+     "label": {
+      "de": "Informationstechnologie"
+     }
+    },
+    {
+     "value": "Maschinenbau",
+     "label": {
+      "de": "Maschinenbau"
+     }
+    },
+    {
+     "value": "Beherbergung",
+     "label": {
+      "de": "Beherbergung"
+     }
+    },
+    {
+     "value": "Gastronomie",
+     "label": {
+      "de": "Gastronomie"
+     }
+    },
+    {
+     "value": "andere Branche",
+     "label": {
+      "de": "andere Branche"
+     }
+    }
+   ],
+   "asked_when": {
+    "key": "kader",
+    "equals": "Oberste Führung"
+   },
+   "_note_conditional": "**Asked only when someone states top management**, on the owner's instruction of 6 September 2026. It changes nothing at the other two tiers, and deliberately: the BFS also publishes a median per Wirtschaftsabteilung, but a sector's median already contains that sector's education mix, so applying both tables would charge twice for the same effect.",
+   "_note_source": "BFS, Schweizerische Lohnstrukturerhebung — Löhne 2024, BFS-Pressekonferenz Bern 25.11.2025. Wiedergegeben in knowledge/BFS_Lohnstrukturerhebung.md.",
+   "fills": {
+    "entity": "member_fact",
+    "key": "sector",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "In welcher Branche arbeiten Sie?",
+    "en": "Which sector do you work in?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "An der Spitze liegt zwischen Gastronomie und Banken der Faktor sechs. Ohne die Branche sagt eine Aussage über die oberste Führung fast nichts.",
+    "en": "At the top the gap between hospitality and banking is a factor of six. Without the sector, a statement about top management says almost nothing.",
+    "en_draft": true
+   }
+  },
+  {
+   "key": "network_reach",
+   "order": 18,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "human capital, 6 September 2026",
+   "type": "choice",
+   "options": [
+    {
+     "value": "im eigenen Team",
+     "label": {
+      "de": "im eigenen Team"
+     }
+    },
+    {
+     "value": "im eigenen Unternehmen",
+     "label": {
+      "de": "im eigenen Unternehmen"
+     }
+    },
+    {
+     "value": "in der Branche",
+     "label": {
+      "de": "in der Branche"
+     }
+    },
+    {
+     "value": "über die Branche hinaus",
+     "label": {
+      "de": "über die Branche hinaus"
+     }
+    }
+   ],
+   "_note_pairs_with": "network_people",
+   "_note_default": "Unanswered means the count is read at face value, which is exactly what `identities.net_scale` has always received. So this question can only ever lift a network, never lower one, and no existing member's N moves because it was added.",
+   "fills": {
+    "entity": "member_fact",
+    "key": "network_reach",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Wie weit reichen diese Kontakte?",
+    "en": "How far do these contacts reach?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Drei Namen aus der Geschäftsleitung sind ein anderes Netzwerk als drei Namen aus dem eigenen Team. Die Anzahl allein kann das nicht unterscheiden.",
+    "en": "Three names from the executive floor are a different network from three names in your own team, and a count cannot tell them apart.",
+    "en_draft": true
+   }
+  },
+  {
+   "key": "hours_learning",
+   "order": 19,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "human capital, 6 September 2026",
+   "type": "number",
+   "unit": "Stunden pro Woche",
+   "min": 0,
+   "max": 60,
+   "_note_time_budget": "One of the two time shares the intake never asked. Without it and `hours_network` the productive week has two holes and no leisure residual can be computed — `services/human_capital.time_budget` returns None for both rather than splitting the leftover, because splitting it would invent the number the whole model turns on.",
+   "fills": {
+    "entity": "member_fact",
+    "key": "hours_learning",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Wie viele Stunden pro Woche wenden Sie für Lernen und Weiterbildung auf?",
+    "en": "How many hours a week do you spend learning?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Der Knick liegt bei 20 Stunden — darunter zahlt jede zusätzliche Stunde noch deutlich, darüber immer weniger.",
+    "en": "The knee is at 20 hours: below it every added hour still pays clearly, above it less and less.",
+    "en_draft": true
+   }
+  },
+  {
+   "key": "hours_network",
+   "order": 20,
+   "required": false,
+   "provenance": "new",
+   "derived_from": "human capital, 6 September 2026",
+   "type": "number",
+   "unit": "Stunden pro Woche",
+   "min": 0,
+   "max": 60,
+   "_note_time_budget": "The second of the two missing time shares. See `hours_learning`.",
+   "fills": {
+    "entity": "member_fact",
+    "key": "hours_network",
+    "data_class": "K2"
+   },
+   "question": {
+    "de": "Wie viele Stunden pro Woche wenden Sie für berufliche Kontakte auf?",
+    "en": "How many hours a week do you spend on professional contacts?",
+    "en_draft": true
+   },
+   "why": {
+    "de": "Der Knick liegt hier bei 10 Stunden. Mehr als 30 bringt fast nichts.",
+    "en": "Here the knee is at 10 hours. More than 30 brings almost nothing.",
+    "en_draft": true
+   }
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "sts@0.1.0",
+  "provisional": true,
+  "state_grid": 25,
+  "scenario_order": ["crisis", "contraction", "stagnation", "expansion", "boom"],
+  "state_to_scenario": {
+    "0": "crisis", "1": "crisis", "2": "crisis", "3": "crisis", "4": "crisis",
+    "5": "contraction", "6": "contraction", "7": "contraction", "8": "contraction", "9": "contraction",
+    "10": "stagnation", "11": "stagnation", "12": "stagnation", "13": "stagnation", "14": "stagnation",
+    "15": "expansion", "16": "expansion", "17": "expansion", "18": "expansion", "19": "expansion",
+    "20": "boom", "21": "boom", "22": "boom", "23": "boom", "24": "boom"
+  },
+  "notes": "PROVISIONAL equal 5-per-scenario partition. Crisis at index 0, boom at index 24, per D1 in decisions.md. To be replaced with a partition informed by the macro field-model's state properties once available."
+}

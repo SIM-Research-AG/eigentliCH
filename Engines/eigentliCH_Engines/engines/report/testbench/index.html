@@ -1,0 +1,152 @@
+<!doctype html>
+<!--
+  eigentliCH Report Engine (report) test bench. Development only: not part of the system and not in the deploy folder.
+
+  A client of the engine's HTTP surface, nothing more. Served by the engine at "/", or opened off disk, when it
+  calls http://127.0.0.1:8015 (or ?api=...). The report itself is shown as the engine rendered it, in a sandboxed
+  frame. No build step, no external script.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report test bench</title>
+<style>
+  :root { color-scheme: light; --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+          --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10); --s1: #2a78d6; --critical: #d03b3b; --good: #0ca30c; }
+  @media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { color-scheme: dark; --page: #0d0d0d;
+          --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+          --s1: #3987e5; } }
+  :root[data-theme="dark"] { color-scheme: dark; --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
+          --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --s1: #3987e5; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; } #sub { color: var(--ink-2); font-size: 12px; } #themeBtn { margin-left: auto; }
+  main { padding: 8px 24px 48px; max-width: 1400px; display: grid; grid-template-columns: minmax(300px, 420px) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; min-width: 0; margin-bottom: 16px; }
+  .card h2 { font-size: 15px; margin: 0 0 8px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); margin-bottom: 10px; }
+  input, select, textarea, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  textarea { font: 12px ui-monospace, Consolas, monospace; min-height: 70px; width: 100%; }
+  button { cursor: pointer; } button.primary { background: var(--s1); color: #fff; border-color: var(--s1); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: left; vertical-align: top; }
+  th { color: var(--ink-2); font-weight: 600; }
+  .bad { color: var(--critical); } .ok { color: var(--good); }
+  iframe { width: 100%; height: 1100px; border: 1px solid var(--ring); border-radius: 10px; background: #fff; }
+  pre { font: 12px ui-monospace, Consolas, monospace; background: var(--page); padding: 8px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; max-height: 300px; }
+  .note { color: var(--muted); font-size: 12px; } code { font: 11.5px ui-monospace, Consolas, monospace; }
+</style>
+</head>
+<body>
+<header>
+  <h1>eigentliCH Report Engine</h1><span id="sub">loading</span>
+  <button id="themeBtn" type="button">Theme</button>
+</header>
+<main>
+  <div>
+    <section class="card">
+      <h2>Request</h2>
+      <label>client_ref <input id="client" value="syn-couple"></label>
+      <div class="row">
+        <label>Kind <select id="kind"><option>report</option><option>update</option></select></label>
+        <label>Language <select id="lang"><option>de</option><option>en</option></select></label>
+        <label><span>Prose</span><input id="prose" type="checkbox" checked></label>
+      </div>
+      <label>pcp Allocation id (empty: none) <input id="pcp" placeholder="PCP-..."></label>
+      <label>lbs LifeBalanceSheet id (empty: none) <input id="lbs" placeholder="LBS-..."></label>
+      <label>Previous report id (update only) <input id="prev" placeholder="REP-..."></label>
+      <label>Revision of report id (empty: not a revision) <input id="revof" placeholder="REP-..."></label>
+      <label>Revision note (the curator's remark, printed on the page) <textarea id="revnote"></textarea></label>
+      <label>Display facts (JSON list of {key, label, value, source})
+        <textarea id="display">[{"key": "name", "label": "Kundin", "value": "Muster", "source": "test bench"}]</textarea></label>
+      <button class="primary" id="go" type="button">Produce (POST /report)</button>
+      <p id="status" class="note"></p>
+    </section>
+    <section class="card">
+      <h2>Sections</h2>
+      <table><thead><tr><th>#</th><th>Section</th><th>Prose</th><th>Drafts</th><th>Unverified</th></tr></thead><tbody id="sections"></tbody></table>
+      <ul id="warnings" class="note"></ul>
+    </section>
+    <section class="card">
+      <h2>Facts and their sources</h2>
+      <table><thead><tr><th>Fact</th><th>Value</th><th>Source</th></tr></thead><tbody id="facts"></tbody></table>
+    </section>
+    <section class="card">
+      <h2>Stored reports</h2>
+      <table><thead><tr><th>Report</th><th>Client</th><th>Kind</th><th>Complete</th></tr></thead><tbody id="reports"></tbody></table>
+      <button type="button" id="probe">Probe MiniMind (GET /model)</button><pre id="model"></pre>
+    </section>
+  </div>
+  <section class="card">
+    <h2>The report, as rendered</h2>
+    <iframe id="page" sandbox="" title="rendered report"></iframe>
+  </section>
+</main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const API = params.get("api") || (location.protocol.startsWith("http") ? "" : "http://127.0.0.1:8015");
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+  $("themeBtn").onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === "dark" ? "light" : "dark"; };
+
+  async function call(path, opts) {
+    const r = await fetch(API + path, opts);
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(`${r.status}: ${JSON.stringify(body.detail ?? body)}`);
+    return body;
+  }
+
+  function show(rep) {
+    $("page").srcdoc = rep.html;
+    $("sections").innerHTML = rep.sections.map((s, i) => `<tr><td>${String(i + 1).padStart(2, "0")}</td><td>${esc(s.title)}</td>
+      <td class="${s.prose_status === "verified" ? "ok" : (s.prose_status === "flagged" || s.prose_status === "unavailable") ? "bad" : ""}">${esc(s.prose_status)}</td>
+      <td>${s.prose_attempts || ""}</td><td>${esc(s.unverified_numbers.join(", "))}</td></tr>`).join("");
+    $("warnings").innerHTML = rep.warnings.map((w) => `<li>${esc(w)}</li>`).join("");
+    $("facts").innerHTML = rep.facts.map((f) => `<tr><td>${esc(f.label)}<br><code>${esc(f.fact_id)}</code></td><td>${esc(f.display)}</td>
+      <td>${f.sources.map((s) => `${esc(s.engine)} <code>${esc(s.artefact_id)}</code> <code>${esc(s.path)}</code>`).join("<br>")}
+      ${f.derivation ? `<br><span class="note">${esc(f.derivation)}</span>` : ""}</td></tr>`).join("");
+  }
+
+  async function refresh() {
+    try {
+      const meta = await call("/meta");
+      $("sub").textContent = `${meta.engine_version} · prose by ${meta.model.display_name || "MiniMind"} (${meta.model.model}, served by ${meta.model.service} at ${meta.model.host}) · upstream pcp ${meta.upstream.pcp}, lbs ${meta.upstream.lbs}`;
+      const reps = await call("/reports?limit=20");
+      $("reports").innerHTML = reps.map((r) => `<tr><td><a href="#" data-id="${esc(r.artefact_id)}"><code>${esc(r.artefact_id)}</code></a></td>
+        <td>${esc(r.client_ref)}</td><td>${esc(r.kind)}</td><td>${r.complete ? "yes" : '<span class="bad">no</span>'}</td></tr>`).join("");
+      document.querySelectorAll("#reports a").forEach((a) => a.onclick = async (ev) => {
+        ev.preventDefault(); show(await call(`/artefacts/${a.dataset.id}`)); $("prev").value = a.dataset.id; });
+    } catch (e) { $("sub").textContent = `engine not reachable: ${e.message}`; }
+  }
+
+  $("go").onclick = async () => {
+    const sources = [];
+    if ($("pcp").value.trim()) sources.push({engine: "pcp", artefact_id: $("pcp").value.trim()});
+    if ($("lbs").value.trim()) sources.push({engine: "lbs", artefact_id: $("lbs").value.trim()});
+    let body;
+    try {
+      body = {client_ref: $("client").value.trim(), kind: $("kind").value, language: $("lang").value, sources,
+              prose: $("prose").checked, display_facts: JSON.parse($("display").value)};
+      if (body.kind === "update") body.previous_report_id = $("prev").value.trim();
+      if ($("revof").value.trim()) body.revision_of = $("revof").value.trim();
+      if ($("revnote").value.trim()) body.revision_note = $("revnote").value.trim();
+    } catch (e) { $("status").textContent = `JSON: ${e.message}`; return; }
+    $("status").textContent = "Producing...";
+    const t0 = performance.now();
+    try {
+      const rep = await call("/report", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+      $("status").textContent = `${rep.artefact_id} · ${(performance.now() - t0).toFixed(0)} ms · complete: ${rep.complete}`;
+      show(rep);
+    } catch (e) { $("status").textContent = e.message; }
+    refresh();
+  };
+  $("probe").onclick = async () => { try { $("model").textContent = JSON.stringify(await call("/model"), null, 1); }
+                                     catch (e) { $("model").textContent = e.message; } };
+  refresh();
+</script>
+</body>
+</html>

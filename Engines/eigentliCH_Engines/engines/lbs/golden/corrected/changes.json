@@ -1,0 +1,3265 @@
+{
+ "db-01": [],
+ "db-02": [],
+ "db-03": [],
+ "db-04": [],
+ "db-05": [],
+ "db-06": [],
+ "db-07": [],
+ "db-08": [],
+ "q-ceiling": [
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": "<absent>",
+   "path": "gaps[mandate_proposal|required_return|not_in_the_request]",
+   "reproduction": "the goal is unreachable at any plausible return; the levers are the horizon, the contributions, the starting wealth and the goal's size, not the allocation"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": "<absent>",
+   "path": "mandate_proposal.curator_to_fill[target_curve].field",
+   "reproduction": "target_curve"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": "<absent>",
+   "path": "mandate_proposal.curator_to_fill[target_curve].reason",
+   "reproduction": "no required return could be derived; see gaps"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": true,
+   "path": "mandate_proposal.feasible",
+   "reproduction": false
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.2783333333333333}, 'Equity': {'lower': 0.0, 'upper': 0.5066666666666667}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "path": "mandate_proposal.notes[1]",
+   "reproduction": "the goal of 95,000 in 1.00 years is not reachable from 10,000 drawable and 0 a year at any return the search tested (the prototype's doubling stops below its 1000% ceiling, at 800%); no required return exists and no curve is proposed"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": "<absent>",
+   "path": "mandate_proposal.notes[2]",
+   "reproduction": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.2783333333333333}, 'Equity': {'lower': 0.0, 'upper': 0.5066666666666667}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 8.500000000021828,
+   "path": "mandate_proposal.required_return",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": "<absent>",
+   "path": "mandate_proposal.target_curve",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.247090000951772,
+   "path": "mandate_proposal.target_curve[0]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.250592723903646,
+   "path": "mandate_proposal.target_curve[10]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2509423223443985,
+   "path": "mandate_proposal.target_curve[11]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.251291798608793,
+   "path": "mandate_proposal.target_curve[12]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2516411527821942,
+   "path": "mandate_proposal.target_curve[13]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.251990384949879,
+   "path": "mandate_proposal.target_curve[14]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.252339495197034,
+   "path": "mandate_proposal.target_curve[15]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2526884836087575,
+   "path": "mandate_proposal.target_curve[16]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.253037350270058,
+   "path": "mandate_proposal.target_curve[17]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.253386095265854,
+   "path": "mandate_proposal.target_curve[18]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.253734718680978,
+   "path": "mandate_proposal.target_curve[19]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2474408258709846,
+   "path": "mandate_proposal.target_curve[1]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.254083220600171,
+   "path": "mandate_proposal.target_curve[20]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2544316011080876,
+   "path": "mandate_proposal.target_curve[21]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.254779860289293,
+   "path": "mandate_proposal.target_curve[22]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2551279982282626,
+   "path": "mandate_proposal.target_curve[23]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2554760150093864,
+   "path": "mandate_proposal.target_curve[24]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2477915277552354,
+   "path": "mandate_proposal.target_curve[2]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2481421066907914,
+   "path": "mandate_proposal.target_curve[3]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2484925627638295,
+   "path": "mandate_proposal.target_curve[4]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.248842896060435,
+   "path": "mandate_proposal.target_curve[5]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2491931066666027,
+   "path": "mandate_proposal.target_curve[6]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.249543194668238,
+   "path": "mandate_proposal.target_curve[7]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.249893160151156,
+   "path": "mandate_proposal.target_curve[8]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "required_return_search_reaches_its_ceiling"
+   ],
+   "corrected": 2.2502430032010805,
+   "path": "mandate_proposal.target_curve[9]",
+   "reproduction": "<absent>"
+  }
+ ],
+ "q-horizon": [
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.3082352941176471,
+   "path": "mandate_proposal.bounds.role.Gain.lower",
+   "reproduction": 0.3866666666666667
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": "the risk profile 0.7706 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "path": "mandate_proposal.bounds.role.Gain.reasoning",
+   "reproduction": "the risk profile 0.9667 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive"
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.7008823529411765,
+   "path": "mandate_proposal.bounds.role.Gain.upper",
+   "reproduction": 0.8283333333333334
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.06147058823529412,
+   "path": "mandate_proposal.bounds.role.Income.lower",
+   "reproduction": 0.051666666666666666
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": "the risk profile 0.7706 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "path": "mandate_proposal.bounds.role.Income.reasoning",
+   "reproduction": "the risk profile 0.9667 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive"
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.32294117647058823,
+   "path": "mandate_proposal.bounds.role.Income.upper",
+   "reproduction": 0.30333333333333334
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.0688235294117647,
+   "path": "mandate_proposal.bounds.role.Protection.lower",
+   "reproduction": 0.010000000000000009
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": "the risk profile 0.7706 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "path": "mandate_proposal.bounds.role.Protection.reasoning",
+   "reproduction": "the risk profile 0.9667 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive"
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.35323529411764704,
+   "path": "mandate_proposal.bounds.role.Protection.upper",
+   "reproduction": 0.265
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.08441176470588234,
+   "path": "mandate_proposal.bounds.role.Stabilisation.lower",
+   "reproduction": 0.05499999999999999
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": "the risk profile 0.7706 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "path": "mandate_proposal.bounds.role.Stabilisation.reasoning",
+   "reproduction": "the risk profile 0.9667 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive"
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.3458823529411764,
+   "path": "mandate_proposal.bounds.role.Stabilisation.upper",
+   "reproduction": 0.30666666666666664
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.04738235294117647,
+   "path": "mandate_proposal.curve_shape.ceiling_offset",
+   "reproduction": 0.058166666666666665
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": -0.04738235294117647,
+   "path": "mandate_proposal.curve_shape.floor_offset",
+   "reproduction": -0.058166666666666665
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.23029411764705882}, 'Equity': {'lower': 0.0, 'upper': 0.6164705882352942}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "path": "mandate_proposal.notes[1]",
+   "reproduction": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.16166666666666668}, 'Equity': {'lower': 0.0, 'upper': 0.7733333333333334}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound"
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.23029411764705882,
+   "path": "risk_profile.asset_class_bounds.Cash.upper",
+   "reproduction": 0.16166666666666668
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.6164705882352942,
+   "path": "risk_profile.asset_class_bounds.Equity.upper",
+   "reproduction": 0.7733333333333334
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 10.0,
+   "path": "risk_profile.capacity.components.horizon.input",
+   "reproduction": 65.0
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.4117647058823529,
+   "path": "risk_profile.capacity.components.horizon.value",
+   "reproduction": 1.0
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.7705882352941177,
+   "path": "risk_profile.capacity.value",
+   "reproduction": 0.9666666666666667
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 10.0,
+   "path": "risk_profile.capacity_inputs.horizon_years",
+   "reproduction": 65.0
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": "submission: plan_until_age less the age",
+   "path": "risk_profile.capacity_inputs.sources.horizon_years",
+   "reproduction": "submission"
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.04738235294117647,
+   "path": "risk_profile.curve_slope.ceiling_offset",
+   "reproduction": 0.058166666666666665
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": -0.04738235294117647,
+   "path": "risk_profile.curve_slope.floor_offset",
+   "reproduction": -0.058166666666666665
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.3082352941176471,
+   "path": "risk_profile.role_bounds.Gain.lower",
+   "reproduction": 0.3866666666666667
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.7008823529411765,
+   "path": "risk_profile.role_bounds.Gain.upper",
+   "reproduction": 0.8283333333333334
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.06147058823529412,
+   "path": "risk_profile.role_bounds.Income.lower",
+   "reproduction": 0.051666666666666666
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.32294117647058823,
+   "path": "risk_profile.role_bounds.Income.upper",
+   "reproduction": 0.30333333333333334
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.0688235294117647,
+   "path": "risk_profile.role_bounds.Protection.lower",
+   "reproduction": 0.010000000000000009
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.35323529411764704,
+   "path": "risk_profile.role_bounds.Protection.upper",
+   "reproduction": 0.265
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.08441176470588234,
+   "path": "risk_profile.role_bounds.Stabilisation.lower",
+   "reproduction": 0.05499999999999999
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.3458823529411764,
+   "path": "risk_profile.role_bounds.Stabilisation.upper",
+   "reproduction": 0.30666666666666664
+  },
+  {
+   "by": [
+    "capacity_horizon_is_years_to_the_planned_age"
+   ],
+   "corrected": 0.7705882352941177,
+   "path": "risk_profile.value",
+   "reproduction": 0.9666666666666667
+  }
+ ],
+ "q-no-vessel": [
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "the property finding could not be determined: a funding position states no vessel",
+   "path": "gaps[property.home|a_funding_position_states_no_vessel|not_in_the_request]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "a funding position states no vessel, so it is not counted as equity of any class: it may be pension capital, which a let or second home may not use; the equity is judged with and without it",
+   "path": "gaps[property.home|savings.vessel|not_in_the_request]",
+   "reproduction": "a funding position states no vessel and is counted as hard equity, which overstates the equity if it is pension capital"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "positions savings state no vessel, so they are not counted as free wealth; the free share and the reserve are lower bounds",
+   "path": "gaps[risk_profile|vessel|not_in_the_request]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.23733776117337757,
+   "path": "mandate_proposal.bounds.role.Gain.lower",
+   "reproduction": 0.2631963470319635
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "the risk profile 0.5933 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "path": "mandate_proposal.bounds.role.Gain.reasoning",
+   "reproduction": "the risk profile 0.6580 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.5856738619067385,
+   "path": "mandate_proposal.bounds.role.Gain.upper",
+   "reproduction": 0.6276940639269406
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.07033277985332781,
+   "path": "mandate_proposal.bounds.role.Income.lower",
+   "reproduction": 0.06710045662100457
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "the risk profile 0.5933 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "path": "mandate_proposal.bounds.role.Income.reasoning",
+   "reproduction": "the risk profile 0.6580 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.34066555970665563,
+   "path": "mandate_proposal.bounds.role.Income.upper",
+   "reproduction": 0.3342009132420091
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.12199667911996681,
+   "path": "mandate_proposal.bounds.role.Protection.lower",
+   "reproduction": 0.1026027397260274
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "the risk profile 0.5933 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "path": "mandate_proposal.bounds.role.Protection.reasoning",
+   "reproduction": "the risk profile 0.6580 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.4329950186799502,
+   "path": "mandate_proposal.bounds.role.Protection.upper",
+   "reproduction": 0.4039041095890411
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.11099833955998341,
+   "path": "mandate_proposal.bounds.role.Stabilisation.lower",
+   "reproduction": 0.1013013698630137
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "the risk profile 0.5933 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "path": "mandate_proposal.bounds.role.Stabilisation.reasoning",
+   "reproduction": "the risk profile 0.6580 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.3813311194133112,
+   "path": "mandate_proposal.bounds.role.Stabilisation.upper",
+   "reproduction": 0.36840182648401826
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.03763394216133941,
+   "path": "mandate_proposal.curve_shape.ceiling_offset",
+   "reproduction": 0.04118949771689497
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.03763394216133941,
+   "path": "mandate_proposal.curve_shape.floor_offset",
+   "reproduction": -0.04118949771689497
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.29232945897329465}, 'Equity': {'lower': 0.0, 'upper': 0.47467552234675514}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "path": "mandate_proposal.notes[2]",
+   "reproduction": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.269703196347032}, 'Equity': {'lower': 0.0, 'upper': 0.526392694063927}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.03836038319105047,
+   "path": "mandate_proposal.target_curve[0]",
+   "reproduction": -0.04206182291170052
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.0062920773600619135,
+   "path": "mandate_proposal.target_curve[10]",
+   "reproduction": -0.006888588223407252
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.003141089908506283,
+   "path": "mandate_proposal.target_curve[11]",
+   "reproduction": -0.0034383625424675153
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.0031312543490081388,
+   "path": "mandate_proposal.target_curve[13]",
+   "reproduction": 0.0034265807041579718
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.00625273454162663,
+   "path": "mandate_proposal.target_curve[14]",
+   "reproduction": 0.006841460037275905
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.009364501407746102,
+   "path": "mandate_proposal.target_curve[15]",
+   "reproduction": 0.010244717645068348
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.012466615211152077,
+   "path": "mandate_proposal.target_curve[16]",
+   "reproduction": 0.013636432362840891
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.015559135656527771,
+   "path": "mandate_proposal.target_curve[17]",
+   "reproduction": 0.017016682226447737
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.018642121896348927,
+   "path": "mandate_proposal.target_curve[18]",
+   "reproduction": 0.02038554448306469
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.021715632537672697,
+   "path": "mandate_proposal.target_curve[19]",
+   "reproduction": 0.023743095601781353
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.035106878115238195,
+   "path": "mandate_proposal.target_curve[1]",
+   "reproduction": -0.038488302588165026
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.024779725648822522,
+   "path": "mandate_proposal.target_curve[20]",
+   "reproduction": 0.02708941128401596
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.027834458765970918,
+   "path": "mandate_proposal.target_curve[21]",
+   "reproduction": 0.030424566473756753
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.030879888899621972,
+   "path": "mandate_proposal.target_curve[22]",
+   "reproduction": 0.03374863536763293
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.03391607254099549,
+   "path": "mandate_proposal.target_curve[23]",
+   "reproduction": 0.037061691424818875
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.03694306566831451,
+   "path": "mandate_proposal.target_curve[24]",
+   "reproduction": 0.04036380737677486
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.03186392401632428,
+   "path": "mandate_proposal.target_curve[2]",
+   "reproduction": -0.03492750685404627
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.02863145268272861,
+   "path": "mandate_proposal.target_curve[3]",
+   "reproduction": -0.03137934541135869
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.02540939656221745,
+   "path": "mandate_proposal.target_curve[4]",
+   "reproduction": -0.02784372891989688
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.022197688753432827,
+   "path": "mandate_proposal.target_curve[5]",
+   "reproduction": -0.02432056898373786
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.01899626299755763,
+   "path": "mandate_proposal.target_curve[6]",
+   "reproduction": -0.020809778137980364
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.01580505367011364,
+   "path": "mandate_proposal.target_curve[7]",
+   "reproduction": -0.017311269835715983
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.012623995772890027,
+   "path": "mandate_proposal.target_curve[8]",
+   "reproduction": -0.013824958435227505
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.009453024925999814,
+   "path": "mandate_proposal.target_curve[9]",
+   "reproduction": -0.010350759187409598
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "could_not_be_determined",
+   "path": "property[home].equity.verdict",
+   "reproduction": "meets"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "<absent>",
+   "path": "property[home].undetermined_because",
+   "reproduction": []
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "a_funding_position_states_no_vessel",
+   "path": "property[home].undetermined_because[0]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "could_not_be_determined",
+   "path": "property[home].verdict",
+   "reproduction": "meets"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.29232945897329465,
+   "path": "risk_profile.asset_class_bounds.Cash.upper",
+   "reproduction": 0.269703196347032
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.47467552234675514,
+   "path": "risk_profile.asset_class_bounds.Equity.upper",
+   "reproduction": 0.526392694063927
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.45454545454545453,
+   "path": "risk_profile.capacity.components.free_share.input",
+   "reproduction": 0.7575757575757576
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.709090909090909,
+   "path": "risk_profile.capacity.components.free_share.value",
+   "reproduction": 1.0
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 30.0,
+   "path": "risk_profile.capacity.components.reserve.input",
+   "reproduction": 50.0
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.5933444029334439,
+   "path": "risk_profile.capacity.value",
+   "reproduction": 0.6579908675799087
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.45454545454545453,
+   "path": "risk_profile.capacity_inputs.free_share",
+   "reproduction": 0.7575757575757576
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 30.0,
+   "path": "risk_profile.capacity_inputs.reserve_months",
+   "reproduction": 50.0
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": "plan, a lower bound: stocks without a vessel are wealth but not free wealth",
+   "path": "risk_profile.capacity_inputs.sources.free_share",
+   "reproduction": "plan"
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.03763394216133941,
+   "path": "risk_profile.curve_slope.ceiling_offset",
+   "reproduction": 0.04118949771689497
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": -0.03763394216133941,
+   "path": "risk_profile.curve_slope.floor_offset",
+   "reproduction": -0.04118949771689497
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.23733776117337757,
+   "path": "risk_profile.role_bounds.Gain.lower",
+   "reproduction": 0.2631963470319635
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.5856738619067385,
+   "path": "risk_profile.role_bounds.Gain.upper",
+   "reproduction": 0.6276940639269406
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.07033277985332781,
+   "path": "risk_profile.role_bounds.Income.lower",
+   "reproduction": 0.06710045662100457
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.34066555970665563,
+   "path": "risk_profile.role_bounds.Income.upper",
+   "reproduction": 0.3342009132420091
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.12199667911996681,
+   "path": "risk_profile.role_bounds.Protection.lower",
+   "reproduction": 0.1026027397260274
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.4329950186799502,
+   "path": "risk_profile.role_bounds.Protection.upper",
+   "reproduction": 0.4039041095890411
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.11099833955998341,
+   "path": "risk_profile.role_bounds.Stabilisation.lower",
+   "reproduction": 0.1013013698630137
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.3813311194133112,
+   "path": "risk_profile.role_bounds.Stabilisation.upper",
+   "reproduction": 0.36840182648401826
+  },
+  {
+   "by": [
+    "unstated_vessel_is_a_gap"
+   ],
+   "corrected": 0.5933444029334439,
+   "path": "risk_profile.value",
+   "reproduction": 0.6579908675799087
+  }
+ ],
+ "q-zero-income": [
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "gaps[pensions.p1|gross_income|not_in_the_request]",
+   "reproduction": "the BVG projection credits a share of the gross salary; none is stated"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "gaps[pensions.p1|mdje|not_in_the_request]",
+   "reproduction": "neither an mdje nor a gross income is stated"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "gaps[property.home|no_income_is_recorded_for_the_household|not_in_the_request]",
+   "reproduction": "the property finding could not be determined: no income is recorded for the household"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "gaps[retirement.later|no_income_is_recorded_for_the_household|not_in_the_request]",
+   "reproduction": "the retirement finding: no income is recorded for the household"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "gaps[totals|household_income|not_in_the_request]",
+   "reproduction": "no active income position in chf_per_year is stated"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": false,
+   "path": "pensions[p1].ahv.at_maximum",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": true,
+   "path": "pensions[p1].ahv.at_minimum",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "current_income_as_a_stand_in_for_the_lifetime_average",
+   "path": "pensions[p1].ahv.basis",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "current_income_was_used_where_a_lifetime_average_belongs",
+   "path": "pensions[p1].ahv.caveats[0]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "mdje_is_a_lifetime_average_and_was_supplied_not_derived",
+   "path": "pensions[p1].ahv.caveats[1]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "the_contribution_record_was_not_stated_so_a_full_one_is_assumed",
+   "path": "pensions[p1].ahv.caveats[2]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1.0,
+   "path": "pensions[p1].ahv.factor",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1260,
+   "path": "pensions[p1].ahv.full_monthly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 44,
+   "path": "pensions[p1].ahv.full_scale",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": false,
+   "path": "pensions[p1].ahv.levers[0].at_maximum",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": true,
+   "path": "pensions[p1].ahv.levers[0].at_minimum",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "mdje",
+   "path": "pensions[p1].ahv.levers[0].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1260,
+   "path": "pensions[p1].ahv.levers[0].gives_monthly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].ahv.levers[0].stands_at",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].ahv.levers[1].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Erziehungsgutschriften, credited for years with children under 16 in the household.",
+   "path": "pensions[p1].ahv.levers[1].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].ahv.levers[2].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Betreuungsgutschriften, for years spent caring for a relative.",
+   "path": "pensions[p1].ahv.levers[2].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].ahv.levers[3].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Splitting, which halves and reassigns income earned during a marriage.",
+   "path": "pensions[p1].ahv.levers[3].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].ahv.levers[4].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Jugendjahre, contribution years between 18 and 20 that can fill later gaps.",
+   "path": "pensions[p1].ahv.levers[4].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].ahv.levers[5].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "The revaluation factor applied to early-career income before the average is taken.",
+   "path": "pensions[p1].ahv.levers[5].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].ahv.levers[6].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "The reduction for drawing early and the supplement for deferring -- both in Merkblatt 3.04.",
+   "path": "pensions[p1].ahv.levers[6].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].ahv.levers[7].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "The Rentenzuschlag for women born 1961-1969.",
+   "path": "pensions[p1].ahv.levers[7].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].ahv.mdje",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1260.0,
+   "path": "pensions[p1].ahv.monthly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "pensions[p1].ahv.reason",
+   "reproduction": "not available: neither an mdje nor an income is stated"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "pensions[p1].ahv.record",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "available",
+   "path": "pensions[p1].ahv.status",
+   "reproduction": "not_available"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 16380.0,
+   "path": "pensions[p1].ahv.yearly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": null,
+   "path": "pensions[p1].ahv.years",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "interest_is_a_statutory_minimum_not_a_return",
+   "path": "pensions[p1].bvg.caveats[0]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "the_obligatory_portion_only_the_ueberobligatorium_is_not_visible_here",
+   "path": "pensions[p1].bvg.caveats[1]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "the_salary_is_assumed_unchanged_to_the_reference_age",
+   "path": "pensions[p1].bvg.caveats[2]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "the_salary_is_below_the_entry_threshold_so_nothing_is_credited",
+   "path": "pensions[p1].bvg.caveats[3]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 192305.58475628786,
+   "path": "pensions[p1].bvg.closing_balance",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.068,
+   "path": "pensions[p1].bvg.conversion_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": null,
+   "path": "pensions[p1].bvg.coordinated",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 45,
+   "path": "pensions[p1].bvg.from_age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.gross_salary",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0125,
+   "path": "pensions[p1].bvg.interest_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 26460,
+   "path": "pensions[p1].bvg.levers[0].deduction",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "coordinated_salary",
+   "path": "pensions[p1].bvg.levers[0].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.levers[0].gross",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": null,
+   "path": "pensions[p1].bvg.levers[0].stands_at",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "years_remaining",
+   "path": "pensions[p1].bvg.levers[1].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 20,
+   "path": "pensions[p1].bvg.levers[1].stands_at",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "opening_balance",
+   "path": "pensions[p1].bvg.levers[2].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 192305.58475628786,
+   "path": "pensions[p1].bvg.levers[2].grows_to",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.levers[2].of_which_credits",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 42305.584756287826,
+   "path": "pensions[p1].bvg.levers[2].of_which_interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 150000.0,
+   "path": "pensions[p1].bvg.levers[2].stands_at",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].bvg.levers[3].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "The überobligatorisch portion, which for most members is the larger one and is credited and converted at whatever the fund's regulations say.",
+   "path": "pensions[p1].bvg.levers[3].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].bvg.levers[4].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Salary growth, and any change of pension fund.",
+   "path": "pensions[p1].bvg.levers[4].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].bvg.levers[5].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Einkäufe — voluntary purchases into the fund, which are the single largest lever a member over 50 has.",
+   "path": "pensions[p1].bvg.levers[5].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].bvg.levers[6].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "A WEF withdrawal already taken, which reduces the balance and the future credits on it.",
+   "path": "pensions[p1].bvg.levers[6].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].bvg.levers[7].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Risk and administration costs, which are charged alongside the credits and are not part of them.",
+   "path": "pensions[p1].bvg.levers[7].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].bvg.levers[8].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "A part-time pensum changing, which changes the coordinated salary more than proportionally.",
+   "path": "pensions[p1].bvg.levers[8].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "pensions[p1].bvg.levers[9].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Any fund that insures more than the obligatory minimum, which is nearly all of them.",
+   "path": "pensions[p1].bvg.levers[9].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1089.731646952298,
+   "path": "pensions[p1].bvg.monthly_pension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 150000.0,
+   "path": "pensions[p1].bvg.opening_balance",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "pensions[p1].bvg.reason",
+   "reproduction": "not available: no gross income is stated for the person"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "pensions[p1].bvg.record",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "available",
+   "path": "pensions[p1].bvg.status",
+   "reproduction": "not_available"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 65,
+   "path": "pensions[p1].bvg.to_age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.total_credited",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 42305.584756287826,
+   "path": "pensions[p1].bvg.total_interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 13076.779763427576,
+   "path": "pensions[p1].bvg.yearly_pension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 45,
+   "path": "pensions[p1].bvg.years[age 45].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 151875.0,
+   "path": "pensions[p1].bvg.years[age 45].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 45].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 45].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1875.0,
+   "path": "pensions[p1].bvg.years[age 45].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 46,
+   "path": "pensions[p1].bvg.years[age 46].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 153773.4375,
+   "path": "pensions[p1].bvg.years[age 46].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 46].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 46].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1898.4375,
+   "path": "pensions[p1].bvg.years[age 46].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 47,
+   "path": "pensions[p1].bvg.years[age 47].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 155695.60546875,
+   "path": "pensions[p1].bvg.years[age 47].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 47].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 47].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1922.16796875,
+   "path": "pensions[p1].bvg.years[age 47].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 48,
+   "path": "pensions[p1].bvg.years[age 48].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 157641.80053710938,
+   "path": "pensions[p1].bvg.years[age 48].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 48].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 48].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1946.195068359375,
+   "path": "pensions[p1].bvg.years[age 48].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 49,
+   "path": "pensions[p1].bvg.years[age 49].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 159612.32304382324,
+   "path": "pensions[p1].bvg.years[age 49].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 49].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 49].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1970.5225067138672,
+   "path": "pensions[p1].bvg.years[age 49].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 50,
+   "path": "pensions[p1].bvg.years[age 50].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 161607.47708187104,
+   "path": "pensions[p1].bvg.years[age 50].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 50].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 50].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1995.1540380477907,
+   "path": "pensions[p1].bvg.years[age 50].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 51,
+   "path": "pensions[p1].bvg.years[age 51].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 163627.57054539444,
+   "path": "pensions[p1].bvg.years[age 51].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 51].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 51].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2020.093463523388,
+   "path": "pensions[p1].bvg.years[age 51].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 52,
+   "path": "pensions[p1].bvg.years[age 52].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 165672.91517721186,
+   "path": "pensions[p1].bvg.years[age 52].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 52].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 52].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2045.3446318174306,
+   "path": "pensions[p1].bvg.years[age 52].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 53,
+   "path": "pensions[p1].bvg.years[age 53].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 167743.82661692702,
+   "path": "pensions[p1].bvg.years[age 53].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 53].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 53].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2070.9114397151484,
+   "path": "pensions[p1].bvg.years[age 53].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 54,
+   "path": "pensions[p1].bvg.years[age 54].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 169840.62444963862,
+   "path": "pensions[p1].bvg.years[age 54].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 54].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.15,
+   "path": "pensions[p1].bvg.years[age 54].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2096.797832711588,
+   "path": "pensions[p1].bvg.years[age 54].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 55,
+   "path": "pensions[p1].bvg.years[age 55].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 171963.63225525912,
+   "path": "pensions[p1].bvg.years[age 55].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 55].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 55].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2123.007805620483,
+   "path": "pensions[p1].bvg.years[age 55].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 56,
+   "path": "pensions[p1].bvg.years[age 56].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 174113.17765844986,
+   "path": "pensions[p1].bvg.years[age 56].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 56].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 56].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2149.545403190739,
+   "path": "pensions[p1].bvg.years[age 56].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 57,
+   "path": "pensions[p1].bvg.years[age 57].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 176289.59237918048,
+   "path": "pensions[p1].bvg.years[age 57].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 57].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 57].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2176.4147207306232,
+   "path": "pensions[p1].bvg.years[age 57].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 58,
+   "path": "pensions[p1].bvg.years[age 58].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 178493.21228392023,
+   "path": "pensions[p1].bvg.years[age 58].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 58].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 58].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2203.6199047397563,
+   "path": "pensions[p1].bvg.years[age 58].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 59,
+   "path": "pensions[p1].bvg.years[age 59].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 180724.37743746923,
+   "path": "pensions[p1].bvg.years[age 59].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 59].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 59].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2231.165153549003,
+   "path": "pensions[p1].bvg.years[age 59].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 60,
+   "path": "pensions[p1].bvg.years[age 60].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 182983.4321554376,
+   "path": "pensions[p1].bvg.years[age 60].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 60].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 60].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2259.0547179683654,
+   "path": "pensions[p1].bvg.years[age 60].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 61,
+   "path": "pensions[p1].bvg.years[age 61].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 185270.72505738056,
+   "path": "pensions[p1].bvg.years[age 61].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 61].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 61].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2287.29290194297,
+   "path": "pensions[p1].bvg.years[age 61].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 62,
+   "path": "pensions[p1].bvg.years[age 62].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 187586.60912059783,
+   "path": "pensions[p1].bvg.years[age 62].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 62].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 62].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2315.8840632172573,
+   "path": "pensions[p1].bvg.years[age 62].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 63,
+   "path": "pensions[p1].bvg.years[age 63].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 189931.4417346053,
+   "path": "pensions[p1].bvg.years[age 63].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 63].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 63].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2344.832614007473,
+   "path": "pensions[p1].bvg.years[age 63].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 64,
+   "path": "pensions[p1].bvg.years[age 64].age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 192305.58475628786,
+   "path": "pensions[p1].bvg.years[age 64].closing",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "pensions[p1].bvg.years[age 64].credit",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.18,
+   "path": "pensions[p1].bvg.years[age 64].credit_rate",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 2374.143021682566,
+   "path": "pensions[p1].bvg.years[age 64].interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "property[home].affordability.price_supported_chf",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "does_not_meet",
+   "path": "property[home].affordability.verdict",
+   "reproduction": "could_not_be_determined"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "property[home].binds_on",
+   "reproduction": []
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "affordability",
+   "path": "property[home].binds_on[0]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "property[home].levers",
+   "reproduction": []
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1000000.0,
+   "path": "property[home].levers[0].difference_chf",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "price",
+   "path": "property[home].levers[0].lever",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1000000.0,
+   "path": "property[home].levers[0].stated_chf",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "property[home].levers[0].supported_chf",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 176666.66666666672,
+   "path": "property[home].levers[1].difference_chf",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "household_income",
+   "path": "property[home].levers[1].lever",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "property[home].levers[1].recorded_chf",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 176666.66666666672,
+   "path": "property[home].levers[1].required_chf",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": [],
+   "path": "property[home].undetermined_because",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "property[home].undetermined_because[0]",
+   "reproduction": "no_income_is_recorded_for_the_household"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "does_not_meet",
+   "path": "property[home].verdict",
+   "reproduction": "could_not_be_determined"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "retirement[later].ahv",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": false,
+   "path": "retirement[later].ahv.at_maximum",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": true,
+   "path": "retirement[later].ahv.at_minimum",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "current_income_as_a_stand_in_for_the_lifetime_average",
+   "path": "retirement[later].ahv.basis",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": false,
+   "path": "retirement[later].ahv.levers[0].at_maximum",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": true,
+   "path": "retirement[later].ahv.levers[0].at_minimum",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "mdje",
+   "path": "retirement[later].ahv.levers[0].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1260,
+   "path": "retirement[later].ahv.levers[0].gives_monthly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "retirement[later].ahv.levers[0].stands_at",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].ahv.levers[1].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Erziehungsgutschriften, credited for years with children under 16 in the household.",
+   "path": "retirement[later].ahv.levers[1].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].ahv.levers[2].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Betreuungsgutschriften, for years spent caring for a relative.",
+   "path": "retirement[later].ahv.levers[2].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].ahv.levers[3].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Splitting, which halves and reassigns income earned during a marriage.",
+   "path": "retirement[later].ahv.levers[3].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].ahv.levers[4].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Jugendjahre, contribution years between 18 and 20 that can fill later gaps.",
+   "path": "retirement[later].ahv.levers[4].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].ahv.levers[5].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "The revaluation factor applied to early-career income before the average is taken.",
+   "path": "retirement[later].ahv.levers[5].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].ahv.levers[6].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "The reduction for drawing early and the supplement for deferring -- both in Merkblatt 3.04.",
+   "path": "retirement[later].ahv.levers[6].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].ahv.levers[7].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "The Rentenzuschlag for women born 1961-1969.",
+   "path": "retirement[later].ahv.levers[7].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1260,
+   "path": "retirement[later].ahv.monthly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 16380,
+   "path": "retirement[later].ahv.yearly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "retirement[later].caveats",
+   "reproduction": []
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "current_income_was_used_where_a_lifetime_average_belongs",
+   "path": "retirement[later].caveats[0]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "mdje_is_a_lifetime_average_and_was_supplied_not_derived",
+   "path": "retirement[later].caveats[1]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "the_contribution_record_was_not_stated_so_a_full_one_is_assumed",
+   "path": "retirement[later].caveats[2]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "interest_is_a_statutory_minimum_not_a_return",
+   "path": "retirement[later].caveats[3]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "the_obligatory_portion_only_the_ueberobligatorium_is_not_visible_here",
+   "path": "retirement[later].caveats[4]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "the_salary_is_assumed_unchanged_to_the_reference_age",
+   "path": "retirement[later].caveats[5]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "the_salary_is_below_the_entry_threshold_so_nothing_is_credited",
+   "path": "retirement[later].caveats[6]",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 29456.779763427578,
+   "path": "retirement[later].covered_per_year",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "retirement[later].pillar2",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 192305.58475628786,
+   "path": "retirement[later].pillar2.closing_balance",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": null,
+   "path": "retirement[later].pillar2.coordinated_salary",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 45,
+   "path": "retirement[later].pillar2.from_age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 26460,
+   "path": "retirement[later].pillar2.levers[0].deduction",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "coordinated_salary",
+   "path": "retirement[later].pillar2.levers[0].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "retirement[later].pillar2.levers[0].gross",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": null,
+   "path": "retirement[later].pillar2.levers[0].stands_at",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "years_remaining",
+   "path": "retirement[later].pillar2.levers[1].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 20,
+   "path": "retirement[later].pillar2.levers[1].stands_at",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "opening_balance",
+   "path": "retirement[later].pillar2.levers[2].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 192305.58475628786,
+   "path": "retirement[later].pillar2.levers[2].grows_to",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "retirement[later].pillar2.levers[2].of_which_credits",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 42305.584756287826,
+   "path": "retirement[later].pillar2.levers[2].of_which_interest",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 150000.0,
+   "path": "retirement[later].pillar2.levers[2].stands_at",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].pillar2.levers[3].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "The überobligatorisch portion, which for most members is the larger one and is credited and converted at whatever the fund's regulations say.",
+   "path": "retirement[later].pillar2.levers[3].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].pillar2.levers[4].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Salary growth, and any change of pension fund.",
+   "path": "retirement[later].pillar2.levers[4].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].pillar2.levers[5].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Einkäufe — voluntary purchases into the fund, which are the single largest lever a member over 50 has.",
+   "path": "retirement[later].pillar2.levers[5].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].pillar2.levers[6].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "A WEF withdrawal already taken, which reduces the balance and the future credits on it.",
+   "path": "retirement[later].pillar2.levers[6].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].pillar2.levers[7].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Risk and administration costs, which are charged alongside the credits and are not part of them.",
+   "path": "retirement[later].pillar2.levers[7].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].pillar2.levers[8].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "A part-time pensum changing, which changes the coordinated salary more than proportionally.",
+   "path": "retirement[later].pillar2.levers[8].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "not_modelled",
+   "path": "retirement[later].pillar2.levers[9].dimension",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "Any fund that insures more than the obligatory minimum, which is nearly all of them.",
+   "path": "retirement[later].pillar2.levers[9].note",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 1089.731646952298,
+   "path": "retirement[later].pillar2.monthly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 150000.0,
+   "path": "retirement[later].pillar2.opening_balance",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 65,
+   "path": "retirement[later].pillar2.to_age",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 13076.779763427576,
+   "path": "retirement[later].pillar2.yearly",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 30543.220236572422,
+   "path": "retirement[later].shortfall_per_year",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": [],
+   "path": "retirement[later].undetermined_because",
+   "reproduction": "<absent>"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "<absent>",
+   "path": "retirement[later].undetermined_because[0]",
+   "reproduction": "no_income_is_recorded_for_the_household"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "does_not_meet",
+   "path": "retirement[later].verdict",
+   "reproduction": "could_not_be_determined"
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": 0.0,
+   "path": "totals.household_income",
+   "reproduction": null
+  },
+  {
+   "by": [
+    "zero_income_is_a_stated_zero"
+   ],
+   "corrected": "income_positions",
+   "path": "totals.household_income_basis",
+   "reproduction": "no_income_position"
+  }
+ ],
+ "syn-couple": [],
+ "syn-liquidity": [],
+ "syn-property-1": [],
+ "syn-property-2": [],
+ "syn-property-3": [],
+ "syn-property-4": [],
+ "syn-property-5": []
+}

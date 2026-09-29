@@ -1,0 +1,88 @@
+{
+  "_about": {
+    "requirement": "The second pillar is the only one of the three whose balance grows by a rule the member can be shown. The credits are a statutory percentage of the coordinated salary and they step up with age — 7, 10, 15, 18 — so a 23-year-old and a 55-year-old on the same salary accrue at very different rates, and neither can see that anywhere in the build. Marvin's Befund says his Pensionskasse is zero; what it cannot say is what it becomes by 65 if it is not.",
+    "why_a_content_record": "The four credit rates are BVG Art. 16, the Grenzbeträge are the BSV's annual sheet, and the interest is a Federal Council decision. None is an engine output. Inlining any of them is the defect C-02 exists to prevent, and the interest rate is the most tempting because it looks like a market rate and is not — it is a floor the law imposes.",
+    "what_this_is_not": "**Not a forecast, and the interest is the reason to say so twice.** The Mindestzinssatz is the minimum a fund must credit on the OBLIGATORY portion in ONE year. It is not a return, it is not promised for the next year, and it has moved between 1 and 4 percent within living memory. Projecting decades forward at this year's figure is an arithmetic illustration of a rule, not a statement about what a member will have.",
+    "the_owner_chose_this_rate": "Asked on 5 September 2026 whether to project at zero, at the Mindestzinssatz, or as a band, the owner chose the Mindestzinssatz. It is the only citable figure of the three, and the caveat above is carried on every output that uses it rather than left in this file.",
+    "published_by": "Nicolas Bürkler, SIM Research",
+    "decided_on": "2026-09-22",
+    "effective_from": "2026-01-01",
+    "provisional": false,
+    "_approval": "APPROVED 22 September 2026 by the owner, who was shown the four `_for_review` concerns below and approved with them standing. They are not resolved by this approval and none of them is hidden from a member: every franc figure this record produces carries the caveats `interest_is_a_statutory_minimum_not_a_return`, `the_obligatory_portion_only_the_ueberobligatorium_is_not_visible_here` and `the_salary_is_assumed_unchanged_to_the_reference_age`, which `services/pension_projection.project` attaches to every result and `computations.retirement_provision` repeats in German on the answer itself. What the approval settles is that an illustration of the statutory rule, carrying those three sentences, is better than refusing to compute anything — which is what it did until today, for the nine of fifty members whose opening question was about their own provision.",
+    "_for_review": [
+      "Projecting 42 years at 1.25 percent. It is this year's rate and the statutory minimum, so the figure is a floor in one sense and a forecast in another. A member reading it will read a forecast.",
+      "The projection covers the OBLIGATORY portion only. For most members the überobligatorisch part is the larger one, it is credited at whatever the fund decides, and this record cannot see it — so the figure understates a real balance by an unknown amount while looking precise.",
+      "Salary is assumed flat to 65. A member's coordinated salary is the one input most certain to change and the projection has no way to know how.",
+      "Whether the credits should start at 25 in the projection as the law says, or from today for a member already older. They do start at 25 here, which is right for the rule and produces a zero for a 23-year-old's next two years."
+    ],
+    "sources": [
+      "BVG (SR 831.40), Art. 16 — the four Altersgutschriften rates by age band, quoted exactly.",
+      "BVG Art. 8 and the BSV sheet «Beträge gültig ab dem 1. Januar 2026» — the coordination figures.",
+      "Federal Council decision of 5 November 2025 — the BVG minimum interest rate for 2026 stays at 1.25 percent. Announced by the BSV; BVV 2 Art. 12 is where it lands.",
+      "AHV/IV-Merkblatt 6.06, Stand 1. Januar 2025 — the entry threshold and the exemptions."
+    ]
+  },
+  "credits": {
+    "_about": "BVG Art. 16, verbatim: «Die Altersgutschriften werden jährlich in Prozenten des koordinierten Lohnes berechnet.» The bands are inclusive of both endpoints and the age is the age reached in the calendar year.",
+    "bands": [
+      {
+        "from_age": 25,
+        "to_age": 34,
+        "rate": 0.07
+      },
+      {
+        "from_age": 35,
+        "to_age": 44,
+        "rate": 0.1
+      },
+      {
+        "from_age": 45,
+        "to_age": 54,
+        "rate": 0.15
+      },
+      {
+        "from_age": 55,
+        "to_age": 65,
+        "rate": 0.18
+      }
+    ],
+    "starts_at_age": 25,
+    "starts_why": "Below 25 the obligatory scheme insures death and invalidity only, not old age. A balance of zero at 23 is therefore consistent with being correctly insured, and the projection must not credit anything before then."
+  },
+  "coordination": {
+    "_about": "The slice of salary the obligatory scheme insures. From the BSV sheet, gültig ab 1. Januar 2026, unchanged from 2025.",
+    "entry_threshold": 22680,
+    "deduction": 26460,
+    "upper_limit": 90720,
+    "minimum_coordinated": 3780,
+    "how": "AHV salary, capped at the upper limit, less the deduction; floored at the minimum coordinated salary if the result is positive but smaller.",
+    "why_it_bites_a_small_pension": "The deduction is a fixed amount and not a percentage, so it removes the same 26 460 from a 40 000 salary as from an 80 000 one."
+  },
+  "interest": {
+    "_about": "The minimum the law requires a fund to credit on the obligatory retirement assets.",
+    "minimum_rate": 0.0125,
+    "set_on": "2025-11-05",
+    "set_by": "Bundesrat",
+    "applies_to": "the obligatory portion of the retirement assets only",
+    "why_this_is_not_a_return": "It is a floor for one year, revisited annually, and it has stood between 1 and 4 percent within the lifetime of the scheme. A fund may credit more and most do on the überobligatorisch portion, which this record cannot see."
+  },
+  "conversion": {
+    "_about": "How a balance becomes a pension. BVG Art. 14 Abs. 2, verbatim: «Der Mindestumwandlungssatz beträgt 6,8 Prozent für das Referenzalter 65 von Frau und Mann.»",
+    "minimum_rate": 0.068,
+    "at_reference_age": 65,
+    "applies_to": "the obligatory portion only; a fund may apply a lower rate to the überobligatorisch part and most do",
+    "read_your_own": "The effective rate for a particular fund is on the Vorsorgeausweis."
+  },
+  "not_modelled": {
+    "_about": "Named rather than approximated. The first is the largest.",
+    "items": [
+      "The überobligatorisch portion, which for most members is the larger one and is credited and converted at whatever the fund's regulations say.",
+      "Salary growth, and any change of pension fund.",
+      "Einkäufe — voluntary purchases into the fund, which are the single largest lever a member over 50 has.",
+      "A WEF withdrawal already taken, which reduces the balance and the future credits on it.",
+      "Risk and administration costs, which are charged alongside the credits and are not part of them.",
+      "A part-time pensum changing, which changes the coordinated salary more than proportionally.",
+      "Any fund that insures more than the obligatory minimum, which is nearly all of them."
+    ]
+  }
+}

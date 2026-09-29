@@ -1,0 +1,67 @@
+# eigentliCH Report Engine (report), Engine 15: configuration.
+#
+# Committed, so it never holds a secret. The database password lives in config.local.yaml
+# (git-ignored) or REPORT_DB_PASSWORD; the spark7 access token lives in the family .env
+# (git-ignored), named below by variable only. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  REPORT_DATABASE_URL / DATABASE_URL  <  REPORT_*
+#
+# Prose generation parameters, the number check, the reject rules and the section asks are NOT
+# here: they are versioned calibrations (src/report/calibration.py, PUT /calibration).
+
+service:
+  host: 127.0.0.1
+  port: 8015                    # Engine Building Guide section 4. Override with REPORT_PORT.
+  # "*" lets the test bench work when opened straight off disk. Narrow it before
+  # deployment, e.g. REPORT_CORS_ORIGINS=https://app.example
+  cors_origins: ["*"]
+
+upstream:
+  # The engines a report draws on, read over HTTP through their published contracts.
+  # Override with REPORT_PCP_URL, REPORT_LBS_URL.
+  pcp_url: http://127.0.0.1:8007      # GET /allocation/{id}  -> pcp-allocation@1.0.0
+  lbs_url: http://127.0.0.1:8013      # GET /artefacts/{id}   -> lbs-balance-sheet@1.0.0
+  timeout_s: 60
+
+model:
+  # The one place that says which service writes the prose and with which model (after the OGD
+  # Plattform's inferenz.yaml). Known external generative-AI providers are refused at start,
+  # and so is any host that is neither loopback nor the house's own (*.minimind.ch): REP-04.
+  service: spark7               # the server; never shown to a reader
+  display_name: MiniMind        # the house's AI as readers see it (the report's lede): REP-21
+  protocol: openai              # OpenAI-compatible routes only (vLLM): /v1/models, /v1/chat/completions
+  base_url: https://spark7.minimind.ch      # override with REPORT_MODEL_URL
+  model: google/gemma-4-31B-it-qat-w4a16-ct # override with REPORT_MODEL_NAME; enters the idempotency key
+  # The access proxy cuts a response that has not started within 125 s (HTTP 524), so every
+  # call streams (SSE) and only the first byte has to beat the proxy.
+  stream: true
+  timeouts:
+    connect_s: 10
+    first_byte_s: 120           # also the longest silence allowed between two chunks
+    total_s: 300
+  headers:
+    Cache-Control: "no-cache, no-store, must-revalidate"
+  headers_from_env:
+    # Header name -> environment variable NAME. Never a value in this file.
+    CF-Access-Client-Id: SPARK7_CLIENT_ID
+    CF-Access-Client-Secret: SPARK7_CLIENT_SECRET
+  env_file: ../../.env
+  warmup:
+    # REPORT_WARMUP=0 switches it off (the tests do). Not below 30 s.
+    enabled: true
+    interval_s: 240
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema per engine, one role per engine
+  # (Engine Building Guide section 8). The role owns this schema and reads nothing else.
+  dbname: simtech
+  schema: report
+  user: report
+  sslmode: prefer
+  connect_timeout: 10
+  maintenance_dbname: postgres
+
+calibration:
+  active: "1.0.0"

@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "Decision": {
+      "additionalProperties": false,
+      "description": "What a Curator decided.",
+      "properties": {
+        "action": {
+          "description": "confirm | override | reject",
+          "title": "Action",
+          "type": "string"
+        },
+        "changes": {
+          "additionalProperties": true,
+          "title": "Changes",
+          "type": "object"
+        },
+        "decided_at": {
+          "title": "Decided At",
+          "type": "string"
+        },
+        "decided_by_role": {
+          "title": "Decided By Role",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "decided_by_role",
+        "decided_at",
+        "rationale"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Where a value came from.\n\n`as_of` is the date the data describes. It is deliberately not the time the object was built: see the\nmodule docstring.",
+      "properties": {
+        "as_of": {
+          "description": "The date the value describes, ISO or YYYY-MM",
+          "title": "As Of",
+          "type": "string"
+        },
+        "model_version": {
+          "description": "Version of the engine or model that produced it",
+          "title": "Model Version",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "reliability": {
+          "$ref": "#/$defs/Reliability",
+          "default": "derived"
+        },
+        "source": {
+          "description": "Publishing institution, engine, or person",
+          "title": "Source",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "source",
+        "as_of",
+        "model_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Reliability": {
+      "description": "How far a value can be trusted. Mirrors the macro programme's ladder.\n\n`SYNTHETIC` must never reach a client-facing surface or a regulated decision. The ground rules forbid\nfilling a gap with placeholder data, so this level exists to make a breach detectable rather than to\npermit one.",
+      "enum": [
+        "published",
+        "derived",
+        "interpolated",
+        "synthetic"
+      ],
+      "title": "Reliability",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The immutable evidence that a Recommendation crossed the wall.\n\nCarries the originating `trace_id`, so the whole computation behind a piece of advice can be replayed\nfrom the record. That is what makes the audit trail real rather than nominal.",
+  "properties": {
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "decision": {
+      "$ref": "#/$defs/Decision"
+    },
+    "evidence": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Provenance"
+      },
+      "title": "Evidence",
+      "type": "object"
+    },
+    "household_id": {
+      "title": "Household Id",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "originating_trace_id": {
+      "title": "Originating Trace Id",
+      "type": "string"
+    },
+    "pre_check_findings": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Pre Check Findings",
+      "type": "array"
+    },
+    "pre_check_passed": {
+      "title": "Pre Check Passed",
+      "type": "boolean"
+    },
+    "recommendation_id": {
+      "title": "Recommendation Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trace Id"
+    }
+  },
+  "required": [
+    "as_of",
+    "model_version",
+    "household_id",
+    "recommendation_id",
+    "snapshot_id",
+    "originating_trace_id",
+    "decision",
+    "pre_check_passed"
+  ],
+  "title": "AdviceRelease",
+  "type": "object",
+  "x-contract-version": "0.1.0",
+  "x-regulated": "Regulated"
+}

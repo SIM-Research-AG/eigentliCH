@@ -1,0 +1,201 @@
+# Saved onboarding submissions. **Real answers about a real person's finances**, kept on this machine so a case
+# can be replayed without re-interviewing, and deliberately NOT committed. Nothing in the repo needs them: the
+# five fictional worked lives carry every figure the tests and the blueprint use. Added 4 August 2026 alongside
+# the replay route that reads this folder.
+desktop/replays/
+
+# And everything DERIVED from one of those submissions, which is the same private fact one step downstream.
+#
+# **This is a narrow exception to the rule further down that `engines/PCP/mandates/derived_*.yaml` stay in.**
+# That rule is right for the demo households: the churn is the only visible record of a mandate moving. It is
+# wrong for a real person, and the mandate is not a milder disclosure than the submission — it carries the
+# position and the goal that were derived from it, and the allocation JSON carries what was recommended on top.
+#
+# The `onb-` prefix is what marks the difference: a household id beginning `onb-` came from a real onboarding
+# submission rather than from the fictional roster (`hh-00xx`). Keep that prefix for real cases and this rule
+# keeps working without anyone having to remember it. Added 5 August 2026, on the author's instruction, after
+# `derived_onb-1981-sz.yaml` and its allocation were committed and then pulled back out.
+engines/PCP/mandates/derived_onb-*.yaml
+# Widened from `onb-*.json` to `onb-*` on 9 August 2026. The optimiser writes a CSV of the allocation
+# beside the JSON, and the narrower pattern let it through — the same disclosure in a second file format.
+# A rule that protects one extension of an artefact protects nothing.
+engines/PCP/output/onb-*
+
+# And the dossier itself, which is the largest disclosure of the three: a real household's balance sheet, its
+# goals and its allocation in prose. Removed from history with `filter-branch` on 5 August 2026, on the author's
+# instruction, having been tracked since it was written.
+#
+# **The generated-HTML-surfaces rule further down does not reach it.** That rule keeps dashboards, cockpits and
+# Schulung pages in, because there is no CI here and a diff of the published page is the only record of what a
+# decision actually published. It holds for pages built from the fictional roster. A client dossier is not a
+# published surface in that sense: it is one person's finances rendered for that person.
+#
+# Same `1981-schwyz` naming as the replay it was written from, so the two stay recognisably one case.
+#
+# **Generalised 5 August 2026, on the second real submission.** The first rule named one file, which is a rule
+# that protects exactly one household and silently fails on the next. A submission arriving as a download —
+# `andersch-onboarding-2026-08-05.json` landed in the prototype directory, not in `desktop/replays/` — is the
+# same private fact by a different route, and the dossier written from it is the same disclosure as the first.
+# Patterns, so the protection does not depend on anyone remembering this file.
+# The set book, which the press regenerates from `book/manuscript/`. The manuscript is the record; these two are
+# a large binary and a 100 KB+ intermediate that churn on every run, and neither is reviewable as a diff. The
+# generated-HTML-surfaces rule further down does not reach them for that reason.
+book/capital-saturation.html
+book/capital-saturation.pdf
+# The book coach's retrieval index: 6 MB of embeddings derived from `book/manuscript/`, which IS tracked.
+# Regenerated in about six minutes by `python desktop/bookindex.py --build`, so it is build output by the
+# same test every other line here applies. It carries no personal data — it is the book and nothing else —
+# but a binary blob of float vectors is not reviewable as a diff and would churn on every manuscript edit.
+desktop/bookindex/
+# The published copy of that same build, renamed by hand to the original source's name. It is an artifact of the
+# press like the two above, not an input, and NOT to be confused with `capital-saturation-en_OLD.pdf`, which is
+# the original 604-page source and IS tracked.
+book/capital-saturation-en.pdf
+
+andersCH-prototype/gameplan-*.html
+andersCH-prototype/andersch-onboarding-*.json
+andersCH-prototype/*-onboarding-*.json
+# Same submissions, copied into the prototype2 client folder on 30 August 2026 as the working
+# corpus for the rebuild. The pattern above is anchored to `andersCH-prototype/` and does not
+# reach a second directory, which is the failure mode the 5 August generalisation was written
+# against — a private fact by a different route. Anchored broadly here so a third location is
+# covered before it exists.
+#
+# NOTE, 21 September 2026: this block was anchored to `andersCH-prototype2/` until the directory was
+# renamed to `Prototype/`. The rename silently switched every rule below off — `git check-ignore` said
+# nothing was ignored, and one `git add -A` would have committed the whole `reports/` tree. That is the
+# third time an anchored rule has been defeated by a path change, and it is the reason the dossier and
+# onboarding patterns above are unanchored. These cannot be: `reports/` and `client/submissions/` are
+# ordinary directory names that other parts of the estate also use.
+Prototype/client/submissions/
+**/andersch-onboarding-*.json
+**/*-onboarding-*.json
+# A deck that reproduces a real household's balance sheet is the same disclosure as the dossier it was built
+# from, by another route. `praesentation-system.html` carries the Luzern 1974 case through its middle third.
+# To show one outside, rebuild the worked section on a book life from `roster.py`: those are fictional, their
+# figures are measured, and they carry nothing to disclose.
+andersCH-prototype/praesentation-*.html
+# The member-facing dossiers themselves, wherever they are written. The `gameplan-*` line above is
+# anchored to `andersCH-prototype/` and a copy was already sitting unignored in
+# `andersCH-prototype2/reports/` (now `Prototype/`) — a private fact by a second route, which is the failure this file
+# has now been widened against twice. A dossier reproduces one real person's balance sheet, income,
+# canton, age and employer trade under their own name: it is the most identifying artifact the build
+# produces, more so than the submission it reads, because it is written to be read by a stranger.
+# Unanchored on purpose, so a third directory is covered before it exists. Added 5 September 2026.
+**/gameplan-*.html
+**/dossier-*.html
+# And the review reports built out of the same submissions. They are milder than a dossier -- first name
+# and initial, age, the two risk answers, a horizon -- but `allocation-2026-09-05.html` also names a
+# member's balance in prose, which is the whole of the distinction gone. Ignored by directory rather than
+# by name, because the next one will have a different name and the same content.
+#
+# NOTE, 5 September 2026: `andersCH-prototype2/reports/members-2026-09-04.html` — the directory's name at
+# the time — was committed before this
+# rule existed (c0db87f) and carries ten members' first names, cantons, occupations and exact figures.
+# Ignoring it here does nothing -- git ignores untracked files only. Removing it is the owner's call and
+# is cheap while this repo has no remote.
+Prototype/reports/*.html
+Prototype/reports/_*.json
+# A single `*` stops at the directory boundary, so the rule above did NOT cover
+# `reports/reports/` or `reports/dossiers/`. Found on 6 September when `git status` listed ten
+# members' two-version reports as untracked -- the same second-route failure this file warns about
+# two rules up, in a directory created after the warning was written. Ignore the whole tree.
+Prototype/reports/**
+# The Schulung is documentation and is committed; its body-only twin is a build artefact for
+# publishing and is not.
+Prototype/*.body.html
+!Prototype/reports/
+!Prototype/reports/.gitkeep
+# The Ollama app writes a log into whatever directory it is started from.
+Ollama/
+# Worked use cases built from a real approach. Less identifying than a client dossier — banded figures, no
+# name, canton or employer — but the provenance is the same: a person told us this directly. Excluded by
+# default and deliberately reversible: if a case is judged sufficiently anonymised, delete its line here.
+architecture/use-case-*.html
+
+# andersCH — what version control should not carry
+#
+# Written 3 August 2026, before `git init`, because the order matters: a first commit that swept in the
+# vendored trees would be ~2 GB and effectively permanent. Measured on this tree before writing:
+#
+#     total     66,383 files   2,047 MB
+#     ignored   65,452 files   1,921 MB   (.venv x5, node_modules, __pycache__)
+#     tracked      931 files     127 MB
+#
+# So 98.5 percent of the files here are reproducible from a lockfile or a build. The list below is
+# deliberately conservative — it excludes only things that can be regenerated, and everything a reader
+# would need to rebuild the system stays in.
+
+# ---------------------------------------------------------------------------
+# Python environments and bytecode
+#
+# Five separate .venv trees, one per engine, because the engines are versioned independently and each
+# carries its own numerical stack (DECISIONS.md records the environment in the shared-path golden for
+# exactly this reason). They are reproducible from each engine's requirements; the bytecode is not
+# meaningful at all, and a stale .pyc has already caused one incident in this project.
+# ---------------------------------------------------------------------------
+.venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+**/.pytest_cache/
+*.egg-info/
+**/*.egg-info/
+
+# ---------------------------------------------------------------------------
+# Node
+#
+# `andersCH-prototype/node_modules` alone dominates the ignored total. `.next/` is Next.js build output:
+# on this tree its webpack caches are the six largest "tracked" files, about 45 MB, all regenerable by
+# `next build`.
+# ---------------------------------------------------------------------------
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+.turbo/
+**/.turbo/
+dist/
+**/dist/
+*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# Editor and OS noise
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# ---------------------------------------------------------------------------
+# What is deliberately NOT ignored, and why — read this before adding a line above
+#
+# **Generated HTML surfaces stay in.** The dashboards, cockpits, curator workbench, client plans, Schulung
+# pages and the index are build output and a purist would exclude them. They are kept because there is no
+# CI here and no other record of what a given decision actually published: a diff of `cockpit-hh-0013.html`
+# between two commits is the only way to see that a change moved a client's numbers. If CI ever builds and
+# publishes these, revisit this.
+#
+# **`engines/Macro_Model/macrofield/data/cache/` stays in**, including the 6.2 MB Penn World Table
+# spreadsheet. It is named "cache" but it is a pulled *source*: the whole vintage discipline in this
+# project (data_vintage 2024-12-31, series_sources stamped into every ReturnSet) depends on being able to
+# rebuild a published contract from the same inputs offline. Losing it would make the goldens
+# unreproducible the next time a publisher changes a URL.
+#
+# **`engines/PCP/mandates/derived_*.yaml` stay in.** They are regenerated on every run, so they will churn.
+# That churn is the point: it is the only visible record of a household's mandate moving. Note register
+# item 23 — two of the seven are fixture spill from the journey and the test suite, which should be fixed
+# rather than ignored here.
+#
+# **Vendored JS libraries stay in** (`plotly-2.35.2.min.js` and similar under `engines/PCP/pcp/cockpit/
+# static/`). They are pinned by filename, served offline by the cockpit, and there is no package manager
+# in that path to restore them from.
+#
+# **`legacy/` and `*_retired.csv` stay in.** M1 says never delete; those directories are the pre-change
+# artefacts that made today's register cut reversible at all.
+# ---------------------------------------------------------------------------

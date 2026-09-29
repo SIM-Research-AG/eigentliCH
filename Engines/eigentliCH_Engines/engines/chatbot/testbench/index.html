@@ -1,0 +1,141 @@
+<!doctype html>
+<!--
+  eigentliCH ChatBot (chatbot) test bench. Development only: not part of the system and not in the deploy folder.
+
+  A client of the engine's HTTP surface, nothing more. Served by the engine at "/", or opened off disk, when it
+  calls http://127.0.0.1:8016 (or ?api=...). No build step, no external script.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MiniMind test bench</title>
+<style>
+  :root { color-scheme: light; --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+          --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10); --s1: #2a78d6; --critical: #d03b3b; --good: #0ca30c; }
+  @media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { color-scheme: dark; --page: #0d0d0d;
+          --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+          --s1: #3987e5; } }
+  :root[data-theme="dark"] { color-scheme: dark; --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
+          --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --s1: #3987e5; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; } #sub { color: var(--ink-2); font-size: 12px; } #themeBtn { margin-left: auto; }
+  main { padding: 8px 24px 48px; max-width: 1280px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; min-width: 0; }
+  .card h2 { font-size: 15px; margin: 0 0 8px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); margin-bottom: 10px; }
+  input, select, textarea, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  textarea { font: 12px ui-monospace, Consolas, monospace; min-height: 120px; width: 100%; }
+  button { cursor: pointer; } button.primary { background: var(--s1); color: #fff; border-color: var(--s1); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+  .answer { font-size: 15px; white-space: pre-wrap; margin: 8px 0; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--axis); margin-right: 6px; }
+  .bad { color: var(--critical); border-color: var(--critical); } .ok { color: var(--good); border-color: var(--good); }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: left; vertical-align: top; }
+  th { color: var(--ink-2); font-weight: 600; }
+  pre { font: 12px ui-monospace, Consolas, monospace; background: var(--page); padding: 8px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; max-height: 320px; }
+  .note { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>MiniMind · eigentliCH ChatBot</h1><span id="sub">loading</span>
+  <button id="themeBtn" type="button">Theme</button>
+</header>
+<main>
+  <section class="card">
+    <h2>Question</h2>
+    <label>Question <input id="q" value="Wie viel darf ich 2026 in die Säule 3a einzahlen, wenn ich eine Pensionskasse habe?"></label>
+    <div class="row">
+      <label>Language <select id="lang"><option>de</option><option>en</option></select></label>
+      <label>Calibration <input id="cal" placeholder="active"></label>
+      <button class="primary" id="ask" type="button">Ask (POST /answer)</button>
+    </div>
+    <label>Grounding notes (JSON list of {id, title, text, source_label})<textarea id="grounding"></textarea></label>
+    <label>Client facts (JSON list of {key, label, value, source}; used only for a question about the client)<textarea id="facts">[]</textarea></label>
+    <label>History (JSON list of {role, content})<textarea id="history" style="min-height:60px">[]</textarea></label>
+  </section>
+  <section class="card">
+    <h2>MiniMind's answer</h2>
+    <div id="status" class="note">No question asked yet.</div>
+    <div id="answer" class="answer"></div>
+    <div id="tags"></div>
+    <h2 style="margin-top:14px">Numbers checked</h2>
+    <table><thead><tr><th>Number</th><th>Matched sources</th></tr></thead><tbody id="numbers"></tbody></table>
+    <h2 style="margin-top:14px">Warnings</h2><ul id="warnings" class="note"></ul>
+    <details><summary class="note">Full ChatAnswer</summary><pre id="raw"></pre></details>
+  </section>
+  <section class="card">
+    <h2>Recent runs</h2>
+    <table><thead><tr><th>Run</th><th>Status</th><th>Question</th><th>Refused</th><th>Unverified</th></tr></thead><tbody id="runs"></tbody></table>
+  </section>
+  <section class="card">
+    <h2>Engine</h2><pre id="meta"></pre>
+    <button type="button" id="probe">Probe MiniMind (GET /model)</button><pre id="model"></pre>
+  </section>
+</main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const API = params.get("api") || (location.protocol.startsWith("http") ? "" : "http://127.0.0.1:8016");
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+  $("grounding").value = JSON.stringify([
+    {id: "N1", title: "Säule 3a: Maximalbetrag 2026", source_label: "eigentliCH Wissen: Säule 3a (2026)",
+     text: "Erwerbstätige mit Pensionskasse dürfen 2026 höchstens CHF 7'258 pro Jahr in die Säule 3a einzahlen. Ohne Pensionskasse sind es 20 % des Erwerbseinkommens, höchstens CHF 36'288."},
+    {id: "N2", title: "AHV: Referenzalter", source_label: "eigentliCH Wissen: AHV (2026)",
+     text: "Das Referenzalter der AHV beträgt 65 Jahre, für Frauen wie für Männer (AHV 21)."}], null, 1);
+  $("themeBtn").onclick = () => { const r = document.documentElement;
+    r.dataset.theme = r.dataset.theme === "dark" ? "light" : "dark"; };
+
+  async function call(path, opts) {
+    const r = await fetch(API + path, opts);
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(`${r.status}: ${JSON.stringify(body.detail ?? body)}`);
+    return body;
+  }
+
+  async function refresh() {
+    try {
+      const meta = await call("/meta");
+      $("sub").textContent = `${meta.engine_version} · ${meta.model.display_name || "MiniMind"} (${meta.model.model}, served by ${meta.model.service} at ${meta.model.host}) · calibration ${meta.calibration_version}`;
+      $("meta").textContent = JSON.stringify({contracts: meta.contract_versions, prompt: meta.prompt_version,
+        model: meta.model, store: meta.store}, null, 1);
+      const runs = await call("/runs?limit=15");
+      $("runs").innerHTML = runs.map((r) => `<tr><td><code>${esc(r.run_id)}</code></td><td>${esc(r.status)}</td>
+        <td>${esc(r.question)}</td><td>${r.refused ? "yes" : ""}</td><td>${esc(r.unverified_count ?? "")}</td></tr>`).join("");
+    } catch (e) { $("sub").textContent = `engine not reachable: ${e.message}`; }
+  }
+
+  $("ask").onclick = async () => {
+    $("status").textContent = "Asking...";
+    let body;
+    try {
+      body = {question: $("q").value, language: $("lang").value, grounding: JSON.parse($("grounding").value),
+              client_facts: JSON.parse($("facts").value), history: JSON.parse($("history").value)};
+      if ($("cal").value.trim()) body.calibration_version = $("cal").value.trim();
+    } catch (e) { $("status").textContent = `JSON: ${e.message}`; return; }
+    const t0 = performance.now();
+    try {
+      const a = await call("/answer", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+      $("status").textContent = `${a.artefact_id} · ${(performance.now() - t0).toFixed(0)} ms round trip · model ${a.latency_ms.toFixed(0)} ms`;
+      $("answer").textContent = a.answer;
+      $("tags").innerHTML = [a.refused ? `<span class="tag bad">refused: ${esc(a.refusal_code)}</span>` : `<span class="tag ok">answered</span>`,
+        `<span class="tag">${esc(a.route)}</span>`, a.basis ? `<span class="tag${a.basis === "grounded" ? " ok" : ""}">basis: ${esc(a.basis)}</span>` : "", ...a.cited_ids.map((c) => `<span class="tag">cites ${esc(c)}</span>`),
+        a.unverified_numbers.length ? `<span class="tag bad">${a.unverified_numbers.length} unverified</span>` : ""].join("");
+      $("numbers").innerHTML = a.numbers.map((n) => `<tr><td>${esc(n.text)}</td><td class="${n.matched.length ? "" : "bad"}">${
+        n.matched.length ? esc(n.matched.join(", ")) : "no source"}</td></tr>`).join("") || `<tr><td colspan="2" class="note">none</td></tr>`;
+      $("warnings").innerHTML = a.warnings.map((w) => `<li>${esc(w)}</li>`).join("") || "<li>none</li>";
+      $("raw").textContent = JSON.stringify(a, null, 1);
+    } catch (e) { $("status").textContent = e.message; }
+    refresh();
+  };
+  $("probe").onclick = async () => { try { $("model").textContent = JSON.stringify(await call("/model"), null, 1); }
+                                     catch (e) { $("model").textContent = e.message; } };
+  refresh();
+</script>
+</body>
+</html>

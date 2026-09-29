@@ -1,0 +1,46 @@
+{
+  "_about": {
+    "requirement": "eigentliCH app update script v2.1, item 4 — the blocking liquidity finding. \"'Smallest change' is a fixed lever precedence, not a computed minimum. Try in order, take the first that closes the gap.\"",
+    "why_an_order_and_not_a_minimum": "The script's own reason, kept here because it is the whole argument: \"Do not attempt to minimise across francs, months and goal size — they share no unit, and comparing them would need a utility function over the household's preferences that the app does not have.\" A computed minimum would be the app deciding what the member minds least.",
+    "why_in_config": "\"Keep the order in config so it can be changed without a rewrite.\" The order runs from what costs the member nothing they would notice to what costs them part of the goal, and that ranking is an editorial judgement about people rather than a fact about money.",
+    "one_option_never_a_menu": "Principle 4: an interruption arrives with the decision prepared, or not at all. A list of four alternatives is not a prepared decision — it is the same problem handed back with more words.",
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-04",
+    "provisional": false,
+    "register": "Every label is a noun or infinitive clause, never an imperative. C-01 refused the first English draft — 'Move the existing funding into a form...' is an instruction landing on something financial, and `move` entered the money-move lexicon in A114. A prepared option describes a change the member may choose; it does not tell them to make it, and the difference is the mood."
+  },
+  "levers": [
+    {
+      "key": "move_funding_to_a_liquid_form",
+      "order": 1,
+      "costs": "nothing the member would notice",
+      "de": "Die vorhandene Deckung in eine Form bringen, die zum Datum verfügbar ist.",
+      "en": "Moving the existing funding into a form that is available on the date."
+    },
+    {
+      "key": "move_the_goal_date",
+      "order": 2,
+      "costs": "time",
+      "de": "Das Datum des Ziels nach hinten setzen.",
+      "en": "Moving the goal's date back."
+    },
+    {
+      "key": "add_a_monthly_contribution",
+      "order": 3,
+      "costs": "money the member is not currently setting aside",
+      "de": "Einen monatlichen Betrag dafür zurücklegen.",
+      "en": "Setting a monthly amount aside for it."
+    },
+    {
+      "key": "reduce_the_goal_size",
+      "order": 4,
+      "costs": "part of the goal",
+      "de": "Das Ziel kleiner ansetzen.",
+      "en": "Setting the goal smaller."
+    }
+  ],
+  "_not_yet_decidable": {
+    "_about": "A lever whose effect cannot be worked out without an assumption nobody has published is not skipped — skipping it would let a LATER lever be prepared while an earlier and cheaper one might have closed the gap, and the precedence would then be a claim the code does not keep. It routes to a curator instead, which is what item 4 says happens when the order cannot deliver an option.",
+    "move_the_goal_date": "Whether a later date makes a holding available depends on how long its band actually takes to convert. `within_months` and `within_years` are bands, deliberately, and no duration is published for them (models/plan.py: 'A threshold in years would be an assumption under C-02 and nobody has published one'). It IS decidable for `illiquid` funding, which no date makes available."
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "_about": {
+    "requirement": "eigentliCH app update script v2.1, item 3 — \"Progress shows consequence, not reward. Replace the percent-complete bar with a list of the findings still locked and, for each, the questions it needs. No percentages, no badges, no streaks.\"",
+    "why_this_is_content_and_not_derived": "Which findings are worth naming is an editorial judgement, and deriving them from the questions' own `fills` would invert that — the list would then be whatever the question set happened to contain, and a question added for another reason would silently become a promise. The join runs the other way: a finding names the questions it needs, and a test asserts every key it names exists in the question set.",
+    "how_this_differs_from_a_progress_bar": "A bar measures the member against completion. This names what is not yet possible and what would make it possible — the consequence rather than the score. [the GTM lead]'s point about motivation and Principle 5 are both satisfied by that distinction, and the update script warns that a builder reading only one of them gets it wrong.",
+    "no_totals": "There is deliberately no count field anywhere in this file or in what the service returns. The lists are the answer; a total over them would be the meter R-113 and C-07 forbid, one component away from being rendered as one.",
+    "wording": "German is the authored language (A12). Every sentence here goes through C-01's outbound gate in the suite, like all member-facing copy.",
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-03",
+    "provisional": false
+  },
+
+  "findings": [
+    {
+      "key": "household_shape",
+      "needs": ["household_composition"],
+      "de": "Für welchen Haushalt Ihr Plan gilt, und ab wann das so erfasst ist.",
+      "en": "The household your plan is for, and the date it is recorded as of."
+    },
+    {
+      "key": "role_grid_has_a_cell",
+      "needs": ["employment_position"],
+      "de": "Ihre erste Position im Raster: Ihre Arbeitskraft, eingesetzt für Einkommen.",
+      "en": "Your first position in the grid: your capacity to work, put to earning."
+    },
+    {
+      "key": "income_in_francs",
+      "needs": ["employment_position", "employment_magnitude"],
+      "de": "Ihr Einkommen als Betrag, statt nur als Tätigkeit.",
+      "en": "Your income as an amount, rather than only as an activity."
+    },
+    {
+      "key": "hours_as_the_binding_budget",
+      "needs": ["employment_position", "employment_time_basis"],
+      "de": "Was Ihre Woche kostet — die Stunden, die hinter dem Einkommen stehen.",
+      "en": "What your week costs — the hours behind the income."
+    },
+    {
+      "key": "a_goal_with_an_owner",
+      "needs": ["household_composition", "first_goal"],
+      "de": "Ein erstes Ziel, und wem es gehört.",
+      "en": "A first goal, and whose it is."
+    }
+  ]
+}

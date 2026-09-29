@@ -1,0 +1,254 @@
+{
+  "_about": {
+    "requirement": "Ten members went through the Optimiser and came back with two portfolios. The cause is not the objective and not the solver: `POLICY_BOUNDS` is one identical block for every household, the universe is the same eight instruments for everyone, the target curve's slope is the same ramp for everyone, and the Optimiser reports that the weights control under one per cent of the objective's level. Everything that could distinguish one client from another was held constant.",
+    "what_this_record_does": "Turns the household's own position into a capacity between 0 and 1, lets what the member says cap it, and holds the ANCHORS that the result interpolates between. Two things then vary per client instead of none: the role bounds and the curve slope.",
+    "why_a_content_record_when_the_mapping_is_continuous": "The owner chose a continuous profile over named bands on 6 September 2026, and the obvious objection to continuous is that the reasoning ends up in code — which is what C-02 and every content record in this build exist to prevent. So the split is: **the code holds the interpolation, this record holds every number it interpolates between.** A reader can see what a profile of 0 means and what a profile of 1 means and check both; what the code contributes is a straight line between them and no judgement of its own.",
+    "the_conservative_binds": "Willingness and capacity are computed separately and the LOWER one is the profile. The owner's standing ruling of 4 September, applied here for the third time. It matters most in the case the data actually shows: six of ten members state a loss tolerance alongside «ich war nicht investiert» or no crisis answer at all, so their willingness is an estimate about themselves and their capacity is arithmetic on their own position.",
+    "published_by": null,
+    "decided_on": null,
+    "effective_from": null,
+    "provisional": true,
+    "_approval": "NOT APPROVED. Drafted 6 September 2026. services/risk_profile.py refuses on every path that produces a profile while `provisional` is true or `published_by` is empty.",
+    "_for_review": [
+      "The two anchor bound sets, and the capacity weights. They are the whole of what a profile means and the owner has asked to see all three.",
+      "The floors behaviour can raise a claim to. Nadine states a 10 % maximum loss and held through the last fall; the floor lifts her from 0.14 to 0.40, which is the design working and is also the application overriding what she wrote down.",
+      "Whether the stated-loss scale, 5 % to 40 %, is still right now that it caps rather than decides.",
+      "The cautious Equity ceiling of zero. Because the mapping is a straight line, a profile of 0.14 still reaches an 11 % equity ceiling -- a near-zero ceiling at the anchor does not produce a near-zero ceiling just above it, and only a non-linear map would."
+    ],
+    "sources": [
+      "No external source. Every figure here is a stated judgement of this house, not a measurement and not a regulatory floor. That is the difference between this record and property-funding.json, and it is why the review list above is longer."
+    ],
+    "capacity_is_primary": "The owner's ruling of 6 September 2026, and it reverses the first draft. Capacity is arithmetic on the household's own position -- horizon, reserve, income stability, free share, debt service -- and the stated maximum loss only CAPS it. The reason is in the data: on the first draft the stated figure decided nine of ten cases, three members who stated 10 % received identical mandates despite very different positions and very different behaviour, and one of them had held through a real fall while another had sold everything. A number somebody types in a calm room was overriding everything known about them.",
+    "behaviour_moves_it_both_ways": "Also 6 September. What a member DID in 2008 or 2022 sets a floor as well as a ceiling on what they may claim now. Selling everything caps the claim; holding through it, or buying more, raises the floor. It cuts both ways deliberately: an answer about one past fall can now override what somebody says about themselves today, in either direction."
+  },
+  "willingness": {
+    "_about": "What the member claims and what their behaviour says about the claim. It CAPS capacity rather than deciding, and behaviour moves it in both directions.",
+    "from_stated_loss": {
+      "_about": "The primary signal. A stated maximum loss maps linearly onto the profile between these two points.",
+      "at_or_below": {
+        "loss": 0.05,
+        "profile": 0.0
+      },
+      "at_or_above": {
+        "loss": 0.4,
+        "profile": 1.0
+      },
+      "why": "Below five per cent nothing volatile is tolerable at all; above forty the stated figure stops discriminating, because almost nobody has met a forty per cent fall in their own money and lived with it."
+    },
+    "crisis_behaviour": {
+      "_about": "A ceiling and a floor on the claim. Behaviour observed beats a statement made in calm, and it now works in both directions: what somebody did when the number fell is evidence about what they can bear, whether that is less or more than they now say.",
+      "caps": {
+        "alles verkauft": 0.2,
+        "teilweise verkauft": 0.45,
+        "ich war nicht investiert": 0.6,
+        "noch nie investiert": 0.6,
+        "nichts, ich blieb investiert": 1.0,
+        "nachgekauft": 1.0,
+        "_unanswered": 0.6
+      },
+      "floors": {
+        "nichts, ich blieb investiert": 0.4,
+        "nachgekauft": 0.55
+      },
+      "floors_why": "Only these two are evidence of anything. Holding through a real fall is a fact about a person that a stated tolerance cannot contain; buying more is a stronger one. Never having been invested is not evidence, and neither is leaving the question blank -- those cap and do not lift.",
+      "why_unanswered_is_capped": "Leaving it blank is not evidence of composure. It is treated exactly like never having been invested, because in both cases nothing is known about how this person behaves when the number goes down."
+    }
+  },
+  "capacity": {
+    "_about": "**The primary signal.** What the household can absorb, computed from its own position rather than asked. Each component returns 0 to 1; the result is their weighted mean.",
+    "components": {
+      "horizon": {
+        "weight": 0.3,
+        "at_or_below": {
+          "years": 3,
+          "value": 0.0
+        },
+        "at_or_above": {
+          "years": 20,
+          "value": 1.0
+        },
+        "why": "Time is the only thing that turns a fall into a dip. Under three years there is none of it; past twenty, more makes little further difference."
+      },
+      "reserve": {
+        "weight": 0.2,
+        "at_or_below": {
+          "months": 0,
+          "value": 0.0
+        },
+        "at_or_above": {
+          "months": 12,
+          "value": 1.0
+        },
+        "why": "A reserve decides whether a fall is a number on a statement or a forced sale. Twelve months of spending is where the marginal month stops buying much."
+      },
+      "income_stability": {
+        "weight": 0.2,
+        "_about": "Starts from the employment form and is reduced by a large variable share, raised slightly by independent income sources.",
+        "base": {
+          "angestellt": 0.85,
+          "beides": 0.6,
+          "selbständig": 0.45,
+          "in Ausbildung": 0.4,
+          "nicht erwerbstätig": 0.25,
+          "pensioniert": 0.55
+        },
+        "base_unknown": 0.5,
+        "variable_share_subtracts_up_to": 0.3,
+        "each_mandate_adds": 0.05,
+        "mandates_add_at_most": 0.15,
+        "why": "A salary behaves like a bond and a variable income does not. Several small independent sources are steadier than one large one, which is the Stabilisation role's own argument applied to human capital."
+      },
+      "free_share": {
+        "weight": 0.2,
+        "_about": "The share of wealth that is NOT locked in Vorsorge. Money that cannot be reached cannot be sold in a panic, but it also cannot fund the years before it unlocks.",
+        "at_or_below": {
+          "share": 0.1,
+          "value": 0.0
+        },
+        "at_or_above": {
+          "share": 0.6,
+          "value": 1.0
+        },
+        "why": "A household whose wealth is nine tenths locked has little room to manoeuvre whatever its tolerance says."
+      },
+      "debt_service": {
+        "weight": 0.1,
+        "_about": "Debt service as a share of gross income. Inverted: more service is less capacity.",
+        "at_or_below": {
+          "share": 0.0,
+          "value": 1.0
+        },
+        "at_or_above": {
+          "share": 0.35,
+          "value": 0.0
+        },
+        "why": "A fixed obligation has to be paid out of an income that a bad year may also have reduced."
+      }
+    }
+  },
+  "anchors": {
+    "_about": "What a profile of 0 and a profile of 1 mean. Everything between is a straight line, computed in `services/risk_profile.py` and nowhere else. **These are the numbers to argue with** — the interpolation has no opinion of its own.",
+    "role_bounds": {
+      "cautious": {
+        "Protection": {
+          "lower": 0.3,
+          "upper": 0.7
+        },
+        "Stabilisation": {
+          "lower": 0.2,
+          "upper": 0.5
+        },
+        "Income": {
+          "lower": 0.1,
+          "upper": 0.4
+        },
+        "Gain": {
+          "lower": 0.0,
+          "upper": 0.2
+        }
+      },
+      "aggressive": {
+        "Protection": {
+          "lower": 0.0,
+          "upper": 0.25
+        },
+        "Stabilisation": {
+          "lower": 0.05,
+          "upper": 0.3
+        },
+        "Income": {
+          "lower": 0.05,
+          "upper": 0.3
+        },
+        "Gain": {
+          "lower": 0.4,
+          "upper": 0.85
+        }
+      },
+      "why": "The cautious block is deliberately not the current POLICY_BOUNDS. That block (Gain 0.20–0.70, Protection 0.05–0.50) sits roughly in the middle of these two, which is why it produced a middling allocation for everybody and why a member's own position never moved it."
+    },
+    "asset_class_bounds": {
+      "_about": "**Bounds only. No asset class is ever removed from the universe.** The owner's ruling of 6 September, and it has evidence behind it: removing a class emptied the Gain role while the role's own floor still demanded weight from it, which made the mandate infeasible and produced a fallback solution that read like a considered allocation (A157). A ceiling of zero can never do that.",
+      "cautious": {
+        "Cash": {
+          "lower": 0.0,
+          "upper": 0.5
+        },
+        "Equity": {
+          "lower": 0.0,
+          "upper": 0.0
+        }
+      },
+      "aggressive": {
+        "Cash": {
+          "lower": 0.0,
+          "upper": 0.15
+        },
+        "Equity": {
+          "lower": 0.0,
+          "upper": 0.8
+        }
+      }
+    },
+    "curve_slope": {
+      "_about": "The target curve's shape: how much less is asked of a crisis than of a boom, as an offset in points from the required return at each end. Today this is ±2.5 for everyone.",
+      "cautious": {
+        "floor_offset": -0.005,
+        "ceiling_offset": 0.005
+      },
+      "aggressive": {
+        "floor_offset": -0.06,
+        "ceiling_offset": 0.06
+      },
+      "why": "A cautious mandate asks nearly the same of every state, which is what a Protection-heavy portfolio can actually deliver. An aggressive one accepts a much worse crisis in exchange for a much better boom, and the ramp says so."
+    }
+  },
+  "sustainability": {
+    "_about": "Two different questions that get conflated everywhere. An exclusion is categorical and a minimum is a proportion, and a member who says «anything but weapons» has answered the first and not the second.",
+    "exclusions": {
+      "_about": "Categories the member refuses to hold. Matched against a block's own classification; a block that carries no classification for a named exclusion is treated as excluded, because the safe reading of «unknown» is «not permitted» when the member has asked for it to be absent.",
+      "offered": [
+        "Waffen",
+        "Fossile Energie",
+        "Tabak",
+        "Kernkraft",
+        "Glücksspiel",
+        "Tierversuche",
+        "Kinderarbeit in der Lieferkette"
+      ]
+    },
+    "minimum": {
+      "_about": "The share of the portfolio that must meet a sustainability standard. Feeds the mandate's existing `esg_min`, which the Optimiser already enforces as a constraint row.",
+      "levels": [
+        {
+          "label": "keine Vorgabe",
+          "esg_min": 0.0
+        },
+        {
+          "label": "wenn möglich",
+          "esg_min": 0.3
+        },
+        {
+          "label": "mehrheitlich",
+          "esg_min": 0.6
+        },
+        {
+          "label": "vollständig",
+          "esg_min": 0.95
+        }
+      ],
+      "why_not_one": "A single sustainability number compresses a dozen incomparable things, and the level a member picks is a statement about how much they will give up for it — not a measurement of anything."
+    },
+    "interaction_with_the_profile": "An exclusion narrows the universe and can empty a role of every instrument that could fill it. That is now the ONLY way a role can be left unsupplyable, since the profile no longer removes anything, and `reconcile_with_universe` exists for exactly that case."
+  },
+  "not_modelled": {
+    "_about": "Named rather than approximated.",
+    "items": [
+      "Whether a member's stated tolerance is about their whole wealth or only the invested part. The question does not say, and the two differ by a factor of several for anybody with a locked pension.",
+      "Capacity changing over a life. This computes today's figure from today's position; a plan running forty years will pass through several.",
+      "A partner's capacity. Where a household has two adults, this reads one record.",
+      "The cost of an exclusion. Removing a category narrows the universe and can only ever worsen the fit; how much is not estimated here.",
+      "Whether a block's sustainability classification is comparable across providers. It is not, and the minimum treats it as if it were."
+    ]
+  }
+}

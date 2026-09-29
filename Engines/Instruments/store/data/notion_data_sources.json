@@ -1,0 +1,455 @@
+{
+ "_source": "Notion database 'Data Sources', collection da33cd0b-0a11-4bf0-8fc4-80aebd5c700a",
+ "_synced": "2026-09-27",
+ "_note": "A committed snapshot so the SQL load is reproducible without a Notion call. Re-sync by re-querying the data source and rewriting this file.",
+ "rows": [
+  {
+   "notion_url": "https://app.notion.com/f0ba86236e0144b294bc4b57247ecb62",
+   "name": "10-yr gilt yearly",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/4a2e072d2e574b76893f4af07c7ec8f1",
+   "name": "10yr gilt daily",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/8b19cb49992c454bb198e3b35c324b5f",
+   "name": "Ag\\farm land",
+   "author": "census.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/82dcc176071948b9a8533b08da4fda97",
+   "name": "av. annual earning",
+   "author": "census.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/949cb40aea8b48f793744f86e09f07cc",
+   "name": "Bank loans",
+   "author": "census.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/3473b386ea1a4c22828f7f7a76d0faeb",
+   "name": "Baustoffe DE",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/e17192ffde034a73bcf2dd0780a581ac",
+   "name": "Capital is Back: Wealth-Income Ratios in Rich Countries 1700–2010",
+   "author": "Pikety, Zucman",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/16a3e5c2b92a4181b86a8eea4ed484e0",
+   "name": "Cement DE",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/fe8c1bdfd72745ee88f7c19b98738dc1",
+   "name": "Census.gov",
+   "author": "census.gov",
+   "quality": null,
+   "comments": "full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/b3b45a2d800343a18237b958227dcb41",
+   "name": "Coal price DE",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/6db5735e039746bfa059de2aa8523f25",
+   "name": "Coal price US",
+   "author": "GFD",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/6f2c15034c54484c9c600bccc53da888",
+   "name": "Copper DE",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/efe4a69568264e18b1a6550b10812520",
+   "name": "Copper US",
+   "author": "usgs.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/08cca1b31df34b62a7bee93154737556",
+   "name": "CPI Inflation CH",
+   "author": "us.gov; census.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/bf51814cf6a24607901509f48c0c189d",
+   "name": "CPI US average",
+   "author": "bls.gov; macrotrends",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/68758d952d32412294753b7dd6e2dfe1",
+   "name": "Credit suisse global returns",
+   "author": null,
+   "quality": null,
+   "comments": "long term time series 1900 (Hard copy)"
+  },
+  {
+   "notion_url": "https://app.notion.com/648d9f7bdfcf42d4a045e570620340dd",
+   "name": "debt-econ.org",
+   "author": null,
+   "quality": null,
+   "comments": "Not effective at 1800"
+  },
+  {
+   "notion_url": "https://app.notion.com/78677b54aea249b39ffe82dcd5009a4f",
+   "name": "Digizeitschriften",
+   "author": null,
+   "quality": null,
+   "comments": "Ein Service für das wissenschaftliche Arbeiten."
+  },
+  {
+   "notion_url": "https://app.notion.com/653ab9f76b6f46e780ad8fb537f5106c",
+   "name": "DJiA",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/eb69bc6717fc46f587be76a181409c1d",
+   "name": "earnings",
+   "author": "census.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/188369ae7b1d462c9f4c819b3e5ec65f",
+   "name": "Eurodollar daily",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/3cda00133a9d4936a5dababeab55debc",
+   "name": "Eurodollar yearly",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/20b91e1109b440b1804db0b1a2de12ea",
+   "name": "Fractal GDP",
+   "author": null,
+   "quality": null,
+   "comments": "unknown value"
+  },
+  {
+   "notion_url": "https://app.notion.com/75f9ff4908d54293a42ee9c5c21b77c5",
+   "name": "German Data & Sources",
+   "author": null,
+   "quality": null,
+   "comments": "Full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/e4ef8ae938d344deaea7e09833a78192",
+   "name": "Germany hyperinflation",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/d651b71326a2429aa74da7051b8d4518",
+   "name": "Gold daily",
+   "author": "Unknown",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/552ea8e47acc42c3972db8adf066c2a5",
+   "name": "Gold price UK",
+   "author": "Measuring Worth",
+   "quality": null,
+   "comments": "Officer & Williamson, The Price of Gold, 1257-Present, MeasuringWorth 2021"
+  },
+  {
+   "notion_url": "https://app.notion.com/5260e21d6e97470a8ee0a4b42f73e52f",
+   "name": "Gold yearly",
+   "author": "Unknown",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/2398061da3144999b766c2063440ce4f",
+   "name": "Goldprice series",
+   "author": "goldprice.org macrotrends",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/a5391c0d6b0247a8a0fb12b9e5ad0a6e",
+   "name": "Gov debt",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/18bdf43f635e4c38862fc1d4ac7f597a",
+   "name": "gov deficit",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/3d6703d4b12549eeaf87d230dc99e7de",
+   "name": "Historische Statistik - prices",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": "Full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/dabf5763ff8648239fe686c39f9a046f",
+   "name": "Housing prices",
+   "author": "piketty",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/5692a64fcd494309b6fdcccb84fc2359",
+   "name": "International Historical Statistics",
+   "author": "Macmillan",
+   "quality": null,
+   "comments": "Full database (pdf)"
+  },
+  {
+   "notion_url": "https://app.notion.com/02235adbd6cc4fb49116456c1df6cee3",
+   "name": "IronSteel DE",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/3953db9db8954f438030457f1823f1cb",
+   "name": "Ironsteel US",
+   "author": "bls.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/d899bf7f8b3d4ccaaaf533060c7d30bb",
+   "name": "Long term trends",
+   "author": null,
+   "quality": null,
+   "comments": "Full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/878cd85aae3d4dfc9d9bc060f180c7e9",
+   "name": "Long US series Schiller",
+   "author": "Schiller",
+   "quality": null,
+   "comments": "Full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/0541c604899a4d7f9eaf2e4414a94db7",
+   "name": "Macro history JSTR data base",
+   "author": "Schularick",
+   "quality": null,
+   "comments": "full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/e6b36885c8ad4d4f94d040f7115a109a",
+   "name": "Macrotrends",
+   "author": "Macrotrends",
+   "quality": null,
+   "comments": "full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/244b2826da314ea18343d85f81bdf4eb",
+   "name": "Metal prices",
+   "author": "usgs",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/f55ee727f3b340c0ad989de307495eb8",
+   "name": "Non-farm Unemployment",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/4da6ecf746b74e6da55d6b7a86ff5328",
+   "name": "Non-metallic materials US",
+   "author": "bls.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/bcbff0fd99804272a2218b8b42e2c935",
+   "name": "Oil price",
+   "author": "GFD",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/75e7a5ea87aa4b0688119c5a6e70318b",
+   "name": "PPI indexes US gov",
+   "author": "bls.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/d8d3ea4321374dd9ab84db4fb0e56051",
+   "name": "Prices & wages US",
+   "author": "U of Missouri",
+   "quality": null,
+   "comments": "Full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/8c75450ec1e84292bce52d9bc523ace9",
+   "name": "Roggen price in g silver",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/d41716e02ade46eca83a560fc3e89639",
+   "name": "Rye DE",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/2b29ce2e8f7644738efd1eac1ef2d692",
+   "name": "SnP500 daily",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/a2e143d088ba44058a7a663d6d607b52",
+   "name": "SnP500 yearly",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/b4cc155bf81842b6ad213ed54df92451",
+   "name": "Social complexity data set",
+   "author": null,
+   "quality": null,
+   "comments": "Full database"
+  },
+  {
+   "notion_url": "https://app.notion.com/ae9fa001334a44208d0485c9c57f2d53",
+   "name": "Total bank loans",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/ebe264dca4894848966dfdcaa131f4c5",
+   "name": "UK historical stats",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/eb43346549a64f5ca302cc6a4eb728ab",
+   "name": "unemployment",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/ae270812285a4c78b5a9e602ea758548",
+   "name": "US food expenditure (national)",
+   "author": "usda.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/dd07de6e9edb40ef9e0a05762855dac5",
+   "name": "US gov Expenditure",
+   "author": "us gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/d298903eba1042bfabaf51b10dee09df",
+   "name": "US historical 1610-1970",
+   "author": "census.gov",
+   "quality": null,
+   "comments": "in pdf form, requires transcribing"
+  },
+  {
+   "notion_url": "https://app.notion.com/5898cef98e744753b4bb0f81c57a964b",
+   "name": "US T-bond daily",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/1e808b850d5e4205949b1d255eec11cb",
+   "name": "US T-bond yearly",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/7362cdbb95384ab3bfb530ba14fc3222",
+   "name": "Wealth distribution (top 10% share of wealth)",
+   "author": null,
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/c0096afc934c4e319ad9e985992be813",
+   "name": "Wheat DE",
+   "author": "Forgotten Books",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/a6160aef74a9443384a9128c367b350e",
+   "name": "Wheat US",
+   "author": "Census.gov",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/733a9701f3634745a5e72327cafa7390",
+   "name": "Wood DE",
+   "author": "Gesis.org",
+   "quality": null,
+   "comments": null
+  },
+  {
+   "notion_url": "https://app.notion.com/cf01cc1a581d4c26886212ded99cb028",
+   "name": "World gov Bonds",
+   "author": null,
+   "quality": null,
+   "comments": null
+  }
+ ]
+}

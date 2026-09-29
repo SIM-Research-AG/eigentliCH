@@ -1,0 +1,810 @@
+{
+  "bis__total_credit_br__f2377d7645d74b8f160790e1": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_br__f2377d7645d74b8f160790e1.zip",
+    "retrieved_on": "2026-07-28",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_ch__e3d7c4f3515e38594141529f": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_ch__e3d7c4f3515e38594141529f.zip",
+    "retrieved_on": "2026-07-28",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_cn__d43ef713958d490b2953ba15": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_cn__d43ef713958d490b2953ba15.zip",
+    "retrieved_on": "2026-07-27",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_de__1d5f66b2916cc6f824ae9c3c": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_de__1d5f66b2916cc6f824ae9c3c.zip",
+    "retrieved_on": "2026-07-27",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_fr__96ec4d114f80fc0756cda2af": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_fr__96ec4d114f80fc0756cda2af.zip",
+    "retrieved_on": "2026-07-27",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_gb__306500aca1408caf763cad1e": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_gb__306500aca1408caf763cad1e.zip",
+    "retrieved_on": "2026-07-27",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_in__9b718fc1c4c72dd60aecce81": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_in__9b718fc1c4c72dd60aecce81.zip",
+    "retrieved_on": "2026-07-27",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_jp__16aef5f63dea852e53e34061": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_jp__16aef5f63dea852e53e34061.zip",
+    "retrieved_on": "2026-07-27",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_us__c2c3196e4b0cd277198c3457": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_us__c2c3196e4b0cd277198c3457.zip",
+    "retrieved_on": "2026-07-27",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "bis__total_credit_xm__7054dbc5e2a99c16ae51cbae": {
+    "bytes": 1803310,
+    "content_type": "zip",
+    "filename": "bis__total_credit_xm__7054dbc5e2a99c16ae51cbae.zip",
+    "retrieved_on": "2026-07-27",
+    "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+    "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip"
+  },
+  "lbma__gold_pm__e7a8591959bd0705c27536ba": {
+    "bytes": 912144,
+    "content_type": "json",
+    "filename": "lbma__gold_pm__e7a8591959bd0705c27536ba.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "b33b767e791547d46fbc09fc57428a8236f3391232b18fbb0468340d92f0cfaf",
+    "url": "https://prices.lbma.org.uk/json/gold_pm.json"
+  },
+  "penn_world_table__pwt10_01__e33af39df58dc3cf39fcfb6f": {
+    "bytes": 6551843,
+    "content_type": "xlsx",
+    "filename": "penn_world_table__pwt10_01__e33af39df58dc3cf39fcfb6f.xlsx",
+    "retrieved_on": "2026-07-27",
+    "sha256": "bf2b66c5fd8b465870eeab8bbfa3a57e73253a3236a933286259efbbb5fb67a2",
+    "url": "https://dataverse.nl/api/access/datafile/354095"
+  },
+  "world_bank__bra_cm_mkt_lcap_cd__869d19f4b307824e9f722226": {
+    "bytes": 12604,
+    "content_type": "json",
+    "filename": "world_bank__bra_cm_mkt_lcap_cd__869d19f4b307824e9f722226.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "41e09afe101a44b2e9b1af479a0e7bbbf583bd8f1ea67c493b3fa4a7c48e2542",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__bra_fp_cpi_totl__18d5f1b94f48b36168ade373": {
+    "bytes": 14381,
+    "content_type": "json",
+    "filename": "world_bank__bra_fp_cpi_totl__18d5f1b94f48b36168ade373.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "2e022f35d831ece288a799b914924df6c5a32c20de2d4b4861ec6064030fb215",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__bra_gc_nld_totl_gd_zs__4888f2c7027d096c7642a950": {
+    "bytes": 15270,
+    "content_type": "json",
+    "filename": "world_bank__bra_gc_nld_totl_gd_zs__4888f2c7027d096c7642a950.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "c0b60ad0e1417ed5dea94ef5ca1902656b664ae46782a2608099a3747cea7f28",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__bra_ne_gdi_ftot_zs__1fbbe4156024662362e23929": {
+    "bytes": 15083,
+    "content_type": "json",
+    "filename": "world_bank__bra_ne_gdi_ftot_zs__1fbbe4156024662362e23929.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "99acf4c3270a84c02074d8584a2df86f71f49b06a3ba12d799964fbd18f2ee3f",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__bra_ny_gdp_mktp_cd__1d4f00254cdf1e391287d824": {
+    "bytes": 13684,
+    "content_type": "json",
+    "filename": "world_bank__bra_ny_gdp_mktp_cd__1d4f00254cdf1e391287d824.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "6c64ea0d15873e7a33de77362040e73a85068e52253ecbba1b79f2f5b4790a2e",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__bra_ny_gdp_mktp_kd_zg__a71b1197626e8b6fde9afc5f": {
+    "bytes": 14124,
+    "content_type": "json",
+    "filename": "world_bank__bra_ny_gdp_mktp_kd_zg__a71b1197626e8b6fde9afc5f.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "df464da20ffa68b3d77c7c62453afa3f2043e12cd432706f4eea5b222262230b",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__bra_ny_gns_ictr_zs__c4cef99e413eaa650f6f0f66": {
+    "bytes": 13965,
+    "content_type": "json",
+    "filename": "world_bank__bra_ny_gns_ictr_zs__c4cef99e413eaa650f6f0f66.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "0c7c315c1eaa50004d5818f548c21c1ab8dae8ab485c1bb70c420da48a4c62e0",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__bra_sp_pop_totl__78e57e13aad804e321c20b0c": {
+    "bytes": 13018,
+    "content_type": "json",
+    "filename": "world_bank__bra_sp_pop_totl__78e57e13aad804e321c20b0c.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "601db910fbe0de457fc6c943bffcea4662d9195534498b3be0028c7eb780e003",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__che_cm_mkt_lcap_cd__fe39829b0d828553f75bb6cb": {
+    "bytes": 13059,
+    "content_type": "json",
+    "filename": "world_bank__che_cm_mkt_lcap_cd__fe39829b0d828553f75bb6cb.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "3b78d7c9278f077e79c182f3272e3f3eebfe1ad80f0f62f8d66390e803a9bc17",
+    "url": "https://api.worldbank.org/v2/country/CHE/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__che_fp_cpi_totl__52dde4cc6929f3f9113e4a84": {
+    "bytes": 14852,
+    "content_type": "json",
+    "filename": "world_bank__che_fp_cpi_totl__52dde4cc6929f3f9113e4a84.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "986cef9705729559fbf443b005fedcb503849edaaec4657974e2101ad9c1291d",
+    "url": "https://api.worldbank.org/v2/country/CHE/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__che_gc_nld_totl_gd_zs__1f5e2473b5a1e87ba89b22aa": {
+    "bytes": 16031,
+    "content_type": "json",
+    "filename": "world_bank__che_gc_nld_totl_gd_zs__1f5e2473b5a1e87ba89b22aa.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "d1a04d00ab947eaee4ed2a8136595989e9dfb6ef91e096c6b3c38f00517592c5",
+    "url": "https://api.worldbank.org/v2/country/CHE/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__che_ne_gdi_ftot_zs__a84966dbce5955fa08f68fca": {
+    "bytes": 15410,
+    "content_type": "json",
+    "filename": "world_bank__che_ne_gdi_ftot_zs__a84966dbce5955fa08f68fca.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "49136a8c10692876ddc87c2a6d0092a450b4f5f9e5bed4cd2574f20c459ba844",
+    "url": "https://api.worldbank.org/v2/country/CHE/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__che_ny_gdp_mktp_cd__95a1d15c5fb471901e14e17d": {
+    "bytes": 14011,
+    "content_type": "json",
+    "filename": "world_bank__che_ny_gdp_mktp_cd__95a1d15c5fb471901e14e17d.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "916ea4a99cc4fde840d79d1ac8409105494aa924ae272d31228271d1f4878982",
+    "url": "https://api.worldbank.org/v2/country/CHE/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__che_ny_gdp_mktp_kd_zg__2d6b58533097054346e38816": {
+    "bytes": 14481,
+    "content_type": "json",
+    "filename": "world_bank__che_ny_gdp_mktp_kd_zg__2d6b58533097054346e38816.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "dae50f8c3fc6b70ab89d4dc1ad96098695e1bf5e44a82fd820f67fa7e6f08677",
+    "url": "https://api.worldbank.org/v2/country/CHE/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__che_ny_gns_ictr_zs__e7b1f640dfd555d9b407ffec": {
+    "bytes": 14269,
+    "content_type": "json",
+    "filename": "world_bank__che_ny_gns_ictr_zs__e7b1f640dfd555d9b407ffec.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "18d7c323144a954702baf9f337ec18ac409e28548025ff7adab16fa3fff786c0",
+    "url": "https://api.worldbank.org/v2/country/CHE/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__che_sp_pop_totl__4175ba24600c863d87bfe615": {
+    "bytes": 13228,
+    "content_type": "json",
+    "filename": "world_bank__che_sp_pop_totl__4175ba24600c863d87bfe615.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "0edb1cf03099c1bec8359c725f8455669d82f07d5360ba2424287791d5baa7cb",
+    "url": "https://api.worldbank.org/v2/country/CHE/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_cm_mkt_lcap_cd__dbc915d1736f4611f7ddc8b6": {
+    "bytes": 12547,
+    "content_type": "json",
+    "filename": "world_bank__chn_cm_mkt_lcap_cd__dbc915d1736f4611f7ddc8b6.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "f6837d8e2f46ee65f1056d23b335e324a4d5748b0f624bb9faeb5985f01f0d17",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_cm_mkt_lcap_cd__efae075d616dbf7b9af28fde": {
+    "bytes": 8947,
+    "content_type": "json",
+    "filename": "world_bank__chn_cm_mkt_lcap_cd__efae075d616dbf7b9af28fde.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "01242f2f8a5024ff87f5777d9c495f900ad31b33cc09b1202efbad63383650a8",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/CM.MKT.LCAP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_fp_cpi_totl__300acd10eb865abd948b4491": {
+    "bytes": 14155,
+    "content_type": "json",
+    "filename": "world_bank__chn_fp_cpi_totl__300acd10eb865abd948b4491.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "fb465ab71a0722bf050b019c4927854879ae4b1b63f3fa7b816d3385777b7f2e",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_gc_nld_totl_gd_zs__2997ac1a57c3886d34d80b11": {
+    "bytes": 15010,
+    "content_type": "json",
+    "filename": "world_bank__chn_gc_nld_totl_gd_zs__2997ac1a57c3886d34d80b11.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "f9b8b77853cf94b9d88b8a0a19637bb7ac5aa783fec3198020d66f8a3ba9bc6c",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_ne_gdi_ftot_zs__3ad86dc244f3d5ebecf9cd8a": {
+    "bytes": 15126,
+    "content_type": "json",
+    "filename": "world_bank__chn_ne_gdi_ftot_zs__3ad86dc244f3d5ebecf9cd8a.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "eee4e9b149fbcf0a62b5878559853bc6c07bef3f1c85817b71a4b44b16f7b440",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_ny_gdp_mktp_cd__7e992466e931449c0a97e3f3": {
+    "bytes": 13607,
+    "content_type": "json",
+    "filename": "world_bank__chn_ny_gdp_mktp_cd__7e992466e931449c0a97e3f3.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "a12474506c63f858f061adaae914d0b30423511a5993eba745651900c883d0f8",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_ny_gdp_mktp_cd__fce33bfaddcecf0370de758f": {
+    "bytes": 7467,
+    "content_type": "json",
+    "filename": "world_bank__chn_ny_gdp_mktp_cd__fce33bfaddcecf0370de758f.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "a95c9434d245b409302891af16c68ebaf1ada624a28bbadd36c6e2c1f32f4bfc",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_ny_gdp_mktp_kd_zg__f48d8e83c9ecc9b27d23b59c": {
+    "bytes": 14073,
+    "content_type": "json",
+    "filename": "world_bank__chn_ny_gdp_mktp_kd_zg__f48d8e83c9ecc9b27d23b59c.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "cc16a88f6048699f152af6480024062c2b3b00b682677cbbb5e820406d1ade05",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_ny_gns_ictr_zs__2b816a0ff5a083f3ce56a811": {
+    "bytes": 13809,
+    "content_type": "json",
+    "filename": "world_bank__chn_ny_gns_ictr_zs__2b816a0ff5a083f3ce56a811.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "7ef069367adbede57b5306223964d972f7ca7116affddd3ff13c0676ee4f5a65",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__chn_sp_pop_totl__0cb359525d5d8cde07e5761f": {
+    "bytes": 13008,
+    "content_type": "json",
+    "filename": "world_bank__chn_sp_pop_totl__0cb359525d5d8cde07e5761f.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "8ad7c49a7104059612deb10d78ae12f0e05dc3534789362282534a2badeecb28",
+    "url": "https://api.worldbank.org/v2/country/CHN/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_cm_mkt_lcap_cd__0f6ccf48ee9b425a17eac734": {
+    "bytes": 12864,
+    "content_type": "json",
+    "filename": "world_bank__deu_cm_mkt_lcap_cd__0f6ccf48ee9b425a17eac734.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "2a2622122123e6ae8fa2bf8531d3f37bd40e3e7a63d7f65528fa69c4692c44c7",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_cm_mkt_lcap_cd__6b5fde15f53d9f02cb2d2676": {
+    "bytes": 9124,
+    "content_type": "json",
+    "filename": "world_bank__deu_cm_mkt_lcap_cd__6b5fde15f53d9f02cb2d2676.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "ef23da09e70aa11b6268079915d3a4bf5fd2f40bed2403d8b6beec3f19449153",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/CM.MKT.LCAP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_fp_cpi_totl__a5edb87bceb5898be4682f9e": {
+    "bytes": 14586,
+    "content_type": "json",
+    "filename": "world_bank__deu_fp_cpi_totl__a5edb87bceb5898be4682f9e.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "8d128a01e8cbbd18078c6fcee7783866c04767a8008144ce5c9b60f1916956d5",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_gc_nld_totl_gd_zs__e0d443cb4ce7dd389d3dc594": {
+    "bytes": 15833,
+    "content_type": "json",
+    "filename": "world_bank__deu_gc_nld_totl_gd_zs__e0d443cb4ce7dd389d3dc594.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "2d66499223f2631d89129e24c3525e0cbf6a1c702f240c062e732254cd4707c0",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_ne_gdi_ftot_zs__88988bb117de84d95531189a": {
+    "bytes": 15149,
+    "content_type": "json",
+    "filename": "world_bank__deu_ne_gdi_ftot_zs__88988bb117de84d95531189a.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "866804783e6ce9323becfc59cf793d305b8239302d7f7d037c8981f1edb82c90",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_ny_gdp_mktp_cd__2c3f3c91f40d4b67908ed24b": {
+    "bytes": 13743,
+    "content_type": "json",
+    "filename": "world_bank__deu_ny_gdp_mktp_cd__2c3f3c91f40d4b67908ed24b.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "b280f573f7422a0cdb8bf879609c48b248251e2e1387279c0b42e99657f210a6",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_ny_gdp_mktp_cd__d23a3382458de78b66bdab98": {
+    "bytes": 7538,
+    "content_type": "json",
+    "filename": "world_bank__deu_ny_gdp_mktp_cd__d23a3382458de78b66bdab98.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "27f9857701ab1e7b91275833788154e53739fb65ef8d4ac1a32e36c330e56316",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/NY.GDP.MKTP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_ny_gdp_mktp_kd_zg__d280ead5c19da58633552037": {
+    "bytes": 14224,
+    "content_type": "json",
+    "filename": "world_bank__deu_ny_gdp_mktp_kd_zg__d280ead5c19da58633552037.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "3d0742b914dd6fa578bf626420a5acf658ce57920756b79d3a1ecc63ebd0dd9f",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_ny_gns_ictr_zs__f61ea572f0361b8596330843": {
+    "bytes": 13980,
+    "content_type": "json",
+    "filename": "world_bank__deu_ny_gns_ictr_zs__f61ea572f0361b8596330843.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "4e04af2e4bd7d244445ed7813b72a903105b9d94c93a2e0d5076e6c25f52e0fe",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__deu_sp_pop_totl__5e3496d83246c9ebcc1efeeb": {
+    "bytes": 13030,
+    "content_type": "json",
+    "filename": "world_bank__deu_sp_pop_totl__5e3496d83246c9ebcc1efeeb.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "94c117f37e61846d58235f0043e47ea6fef61a102657885176984302caf304f6",
+    "url": "https://api.worldbank.org/v2/country/DEU/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__emu_cm_mkt_lcap_cd__013f26dc733f8ae1ac6b78f7": {
+    "bytes": 12930,
+    "content_type": "json",
+    "filename": "world_bank__emu_cm_mkt_lcap_cd__013f26dc733f8ae1ac6b78f7.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "79f41f31fe1ab73c63a3f744affc070489ba0dec7dbef83e827454a019f19724",
+    "url": "https://api.worldbank.org/v2/country/EMU/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__emu_ny_gdp_mktp_cd__c02a6a4c2ce140d594b628f5": {
+    "bytes": 13879,
+    "content_type": "json",
+    "filename": "world_bank__emu_ny_gdp_mktp_cd__c02a6a4c2ce140d594b628f5.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "a0761d2d93b46caa8a4afe4cdc3214da1cc1d809b69d23ab5f7008ec81b501aa",
+    "url": "https://api.worldbank.org/v2/country/EMU/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_cm_mkt_lcap_cd__894a0bf0e7b3d1c65de87abb": {
+    "bytes": 12753,
+    "content_type": "json",
+    "filename": "world_bank__fra_cm_mkt_lcap_cd__894a0bf0e7b3d1c65de87abb.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "0dbfac3ce5856a7dddb78ea2a9f8e837eec1ca97c41d975cef53ebbf74dbd990",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_cm_mkt_lcap_cd__e8d9c48606dba8e797c549aa": {
+    "bytes": 9029,
+    "content_type": "json",
+    "filename": "world_bank__fra_cm_mkt_lcap_cd__e8d9c48606dba8e797c549aa.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "288cc35de96ac20f529db318ec68664bac93a5cc01a4d38e75626ac2916b4f7b",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/CM.MKT.LCAP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_fp_cpi_totl__39b1181eb5886e58d925ce8d": {
+    "bytes": 14525,
+    "content_type": "json",
+    "filename": "world_bank__fra_fp_cpi_totl__39b1181eb5886e58d925ce8d.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "ffdf11756948f159601540833fde76b2b5cac79b71dd7d76e0f4ca3e85711bbf",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_gc_nld_totl_gd_zs__db63435aaca326280651b4ea": {
+    "bytes": 15760,
+    "content_type": "json",
+    "filename": "world_bank__fra_gc_nld_totl_gd_zs__db63435aaca326280651b4ea.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "ed7f99ad5923bb437f9706f488730980f5f788ede4d141783a5aa0f60b5f130d",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_ne_gdi_ftot_zs__c41c9901477dd75163f1a619": {
+    "bytes": 15205,
+    "content_type": "json",
+    "filename": "world_bank__fra_ne_gdi_ftot_zs__c41c9901477dd75163f1a619.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "d285ac94d3f9d56c5f480e7284c9be22d83f312c310c422f8213fc5ab0e27f4b",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_ny_gdp_mktp_cd__c97087b7618be320fb8d8054": {
+    "bytes": 13686,
+    "content_type": "json",
+    "filename": "world_bank__fra_ny_gdp_mktp_cd__c97087b7618be320fb8d8054.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "ce511fa3efecdd8407cbc576c1edfd06e77e96410d51dcac7469ad451e633382",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_ny_gdp_mktp_cd__d0319799e0d820ecb201b878": {
+    "bytes": 7509,
+    "content_type": "json",
+    "filename": "world_bank__fra_ny_gdp_mktp_cd__d0319799e0d820ecb201b878.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "569853c306f617eb6d7b5dea0c3f269f819f9b3e2ff07369ee917500a52f9bf7",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/NY.GDP.MKTP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_ny_gdp_mktp_kd_zg__dad3b45df8cad9bf32ed9fc0": {
+    "bytes": 14146,
+    "content_type": "json",
+    "filename": "world_bank__fra_ny_gdp_mktp_kd_zg__dad3b45df8cad9bf32ed9fc0.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "215824fd823289f78b34a2ad4438136e7ee264efe4a146027fe11976e16bf007",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_ny_gns_ictr_zs__1d930e02478173c79a6e9586": {
+    "bytes": 13968,
+    "content_type": "json",
+    "filename": "world_bank__fra_ny_gns_ictr_zs__1d930e02478173c79a6e9586.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "228f1a84afcb84c9d6fb1fa250d1e18a0cca5969551feb1d2f667277639bc753",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__fra_sp_pop_totl__a0a6f82a2d3214740b47a4f2": {
+    "bytes": 12964,
+    "content_type": "json",
+    "filename": "world_bank__fra_sp_pop_totl__a0a6f82a2d3214740b47a4f2.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "61881790b094fb8de107baffa3a8cdb1c762fab1b8c58d53747a0d08445680ae",
+    "url": "https://api.worldbank.org/v2/country/FRA/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_cm_mkt_lcap_cd__03caeb1c21ecb9c59a05cb06": {
+    "bytes": 9298,
+    "content_type": "json",
+    "filename": "world_bank__gbr_cm_mkt_lcap_cd__03caeb1c21ecb9c59a05cb06.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "1ab649eba0fe2bbf3bc98e033f3c1da88405482e2f324ad1701dee1415f6cf5d",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/CM.MKT.LCAP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_cm_mkt_lcap_cd__cfba1cdf62a2be242d09c0fe": {
+    "bytes": 13149,
+    "content_type": "json",
+    "filename": "world_bank__gbr_cm_mkt_lcap_cd__cfba1cdf62a2be242d09c0fe.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "08eda0f349d30ccdf75c9432e856c8c3b21fd9140797f5401769f47194e38256",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_fp_cpi_totl__0c7695d0b9b92dbb5f1bdfd2": {
+    "bytes": 15060,
+    "content_type": "json",
+    "filename": "world_bank__gbr_fp_cpi_totl__0c7695d0b9b92dbb5f1bdfd2.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "bfc46173d9c20fe7ee8fa6dbc0449758adaee5d5bc11ea8c0865dcaba178dbfb",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_gc_nld_totl_gd_zs__e23057138e53d7f0b30c29f2": {
+    "bytes": 16290,
+    "content_type": "json",
+    "filename": "world_bank__gbr_gc_nld_totl_gd_zs__e23057138e53d7f0b30c29f2.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "e9654429f8cfea53433a7c7136c1de0121bebf6ba55353437053d6e4aef2549b",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_ne_gdi_ftot_zs__7a71d631aae28ba635396bbd": {
+    "bytes": 15609,
+    "content_type": "json",
+    "filename": "world_bank__gbr_ne_gdi_ftot_zs__7a71d631aae28ba635396bbd.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "40f76b1bc69f2904e06ad927941f1f5bd64e60d1c0820c49baefdb377ac24d49",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_ny_gdp_mktp_cd__4c683c912427cbf2376b8c3e": {
+    "bytes": 7795,
+    "content_type": "json",
+    "filename": "world_bank__gbr_ny_gdp_mktp_cd__4c683c912427cbf2376b8c3e.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "703ea6b6a3ab4ab0fe1917ca0158daa78f16910182250fa4167c43f264b6e21e",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_ny_gdp_mktp_cd__fa17058be2d225d7290c5ae0": {
+    "bytes": 14211,
+    "content_type": "json",
+    "filename": "world_bank__gbr_ny_gdp_mktp_cd__fa17058be2d225d7290c5ae0.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "c1e42b27f57f78a89efe76de0d36f3e43d0dada56d68d2848a29276914400d46",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_ny_gdp_mktp_kd_zg__9f441c8d654d8a4d5e9377e8": {
+    "bytes": 14675,
+    "content_type": "json",
+    "filename": "world_bank__gbr_ny_gdp_mktp_kd_zg__9f441c8d654d8a4d5e9377e8.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "c131bb7d3c8be3a6f29d5c7f2e20fd350cee31cb52109aeb6d176b935d7b9289",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_ny_gns_ictr_zs__a972d7ae2055380991841b15": {
+    "bytes": 14554,
+    "content_type": "json",
+    "filename": "world_bank__gbr_ny_gns_ictr_zs__a972d7ae2055380991841b15.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "6e2673cd6ad6aa4f773c9a67368940ae901ce35c0f3e60075648fd9224b984f2",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__gbr_sp_pop_totl__0d6666b01373ba720bf2d1d1": {
+    "bytes": 13492,
+    "content_type": "json",
+    "filename": "world_bank__gbr_sp_pop_totl__0d6666b01373ba720bf2d1d1.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "da595741e998c94238207faf3508dec936cdd2f67fe491c8983262502563eb5d",
+    "url": "https://api.worldbank.org/v2/country/GBR/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_cm_mkt_lcap_cd__5a8a2fff086beb8090695775": {
+    "bytes": 9022,
+    "content_type": "json",
+    "filename": "world_bank__ind_cm_mkt_lcap_cd__5a8a2fff086beb8090695775.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "b630d92503a0c0a5c8d4b1ac5e44b5c9457aec9c6baf7e5954004b8771bd999e",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/CM.MKT.LCAP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_cm_mkt_lcap_cd__64f3b9089934aafe63dbc270": {
+    "bytes": 12622,
+    "content_type": "json",
+    "filename": "world_bank__ind_cm_mkt_lcap_cd__64f3b9089934aafe63dbc270.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "80b1d90825e3fc8223a5674ef75e62b181acf6d1f637ea851c565ffe6a23dd52",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_fp_cpi_totl__73f3f411362d3a0ec9054f95": {
+    "bytes": 14464,
+    "content_type": "json",
+    "filename": "world_bank__ind_fp_cpi_totl__73f3f411362d3a0ec9054f95.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "58edaa3b3022af25851793dc7869cc0d754184e14f1581338303adc0cc7b1947",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_gc_nld_totl_gd_zs__8a84063b81a7fbf51e491b8a": {
+    "bytes": 15611,
+    "content_type": "json",
+    "filename": "world_bank__ind_gc_nld_totl_gd_zs__8a84063b81a7fbf51e491b8a.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "23ae52b9749aad3fa737aa7c8a459796c29cb97de3e5572e217bcecd9b736a71",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_ne_gdi_ftot_zs__7faddad7935e4710350830e1": {
+    "bytes": 15138,
+    "content_type": "json",
+    "filename": "world_bank__ind_ne_gdi_ftot_zs__7faddad7935e4710350830e1.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "38934472d6d79720c07e9960033a29a0c43863a00e5c0906e2b113dcad22a179",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_ny_gdp_mktp_cd__1527732626c56c6b96bb4dc3": {
+    "bytes": 13612,
+    "content_type": "json",
+    "filename": "world_bank__ind_ny_gdp_mktp_cd__1527732626c56c6b96bb4dc3.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "6cfc29ed8e0e160979f5bed9d47dccdd601e4e7dae126dc3d98c66f96f0348a1",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_ny_gdp_mktp_cd__c72ac9af2cfabbb64861c3ca": {
+    "bytes": 7472,
+    "content_type": "json",
+    "filename": "world_bank__ind_ny_gdp_mktp_cd__c72ac9af2cfabbb64861c3ca.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "4cd81a80e669dd5cc174df4ed2df089631fd473b06bd4c07df72d13850345353",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/NY.GDP.MKTP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_ny_gdp_mktp_kd_zg__af3fbc391802796730ff2dfe": {
+    "bytes": 14074,
+    "content_type": "json",
+    "filename": "world_bank__ind_ny_gdp_mktp_kd_zg__af3fbc391802796730ff2dfe.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "41c44479e957dfa9c605f837fe70d9bffc51bf823c3f3c154ef902b13c812d7a",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_ny_gns_ictr_zs__f7a8a4ec5cd6acf7bd899815": {
+    "bytes": 13899,
+    "content_type": "json",
+    "filename": "world_bank__ind_ny_gns_ictr_zs__f7a8a4ec5cd6acf7bd899815.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "5ea08ae80f3fc719bcfca2f9eb9ada01108166583c67d38803a6fcccc366f2fc",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__ind_sp_pop_totl__51fe0caf0b192f7b2e9f4c4a": {
+    "bytes": 12992,
+    "content_type": "json",
+    "filename": "world_bank__ind_sp_pop_totl__51fe0caf0b192f7b2e9f4c4a.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "d136b089ce0745d401a1029ea8531caf7b084759f1a24eb2de7a5231f2f06c67",
+    "url": "https://api.worldbank.org/v2/country/IND/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_cm_mkt_lcap_cd__8b71fc95daa1d2efd54bb2cb": {
+    "bytes": 9061,
+    "content_type": "json",
+    "filename": "world_bank__jpn_cm_mkt_lcap_cd__8b71fc95daa1d2efd54bb2cb.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "9434cdccf0b0e7ab514e33b17be308d1cd12ed5e5c90a3cf8933b734e002d184",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/CM.MKT.LCAP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_cm_mkt_lcap_cd__b22118889ab894adcf8294a3": {
+    "bytes": 12783,
+    "content_type": "json",
+    "filename": "world_bank__jpn_cm_mkt_lcap_cd__b22118889ab894adcf8294a3.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "b2450db094ca0ac75afb7d7e72e8e78513cf6e34e3518a5f5f96fc838c0783f9",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_fp_cpi_totl__17300f11582395f925f6d75d": {
+    "bytes": 14463,
+    "content_type": "json",
+    "filename": "world_bank__jpn_fp_cpi_totl__17300f11582395f925f6d75d.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "426952fdb6e2dd7a002d376e2dfb83b517aad4ec724efa55b15916071f19deae",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_gc_nld_totl_gd_zs__bc8afbad0d8d6f6253215b80": {
+    "bytes": 15010,
+    "content_type": "json",
+    "filename": "world_bank__jpn_gc_nld_totl_gd_zs__bc8afbad0d8d6f6253215b80.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "4e45fad8ecff4397ee7a766590b795c1727e3550afda4c914cd640d92e400f0e",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_ne_gdi_ftot_zs__8be3b537f09dd7d0efdc6db1": {
+    "bytes": 15004,
+    "content_type": "json",
+    "filename": "world_bank__jpn_ne_gdi_ftot_zs__8be3b537f09dd7d0efdc6db1.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "f7f6a9f600ebf8bd9494c7bd6f9934d2778a35bbcf6d27b63fe244d8179c5415",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_ny_gdp_mktp_cd__c2fe3f0dd4e917aedd831eb4": {
+    "bytes": 13615,
+    "content_type": "json",
+    "filename": "world_bank__jpn_ny_gdp_mktp_cd__c2fe3f0dd4e917aedd831eb4.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "887f6e2f010804b94c2974ea0aedd1d606b6690d568616389f00e934543660a3",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_ny_gdp_mktp_cd__cf2aebc05c510b68239e7ee9": {
+    "bytes": 7468,
+    "content_type": "json",
+    "filename": "world_bank__jpn_ny_gdp_mktp_cd__cf2aebc05c510b68239e7ee9.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "97b1d3e51fef0896b50007a50261b4c814b958124d1b982bd82c9b81b96ef761",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GDP.MKTP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_ny_gdp_mktp_kd_zg__06210e31d0084f0f131f4e10": {
+    "bytes": 14092,
+    "content_type": "json",
+    "filename": "world_bank__jpn_ny_gdp_mktp_kd_zg__06210e31d0084f0f131f4e10.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "a3d2252262137ea05511871bc1534d2c250ba7068f906ff01e6058127aabd70b",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_ny_gns_ictr_zs__186180b4b34a2fa2facaedee": {
+    "bytes": 13635,
+    "content_type": "json",
+    "filename": "world_bank__jpn_ny_gns_ictr_zs__186180b4b34a2fa2facaedee.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "b572183a616df6facf7415884b94c8c7a82ba545865a8395c7952c447358ea71",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__jpn_sp_pop_totl__f6d0089c66c89ddf41e295e2": {
+    "bytes": 12956,
+    "content_type": "json",
+    "filename": "world_bank__jpn_sp_pop_totl__f6d0089c66c89ddf41e295e2.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "12ef84a8c68196259f01ef0a1cdda2f030bd6b121eaf7b9928f7e4cb815bcd10",
+    "url": "https://api.worldbank.org/v2/country/JPN/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_cm_mkt_lcap_cd__5dffb9ad40a1cd4de6c18b89": {
+    "bytes": 13225,
+    "content_type": "json",
+    "filename": "world_bank__usa_cm_mkt_lcap_cd__5dffb9ad40a1cd4de6c18b89.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "2a48748e6eec41e0e325038db576383dcce5b1ac68772cfeb45c7a6e6a2dad60",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/CM.MKT.LCAP.CD?date=1975:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_cm_mkt_lcap_cd__913e1270baba460fcb4173c5": {
+    "bytes": 9375,
+    "content_type": "json",
+    "filename": "world_bank__usa_cm_mkt_lcap_cd__913e1270baba460fcb4173c5.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "7b1f07136061cae8de391ce0b0ac9cfe6e1055a59cf9010d34aee5c1542dafcf",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/CM.MKT.LCAP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_fp_cpi_totl__24405e3984818f18a9cc4247": {
+    "bytes": 14976,
+    "content_type": "json",
+    "filename": "world_bank__usa_fp_cpi_totl__24405e3984818f18a9cc4247.json",
+    "retrieved_on": "2026-07-28",
+    "sha256": "dc1c432bc245f759b0efb3006e4c212860275458d3a823dcf7e5d138cc42c645",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/FP.CPI.TOTL?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_gc_nld_totl_gd_zs__a76df085a8c1c346436a5e48": {
+    "bytes": 16227,
+    "content_type": "json",
+    "filename": "world_bank__usa_gc_nld_totl_gd_zs__a76df085a8c1c346436a5e48.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "abc7542c52606aca6eb92aaa6138c94ab55d34875a2ea1d512eb185c40f18913",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_ne_gdi_ftot_cd__8fdb1e959f1455cba11e3145": {
+    "bytes": 15556,
+    "content_type": "json",
+    "filename": "world_bank__usa_ne_gdi_ftot_cd__8fdb1e959f1455cba11e3145.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "effd460dd605ff5c59b674a1dbd9228bae2e461453129a9bb2d3ff0438a60010",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/NE.GDI.FTOT.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_ne_gdi_ftot_zs__6d8b75763834bdf34f4460e8": {
+    "bytes": 15532,
+    "content_type": "json",
+    "filename": "world_bank__usa_ne_gdi_ftot_zs__6d8b75763834bdf34f4460e8.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "81f1a231b2efbc6bf992bcb26b46af890471b0863fc99d9e61352b47fb2464bc",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_ny_gdp_mktp_cd__55c456e6f61968b7b2adc892": {
+    "bytes": 14005,
+    "content_type": "json",
+    "filename": "world_bank__usa_ny_gdp_mktp_cd__55c456e6f61968b7b2adc892.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "7d3d0cbcd6f9789acb16048ce60fa111f3c0c1ac996b769916e501d1940310c9",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_ny_gdp_mktp_cd__c2194973ed93dfab5036475c": {
+    "bytes": 7680,
+    "content_type": "json",
+    "filename": "world_bank__usa_ny_gdp_mktp_cd__c2194973ed93dfab5036475c.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "7ee2dd5e6a9912561950c05dd459277fb87d481bc8e5a36c0ca826705d73d29a",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD?date=1990:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_ny_gdp_mktp_kd_zg__5889033dc5e77bd517464993": {
+    "bytes": 14608,
+    "content_type": "json",
+    "filename": "world_bank__usa_ny_gdp_mktp_kd_zg__5889033dc5e77bd517464993.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "76cbfd9388cf4b7662a9b77f13bda16c3c12236590d14dd4accc3eea14541b70",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_ny_gns_ictr_zs__ec887ce8b45d2b262e8837b8": {
+    "bytes": 14475,
+    "content_type": "json",
+    "filename": "world_bank__usa_ny_gns_ictr_zs__ec887ce8b45d2b262e8837b8.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "b2e719a0516cb3a7170579dfe9f38d448b661b162abe3de462bfe21dc3550593",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000"
+  },
+  "world_bank__usa_sp_pop_totl__83a65dd048511411a014f927": {
+    "bytes": 13492,
+    "content_type": "json",
+    "filename": "world_bank__usa_sp_pop_totl__83a65dd048511411a014f927.json",
+    "retrieved_on": "2026-07-27",
+    "sha256": "7f98bfacd7c9876925d6c036a8578c14f44d642c8ce0b1ffd2de3fc6042c307e",
+    "url": "https://api.worldbank.org/v2/country/USA/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000"
+  }
+}

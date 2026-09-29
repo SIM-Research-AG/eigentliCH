@@ -1,0 +1,211 @@
+# Engine 11: Cockpit (cockpit). The one front end for the whole system: the CIO workspace,
+# the engine status view and every engine's test bench, behind one origin.
+#
+# Committed, holds no secret. Local overrides go in config.local.yaml (git-ignored).
+# Precedence, lowest to highest: this file < config.local.yaml < COCKPIT_* environment.
+
+service:
+  host: 127.0.0.1
+  port: 8000                    # Engine Building Guide section 4. Override with COCKPIT_PORT.
+  # "development" shows everything; "cio" shows the CIO workspace and the system status
+  # only, and the proxy then refuses every write except those listed under cio.writable.
+  # Override with COCKPIT_MODE.
+  mode: development
+  timeout_s: 60                 # proxy timeout; a honi run on a new snapshot takes seconds
+
+# Where the CIO's saved decisions (optimiser bounds, instrument shortlists) are kept:
+# append-only JSON lines. Relative to this folder. Override with COCKPIT_DATA_DIR.
+data_dir: data
+
+cio:
+  # Snapshot the CIO views open on. The CIO can pick another; this is only the default.
+  snapshot: bloomberg-2026-01-05
+  # Writes allowed through the proxy in "cio" mode, as engine:path. A honi run is
+  # idempotent (answered from the cache when the inputs are unchanged), so it is safe.
+  # pcp:/validate stores nothing; the curator's Parameters page needs it (C-16). pcp:/run is
+  # deliberately absent: in cio mode pcp runs only through /api/curator/clients/{id}/runs,
+  # which records every run as an engine_run. aggregation:/scenario derives a scenario Regime from a
+  # base Regime and a named policy, answered from aggregation's cache when it exists (C-24).
+  writable: ["honi:/run", "cycle:/run", "aggregation:/run", "aggregation:/scenario", "pcp:/validate"]
+
+# The curator workflow (C-16): the cockpit reads and writes schema eigentlich directly as the
+# login role curator (SELECT, INSERT, UPDATE; never DELETE). No password here: put it in
+# config.local.yaml (curator_db: {password: ...}) or set COCKPIT_CURATOR_DB_PASSWORD.
+curator_db:
+  host: 127.0.0.1
+  port: 5432
+  dbname: simtech
+  schema: eigentlich
+  user: curator
+  connect_timeout: 5
+
+# Python the launcher starts engines with. Relative to this folder. An engine that lives in
+# another virtual environment names its own (python: under the engine, C-17).
+python: ../Macro/.venv/Scripts/python.exe
+
+# The roster (Engine Building Guide section 4). Engine NN listens on 80NN.
+#   kind:       engine (default) | app (an application with no engine number, C-18)
+#   status:     built | parked | scaffold | planned   (what exists, not whether it runs)
+#   api:        standard (/health, /meta) or v1 (/v1/health, as the Fund Map engine speaks)
+#   bench:      the engine's own test bench; the cockpit serves it pointed at its proxy
+#   start:      how the launcher starts it: working folder and arguments to `python`
+#   python:     this engine's own interpreter, when it is not the one above (C-17)
+#   autostart:  the desktop app starts it when it is not already answering
+#               (every engine with a start command: the desktop app brings the whole
+#               system up, in roster order, so macrofield is up before cycle)
+engines:
+  - key: datafeed
+    number: 1
+    name: Data Feed
+    family: Data Feed
+    url: http://127.0.0.1:8001
+    status: built
+    produces: Snapshot, Panel
+    consumes: []
+    start: {cwd: ../Macro/engines/datafeed, args: ["-X", "utf8", "-m", "datafeed", "serve"]}
+    autostart: true
+    notion: https://app.notion.com/p/3e50ba72543f8149a983fa9a8f69be97
+  - key: honi
+    number: 2
+    name: Health of Nations Index
+    family: Macro Engine
+    url: http://127.0.0.1:8002
+    status: built
+    produces: HoNIScores, PeerStats
+    consumes: [datafeed]
+    bench: ../Macro/engines/honi/testbench/index.html
+    start: {cwd: ../Macro/engines/honi, args: ["-X", "utf8", "-m", "honi", "serve"]}
+    autostart: true
+    notion: https://app.notion.com/p/3e50ba72543f81479716c3c448e0c520
+  - key: macrofield
+    number: 3
+    name: Macro Field (three-body)
+    family: Macro Engine
+    url: http://127.0.0.1:8003
+    status: parked
+    produces: MacroState
+    consumes: [datafeed]
+    bench: ../Macro/engines/macrofield/testbench/index.html
+    start: {cwd: ../Macro/engines/macrofield, args: ["-X", "utf8", "-m", "macrofield", "serve"]}
+    autostart: true
+    notion: https://app.notion.com/p/3e50ba72543f81d38916efb0c7cc5241
+  - key: aggregation
+    number: 4
+    name: Aggregation layer (Regime)
+    family: Macro Engine
+    url: http://127.0.0.1:8004
+    status: built
+    produces: Regime
+    consumes: [mrs, cycle, macrofield]
+    bench: ../Macro/engines/aggregation/testbench/index.html
+    start: {cwd: ../Macro/engines/aggregation, args: ["-X", "utf8", "-m", "aggregation", "serve"]}
+    autostart: true
+    notion: https://app.notion.com/p/3e50ba72543f81e3815ce4aece6046ed
+  - key: mrs
+    number: 5
+    name: Market Risk Signal
+    family: Macro Engine
+    url: http://127.0.0.1:8005
+    status: parked
+    produces: MarketRiskSignal
+    consumes: [datafeed]
+    start: {cwd: ../Macro/engines/mrs, args: ["-X", "utf8", "-m", "mrs", "serve"]}
+    autostart: true
+    notion: https://app.notion.com/p/3e50ba72543f81f083f6ed5af51f21e4
+  - key: fmre
+    number: 6
+    name: Fund Map and Return Estimation
+    family: Instrument
+    url: http://127.0.0.1:8006
+    api: v1
+    status: built
+    produces: ReturnSet
+    consumes: [aggregation]
+    bench: ../Instruments/testbench/index.html
+    start: {cwd: ../Instruments, args: ["-X", "utf8", "-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8006"]}
+    autostart: true
+    notion: https://app.notion.com/p/3e50ba72543f81f8ad09f996fd82db92
+  - key: pcp
+    number: 7
+    name: Optimiser (Portfolio Creation Program)
+    family: Optimizer
+    url: http://127.0.0.1:8007
+    status: built
+    produces: Allocation
+    consumes: [aggregation, fmre]
+    bench: ../Optimizer/engines/pcp/testbench/index.html
+    start: {cwd: ../Optimizer/engines/pcp, args: ["-X", "utf8", "-m", "pcp", "serve"]}
+    autostart: true
+    notion: https://app.notion.com/p/3e50ba72543f8156b3e7f074387d7cac
+  - key: cycle
+    number: 12
+    name: Cycle Model
+    family: Macro Engine
+    url: http://127.0.0.1:8012
+    status: built
+    produces: CycleState
+    consumes: [datafeed, macrofield]
+    bench: ../Macro/engines/cycle/testbench/index.html
+    start: {cwd: ../Macro/engines/cycle, args: ["-X", "utf8", "-m", "cycle", "serve"]}
+    autostart: true
+    notion: https://app.notion.com/p/3e80ba72543f81299187c34493263bba
+  - key: lbs
+    number: 13
+    name: Life Balance Sheet
+    family: Client
+    url: http://127.0.0.1:8013
+    status: built
+    produces: LifeBalanceSheet
+    consumes: []
+    bench: ../eigentliCH_Engines/engines/lbs/testbench/index.html
+    start: {cwd: ../eigentliCH_Engines/engines/lbs, args: ["-X", "utf8", "-m", "lbs", "serve"]}
+    python: ../eigentliCH_Engines/.venv/Scripts/python.exe
+    autostart: true
+    notion: https://app.notion.com/p/3e80ba72543f81cd8fc5c5a7279c1b0c
+  - key: lbsim
+    number: 14
+    name: LifeBalance Simulator
+    family: Client
+    url: http://127.0.0.1:8014
+    status: scaffold
+    produces: LifeBalancePaths
+    consumes: [lbs]
+    notion: https://app.notion.com/p/3e80ba72543f819abe14c30ca61942f5
+  - key: report
+    number: 15
+    name: eigentliCH Report Engine
+    family: Communication
+    url: http://127.0.0.1:8015
+    status: built
+    produces: Report
+    consumes: [lbs, pcp]
+    start: {cwd: ../eigentliCH_Engines/engines/report, args: ["-X", "utf8", "-m", "report", "serve"]}
+    python: ../eigentliCH_Engines/.venv/Scripts/python.exe
+    autostart: true
+    notion: https://app.notion.com/p/3e80ba72543f81279459c05a6644539a
+  - key: chatbot
+    number: 16
+    name: eigentliCH ChatBot
+    family: Communication
+    url: http://127.0.0.1:8016
+    status: built
+    produces: Answers with sources
+    consumes: [lbsim]
+    start: {cwd: ../eigentliCH_Engines/engines/chatbot, args: ["-X", "utf8", "-m", "chatbot", "serve"]}
+    python: ../eigentliCH_Engines/.venv/Scripts/python.exe
+    autostart: true
+    notion: https://app.notion.com/p/3e80ba72543f81ab9706e18e563646f8
+  # The consumer web app: not an engine (no engine number), started and linked like one (C-18).
+  # It reads and writes schema eigentlich as role eigentlich; the cockpit's curator pages write
+  # the same schema as role curator.
+  - key: eigentlich
+    kind: app
+    name: eigentliCH consumer app
+    family: Client
+    url: http://127.0.0.1:8017
+    status: built
+    produces: The client's web app
+    consumes: [lbs, report, chatbot]
+    start: {cwd: ../eigentliCH_Engines/eigentlich, args: ["-X", "utf8", "-m", "eigentlich", "serve"]}
+    python: ../eigentliCH_Engines/.venv/Scripts/python.exe
+    autostart: true

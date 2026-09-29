@@ -1,0 +1,16 @@
+{
+  "kind": "stats",
+  "url": "https://sim-tech.ch/CIO/data/stats.txt",
+  "file_name": "stats.txt",
+  "bytes": 1501909,
+  "sha256": "01a39d1db3e066c21c728d82f127f26741a2a4f84331e0546630e8d94ecb56ee",
+  "produced_by": "SIM_Tech/Master_Controller/Functions/Market Risk/MRS_Tester/MRS_Tester.m",
+  "pairs_with": "golden/cio_assets_2026-09/assets.txt",
+  "pairs_with_sha256": "572999b311d9618cc89b37665bdb536ddb22f49e3e2282849692118308f6e13f",
+  "companion": "../cio_signal_2026-09/signal.txt",
+  "first_month": "2006-09",
+  "months": 241,
+  "economies": 17,
+  "series_per_economy": 17,
+  "note": "Downloaded 27.09.2026 on the owner's ruling (Notion task 'mrs: golden reconciliation against the CIO site export'). MATLAB Indices: 12 sub-indicators (incl. KeyStats), the four TS_* segment series and TS_Riskcycle, per economy and month. MarketBehaviour.Fear_Greed is 0 in every month for all 17 economies (the Fear Barometer input is empty in M_TS and NaN is set to 0). Corrected 28.09.2026: the export was written on 03.09.2026 from the M_TS of that run (CIO assets export, frozen in ../cio_assets_2026-09/), months 2006-09 to 2026-09, not from the local M_TS.mat of 05.01.2026 (MRS-20)."
+}

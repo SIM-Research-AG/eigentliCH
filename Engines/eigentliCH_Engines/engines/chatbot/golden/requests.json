@@ -1,0 +1,376 @@
+{
+  "_note": "Golden requests for chatbot. dev/build_golden.py --live freezes spark7's reply to each into cases.json; the engine's handling of that reply is the golden output. Re-frozen 29.09.2026 for calibration 1.1.0 and prompt chatbot-prompt@1.2.0 (the wider domain, CHB-23). de_care_for_a_parent, de_incapacity and de_inheritance are the three requests the consumer app sent while building the use cases (notes and client facts as sent), refused as out of domain under prompt 1.1.0.",
+  "notes": [
+    {
+      "id": "N1",
+      "title": "Säule 3a: Maximalbetrag 2026",
+      "text": "Erwerbstätige mit Pensionskasse dürfen 2026 höchstens CHF 7'258 pro Jahr in die Säule 3a einzahlen. Ohne Pensionskasse sind es 20 % des Erwerbseinkommens, höchstens CHF 36'288. Einzahlungen sind bis zum Erreichen des Referenzalters möglich, solange ein Erwerbseinkommen besteht.",
+      "source_label": "eigentliCH Wissen: Säule 3a (2026)"
+    },
+    {
+      "id": "N2",
+      "title": "AHV: Referenzalter",
+      "text": "Das Referenzalter der AHV beträgt 65 Jahre, für Frauen wie für Männer (AHV 21). Die Rente kann ab 63 Jahren vorbezogen oder bis 70 Jahre aufgeschoben werden.",
+      "source_label": "eigentliCH Wissen: AHV (2026)"
+    },
+    {
+      "id": "N3",
+      "title": "Pension fund: conversion rate",
+      "text": "The statutory minimum conversion rate in the mandatory part of occupational pensions (BVG) is 6.8 %. Many pension funds apply a lower rate to the part above the mandatory minimum.",
+      "source_label": "eigentliCH knowledge: BVG (2026)"
+    },
+    {
+      "id": "klumpenrisiko-eigene-firma.v1",
+      "title": "Wenn das Vermögen an einer Sache hängt — die eigene Firma, die Liegenschaft, eine Position",
+      "text": "# Wenn das Vermögen an einer Sache hängt\n\nDie Frage «ist das zu viel an einem Ort» hat keine allgemeine Antwort, und wer eine nennt, nennt eine\nFaustregel, die nicht weiss, wovon sie spricht. Was sich allgemein sagen lässt, ist **woran die Antwort\nhängt** — und das ist meistens nicht der Prozentsatz.\n\n## Fragen, die dieser Text beantwortet\n\n- Wie viel meines Vermögens hängt an der eigenen Firma, und ist das zu viel?\n- Wie viel Krypto darf im Depot bleiben, ohne den Plan zu gefährden?\n- Ist die Belehnung auf beiden Liegenschaften noch tragbar?\n- Wie mache ich mich vom Wert meiner eigenen Firma unabhängig?\n\n## Der Anteil ist die kleinere Hälfte der Frage\n\nEin hoher Anteil an einer Position ist für sich genommen weder gut noch schlecht. Entscheidend ist, **was\nein Verlust auf dieser Position für Ihre Ziele bedeuten würde** — und das hängt an drei Dingen, die der\nProzentsatz nicht enthält:\n\n- **Wann Sie das Geld brauchen.** Eine Position, die bis zum Bezug dreissig Jahre Zeit hat, ist eine\n  andere Position als dieselbe mit drei Jahren Zeit.\n- **Ob das Ziel verschiebbar ist.** Ein Kaufdatum lässt sich verschieben, ein Ausbildungsbeginn nicht.\n- **Was übrig bliebe.** Nicht der Anteil des Verlusts zählt, sondern ob das Verbleibende die Ziele noch\n  trägt, die nicht warten können.\n\nDass Streuung dennoch ein echter Grundsatz ist und keine Vorliebe, zeigt das Vorsorgerecht: Art. 71 BVG\nverlangt von jeder Vorsorgeeinrichtung eine angemessene Risikoverteilung, und BVV 2 Art. 54 ff.\nbegrenzen einzelne Schuldner, einzelne Gesellschaften und einzelne Immobilien ausdrücklich. **Diese\nProzentsätze gelten für Vorsorgeeinrichtungen und nicht für Privatvermögen** — sie hier als Richtwert zu\nübernehmen wäre falsch. Was sie belegen, ist der Grundsatz, nicht die Zahl.\n\n## Die eigene Firma ist ein Sonderfall, und zwar ein doppelter\n\nWer selbständig ist, hat eine Konzentration, die in keiner Vermögensaufstellung vollständig sichtbar\nwird: **das Vermögen und das Einkommen hängen an derselben Sache.** Geht es der Firma schlecht, fallen\nder Wert der Beteiligung und der Lohn gleichzeitig aus. Bei einem Wertschriftendepot ist das nicht so.\n\nDazu kommt ein zweiter Punkt, der oft erst beim Verkauf auffällt: **ein Unternehmen, das ohne seine\nInhaberin nicht funktioniert, ist schwerer verkäuflich als eines, das es tut.** Die Unabhängigkeit vom\neigenen Firmenwert beginnt deshalb selten beim Vermögen und meistens beim Betrieb — bei der Frage, welche\nKundenbeziehungen, welches Wissen und welche Entscheidungen an einer einzigen Person hängen.\n\nDie Rechtsform verändert die Haftung, nicht die Konzentration. Eine AG oder GmbH ist nach OR ein eigener\nRechtsträger und trennt das Geschäftsvermögen vom privaten; eine Einzelfirma tut das nicht. Für die\nFrage, wie viel Ihres Vermögens an einer Sache hängt, ändert die Rechtsform nichts.\n\n## Eine Liegenschaft mit Hypothek ist zwei Positionen\n\nSie steht als ein Posten in der Aufstellung und verhält sich wie zwei: ein Wert, und eine Schuld darauf.\nFällt der Wert, fällt er auf das Eigenkapital und nicht auf die Schuld — bei hoher Belehnung wirkt ein\nkleiner Wertverlust deshalb gross. Zwei belehnte Liegenschaften sind aus demselben Grund nicht doppelt\nso gestreut wie eine, sondern reagieren gemeinsam auf denselben Markt und denselben Zins.\n\n## Woran sich etwas ändern lässt\n\nEine Konzentration löst sich selten durch Verkaufen allein, und bei einer eigenen Firma oft gar nicht\nkurzfristig. Was in der Praxis wirkt:\n\n- **Neues Geld woandershin.** Wer nicht verkaufen kann oder will, kann das, was neu dazukommt, in die\n  Positionen lenken, die fehlen. Der Anteil sinkt dann über die Zeit, ohne dass etwas verkauft wird.\n- **Die unverschiebbaren Ziele zuerst absichern.** Nicht das ganze Vermögen streuen, sondern zuerst den\n  Teil, der zu einem festen Datum gebraucht wird.\n- **Die Abhängigkeit im Betrieb verringern**, wo die Position ein Unternehmen ist — was zugleich den\n  Verkaufswert erhöht.\n\n## Was hier nicht steht\n\nAb welchem Anteil es für Sie zu viel ist. Diese Grenze folgt aus Ihren Zielen, ihren Terminen und dem,\nwas ein Verlust für sie bedeuten würde — und dazu ist in diesem Text keine Regel hinterlegt, weil es\nkeine gibt, die für alle gilt.\n",
+      "source_label": "eigentliCH Wissen: Wenn das Vermögen an einer Sache hängt — die eigene Firma, die Liegenschaft, eine Position (geprüft 2026-09-22)"
+    },
+    {
+      "id": "wohneigentum-vorsorgekapital-einsetzen.v1",
+      "title": "Vorsorgekapital für Wohneigentum — Vorbezug, Verpfändung und was es kostet",
+      "text": "# Vorsorgekapital für Wohneigentum\n\nDas Gesetz erlaubt, Vorsorgekapital für Wohneigentum einzusetzen. Es erlaubt es nicht allgemein, sondern\nfür einen genau umschriebenen Zweck, und der Zweck ist die entscheidende Einschränkung.\n\n## Fragen, die dieser Text beantwortet\n\n- Darf ich mein Pensionskassenguthaben für ein Haus einsetzen?\n- Kann ich Geld aus der Pensionskasse für Eigentum beziehen?\n- Was kostet mich ein Vorbezug in der Rente und im Ruhestand?\n- Darf ich die Säule 3a für eine Wohnung brauchen?\n- Was ist der Unterschied zwischen Vorbezug und Verpfändung?\n\n## Nur für Wohnraum, den Sie selbst bewohnen\n\nDie Wohneigentumsförderung gilt für **selbstgenutztes Wohneigentum am eigenen Wohnsitz**. Gemeint ist die\nWohnung oder das Haus, in dem die Person tatsächlich lebt.\n\nNicht darunter fallen:\n\n- eine Liegenschaft, die **vermietet** wird\n- ein **Ferienobjekt** oder eine Zweitwohnung\n- eine Liegenschaft, die als Kapitalanlage gehalten wird\n\nFür diese drei ist weder ein Vorbezug aus der zweiten Säule noch ein vorzeitiger Bezug der Säule 3a\nmöglich. Das Guthaben ist dort nicht schwer verfügbar — es steht für diesen Zweck **gar nicht** zur\nVerfügung. Wer eine solche Liegenschaft plant, muss die Eigenmittel vollständig aus freiem Vermögen\naufbringen.\n\nFällt der Eigenbedarf später weg — die Liegenschaft wird verkauft oder dauerhaft vermietet —, ist ein\nbezogener Betrag grundsätzlich zurückzuzahlen.\n\n## Zwei Wege: Vorbezug und Verpfändung\n\n**Der Vorbezug** nimmt das Geld aus der Vorsorgeeinrichtung heraus. Das Altersguthaben sinkt, und mit ihm\ndie spätere Rente. Häufig sinken auch die versicherten Leistungen bei Invalidität und im Todesfall — wie\nstark, hängt vom Reglement der Einrichtung ab und ist dort zu erfragen. Der bezogene Betrag wird im Jahr\ndes Bezugs besteuert, getrennt vom übrigen Einkommen und zu einem reduzierten Satz.\n\n**Die Verpfändung** lässt das Geld liegen und gibt es der Bank als Sicherheit. Das Altersguthaben bleibt\nunverändert, die Rente ebenfalls, und es fällt keine Bezugssteuer an. Dafür wird die Hypothek nicht\nkleiner, also auch die Zinslast nicht — und die Tragbarkeitsrechnung wird dadurch eher schwieriger als\nleichter. Die Verpfändung hilft bei den Eigenmitteln, nicht bei der Tragbarkeit.\n\nWelcher Weg der passendere ist, hängt vom Einzelfall ab und ist eine Frage, die mit der Vorsorgeeinrichtung\nund einer Fachperson zu klären ist.\n\n## Die Grenzen, die das Gesetz zieht\n\n- Ein Vorbezug hat einen **Mindestbetrag**, und zwischen zwei Bezügen liegt eine **Sperrfrist von fünf\n  Jahren**. Beides ist in der WEFV geregelt.\n- **Ab dem 50. Altersjahr ist der Betrag begrenzt.** Bezogen werden kann höchstens der höhere der beiden\n  Werte: das Guthaben im Alter 50 oder die Hälfte des heutigen Guthabens. Wer nach 50 kauft, hat also\n  weniger Kapital zur Verfügung, als der Vorsorgeausweis ausweist.\n- Bei verheirateten Personen und in eingetragener Partnerschaft braucht der Bezug die **schriftliche\n  Zustimmung** der anderen Person.\n- Nach einem Vorbezug ist ein **Einkauf** in die Pensionskasse erst wieder möglich, wenn der Vorbezug\n  zurückbezahlt ist.\n\n## Die Säule 3a folgt derselben Logik\n\nAuch der vorzeitige Bezug der Säule 3a ist an selbstgenutztes Wohneigentum gebunden. Der wesentliche\nUnterschied liegt nicht beim Bezug, sondern bei der Bank: **die Säule 3a zählt zu den harten\nEigenmitteln, das Guthaben der zweiten Säule nicht.** Wer beides hat, setzt für die harte Hälfte eher die\n3a ein.\n\n## Was hier bewusst keine Zahl ist\n\n- **Der Mindestbetrag eines Vorbezugs.** Er steht in der WEFV. Die Höhe ist vor einer Freigabe an der\n  aktuellen Fassung zu prüfen und deshalb hier nicht genannt.\n- **Der Steuersatz auf dem Bezug.** Er ist kantonal verschieden und hängt von der Höhe ab.\n- **Um wie viel Rente und Risikoleistungen sinken.** Das ergibt sich aus dem Reglement der einzelnen\n  Vorsorgeeinrichtung und steht auf Anfrage im persönlichen Fall zur Verfügung.\n\n## Was die Quelle selbst nicht sagt\n\nDas Gesetz regelt, was zulässig ist. Es sagt nicht, ob ein Bezug im einzelnen Fall sinnvoll ist. Ein\nVorbezug tauscht Vorsorge gegen Wohneigentum, und ob dieser Tausch aufgeht, hängt an Umständen, die das\nGesetz nicht kennt.\n\n## Für die Prüfung angemerkt\n\nDie Altersgrenze 50 und die zugehörige Begrenzung stehen in BVG Art. 30c. Mindestbetrag und Sperrfrist\nstehen in der WEFV und sind hier bewusst ohne Zahl geblieben. Vor der Freigabe ist zu entscheiden, ob die\nZahlen aufgenommen werden sollen — dann zitiert, mit Jahr, nicht aus dem Gedächtnis.\n",
+      "source_label": "eigentliCH Wissen: Vorsorgekapital für Wohneigentum — Vorbezug, Verpfändung und was es kostet (geprüft 2026-09-22)"
+    },
+    {
+      "id": "wohneigentum-eigenmittel.v1",
+      "title": "Wohneigentum — welche Eigenmittel eine Bank verlangt",
+      "text": "# Welche Eigenmittel eine Bank verlangt\n\nEin Kaufpreis ist nicht der Betrag, der angespart werden muss. Der grössere Teil wird als Hypothek\naufgenommen; angespart werden die Eigenmittel. Wie gross dieser Teil sein muss, ist keine Verhandlungssache\nzwischen Käuferin und Bank, sondern folgt einer Selbstregulierung der Banken, die die FINMA als\nMindeststandard anerkannt hat.\n\n## Fragen, die dieser Text beantwortet\n\n- Wie viel Eigenkapital brauche ich, um ein Haus oder eine Wohnung zu kaufen?\n- Ab wie viel Kapital macht es Sinn, Eigentum zu kaufen?\n- Wie viel muss ich angespart haben, damit ich mir ein Eigenheim leisten kann?\n- Kann ich mein Pensionskassenguthaben als Eigenkapital einsetzen?\n- Zählt meine Säule 3a als Eigenkapital?\n- Wie viel Eigenmittel verlangt die Bank?\n\n## Die zwei Zahlen\n\n**Mindestens ein Fünftel des Werts als Eigenmittel.** Für selbstgenutztes Wohneigentum verlangen die\nRichtlinien mindestens 20 Prozent des Belehnungswerts aus Eigenmitteln. Der Belehnungswert ist der von der\nBank geschätzte Wert, nicht zwingend der bezahlte Preis; liegt der Preis darüber, zählt für die Rechnung\nder tiefere Wert, und die Differenz ist zusätzlich aus eigenen Mitteln zu tragen.\n\n**Mindestens die Hälfte davon ohne Gelder der zweiten Säule.** Von diesen Eigenmitteln müssen mindestens\n10 Prozent des Belehnungswerts aus Mitteln stammen, die *nicht* aus der beruflichen Vorsorge kommen. Diese\nHälfte wird «harte Eigenmittel» genannt.\n\nDaraus folgt die Regel, die in der Praxis am häufigsten übersehen wird: **das Guthaben der Pensionskasse\nkann höchstens die Hälfte der Eigenmittel decken**, nie mehr.\n\n## Was als harte Eigenmittel zählt\n\n- Erspartes auf Konten und in Wertschriften\n- Guthaben der Säule 3a\n- Guthaben einer Freizügigkeitseinrichtung, soweit die Einrichtung den Bezug zulässt\n- Eine Erbschaft oder ein Erbvorbezug, sofern das Geld tatsächlich zur Verfügung steht\n- Ein zinsloses Darlehen aus dem Familienkreis, wenn es die Bank als Eigenmittel akzeptiert — das tut\n  nicht jede, und ein rückzahlbares Darlehen ist wirtschaftlich kein Eigenmittel\n\nDie Säule 3a zählt zu den harten Eigenmitteln, das Guthaben der Pensionskasse nicht. Das ist der ganze\nUnterschied zwischen den beiden Vorsorgegefässen an dieser Stelle, und er entscheidet in einer Rechnung\noft mehr als der Betrag selbst.\n\n## Was nicht als Eigenmittel zählt\n\nEin Bestand, der nicht verfügbar ist, ist kein Eigenmittel — unabhängig davon, wie gross er ist. Eine\nSammlung, ein Fahrzeug oder eine Beteiligung zählt erst nach dem Verkauf — vorher ist es ein Wert\nauf dem Papier. Und Vorsorgekapital zählt nur dort, wo das Gesetz den Bezug überhaupt zulässt: **beim\nselbstgenutzten Wohneigentum**. Für ein Objekt, das vermietet wird, und für ein Ferien- oder Zweitobjekt\ndarf weder die zweite Säule noch die Säule 3a eingesetzt werden. Dort sind sämtliche Eigenmittel harte\nEigenmittel.\n\n## Die Eigenmittel sind nur die erste von zwei Prüfungen\n\nWer die Eigenmittel zusammenhat, hat damit noch nichts über die Finanzierung gesagt. Die zweite Prüfung\nist die Tragbarkeit: ob das laufende Einkommen die Liegenschaft trägt. Die beiden Prüfungen sind\nunabhängig voneinander, und es ist häufig, dass eine erfüllt ist und die andere nicht. Wer nur auf die\nEigenmittel spart, kann die zweite Hürde erst spät bemerken.\n\n## Was hier bewusst keine Zahl ist\n\n- **Der Belehnungswert.** Er wird von der Bank geschätzt und ist keine Grösse, die sich vorab berechnen\n  lässt.\n- **Zusätzliche Nebenkosten des Kaufs** — Notariat, Grundbuch, Handänderungssteuer. Sie fallen zusätzlich\n  zu den Eigenmitteln an, werden von Kanton zu Kanton unterschiedlich erhoben und sind hier nicht beziffert.\n- **Abweichende Anforderungen einzelner Banken.** Die 20 und die 10 Prozent sind ein Mindeststandard.\n  Einzelne Institute verlangen mehr, insbesondere bei Objekten, die nicht selbst bewohnt werden.\n\n## Was die Quelle selbst nicht sagt\n\nDie Selbstregulierung ist ein Mindeststandard für die Banken, kein Anspruch der Kundin. Sie sagt, wann\neine Bank eine Finanzierung als tragbar behandeln darf — nicht, dass eine bestimmte Bank eine bestimmte\nFinanzierung gewähren muss. Ob eine Finanzierung zustande kommt, entscheidet die einzelne Bank.\n\n## Für die Prüfung angemerkt\n\nDie beiden Prozentsätze stammen aus der Selbstregulierung der Bankiervereinigung. Sie sind seit Jahren\nstabil, aber sie sind eine Richtlinie und kein Gesetz und können ohne Gesetzgebungsverfahren geändert\nwerden. Vor der Freigabe ist zu prüfen, ob die aktuelle Fassung weiterhin 20 und 10 Prozent nennt, und ob\ndie Formulierung «Belehnungswert» der aktuellen Terminologie entspricht.\n",
+      "source_label": "eigentliCH Wissen: Wohneigentum — welche Eigenmittel eine Bank verlangt (geprüft 2026-09-22)"
+    },
+    {
+      "id": "wohneigentum-vermietet-und-ferienobjekt.v1",
+      "title": "Vermieten oder Ferienobjekt — warum diese Käufe anders finanziert werden",
+      "text": "# Vermieten oder Ferienobjekt\n\nWer eine Liegenschaft kauft, um sie zu vermieten, und wer ein Ferienobjekt kauft, finanziert nicht dasselbe\nwie jemand, der selbst einzieht — auch wenn der Preis derselbe ist. Zwei Dinge ändern sich, und beide\ngehen in dieselbe Richtung.\n\n## Fragen, die dieser Text beantwortet\n\n- Ab wie viel Kapital macht es Sinn, Eigentum zu kaufen und dieses danach unterzuvermieten?\n- Wie kann ich mir ein Ferienhaus leisten?\n- Was gilt anders, wenn ich die Wohnung vermiete statt selbst darin zu wohnen?\n- Darf ich mein Pensionskassenguthaben für ein Ferienhaus einsetzen?\n- Wie viel Eigenkapital brauche ich für eine Wohnung, die ich vermieten will?\n- Lohnt es sich, eine Liegenschaft zu kaufen und zu vermieten?\n- Wie kann ich mir ein Ferienhaus leisten und einen sorgenfreien Ruhestand aufbauen?\n- Passt ein Zweitobjekt zu meinem Ruhestand, oder baue ich es gegen ihn auf?\n\n## Erstens: kein Vorsorgekapital\n\nDie Wohneigentumsförderung gilt für Wohnraum, den die Person **selbst bewohnt**. Ein Renditeobjekt und ein\nFerienobjekt fallen nicht darunter. Weder die zweite Säule noch die Säule 3a darf eingesetzt werden — weder\nals Vorbezug noch als Verpfändung.\n\nDas ist die Regel, die in einer Aufstellung am ehesten übersehen wird, weil das Guthaben auf dem\nVorsorgeausweis so sichtbar dasteht wie jeder andere Betrag. Für diesen Zweck steht es nicht zur Verfügung.\nWer 100'000 Franken Vorsorgekapital hat und ein Ferienhaus plant, hat dafür 0 Franken Vorsorgekapital.\n\n## Zweitens: mehr Eigenmittel\n\nDie Banken verlangen für Objekte, die nicht selbst bewohnt werden, in aller Regel mehr als das Fünftel,\ndas bei selbstgenutztem Wohneigentum der Mindeststandard ist — und sie verlangen es vollständig aus\nfreien Mitteln, weil Vorsorgekapital hier ohnehin ausfällt. Wie viel mehr, ist Sache des einzelnen\nInstituts; ein Viertel bis ein Drittel des Werts ist verbreitet.\n\nZusammen bedeutet das: Bei gleichem Preis ist der Betrag, der tatsächlich vorhanden sein muss, für ein\nRenditeobjekt oder ein Ferienobjekt deutlich grösser als für ein Eigenheim — häufig um mehr als das\nDoppelte.\n\n## Wie die Miete gerechnet wird\n\nBei einem Renditeobjekt fliesst Mietertrag zurück, und die Banken berücksichtigen ihn — aber vorsichtig.\nAngerechnet wird nicht die erhoffte Miete, sondern ein Ertrag mit Abschlägen für Leerstand und Unterhalt.\nWie gross diese Abschläge sind, entscheidet die Bank.\n\nEin Ferienobjekt bringt in aller Regel keinen angerechneten Ertrag. Es wird getragen wie ein zweites\nEigenheim: aus dem laufenden Einkommen, zusätzlich zu allem, was bereits getragen wird. Wer die erste\nLiegenschaft noch abzahlt, muss beide in derselben Rechnung unterbringen.\n\n## Ein Zwischenfall, der oft gemeint ist\n\nHäufig ist nicht ein reines Renditeobjekt gemeint, sondern ein Haus, in dem jemand **selbst wohnt und\neinen Teil vermietet** — eine Einliegerwohnung, ein zweites Geschoss. Dieser Fall ist ein anderer als\nbeide oben: Der selbst bewohnte Teil kann für die Wohneigentumsförderung qualifizieren. Wie der Fall\nbehandelt wird, hängt an den Anteilen und am Institut, und er ist mit der Bank zu klären, bevor gerechnet\nwird.\n\n## Was hier bewusst keine Zahl ist\n\n- **Die Eigenmittelquote für Rendite- und Ferienobjekte.** Sie ist Praxis, kein Mindeststandard, und\n  unterscheidet sich zwischen den Instituten stärker als jede andere Grösse in dieser Sammlung.\n- **Der angerechnete Mietertrag und die Abschläge darauf.** Sie werden pro Objekt und pro Bank bestimmt.\n- **Die steuerliche Behandlung von Mietertrag und Eigenmietwert.** Sie verändert die Rechnung und ist\n  nicht Teil der Finanzierungsprüfung.\n\n## Was die Quelle selbst nicht sagt\n\nWas Vorsorgekapital darf, steht im Gesetz und gilt überall gleich. Was eine Bank verlangt, steht nicht im\nGesetz und gilt bei jeder anders. Der erste Teil dieses Textes ist deshalb belastbar, der zweite ist eine\nBeschreibung des Üblichen.\n\n## Für die Prüfung angemerkt\n\nDie Aussage «ein Viertel bis ein Drittel» ist als Praxis gekennzeichnet und stammt nicht aus einem\nzitierbaren Dokument. Vor der Freigabe ist zu entscheiden, ob sie bleibt oder ob der Text nur sagt, dass\nmehr verlangt wird, ohne die Spanne zu nennen.\n",
+      "source_label": "eigentliCH Wissen: Vermieten oder Ferienobjekt — warum diese Käufe anders finanziert werden (geprüft 2026-09-22)"
+    },
+    {
+      "id": "rente-oder-kapital.v1",
+      "title": "Rente oder Kapital — was die Wahl bei der Pensionskasse entscheidet",
+      "text": "# Rente oder Kapital\n\nBeim Aufhören stellt die Pensionskasse eine Frage, die sich nicht zurücknehmen lässt: Rente, Kapital\noder beides. Dieser Text sagt, was rechtlich feststeht und welche Grössen die Wahl bestimmen. Er sagt\nnicht, was für Sie richtig ist — das hängt von Umständen ab, die kein Text kennt.\n\n## Fragen, die dieser Text beantwortet\n\n- Rente, Kapital oder gemischt — was passt zu unserer Situation?\n- Wie viel meines Pensionskassenguthabens darf ich überhaupt als Kapital beziehen?\n- Bis wann muss ich mich entscheiden?\n- Was geschieht mit der Rente, wenn ich sterbe, und was mit dem Kapital?\n- Kann ich die Entscheidung später ändern?\n\n## Was das Gesetz festlegt, und was das Reglement\n\nDas BVG behandelt die **Rente als Regelfall**. Ein Viertel des Altersguthabens im Obligatorium kann\nnach Art. 37 Abs. 2 als Kapitalabfindung verlangt werden — dieser Viertel steht Ihnen zu, unabhängig\ndavon, was die Kasse sonst vorsieht.\n\nAlles darüber hinaus ist **eine Frage des Reglements Ihrer Kasse**, nicht des Gesetzes. Viele Kassen\nlassen den vollen Kapitalbezug zu, manche gar keinen über den Viertel hinaus, und einige stufen ihn ab.\nDas ist der Punkt, an dem dieser Text aufhört, allgemein zu sein: **die für Sie geltende Regel steht in\nIhrem Vorsorgereglement und in keiner anderen Quelle.**\n\nEbenso reglementarisch ist die Frist. Art. 37 Abs. 4 Bst. b lässt zu, dass die Kasse eine Anmeldung bis\ndrei Jahre vor dem Bezug verlangt. Ob Ihre Kasse das tut und welche Frist gilt, entscheidet ihr\nReglement. Wer die Frist verpasst, hat die Wahl nicht getroffen, sondern verloren.\n\n## Die Entscheidung ist endgültig\n\nEine bezogene Kapitalabfindung lässt sich nicht in eine Rente zurückverwandeln, und eine laufende Rente\nnicht in Kapital. Das unterscheidet diese Wahl von fast allem anderen in der Vorsorge und ist der Grund,\nweshalb die Frist überhaupt existiert.\n\n## Was die Rente leistet\n\nDie Rente zahlt lebenslang, in gleichbleibender Höhe, unabhängig davon wie alt Sie werden und unabhängig\ndavon, was an den Märkten geschieht. Beides ist Teil derselben Sache: Sie tragen weder das Risiko, das\nGeld zu überleben, noch das Risiko der Anlage — die Kasse trägt beide.\n\nBeim Tod läuft sie nicht einfach aus. Nach Art. 19 und 20 BVG entstehen Ansprüche auf Witwen-,\nWitwer- und Waisenrente, in der Regel als Anteil der laufenden Rente und an gesetzliche Voraussetzungen\ngeknüpft. Was die Kasse darüber hinaus vorsieht, steht wieder im Reglement.\n\n## Was das Kapital leistet\n\nDas Kapital gehört Ihnen. Es ist vererbbar, es ist verfügbar, und Sie bestimmen, wie es angelegt und\nverbraucht wird. Damit tragen Sie aber auch beide Risiken, die bei der Rente die Kasse trägt: dass die\nAnlage schlecht läuft, und dass Sie länger leben als geplant.\n\nDer zweite Punkt wird regelmässig unterschätzt, weil er sich nicht wie ein Risiko anfühlt. Ein Plan, der\nbis 85 reicht, ist kein Plan für jemanden, der 94 wird.\n\n## Die Grössen, an denen sich die Wahl entscheidet\n\nDie Frage ist nicht, welche Form allgemein besser ist — beide sind dasselbe Geld in zwei Formen. Was\nsich unterscheidet, ist wer welches Risiko trägt. Daran hängt die Wahl:\n\n- **Wie hoch die übrigen lebenslangen Einkünfte sind.** AHV und eine allfällige Rente der Partnerin oder\n  des Partners decken einen Teil der laufenden Ausgaben. Was sie decken, muss die Pensionskassenrente\n  nicht mehr decken.\n- **Wie viel Vermögen daneben steht.** Wer neben der Pensionskasse genügend freies Vermögen hat, kann\n  eine Rente wählen, ohne auf Verfügbarkeit zu verzichten.\n- **Der Gesundheitszustand und die Familiengeschichte**, weil die Rente eine Wette auf die eigene\n  Lebensdauer ist und das Kapital keine.\n- **Ob jemand versorgt werden muss**, der die Hinterlassenenleistungen der Kasse nicht erhält — ein\n  Konkubinatspartner etwa, dessen Anspruch vom Reglement abhängt und nicht vom Gesetz.\n- **Die Steuern**, die für beide Formen unterschiedlich anfallen: die Rente als Einkommen im Jahr des\n  Bezugs, das Kapital einmalig und getrennt vom übrigen Einkommen. Die Sätze sind kantonal und stehen\n  nicht in diesem Text.\n\n## Die gemischte Form\n\nEin Teil als Rente, ein Teil als Kapital ist bei vielen Kassen zulässig und wird oft übersehen, weil die\nFrage als Entweder-Oder gestellt wird. Die Überlegung dahinter: so viel Rente, dass die laufenden Kosten\ngedeckt sind, die sich nicht vermeiden lassen — und den Rest als Kapital, das verfügbar bleibt.\n\nOb Ihre Kasse das zulässt und in welchen Schritten, steht im Reglement.\n\n## Was hier nicht steht\n\nDer Umwandlungssatz Ihrer Kasse, Ihr Altersguthaben, die Steuersätze Ihres Kantons und die Frage, wie\nhoch Ihre Ausgaben nach dem Aufhören sein werden. Ohne diese vier lässt sich die Wahl nicht rechnen,\nund drei davon stehen in Unterlagen, die nur Sie haben.\n",
+      "source_label": "eigentliCH Wissen: Rente oder Kapital — was die Wahl bei der Pensionskasse entscheidet (geprüft 2026-09-22)"
+    },
+    {
+      "id": "ahv-beitragspflicht.v1",
+      "title": "AHV — wer Beiträge zahlt, und woraus die Rente entsteht",
+      "text": "# Die AHV und ihre Beiträge\n\nDie AHV ist die erste Säule. Versichert ist, wer in der Schweiz wohnt oder hier erwerbstätig ist — unabhängig von Nationalität und Anstellungsform.\n\nDie Beitragspflicht ist keine Wahl. Sie knüpft an Wohnsitz oder Erwerbstätigkeit in der Schweiz und an das Alter an — nicht an eine Gegenleistung.\n\n## Wann die Pflicht beginnt und wann sie endet\n\nFür Erwerbstätige beginnt sie am 1. Januar nach dem vollendeten 17. Altersjahr.\n\nFür alle übrigen beginnt sie am 1. Januar nach dem 20. Geburtstag.\n\nSie endet am Ende des Monats, in dem das Referenzalter erreicht wird. Das Referenzalter liegt bei 65 Jahren; für Frauen mit Jahrgang vor 1964 gilt eine Übergangsregelung, die in der Notiz zum flexiblen Rentenbezug tabelliert ist.\n\nFür die Rentenberechnung zählen die Jahre ab dem 1. Januar nach dem vollendeten 20. Altersjahr. Beiträge aus den Jahren davor gehen nicht verloren — sie können eine spätere Lücke schliessen.\n\nMerkblatt 2.03 hält dazu ausdrücklich fest, dass die Beiträge lückenlos bezahlt werden müssen, weil fehlende Beitragsjahre zu einer Kürzung der Renten führen können.\n\n## Wie die Beiträge erhoben werden\n\n**Angestellte** zahlen einen Prozentsatz des Lohns. Der Arbeitgeber trägt die Hälfte und zieht die andere Hälfte direkt vom Lohn ab. Auf der Lohnabrechnung erscheint der Abzug meist als AHV/IV/EO zusammengefasst.\n\n**Selbständigerwerbende** tragen den Beitrag ganz allein. Auf tiefen Einkommen gilt eine sinkende Skala, damit kleine Einkommen nicht überproportional belastet werden.\n\n**Nichterwerbstätige** zahlen einen eigenen Beitrag. Als nichterwerbstätig gelten nach Merkblatt 2.03 unter anderen: vorzeitig Pensionierte, Bezügerinnen und Bezüger von IV-Renten, Empfängerinnen und Empfänger von Kranken- und Unfalltaggeldern, Studierende, Weltreisende, ausgesteuerte Arbeitslose, Geschiedene und Verwitwete, Ehefrauen und Ehemänner von Pensionierten, die das Referenzalter noch nicht erreicht haben, sowie Ehefrauen und Ehemänner von im Ausland erwerbstätigen Ehepartnern.\n\nWer nicht erwerbstätig und noch keiner Ausgleichskasse angeschlossen ist, meldet sich selbst bei der Ausgleichskasse des Wohnkantons an. Das geschieht nicht von selbst.\n\n## Wie sich der Beitrag der Nichterwerbstätigen berechnet\n\nGrundlage ist das Vermögen und das 20-fache jährliche Renteneinkommen.\n\nBei Verheirateten wird der Beitrag für jeden Ehegatten unabhängig vom Güterstand auf der Hälfte des ehelichen Vermögens und des mit 20 multiplizierten ehelichen Renteneinkommens berechnet.\n\n**Zum Reinvermögen** gehören namentlich Sparkonten, Wertpapiere, Liegenschaften unter Berücksichtigung der interkantonalen Repartitionswerte, Vermögen mit Nutzniessungsrecht und Rückkaufswerte von Lebensversicherungen. Schulden können abgezogen werden.\n\nEin Punkt daraus wird regelmässig falsch angenommen: **Altersguthaben und Freizügigkeitsguthaben der zweiten Säule gehören nicht zum Vermögen.** Für die Berechnung dieses Beitrags zählen sie nicht mit.\n\n**Zum Renteneinkommen** gehören Renten und Pensionen aller Art mit Ausnahme der IV-Renten, auch aus dem Ausland, Rentenzuschläge, die 13. AHV-Rente sowie Unterhaltsleistungen der geschiedenen Ehefrau oder des geschiedenen Ehemanns — ausgenommen solche für Kinder.\n\n## Die Beträge, Stand 1. Januar 2026\n\nNach Merkblatt 2.03, Stand am 1. Januar 2026:\n\n- **Mindestbeitrag 530 Franken im Jahr**, bei einem Vermögen samt 20-fachem Renteneinkommen unter 350 000 Franken.\n- **Höchstbeitrag 26 500 Franken im Jahr**, erreicht bei 8 950 000 Franken.\n- Über 1 750 000 Franken erhöht sich der Beitrag um **159 Franken pro Jahr für jede weiteren 50 000 Franken**.\n- Dazwischen ist die Tabelle gestuft: ab 500 000 Franken sind es 954 Franken, ab 1 000 000 Franken 2 014 Franken, ab 1 500 000 Franken 3 074 Franken.\n- Zu diesen Beiträgen kommen **Verwaltungskostenbeiträge** hinzu.\n\nDer Mindestbeitrag von 530 Franken entspricht einem jährlichen Bruttolohn von 5 000 Franken.\n\n## Teilzeit und die Vergleichsrechnung\n\nWer erwerbstätig, aber nicht dauernd voll erwerbstätig ist — weniger als neun Monate im Jahr oder weniger als 50 Prozent der üblichen Arbeitszeit —, wird von der Ausgleichskasse einer Vergleichsrechnung unterzogen.\n\nGeprüft wird, ob die Beiträge aus dieser Erwerbstätigkeit, die Arbeitgeberbeiträge eingerechnet, mindestens die Hälfte dessen ausmachen, was als nichterwerbstätige Person zu entrichten wäre. Trifft das nicht zu, gilt die Person im Sinne der AHV nicht als erwerbstätig und zahlt zusätzlich Beiträge wie eine nichterwerbstätige Person.\n\nBereits auf dem Erwerbseinkommen geleistete Beiträge können auf Antrag angerechnet werden. Der Mindestbeitrag von 530 Franken im Jahr, Stand 1. Januar 2026, gilt in jedem Fall.\n\nDiese Regel ist der Grund, weshalb ein kleines Pensum die Beitragsfrage nicht automatisch erledigt.\n\n## Die Ehegattenregel\n\nWer nicht erwerbstätig ist, ist von der eigenen Beitragspflicht befreit, wenn die Ehefrau oder der Ehemann im Sinne der AHV erwerbstätig ist und mindestens 1 060 Franken entrichtet — den doppelten Mindestbeitrag, Stand 1. Januar 2026.\n\nDas gilt auch im Jahr der Eheschliessung und im Jahr der Scheidung. Dieselbe Befreiung greift bei Mitarbeit im Betrieb der Ehefrau oder des Ehemanns ohne Barlohn, sofern diese oder dieser mindestens 1 060 Franken pro Jahr zahlt.\n\nDie Befreiung gilt also nicht automatisch für jede Konstellation, sondern hängt an einem Betrag. Sie ist die häufigste Ursache unbemerkter Lücken.\n\n## Woraus die Rente entsteht\n\nZwei Grössen bestimmen die Altersrente:\n\n[…]",
+      "source_label": "eigentliCH Wissen: AHV — wer Beiträge zahlt, und woraus die Rente entsteht (geprüft 2026-08-31)"
+    },
+    {
+      "id": "scheidung-und-vorsorge.v1",
+      "title": "Scheidung — was mit der Vorsorge geschieht und was mit dem Vermögen",
+      "text": "# Scheidung und Vorsorge\n\nBei einer Scheidung werden **zwei verschiedene Dinge nach zwei verschiedenen Regeln geteilt**, und sie\nwerden regelmässig verwechselt: das Vermögen nach Güterrecht, und die Vorsorge nach Vorsorgerecht. Wer\nnur an das eine denkt, übersieht oft den grösseren Betrag.\n\n## Fragen, die dieser Text beantwortet\n\n- Wann habe ich nach der Scheidung wieder finanziellen Spielraum?\n- Was geschieht mit meinem Pensionskassenguthaben?\n- Wie teilen wir bei Gütertrennung auf, wenn einer deutlich mehr hat?\n- Zählt die AHV auch, oder nur die Pensionskasse?\n- Ändert sich etwas, wenn einer von uns schon pensioniert ist?\n\n## Die drei Ebenen\n\n**1. Die berufliche Vorsorge — der Vorsorgeausgleich.** Nach Art. 122 ZGB werden die *während der Ehe*\nerworbenen Ansprüche ausgeglichen, im Grundsatz hälftig. Was jemand vor der Heirat angespart hat, bleibt\nihm. Dieser Ausgleich findet unabhängig vom Güterstand statt — **auch bei Gütertrennung.** Das ist der\nPunkt, der am häufigsten überrascht: Gütertrennung trennt das Vermögen, nicht die Vorsorge.\n\n**2. Das Vermögen — das Güterrecht.** Hier entscheidet der Güterstand. Bei der\nErrungenschaftsbeteiligung, dem gesetzlichen Regelfall, wird geteilt, was während der Ehe erarbeitet\nwurde; Eigengut — was jemand eingebracht oder geerbt hat — bleibt bei ihm. Bei Gütertrennung behält\njeder, was auf seinen Namen läuft. Bei Gütergemeinschaft gilt wieder anderes.\n\n**3. Die AHV — das Splitting.** Die während der Ehe erzielten Einkommen werden je hälftig auf beide\nKonten aufgeteilt. Das geschieht nach Art. 29quinquies Abs. 3 AHVG und ist keine Verhandlungssache.\n\n## Warum der Zeitpunkt alles verändert\n\nVor der Pensionierung werden Austrittsleistungen geteilt: ein Betrag wandert von der einen Kasse in die\nandere, und beide sparen von dort aus weiter (Art. 123 ZGB).\n\nIst bereits eine Alters- oder Invalidenrente im Fluss, geht das nicht mehr — die Rente lässt sich nicht\nin ein Guthaben zurückverwandeln. Dann greifen Art. 124 und 124a ZGB, und der Ausgleich erfolgt als\nAnteil an der laufenden Rente. **Die wirtschaftlichen Folgen für beide Seiten sind in den zwei Fällen\nsehr verschieden**, und der Zeitpunkt ist selten frei wählbar.\n\n## Die hälftige Teilung ist der Grundsatz, nicht die einzige Möglichkeit\n\nArt. 124b ZGB lässt eine abweichende Teilung zu — aus wichtigen Gründen, und in jedem Fall unter\nrichterlicher Genehmigung. Eine Vereinbarung unter den Eheleuten allein genügt dafür nicht.\n\n## Was den Spielraum danach bestimmt\n\nDie Frage, wann wieder Spielraum besteht, ist keine Rechtsfrage. Sie hängt an vier Grössen, die alle in\nIhren eigenen Unterlagen stehen:\n\n- Was nach Güterrecht und Vorsorgeausgleich tatsächlich bei Ihnen bleibt.\n- Welche Unterhaltszahlungen laufen, in welche Richtung, und **bis wann** — ein Kinderunterhalt endet\n  nach Regeln, die im Urteil stehen, und das Ende ist ein Datum, das sich planen lässt.\n- Wie sich die Wohnkosten verändern. Zwei Haushalte kosten mehr als einer, und das trifft die laufende\n  Rechnung stärker als die einmalige Teilung.\n- Ob und in welchem Umfang eine Erwerbstätigkeit aufgenommen oder ausgeweitet wird.\n\nDer Vorsorgeausgleich wirkt sich davon **am spätesten** aus: er verändert das Guthaben sofort und das\nverfügbare Einkommen erst beim Bezug.\n\n## Was hier nicht steht\n\nIhr Güterstand, die Höhe Ihrer Austrittsleistung bei der Heirat, das Datum, an dem der Unterhalt endet,\nund was Ihr Scheidungsurteil im Einzelnen anordnet. Jede dieser Angaben verändert das Ergebnis, und\nkeine davon lässt sich aus dem Gesetz ableiten.\n",
+      "source_label": "eigentliCH Wissen: Scheidung — was mit der Vorsorge geschieht und was mit dem Vermögen (geprüft 2026-09-22)"
+    },
+    {
+      "id": "selbstaendigkeit-und-vorsorge.v1",
+      "title": "Selbständig werden — was mit AHV und Vorsorge geschieht",
+      "text": "# Selbständig werden\n\nDer Wechsel in die Selbständigkeit verändert die Vorsorge stärker als das Einkommen. Drei Dinge ändern\nsich gleichzeitig, und keines davon geschieht automatisch.\n\n## Fragen, die dieser Text beantwortet\n\n- Wie komme ich zur finanziellen Unabhängigkeit und baue ein Unternehmen selber auf?\n- Was geschieht mit meiner Vorsorge, wenn ich selbständig werde?\n- Kann ich mein Pensionskassenguthaben als Startkapital beziehen?\n- Wie sichere ich mich ab, wenn ich kein Angestellter mehr bin?\n- Wie investiere ich mein Vermögen sinnvoll, wenn ich ein Unternehmen aufbaue?\n\n## Der Status wird festgestellt, nicht gewählt\n\nOb jemand selbständigerwerbend ist, entscheidet die **Ausgleichskasse**. Sie prüft, ob auf eigenes Risiko\nund in eigenem Namen gearbeitet wird, ob mehrere Auftraggeber bestehen und wer die Betriebsmittel stellt.\nWer eine Rechnung stellt, ist damit noch nicht selbständig — und wer sich für selbständig hält, ohne dass\ndie Kasse es festgestellt hat, kann rückwirkend als angestellt eingestuft werden.\n\nDiese Feststellung ist der erste Schritt, nicht der letzte. Vieles Weitere hängt daran.\n\n## Die AHV läuft weiter, aber anders\n\nDie Beitragspflicht bleibt bestehen. Selbständigerwerbende zahlen die Beiträge vollständig selbst — es\ngibt keinen Arbeitgeberanteil mehr —, und der Beitragssatz ist bei kleinen Einkommen tiefer als bei\ngrossen. Die Beiträge werden akonto erhoben und später auf dem definitiven Einkommen abgerechnet.\n\nEntscheidend für die spätere Rente ist, dass **keine Beitragsjahre fehlen**. Eine Lücke kürzt die Rente\ndauerhaft, und ein Wechsel des Erwerbsstatus ist einer der Momente, in denen Lücken entstehen.\n\n## Die zweite Säule fällt weg, sofern nichts geschieht\n\nOhne Arbeitgeber besteht kein Obligatorium in der beruflichen Vorsorge. Wer nichts unternimmt, baut ab\ndiesem Zeitpunkt kein Altersguthaben mehr auf — und verliert zugleich den Versicherungsschutz bei\nInvalidität und im Todesfall, der über die Pensionskasse lief. Dieser zweite Teil wird häufiger übersehen\nals der erste.\n\nEs gibt Wege, sich freiwillig zu versichern: über den Berufsverband, über die Auffangeinrichtung, oder\nüber eine Kasse, die Selbständige aufnimmt. Sie müssen aktiv gewählt werden.\n\n**Das bestehende Guthaben** kann bei Aufnahme einer selbständigen Erwerbstätigkeit bar bezogen werden. Das\nist erlaubt und wird oft als Startkapital verwendet. Es ist zugleich der Punkt, an dem das Kapital die\nVorsorge verlässt: Der Betrag wird im Bezugsjahr besteuert, das Altersguthaben ist weg, und ein späterer\nEinkauf ersetzt es nur, soweit eine Kasse besteht, in die eingekauft werden kann.\n\n## Die Säule 3a wird wichtiger\n\nWer keiner Pensionskasse angehört, darf einen deutlich höheren Betrag in die Säule 3a einzahlen — einen\nAnteil des Erwerbseinkommens bis zu einem Höchstbetrag, statt des festen Betrags, der für Angestellte\ngilt. Für viele Selbständige ist die 3a damit das wichtigste Vorsorgegefäss überhaupt.\n\nAuch hier gilt: Der Bezug ist an die im Gesetz aufgezählten Gründe gebunden, und die Aufnahme einer\nselbständigen Erwerbstätigkeit ist einer davon.\n\n## Was das mit finanzieller Unabhängigkeit zu tun hat\n\nEin eigenes Unternehmen ist Aufbau von Erwerbskraft, nicht von Ersparnissen — und es ist die Grösse, an\nder sich in jungen Jahren am meisten bewegen lässt. Es ist zugleich die Grösse, die keine Absicherung\nmitbringt: Der Ausfallschutz, der bei einer Anstellung mitläuft, muss selbst eingerichtet werden. Beides\ngehört in dieselbe Überlegung, und zwar bevor gekündigt wird, nicht danach.\n\n## Was hier bewusst keine Zahl ist\n\n- **Die Beitragssätze der AHV für Selbständigerwerbende** und die sinkende Skala bei kleinen Einkommen.\n  Sie stehen in den Merkblättern der AHV mit ihrem Stichdatum.\n- **Die Höchstbeträge der Säule 3a**, mit und ohne Pensionskasse. Sie werden periodisch angepasst.\n- **Der Steuersatz auf einer Barauszahlung.** Er ist kantonal verschieden.\n\n## Was die Quelle selbst nicht sagt\n\nDas Gesetz regelt, was möglich ist. Ob ein Bezug des Pensionskassenguthabens als Startkapital im einzelnen\nFall sinnvoll ist, sagt es nicht — es ist ein Tausch von Vorsorge gegen Kapital, und er ist nicht\nrückgängig zu machen.\n\n## Für die Prüfung angemerkt\n\nDieser Eintrag nennt bewusst keine Frankenbeträge und keine Beitragssätze. Vor der Freigabe ist zu\nentscheiden, ob die aktuellen Werte mit Stichdatum aufgenommen werden — dann aus den AHV-Merkblättern\nzitiert, wie es die drei AHV-Einträge dieser Sammlung tun.\n",
+      "source_label": "eigentliCH Wissen: Selbständig werden — was mit AHV und Vorsorge geschieht (geprüft 2026-09-22)"
+    },
+    {
+      "id": "ahv-beitragsluecken.v1",
+      "title": "AHV-Beitragslücken — wie sie entstehen, was sie kosten, was sich noch schliessen lässt",
+      "text": "# Beitragslücken in der AHV\n\nEine Lücke ist ein Kalenderjahr zwischen dem 1. Januar nach dem 20. Geburtstag und dem Referenzalter, in dem keine Beiträge verbucht sind.\n\nMerkblatt 2.03 sagt dazu in einem Satz, worum es geht: die Beiträge müssen lückenlos bezahlt werden, weil fehlende Beitragsjahre zu einer Kürzung der Renten führen können.\n\n## Was eine Lücke kostet\n\nEine vollständige Beitragsdauer umfasst rund 44 Jahre. Fehlt ein Jahr, sinkt die Rente um ungefähr ein Vierundvierzigstel — also grob um gut zwei Prozent. Fehlen fünf Jahre, sind es entsprechend gut zehn Prozent.\n\nDiese Kürzung gilt lebenslang und für jede Leistung, die auf derselben Beitragsdauer aufbaut: die Altersrente, die Invalidenrente und die Hinterlassenenrenten.\n\n## Wie Lücken entstehen\n\nDie häufigsten Ursachen sind unauffällig:\n\n- **Studium oder Aufenthalt im Ausland** nach dem 20. Altersjahr, ohne freiwillige Weiterversicherung.\n- **Späte Einwanderung.** Wer mit 30 in die Schweiz kommt, hat die Jahre davor nicht.\n- **Ein nicht erwerbstätiges Jahr ohne eigenen Beitrag** — ein Zwischenjahr, eine längere Reise, eine Weiterbildung ohne Anstellung. Merkblatt 2.03 nennt Studierende, Weltreisende und ausgesteuerte Arbeitslose ausdrücklich als nichterwerbstätig und damit als beitragspflichtig.\n- **Der frühe Ausstieg aus dem Erwerbsleben.** Vorzeitig Pensionierte gelten als nichterwerbstätig. Die Beitragspflicht läuft bis zum Referenzalter weiter — auch dann, wenn die Rente bereits vorbezogen wird.\n- **Ein kleines Pensum.** Wer weniger als neun Monate im Jahr oder weniger als 50 Prozent der üblichen Arbeitszeit arbeitet, unterliegt der Vergleichsrechnung. Reichen die Beiträge aus der Erwerbstätigkeit samt Arbeitgeberanteil nicht an die Hälfte dessen heran, was als nichterwerbstätige Person zu entrichten wäre, ist zusätzlich zu zahlen.\n- **Nicht erwerbstätige Ehegatten**, bei denen die erwerbstätige Person weniger als 1 060 Franken im Jahr entrichtet hat — den doppelten Mindestbeitrag, Stand 1. Januar 2026. Die Befreiung greift dann nicht, und der eigene Beitrag wäre fällig gewesen.\n- **Ein Wohnsitzwechsel innerhalb der Schweiz**, bei dem eine Ausgleichskasse einen Zeitraum nicht erfasst hat.\n\nKeine dieser Ursachen meldet sich von selbst. Wer nicht erwerbstätig und noch keiner Ausgleichskasse angeschlossen ist, meldet sich selbst bei der Ausgleichskasse des Wohnkantons an — geschieht das nicht, entsteht die Lücke im Stillen.\n\nEine Lücke fällt in aller Regel erst dann auf, wenn die Rente berechnet wird. Dann ist der grösste Teil davon nicht mehr zu schliessen.\n\n## Ein Missverständnis, das teuer wird\n\nEin Anspruch auf Erziehungs- oder Betreuungsgutschriften befreit **nicht** von der Beitragspflicht als nichterwerbstätige Person. Merkblatt 2.03 hält das ausdrücklich fest.\n\nDie Gutschrift wirkt auf die Höhe der späteren Rente. Die Beitragspflicht ist davon unberührt. Wer während der Kinderjahre nicht erwerbstätig war und annahm, die Gutschrift ersetze den Beitrag, hat unter Umständen mehrere offene Jahre.\n\n## Was eine Lücke im Vorruhestand kostet\n\nDer Fall, der in der Praxis am häufigsten übersehen wird, ist der früheste Ausstieg. Wer mit 60 aufhört und keine Erwerbstätigkeit mehr ausübt, wird im Sinne der AHV nichterwerbstätig und zahlt bis zum Referenzalter Beiträge nach Vermögen und 20-fachem Renteneinkommen.\n\nNach Merkblatt 2.03, Stand am 1. Januar 2026, sind das mindestens 530 und höchstens 26 500 Franken im Jahr, zuzüglich Verwaltungskosten. Der Höchstbeitrag wird bei einem massgebenden Vermögen von 8 950 000 Franken erreicht; über 1 750 000 Franken steigt der Beitrag um 159 Franken je weitere 50 000 Franken.\n\nZwei Dinge daran sind kontraintuitiv und gehören zusammen gelesen:\n\n- **Das Altersguthaben der zweiten Säule und ein Freizügigkeitsguthaben zählen nicht zum massgebenden Vermögen.** Genau der Posten, der bei einem Frühausstieg am grössten ist, bleibt für diese Rechnung aussen vor.\n- **Wer den Beitrag nicht zahlt, hat nicht gespart, sondern eine Lücke gekauft** — zum Preis von rund einem Vierundvierzigstel der Rente pro Jahr, lebenslang.\n\n## Wo eine Lücke sichtbar wird\n\nIm individuellen Kontoauszug, dem IK-Auszug. Er listet für jedes Jahr das verbuchte Einkommen und die Ausgleichskasse, die es verbucht hat. Der Auszug ist kostenlos und kann bei jeder Ausgleichskasse verlangt werden; wer bei mehreren Kassen erfasst war, verlangt ihn bei allen.\n\nEin Jahr ohne Eintrag ist der Befund, um den es geht. Ein Eintrag mit einem tieferen Einkommen als erwartet ist etwas anderes — das ist keine Lücke, sondern ein tieferer Durchschnitt.\n\n## Was sich noch schliessen lässt\n\n**Nachzahlung.** Fehlende Beiträge lassen sich nur für die letzten fünf Jahre nachzahlen. Was älter ist, ist verjährt und bleibt offen. Diese Fünfjahresfrist ist der Grund, weshalb der IK-Auszug früh und nicht spät verlangt wird.\n\n**Jugendjahre.** Beiträge, die zwischen dem 17. und dem 20. Altersjahr entrichtet wurden, werden zur Schliessung späterer Lücken herangezogen. Wer als Lehrling oder neben der Schule gearbeitet hat, hat hier oft eine oder zwei Jahresbeiträge liegen, von denen niemand weiss.\n\n**Anrechnung bei der Vergleichsrechnung.** Bereits auf einem Erwerbseinkommen geleistete Beiträge können auf Antrag angerechnet werden. Auf Antrag heisst: nicht von selbst.\n\n**Fehlende Verbuchungen.** Wenn ein Arbeitgeber die Beiträge abgezogen, aber nicht abgeliefert hat, ist das keine Lücke der versicherten Person. Mit einer Lohnabrechnung als Beleg lässt sich die Verbuchung korrigieren, auch über die fünf Jahre hinaus.\n\n## Was eine Lücke nicht ist\n\n[…]",
+      "source_label": "eigentliCH Wissen: AHV-Beitragslücken — wie sie entstehen, was sie kosten, was sich noch schliessen lässt (geprüft 2026-08-31)"
+    }
+  ],
+  "cases": [
+    {
+      "name": "de_3a_maximum",
+      "request": {
+        "question": "Wie viel darf ich 2026 in die Säule 3a einzahlen, wenn ich eine Pensionskasse habe?",
+        "language": "de",
+        "grounding": [
+          "N1",
+          "N2"
+        ]
+      }
+    },
+    {
+      "name": "de_not_in_the_notes",
+      "request": {
+        "question": "Wie hoch ist der Leitzins der Schweizerischen Nationalbank?",
+        "language": "de",
+        "grounding": [
+          "N1",
+          "N2"
+        ]
+      }
+    },
+    {
+      "name": "de_client_needs_arithmetic",
+      "request": {
+        "question": "Ich bin 48. Wie viele Jahre habe ich noch bis zum Referenzalter?",
+        "language": "de",
+        "grounding": [
+          "N2"
+        ],
+        "client_facts": [
+          {
+            "key": "age",
+            "label": "Alter",
+            "value": 48,
+            "source": "onboarding"
+          }
+        ]
+      }
+    },
+    {
+      "name": "en_conversion_rate",
+      "request": {
+        "question": "What is the minimum conversion rate for the mandatory BVG part?",
+        "language": "en",
+        "grounding": [
+          "N3"
+        ]
+      }
+    },
+    {
+      "name": "de_no_grounding",
+      "request": {
+        "question": "Was ist ein ETF?",
+        "language": "de",
+        "grounding": []
+      }
+    },
+    {
+      "name": "de_growth_strategy",
+      "request": {
+        "question": "was muss ich machen so dass ich eine persönliche Wachstumsstrategie habe, also mehr einkommen generieren kann",
+        "language": "de",
+        "grounding": [],
+        "client_facts": [
+          {
+            "key": "income",
+            "label": "Erwerbseinkommen pro Jahr",
+            "value": 98500,
+            "source": "onboarding"
+          },
+          {
+            "key": "age",
+            "label": "Alter",
+            "value": 41,
+            "source": "onboarding"
+          },
+          {
+            "key": "occupation",
+            "label": "Beruf",
+            "value": "Projektleiterin in einem KMU",
+            "source": "onboarding"
+          }
+        ]
+      }
+    },
+    {
+      "name": "de_mixed",
+      "request": {
+        "question": "Wie viel darf ich 2026 in die Säule 3a einzahlen, und wie gehe ich am besten vor, wenn ich das zum ersten Mal mache?",
+        "language": "de",
+        "grounding": [
+          "N1"
+        ]
+      }
+    },
+    {
+      "name": "en_out_of_domain",
+      "request": {
+        "question": "How do I bake a sourdough bread at home?",
+        "language": "en",
+        "grounding": []
+      }
+    },
+    {
+      "name": "de_unintelligible",
+      "request": {
+        "question": "??? !!!",
+        "language": "de",
+        "grounding": []
+      }
+    },
+    {
+      "name": "de_care_for_a_parent",
+      "request": {
+        "question": "Meine Mutter braucht zunehmend Pflege. Wie kann ich sie unterstützen, ohne meine eigene Vorsorge und meine Gesundheit zu gefährden?",
+        "language": "de",
+        "grounding": [
+          "klumpenrisiko-eigene-firma.v1",
+          "wohneigentum-vorsorgekapital-einsetzen.v1",
+          "wohneigentum-eigenmittel.v1",
+          "wohneigentum-vermietet-und-ferienobjekt.v1"
+        ],
+        "client_facts": [
+          {
+            "key": "age",
+            "label": "Alter bei der Registrierung",
+            "value": 53.0,
+            "source": "Kundenakte"
+          },
+          {
+            "key": "canton",
+            "label": "Wohnkanton",
+            "value": "Graubünden",
+            "source": "Plan"
+          },
+          {
+            "key": "civil_status",
+            "label": "Zivilstand",
+            "value": "verheiratet",
+            "source": "Plan"
+          },
+          {
+            "key": "human_capital_E",
+            "label": "Fachwissen (E, 0 bis 1)",
+            "value": 1.0,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "human_capital_N",
+            "label": "Berufliches Netzwerk (N, 0 bis 1)",
+            "value": 0.98,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "human_capital_H",
+            "label": "Belastbarkeit (H, 0 bis 1)",
+            "value": 0.85,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "household",
+            "label": "Haushalt",
+            "value": "2 Erwachsene, 0 Angehörige",
+            "source": "Lebensbilanz vom 29.09.2026"
+          }
+        ]
+      }
+    },
+    {
+      "name": "de_incapacity",
+      "request": {
+        "question": "Ich bin 67 und verwitwet. Wer entscheidet für mich, wenn ich nach einem Schlaganfall nicht mehr urteilsfähig bin, und was gehört in einen Vorsorgeauftrag?",
+        "language": "de",
+        "grounding": [
+          "rente-oder-kapital.v1",
+          "ahv-beitragspflicht.v1",
+          "scheidung-und-vorsorge.v1",
+          "selbstaendigkeit-und-vorsorge.v1"
+        ],
+        "client_facts": [
+          {
+            "key": "age",
+            "label": "Alter bei der Registrierung",
+            "value": 67.0,
+            "source": "Kundenakte"
+          },
+          {
+            "key": "canton",
+            "label": "Wohnkanton",
+            "value": "Zürich",
+            "source": "Plan"
+          },
+          {
+            "key": "civil_status",
+            "label": "Zivilstand",
+            "value": "verwitwet",
+            "source": "Plan"
+          },
+          {
+            "key": "human_capital_E",
+            "label": "Fachwissen (E, 0 bis 1)",
+            "value": 0.7781526541666899,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "human_capital_N",
+            "label": "Berufliches Netzwerk (N, 0 bis 1)",
+            "value": 0.39,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "human_capital_H",
+            "label": "Belastbarkeit (H, 0 bis 1)",
+            "value": 0.7,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "household_income",
+            "label": "Haushaltseinkommen pro Jahr (CHF)",
+            "value": 68240.0,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "household",
+            "label": "Haushalt",
+            "value": "1 Erwachsene, 0 Angehörige",
+            "source": "Lebensbilanz vom 29.09.2026"
+          }
+        ]
+      }
+    },
+    {
+      "name": "de_inheritance",
+      "request": {
+        "question": "Wir wollen das Ferienchalet 2030 unseren zwei Söhnen übertragen und unsere Tochter mit 180 000 Franken ausgleichen. Ist das im Sinne des Erbrechts gerecht, und was müssen wir beachten?",
+        "language": "de",
+        "grounding": [
+          "ahv-beitragsluecken.v1",
+          "ahv-beitragspflicht.v1",
+          "wohneigentum-eigenmittel.v1",
+          "wohneigentum-vermietet-und-ferienobjekt.v1"
+        ],
+        "client_facts": [
+          {
+            "key": "age",
+            "label": "Alter bei der Registrierung",
+            "value": 68.0,
+            "source": "Kundenakte"
+          },
+          {
+            "key": "canton",
+            "label": "Wohnkanton",
+            "value": "Bern",
+            "source": "Plan"
+          },
+          {
+            "key": "civil_status",
+            "label": "Zivilstand",
+            "value": "verheiratet",
+            "source": "Plan"
+          },
+          {
+            "key": "human_capital_E",
+            "label": "Fachwissen (E, 0 bis 1)",
+            "value": 1.0,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "human_capital_N",
+            "label": "Berufliches Netzwerk (N, 0 bis 1)",
+            "value": 0.85,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "human_capital_H",
+            "label": "Belastbarkeit (H, 0 bis 1)",
+            "value": 0.7,
+            "source": "Lebensbilanz vom 29.09.2026"
+          },
+          {
+            "key": "household",
+            "label": "Haushalt",
+            "value": "2 Erwachsene, 0 Angehörige",
+            "source": "Lebensbilanz vom 29.09.2026"
+          }
+        ]
+      }
+    },
+    {
+      "name": "de_medical_diagnosis",
+      "request": {
+        "question": "Ich habe seit gestern Brustschmerzen und Atemnot. Habe ich einen Herzinfarkt?",
+        "language": "de",
+        "grounding": []
+      }
+    }
+  ]
+}

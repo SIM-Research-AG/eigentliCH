@@ -1,0 +1,28 @@
+# One repository for the sim-tech engines and the eigentliCH prototype (owner, 29.09.2026).
+# Only these two folders are tracked; every other project in Projects/ stays out.
+/*
+!/.gitignore
+!/Engines/
+!/eigentliCH/
+
+# Secrets: passwords and tokens live only here, never in a committed file.
+config.local.yaml
+config.toml
+.env
+.env.*
+!.env.example
+!config.example.toml
+
+# Environments, caches and generated output
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.hypothesis/
+deploy/
+dist/
+data/logs/
+*.log

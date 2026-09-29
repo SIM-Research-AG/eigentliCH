@@ -1,0 +1,86 @@
+# datafeed registry seed.
+#
+# Used once: `python -m datafeed bootstrap` inserts these rows into the `country` and
+# `series` tables when they are missing. After that the database is the registry: edit it
+# there (or have the Data Feeder write it), not here. A row that differs from this file is
+# kept as the database has it, and the bootstrap reports the difference.
+
+countries:
+  - {code: BR, name: Brazil, iso3: BRA, matlab: Brazil}
+  - {code: CH, name: Switzerland, iso3: CHE, matlab: CH}
+  - {code: CN, name: China, iso3: CHN, matlab: China}
+  - {code: EU, name: European Union, iso3: EUU, matlab: EU}
+  - {code: IN, name: India, iso3: IND, matlab: India}
+  - {code: ID, name: Indonesia, iso3: IDN, matlab: Indonesia}
+  - {code: MY, name: Malaysia, iso3: MYS, matlab: Malaysia}
+  - {code: PH, name: Philippines, iso3: PHL, matlab: Philippines}
+  - {code: TH, name: Thailand, iso3: THA, matlab: Thailand}
+  - {code: GB, name: United Kingdom, iso3: GBR, matlab: UK}
+  - {code: US, name: United States, iso3: USA, matlab: USA}
+  - {code: JP, name: Japan, iso3: JPN, matlab: Japan}
+  - {code: BD, name: Bangladesh, iso3: BGD, matlab: Bangladesh}
+  - {code: VN, name: Vietnam, iso3: VNM, matlab: Vietnam}
+  - {code: DE, name: Germany, iso3: DEU, matlab: Germany}
+  - {code: ES, name: Spain, iso3: ESP, matlab: Spain}
+
+# `matlab` is the M_TS sheet and 1-based column (the row-position contract, used only by
+# the MATLAB importer). `zero_is_a_value`: an interior 0.0 is a plausible print.
+# `description`: what the series measures, in plain language (read by the SQL Metadata
+# catalogue); the bootstrap writes it where the database row has none.
+series:
+  - {id: consumer.corruption_freedom, category: consumer, unit: index, period: annual, indices: [corruption_freedom], matlab: [Consumer, 1], description: "Freedom-from-corruption score of the index of economic freedom (0 to 100, higher means less corruption), annual. The euro area reuses Germany's score."}
+  - {id: consumer.gdp_per_capita, category: consumer, unit: level, period: annual, indices: [gdp_per_capita_growth], matlab: [Consumer, 2], description: "GDP per head at current prices in national currency (IMF), annual; Switzerland is the World Bank PPP measure."}
+  - {id: consumer.population, category: consumer, unit: level, period: annual, indices: [population_growth], matlab: [Consumer, 3], description: "Total resident population, number of persons, annual."}
+  - {id: consumer.wage_growth, category: consumer, unit: ratio, period: monthly, indices: [consumption_power], matlab: [Consumer, 5], zero_is_a_value: true, description: "Wages, monthly. The definition differs by economy: wage growth for most, nominal wages (national accounts or median) for some, remittances for Bangladesh. No data for Vietnam."}
+  - {id: consumer.household_consumption, category: consumer, unit: level, period: quarterly, indices: [consumption_dependency], matlab: [Consumer, 7], description: "Household final consumption expenditure at current prices in national currency, quarterly. For BR, DE, EU, GB, IN and TH it is the World Bank share of GDP times GDP (DF-16)."}
+  - {id: consumer.labour_force_participation, category: consumer, unit: ratio, period: annual, indices: [labour_force], matlab: [Consumer, 8], description: "Labour force participation rate, share of the working-age population, annual."}
+  - {id: debt.corporate_gdp, category: debt, unit: ratio, period: quarterly, indices: [], matlab: [Debt, 1], description: "Debt of non-financial corporations as a share of GDP, quarterly. No data for the Philippines and Vietnam."}
+  - {id: debt.external, category: debt, unit: level, period: quarterly, indices: [external_debt_affordability, external_debt_exposure], matlab: [Debt, 2], description: "External (foreign) debt outstanding in national currency, quarterly."}
+  - {id: debt.government_gdp, category: debt, unit: ratio, period: annual, indices: [government_debt], matlab: [Debt, 3], description: "General government debt as a share of GDP, annual."}
+  - {id: debt.household_gdp, category: debt, unit: ratio, period: quarterly, indices: [], matlab: [Debt, 4], description: "Household debt as a share of GDP, quarterly; for two economies corporate and household debt combined."}
+  - {id: debt.financial_sector, category: debt, unit: level, period: quarterly, indices: [], matlab: [Debt, 5], description: "Debt securities issued by the financial sector (BIS), level in national currency, quarterly."}
+  - {id: equity.market_cap_gdp, category: equity, unit: ratio, period: annual, indices: [market_cap], matlab: [Equity, 2], description: "Stock market capitalisation as a share of GDP, annual."}
+  - {id: fx.trade_balance, category: fx, unit: level, period: monthly, indices: [external_debt_affordability], matlab: [FX, 1], zero_is_a_value: true, description: "Trade balance (exports minus imports of goods), level, monthly."}
+  - {id: fx.terms_of_trade, category: fx, unit: index, period: monthly, indices: [terms_of_trade], matlab: [FX, 2], zero_is_a_value: true, description: "Citi terms-of-trade index for commodities: export against import commodity prices, monthly. No data for Bangladesh."}
+  - {id: fx.reserves, category: fx, unit: level, period: monthly, indices: [import_reserves], matlab: [FX, 3], description: "Foreign exchange (international) reserves, level, monthly."}
+  - {id: inflation.cpi_yoy, category: inflation, unit: ratio, period: monthly, indices: [real_rate_10y, consumption_power, gdp_per_capita_growth], matlab: [Inflation, 1], zero_is_a_value: true, description: "Consumer price inflation, change on a year earlier, monthly, as a decimal."}
+  - {id: money.budget_balance_gdp, category: money, unit: ratio, period: annual, indices: [budget_balance], matlab: [Money, 1], zero_is_a_value: true, description: "Government budget balance as a share of GDP, annual; a deficit is negative."}
+  - {id: money.broad_money, category: money, unit: level, period: monthly, indices: [monetary_supply], matlab: [Money, 2], description: "Broad money stock (M2 or M3, depending on the economy), nominal level, monthly."}
+  - {id: production.gdp_nominal, category: production, unit: level, period: annual, indices: [monetary_supply, external_debt_exposure, consumption_dependency], matlab: [Production, 1], description: "Gross domestic product at current prices in national currency, annual."}
+  - {id: production.imports, category: production, unit: level, period: monthly, indices: [import_reserves], matlab: [Production, 2], description: "Imports of goods, value in national currency or US dollars depending on the economy, monthly."}
+  - {id: yields.govt_10y, category: yields, unit: ratio, period: daily, indices: [real_rate_10y], matlab: [Yields, 1], zero_is_a_value: true, description: "10-year government bond yield, month end of a daily series, as a decimal."}
+
+# Market series read by mrs (Market_Signal.m). Units as MATLAB stored them after the sheet's
+# scale factor: rates and ratios are decimals (the VIX reads 0.16, not 16).
+  - {id: commodity.gold, category: commodity, unit: level, period: daily, indices: [], matlab: [Commodity, 1], description: "Gold price per ounce, London PM fix, US dollars, month end of a daily series."}
+  - {id: consumer.unemployment, category: consumer, unit: ratio, period: monthly, indices: [], matlab: [Consumer, 4], description: "Unemployment rate, monthly, as a decimal."}
+  - {id: debt.senior_loan_etf, category: debt, unit: level, period: daily, indices: [], matlab: [Debt, 6], description: "Price of a senior (leveraged) loan fund or index, such as BKLN in the US, month end of a daily series. Many economies have none."}
+  - {id: debt.npl_ratio, category: debt, unit: ratio, period: quarterly, indices: [], matlab: [Debt, 7], description: "Non-performing loans as a share of total bank loans, quarterly."}
+  - {id: equity.capital_stock_decrease, category: equity, unit: level, period: quarterly, indices: [], matlab: [Equity, 3], zero_is_a_value: true, description: "Decrease in capital stock (share buybacks) of the equity index constituents, quarterly."}
+  - {id: equity.dividend_yield, category: equity, unit: ratio, period: daily, indices: [], matlab: [Equity, 4], description: "Net dividend yield of the national equity index, month end of a daily series."}
+  - {id: equity.pe_long_term, category: equity, unit: ratio, period: daily, indices: [], matlab: [Equity, 5], description: "Long-term price/earnings ratio of the national equity index, month end of a daily series."}
+  - {id: equity.price_to_sales, category: equity, unit: ratio, period: daily, indices: [], matlab: [Equity, 6], description: "Price-to-sales ratio of the national equity index, month end of a daily series."}
+  - {id: equity.profit_margin, category: equity, unit: ratio, period: quarterly, indices: [], matlab: [Equity, 7], zero_is_a_value: true, description: "Profit margin of the national equity index constituents, quarterly."}
+  - {id: equity.debt_to_assets, category: equity, unit: ratio, period: quarterly, indices: [], matlab: [Equity, 8], description: "Total debt to total assets of the national equity index constituents, quarterly."}
+  - {id: equity.total_return, category: equity, unit: index, period: daily, indices: [], matlab: [Equity, 9], description: "National equity index, total return level, month end of a daily series."}
+  - {id: equity.banks_total_return, category: equity, unit: index, period: daily, indices: [], matlab: [Equity, 10], description: "Bank equity index, total return level, month end of a daily series."}
+  - {id: fx.beer, category: fx, unit: index, period: monthly, indices: [], matlab: [FX, 6], description: "JP Morgan effective exchange rate (JBDN tickers), monthly. Holds no data for any economy; the market layer's fx.neer_broad replaces it."}
+  - {id: fx.ois_1y, category: fx, unit: ratio, period: daily, indices: [], matlab: [FX, 8], zero_is_a_value: true, description: "1-year overnight index swap rate, month end of a daily series, as a decimal."}
+  - {id: fx.dxy, category: fx, unit: index, period: daily, indices: [], matlab: [FX, 9], description: "US dollar index against a basket of major currencies (DXY), month end of a daily series."}
+  - {id: inflation.ppi_yoy, category: inflation, unit: ratio, period: monthly, indices: [], matlab: [Inflation, 2], zero_is_a_value: true, description: "Producer price inflation, change on a year earlier, monthly."}
+  - {id: money.m1_yoy, category: money, unit: ratio, period: monthly, indices: [], matlab: [Money, 4], zero_is_a_value: true, description: "Narrow money (M1) growth on a year earlier, monthly."}
+  - {id: production.manufacturing_confidence, category: production, unit: index, period: monthly, indices: [], matlab: [Production, 5], description: "Manufacturing (business) confidence indicator, OECD, monthly."}
+  - {id: volatility.implied, category: volatility, unit: ratio, period: daily, indices: [], matlab: [Volatility, 1], description: "Equity volatility: the implied volatility index (VIX or the local equivalent), or MSCI 90-day realised volatility where none exists (BD, ID, MY, PH, TH, VN), month end, as a decimal after the market layer's unit corrections."}
+  - {id: volatility.fear_barometer, category: volatility, unit: index, period: daily, indices: [], matlab: [Volatility, 2], description: "Credit Suisse Fear Barometer (CSFB), discontinued. Holds no data for any economy; the market layer's volatility.skew replaces it."}
+  - {id: yields.govt_2y, category: yields, unit: ratio, period: daily, indices: [], matlab: [Yields, 2], zero_is_a_value: true, description: "2-year government bond yield, month end of a daily series, as a decimal."}
+  - {id: yields.high_yield_index, category: yields, unit: index, period: daily, indices: [], matlab: [Yields, 4], description: "High-yield corporate bond index, total return level (not a yield), month end of a daily series."}
+
+# DF-18 (27.09.2026). yields.high_yield_ytw is the yield to worst of the same high-yield
+# index, pulled in M_TS but never registered: the spread MR_Bond.m meant to take
+# (yields.high_yield_index is a total-return level, not a yield). The other two have no
+# usable Bloomberg equivalent and come from public providers in the market layer
+# (config.yaml, market:): Cboe SKEW for the discontinued Credit Suisse Fear Barometer, the
+# BIS nominal broad effective exchange rate for the JPM series (JBDN...) that holds no data.
+  - {id: yields.high_yield_ytw, category: yields, unit: ratio, period: daily, indices: [], matlab: [Yields, 8], description: "Yield to worst of the high-yield corporate bond index, month end of a daily series, as a decimal. Data for the US, the euro area and China."}
+  - {id: volatility.skew, category: volatility, unit: index, period: daily, indices: [], description: "Cboe SKEW index: the price of S&P 500 tail-risk protection, month-end close; one global series for every economy (market layer)."}
+  - {id: fx.neer_broad, category: fx, unit: index, period: monthly, indices: [], description: "BIS nominal effective exchange rate, broad basket, monthly average; not for Bangladesh or Vietnam (market layer)."}

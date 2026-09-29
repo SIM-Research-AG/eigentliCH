@@ -1,0 +1,98 @@
+# TEST FIXTURE. Hand-authored, stable, and not a demo client.
+#
+# `pcp/tests/test_end_to_end.py` needs a mandate that exists and whose conditions are met. It used to name
+# `Beisheim_Beisheim_Mandate`, one of the legacy institutional mandates seeded from the Controller workbook.
+# When those were deleted on 2026-08-02 the test broke, which is the sign of the real problem: the Optimiser's
+# own end-to-end test depended on a demo artefact it did not own.
+#
+# So this file exists to be the test's subject and nothing else. It is not a client, it is not on the roster,
+# and no board renders it. Being hand-authored it does not move when the Regime is republished, unlike the
+# `derived_*` mandates, which are regenerated from a household's position and goal on every run.
+#
+# **Why a 2% flat target.** Feasibility here is about the bound blocks rather than the return: the target was
+# swept from 0% to 10% against the then-current ReturnSet and `conditions_met` was "yes" at every level, so the
+# number is not forced by the test. 2% was originally chosen because it sat just above the universe's own
+# equal-weighted expectation of about 1.73%, which made the fixture exercise an ordinary optimisation rather
+# than a corner.
+#
+# **That rationale expired on 2026-08-02 and the number was deliberately not re-tuned.** The cut to eight
+# instruments (DECISIONS.md M60) raised the equal-weighted expectation to **5.15%**, so 2% now sits well below
+# it rather than just above, and this fixture now exercises a slack-target case instead of a tight one. The
+# figure is left at 2% because the paragraph above forbids exactly the move that would fix it: raising a
+# fixture's target to keep it representative is indistinguishable, from the outside, from raising it to keep a
+# test passing. If a tight-target fixture is wanted, add a second one and say so; do not silently retarget this.
+#
+# The bounds mirror the policy block the Life Balance Sheet derives, so the fixture stays representative of
+# what the Optimiser is actually asked to solve in this build. They were widened with `POLICY_BOUNDS` on
+# 2026-08-02: Protection's ceiling went 0.35 -> 0.50 and the 0.25 `Alternative` cap was removed, because at
+# eight instruments those two bounds together forced the residual into CHF cash.
+client: fixture
+mandate: balanced
+market: Global
+currency: CHF
+benchmark: Swiss
+horizon_years: 1.0
+max_single_position: 1.0
+esg_min: 0.0
+target_curve:
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+- 0.02
+universe:
+- 17
+- 18
+- 32
+- 33
+- 37
+- 40
+- 42
+- 54
+fixed_allocations: {}
+bounds:
+  liquidity:
+    Daily:
+      lower: 0.1
+      upper: 1.0
+  currency:
+    CHF:
+      lower: 0.5
+      upper: 1.0
+  role:
+    Protection:
+      lower: 0.05
+      upper: 0.5
+    Gain:
+      lower: 0.2
+      upper: 0.7
+    Income:
+      lower: 0.1
+      upper: 0.4
+    Stabilisation:
+      lower: 0.1
+      upper: 0.4
+  asset_class:
+    Cash:
+      lower: 0.0
+      upper: 0.4

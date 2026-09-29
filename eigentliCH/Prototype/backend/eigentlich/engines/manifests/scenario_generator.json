@@ -1,0 +1,20 @@
+{
+  "name": "scenario_generator",
+  "home": "Master_Model",
+  "runtime": "in_process",
+  "model_version": "scenario@0.1.0",
+  "timeout_s": 30,
+  "inputs": {
+    "household_id": "str",
+    "base_snapshot_id": "str",
+    "field": "str",
+    "to_value": "any",
+    "initial_wealth": "float"
+  },
+  "notes": "Native.",
+  "ip_owner": "SIM Research",
+  "ip_owner_declared_on": "2026-08-30",
+  "outputs": {
+    "contract": "Scenario"
+  }
+}

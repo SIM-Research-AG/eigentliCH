@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fund Map Test Bench</title>
+<!--
+  A development surface for examining the Fund Map engine in detail before anything is
+  wired together. It is NOT the App and NOT part of the system: it talks to the same
+  /v1 endpoints the App will, and nothing in engines/ or contracts/ knows it exists.
+
+  No libraries. Charts are inline SVG built from the JSON the API returns, which is also
+  the point of the exercise -- the API hands out series and facts, never rendered pictures.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:   #fcfcfb;
+    --plane:       #f9f9f7;
+    --ink:         #0b0b0b;
+    --ink-2:       #52514e;
+    --ink-muted:   #898781;
+    --grid:        #e1e0d9;
+    --axis:        #c3c2b7;
+    --border:      rgba(11,11,11,0.10);
+    /* Categorical slots 1-4, in fixed order. Gain, Income, Stabilisation, Protection. */
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+    --series-4: #eda100;
+    /* Ordinal support ramp, light: measured -> seed, five validated steps. */
+    --sup-5: #0d366b;  /* measured    */
+    --sup-4: #184f95;  /* interpolated */
+    --sup-3: #256abf;  /* extrapolated */
+    --sup-2: #3987e5;  /* borrowed     */
+    --sup-1: #86b6ef;  /* seed         */
+    --good:  #0ca30c;
+    --critical: #d03b3b;
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1: #1a1a19;
+      --plane:     #0d0d0d;
+      --ink:       #ffffff;
+      --ink-2:     #c3c2b7;
+      --ink-muted: #898781;
+      --grid:      #2c2c2a;
+      --axis:      #383835;
+      --border:    rgba(255,255,255,0.10);
+      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+      --sup-5: #cde2fb; --sup-4: #9ec5f4; --sup-3: #5598e7; --sup-2: #2a78d6; --sup-1: #184f95;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --plane: #0d0d0d; --ink: #ffffff; --ink-2: #c3c2b7;
+    --ink-muted: #898781; --grid: #2c2c2a; --axis: #383835;
+    --border: rgba(255,255,255,0.10);
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --sup-5: #cde2fb; --sup-4: #9ec5f4; --sup-3: #5598e7; --sup-2: #2a78d6; --sup-1: #184f95;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--plane); color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  header {
+    padding: 20px 16px 0; max-width: 1180px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline;
+  }
+  h1 { font-size: 20px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
+  .sub { color: var(--ink-2); font-size: 13px; }
+  .spacer { flex: 1 1 auto; }
+  main { max-width: 1180px; margin: 0 auto; padding: 16px; }
+
+  button, select {
+    font: inherit; color: var(--ink); background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+  }
+  button:hover, select:hover { background: var(--plane); }
+  button[aria-pressed="true"] { background: var(--ink); color: var(--surface-1); border-color: var(--ink); }
+
+  nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 4px; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 2px; font-weight: 650; }
+  .card .q { color: var(--ink-2); font-size: 13px; margin: 0 0 14px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 14px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .tile .k { font-size: 12px; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.04em; }
+  .tile .v { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin-top: 4px; }
+  .tile .n { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); margin-bottom: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; font-size: 12px; }
+  .scroll { overflow-x: auto; }
+  details { margin-top: 12px; } details summary { cursor: pointer; color: var(--ink-2); font-size: 13px; }
+
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; border: 1px solid var(--border); }
+  .pass { color: var(--good); } .fail { color: var(--critical); }
+  .err { color: var(--critical); }
+  svg { display: block; max-width: 100%; }
+  svg text { fill: var(--ink-muted); font-size: 11px; }
+  .tip {
+    position: fixed; pointer-events: none; z-index: 20; background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12.5px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13); opacity: 0; transition: opacity .09s; max-width: 260px;
+  }
+  .tip.on { opacity: 1; }
+  .tip b { font-weight: 600; }
+  .hidden { display: none; }
+  .note { font-size: 12.5px; color: var(--ink-muted); margin-top: 10px; }
+  .apiwrap { font-size: 12px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+  .apiwrap input {
+    font: inherit; font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    color: var(--ink); background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 10px; width: 210px;
+  }
+  pre.cmd {
+    background: var(--plane); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.6;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--ink);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Fund Map · test bench</h1>
+    <div class="sub" id="subtitle">loading…</div>
+  </div>
+  <div class="spacer"></div>
+  <label id="apiwrap" class="apiwrap hidden">API
+    <input id="api" type="url" spellcheck="false" placeholder="http://127.0.0.1:8006">
+  </label>
+  <button id="theme" title="Toggle light and dark">◐ theme</button>
+</header>
+
+<main>
+  <nav id="tabs"></nav>
+  <div id="panels"></div>
+</main>
+
+<div class="tip" id="tip"></div>
+
+<script>
+// Where the API lives.
+//
+// This file gets opened two ways and both have to work: served by the engine itself at
+// http://127.0.0.1:8006/, and double-clicked straight off disk. On `file://` a relative
+// fetch("/v1/health") resolves to file:///v1/health and dies with a bare "Failed to
+// fetch", so an absolute base is required there. Override with ?api=http://host:port or
+// the field in the header; the choice is remembered.
+const DEFAULT_API = "http://127.0.0.1:8006";
+const STANDALONE = location.protocol === "file:";
+function resolveApi() {
+  const q = new URLSearchParams(location.search).get("api");
+  if (q) return q.replace(/\/+$/, "");
+  try {
+    const saved = (localStorage.getItem("fundmap.api") || "").replace(/\/+$/, "");
+    // 8000 was this engine's port until it moved to 8006 (Engine 06); it is now the
+    // cockpit's, so a base remembered from before the move is dropped, not followed.
+    if (saved && saved !== "http://127.0.0.1:8000") return saved;
+  } catch { /* private mode or blocked storage - fall through to the default */ }
+  return STANDALONE ? DEFAULT_API : "";
+}
+let API = resolveApi();
+const $ = (s, r=document) => r.querySelector(s);
+const el = (t, a={}, kids=[]) => {
+  const n = document.createElement(t);
+  for (const [k,v] of Object.entries(a)) {
+    if (k === "class") n.className = v; else if (k === "html") n.innerHTML = v; else n.setAttribute(k, v);
+  }
+  for (const c of [].concat(kids)) n.append(c);
+  return n;
+};
+const svgEl = (t, a={}) => {
+  const n = document.createElementNS("http://www.w3.org/2000/svg", t);
+  for (const [k,v] of Object.entries(a)) n.setAttribute(k, v);
+  return n;
+};
+const pct = v => (v*100).toFixed(2) + "%";
+const sig = (v,d=3) => Number(v).toFixed(d);
+
+// The five support levels, weakest to strongest. `data-driven` and `data-driven-trimmed`
+// share a colour step: they are the same kind of support and differ only in sample size,
+// which the label and the tooltip still report.
+const SUPPORT = {
+  "seed":                 {rank:1, css:"--sup-1", label:"seed"},
+  "borrowed":             {rank:2, css:"--sup-2", label:"borrowed"},
+  // D2, and a phase the 12 month forward measurement had to fill. Shares borrowed's
+  // step: the shape was not measured on this instrument either way.
+  "shape-scaled":         {rank:2, css:"--sup-2", label:"shape-scaled"},
+  // The default since 29.09.2026 (FMRE-22): the instrument's own 12 month forward
+  // measurement, lightly smoothed across neighbouring states.
+  "forward-12m-smoothed": {rank:3, css:"--sup-3", label:"forward 12m, smoothed"},
+  "extrapolated":         {rank:3, css:"--sup-3", label:"extrapolated"},
+  "interpolated":         {rank:4, css:"--sup-4", label:"interpolated"},
+  "data-driven":          {rank:5, css:"--sup-5", label:"measured"},
+  "data-driven-trimmed":  {rank:5, css:"--sup-5", label:"measured (trimmed)"},
+};
+const ROLE_SLOT = {gain:1, income:2, stabilisation:3, protection:4};
+const roleColor = r => `var(--series-${ROLE_SLOT[r] || 1})`;
+
+const tip = $("#tip");
+function showTip(ev, html) {
+  tip.innerHTML = html; tip.classList.add("on");
+  const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + pad, y = ev.clientY + pad;
+  if (x + w > innerWidth - 8) x = ev.clientX - w - pad;
+  if (y + h > innerHeight - 8) y = ev.clientY - h - pad;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+const hideTip = () => tip.classList.remove("on");
+
+// Thrown when the API could not be reached at all, as opposed to answering with an error.
+// The two need different advice: one means "start the server", the other means "the
+// server is up but something is wrong with the request or the store".
+class Unreachable extends Error {}
+
+async function get(path) {
+  let r;
+  try {
+    r = await fetch(API + path);
+  } catch (e) {
+    throw new Unreachable(e.message);
+  }
+  if (!r.ok) throw new Error(`${path} → ${r.status} ${(await r.text()).slice(0,200)}`);
+  return r.json();
+}
+
+/* ------------------------------------------------------------------ charts */
+
+// Multi-series line over the 25-state axis. Crosshair + shared tooltip, direct labels.
+function lineChart(series, opts={}) {
+  const W = opts.width || 860, H = opts.height || 300;
+  const M = {t: 14, r: 128, b: 32, l: 54};
+  const iw = W - M.l - M.r, ih = H - M.t - M.b;
+  const n = series[0].values.length;
+  const all = series.flatMap(s => s.values);
+  let lo = Math.min(...all), hi = Math.max(...all);
+  const pad = (hi - lo) * 0.12 || 0.01; lo -= pad; hi += pad;
+  const x = i => M.l + (n === 1 ? iw/2 : (i * iw) / (n - 1));
+  const y = v => M.t + ih - ((v - lo) / (hi - lo)) * ih;
+
+  const svg = svgEl("svg", {viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img"});
+
+  // Recessive grid + zero line.
+  const ticks = 5;
+  for (let i = 0; i <= ticks; i++) {
+    const v = lo + (hi - lo) * i / ticks;
+    svg.append(svgEl("line", {x1:M.l, x2:M.l+iw, y1:y(v), y2:y(v), stroke:"var(--grid)", "stroke-width":1}));
+    const t = svgEl("text", {x: M.l - 8, y: y(v) + 4, "text-anchor": "end"});
+    t.textContent = (v*100).toFixed(1) + "%"; svg.append(t);
+  }
+  if (lo < 0 && hi > 0) svg.append(svgEl("line", {x1:M.l, x2:M.l+iw, y1:y(0), y2:y(0), stroke:"var(--axis)", "stroke-width":1}));
+
+  for (let i = 0; i < n; i += 4) {
+    const t = svgEl("text", {x: x(i), y: H - 10, "text-anchor": "middle"});
+    t.textContent = i + 1; svg.append(t);
+  }
+  const xl = svgEl("text", {x: M.l + iw/2, y: H - 10, "text-anchor":"middle", "font-size":11});
+  xl.textContent = ""; svg.append(xl);
+
+  series.forEach(s => {
+    const d = s.values.map((v,i) => `${i?"L":"M"}${x(i).toFixed(2)},${y(v).toFixed(2)}`).join(" ");
+    svg.append(svgEl("path", {d, fill:"none", stroke:s.color, "stroke-width":2,
+                              "stroke-linejoin":"round", "stroke-linecap":"round"}));
+    // Direct label at the right end -- identity never rests on colour alone.
+    const t = svgEl("text", {x: M.l + iw + 10, y: y(s.values[n-1]) + 4, "text-anchor":"start",
+                             "font-size":12, "font-weight":600});
+    t.setAttribute("fill", "var(--ink-2)");
+    t.textContent = s.label; svg.append(t);
+  });
+
+  // Mark the five measured knots on every series: states 3, 8, 13, 18, 23.
+  series.forEach(s => (opts.knots || []).forEach(k => {
+    svg.append(svgEl("circle", {cx:x(k), cy:y(s.values[k]), r:4, fill:s.color,
+                                stroke:"var(--surface-1)", "stroke-width":2}));
+  }));
+
+  const cross = svgEl("line", {y1:M.t, y2:M.t+ih, stroke:"var(--axis)", "stroke-width":1, opacity:0});
+  svg.append(cross);
+  const hit = svgEl("rect", {x:M.l, y:M.t, width:iw, height:ih, fill:"transparent"});
+  svg.append(hit);
+  hit.addEventListener("mousemove", ev => {
+    const bb = svg.getBoundingClientRect();
+    const rel = (ev.clientX - bb.left) * (W / bb.width);
+    const i = Math.max(0, Math.min(n-1, Math.round((rel - M.l) / (iw / (n-1)))));
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("opacity", 1);
+    const rows = series.map(s => {
+      const m = s.methods ? ` <span style="color:var(--ink-muted)">${SUPPORT[s.methods[i]]?.label ?? s.methods[i]}</span>` : "";
+      return `<div><span class="swatch" style="background:${s.color}"></span> ${s.label} <b>${pct(s.values[i])}</b>${m}</div>`;
+    }).join("");
+    showTip(ev, `<b>State ${i+1}</b>${rows}`);
+  });
+  hit.addEventListener("mouseleave", () => { cross.setAttribute("opacity", 0); hideTip(); });
+  return svg;
+}
+
+// Coverage matrix: one row per profile, one cell per state, coloured by support level.
+function coverageMatrix(rows) {
+  const cell = 26, gap = 2, labelW = 190;
+  const W = labelW + 25 * cell, H = rows.length * cell + 24;
+  const svg = svgEl("svg", {viewBox:`0 0 ${W} ${H}`, width:W, height:H, role:"img"});
+  for (let s = 0; s < 25; s += 4) {
+    const t = svgEl("text", {x: labelW + s*cell + cell/2, y: 12, "text-anchor":"middle"});
+    t.textContent = s + 1; svg.append(t);
+  }
+  rows.forEach((row, r) => {
+    const yy = 24 + r * cell;
+    const t = svgEl("text", {x: labelW - 10, y: yy + cell/2 + 4, "text-anchor":"end", "font-size":12});
+    t.setAttribute("fill", "var(--ink-2)"); t.textContent = row.label; svg.append(t);
+    row.methods.forEach((m, s) => {
+      const sup = SUPPORT[m] || {css:"--sup-1", label:m};
+      const rect = svgEl("rect", {
+        x: labelW + s*cell, y: yy, width: cell - gap, height: cell - gap,
+        rx: 3, fill: `var(${sup.css})`
+      });
+      rect.addEventListener("mousemove", ev => showTip(ev,
+        `<b>${row.label}</b><br>State ${s+1} · ${sup.label}` +
+        (row.n_obs ? `<br>n = ${row.n_obs[s]}` : "") +
+        (row.values ? `<br>${pct(row.values[s])}` : "")));
+      rect.addEventListener("mouseleave", hideTip);
+      svg.append(rect);
+    });
+  });
+  return svg;
+}
+
+// Small-multiple bars: one panel per block, five phase bars each.
+function phasePanels(blocks, phaseNames) {
+  const wrap = el("div", {class:"scroll"});
+  const grid = el("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(230px, 1fr))";
+  grid.style.gap = "10px";
+  const all = blocks.flatMap(b => b.means);
+  const lo = Math.min(0, ...all), hi = Math.max(0, ...all);
+  blocks.forEach(b => {
+    const W = 230, H = 132, M = {t:22, r:8, b:26, l:34};
+    const iw = W - M.l - M.r, ih = H - M.t - M.b;
+    const y = v => M.t + ih - ((v - lo) / (hi - lo)) * ih;
+    const bw = iw / 5;
+    const svg = svgEl("svg", {viewBox:`0 0 ${W} ${H}`, width:W, height:H});
+    const title = svgEl("text", {x:M.l, y:12, "font-size":12, "font-weight":600});
+    title.setAttribute("fill", "var(--ink)"); title.textContent = b.label; svg.append(title);
+    svg.append(svgEl("line", {x1:M.l, x2:M.l+iw, y1:y(0), y2:y(0), stroke:"var(--axis)", "stroke-width":1}));
+    [lo, hi].forEach(v => {
+      const t = svgEl("text", {x:M.l-6, y:y(v)+4, "text-anchor":"end", "font-size":10});
+      t.textContent = (v*100).toFixed(0) + "%"; svg.append(t);
+    });
+    b.means.forEach((v, i) => {
+      const top = Math.min(y(v), y(0)), h = Math.abs(y(v) - y(0));
+      const rect = svgEl("rect", {
+        x: M.l + i*bw + 2, y: top, width: bw - 4, height: Math.max(h, 1),
+        rx: 3, fill: v < 0 ? "var(--series-2)" : "var(--series-1)"
+      });
+      rect.addEventListener("mousemove", ev => showTip(ev,
+        `<b>${b.label}</b><br>${phaseNames[i]} · <b>${pct(v)}</b><br>n = ${b.n_obs[i]}`));
+      rect.addEventListener("mouseleave", hideTip);
+      svg.append(rect);
+      const t = svgEl("text", {x: M.l + i*bw + bw/2, y: H - 10, "text-anchor":"middle", "font-size":9.5});
+      t.textContent = phaseNames[i].slice(0,4); svg.append(t);
+    });
+    grid.append(svg);
+  });
+  wrap.append(grid);
+  return wrap;
+}
+
+// The 150-year cycle, with the phase bands behind it.
+function cycleChart(years) {
+  const W = 1100, H = 260, M = {t:14, r:16, b:28, l:46};
+  const iw = W - M.l - M.r, ih = H - M.t - M.b;
+  const vals = years.map(d => d.cycle);
+  const lo = Math.min(...vals) - 0.2, hi = Math.max(...vals) + 0.2;
+  const x = i => M.l + (i * iw) / (years.length - 1);
+  const y = v => M.t + ih - ((v - lo) / (hi - lo)) * ih;
+  const svg = svgEl("svg", {viewBox:`0 0 ${W} ${H}`, width:W, height:H, role:"img"});
+  [[1.65,"boom"],[1.0,"expansion"],[0.2,"stagnation"],[-0.2,""],[-1.0,"contraction"],[-1.65,"crisis"]]
+    .forEach(([v, name]) => {
+      if (v < lo || v > hi) return;
+      svg.append(svgEl("line", {x1:M.l, x2:M.l+iw, y1:y(v), y2:y(v),
+        stroke:"var(--grid)", "stroke-width":1, "stroke-dasharray": name ? "" : "3 3"}));
+      if (name) { const t = svgEl("text", {x:M.l+iw-4, y:y(v)-4, "text-anchor":"end", "font-size":10});
+                  t.textContent = name; svg.append(t); }
+    });
+  [-2,-1,0,1,2].forEach(v => {
+    if (v < lo || v > hi) return;
+    const t = svgEl("text", {x:M.l-8, y:y(v)+4, "text-anchor":"end"});
+    t.textContent = v + "σ"; svg.append(t);
+  });
+  const d = years.map((p,i) => `${i?"L":"M"}${x(i).toFixed(2)},${y(p.cycle).toFixed(2)}`).join(" ");
+  svg.append(svgEl("path", {d, fill:"none", stroke:"var(--series-1)", "stroke-width":2, "stroke-linejoin":"round"}));
+  years.forEach((p,i) => {
+    if (p.phase !== "crisis") return;
+    svg.append(svgEl("circle", {cx:x(i), cy:y(p.cycle), r:3, fill:"var(--series-2)",
+                                stroke:"var(--surface-1)", "stroke-width":2}));
+  });
+  for (let i = 0; i < years.length; i += 20) {
+    const t = svgEl("text", {x:x(i), y:H-8, "text-anchor":"middle"});
+    t.textContent = years[i].year; svg.append(t);
+  }
+  const hit = svgEl("rect", {x:M.l, y:M.t, width:iw, height:ih, fill:"transparent"});
+  svg.append(hit);
+  hit.addEventListener("mousemove", ev => {
+    const bb = svg.getBoundingClientRect();
+    const rel = (ev.clientX - bb.left) * (W / bb.width);
+    const i = Math.max(0, Math.min(years.length-1, Math.round((rel - M.l) / (iw/(years.length-1)))));
+    showTip(ev, `<b>${years[i].year}</b><br>${years[i].phase}<br>${sig(years[i].cycle)} σ`);
+  });
+  hit.addEventListener("mouseleave", hideTip);
+  return svg;
+}
+
+/* ------------------------------------------------------------------- panels */
+
+const TABS = [];
+function tab(id, label, render) { TABS.push({id, label, render}); }
+
+tab("overview", "Overview", async host => {
+  const [health, cal, shapes, roles] = await Promise.all([
+    get("/v1/health"), get("/v1/calibration"), get("/v1/diagnostics/shapes"), get("/v1/roles")]);
+  const counts = cal.phase_counts;
+  const tiles = el("div", {class:"tiles"});
+  const tile = (k, v, n) => tiles.append(el("div", {class:"tile"}, [
+    el("div", {class:"k"}, k), el("div", {class:"v"}, v), el("div", {class:"n"}, n)]));
+  tile("Calibration", cal.calibration_id.slice(0,12)+"…", `${cal.window[0]}–${cal.window[1]}, ${cal.estimator}`);
+  tile("Shape assertions", shapes.all_passed ? "8 / 8" : "FAILING",
+       shapes.all_passed ? "state tagging aligned" : "tagging has drifted");
+  tile("Instruments", String(health.counts.instrument), `${health.counts.instrument_return} monthly returns`);
+  tile("Annual record", String(health.counts.long_series), "observations across 19 series");
+  tile("Signal months", String(health.counts.market_risk_signal/25), "monthly 25-state readings");
+  host.append(tiles);
+
+  const c1 = el("div", {class:"card"});
+  c1.append(el("h2", {}, "Return by state, one line per role"));
+  c1.append(el("p", {class:"q"}, "What does each role do across the cycle? Filled dots are the five measured phase estimates; everything between them is interpolated."));
+  const legend = el("div", {class:"legend"});
+  roles.roles.forEach(r => legend.append(el("span", {html:
+    `<span class="swatch" style="background:${roleColor(r.role)}"></span>${r.role}`})));
+  c1.append(legend);
+  c1.append(el("div", {class:"scroll"}, [lineChart(
+    roles.roles.map(r => ({label: r.role, color: roleColor(r.role),
+      values: r.states.map(s => s.value), methods: r.states.map(s => s.method)})),
+    {knots:[2,7,12,17,22]})]));
+  c1.append(el("p", {class:"note"}, "State 1 is crisis, 25 is boom. Values are annualised log returns."));
+  host.append(c1);
+
+  const c2 = el("div", {class:"card"});
+  c2.append(el("h2", {}, "The market environment, 1871–2020"));
+  c2.append(el("p", {class:"q"}, "Where has the economy actually been? The line is the standardised economic cycle; orange dots mark the years classified as crisis."));
+  const env = await get("/v1/market-environment");
+  c2.append(el("div", {class:"scroll"}, [cycleChart(env.years)]));
+  const order = ["crisis","contraction","stagnation","expansion","boom"];
+  c2.append(el("p", {class:"note"},
+    "Years per phase — " + order.map(p => `${p} ${counts[p]}`).join(" · ") +
+    ". Every phase clears the six-observation sufficiency floor, which is why no phase knot needed the cascade."));
+  host.append(c2);
+});
+
+tab("roles", "Roles", async host => {
+  const roles = await get("/v1/roles");
+  for (const r of roles.roles) {
+    const c = el("div", {class:"card"});
+    c.append(el("h2", {}, [el("span", {class:"swatch", style:`background:${roleColor(r.role)}`}), " " + r.role]));
+    c.append(el("p", {class:"q"}, r.basis));
+    c.append(el("p", {class:"note"}, "Built from: " + r.members.join(", ")));
+    const tbl = el("table");
+    tbl.append(el("thead", {}, [el("tr", {}, [el("th",{},"phase")].concat(
+      r.phase_names.map(p => el("th",{},p))))]));
+    tbl.append(el("tbody", {}, [
+      el("tr", {}, [el("td",{},"return")].concat(r.phase_values.map(v => el("td",{},pct(v))))),
+      el("tr", {}, [el("td",{},"observations")].concat(r.n_obs_by_phase.map(v => el("td",{},String(v))))),
+    ]));
+    c.append(el("div", {class:"scroll"}, [tbl]));
+    host.append(c);
+  }
+});
+
+tab("blocks", "Blocks", async host => {
+  const [data, shapes] = await Promise.all([get("/v1/calibration/blocks"), get("/v1/diagnostics/shapes")]);
+  const c0 = el("div", {class:"card"});
+  c0.append(el("h2", {}, "Acceptance tests — the shapes the record must reproduce"));
+  c0.append(el("p", {class:"q"}, "If a run does not reproduce these, the state tagging and the return series have come apart. That is the failure this engine is most likely to ship silently."));
+  shapes.checks.forEach(ch => c0.append(el("div", {html:
+    `<span class="${ch.passed?"pass":"fail"}">${ch.passed?"✓":"✕"}</span> ${ch.assertion}`})));
+  host.append(c0);
+
+  const c = el("div", {class:"card"});
+  c.append(el("h2", {}, "Phase profile by building block"));
+  c.append(el("p", {class:"q"}, "The eight asset classes of the long record. Diagnostic only — the published artefact is the four role profiles."));
+  c.append(phasePanels(
+    data.blocks.map(b => ({label: b.label, means: b.phases.map(p => p.central),
+                           n_obs: b.phases.map(p => p.n_obs)})),
+    shapes.phase_names));
+  host.append(c);
+});
+
+tab("coverage", "Coverage", async host => {
+  const [rs, cov] = await Promise.all([get("/v1/return-set?include_instruments=true"), get("/v1/diagnostics/coverage")]);
+  const c = el("div", {class:"card"});
+  c.append(el("h2", {}, "Coverage map"));
+  c.append(el("p", {class:"q"}, "How much of this is measured and how much is filled? Read this before any other chart on the page."));
+  const legend = el("div", {class:"legend"});
+  [["--sup-5","measured"],["--sup-4","interpolated"],["--sup-3","extrapolated"],
+   ["--sup-2","borrowed"],["--sup-1","seed"]].forEach(([v,l]) =>
+    legend.append(el("span", {html:`<span class="swatch" style="background:var(${v})"></span>${l}`})));
+  c.append(legend);
+  const rows = rs.role_profiles.concat(rs.instrument_profiles).map(p => ({
+    label: (p.kind === "role" ? "▸ " : "") + p.key.replace(/^INS-/,"").replace(/-/g," "),
+    methods: p.states.map(s => s.method),
+    n_obs: p.states.map(s => s.n_obs),
+    values: p.states.map(s => s.value),
+  }));
+  c.append(el("div", {class:"scroll"}, [coverageMatrix(rows)]));
+  c.append(el("p", {class:"note"},
+    "Each role profile carries exactly five measured states — the phase knots — with sixteen interpolated and four extrapolated beyond the hull. An instrument row is measured wherever its own history cleared the floor."));
+  const det = el("details");
+  det.append(el("summary", {}, "Table view"));
+  const tbl = el("table");
+  tbl.append(el("thead",{},[el("tr",{},[el("th",{},"profile"),el("th",{},"coverage"),el("th",{},"measured"),el("th",{},"filled")])]));
+  const body = el("tbody");
+  rows.forEach(r => {
+    const m = r.methods.filter(x => x.startsWith("data-driven")).length;
+    body.append(el("tr",{},[el("td",{},r.label),
+      el("td",{},r.methods.reduce((a,b)=>SUPPORT[a].rank<=SUPPORT[b].rank?a:b)),
+      el("td",{},String(m)), el("td",{},String(25-m))]));
+  });
+  tbl.append(body); det.append(el("div",{class:"scroll"},[tbl])); c.append(det);
+  host.append(c);
+});
+
+tab("instruments", "Instruments", async host => {
+  const list = await get("/v1/instruments");
+  const c = el("div", {class:"card"});
+  c.append(el("h2", {}, "The register"));
+  c.append(el("p", {class:"q"}, "The universe is a versioned input, so adding an instrument is a data event rather than a release. Pick one to see its estimated profile."));
+  const sel = el("select");
+  list.forEach(i => sel.append(el("option", {value:i.instrument_id},
+    `${i.name} — ${i.role}, ${i.months} months`)));
+  const btn = el("button", {}, "re-estimate stored cascade");
+  c.append(el("div", {class:"row"}, [sel, btn]));
+  const out = el("div");
+  c.append(out);
+  host.append(c);
+
+  async function draw() {
+    out.replaceChildren(el("p", {class:"q"}, "loading…"));
+    const id = sel.value;
+    try {
+      const p = await get(`/v1/instruments/${id}/profile`);
+      const meta = list.find(i => i.instrument_id === id);
+      const tiles = el("div", {class:"tiles"});
+      const tile = (k,v,n) => tiles.append(el("div",{class:"tile"},[
+        el("div",{class:"k"},k), el("div",{class:"v"},v), el("div",{class:"n"},n||"")]));
+      tile("Coverage", SUPPORT[p.coverage]?.label ?? p.coverage, "weakest method present");
+      tile("Months used", String(p.n_obs_total), `${meta.first_period}–${meta.last_period}`);
+      tile("Own-measured states", String(p.states.filter(s=>s.method.startsWith("data-driven") || s.method === "forward-12m-smoothed").length) + " / 25", "rest on this instrument's measurement");
+      tile("Estimator", p.profile_method || "cascade", p.series ? `${p.series} · ${p.currency}` : "stored profile");
+      const lines = [{label: meta.role, color: roleColor(meta.role),
+        values: p.states.map(s=>s.value), methods: p.states.map(s=>s.method)}];
+      if (p.unsmoothed) lines.push({label: "before smoothing", color: "var(--axis)",
+        values: p.unsmoothed.profile, methods: p.unsmoothed.methods});
+      const chart = lineChart(lines, {knots:[2,7,12,17,22]});
+      const matrix = coverageMatrix([{label:"support", methods:p.states.map(s=>s.method),
+        n_obs:p.states.map(s=>s.n_obs), values:p.states.map(s=>s.value)}]);
+      out.replaceChildren(tiles, el("div",{style:"height:14px"}),
+        el("div",{class:"scroll"},[chart]), el("div",{class:"scroll"},[matrix]));
+    } catch (e) { out.replaceChildren(el("p", {class:"err"}, String(e.message))); }
+  }
+  sel.addEventListener("change", draw);
+  btn.addEventListener("click", async () => {
+    btn.disabled = true; btn.textContent = "estimating…";
+    try { await fetch(`${API}/v1/instruments/${sel.value}/estimate`, {method:"POST"}); await draw(); }
+    finally { btn.disabled = false; btn.textContent = "re-estimate stored cascade"; }
+  });
+  draw();
+});
+
+
+
+// A plain time-series line, for a performance curve or a raw annual series.
+function timeChart(points, opts={}) {
+  const W = opts.width || 900, H = opts.height || 220, M = {t:12, r:16, b:28, l:58};
+  const iw = W-M.l-M.r, ih = H-M.t-M.b;
+  const vals = points.map(p => p.v);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (opts.zero) lo = Math.min(lo, 0);
+  const pad = (hi-lo)*0.08 || Math.abs(hi||1)*0.1; lo -= pad; hi += pad;
+  const x = i => M.l + (points.length<2 ? iw/2 : i*iw/(points.length-1));
+  const y = v => M.t + ih - ((v-lo)/(hi-lo))*ih;
+  const svg = svgEl("svg", {viewBox:`0 0 ${W} ${H}`, width:W, height:H, role:"img"});
+  for (let i=0;i<=4;i++) {
+    const v = lo + (hi-lo)*i/4;
+    svg.append(svgEl("line",{x1:M.l,x2:M.l+iw,y1:y(v),y2:y(v),stroke:"var(--grid)","stroke-width":1}));
+    const t = svgEl("text",{x:M.l-8,y:y(v)+4,"text-anchor":"end"});
+    t.textContent = opts.fmt ? opts.fmt(v) : v.toFixed(2); svg.append(t);
+  }
+  if (lo < 0 && hi > 0)
+    svg.append(svgEl("line",{x1:M.l,x2:M.l+iw,y1:y(0),y2:y(0),stroke:"var(--axis)","stroke-width":1}));
+  const d = points.map((p,i)=>`${i?"L":"M"}${x(i).toFixed(2)},${y(p.v).toFixed(2)}`).join(" ");
+  svg.append(svgEl("path",{d,fill:"none",stroke:opts.color||"var(--series-1)","stroke-width":2,"stroke-linejoin":"round"}));
+  const step = Math.max(1, Math.round(points.length/8));
+  for (let i=0;i<points.length;i+=step) {
+    const t = svgEl("text",{x:x(i),y:H-9,"text-anchor":"middle"});
+    t.textContent = points[i].k; svg.append(t);
+  }
+  const hit = svgEl("rect",{x:M.l,y:M.t,width:iw,height:ih,fill:"transparent"}); svg.append(hit);
+  hit.addEventListener("mousemove", ev => {
+    const bb = svg.getBoundingClientRect();
+    const rel = (ev.clientX-bb.left)*(W/bb.width);
+    const i = Math.max(0, Math.min(points.length-1, Math.round((rel-M.l)/(iw/(points.length-1)))));
+    showTip(ev, `<b>${points[i].k}</b><br>${opts.fmt ? opts.fmt(points[i].v) : points[i].v.toFixed(4)}`);
+  });
+  hit.addEventListener("mouseleave", hideTip);
+  return svg;
+}
+
+/* ============================== LEVEL 1 — RAW DATA ========================= */
+
+tab("raw", "1 · Raw data", async host => {
+  const srcs = await get("/v1/data/sources");
+
+  const c0 = el("div", {class:"card"});
+  c0.append(el("h2", {}, "Where every byte came from"));
+  c0.append(el("p", {class:"q"}, srcs.provenance_statement));
+  const tiles = el("div", {class:"tiles"});
+  const tile = (k,v,n) => tiles.append(el("div",{class:"tile"},[
+    el("div",{class:"k"},k), el("div",{class:"v"},String(v)), el("div",{class:"n"},n)]));
+  tile("Files", srcs.count, "all hashed on load");
+  tile("Downloaded", srcs.downloaded_count, "the ETL makes no network call");
+  Object.entries(srcs.by_origin).forEach(([k,v]) => tile(k.replace("nas:",""), v, k));
+  c0.append(tiles);
+  host.append(c0);
+
+  const c1 = el("div", {class:"card"});
+  c1.append(el("h2", {}, "Source files"));
+  c1.append(el("p", {class:"q"}, "A sourced table refuses to load rather than approximate, carries the hash of the bytes it came from, and is never back-filled. Hover a row for what the file is."));
+  const t = el("table");
+  t.append(el("thead",{},[el("tr",{},["file","origin","col","series","span","sha-256"].map(h=>el("th",{},h)))]));
+  const b = el("tbody");
+  srcs.sources.forEach(s => {
+    const keys = s.series.map(x=>x.key).join(", ") || "—";
+    const span = s.series.length
+      ? `${Math.min(...s.series.map(x=>x.first_year))}–${Math.max(...s.series.map(x=>x.last_year))}` : "—";
+    const tr = el("tr",{},[el("td",{},s.file),
+      el("td",{},el("span",{class:"pill"},s.origin_kind.replace("nas:",""))),
+      el("td",{},String(s.column ?? "—")), el("td",{},keys), el("td",{},span),
+      el("td",{},s.sha256.slice(0,16)+"…")]);
+    tr.title = (s.note || "") + "\n\n" + s.origin_note + "\n\n" + s.origin;
+    b.append(tr);
+  });
+  t.append(b); c1.append(el("div",{class:"scroll"},[t]));
+  host.append(c1);
+
+  const c2 = el("div", {class:"card"});
+  c2.append(el("h2", {}, "The raw annual record"));
+  c2.append(el("p", {class:"q"}, "Exactly as loaded — no de-trending, no standardisation, no transformation of any kind."));
+  const listing = await get("/v1/data/series");
+  const sel = el("select");
+  listing.series.forEach(s => sel.append(el("option",{value:s.series_key},
+    `${s.series_key} — ${s.n} obs, ${s.lo}–${s.hi}`)));
+  sel.value = "gold";
+  c2.append(el("div",{class:"row"},[sel]));
+  const out = el("div"); c2.append(out); host.append(c2);
+
+  async function drawSeries() {
+    out.replaceChildren(el("p",{class:"q"},"loading…"));
+    const d = await get(`/v1/data/series?key=${sel.value}`);
+    const pts = d.values.map(v => ({k:String(v.year), v:v.value}));
+    const det = el("details");
+    det.append(el("summary",{},`All ${d.observations} values`));
+    const tt = el("table");
+    tt.append(el("thead",{},[el("tr",{},[el("th",{},"year"),el("th",{},"value")])]));
+    const tb = el("tbody");
+    d.values.forEach(v => tb.append(el("tr",{},[el("td",{},String(v.year)),
+      el("td",{},v.value.toLocaleString(undefined,{maximumFractionDigits:6}))])));
+    tt.append(tb); det.append(el("div",{class:"scroll"},[tt]));
+    out.replaceChildren(
+      el("p",{class:"note"}, `${d.note}   ·   ${d.source_file}, column ${d.source_column}`),
+      el("div",{class:"scroll"},[timeChart(pts,{fmt:v=>v.toLocaleString(undefined,{maximumFractionDigits:2})})]),
+      det);
+  }
+  sel.addEventListener("change", drawSeries);
+  await drawSeries();
+
+  const c3 = el("div", {class:"card"});
+  c3.append(el("h2", {}, "The raw monthly feed"));
+  c3.append(el("p", {class:"q"}, "One CSV of nine stacked sections. Two are read here; the rest are characterised and left alone."));
+  c3.append(el("pre",{class:"cmd"},
+    "MARKET RISK SIGNAL        240 months x 25 columns   -> the regime reading\n" +
+    "PERFORMANCE CONTRIBUTION  240 months x 10 columns   -> a cumulated index, not returns\n" +
+    "INSTRUMENT ALLOCATION     240 months x 10 columns   -> the weights\n" +
+    "\n" +
+    "r(t) = ( contribution_index(t) / contribution_index(t-1) - 1 ) / weight(t)\n" +
+    "       dropped where weight <= 5 %, because below that the division is rounding noise"));
+  c3.append(el("p",{class:"note"},
+    "The file's dates are one month late — a documented export bug, corrected on load and " +
+    "re-checked against the 2008 crash every time. Five months are flagged as out of " +
+    "tolerance rather than silently rescaled."));
+  host.append(c3);
+});
+
+/* ======================= LEVEL 2 — MACRO AND RISK SIGNAL =================== */
+
+tab("macro", "2 · Macro & signal", async host => {
+  const method = await get("/v1/data/method");
+
+  const c1 = el("div", {class:"card"});
+  c1.append(el("h2", {}, "The transformation, step by step"));
+  c1.append(el("p", {class:"q"}, `Nine steps take ${method.window.observations} annual observations to a 25-state profile. Five of those twenty-five carry a measured number; the rest are filled and labelled.`));
+  method.steps.forEach(s => {
+    const d = el("details");
+    d.append(el("summary",{},`${s.step}. ${s.name}  ·  ${s.frequency}`));
+    d.append(el("p",{class:"q",style:"margin-top:8px"}, s.what));
+    d.append(el("pre",{class:"cmd"}, s.formulas.join("\n")));
+    d.append(el("p",{class:"note"}, s.why));
+    c1.append(d);
+  });
+  host.append(c1);
+
+  const c2 = el("div", {class:"card"});
+  c2.append(el("h2", {}, "The market environment, 1871–2020"));
+  const env = await get("/v1/market-environment");
+  c2.append(el("p", {class:"q"}, "The standardised economic cycle. Orange marks the years classified as crisis."));
+  c2.append(el("div",{class:"scroll"},[cycleChart(env.years)]));
+  host.append(c2);
+
+  const c3 = el("div", {class:"card"});
+  c3.append(el("h2", {}, "Trace one year"));
+  c3.append(el("p", {class:"q"}, "Eight indicators, de-trended and signed so higher means better, averaged and standardised into one reading in sigma — which picks the phase."));
+  const yearSel = el("select");
+  for (let y = method.window.last_year; y >= method.window.first_year; y--)
+    yearSel.append(el("option",{value:String(y)}, String(y)));
+  yearSel.value = "2008";
+  c3.append(el("div",{class:"row"},[yearSel]));
+  const yearOut = el("div"); c3.append(yearOut); host.append(c3);
+
+  async function drawYear() {
+    yearOut.replaceChildren(el("p",{class:"q"},"loading…"));
+    const d = await get(`/v1/data/indicators?year=${yearSel.value}`);
+    const t = el("table");
+    t.append(el("thead",{},[el("tr",{},["indicator","de-trend","sign","residual","standardised"].map(h=>el("th",{},h)))]));
+    const b = el("tbody");
+    d.indicators.forEach(i => b.append(el("tr",{},[el("td",{},i.name), el("td",{},i.detrend),
+      el("td",{}, i.sign>0?"+":"−"), el("td",{},i.residual.toFixed(5)), el("td",{},i.standardised.toFixed(4))])));
+    b.append(el("tr",{},[el("td",{},el("b",{},"mean of the eight")),el("td",{},""),el("td",{},""),
+      el("td",{},""), el("td",{},el("b",{},d.mean_of_standardised.toFixed(4)))]));
+    t.append(b);
+    yearOut.replaceChildren(el("div",{class:"scroll"},[t]),
+      el("p",{class:"note"}, d.cycle_note),
+      el("pre",{class:"cmd"},
+        `ec_cycle(${d.year}) = ${d.cycle.toFixed(4)} sigma\n${d.classification}\ninflation that year = ${(d.inflation*100).toFixed(2)}%`));
+  }
+  yearSel.addEventListener("change", drawYear);
+
+  const c4 = el("div", {class:"card"});
+  c4.append(el("h2", {}, "The quantile bridge"));
+  const m = await get("/v1/state-map");
+  c4.append(el("p", {class:"q"}, m.note));
+  const W=860,H=280,MG={t:14,r:16,b:34,l:46}, iw=W-MG.l-MG.r, ih=H-MG.t-MG.b;
+  const xx = s => MG.l + ((s-1)*iw)/24, yy = s => MG.t + ih - ((s-1)*ih)/24;
+  const svg = svgEl("svg",{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:"img"});
+  for (let s=1;s<=25;s+=4) {
+    svg.append(svgEl("line",{x1:xx(s),x2:xx(s),y1:MG.t,y2:MG.t+ih,stroke:"var(--grid)","stroke-width":1}));
+    const t=svgEl("text",{x:xx(s),y:H-14,"text-anchor":"middle"}); t.textContent=s; svg.append(t);
+    const u=svgEl("text",{x:MG.l-8,y:yy(s)+4,"text-anchor":"end"}); u.textContent=s; svg.append(u);
+  }
+  svg.append(svgEl("path",{d:`M${xx(1)},${yy(1)}L${xx(25)},${yy(25)}`,stroke:"var(--axis)",
+    "stroke-width":1,"stroke-dasharray":"4 4",fill:"none"}));
+  svg.append(svgEl("path",{d:m.entries.map((e,i)=>`${i?"L":"M"}${xx(e.signal_state)},${yy(e.calib_state)}`).join(" "),
+    fill:"none",stroke:"var(--series-1)","stroke-width":2,"stroke-linejoin":"round"}));
+  m.entries.forEach(e => {
+    const dot = svgEl("circle",{cx:xx(e.signal_state),cy:yy(e.calib_state),r:4.5,
+      fill:"var(--series-1)",stroke:"var(--surface-1)","stroke-width":2});
+    dot.addEventListener("mousemove", ev => showTip(ev,
+      `<b>Signal column ${e.signal_state}</b><br>centile ${e.centile.toFixed(1)}%<br>cycle ${sig(e.cycle_value)} σ<br>axis ${sig(e.axis_value)} → state ${e.calib_state}`));
+    dot.addEventListener("mouseleave", hideTip); svg.append(dot);
+  });
+  c4.append(el("div",{class:"legend"},[
+    el("span",{html:`<span class="swatch" style="background:var(--series-1)"></span>quantile bridge`}),
+    el("span",{html:`<span class="swatch" style="background:var(--axis)"></span>identity (column n = state n)`})]));
+  c4.append(el("div",{class:"scroll"},[svg]));
+  c4.append(el("p",{class:"note"}, m.coverage_warning + ` Unreachable: ${m.unreachable_states.join(", ")}.`));
+  host.append(c4);
+
+  const c5 = el("div", {class:"card"});
+  c5.append(el("h2", {}, "Trace one month"));
+  const periodIn = el("input",{type:"text",placeholder:"YYYY-MM",style:"width:120px"});
+  const periodBtn = el("button",{},"trace");
+  c5.append(el("div",{class:"row"},[periodIn,periodBtn]));
+  const monthOut = el("div"); c5.append(monthOut); host.append(c5);
+
+  async function drawMonth() {
+    monthOut.replaceChildren(el("p",{class:"q"},"loading…"));
+    const q = periodIn.value.trim();
+    try {
+      const d = await get("/v1/data/bridge" + (q?`?period=${encodeURIComponent(q)}`:""));
+      periodIn.value = d.period;
+      const g = d.bridge;
+      monthOut.replaceChildren(
+        el("p",{class:"note"}, d.normalisation + (d.in_tolerance?"":"  This month is one of the five flagged as out of tolerance.")),
+        el("pre",{class:"cmd"},
+          `period               ${d.period}\n` +
+          `modal signal column  ${d.modal_state}      (mean column ${d.mean_state.toFixed(2)})\n` +
+          `  its centile        ${g.centile.toFixed(2)} %\n` +
+          `  ec_cycle there     ${g.cycle_value>=0?"+":""}${g.cycle_value.toFixed(3)} sigma\n` +
+          `  phase axis         ${g.axis_value.toFixed(3)}   on the 1..5 scale\n` +
+          `  calibration state  ${g.calibration_state}`),
+        el("p",{class:"note"}, d.note));
+    } catch(e) { monthOut.replaceChildren(el("p",{class:"err"}, e.message)); }
+  }
+  periodBtn.addEventListener("click", drawMonth);
+  periodIn.addEventListener("keydown", ev => { if (ev.key==="Enter") drawMonth(); });
+
+  await Promise.all([drawYear(), drawMonth()]);
+});
+
+/* ==================== LEVEL 3 — INSTRUMENT PERFORMANCE ===================== */
+
+tab("perf", "3 · Performance", async host => {
+  const d = await get("/v1/data/performance");
+
+  const c0 = el("div", {class:"card"});
+  c0.append(el("h2", {}, "The register"));
+  const tiles = el("div",{class:"tiles"});
+  const tile=(k,v,n)=>tiles.append(el("div",{class:"tile"},[el("div",{class:"k"},k),
+    el("div",{class:"v"},String(v)),el("div",{class:"n"},n)]));
+  tile("Registered", d.registered, "the versioned universe");
+  tile("With history", d.with_history, "estimable from own returns");
+  tile("Without", d.without_history, "seeded from the role");
+  c0.append(tiles);
+  c0.append(el("p",{class:"note"},
+    "The universe is kept whole rather than truncated to whatever has a price history: it " +
+    "is a versioned input, and the Portfolio Optimiser's objective has a floor that scales " +
+    "with its size. The 44 without history say so in their coverage."));
+  c0.append(el("p",{class:"note"}, d.caveat));
+  host.append(c0);
+
+  const c1 = el("div", {class:"card"});
+  c1.append(el("h2", {}, "Performance, from the recovered monthly returns"));
+  c1.append(el("p", {class:"q"}, "Descriptive only — these are moments, which is exactly why they live here and never inside a ReturnSet. " + d.unit_note));
+  const withHist = d.instruments.filter(i => i.has_history)
+    .sort((a,b) => b.performance.annualised_log_return - a.performance.annualised_log_return);
+  const t = el("table");
+  t.append(el("thead",{},[el("tr",{},["instrument","role","ccy","src","months","cumulative","annualised","volatility","ret/vol","max DD","hit rate"].map(h=>el("th",{},h)))]));
+  const b = el("tbody");
+  withHist.forEach(i => {
+    const p = i.performance;
+    b.append(el("tr",{},[
+      el("td",{},[el("span",{class:"swatch",style:`background:${roleColor(i.role)}`}), " "+i.name]),
+      el("td",{},i.role), el("td",{},i.currency),
+      el("td",{}, i.proxy_grade ? el("span",{class:"pill"}, i.proxy_grade) : "report"),
+      el("td",{},String(p.months)),
+      el("td",{},pct(p.cumulative)), el("td",{},pct(p.annualised_log_return)),
+      el("td",{},pct(p.annualised_volatility)),
+      el("td",{}, p.return_over_volatility==null?"—":p.return_over_volatility.toFixed(2)),
+      el("td",{},pct(p.max_drawdown)), el("td",{},pct(p.hit_rate))]));
+  });
+  t.append(b); c1.append(el("div",{class:"scroll"},[t]));
+  c1.append(el("p",{class:"note"},
+    "ret/vol is the two preceding columns divided. No risk-free rate is subtracted, so it " +
+    "is not a Sharpe ratio and is not labelled one."));
+  host.append(c1);
+
+  const c2 = el("div", {class:"card"});
+  c2.append(el("h2", {}, "The 44 without history"));
+  c2.append(el("p", {class:"q"}, "Registered, classified, and honestly empty. Each carries its role's profile until returns arrive."));
+  const none = d.instruments.filter(i => !i.has_history);
+  const t2 = el("table");
+  t2.append(el("thead",{},[el("tr",{},["instrument","role","asset class","ccy","ticker","liquidity"].map(h=>el("th",{},h)))]));
+  const b2 = el("tbody");
+  none.forEach(i => b2.append(el("tr",{},[el("td",{},i.name), el("td",{},i.role),
+    el("td",{},i.asset_class), el("td",{},i.currency), el("td",{},i.ticker||"—"),
+    el("td",{},i.liquidity||"—")])));
+  t2.append(b2);
+  const det = el("details"); det.append(el("summary",{},`Show all ${none.length}`));
+  det.append(el("div",{class:"scroll"},[t2])); c2.append(det);
+  host.append(c2);
+
+  // --- register integrity: overlap ------------------------------------------
+  const [ov, cls] = await Promise.all([get("/v1/data/overlap"), get("/v1/data/classification")]);
+
+  const ci = el("div", {class:"card"});
+  ci.append(el("h2", {}, "Overlapping instruments"));
+  ci.append(el("p", {class:"q"}, "Two entries that are really one count twice in a universe whose size sets the optimiser's floor. Causes are separated because they need different fixes."));
+  const ovTiles = el("div",{class:"tiles"});
+  const ovTile=(k,v,n)=>ovTiles.append(el("div",{class:"tile"},[el("div",{class:"k"},k),
+    el("div",{class:"v"},String(v)),el("div",{class:"n"},n)]));
+  ovTile("Ticker collisions", ov.ticker_collisions.length, `${ov.ticker_collision_instruments} instruments share them`);
+  ovTile("Register defects", ov.register_defect.length, "same Bloomberg ticker");
+  ovTile("Proxy artefacts", ov.proxy_artefact.length, "this build's limitation");
+  ovTile("Economic overlap", ov.economic_overlap.length, `r ≥ ${ov.threshold}`);
+  ci.append(ovTiles);
+
+  if (ov.ticker_collisions.length) {
+    ci.append(el("h2",{style:"font-size:14px;margin-top:18px"},"Bloomberg tickers used more than once"));
+    const ct = el("table");
+    ct.append(el("thead",{},[el("tr",{},[el("th",{},"ticker"),el("th",{},"instruments")])]));
+    const cb = el("tbody");
+    ov.ticker_collisions.forEach(c => cb.append(el("tr",{},[
+      el("td",{},c.ticker), el("td",{},c.instruments.join("  ·  "))])));
+    ct.append(cb); ci.append(el("div",{class:"scroll"},[ct]));
+  }
+
+  const section = (title, rows, blurb) => {
+    if (!rows.length) return;
+    ci.append(el("h2",{style:"font-size:14px;margin-top:18px"}, title));
+    ci.append(el("p",{class:"note",style:"margin-top:2px"}, blurb));
+    const t = el("table");
+    t.append(el("thead",{},[el("tr",{},["r","months","instrument","instrument","via"].map(h=>el("th",{},h)))]));
+    const b = el("tbody");
+    rows.forEach(x => b.append(el("tr",{},[
+      el("td",{},x.correlation.toFixed(4)), el("td",{},String(x.shared_months)),
+      el("td",{},x.a), el("td",{},x.b), el("td",{}, x.proxy || "—")])));
+    t.append(b); ci.append(el("div",{class:"scroll"},[t]));
+  };
+  section("Register defect", ov.register_defect,
+    "The same Bloomberg ticker on two entries. Someone has to decide what the duplicate was meant to be.");
+  section("Proxy artefact", ov.proxy_artefact,
+    "Different real tickers, but no distinct public stand-in exists — so this build gave them the same one. Disappears when the real series arrive.");
+  section("Economic overlap", ov.economic_overlap,
+    "Distinct instruments that genuinely move together. Whether that is redundancy is a portfolio question, not a data one.");
+  ci.append(el("p",{class:"note"}, ov.reading));
+  host.append(ci);
+
+  // --- register integrity: classification -----------------------------------
+  const cc = el("div", {class:"card"});
+  cc.append(el("h2", {}, "Does behaviour match the assigned role?"));
+  cc.append(el("p", {class:"q"}, `Equity beta against ${cls.benchmark.replace("INS-","")}, and the mean return in crisis months. ${cls.flagged} of ${cls.assessed} raise a question.`));
+  const ct2 = el("table");
+  ct2.append(el("thead",{},[el("tr",{},["instrument","role","proxy","grade","beta","crisis","vol","flag"].map(h=>el("th",{},h)))]));
+  const cb2 = el("tbody");
+  cls.instruments.slice().sort((a,b) => (b.flag?1:0)-(a.flag?1:0) || a.name.localeCompare(b.name))
+    .forEach(i => {
+      const tr = el("tr",{},[
+        el("td",{},[el("span",{class:"swatch",style:`background:${roleColor(i.role)}`})," "+i.name]),
+        el("td",{},i.role), el("td",{},i.proxy_symbol||"—"), el("td",{},i.proxy_grade||"—"),
+        el("td",{}, i.equity_beta==null?"—":i.equity_beta.toFixed(2)),
+        el("td",{}, i.crisis_mean==null?"—":pct(i.crisis_mean)),
+        el("td",{},pct(i.volatility)),
+        el("td",{}, i.flag ? el("span",{class:"fail"}, i.flag) : "")]);
+      if (i.explanation) tr.title = i.explanation;
+      cb2.append(tr);
+    });
+  ct2.append(cb2); cc.append(el("div",{class:"scroll"},[ct2]));
+  cc.append(el("p",{class:"note"}, cls.reading));
+  cls.instruments.filter(i => i.explanation).forEach(i =>
+    cc.append(el("p",{class:"note"}, `${i.name}: ${i.explanation}`)));
+  host.append(cc);
+
+  const c3 = el("div", {class:"card"});
+  c3.append(el("h2", {}, "One instrument in detail"));
+  const sel = el("select");
+  withHist.forEach(i => sel.append(el("option",{value:i.instrument_id},
+    `${i.name} — ${i.performance.months} months`)));
+  sel.value = "INS-precious-metals";
+  c3.append(el("div",{class:"row"},[sel]));
+  const out = el("div"); c3.append(out); host.append(c3);
+
+  async function drawOne() {
+    out.replaceChildren(el("p",{class:"q"},"loading…"));
+    const one = (await get(`/v1/data/performance?instrument_id=${sel.value}`)).instruments[0];
+    const tr = await get(`/v1/data/instrument-trace?instrument_id=${sel.value}`);
+    const p = one.performance;
+
+    const yt = el("table");
+    yt.append(el("thead",{},[el("tr",{},["year","return"].map(h=>el("th",{},h)))]));
+    const yb = el("tbody");
+    p.by_year.forEach(r => yb.append(el("tr",{},[el("td",{},r.year), el("td",{},pct(r.return))])));
+    yt.append(yb);
+
+    const bt = el("table");
+    bt.append(el("thead",{},[el("tr",{},["state","n","estimate","std err","95% interval"].map(h=>el("th",{},h)))]));
+    const bb = el("tbody");
+    tr.buckets.forEach(x => bb.append(el("tr",{},[el("td",{},String(x.state)), el("td",{},String(x.n_obs)),
+      el("td",{},pct(x.estimate)), el("td",{},pct(x.std_error)),
+      el("td",{},`${pct(x.ci_low)} … ${pct(x.ci_high)}`)])));
+    bt.append(bb);
+
+    const h = tr.horizon_check;
+    const ht = el("table");
+    ht.append(el("thead",{},[el("tr",{},["crisis month","that month","next 6m","next 12m"].map(x=>el("th",{},x)))]));
+    const hb = el("tbody");
+    h.rows.forEach(r => hb.append(el("tr",{},[el("td",{},r.period), el("td",{},pct(r.that_month)),
+      el("td",{}, r.next_6m==null?"—":pct(r.next_6m)), el("td",{}, r.next_12m==null?"—":pct(r.next_12m))])));
+    ht.append(hb);
+
+    out.replaceChildren(
+      el("pre",{class:"cmd"},
+        `${one.name}\n` +
+        `  role ${one.role} · ${one.asset_class} · ${one.currency} · ${one.ticker||"no ticker"} · ${one.liquidity||"—"}\n` +
+        `  ${p.months} months, ${p.first_period}–${p.last_period}\n` +
+        `  cumulative ${pct(p.cumulative)} · annualised ${pct(p.annualised_log_return)} · vol ${pct(p.annualised_volatility)}\n` +
+        `  worst month ${pct(p.worst_month)} · best ${pct(p.best_month)} · max drawdown ${pct(p.max_drawdown)} at ${p.max_drawdown_trough}\n` +
+        `  profile coverage: ${one.coverage}${one.borrowed_from?" from "+one.borrowed_from:""}`),
+      el("div",{class:"scroll"},[timeChart(p.curve.map(c=>({k:c.period.slice(0,4),v:c.index})),
+        {color: roleColor(one.role), fmt: v=>v.toFixed(2)})]),
+      el("p",{class:"note"}, "Growth of 1, compounding the recovered monthly returns. Months the manager was out compound as flat, so this is the manager's experience of the instrument rather than its own track record."),
+      el("details",{},[el("summary",{},"Calendar year returns"), el("div",{class:"scroll"},[yt])]),
+      el("h2",{style:"font-size:14px;margin-top:20px"}, "Estimator diagnostic — each state bucket is an independent mean"),
+      el("div",{class:"scroll"},[bt]),
+      el("pre",{class:"cmd"},
+        `mean absolute jump between adjacent states   ${tr.noise.mean_abs_jump==null?"—":pct(tr.noise.mean_abs_jump)}\n` +
+        `mean standard error of one bucket            ${tr.noise.mean_std_error==null?"—":pct(tr.noise.mean_std_error)}`),
+      el("p",{class:"note"}, tr.noise.reading),
+      el("h2",{style:"font-size:14px;margin-top:20px"}, "The same crisis months, over different horizons"),
+      el("div",{class:"scroll"},[ht]),
+      el("pre",{class:"cmd"},
+        `mean, that month, annualised   ${h.mean_that_month_annualised==null?"—":pct(h.mean_that_month_annualised)}\n` +
+        `mean, the following 12 months  ${h.mean_next_12m==null?"—":pct(h.mean_next_12m)}`),
+      el("p",{class:"note"}, h.reading));
+  }
+  sel.addEventListener("change", drawOne);
+  await drawOne();
+});
+
+/* ===================== REVIEWS R-002 / R-003 — ESTIMATOR TOGGLE ===================== */
+
+// Four estimators, one instrument, one currency. The default (the 12 month forward
+// measurement, lightly smoothed, FMRE-22) is what the ReturnSet publishes; the cascade in
+// source currency is the stored profile; everything is computed on request by
+// /v1/diagnostics/estimators and never stored.
+const METHODS = [
+  {id:"forward_12m_smoothed", label:"12m forward, smoothed (default)", color:"var(--series-4)"},
+  {id:"forward_12m",  label:"12m forward, unsmoothed", color:"var(--series-3)"},
+  {id:"shape_scaled", label:"D2 shape-scaled",   color:"var(--series-1)"},
+  {id:"cascade",      label:"cascade (stored)",  color:"var(--series-2)"},
+];
+const CCY_LABEL = c => c || "source currency";
+
+tab("estimators", "Estimators · R-002/3", async host => {
+  const state = {currency: "", method: "all", instrument: "INS-precious-metals"};
+  try { Object.assign(state, JSON.parse(localStorage.getItem("fundmap.est") || "{}")); } catch { /* not essential */ }
+  const save = () => { try { localStorage.setItem("fundmap.est", JSON.stringify(state)); } catch { /* not essential */ } };
+
+  const controls = el("div", {class:"card"});
+  controls.append(el("h2", {}, "Instrument estimators side by side"));
+  controls.append(el("p", {class:"q"},
+    "The published default (the 12 month forward measurement with a light smoothing across neighbouring states, FMRE-22), the unsmoothed measurement (D-02), D2 shape-scaled and the stored cascade, in the currency you choose (D-01)."));
+  const ccy = el("select");
+  [["", "source currency"], ["CHF","CHF"], ["EUR","EUR"], ["USD","USD"]].forEach(([v,l]) =>
+    ccy.append(el("option", {value:v}, l)));
+  ccy.value = state.currency;
+  const toggle = el("div", {class:"row", style:"margin:0"});
+  const methodButtons = [{id:"all", label:"all four"}].concat(METHODS).map(m => {
+    const b = el("button", {"aria-pressed": String(state.method === m.id)}, m.label);
+    b.addEventListener("click", () => { state.method = m.id; save();
+      methodButtons.forEach(x => x.setAttribute("aria-pressed", String(x === b))); drawOne(); });
+    toggle.append(b); return b;
+  });
+  const sel = el("select");
+  controls.append(el("div", {class:"row"}, [el("span", {class:"sub"}, "currency"), ccy,
+    el("span", {class:"sub"}, "instrument"), sel]));
+  controls.append(toggle);
+  host.append(controls);
+
+  const summaryCard = el("div", {class:"card"});
+  const chartCard = el("div", {class:"card"});
+  const detailCard = el("div", {class:"card"});
+  host.append(summaryCard, chartCard, detailCard);
+
+  let data = null;
+
+  async function load() {
+    summaryCard.replaceChildren(el("p", {class:"q"}, "loading…"));
+    const q = state.currency ? `?currency=${state.currency}` : "";
+    try { data = await get(`/v1/diagnostics/estimators${q}`); }
+    catch (e) { summaryCard.replaceChildren(problemCard(e)); chartCard.replaceChildren(); detailCard.replaceChildren(); return; }
+    const prior = state.instrument;
+    sel.replaceChildren();
+    data.instruments.forEach(i => sel.append(el("option", {value:i.instrument_id},
+      `${i.name} — ${i.role}`)));
+    sel.value = data.instruments.some(i => i.instrument_id === prior) ? prior : data.instruments[0].instrument_id;
+    drawSummary(); drawOne();
+  }
+
+  function drawSummary() {
+    summaryCard.replaceChildren(el("h2", {}, `Across ${data.summary.cascade.instruments} instruments with history · ${CCY_LABEL(data.currency)}`));
+    summaryCard.append(el("p", {class:"q"},
+      "Mean and largest jump between neighbouring states, the largest move the smoother made to a phase value, protection instruments negative at the crisis knot (state 3), protection instruments failing their type's rule (FMRE-24: tail hedge paid in the crisis months; cash never negative; otherwise positive in every crisis state and highest in crisis in the source currency), and the share of states by method label."));
+    const t = el("table");
+    t.append(el("thead", {}, [el("tr", {}, ["estimator", "mean jump", "largest jump", "max phase move", "protection negative in crisis", "protection failing its rule", "states by label"].map(h => el("th", {}, h)))]));
+    const b = el("tbody");
+    METHODS.forEach(m => {
+      const s = data.summary[m.id];
+      const labels = Object.entries(s.state_share_by_label).map(([k,v]) => `${k} ${(v*100).toFixed(1)}%`).join(" · ");
+      b.append(el("tr", {}, [
+        el("td", {html:`<span class="swatch" style="background:${m.color}"></span> ${m.label}`}),
+        el("td", {}, pct(s.mean_abs_jump)),
+        el("td", {}, pct(s.mean_largest_jump)),
+        el("td", {}, s.max_knot_shift == null ? "—" : pct(s.max_knot_shift)),
+        el("td", {style:"white-space:normal;text-align:left"}, `${s.protection_negative_in_crisis.length}: ${s.protection_negative_in_crisis.join(", ") || "none"}`),
+        el("td", {style:"white-space:normal;text-align:left"}, `${s.protection_failing_acceptance.length}: ${s.protection_failing_acceptance.join(", ") || "none"}`),
+        el("td", {style:"white-space:normal;text-align:left"}, labels),
+      ]));
+    });
+    t.append(b); summaryCard.append(el("div", {class:"scroll"}, [t]));
+    summaryCard.append(el("p", {class:"note"}, data.note));
+  }
+
+  function drawOne() {
+    if (!data) return;
+    state.instrument = sel.value; save();
+    const row = data.instruments.find(i => i.instrument_id === sel.value);
+    const shown = METHODS.filter(m => state.method === "all" || state.method === m.id);
+    const role = data.roles[row.role];
+    const series = [{label:`role: ${row.role}`, color:"var(--axis)", values: role}].concat(
+      shown.map(m => ({label: m.label, color: m.color,
+        values: row.views[m.id].profile, methods: row.views[m.id].methods})));
+    const ccyText = CCY_LABEL(data.currency) + (data.currency ? "" :
+      ` (${[...new Set(shown.map(m => row.views[m.id].series_currency))].join("/")})`);
+    chartCard.replaceChildren(el("h2", {}, `${row.name} against its role (${row.role}) · ${ccyText}`));
+    chartCard.append(el("p", {class:"q"},
+      "Annualised log return per state, 1 crisis to 25 boom. The role curve is the long annual record in USD, nominal, and is not converted."));
+    const legend = el("div", {class:"legend"});
+    series.forEach(s => legend.append(el("span", {html:`<span class="swatch" style="background:${s.color}"></span>${s.label}`})));
+    chartCard.append(legend);
+    chartCard.append(el("div", {class:"scroll"}, [lineChart(series, {knots:[2,7,12,17,22]})]));
+    const t = el("table");
+    t.append(el("thead", {}, [el("tr", {}, ["estimator", "coverage", "series read", "crisis (3)", "boom (23)", `R-003 check${row.protection_type ? " · " + row.protection_type : ""}`].map(h => el("th", {}, h)))]));
+    const b = el("tbody");
+    METHODS.forEach(m => {
+      const v = row.views[m.id], p = v.profile;
+      const ok = v.protection_check ? v.protection_check.passed : false;
+      b.append(el("tr", {}, [el("td", {}, m.label), el("td", {}, v.coverage),
+        el("td", {}, `${v.series || "none"} · ${v.series_currency}`),
+        el("td", {}, pct(p[2])), el("td", {}, pct(p[22])),
+        el("td", {html: row.role === "protection" ? `<span class="${ok?"pass":"fail"}">${ok?"✓ pass":"✕ fail"}</span>` : "n/a"})]));
+    });
+    t.append(b); chartCard.append(el("div", {class:"scroll"}, [t]));
+
+    const f = row.views.forward_12m;
+    detailCard.replaceChildren(el("h2", {}, `12 month forward measurement · ${row.name} · ${CCY_LABEL(data.currency || f.series_currency)}`));
+    detailCard.append(el("p", {class:"q"},
+      "Each month is tagged with its state; the log return over the following 12 months is credited to it. Windows overlap, so n_eff counts the distinct months they cover divided by 12; a phase below six is filled from D2's scaled role shape and labelled so."));
+    const tp = el("table");
+    tp.append(el("thead", {}, [el("tr", {}, ["phase", "windows", "n_eff", "value", "method"].map(h => el("th", {}, h)))]));
+    const bp = el("tbody");
+    f.phases.forEach(p => bp.append(el("tr", {}, [el("td", {}, p.phase), el("td", {}, String(p.windows)),
+      el("td", {}, String(p.n_eff)), el("td", {}, pct(p.value)), el("td", {}, p.method)])));
+    tp.append(bp); detailCard.append(el("div", {class:"scroll"}, [tp]));
+    detailCard.append(el("h2", {style:"font-size:14px;margin-top:18px"}, `After each crisis and contraction month · ${f.after_stress.length} windows`));
+    const ta = el("table");
+    ta.append(el("thead", {}, [el("tr", {}, ["month", "phase", "state", "next 12 months"].map(h => el("th", {}, h)))]));
+    const ba = el("tbody");
+    f.after_stress.forEach(w => ba.append(el("tr", {}, [el("td", {}, w.start), el("td", {}, w.phase),
+      el("td", {}, String(w.state)), el("td", {class: w.forward_12m < 0 ? "fail" : ""}, pct(w.forward_12m))])));
+    ta.append(ba);
+    const det = el("details", {open: ""});
+    det.append(el("summary", {}, "Table"), el("div", {class:"scroll"}, [ta]));
+    detailCard.append(det);
+    if (f.after_stress.length) {
+      const crisis = f.after_stress.filter(w => w.phase === "crisis").map(w => w.forward_12m);
+      const contr = f.after_stress.filter(w => w.phase === "contraction").map(w => w.forward_12m);
+      const avg = xs => xs.length ? pct(xs.reduce((a,b) => a+b, 0) / xs.length) : "—";
+      detailCard.append(el("p", {class:"note"},
+        `Average of the windows: after crisis months ${avg(crisis)} (${crisis.length}), after contraction months ${avg(contr)} (${contr.length}).`));
+    }
+    detailCard.append(el("p", {class:"note"},
+      "D2 caveats (HANDOVER §4.1): its level inherits the selection bias of the recovered returns and spreads it over all 25 states; its amplitude uses the median volatility of a heterogeneous role, so a role split would move every amplitude; it never inverts the role shape, so an instrument that moves against its role is wrong under D2 by construction. D2 also inherits the role shape, so any change to Income (R-001) re-shapes every Income instrument."));
+  }
+
+  ccy.addEventListener("change", () => { state.currency = ccy.value; save(); load(); });
+  sel.addEventListener("change", drawOne);
+  await load();
+});
+
+/* ============================ REVIEW R-001 — INCOME CANDIDATES ============================ */
+
+tab("income", "Income · R-001", async host => {
+  const d = await get("/v1/diagnostics/income-candidates");
+  const colors = ["var(--series-3)", "var(--series-1)", "var(--series-4)", "var(--ink-2)"];
+  const name = c => Object.entries(c.weights).map(([k,v]) => `${k.replace("_"," ")} ${Math.round(v*100)}%`).join(" + ");
+  const c1 = el("div", {class:"card"});
+  c1.append(el("h2", {}, "Income candidates against Stabilisation · USD, nominal (long annual record)"));
+  c1.append(el("p", {class:"q"},
+    "The owner chose A on 29.09.2026 (real estate 75 %, equity 25 %); it is the published Income of " + d.calibration_id + ". The first line is the Income before R-001 (real estate alone, CAL-092efd097adb0b26); B and C are the alternatives. Nothing here is stored."));
+  const series = [{label:"stabilisation", color:"var(--series-2)", values:d.stabilisation.curve}].concat(
+    d.candidates.map((c, i) => ({label: i === 0 ? "income before R-001" : "income " + "ABC"[i-1] + (i === 1 ? " (published)" : ""), color: colors[i], values: c.curve})));
+  const legend = el("div", {class:"legend"});
+  series.forEach((s, i) => legend.append(el("span", {html:`<span class="swatch" style="background:${s.color}"></span>${s.label}${i ? " — " + name(d.candidates[i-1]) : ""}`})));
+  c1.append(legend);
+  c1.append(el("div", {class:"scroll"}, [lineChart(series, {knots:[2,7,12,17,22]})]));
+  host.append(c1);
+
+  const c2 = el("div", {class:"card"});
+  c2.append(el("h2", {}, "The checks, per candidate"));
+  c2.append(el("p", {class:"q"}, "Target: Income above Stabilisation in expansion and boom, below it in crisis (phase estimates); all eight shape checks pass."));
+  const t = el("table");
+  t.append(el("thead", {}, [el("tr", {}, ["candidate", "crisis · contr · stag · exp · boom", "target", "min gap by phase", "mean gap by state", "curve correlation", "shape checks", "role changes (nearest curve)"].map(h => el("th", {}, h)))]));
+  const b = el("tbody");
+  d.candidates.forEach((c, i) => {
+    const g = c.gap_to_stabilisation;
+    b.append(el("tr", {}, [
+      el("td", {style:"white-space:normal;text-align:left"}, (i === 0 ? "now: " : "ABC"[i-1] + ": ") + name(c)),
+      el("td", {}, c.phase_values.map(v => (v*100).toFixed(1)).join(" · ")),
+      el("td", {html:`<span class="${c.target_met?"pass":"fail"}">${c.target_met?"✓ met":"✕ not met"}</span>`}),
+      el("td", {}, pct(g.min_abs_by_phase)), el("td", {}, pct(g.mean_abs_by_state)),
+      el("td", {}, g.curve_correlation.toFixed(2)),
+      el("td", {}, `${c.shape_checks_passed} / 8`),
+      el("td", {style:"white-space:normal;text-align:left"},
+        c.role_changes_nearest_curve.map(x => `${x.name} (${x.registered}): ${x.nearest_now} → ${x.nearest_with_candidate}`).join("; ") || "none"),
+    ]));
+  });
+  b.prepend(el("tr", {}, [el("td", {}, "stabilisation"),
+    el("td", {}, d.stabilisation.phase_values.map(v => (v*100).toFixed(1)).join(" · ")),
+    el("td", {}, ""), el("td", {}, ""), el("td", {}, ""), el("td", {}, ""), el("td", {}, ""), el("td", {}, "")]));
+  t.append(b); c2.append(el("div", {class:"scroll"}, [t]));
+  c2.append(el("p", {class:"note"}, d.reading));
+  c2.append(el("p", {class:"note"}, "Income instruments re-shaped under D2 by any change: " + d.income_instruments_reshaped_under_d2.join(", ") + "."));
+  host.append(c2);
+});
+
+tab("audit", "Audit", async host => {
+  const [cal, rec, runs] = await Promise.all([
+    get("/v1/calibration"), get("/v1/diagnostics/recomposition"), get("/v1/runs?limit=12")]);
+  const c = el("div", {class:"card"});
+  c.append(el("h2", {}, "Recomposition check"));
+  c.append(el("p", {class:"q"}, rec.note + " A large drift means the state tagging and the return series have come out of alignment."));
+  const t1 = el("table");
+  t1.append(el("thead",{},[el("tr",{},["block","window","on full record","on own window","drift","truncated"]
+    .map(h=>el("th",{},h)))]));
+  const b1 = el("tbody");
+  rec.blocks.forEach(r => b1.append(el("tr",{},[
+    el("td",{},r.block), el("td",{},r.window.join("–")),
+    el("td",{},pct(r.recomposed_on_full_record)), el("td",{},pct(r.recomposed_on_own_window)),
+    el("td",{},pct(r.drift)), el("td",{},r.truncated ? "yes" : "no")])));
+  t1.append(b1); c.append(el("div",{class:"scroll"},[t1]));
+  host.append(c);
+
+  const c2 = el("div", {class:"card"});
+  c2.append(el("h2", {}, "Sources"));
+  c2.append(el("p", {class:"q"}, "Every figure above walks back to one of these files, by hash."));
+  const t2 = el("table");
+  t2.append(el("thead",{},[el("tr",{},[el("th",{},"series"),el("th",{},"sha-256")])]));
+  const b2 = el("tbody");
+  Object.entries(cal.source_sha256).sort().forEach(([k,v]) =>
+    b2.append(el("tr",{},[el("td",{},k), el("td",{},v.slice(0,32)+"…")])));
+  t2.append(b2); c2.append(el("div",{class:"scroll"},[t2]));
+  const det = el("details");
+  det.append(el("summary",{},"Calibration parameters"));
+  det.append(el("pre",{style:"font-size:12px;overflow:auto"}, JSON.stringify(cal.parameters,null,1)));
+  c2.append(det);
+  host.append(c2);
+
+  const c3 = el("div", {class:"card"});
+  c3.append(el("h2", {}, "Run manifests"));
+  c3.append(el("p", {class:"q"}, "No figure leaves an engine without one."));
+  const t3 = el("table");
+  t3.append(el("thead",{},[el("tr",{},["run","engine","finished","ms","status"].map(h=>el("th",{},h)))]));
+  const b3 = el("tbody");
+  runs.runs.forEach(r => b3.append(el("tr",{},[
+    el("td",{},r.run_id), el("td",{},r.engine), el("td",{},r.finished_at),
+    el("td",{},r.wall_clock_ms.toFixed(1)), el("td",{},r.status)])));
+  t3.append(b3); c3.append(el("div",{class:"scroll"},[t3]));
+  host.append(c3);
+});
+
+/* --------------------------------------------------------------------- shell */
+
+const panels = $("#panels"), tabsEl = $("#tabs");
+let active = location.hash.slice(1) || TABS[0].id;
+
+function select(id) {
+  active = id; location.hash = id;
+  [...tabsEl.children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === id)));
+  panels.replaceChildren(el("p", {class:"sub"}, "loading…"));
+  const t = TABS.find(t => t.id === id) || TABS[0];
+  const host = el("div");
+  panels.replaceChildren(host);
+  t.render(host).catch(e => host.replaceChildren(problemCard(e)));
+}
+
+// Say what is actually wrong, and what to type to fix it. "Failed to fetch" on its own
+// sends you looking in the wrong place.
+function problemCard(e) {
+  const card = el("div", {class:"card"});
+  if (e instanceof Unreachable) {
+    card.append(el("p", {class:"err"}, `Cannot reach the engine at ${API || location.origin}`));
+    card.append(el("p", {class:"q"},
+      "The page loaded, but nothing answered. The engine has to be running — this file is "
+      + "a client, not a server."));
+    // The specific wrong turn this message exists to prevent: Docker is up, so the
+    // database is up, so it looks like everything should work. The engine is not in
+    // Docker and does not come back with it after a reboot.
+    card.append(el("p", {class:"q"},
+      "Docker running is not enough. The container is the database; the engine is a "
+      + "separate process, and unlike the container it does not restart by itself."));
+    card.append(el("pre", {class:"cmd"},
+      "cd Projects\\Engines\\Instruments\n"
+      + "start.cmd                          # or, the same thing:\n"
+      + "python -m uvicorn api.main:app --port 8006"));
+    if (STANDALONE) {
+      card.append(el("p", {class:"note"},
+        "You opened this file directly, so it is calling " + API + " across origins. "
+        + "That works, but serving the page from the engine itself is simpler — open "
+        + "http://127.0.0.1:8006/ instead and everything is same-origin."));
+    }
+    card.append(el("p", {class:"note"},
+      "If the engine is on another host or port, set it in the API field above."));
+  } else {
+    card.append(el("p", {class:"err"}, "The engine answered with an error"));
+    card.append(el("p", {class:"q"}, e.message));
+    card.append(el("p", {class:"note"},
+      "A 503 usually means the store has not been built yet: python -m store.etl.bootstrap"));
+  }
+  return card;
+}
+TABS.forEach(t => {
+  const b = el("button", {}, t.label); b.dataset.id = t.id;
+  b.addEventListener("click", () => select(t.id));
+  tabsEl.append(b);
+});
+
+$("#theme").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : cur === "light" ? "" : "dark";
+  if (next) document.documentElement.setAttribute("data-theme", next);
+  else document.documentElement.removeAttribute("data-theme");
+  select(active);
+});
+
+// The API field is only shown when the page is opened off disk, where the base actually
+// has to be resolved. Served from the engine, there is nothing to configure.
+const apiInput = $("#api");
+if (STANDALONE) {
+  $("#apiwrap").classList.remove("hidden");
+  apiInput.value = API;
+  const apply = () => {
+    const next = apiInput.value.trim().replace(/\/+$/, "") || DEFAULT_API;
+    if (next === API) return;
+    API = next;
+    try { localStorage.setItem("fundmap.api", API); } catch { /* not essential */ }
+    start();
+  };
+  apiInput.addEventListener("change", apply);
+  apiInput.addEventListener("keydown", ev => { if (ev.key === "Enter") apply(); });
+}
+
+function start() {
+  get("/v1/health").then(h => {
+    const store = h.store ? `${h.store.dbname}.${h.store.schema} @ ${h.store.host}` : "?";
+    $("#subtitle").textContent =
+      `${h.engine_version} · ${h.calibration_id ?? "uncalibrated"} · ` +
+      `${h.counts.instrument} instruments · ${store} · not part of the system`;
+  }).catch(e => {
+    $("#subtitle").textContent = e instanceof Unreachable
+      ? `no engine at ${API || location.origin}`
+      : "the engine answered with an error";
+  });
+  select(active);
+}
+
+start();
+</script>
+</body>
+</html>

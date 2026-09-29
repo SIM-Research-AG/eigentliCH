@@ -1,0 +1,43 @@
+﻿# United Kingdom.
+
+economy:
+  code: gb
+  name: United Kingdom
+  world_bank: GBR
+  bis: GB
+  currency: GBP
+
+data:
+  financial_capital:
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    default_depreciation_rate: 0.05
+
+  stimulus:
+    proxy: fiscal_balance
+    reverse_sign: true
+
+calibration:
+  window:
+    # BIS total credit for the United Kingdom begins in 1966, the second longest run in the panel.
+    start: null
+    end: null
+
+notes:
+  - >
+    Latest BIS total credit to the non-financial sector is 221.4 percent of GDP, below the 250 to 350
+    percent band. Note that this reading concerns credit to the domestic non-financial sector and says
+    nothing about the size of the financial sector itself, which for the United Kingdom is large
+    relative to the domestic economy. The financial dimension of HoNI and the K_I measure are where
+    that shows up, not the saturation axis.
+  - >
+    Book chapter 13 treats the United Kingdom as the previous hegemon, displaced at the 1946 Paris
+    peace conference. The long BIS run from 1966 makes it the best available case for observing an
+    economy after a hegemonic transition rather than before one.
+  - >
+    Sterling is a reserve currency of secondary standing, which book section 12.2 treats as a distinct
+    International-dimension case from both a primary issuer and a claim holder.
+

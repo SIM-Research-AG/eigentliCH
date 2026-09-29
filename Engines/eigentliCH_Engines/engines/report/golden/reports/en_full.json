@@ -1,0 +1,2106 @@
+{
+ "_note": "Golden report (dev/build_golden.py).",
+ "case": "en_full",
+ "report": {
+  "contract_version": "report@1.0.0",
+  "artefact_id": "REP-bcbe4fd9cb064eeb",
+  "client_ref": "syn-couple",
+  "kind": "report",
+  "language": "en",
+  "title": "Report · Muster",
+  "previous_report_id": null,
+  "revision_of": null,
+  "revision_note": null,
+  "as_of": "2026-09-28",
+  "facts": [
+   {
+    "fact_id": "pcp.mandate_name",
+    "section": "allocation",
+    "label": "Mandate",
+    "value": "balanced",
+    "unit": "text",
+    "display": "balanced",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/mandate_name"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.date",
+    "section": "allocation",
+    "label": "Allocation date",
+    "value": "2024-12-31",
+    "unit": "date",
+    "display": "31 December 2024",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/date"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.release_state",
+    "section": "allocation",
+    "label": "Status",
+    "value": "unreleased",
+    "unit": "text",
+    "display": "not released",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/release_state"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.budget_met",
+    "section": "allocation",
+    "label": "Budget met (weights sum to one)",
+    "value": true,
+    "unit": "flag",
+    "display": "yes",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/budget_met"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.positions_held",
+    "section": "allocation",
+    "label": "Building blocks with weight",
+    "value": 7.0,
+    "unit": "count",
+    "display": "7",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments"
+     }
+    ],
+    "derivation": "count of instruments with weight >= 0.0005",
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.universe_size",
+    "section": "allocation",
+    "label": "Building blocks in the universe",
+    "value": 54.0,
+    "unit": "count",
+    "display": "54",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments"
+     }
+    ],
+    "derivation": "count of instruments in the allocation",
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.role.Gain",
+    "section": "roles",
+    "label": "Gain",
+    "value": 0.4499999999999996,
+    "unit": "share",
+    "display": "45.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/weights_by_role/Gain"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.role.Income",
+    "section": "roles",
+    "label": "Income",
+    "value": 0.1500000000000007,
+    "unit": "share",
+    "display": "15.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/weights_by_role/Income"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.role.Stabilisation",
+    "section": "roles",
+    "label": "Stabilisation",
+    "value": 0.24999999999999975,
+    "unit": "share",
+    "display": "25.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/weights_by_role/Stabilisation"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.role.Protection",
+    "section": "roles",
+    "label": "Protection",
+    "value": 0.14999999999999994,
+    "unit": "share",
+    "display": "15.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/weights_by_role/Protection"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position.INS-bloomberg-market-neutral-hf",
+    "section": "positions",
+    "label": "Bloomberg Market Neutral HF",
+    "value": 0.14999999999999966,
+    "unit": "share",
+    "display": "15.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/10/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-bloomberg-market-neutral-hf",
+    "section": "positions",
+    "label": "Bloomberg Market Neutral HF",
+    "value": "Stabilisation",
+    "unit": "text",
+    "display": "Stabilisation",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/10/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position.INS-global-equities",
+    "section": "positions",
+    "label": "Global Equities",
+    "value": 0.14999999999999966,
+    "unit": "share",
+    "display": "15.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/28/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-global-equities",
+    "section": "positions",
+    "label": "Global Equities",
+    "value": "Gain",
+    "unit": "text",
+    "display": "Gain",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/28/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position.INS-global-governmental-bonds",
+    "section": "positions",
+    "label": "Global Governmental Bonds",
+    "value": 0.1499999999999995,
+    "unit": "share",
+    "display": "15.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/29/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-global-governmental-bonds",
+    "section": "positions",
+    "label": "Global Governmental Bonds",
+    "value": "Protection",
+    "unit": "text",
+    "display": "Protection",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/29/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position.INS-global-high-yields",
+    "section": "positions",
+    "label": "Global High Yields",
+    "value": 0.14999999999999966,
+    "unit": "share",
+    "display": "15.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/30/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-global-high-yields",
+    "section": "positions",
+    "label": "Global High Yields",
+    "value": "Income",
+    "unit": "text",
+    "display": "Income",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/30/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position.INS-hang-seng-index",
+    "section": "positions",
+    "label": "Hang Seng Index",
+    "value": 0.1499999999999996,
+    "unit": "share",
+    "display": "15.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/33/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-hang-seng-index",
+    "section": "positions",
+    "label": "Hang Seng Index",
+    "value": "Gain",
+    "unit": "text",
+    "display": "Gain",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/33/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position.INS-private-equity",
+    "section": "positions",
+    "label": "Private Equity",
+    "value": 0.14999999999999963,
+    "unit": "share",
+    "display": "15.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/42/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-private-equity",
+    "section": "positions",
+    "label": "Private Equity",
+    "value": "Gain",
+    "unit": "text",
+    "display": "Gain",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/42/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position.INS-global-macro",
+    "section": "positions",
+    "label": "Global Macro",
+    "value": 0.1,
+    "unit": "share",
+    "display": "10.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/31/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-global-macro",
+    "section": "positions",
+    "label": "Global Macro",
+    "value": "Stabilisation",
+    "unit": "text",
+    "display": "Stabilisation",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/31/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.objective",
+    "section": "fit",
+    "label": "Objective",
+    "value": 28.985346077883445,
+    "unit": "number",
+    "display": "28.99",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/objective"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.objective_floor",
+    "section": "fit",
+    "label": "Objective with nothing allocated",
+    "value": 29.160000000000032,
+    "unit": "number",
+    "display": "29.16",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/objective_floor"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.weight_leverage",
+    "section": "fit",
+    "label": "Share the weights move",
+    "value": 0.005989503501940556,
+    "unit": "share",
+    "display": "0.60%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/weight_leverage"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.solver_method",
+    "section": "fit",
+    "label": "Method",
+    "value": "SLSQP",
+    "unit": "text",
+    "display": "SLSQP",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/solver_method"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.solver_converged",
+    "section": "fit",
+    "label": "Solve converged",
+    "value": true,
+    "unit": "flag",
+    "display": "yes",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/success"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.constraint_rows",
+    "section": "fit",
+    "label": "Constraint rows",
+    "value": 75.0,
+    "unit": "count",
+    "display": "75",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/constraint_rows"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.binding_rows",
+    "section": "fit",
+    "label": "of which binding",
+    "value": 20.0,
+    "unit": "count",
+    "display": "20",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/binding"
+     }
+    ],
+    "derivation": "count of binding constraint rows",
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.weak_share",
+    "section": "fit",
+    "label": "Weight on borrowed or seeded profiles",
+    "value": 0.9999999999999999,
+    "unit": "share",
+    "display": "100.0%",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/coverage/weight_on_weak_profiles"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.warning.0",
+    "section": "limits",
+    "label": "Allocation",
+    "value": "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)",
+    "unit": "text",
+    "display": "Every building block has the same ESG score, so the ESG requirement does not tell them apart.",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/coverage/warnings/0"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.warning.1",
+    "section": "limits",
+    "label": "Allocation",
+    "value": "the weights control 0.60% of the objective (objective 28.9853 against a floor of 29.16 with nothing allocated): the allocation is driven mainly by the constraints, the curve fit acting as a tie-breaker (per-instrument objective, D28)",
+    "unit": "text",
+    "display": "The weights decide only a small part of the objective: the allocation follows mainly the mandate's constraints.",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/coverage/warnings/1"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "pcp.warning.2",
+    "section": "limits",
+    "label": "Allocation",
+    "value": "100.0% of the weight is on instruments whose profiles rest on borrowed or seeded values (PCP-07)",
+    "unit": "text",
+    "display": "Part of the weight is on building blocks whose profiles rest on borrowed or seeded values.",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/coverage/warnings/2"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.household.adults",
+    "section": "household",
+    "label": "Adults",
+    "value": 2.0,
+    "unit": "count",
+    "display": "2",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/household/adults"
+     }
+    ],
+    "derivation": "count of adults",
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.household.dependants",
+    "section": "household",
+    "label": "Dependants",
+    "value": 1.0,
+    "unit": "count",
+    "display": "1",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/household/dependants"
+     }
+    ],
+    "derivation": "count of dependants",
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.household.composition_as_of",
+    "section": "household",
+    "label": "Composition recorded on",
+    "value": "2026-03-15",
+    "unit": "date",
+    "display": "15 March 2026",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/household/composition_as_of"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.totals.total_assets",
+    "section": "balance_sheet",
+    "label": "Total assets",
+    "value": 1815000.0,
+    "unit": "chf",
+    "display": "CHF 1,815,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/total_assets"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.totals.financial_assets",
+    "section": "balance_sheet",
+    "label": "Financial assets",
+    "value": 1775000.0,
+    "unit": "chf",
+    "display": "CHF 1,775,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/financial_assets"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.totals.human_assets",
+    "section": "balance_sheet",
+    "label": "Human assets",
+    "value": 40000.0,
+    "unit": "chf",
+    "display": "CHF 40,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/human_assets"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.totals.liabilities",
+    "section": "balance_sheet",
+    "label": "Liabilities",
+    "value": 780000.0,
+    "unit": "chf",
+    "display": "CHF 780,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/liabilities"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.totals.net_worth",
+    "section": "balance_sheet",
+    "label": "Net worth",
+    "value": 1035000.0,
+    "unit": "chf",
+    "display": "CHF 1,035,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/net_worth"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.totals.drawable",
+    "section": "balance_sheet",
+    "label": "Drawable",
+    "value": 95000.0,
+    "unit": "chf",
+    "display": "CHF 95,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/drawable"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.totals.identity_holds",
+    "section": "balance_sheet",
+    "label": "Balance identity holds",
+    "value": true,
+    "unit": "flag",
+    "display": "yes",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/identity_holds"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.vessel.free",
+    "section": "balance_sheet",
+    "label": "freely available",
+    "value": 95000.0,
+    "unit": "chf",
+    "display": "CHF 95,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/by_vessel/free"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.vessel.pillar_2",
+    "section": "balance_sheet",
+    "label": "2nd pillar",
+    "value": 430000.0,
+    "unit": "chf",
+    "display": "CHF 430,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/by_vessel/pillar_2"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.vessel.real_asset",
+    "section": "balance_sheet",
+    "label": "real assets",
+    "value": 1250000.0,
+    "unit": "chf",
+    "display": "CHF 1,250,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/by_vessel/real_asset"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.cell.gain.human.assets",
+    "section": "grid",
+    "label": "Growth, human capital",
+    "value": 40000.0,
+    "unit": "chf",
+    "display": "CHF 40,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/grid/0/assets_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.cell.income.human.flows",
+    "section": "income",
+    "label": "Income, human capital",
+    "value": 174000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 174,000 a year",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/grid/2/flows_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.cell.stabilisation.financial.assets",
+    "section": "grid",
+    "label": "Stabilisation, financial capital",
+    "value": 1345000.0,
+    "unit": "chf",
+    "display": "CHF 1,345,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/grid/5/assets_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.cell.stabilisation.financial.liabilities",
+    "section": "grid",
+    "label": "Stabilisation, financial capital",
+    "value": 780000.0,
+    "unit": "chf",
+    "display": "CHF 780,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/grid/5/liabilities_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.cell.protection.financial.assets",
+    "section": "grid",
+    "label": "Protection, financial capital",
+    "value": 430000.0,
+    "unit": "chf",
+    "display": "CHF 430,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/grid/7/assets_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.totals.household_income",
+    "section": "income",
+    "label": "Household income",
+    "value": 174000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 174,000 a year",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/household_income"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.human.p1.E",
+    "section": "human_capital",
+    "label": "Person 1: Expertise (E)",
+    "value": "not available: the intake does not ask a question this could be derived from",
+    "unit": "text",
+    "display": "not available: The intake does not ask about this.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/0/E/absent_because"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.human.p1.N",
+    "section": "human_capital",
+    "label": "Person 1: Network (N)",
+    "value": "not available: the question was asked and left blank",
+    "unit": "text",
+    "display": "not available: The question was asked and left unanswered.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/0/N/absent_because"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.human.p1.H",
+    "section": "human_capital",
+    "label": "Person 1: Health (H)",
+    "value": "not available: the question was asked and left blank",
+    "unit": "text",
+    "display": "not available: The question was asked and left unanswered.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/0/H/absent_because"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.human.p1.earning_power",
+    "section": "human_capital",
+    "label": "Person 1: Earning power",
+    "value": "not available in lbs@1.0.0: earning power is personal_alm's income equation (the stochastic model), which the owner assigned to lbsim; lbs reports E, N and H and the time budget only",
+    "unit": "text",
+    "display": "not available: Earning power is computed by another model; this report does not contain it.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/0/earning_power/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.human.p2.E",
+    "section": "human_capital",
+    "label": "Person 2: Expertise (E)",
+    "value": "not available: the intake does not ask a question this could be derived from",
+    "unit": "text",
+    "display": "not available: The intake does not ask about this.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/1/E/absent_because"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.human.p2.N",
+    "section": "human_capital",
+    "label": "Person 2: Network (N)",
+    "value": "not available: the question was asked and left blank",
+    "unit": "text",
+    "display": "not available: The question was asked and left unanswered.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/1/N/absent_because"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.human.p2.H",
+    "section": "human_capital",
+    "label": "Person 2: Health (H)",
+    "value": "not available: the question was asked and left blank",
+    "unit": "text",
+    "display": "not available: The question was asked and left unanswered.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/1/H/absent_because"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.human.p2.earning_power",
+    "section": "human_capital",
+    "label": "Person 2: Earning power",
+    "value": "not available in lbs@1.0.0: earning power is personal_alm's income equation (the stochastic model), which the owner assigned to lbsim; lbs reports E, N and H and the time budget only",
+    "unit": "text",
+    "display": "not available: Earning power is computed by another model; this report does not contain it.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/1/earning_power/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.ahv",
+    "section": "pensions",
+    "label": "Person 1: AHV pension",
+    "value": "not available: record not approved (ahv-pension carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+    "unit": "text",
+    "display": "not available: The basis for this calculation is not yet approved, so no figure is shown.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/ahv/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.opening",
+    "section": "pensions",
+    "label": "Person 1: Pension fund balance today",
+    "value": 310000.0,
+    "unit": "chf",
+    "display": "CHF 310,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/opening_balance"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.to_age",
+    "section": "pensions",
+    "label": "Person 1: Retirement age of the projection",
+    "value": 65.0,
+    "unit": "count",
+    "display": "65",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/to_age"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.closing",
+    "section": "pensions",
+    "label": "Person 1: Pension fund balance at retirement",
+    "value": 519880.6971873372,
+    "unit": "chf",
+    "display": "CHF 519,881",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/closing_balance"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.conversion",
+    "section": "pensions",
+    "label": "Person 1: Conversion rate",
+    "value": 0.068,
+    "unit": "share",
+    "display": "6.80%",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/conversion_rate"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.yearly",
+    "section": "pensions",
+    "label": "Person 1: BVG pension a year",
+    "value": 35351.887408738934,
+    "unit": "chf_per_year",
+    "display": "CHF 35,352 a year",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/yearly_pension"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.ahv",
+    "section": "pensions",
+    "label": "Person 2: AHV pension",
+    "value": "not available: record not approved (ahv-pension carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+    "unit": "text",
+    "display": "not available: The basis for this calculation is not yet approved, so no figure is shown.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/ahv/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.opening",
+    "section": "pensions",
+    "label": "Person 2: Pension fund balance today",
+    "value": 120000.0,
+    "unit": "chf",
+    "display": "CHF 120,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/opening_balance"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.to_age",
+    "section": "pensions",
+    "label": "Person 2: Retirement age of the projection",
+    "value": 65.0,
+    "unit": "count",
+    "display": "65",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/to_age"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.closing",
+    "section": "pensions",
+    "label": "Person 2: Pension fund balance at retirement",
+    "value": 257359.66184299122,
+    "unit": "chf",
+    "display": "CHF 257,360",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/closing_balance"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.conversion",
+    "section": "pensions",
+    "label": "Person 2: Conversion rate",
+    "value": 0.068,
+    "unit": "share",
+    "display": "6.80%",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/conversion_rate"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.yearly",
+    "section": "pensions",
+    "label": "Person 2: BVG pension a year",
+    "value": 17500.457005323406,
+    "unit": "chf_per_year",
+    "display": "CHF 17,500 a year",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/yearly_pension"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.couple_cap",
+    "section": "pensions",
+    "label": "AHV couple cap",
+    "value": "not available: record not approved (ahv-pension carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+    "unit": "text",
+    "display": "not available: The basis for this calculation is not yet approved, so no figure is shown.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/couple_cap/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.risk",
+    "section": "risk",
+    "label": "Risk profile",
+    "value": "not available: record not approved (risk-profile carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+    "unit": "text",
+    "display": "not available: The basis for this calculation is not yet approved, so no figure is shown.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/risk_profile/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.name",
+    "section": "mandate",
+    "label": "Mandate proposal",
+    "value": "lbs-g1",
+    "unit": "text",
+    "display": "Your goal",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/name"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.target",
+    "section": "mandate",
+    "label": "Target amount",
+    "value": 180000.0,
+    "unit": "chf",
+    "display": "CHF 180,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/target_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.horizon",
+    "section": "mandate",
+    "label": "Horizon in years",
+    "value": 4.75300656413205,
+    "unit": "number",
+    "display": "4.75",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/goal_horizon_years"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.drawable",
+    "section": "mandate",
+    "label": "Drawable",
+    "value": 95000.0,
+    "unit": "chf",
+    "display": "CHF 95,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/drawable_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.contribution",
+    "section": "mandate",
+    "label": "Contribution a year",
+    "value": 15000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 15,000 a year",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/annual_contribution"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.required_return",
+    "section": "mandate",
+    "label": "Required return a year",
+    "value": 0.021487417892785743,
+    "unit": "share",
+    "display": "2.15%",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/required_return"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.feasible",
+    "section": "mandate",
+    "label": "Reachable",
+    "value": true,
+    "unit": "flag",
+    "display": "yes",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/feasible"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.complete",
+    "section": "mandate",
+    "label": "Complete",
+    "value": false,
+    "unit": "flag",
+    "display": "no",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/complete"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.mandate.release_state",
+    "section": "mandate",
+    "label": "Status",
+    "value": "unreleased",
+    "unit": "text",
+    "display": "not released",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/release_state"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.0",
+    "section": "limits",
+    "label": "Human capital",
+    "value": "earning_power: earning power is computed by the stochastic model personal_alm, assigned to lbsim (LBS-10)",
+    "unit": "text",
+    "display": "Earning power is computed by another model; this report does not contain it.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/0/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.1",
+    "section": "limits",
+    "label": "Person 1",
+    "value": "p1.E: E is absent: the intake does not ask a question this could be derived from",
+    "unit": "text",
+    "display": "Expertise (E): The intake does not ask about this.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/1/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.2",
+    "section": "limits",
+    "label": "Person 1",
+    "value": "p1.H: H is absent: the question was asked and left blank",
+    "unit": "text",
+    "display": "Health (H): The question was asked and left unanswered.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/2/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.3",
+    "section": "limits",
+    "label": "Person 1",
+    "value": "p1.N: N is absent: the question was asked and left blank",
+    "unit": "text",
+    "display": "Network (N): The question was asked and left unanswered.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/3/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.4",
+    "section": "limits",
+    "label": "Person 2",
+    "value": "p2.E: E is absent: the intake does not ask a question this could be derived from",
+    "unit": "text",
+    "display": "Expertise (E): The intake does not ask about this.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/4/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.5",
+    "section": "limits",
+    "label": "Person 2",
+    "value": "p2.H: H is absent: the question was asked and left blank",
+    "unit": "text",
+    "display": "Health (H): The question was asked and left unanswered.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/5/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.6",
+    "section": "limits",
+    "label": "Person 2",
+    "value": "p2.N: N is absent: the question was asked and left blank",
+    "unit": "text",
+    "display": "Network (N): The question was asked and left unanswered.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/6/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.7",
+    "section": "limits",
+    "label": "Person 1",
+    "value": "ahv: ahv-pension is not approved (provisional, no publisher): no AHV figure is shown",
+    "unit": "text",
+    "display": "The basis of the AHV calculation is not yet approved; no AHV pension is shown.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/7/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.8",
+    "section": "limits",
+    "label": "Person 2",
+    "value": "ahv: ahv-pension is not approved (provisional, no publisher): no AHV figure is shown",
+    "unit": "text",
+    "display": "The basis of the AHV calculation is not yet approved; no AHV pension is shown.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/8/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "lbs.gap.9",
+    "section": "limits",
+    "label": "Risk profile",
+    "value": "risk-profile: risk-profile is not approved: no profile, role bounds, curve slope or ESG floor is derived",
+    "unit": "text",
+    "display": "The rules of the risk profile are not yet approved; no profile is derived.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/9/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "sources.as_of",
+    "section": "sources",
+    "label": "As of",
+    "value": "2026-09-28",
+    "unit": "date",
+    "display": "28 September 2026",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/as_of"
+     }
+    ],
+    "derivation": "the newest as-of date among the sources",
+    "previous": null
+   },
+   {
+    "fact_id": "sources.date.pcp",
+    "section": "sources",
+    "label": "Your portfolio allocation",
+    "value": "2024-12-31",
+    "unit": "date",
+    "display": "31 December 2024",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-e213eab0625c0b86",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/date"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "sources.date.lbs",
+    "section": "sources",
+    "label": "Your balance sheet",
+    "value": "2026-09-28",
+    "unit": "date",
+    "display": "28 September 2026",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-87187d7cbb0454b5",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/as_of"
+     }
+    ],
+    "derivation": null,
+    "previous": null
+   },
+   {
+    "fact_id": "caller.name",
+    "section": "sources",
+    "label": "Client",
+    "value": "Muster",
+    "unit": "text",
+    "display": "Muster",
+    "sources": [
+     {
+      "engine": "caller",
+      "artefact_id": "RRQ-d74a099605e6cbe5",
+      "contract_version": "report-request@1.0.0",
+      "path": "/display_facts/0/value"
+     }
+    ],
+    "derivation": "supplied by the caller (golden)",
+    "previous": null
+   }
+  ],
+  "sections": [
+   {
+    "key": "household",
+    "title": "The household",
+    "fact_ids": [
+     "lbs.household.adults",
+     "lbs.household.dependants",
+     "lbs.household.composition_as_of"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "balance_sheet",
+    "title": "The balance sheet",
+    "fact_ids": [
+     "lbs.totals.total_assets",
+     "lbs.totals.financial_assets",
+     "lbs.totals.human_assets",
+     "lbs.totals.liabilities",
+     "lbs.totals.net_worth",
+     "lbs.totals.drawable",
+     "lbs.totals.identity_holds",
+     "lbs.vessel.free",
+     "lbs.vessel.pillar_2",
+     "lbs.vessel.real_asset"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "grid",
+    "title": "The roles of the balance sheet",
+    "fact_ids": [
+     "lbs.cell.gain.human.assets",
+     "lbs.cell.stabilisation.financial.assets",
+     "lbs.cell.stabilisation.financial.liabilities",
+     "lbs.cell.protection.financial.assets"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "income",
+    "title": "Income",
+    "fact_ids": [
+     "lbs.cell.income.human.flows",
+     "lbs.totals.household_income"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "human_capital",
+    "title": "Human capital",
+    "fact_ids": [
+     "lbs.human.p1.E",
+     "lbs.human.p1.N",
+     "lbs.human.p1.H",
+     "lbs.human.p1.earning_power",
+     "lbs.human.p2.E",
+     "lbs.human.p2.N",
+     "lbs.human.p2.H",
+     "lbs.human.p2.earning_power"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "pensions",
+    "title": "Pensions",
+    "fact_ids": [
+     "lbs.pension.p1.ahv",
+     "lbs.pension.p1.bvg.opening",
+     "lbs.pension.p1.bvg.to_age",
+     "lbs.pension.p1.bvg.closing",
+     "lbs.pension.p1.bvg.conversion",
+     "lbs.pension.p1.bvg.yearly",
+     "lbs.pension.p2.ahv",
+     "lbs.pension.p2.bvg.opening",
+     "lbs.pension.p2.bvg.to_age",
+     "lbs.pension.p2.bvg.closing",
+     "lbs.pension.p2.bvg.conversion",
+     "lbs.pension.p2.bvg.yearly",
+     "lbs.couple_cap"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "risk",
+    "title": "The risk profile",
+    "fact_ids": [
+     "lbs.risk"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "mandate",
+    "title": "The mandate proposal",
+    "fact_ids": [
+     "lbs.mandate.name",
+     "lbs.mandate.target",
+     "lbs.mandate.horizon",
+     "lbs.mandate.drawable",
+     "lbs.mandate.contribution",
+     "lbs.mandate.required_return",
+     "lbs.mandate.feasible",
+     "lbs.mandate.complete",
+     "lbs.mandate.release_state"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "allocation",
+    "title": "The allocation",
+    "fact_ids": [
+     "pcp.mandate_name",
+     "pcp.date",
+     "pcp.release_state",
+     "pcp.budget_met",
+     "pcp.positions_held",
+     "pcp.universe_size"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "roles",
+    "title": "Weight by role",
+    "fact_ids": [
+     "pcp.role.Gain",
+     "pcp.role.Income",
+     "pcp.role.Stabilisation",
+     "pcp.role.Protection"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "positions",
+    "title": "The building blocks",
+    "fact_ids": [
+     "pcp.position.INS-bloomberg-market-neutral-hf",
+     "pcp.position_role.INS-bloomberg-market-neutral-hf",
+     "pcp.position.INS-global-equities",
+     "pcp.position_role.INS-global-equities",
+     "pcp.position.INS-global-governmental-bonds",
+     "pcp.position_role.INS-global-governmental-bonds",
+     "pcp.position.INS-global-high-yields",
+     "pcp.position_role.INS-global-high-yields",
+     "pcp.position.INS-hang-seng-index",
+     "pcp.position_role.INS-hang-seng-index",
+     "pcp.position.INS-private-equity",
+     "pcp.position_role.INS-private-equity",
+     "pcp.position.INS-global-macro",
+     "pcp.position_role.INS-global-macro"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "fit",
+    "title": "How the allocation came about",
+    "fact_ids": [
+     "pcp.objective",
+     "pcp.objective_floor",
+     "pcp.weight_leverage",
+     "pcp.solver_method",
+     "pcp.solver_converged",
+     "pcp.constraint_rows",
+     "pcp.binding_rows",
+     "pcp.weak_share"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "limits",
+    "title": "What this report cannot say",
+    "fact_ids": [
+     "pcp.warning.0",
+     "pcp.warning.1",
+     "pcp.warning.2",
+     "lbs.gap.0",
+     "lbs.gap.1",
+     "lbs.gap.2",
+     "lbs.gap.3",
+     "lbs.gap.4",
+     "lbs.gap.5",
+     "lbs.gap.6",
+     "lbs.gap.7",
+     "lbs.gap.8",
+     "lbs.gap.9"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "sources",
+    "title": "Sources",
+    "fact_ids": [
+     "sources.as_of",
+     "sources.date.pcp",
+     "sources.date.lbs",
+     "caller.name"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   }
+  ],
+  "complete": true,
+  "warnings": [],
+  "html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>Report · Muster</title>\n<style>\n  :root{--ink:#1A1740;--soft:#5d4591;--line:#ECE8F4;--tint:#F6F4FB;--acc:#A059C1;\n        --warn:#C1445A;--ok:#2E7D64;--g1:#8890e7;--g2:#A059C1;--g3:#FEA479;--g4:#FFE8A1}\n  *{box-sizing:border-box}\n  body{margin:0;background:#fff;color:var(--ink);font:16px/1.62 \"Iowan Old Style\",\"Palatino Linotype\",Georgia,serif}\n  .w{max-width:860px;margin:0 auto;padding:44px 28px 90px}\n  .ey{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;letter-spacing:.14em;\n      text-transform:uppercase;color:var(--soft);font-weight:600}\n  h1{font-size:31px;line-height:1.2;margin:10px 0 4px;font-weight:600}\n  .lede{font-size:18px;color:#3b3363;margin:0}\n  .rule{height:3px;border-radius:3px;margin:24px 0 30px;\n        background:linear-gradient(110deg,var(--g1),var(--g2) 40%,var(--g3) 80%,var(--g4))}\n  h2{font-family:ui-sans-serif,system-ui,sans-serif;font-size:15px;margin:38px 0 10px;\n     padding-top:16px;border-top:1px solid var(--line);font-weight:700}\n  h2 .ix{display:inline-block;min-width:2.1em;color:var(--acc);font-variant-numeric:tabular-nums}\n  h3{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.5px;margin:20px 0 5px}\n  p{margin:0 0 12px}\n  .box{background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:15px 19px;margin:18px 0}\n  .box.warn{background:#FDF3F5;border-color:#F0D3DA}\n  .box.ok{background:#F1F8F5;border-color:#CFE6DC}\n  .box.draft{background:#FCFBFE;border-style:dashed;border-color:#D8CEE8}\n  .banner{border:1px solid var(--line);border-radius:12px;padding:13px 17px;margin:14px 0 0;\n          background:var(--tint)}\n  .chips{display:flex;gap:8px;flex-wrap:wrap;font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px}\n  .chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--soft)}\n  .chip b{color:var(--ink);font-variant-numeric:tabular-nums}\n  .box p{font-size:14.6px;margin:0 0 8px}\n  .box p:last-child{margin:0}\n  .tag{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10.5px;font-weight:700;\n       letter-spacing:.09em;text-transform:uppercase;display:block;margin-bottom:5px}\n  .tag.w{color:var(--warn)} .tag.o{color:var(--ok)} .tag.n{color:var(--acc)}\n  table{width:100%;border-collapse:collapse;margin:10px 0 6px;\n        font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.4px}\n  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}\n  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}\n  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}\n  .neg{color:var(--warn)} .pos{color:var(--ok)}\n  tr.tot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:700}\n  small{font-size:12.4px;color:var(--soft);font-family:ui-sans-serif,system-ui,sans-serif}\n  .foot{margin-top:40px;padding-top:15px;border-top:1px solid var(--line);\n        font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft)}\n  code{font:11.5px ui-monospace,Consolas,monospace}\n  ul{margin:6px 0 12px;padding-left:22px}\n  li{margin-bottom:6px}\n  @media print{body{font-size:11pt}.w{padding:0}h2{page-break-after:avoid}.box{page-break-inside:avoid}}\n</style>\n</head>\n<body>\n<div class=\"w\">\n<div class=\"ey\">eigentliCH · Report</div>\n<h1>Report</h1>\n<p class=\"lede\">As of <span data-fact=\"sources.as_of\">28 September 2026</span>. Every figure in this report comes from a published artefact; where from is set out in the last section.</p>\n<div class=\"banner\"><div class=\"chips\"><span class=\"chip\">Client <b data-fact=\"caller.name\">Muster</b></span></div></div>\n\n<div class=\"rule\"></div>\n<section id=\"sec-household\" data-section=\"household\"><h2><span class=\"ix\">01</span>The household</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Adults</td><td class=\"n\"><span data-fact=\"lbs.household.adults\">2</span></td></tr><tr><td>Dependants</td><td class=\"n\"><span data-fact=\"lbs.household.dependants\">1</span></td></tr><tr><td>Composition recorded on</td><td class=\"n\"><span data-fact=\"lbs.household.composition_as_of\">15 March 2026</span></td></tr></table></section><section id=\"sec-balance_sheet\" data-section=\"balance_sheet\"><h2><span class=\"ix\">02</span>The balance sheet</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Total assets</td><td class=\"n\"><span data-fact=\"lbs.totals.total_assets\">CHF 1,815,000</span></td></tr><tr><td>Financial assets</td><td class=\"n\"><span data-fact=\"lbs.totals.financial_assets\">CHF 1,775,000</span></td></tr><tr><td>Human assets</td><td class=\"n\"><span data-fact=\"lbs.totals.human_assets\">CHF 40,000</span></td></tr><tr><td>Liabilities</td><td class=\"n\"><span data-fact=\"lbs.totals.liabilities\">CHF 780,000</span></td></tr><tr><td>Net worth</td><td class=\"n\"><span data-fact=\"lbs.totals.net_worth\">CHF 1,035,000</span></td></tr><tr><td>Drawable</td><td class=\"n\"><span data-fact=\"lbs.totals.drawable\">CHF 95,000</span></td></tr><tr><td>Balance identity holds</td><td class=\"n\"><span data-fact=\"lbs.totals.identity_holds\">yes</span></td></tr><tr><td>freely available</td><td class=\"n\"><span data-fact=\"lbs.vessel.free\">CHF 95,000</span></td></tr><tr><td>2nd pillar</td><td class=\"n\"><span data-fact=\"lbs.vessel.pillar_2\">CHF 430,000</span></td></tr><tr><td>real assets</td><td class=\"n\"><span data-fact=\"lbs.vessel.real_asset\">CHF 1,250,000</span></td></tr></table></section><section id=\"sec-grid\" data-section=\"grid\"><h2><span class=\"ix\">03</span>The roles of the balance sheet</h2><table><tr><th>Role and capital type</th><th class=\"n\">Assets</th><th class=\"n\">Liabilities</th></tr><tr><td>Growth, human capital</td><td class=\"n\"><span data-fact=\"lbs.cell.gain.human.assets\">CHF 40,000</span></td><td class=\"n\">–</td></tr><tr><td>Stabilisation, financial capital</td><td class=\"n\"><span data-fact=\"lbs.cell.stabilisation.financial.assets\">CHF 1,345,000</span></td><td class=\"n\"><span data-fact=\"lbs.cell.stabilisation.financial.liabilities\">CHF 780,000</span></td></tr><tr><td>Protection, financial capital</td><td class=\"n\"><span data-fact=\"lbs.cell.protection.financial.assets\">CHF 430,000</span></td><td class=\"n\">–</td></tr></table></section><section id=\"sec-income\" data-section=\"income\"><h2><span class=\"ix\">04</span>Income</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Income, human capital</td><td class=\"n\"><span data-fact=\"lbs.cell.income.human.flows\">CHF 174,000 a year</span></td></tr><tr><td>Household income</td><td class=\"n\"><span data-fact=\"lbs.totals.household_income\">CHF 174,000 a year</span></td></tr></table></section><section id=\"sec-human_capital\" data-section=\"human_capital\"><h2><span class=\"ix\">05</span>Human capital</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Person 1: Expertise (E)</td><td class=\"n\"><span data-fact=\"lbs.human.p1.E\">not available: The intake does not ask about this.</span></td></tr><tr><td>Person 1: Network (N)</td><td class=\"n\"><span data-fact=\"lbs.human.p1.N\">not available: The question was asked and left unanswered.</span></td></tr><tr><td>Person 1: Health (H)</td><td class=\"n\"><span data-fact=\"lbs.human.p1.H\">not available: The question was asked and left unanswered.</span></td></tr><tr><td>Person 1: Earning power</td><td class=\"n\"><span data-fact=\"lbs.human.p1.earning_power\">not available: Earning power is computed by another model; this report does not contain it.</span></td></tr><tr><td>Person 2: Expertise (E)</td><td class=\"n\"><span data-fact=\"lbs.human.p2.E\">not available: The intake does not ask about this.</span></td></tr><tr><td>Person 2: Network (N)</td><td class=\"n\"><span data-fact=\"lbs.human.p2.N\">not available: The question was asked and left unanswered.</span></td></tr><tr><td>Person 2: Health (H)</td><td class=\"n\"><span data-fact=\"lbs.human.p2.H\">not available: The question was asked and left unanswered.</span></td></tr><tr><td>Person 2: Earning power</td><td class=\"n\"><span data-fact=\"lbs.human.p2.earning_power\">not available: Earning power is computed by another model; this report does not contain it.</span></td></tr></table></section><section id=\"sec-pensions\" data-section=\"pensions\"><h2><span class=\"ix\">06</span>Pensions</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Person 1: AHV pension</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.ahv\">not available: The basis for this calculation is not yet approved, so no figure is shown.</span></td></tr><tr><td>Person 1: Pension fund balance today</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.opening\">CHF 310,000</span></td></tr><tr><td>Person 1: Retirement age of the projection</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.to_age\">65</span></td></tr><tr><td>Person 1: Pension fund balance at retirement</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.closing\">CHF 519,881</span></td></tr><tr><td>Person 1: Conversion rate</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.conversion\">6.80%</span></td></tr><tr><td>Person 1: BVG pension a year</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.yearly\">CHF 35,352 a year</span></td></tr><tr><td>Person 2: AHV pension</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.ahv\">not available: The basis for this calculation is not yet approved, so no figure is shown.</span></td></tr><tr><td>Person 2: Pension fund balance today</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.opening\">CHF 120,000</span></td></tr><tr><td>Person 2: Retirement age of the projection</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.to_age\">65</span></td></tr><tr><td>Person 2: Pension fund balance at retirement</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.closing\">CHF 257,360</span></td></tr><tr><td>Person 2: Conversion rate</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.conversion\">6.80%</span></td></tr><tr><td>Person 2: BVG pension a year</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.yearly\">CHF 17,500 a year</span></td></tr><tr><td>AHV couple cap</td><td class=\"n\"><span data-fact=\"lbs.couple_cap\">not available: The basis for this calculation is not yet approved, so no figure is shown.</span></td></tr></table></section><section id=\"sec-risk\" data-section=\"risk\"><h2><span class=\"ix\">07</span>The risk profile</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Risk profile</td><td class=\"n\"><span data-fact=\"lbs.risk\">not available: The basis for this calculation is not yet approved, so no figure is shown.</span></td></tr></table></section><section id=\"sec-mandate\" data-section=\"mandate\"><h2><span class=\"ix\">08</span>The mandate proposal</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Mandate proposal</td><td class=\"n\"><span data-fact=\"lbs.mandate.name\">Your goal</span></td></tr><tr><td>Target amount</td><td class=\"n\"><span data-fact=\"lbs.mandate.target\">CHF 180,000</span></td></tr><tr><td>Horizon in years</td><td class=\"n\"><span data-fact=\"lbs.mandate.horizon\">4.75</span></td></tr><tr><td>Drawable</td><td class=\"n\"><span data-fact=\"lbs.mandate.drawable\">CHF 95,000</span></td></tr><tr><td>Contribution a year</td><td class=\"n\"><span data-fact=\"lbs.mandate.contribution\">CHF 15,000 a year</span></td></tr><tr><td>Required return a year</td><td class=\"n\"><span data-fact=\"lbs.mandate.required_return\">2.15%</span></td></tr><tr><td>Reachable</td><td class=\"n\"><span data-fact=\"lbs.mandate.feasible\">yes</span></td></tr><tr><td>Complete</td><td class=\"n\"><span data-fact=\"lbs.mandate.complete\">no</span></td></tr><tr><td>Status</td><td class=\"n\"><span data-fact=\"lbs.mandate.release_state\">not released</span></td></tr></table></section><section id=\"sec-allocation\" data-section=\"allocation\"><h2><span class=\"ix\">09</span>The allocation</h2><p>The weights are the solution of a model for the mandate <span data-fact=\"pcp.mandate_name\">balanced</span> as of <span data-fact=\"pcp.date\">31 December 2024</span>. They are <span data-fact=\"pcp.release_state\">not released</span>: releasing them is a person's decision outside this report.</p><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Budget met (weights sum to one)</td><td class=\"n\"><span data-fact=\"pcp.budget_met\">yes</span></td></tr><tr><td>Building blocks with weight</td><td class=\"n\"><span data-fact=\"pcp.positions_held\">7</span></td></tr><tr><td>Building blocks in the universe</td><td class=\"n\"><span data-fact=\"pcp.universe_size\">54</span></td></tr></table></section><section id=\"sec-roles\" data-section=\"roles\"><h2><span class=\"ix\">10</span>Weight by role</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Gain</td><td class=\"n\"><span data-fact=\"pcp.role.Gain\">45.0%</span></td></tr><tr><td>Income</td><td class=\"n\"><span data-fact=\"pcp.role.Income\">15.0%</span></td></tr><tr><td>Stabilisation</td><td class=\"n\"><span data-fact=\"pcp.role.Stabilisation\">25.0%</span></td></tr><tr><td>Protection</td><td class=\"n\"><span data-fact=\"pcp.role.Protection\">15.0%</span></td></tr></table></section><section id=\"sec-positions\" data-section=\"positions\"><h2><span class=\"ix\">11</span>The building blocks</h2><table><tr><th>Building block</th><th>Role</th><th class=\"n\">Weight</th></tr><tr><td>Bloomberg Market Neutral HF</td><td><span data-fact=\"pcp.position_role.INS-bloomberg-market-neutral-hf\">Stabilisation</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-bloomberg-market-neutral-hf\">15.0%</span></td></tr><tr><td>Global Equities</td><td><span data-fact=\"pcp.position_role.INS-global-equities\">Gain</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-global-equities\">15.0%</span></td></tr><tr><td>Global Governmental Bonds</td><td><span data-fact=\"pcp.position_role.INS-global-governmental-bonds\">Protection</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-global-governmental-bonds\">15.0%</span></td></tr><tr><td>Global High Yields</td><td><span data-fact=\"pcp.position_role.INS-global-high-yields\">Income</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-global-high-yields\">15.0%</span></td></tr><tr><td>Hang Seng Index</td><td><span data-fact=\"pcp.position_role.INS-hang-seng-index\">Gain</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-hang-seng-index\">15.0%</span></td></tr><tr><td>Private Equity</td><td><span data-fact=\"pcp.position_role.INS-private-equity\">Gain</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-private-equity\">15.0%</span></td></tr><tr><td>Global Macro</td><td><span data-fact=\"pcp.position_role.INS-global-macro\">Stabilisation</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-global-macro\">10.0%</span></td></tr></table></section><section id=\"sec-fit\" data-section=\"fit\"><h2><span class=\"ix\">12</span>How the allocation came about</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Objective</td><td class=\"n\"><span data-fact=\"pcp.objective\">28.99</span></td></tr><tr><td>Objective with nothing allocated</td><td class=\"n\"><span data-fact=\"pcp.objective_floor\">29.16</span></td></tr><tr><td>Share the weights move</td><td class=\"n\"><span data-fact=\"pcp.weight_leverage\">0.60%</span></td></tr><tr><td>Method</td><td class=\"n\"><span data-fact=\"pcp.solver_method\">SLSQP</span></td></tr><tr><td>Solve converged</td><td class=\"n\"><span data-fact=\"pcp.solver_converged\">yes</span></td></tr><tr><td>Constraint rows</td><td class=\"n\"><span data-fact=\"pcp.constraint_rows\">75</span></td></tr><tr><td>of which binding</td><td class=\"n\"><span data-fact=\"pcp.binding_rows\">20</span></td></tr><tr><td>Weight on borrowed or seeded profiles</td><td class=\"n\"><span data-fact=\"pcp.weak_share\">100.0%</span></td></tr></table></section><section id=\"sec-limits\" data-section=\"limits\"><h2><span class=\"ix\">13</span>What this report cannot say</h2><div class=\"box\"><ul><li><small>Allocation:</small> <span data-fact=\"pcp.warning.0\">Every building block has the same ESG score, so the ESG requirement does not tell them apart.</span></li><li><small>Allocation:</small> <span data-fact=\"pcp.warning.1\">The weights decide only a small part of the objective: the allocation follows mainly the mandate&#x27;s constraints.</span></li><li><small>Allocation:</small> <span data-fact=\"pcp.warning.2\">Part of the weight is on building blocks whose profiles rest on borrowed or seeded values.</span></li><li><small>Human capital:</small> <span data-fact=\"lbs.gap.0\">Earning power is computed by another model; this report does not contain it.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.1\">Expertise (E): The intake does not ask about this.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.2\">Health (H): The question was asked and left unanswered.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.3\">Network (N): The question was asked and left unanswered.</span></li><li><small>Person 2:</small> <span data-fact=\"lbs.gap.4\">Expertise (E): The intake does not ask about this.</span></li><li><small>Person 2:</small> <span data-fact=\"lbs.gap.5\">Health (H): The question was asked and left unanswered.</span></li><li><small>Person 2:</small> <span data-fact=\"lbs.gap.6\">Network (N): The question was asked and left unanswered.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.7\">The basis of the AHV calculation is not yet approved; no AHV pension is shown.</span></li><li><small>Person 2:</small> <span data-fact=\"lbs.gap.8\">The basis of the AHV calculation is not yet approved; no AHV pension is shown.</span></li><li><small>Risk profile:</small> <span data-fact=\"lbs.gap.9\">The rules of the risk profile are not yet approved; no profile is derived.</span></li></ul></div></section><section id=\"sec-sources\" data-section=\"sources\"><h2><span class=\"ix\">14</span>Sources</h2><table><tr><th>Source</th><th>As of</th></tr><tr><td>Your portfolio allocation</td><td><span data-fact=\"sources.date.pcp\">31 December 2024</span></td></tr><tr><td>Your balance sheet</td><td><span data-fact=\"sources.date.lbs\">28 September 2026</span></td></tr></table><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>As of</td><td class=\"n\"><span data-fact=\"sources.as_of\">28 September 2026</span></td></tr></table></section>\n<div class=\"foot\">Calibration <code>1.0.0</code> · <code>report@1.2.0</code>. This report sets out a position and is not a recommendation. Model-derived research output. Not investment advice.</div>\n</div>\n</body>\n</html>\n",
+  "provenance": {
+   "engine_version": "report@1.2.0",
+   "contract_versions": {
+    "ReportRequest": "report-request@1.0.0",
+    "Report": "report@1.0.0",
+    "Calibration": "report-calibration@1.0.0",
+    "Allocation(pcp)": "pcp-allocation@1.0.0",
+    "LifeBalanceSheet(lbs)": "lbs-balance-sheet@1.0.0"
+   },
+   "calibration_version": "1.0.0",
+   "calibration_hash": "CAL-a41add0042ff3a9d",
+   "idempotency_key": "IDK-4924b96c6e940367",
+   "request_id": "RRQ-d74a099605e6cbe5",
+   "sources": [
+    {
+     "engine": "pcp",
+     "artefact_id": "PCP-e213eab0625c0b86",
+     "contract_version": "pcp-allocation@1.0.0",
+     "sha256": "754bf0d6ce9d97a64369e7725764d94d23666fd0f2fa00cbd031c0a02c9cb432",
+     "url": "http://127.0.0.1:8007/allocation/PCP-e213eab0625c0b86"
+    },
+    {
+     "engine": "lbs",
+     "artefact_id": "LBS-87187d7cbb0454b5",
+     "contract_version": "lbs-balance-sheet@1.0.0",
+     "sha256": "ef793a1ef16f849af7b496cd49874df6157aeb3d0eb925f40d53e7a76ae5e75e",
+     "url": "http://127.0.0.1:8013/artefacts/LBS-87187d7cbb0454b5"
+    }
+   ],
+   "previous_report_id": null,
+   "model": null,
+   "label": "model-derived"
+  },
+  "notice": "Model-derived research output. Not investment advice."
+ }
+}

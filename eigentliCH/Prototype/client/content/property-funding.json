@@ -1,0 +1,92 @@
+{
+  "_about": {
+    "requirement": "Four of the eleven goals across the six real submissions are property purchases, and they carry the largest figures any member wrote down. A property goal is not answered by asking whether the member can save the price: property is bought with a mortgage, against an equity floor and an affordability ceiling that bind independently, plus an occupancy rule that is not a matter of degree at all.",
+    "why_a_content_record": "Every figure here is a banking self-regulation floor or a lender test convention. None is an engine output and none is a market forecast, so services/assumptions.py has no business composing them — it reads market_signal and return_estimation and refuses to invent any value of its own. They are also emphatically not values for application code to carry: a bare 0.05 in services/ is the defect C-02 exists to prevent, and the imputed rate is the most tempting one to inline because it looks like a market rate and is not. Published here, the same way the validity horizons are.",
+    "what_a_reader_should_know": "These are the conventions lenders commonly apply, and they vary at the margin between lenders. Nothing here is a lending decision or a promise that any particular bank would lend. A finding built on this record says what the standard tests produce, and says which record it read.",
+
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-04",
+    "effective_from": "2026-09-04",
+    "provisional": false,
+    "_approval": "Approved as drafted by the owner on 4 September 2026, after the six real submissions were run against it. The 20 % and 10 % are self-regulation; the 30 % for a second or holiday home and the 25 % for a let property are market practice and were approved knowing they vary more widely between lenders than anything else here. services/property.py refuses to compute anything from this record if `provisional` returns to true or `published_by` is emptied.",
+
+    "sources": [
+      "Swiss Bankers Association self-regulation on mortgage financing (minimum equity, and the exclusion of pillar 2 assets from the hard-equity portion)",
+      "BVG/OPA and BVV3 on early withdrawal for residential property — Wohneigentumsförderung, restricted to a property the member occupies themselves",
+      "Common lender practice for the affordability test: an imputed rate well above the market rate, plus maintenance, plus amortisation of the portion above the first mortgage"
+    ]
+  },
+
+  "occupancy": {
+    "_about": "The three ways a member can hold a property, and the only thing that decides whether pension capital may fund it. NOT derivable from the goal's name: the six submissions wrote «Wohneigentum», «Eigenheim», «Eigentum kaufen» and «Ferienhaus kaufen», and only the last is unambiguous. One member's goal says Wohneigentum while their own question describes letting it out, so even a single member has to be asked.",
+
+    "owner_occupied_primary": {
+      "label": {
+        "de": "Ich wohne selbst darin",
+        "en": "I live in it myself",
+        "en_draft": true
+      },
+      "equity_min": 0.20,
+      "hard_equity_min": 0.10,
+      "pillar2_may_fund": true,
+      "pillar3a_may_fund": true,
+      "why": "The only case in which pillar 2 and pillar 3a may be drawn or pledged at all. Pillar 3a counts toward the hard-equity portion; pillar 2 does not, so the occupational pension can cover at most half the deposit."
+    },
+
+    "second_or_holiday_home": {
+      "label": {
+        "de": "Ein Zweit- oder Ferienobjekt",
+        "en": "A second home or holiday property",
+        "en_draft": true
+      },
+      "equity_min": 0.30,
+      "hard_equity_min": 0.30,
+      "pillar2_may_fund": false,
+      "pillar3a_may_fund": false,
+      "why": "Not a primary residence, so no Vorsorge capital may be used — the whole deposit is hard equity. Lenders also require more of it than for a home the member lives in, and the 30 % here is the common floor rather than a rule with a statute behind it.",
+      "_provisional_note": "The 20 % and 10 % above are self-regulation. This 30 % is market practice and varies more widely between lenders than anything else in this record."
+    },
+
+    "let_to_someone_else": {
+      "label": {
+        "de": "Ich vermiete es",
+        "en": "I let it out",
+        "en_draft": true
+      },
+      "equity_min": 0.25,
+      "hard_equity_min": 0.25,
+      "pillar2_may_fund": false,
+      "pillar3a_may_fund": false,
+      "affordability_is_determinable": false,
+      "affordability_undeterminable_why": "The income that carries a let property is substantially its rent, and rental income is in `not_modelled`. An affordability test computed without it does not understate the member's position slightly -- it omits the whole point of the purchase, and would report `does_not_meet` on a calculation the lender would not recognise. Machine-readable form of what `_provisional_note` below has said since this record was approved.",
+      "why": "An investment property, not a residence, so again no Vorsorge capital. Lenders commonly want a quarter down and assess the rent conservatively rather than counting it in full.",
+      "_provisional_note": "Rental income is deliberately NOT modelled here. Counting it would change the affordability test's shape rather than its numbers, and how conservatively a lender haircuts a rent is a per-lender judgement nobody has published. A finding for this occupancy reports the equity test and says the affordability test could not be determined, rather than guessing."
+    }
+  },
+
+  "affordability": {
+    "_about": "The Tragbarkeit test. Its whole purpose is that it is computed at a rate the member is NOT paying: a mortgage stays affordable at a rate well above today's. Reporting it against an actual rate would defeat the test.",
+    "imputed_rate": 0.05,
+    "imputed_rate_why": "A test convention, not a forecast and not a market rate. It is deliberately higher than any rate on offer, so that a loan taken today survives a rate it may meet later. This figure is the one most often inlined by mistake, which is why C-02's argument is repeated here.",
+    "maintenance_and_ancillary": 0.01,
+    "maintenance_why": "Upkeep, ancillary charges and the reserve a lender assumes, as a fraction of the purchase price per year.",
+    "max_share_of_gross_income": 0.3333333333333333,
+    "max_share_why": "One third of gross household income. A household figure, not a member figure — which is why this test needs the household model and cannot be computed from one member's income where a couple is buying together.",
+    "first_mortgage_max": 0.6666666666666666,
+    "amortisation_years": 15,
+    "amortisation_why": "The portion of the loan above the first mortgage must be repaid within this many years, and that repayment counts in the affordability test rather than sitting outside it."
+  },
+
+  "not_modelled": {
+    "_about": "Named rather than approximated. Each of these would change a figure this record produces, and inventing any of them would put a number in front of a member that no source stands behind.",
+    "items": [
+      "Rental income on a let property, and the haircut a lender applies to it.",
+      "The reduction in pension benefit and in death or disability cover that follows a pillar 2 withdrawal — real, member-specific, and not derivable from a balance alone.",
+      "The pillar 2 withdrawal limits that apply from age 50, which cap the amount at the higher of the balance at 50 or half the current balance.",
+      "The minimum withdrawal of CHF 20'000 and the five-year interval between withdrawals.",
+      "Tax on a pillar 2 or 3a withdrawal, and the deduction lost on a 3a no longer held.",
+      "Cantonal and lender variation in every figure above.",
+      "Imputed rental value (Eigenmietwert) and the tax treatment of mortgage interest, which change the true cost of holding a property and are not part of the lender's test."
+    ]
+  }
+}

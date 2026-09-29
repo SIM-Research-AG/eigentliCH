@@ -1,0 +1,12 @@
+{
+  "sha256": {
+    "mrs.json": "59f0a0b72e49eec58b75d1bc28e96943407b5a10b591c28db65e0a7dd9112fa6",
+    "cycle.json": "1747a54cb3d5913839dfdd28836b47ff5e7324201aabe8829d5a7796b3347c7b",
+    "macrofield.json": "f66cf6592982eab05f9535307374b133263f8d3e40708c6cde4a3754b300f6fc"
+  },
+  "artefacts": {
+    "mrs": "MRS-7e97c0cadb73be82",
+    "cycle": "CYS-ae1207d818257915",
+    "macrofield": "MFS-6183873b127fcd58"
+  }
+}

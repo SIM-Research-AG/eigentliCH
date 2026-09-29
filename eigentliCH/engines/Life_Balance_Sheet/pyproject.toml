@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "personal_alm"
+version = "0.1.0"
+description = "Personal asset-liability management as stochastic optimal control (the Life Balance Sheet engine)"
+authors = [{ name = "Nicolas Bürkler" }]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+# Route A optimiser (Chapter 10 / spec §11) — pulled in when we reach the solver step.
+optim = ["casadi>=3.6"]
+viz = ["matplotlib>=3.8"]
+dev = ["pytest>=8.0", "pytest-xdist>=3.8", "hypothesis>=6.0", "casadi>=3.6"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["personal_alm*"]
+
+[tool.pytest.ini_options]
+testpaths = ["personal_alm/tests"]
+
+# The suite is 250 instant tests plus five that solve the NLP, and for months it was priced as if all 255
+# were expensive. Measured 21 August 2026: test_report's 17 tests take 178 s, of which two take 176 s each
+# and the other fifteen take under 5 ms combined -- they build a synthetic CaseResult and never solve. The
+# flagship seed sweep in test_cases is worse: three full solves at M_opt=32 with three starts each.
+#
+#   pytest                            the default. Everything except the solves. Measured 45 s.
+#   pytest -m slow --dist loadfile -n 4   only the solves. `--dist loadfile` IS REQUIRED, see below.
+#   pytest -m "" --dist loadfile -n 4     everything.
+#
+# **`-n auto` MAKES THE SLOW LANE SLOWER, and this was measured rather than reasoned.** `-m slow -n auto`
+# across twenty cores took 1:10:39, against about 33 minutes of serial cost for the same tests. The cause is
+# that the expensive work lives in MODULE-SCOPED FIXTURES and xdist builds a fixture once PER WORKER: test_optim
+# has seven slow tests sharing one `sol_90`, so the default `--dist load` scatters them over seven workers and
+# pays that 138-second solve seven times. Parallelism multiplied the very cost the fixture existed to share.
+#
+# `--dist loadfile` keeps every test of a file on one worker, so each fixture is built once and the four files
+# that contain slow tests run alongside each other. `-n 4` because four files is all there is to distribute;
+# asking for twenty workers to run four groups just starts sixteen idle interpreters.
+#
+# The default DESELECTS rather than skips, so pytest prints "N deselected" every time and the exclusion is
+# visible. That distinction is the same one the findings engine makes: a check that did not run is not a
+# check that passed, and a suite that hides its expensive half silently is worse than a slow one.
+addopts = "-m 'not slow' --durations=10"
+markers = [
+  "slow: reaches the optimiser. Minutes to hours, so excluded from the default run.",
+]

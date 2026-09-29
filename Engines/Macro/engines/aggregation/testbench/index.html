@@ -1,0 +1,459 @@
+<!doctype html>
+<!--
+  Aggregation layer test bench. Development only: not part of the system and not in the deploy folder.
+
+  A client of the engine's HTTP surface, nothing more: every figure is read from aggregation, mrs
+  and macrofield endpoints. Served by the engine at "/", or by the cockpit at /bench/aggregation/
+  (then ?api=/api/aggregation and the upstreams are the cockpit's /api/mrs, /api/cycle and
+  /api/macrofield), or opened off disk, when it calls http://127.0.0.1:8004 and the upstreams on
+  their default ports. Plotly from CDN, no build step (Engine Building Guide section 3).
+
+  Colour: the house palette of the other benches. Fixed categorical slots per entity: macro 1,
+  market 2, cycle 3 in Contributions; Defensive 1, Default 2, Aggressive 3, Rogue 4 in Optimism;
+  Depression 1, Hyperinflation 2, Stagflation 3, Deferral 4 and the base Regime grey in Scenarios.
+  The crisis tail (states 1 to 5) is a shaded band; figures are also in the tables.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aggregation test bench</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --rest: #c3c2b7;
+    --critical: #d03b3b; --good: #0ca30c; --band: rgba(208,59,59,0.08); --carry: rgba(42,120,214,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --rest: #4a4a47;
+      --band: rgba(230,103,103,0.12); --carry: rgba(57,135,229,0.14);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --rest: #4a4a47;
+    --band: rgba(230,103,103,0.12); --carry: rgba(57,135,229,0.14);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; }
+  #sub { color: var(--ink-2); font-size: 12px; }
+  #themeBtn { margin-left: auto; }
+  nav { display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--grid); overflow-x: auto; }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 12px; color: var(--ink-2); font: inherit; cursor: pointer; white-space: nowrap; }
+  nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--s1); font-weight: 600; }
+  main { padding: 16px 24px 48px; max-width: 1320px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 16px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  input, select, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  button { cursor: pointer; } button:disabled { opacity: .55; cursor: default; }
+  button.primary { background: var(--s1); color: #fff; border-color: var(--s1); }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; margin-bottom: 16px; min-width: 0; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; }
+  .q { color: var(--ink-2); margin: 0 0 10px; font-size: 13px; }
+  .note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 10px 12px; }
+  .tile .v { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tile .k { color: var(--ink-2); font-size: 12px; }
+  .chart { width: 100%; height: 400px; }
+  .side { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .side { grid-template-columns: 1fr; } }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; vertical-align: top; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  .warn::before { content: "\26A0  "; color: var(--critical); }
+  .ok::before { content: "\2713  "; color: var(--good); font-weight: 700; }
+  .err { border-left: 3px solid var(--critical); }
+  code, pre { font: 12px ui-monospace, Consolas, monospace; }
+  pre { background: var(--page); padding: 8px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Aggregation layer · test bench</h1>
+  <span id="sub">connecting…</span>
+  <button id="themeBtn" type="button">Theme</button>
+</header>
+<nav id="tabs" role="tablist"></nav>
+<main>
+  <div class="filters">
+    <label>Engine <input id="api" size="24"></label>
+    <label>Regime <select id="regime"></select></label>
+    <label>Economy or market <select id="economy"></select></label>
+  </div>
+  <div id="panel"></div>
+</main>
+<script>
+"use strict";
+const DEFAULT_API = "http://127.0.0.1:8004";
+const DEFAULT_UP = { mrs: "http://127.0.0.1:8005", cycle: "http://127.0.0.1:8012", macrofield: "http://127.0.0.1:8003" };
+const LEVELS = ["defensive", "default", "aggressive", "rogue"];
+const SLOT = { macro: "--s1", market: "--s2", cycle: "--s3", defensive: "--s1", default: "--s2", aggressive: "--s3", rogue: "--s4",
+               depression: "--s1", hyperinflation: "--s2", stagflation: "--s3", deferral: "--s4" };
+const POLICIES = ["depression", "hyperinflation", "stagflation", "deferral"];
+const params = new URLSearchParams(location.search);
+const store = { get(k) { try { return localStorage.getItem("aggregation." + k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem("aggregation." + k, v); } catch {} } };
+const $ = id => document.getElementById(id);
+$("api").value = params.get("api") || store.get("api") || (location.protocol === "file:" ? DEFAULT_API : location.origin);
+const S = { tab: store.get("tab") || "run", runs: [], scenarios: [], current: null, regime: null, full: {}, runDetail: {} };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (v, d = 2) => v === null || v === undefined ? "–" : Number(v).toFixed(d);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const base = () => $("api").value.replace(/\/$/, "");
+
+/** An upstream's base URL: beside aggregation behind the cockpit proxy, else its default port. */
+function upstream(key) {
+  const b = base();
+  if (/\/api\/aggregation$/.test(b)) return b.replace(/aggregation$/, key);
+  return store.get("up." + key) || DEFAULT_UP[key];
+}
+async function get(url, init) {
+  let r;
+  try { r = await fetch(url, init); } catch { throw new Error(`cannot reach ${url.split("/").slice(0, 3).join("/")}. Is the engine running?`); }
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${url.replace(location.origin, "")} → ${r.status} ${text.slice(0, 300)}`);
+  return text ? JSON.parse(text) : null;
+}
+const call = (path, init) => get(base() + path, init);
+const post = (path, body) => call(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+
+function layout(extra = {}) {
+  const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false, tickfont: { color: css("--muted") }, title: { font: { color: css("--ink-2") } } };
+  const merged = Object.assign({
+    paper_bgcolor: css("--surface"), plot_bgcolor: css("--surface"),
+    font: { family: "system-ui, -apple-system, Segoe UI, sans-serif", color: css("--ink"), size: 12 },
+    margin: { l: 56, r: 24, t: 16, b: 48 }, hovermode: "closest", showlegend: true,
+    legend: { orientation: "h", y: -0.2, font: { color: css("--ink-2") } },
+    hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--axis"), font: { color: css("--ink") } },
+  }, extra);
+  merged.xaxis = Object.assign({}, axis, extra.xaxis || {}); merged.yaxis = Object.assign({}, axis, extra.yaxis || {});
+  return merged;
+}
+function plot(el, traces, lay) { Plotly.react(el, traces, layout(lay), { displaylogo: false, responsive: true }); }
+function chartIn(host, h) { const d = document.createElement("div"); d.className = "chart"; if (h) d.style.height = h + "px"; host.append(d); return d; }
+function card(title, question, note) {
+  const d = document.createElement("section"); d.className = "card";
+  d.innerHTML = `<h2>${title}</h2>${question ? `<p class="q">${question}</p>` : ""}<div class="body"></div>${note ? `<p class="note">${note}</p>` : ""}`;
+  $("panel").appendChild(d); return d.querySelector(".body");
+}
+function problem(e) { const b = card("Problem", esc(e.message)); b.parentElement.classList.add("err"); }
+const STATES = Array.from({ length: 25 }, (_, i) => i + 1);
+const tailBand = () => ({ type: "rect", xref: "x", yref: "paper", x0: 0.5, x1: 5.5, y0: 0, y1: 1, fillcolor: css("--band"), line: { width: 0 }, layer: "below" });
+const tailNote = () => ({ x: 3, y: 1, xref: "x", yref: "paper", yanchor: "bottom", text: "crisis tail", showarrow: false, font: { color: css("--muted"), size: 11 } });
+
+// ---- tabs ------------------------------------------------------------------------------------
+const TABS = [["run", "Run"], ["distribution", "Distribution"], ["optimism", "Optimism"], ["path", "Path"],
+              ["contributions", "Contributions"], ["markets", "Markets"], ["scenarios", "Scenarios"]];
+function tabs() {
+  $("tabs").innerHTML = TABS.map(([k, l]) => `<button role="tab" data-k="${k}" aria-selected="${k === S.tab}">${l}</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => { S.tab = b.dataset.k; store.set("tab", S.tab); tabs(); render(); });
+}
+async function render() {
+  $("panel").innerHTML = "";
+  try {
+    if (S.tab === "run") return await renderRun();
+    if (!S.current) { card("No Regime yet", "Run one in the Run tab."); return; }
+    await ({ distribution: renderDistribution, optimism: renderOptimism, path: renderPath,
+             contributions: renderContributions, markets: renderMarkets, scenarios: renderScenarios })[S.tab]();
+  } catch (e) { problem(e); }
+}
+
+// ---- regimes and the economy list ---------------------------------------------------------------
+async function loadRuns() {
+  S.runs = (await call("/runs?limit=200")).filter(r => r.status === "succeeded" && r.regime_id);
+  const seen = new Set(), opts = [];
+  for (const r of S.runs) {
+    if (seen.has(r.regime_id)) continue; seen.add(r.regime_id);
+    opts.push(`<option value="${esc(r.regime_id)}" data-run="${esc(r.run_id)}">${esc(r.regime_id)} · ${esc(r.optimism_scale || "default")}</option>`);
+  }
+  S.scenarios = await call("/scenarios").catch(() => []);
+  const scen = S.scenarios.filter(x => !seen.has(x.regime_id))
+    .map(x => { seen.add(x.regime_id); return `<option value="${esc(x.regime_id)}">${esc(x.regime_id)} · ${esc(x.policy)} on ${esc(x.base_regime_id)}</option>`; });
+  $("regime").innerHTML = (opts.join("") + (scen.length ? `<optgroup label="Scenario Regimes">${scen.join("")}</optgroup>` : ""))
+    || `<option value="">no Regime yet</option>`;
+  const want = store.get("regime");
+  if (want && seen.has(want)) $("regime").value = want;
+}
+async function selectRegime() {
+  const id = $("regime").value;
+  S.regime = id || null; S.current = null;
+  if (!id) return;
+  store.set("regime", id);
+  S.current = await call(`/regime/${id}/current`);
+  const want = store.get("economy") || "US";
+  const opts = S.current.economies.map(e => `<option value="${e.code}">${esc(e.name)} (${e.code})</option>`).join("")
+             + `<optgroup label="Markets">${S.current.markets.map(m => `<option value="${m.code}">${m.code}</option>`).join("")}</optgroup>`;
+  $("economy").innerHTML = opts;
+  if ([...$("economy").options].some(o => o.value === want)) $("economy").value = want;
+  const sc = S.current.scenario;
+  $("sub").textContent = `${id} · ${S.current.optimism_scale}${sc ? ` · scenario ${sc.policy} on ${sc.base_regime_id}, represented by ${sc.scenario_date}` : ""} · ${S.current.economies.length} economies, ${S.current.markets.length} markets`;
+}
+const runOf = regimeId => S.runs.find(r => r.regime_id === regimeId);
+async function runDetail(runId) { if (!S.runDetail[runId]) S.runDetail[runId] = await call(`/runs/${runId}`); return S.runDetail[runId]; }
+async function fullRegime(id) { if (!S.full[id]) S.full[id] = await call(`/regime/${id}`); return S.full[id]; }
+const isMarket = code => S.current && S.current.markets.some(m => m.code === code);
+
+// ---- a. Run --------------------------------------------------------------------------------------
+async function renderRun() {
+  const b = card("Run", "Pick the three inputs and the optimism level, and issue a Regime. The same inputs twice are answered from the cache.",
+    "mrs and macrofield list their runs (GET /runs, newest first). cycle has no run listing, so its artefacts are the ones earlier Regimes read, or any id typed in. The snapshot-mismatch warning is expected (AGG-04).");
+  b.innerHTML = `<p class="q">Loading the upstream runs…</p>`;
+  const [mrs, macro] = await Promise.all([
+    get(upstream("mrs") + "/runs?limit=50").catch(e => ({ error: e.message })),
+    get(upstream("macrofield") + "/runs?limit=50").catch(e => ({ error: e.message }))]);
+  const cycleIds = [];
+  for (const r of S.runs.slice(0, 20)) {
+    try { const d = await runDetail(r.run_id); const c = d.provenance && d.provenance.upstream["cycle:artefact"]; if (c && !cycleIds.includes(c)) cycleIds.push(c); } catch {}
+  }
+  const opts = list => Array.isArray(list) ? list.filter(r => r.status === "succeeded" && r.artefact_id)
+    .map(r => `<option value="${esc(r.artefact_id)}">${esc(r.artefact_id)} · ${esc((r.finished_at || r.started_at || "").slice(0, 16).replace("T", " "))}</option>`).join("") : "";
+  b.innerHTML = `<div class="filters">
+      <label>mrs artefact <select id="inMrs">${opts(mrs)}</select></label>
+      <label>cycle artefact <input id="inCycle" list="cycleList" size="26" value="${esc(cycleIds[0] || "")}"><datalist id="cycleList">${cycleIds.map(c => `<option value="${esc(c)}">`).join("")}</datalist></label>
+      <label>macrofield artefact <select id="inMacro">${opts(macro)}</select></label>
+      <label>Optimism <select id="inLevel">${LEVELS.map(l => `<option${l === "default" ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+      <button class="primary" id="runBtn" type="button">Run</button>
+      <button id="runAllBtn" type="button">Run all four levels</button>
+    </div>
+    ${mrs.error ? `<p class="warn">mrs: ${esc(mrs.error)}</p>` : ""}${macro.error ? `<p class="warn">macrofield: ${esc(macro.error)}</p>` : ""}
+    <div id="runOut"></div>`;
+  const body = level => ({ mrs_artefact_id: $("inMrs").value, cycle_artefact_id: $("inCycle").value.trim(),
+                           macro_artefact_id: $("inMacro").value, optimism_scale: level });
+  const show = async results => {
+    const rows = [];
+    for (const r of results) {
+      const d = r.run_id ? await runDetail(r.run_id).catch(() => null) : null;
+      rows.push(`<tr><td>${esc(r.level)}</td><td><code>${esc(r.run_id)}</code></td><td><code>${esc(r.regime_id || "–")}</code></td><td>${r.cached ? "yes" : "no"}</td><td>${esc(r.status)}</td></tr>`
+        + (d ? `<tr><td></td><td colspan="4">${[...(d.coverage ? d.coverage.warnings : []), ...(d.warnings || [])].filter((w, i, a) => a.indexOf(w) === i).map(w => `<div class="warn">${esc(w)}</div>`).join("") || `<span class="ok">no warnings</span>`}${d.error ? `<div class="warn">${esc(d.error)}</div>` : ""}</td></tr>` : ""));
+    }
+    $("runOut").innerHTML = `<div class="scroll"><table><thead><tr><th>Level</th><th>run_id</th><th>regime_id</th><th>cached</th><th>status</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+    await loadRuns();
+    const last = results.find(r => r.level === $("inLevel").value) || results[0];
+    if (last && last.regime_id) { $("regime").value = last.regime_id; await selectRegime(); }
+  };
+  const go = async levels => {
+    $("runBtn").disabled = $("runAllBtn").disabled = true;
+    try {
+      const out = [];
+      for (const l of levels) out.push({ level: l, ...(await post("/run", body(l))) });
+      await show(out);
+    } catch (e) { $("runOut").innerHTML = `<p class="warn">${esc(e.message)}</p>`; }
+    finally { $("runBtn").disabled = $("runAllBtn").disabled = false; }
+  };
+  $("runBtn").onclick = () => go([$("inLevel").value]);
+  $("runAllBtn").onclick = () => go(LEVELS);
+}
+
+// ---- b. Distribution ---------------------------------------------------------------------------------
+function currentOf(code) {
+  return S.current.economies.find(e => e.code === code) || S.current.markets.find(m => m.code === code);
+}
+async function renderDistribution() {
+  const code = $("economy").value, cur = currentOf(code);
+  const d = await call(`/regime/${S.regime}/distribution?economy=${encodeURIComponent(code)}`);
+  const row = d.distributions[0].distribution;
+  const b = card(`${esc(cur.name || code)}: risk-state distribution, ${esc(d.date)}`,
+    "How is the probability spread over the 25 states (1 cautious, 25 aggressive) in the latest month?",
+    "The shaded states 1 to 5 are the crisis tail, kept in place by the optimism shift (AGG-15). State: the state nearest the mean; modal: the most likely state.");
+  b.innerHTML = `<div class="side"><div id="dChart"></div><div id="dSide"></div></div>`;
+  const el = chartIn($("dChart"), 380);
+  plot(el, [{ type: "bar", x: STATES, y: row, name: "probability", marker: { color: css("--s1"), line: { color: css("--surface"), width: 1 } },
+              hovertemplate: "state %{x}: %{y:.3f}<extra></extra>" }],
+       { showlegend: false, shapes: [tailBand()], annotations: [tailNote()], bargap: 0.1,
+         xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" } } });
+  if (!cur || cur.state === undefined || cur.state === null) { $("dSide").innerHTML = `<p class="q">Not assessed.</p>`; return; }
+  $("dSide").innerHTML = `<div class="tiles"><div class="tile"><div class="v">${cur.state}</div><div class="k">state (mean-nearest)</div></div>
+      <div class="tile"><div class="v">${cur.modal_state}</div><div class="k">modal state</div></div>
+      <div class="tile"><div class="v">${fmt(cur.crisis_tail)}</div><div class="k">crisis tail (states 1 to 5)</div></div></div>
+    <table><thead><tr><th>Regime</th><th>share</th></tr></thead><tbody>${["Crisis", "Contraction", "Stagnation", "Expansion", "Boom"]
+      .map(k => `<tr><td>${k}</td><td>${fmt(cur.five_regime[k])}</td></tr>`).join("")}</tbody></table>
+    <p class="note">${esc(cur.shape)}${cur.phase ? ` · phase ${cur.phase} ${esc(cur.phase_label)}, saturation ${fmt(cur.saturation_pct, 0)}%` : ""}${cur.macro_carried ? ` · macro reading of ${cur.macro_year} carried` : ""}</p>`;
+}
+
+// ---- c. Optimism ---------------------------------------------------------------------------------------
+async function renderOptimism() {
+  const code = $("economy").value, run = runOf(S.regime);
+  if (!run) { card("Optimism", "This is a scenario Regime: it has no run of its own. Its history keeps the base Regime's optimism level; the projected months move to the policy's target, unshifted (AGG-20). Pick the base Regime to compare the four levels."); return; }
+  const b = card(`${esc(code)}: the four optimism levels`, "The same three inputs at Defensive, Default, Aggressive and Rogue, overlaid (System Build Manual 10.5).",
+    "All four are run with this Regime's inputs; unchanged inputs are answered from the cache. The crisis tail stays in place at every level.");
+  b.innerHTML = `<p class="q">Running the four levels…</p>`;
+  const req = (await runDetail(run.run_id)).request;
+  const lines = [], ids = [];
+  for (const level of LEVELS) {
+    const r = await post("/run", { mrs_artefact_id: req.mrs_artefact_id, cycle_artefact_id: req.cycle_artefact_id,
+                                   macro_artefact_id: req.macro_artefact_id, optimism_scale: level, calibration_version: req.calibration_version || undefined });
+    const d = await call(`/regime/${r.regime_id}/distribution?economy=${encodeURIComponent(code)}`);
+    ids.push(`${level} <code>${esc(r.regime_id)}</code>${r.cached ? " (cached)" : ""}`);
+    lines.push({ x: STATES, y: d.distributions[0].distribution, name: level, mode: "lines+markers",
+                 line: { width: 2, color: css(SLOT[level]) }, marker: { size: 6 }, hovertemplate: `${level}, state %{x}: %{y:.3f}<extra></extra>` });
+  }
+  b.innerHTML = "";
+  plot(chartIn(b, 420), lines, { shapes: [tailBand()], annotations: [tailNote()], hovermode: "x unified",
+       xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" } } });
+  b.insertAdjacentHTML("beforeend", `<p class="note">${ids.join(" · ")}</p>`);
+  await loadRuns();
+}
+
+// ---- d. Path ----------------------------------------------------------------------------------------------
+async function renderPath() {
+  const code = $("economy").value;
+  const [p, full] = await Promise.all([call(`/regime/${S.regime}/path?economy=${encodeURIComponent(code)}`), fullRegime(S.regime)]);
+  const path = p.paths[0].path;
+  const e = full.economies.find(x => x.code === code);
+  const b = card(`${esc(code)}: state over time`, "Where did the Regime put this economy (or market) month by month?",
+    e ? "Shaded months carry the last annual macro reading and cycle layer past their year (AGG-07)." : "Markets are blends of their economies; carried months are marked on the economies.");
+  const shapes = [];
+  if (e) {
+    let start = null;
+    e.carried.forEach((c, i) => {
+      if (c && start === null) start = i;
+      if ((!c || i === e.carried.length - 1) && start !== null) {
+        const end = c ? i : i - 1;
+        shapes.push({ type: "rect", xref: "x", yref: "paper", x0: full.dates[start], x1: full.dates[end], y0: 0, y1: 1, fillcolor: css("--carry"), line: { width: 0 }, layer: "below" });
+        start = null;
+      }
+    });
+  }
+  plot(chartIn(b, 420), [
+    { x: path.map(r => r.date), y: path.map(r => r.state), name: "state (mean-nearest)", mode: "lines", line: { width: 2, color: css("--s1") } },
+    { x: path.map(r => r.date), y: path.map(r => r.modal_state), name: "modal state", mode: "markers", marker: { size: 5, color: css("--s2") } },
+  ], { hovermode: "x unified", shapes, yaxis: { range: [0.5, 25.5], title: { text: "state (1 cautious, 25 aggressive)" } } });
+  if (e) b.insertAdjacentHTML("beforeend", `<p class="note">${e.carried.filter(Boolean).length} carried months.</p>`);
+}
+
+// ---- e. Contributions --------------------------------------------------------------------------------------
+async function renderContributions() {
+  const code = $("economy").value;
+  if (isMarket(code)) { card("Contributions", "Contributions are published per economy; pick an economy, not a market."); return; }
+  const p = await call(`/regime/${S.regime}/path?economy=${encodeURIComponent(code)}`);
+  const dates = p.paths[0].path.map(r => r.date);
+  const want = store.get("cdate");
+  const b = card(`${esc(code)}: what each input contributes`, "Macro, market and cycle contributions over the 25 states, before the optimism shift, at one date.",
+    "Each contribution is its weight times its component; the three add up to the blend before the shift. The published distribution (line) is after the shift.");
+  b.innerHTML = `<div class="filters"><label>Date <select id="cDate">${dates.map(d => `<option${d === want ? " selected" : ""}>${d}</option>`).join("")}</select></label></div><div id="cOut"></div>`;
+  if (!want || !dates.includes(want)) $("cDate").value = dates[dates.length - 1];
+  const draw = async () => {
+    store.set("cdate", $("cDate").value);
+    const c = await call(`/regime/${S.regime}/contributions?economy=${encodeURIComponent(code)}&date=${$("cDate").value}`);
+    const out = $("cOut"); out.innerHTML = "";
+    if (!c.assessed) { out.innerHTML = `<p class="q">Not assessed on ${esc(c.date)}.</p>`; return; }
+    if (c.projected) { out.innerHTML = `<p class="q">${esc(c.date)} is a projected month of the ${esc(c.scenario.policy)} scenario: a step of Scenario_SAA.m towards the policy's target, not a blend of inputs, so there is nothing to decompose (AGG-20). Pick a month up to ${esc(c.scenario.base_as_of)}.</p>`; return; }
+    const traces = ["macro", "market", "cycle"].filter(k => c.contributions[k].contribution).map(k => ({
+      type: "bar", x: STATES, y: c.contributions[k].contribution, name: `${k} × ${fmt(c.contributions[k].weight, 3)}`,
+      marker: { color: css(SLOT[k]), line: { color: css("--surface"), width: 1 } }, hovertemplate: `${k}, state %{x}: %{y:.4f}<extra></extra>` }));
+    traces.push({ x: STATES, y: c.distribution, name: `published (${c.optimism_scale}, shift ${fmt(c.optimism_shift)})`, mode: "lines+markers",
+                  line: { width: 2, color: css("--ink-2"), dash: "dot" }, marker: { size: 5 } });
+    plot(chartIn(out, 420), traces, { barmode: "stack", bargap: 0.1, shapes: [tailBand()], annotations: [tailNote()],
+         xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" } } });
+    const regimes = ["crisis", "contraction", "stagnation", "expansion", "boom"];
+    out.insertAdjacentHTML("beforeend", `<div class="side" style="margin-top:12px"><div class="scroll"><table><thead><tr><th>Tilt that fired (${c.macro_year}${c.carried ? ", carried" : ""})</th>${regimes.map(r => `<th>${r}</th>`).join("")}</tr></thead><tbody>${
+        Object.entries(c.tilts).map(([k, v]) => `<tr><td>${esc(k.replaceAll("_", " "))}</td>${regimes.map(r => `<td>${fmt(v[r], 3)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="6">none</td></tr>`}</tbody></table></div>
+      <table><thead><tr><th>Macro regime</th><th>weight</th></tr></thead><tbody>${regimes.map(r => `<tr><td>${r}</td><td>${fmt(c.macro_weights[r], 3)}</td></tr>`).join("")}</tbody></table></div>
+      <p class="note">Blend weights: macro ${fmt(c.contributions.macro.weight, 3)}, market ${fmt(c.contributions.market.weight, 3)}, cycle ${fmt(c.contributions.cycle.weight, 3)}.</p>`);
+  };
+  $("cDate").onchange = () => draw().catch(problem);
+  await draw();
+}
+
+// ---- f. Markets ----------------------------------------------------------------------------------------------
+async function renderMarkets() {
+  const m = S.current.markets;
+  const b = card("Markets", "The current state of each market blend (americas, europe, asia, sino, global, equal, EMCN).",
+    "A market is published for a date only when every economy it weights is assessed that date.");
+  plot(chartIn(b, 60 + 36 * m.length), [{ type: "bar", orientation: "h", y: m.map(x => x.code), x: m.map(x => x.state ?? null),
+      marker: { color: css("--s1"), line: { color: css("--surface"), width: 1 } }, text: m.map(x => x.state ?? "–"), textposition: "outside",
+      cliponaxis: false, hovertemplate: "%{y}: state %{x}<extra></extra>" }],
+    { showlegend: false, margin: { l: 90, r: 40, t: 8, b: 44 }, shapes: [tailBand()],
+      xaxis: { range: [0.5, 25.5], title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { autorange: "reversed" } });
+  b.insertAdjacentHTML("beforeend", `<div class="scroll"><table><thead><tr><th>Market</th><th>date</th><th>state</th><th>modal</th><th>crisis tail</th><th>shape</th></tr></thead><tbody>${
+    m.map(x => `<tr><td>${esc(x.code)}</td><td>${esc(x.date || "–")}</td><td>${x.state ?? "–"}</td><td>${x.modal_state ?? "–"}</td><td>${fmt(x.crisis_tail)}</td><td>${esc(x.shape || "not assessed")}</td></tr>`).join("")}</tbody></table></div>`);
+}
+
+// ---- g. Scenarios ------------------------------------------------------------------------------------------
+async function renderScenarios() {
+  const code = $("economy").value;
+  const baseId = (S.current.scenario && S.current.scenario.base_regime_id) || S.regime;
+  const policies = await call("/scenarios/policies");
+  const b = card("Scenario Regimes", `The four policies of Scenario_SAA.m on the base Regime <code>${esc(baseId)}</code>: from the month after its last month, each economy's latest distribution moves in 60 monthly steps to the policy's target. The last month, the target reached, represents the scenario and is the month pcp reads by default.`,
+    "POST /scenario {base_regime_id, policy}; idempotent, the same base and policy give the same regime_id. A scenario Regime is served like any Regime: pick it in the Regime list to see it in the other tabs (AGG-19 to AGG-22).");
+  b.innerHTML = `<div class="filters">${policies.map(p => `<button type="button" data-p="${p.policy}">${esc(p.label_en)}</button>`).join("")}
+      <button class="primary" id="scAll" type="button">Issue all four</button></div>
+    <div class="scroll"><table><thead><tr><th>Policy</th><th>Deutsch</th><th>target mix (boom, recovery, contraction, bust)</th><th>description</th></tr></thead><tbody>${
+      policies.map(p => `<tr><td>${esc(p.label_en)}</td><td>${esc(p.label_de)}</td><td>${["boom", "recovery", "contraction", "bust"].map(k => fmt(p.target_mix[k])).join(" / ")}</td><td>${esc(p.description_en)}</td></tr>`).join("")}</tbody></table></div>
+    <div id="scOut"></div>`;
+  const issue = async list => {
+    b.querySelectorAll("button").forEach(x => x.disabled = true);
+    try { for (const p of list) await post("/scenario", { base_regime_id: baseId, policy: p }); await loadRuns(); $("regime").value = S.regime; await renderScenarios.draw(); }
+    catch (e) { $("scOut").innerHTML = `<p class="warn">${esc(e.message)}</p>`; }
+    finally { b.querySelectorAll("button").forEach(x => x.disabled = false); }
+  };
+  b.querySelectorAll("button[data-p]").forEach(x => x.onclick = () => issue([x.dataset.p]));
+  $("scAll").onclick = () => issue(POLICIES);
+  renderScenarios.draw = async () => {
+    const out = $("scOut"); out.innerHTML = "";
+    const listed = await call(`/scenarios?base=${encodeURIComponent(baseId)}`);
+    if (!listed.length) { out.innerHTML = `<p class="q">No scenario Regime on this base yet.</p>`; return; }
+    out.innerHTML = `<div class="scroll"><table><thead><tr><th>Policy</th><th>regime_id</th><th>created</th><th>represented by</th><th>${esc(code)} state</th><th>crisis tail</th></tr></thead><tbody id="scRows"></tbody></table></div>`;
+    const [basePath, ...paths] = await Promise.all([call(`/regime/${baseId}/path?economy=${encodeURIComponent(code)}`),
+      ...listed.map(x => call(`/regime/${x.regime_id}/path?economy=${encodeURIComponent(code)}`))]);
+    const currents = await Promise.all(listed.map(x => call(`/regime/${x.regime_id}/current`)));
+    const dists = await Promise.all(listed.map(x => call(`/regime/${x.regime_id}/distribution?economy=${encodeURIComponent(code)}`)));
+    $("scRows").innerHTML = listed.map((x, i) => {
+      const cur = currents[i].economies.find(e => e.code === code) || currents[i].markets.find(m => m.code === code) || {};
+      return `<tr><td>${esc(x.policy)}</td><td><code>${esc(x.regime_id)}</code></td><td>${esc(x.created_at.slice(0, 16).replace("T", " "))}</td><td>${esc(currents[i].scenario.scenario_date)}</td><td>${cur.state ?? "–"}</td><td>${fmt(cur.crisis_tail)}</td></tr>`;
+    }).join("");
+    const since = currents[0].scenario.base_as_of.slice(0, 4) - 4 + "-01-01";
+    const pc = card(`${esc(code)}: state, history and the 60 projected months`, "Where does each policy take this economy (or market) from its latest reading?",
+      "Grey: the base Regime. The shaded span is projected (Scenario_SAA.m stepping); the last month is the target.");
+    const b0 = basePath.paths[0].path.filter(r => r.date >= since);
+    plot(chartIn(pc, 420), [{ x: b0.map(r => r.date), y: b0.map(r => r.state), name: "base", mode: "lines", line: { width: 2, color: css("--rest") } },
+      ...listed.map((x, i) => { const r = paths[i].paths[0].path.filter(q => q.date >= currents[i].scenario.base_as_of);
+        return { x: r.map(q => q.date), y: r.map(q => q.state), name: x.policy, mode: "lines", line: { width: 2, color: css(SLOT[x.policy]) } }; })],
+      { hovermode: "x unified", yaxis: { range: [0.5, 25.5], title: { text: "state (1 cautious, 25 aggressive)" } },
+        shapes: [{ type: "rect", xref: "x", yref: "paper", x0: currents[0].scenario.projected_from, x1: currents[0].scenario.scenario_date, y0: 0, y1: 1, fillcolor: css("--carry"), line: { width: 0 }, layer: "below" }] });
+    const dc = card(`${esc(code)}: the distribution that represents each scenario`, "The 25-state distribution on the scenario's last month (the target reached).",
+      "The .m file's kernels: Bust on states 1 to 10, Contraction 3 to 16, Recovery 10 to 23, Boom 16 to 25.");
+    plot(chartIn(dc, 380), listed.map((x, i) => ({ x: STATES, y: dists[i].distributions[0].distribution, name: `${x.policy} (${dists[i].date})`,
+      mode: "lines+markers", line: { width: 2, color: css(SLOT[x.policy]) }, marker: { size: 4 } })),
+      { shapes: [tailBand()], annotations: [tailNote()], xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" } } });
+  };
+  await renderScenarios.draw();
+}
+
+// ---- start ---------------------------------------------------------------------------------------------------
+async function start() {
+  tabs();
+  try {
+    const h = await call("/health");
+    $("sub").textContent = `${h.engine_version} at ${base()}`;
+    await loadRuns();
+    if ($("regime").value) await selectRegime();
+  } catch (e) { $("sub").textContent = e.message; }
+  await render();
+}
+$("api").onchange = () => { store.set("api", $("api").value); start(); };
+$("regime").onchange = () => selectRegime().then(render).catch(problem);
+$("economy").onchange = () => { store.set("economy", $("economy").value); render(); };
+$("themeBtn").onclick = () => {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches, now = document.documentElement.dataset.theme || (dark ? "dark" : "light");
+  document.documentElement.dataset.theme = now === "dark" ? "light" : "dark"; store.set("theme", document.documentElement.dataset.theme); render();
+};
+if (store.get("theme")) document.documentElement.dataset.theme = store.get("theme");
+start();
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+"""Orchestration: composing the engines, and eventually mediating every call.
+
+Phase 3 puts the shared macro path here: `Macro feed + TAA -> Market Signal -> Regime` and
+`Fund Map + Return Estimation -> ReturnSet`, run as one checked composition.
+
+Phase 5 adds the Master agent, the six agents, the control-plane compliance pre-check, and trace and replay.
+Those wrap these calls rather than replacing them, which is why the composition lives here now: it gives Phase
+5 something real to wrap.
+"""
+
+from orchestration.agents import (
+    AGENTS,
+    CLIENT_PROFILE,
+    DATA_INTEGRATIONS,
+    ENGINE_ROUTES,
+    INVESTMENT,
+    KNOWLEDGE,
+    MASTER,
+    PRODUCT,
+    ROUTES,
+    SUPPORT,
+    Agent,
+    AgentError,
+    agent,
+    boundary_report,
+    check_routes,
+    handle,
+    mediated,
+    route,
+)
+from orchestration.control_plane import (
+    STORE,
+    CallContext,
+    Escalation,
+    Finding,
+    PreCheckFailed,
+    PreCheckResult,
+    Trace,
+    TraceStore,
+    UnmediatedCall,
+    active_context,
+    allow_unmediated,
+    bypasses,
+    load_traces,
+    mediate,
+    pre_check,
+    replay,
+    require_mediation,
+)
+from orchestration.per_user_path import (
+    PerUserPathError,
+    PerUserPathResult,
+    run_per_user_path,
+)
+from orchestration.shared_path import (
+    MINIMUM_MONTHS,
+    Check,
+    Severity,
+    SharedPathNotGreen,
+    SharedPathResult,
+    assert_green,
+    run_shared_path,
+)
+
+__all__ = [
+    "AGENTS",
+    "CLIENT_PROFILE",
+    "DATA_INTEGRATIONS",
+    "ENGINE_ROUTES",
+    "INVESTMENT",
+    "KNOWLEDGE",
+    "MASTER",
+    "MINIMUM_MONTHS",
+    "PRODUCT",
+    "ROUTES",
+    "STORE",
+    "SUPPORT",
+    "Agent",
+    "AgentError",
+    "CallContext",
+    "Check",
+    "Escalation",
+    "Finding",
+    "PerUserPathError",
+    "PerUserPathResult",
+    "PreCheckFailed",
+    "PreCheckResult",
+    "Severity",
+    "SharedPathNotGreen",
+    "SharedPathResult",
+    "Trace",
+    "TraceStore",
+    "UnmediatedCall",
+    "active_context",
+    "agent",
+    "allow_unmediated",
+    "assert_green",
+    "boundary_report",
+    "bypasses",
+    "check_routes",
+    "handle",
+    "load_traces",
+    "mediate",
+    "mediated",
+    "pre_check",
+    "replay",
+    "require_mediation",
+    "route",
+    "run_per_user_path",
+    "run_shared_path",
+]

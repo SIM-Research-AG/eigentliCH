@@ -1,0 +1,155 @@
+# datafeed: configuration.
+#
+# Committed, so it never holds a password or the admin token. Keep the local container's
+# password in config.local.yaml (git-ignored) or set DATAFEED_DB_PASSWORD. Precedence:
+#
+#   this file  <  config.local.yaml  <  DATAFEED_DATABASE_URL / DATABASE_URL  <  DATAFEED_*
+#
+# The alignment, carry-forward and fill-acceptance rules are NOT here: they are versioned
+# calibrations, seeded from src/datafeed/calibration.py (GET /calibration).
+
+service:
+  host: 127.0.0.1
+  port: 8001                    # Engine Building Guide section 4. Override with DATAFEED_PORT.
+  cors_origins: ["*"]           # narrow before deployment: DATAFEED_CORS_ORIGINS
+  # POST /snapshots needs the header X-Admin-Token equal to this environment variable.
+  # Unset means admin ingest over HTTP is switched off (the bootstrap still works).
+  admin_token_env: DATAFEED_ADMIN_TOKEN
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema per engine, one role per engine.
+  # See section 8 of the Engine Building Guide. The role owns this schema and holds
+  # SELECT and nothing more on the shared `datafeed` schema.
+  dbname: simtech
+  schema: datafeed
+  user: datafeed
+  sslmode: prefer
+  connect_timeout: 10
+  maintenance_dbname: postgres
+
+calibration:
+  active: "1.0.0"
+
+# The Bloomberg pull as MATLAB saved it. Only `python -m datafeed bootstrap` reads this.
+import:
+  matlab:
+    dir: 'C:\Users\nicol\Desktop\SIM_NAS\SIM_Tech\Master_Controller'
+    file: M_TS.mat
+    tickers: Tickers           # one workbook per country, row n = column n of a sheet
+    # r2: the same M_TS.mat imported with the 43-series registry (HoNI + mrs). The first
+    # import, matlab-m_ts-2026-01-05 (21 series), stays in the store: snapshots are immutable.
+    # r3 (DF-18): adds yields.high_yield_ytw (Yields column 8).
+    # 2026-09-28: the store keeps one snapshot of this pull, bloomberg-2026-01-05 (r3 + public
+    # fills + market layer, identical cells); the r3 chain and the older imports were deleted.
+    # This id is what a new bootstrap would name its raw import (and derive .public-/.market-
+    # ids from); it must not be bloomberg-2026-01-05, which already exists with other content.
+    snapshot_id: matlab-m_ts-2026-01-05.r3
+    as_of: "2026-01-05"
+    # Web_Dataloader2.m pulled from eomdate(run date) - 21 years and dropped 12 months.
+    first_month: "2006-01-31"
+    months: 241
+    # Tickers the sheets use to hold a row position ("Blank holding space"). MATLAB pulled
+    # them anyway (USD spot = 1.0) and scored the result; they are imported as no data.
+    placeholder_tickers: ["USD BGN Curncy"]
+
+primary_source: bloomberg
+
+# ---------------------------------------------------------------------------
+# The country and series registry lives in the database (tables `country` and
+# `series`), seeded once from seed/registry.yaml. It is not configuration.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Public-source fill candidates, tried for missing cells only. Each is fitted against the
+# primary series on the overlap and applied only if the fit holds (calibration tolerance,
+# or the entry's own). Rejections are kept on the snapshot manifest with the reason.
+#
+#   level: value = candidate * scale, scale fitted as median(primary / candidate) on the
+#          overlap of `anchor` (default: the series itself; anchor_code is then the
+#          candidate for the anchor series). fx: true multiplies USD candidates by the
+#          World Bank official rate (LCU per USD, annual average) first.
+#   rate:  value = candidate * unit_scale + offset, offset fitted as the median difference.
+#   share: value = candidate * unit_scale * the primary `anchor` series (e.g. consumption %
+#          GDP x Bloomberg GDP), so it lands in the anchor's unit by construction; every share
+#          must lie within the calibration's plausibility bounds. replace: true removes the
+#          target's primary cells first; used only where the primary series is known to be
+#          in another unit (decision DF-16).
+# ---------------------------------------------------------------------------
+fills:
+  - {country: BD, series: production.gdp_nominal,         provider: worldbank, code: NY.GDP.MKTP.CN, mode: level}
+  - {country: BD, series: consumer.household_consumption, provider: worldbank, code: NE.CON.PRVT.CN, mode: level,
+     anchor: production.gdp_nominal, anchor_code: NY.GDP.MKTP.CN, note: no Bloomberg values at all; scaled through GDP}
+  - {country: VN, series: consumer.household_consumption, provider: worldbank, code: NE.CON.PRVT.CN, mode: level,
+     anchor: production.gdp_nominal, anchor_code: NY.GDP.MKTP.CN, note: no Bloomberg values at all; scaled through GDP}
+  - {country: BR, series: consumer.labour_force_participation, provider: worldbank, code: SL.TLF.CACT.ZS, mode: rate, unit_scale: 0.01,
+     tolerance: 0.015, note: ILO modelled estimate against the national survey; a steady 1.5 point definitional gap}
+  - {country: JP, series: money.budget_balance_gdp, provider: imf, code: GGXCNL_NGDP, mode: rate, unit_scale: 0.01}
+  - {country: IN, series: money.budget_balance_gdp, provider: imf, code: GGXCNL_NGDP, mode: rate, unit_scale: 0.01}
+  - {country: CN, series: debt.external, provider: worldbank, code: DT.DOD.DECT.CD, mode: level, fx: true}
+  - {country: ID, series: debt.external, provider: worldbank, code: DT.DOD.DECT.CD, mode: level, fx: true}
+  - {country: BD, series: debt.external, provider: worldbank, code: DT.DOD.DECT.CD, mode: level, fx: true}
+  - {country: BD, series: fx.trade_balance, provider: worldbank, code: NE.RSB.GNFS.CN, mode: level}
+  - {country: VN, series: equity.market_cap_gdp, provider: worldbank, code: CM.MKT.LCAP.GD.ZS, mode: rate, unit_scale: 0.01}
+  # DF-16: household consumption in a unit other than GDP's (datafeed plausibility finding)
+  - {country: BR, series: consumer.household_consumption, provider: worldbank, code: NE.CON.PRVT.ZS, mode: share, unit_scale: 0.01, anchor: production.gdp_nominal, replace: true}
+  - {country: DE, series: consumer.household_consumption, provider: worldbank, code: NE.CON.PRVT.ZS, mode: share, unit_scale: 0.01, anchor: production.gdp_nominal, replace: true}
+  - {country: EU, series: consumer.household_consumption, provider: worldbank, code: NE.CON.PRVT.ZS, mode: share, unit_scale: 0.01, anchor: production.gdp_nominal, replace: true}
+  - {country: GB, series: consumer.household_consumption, provider: worldbank, code: NE.CON.PRVT.ZS, mode: share, unit_scale: 0.01, anchor: production.gdp_nominal, replace: true}
+  - {country: IN, series: consumer.household_consumption, provider: worldbank, code: NE.CON.PRVT.ZS, mode: share, unit_scale: 0.01, anchor: production.gdp_nominal, replace: true}
+  - {country: TH, series: consumer.household_consumption, provider: worldbank, code: NE.CON.PRVT.ZS, mode: share, unit_scale: 0.01, anchor: production.gdp_nominal, replace: true}
+
+# ---------------------------------------------------------------------------
+# Market layer (DF-18), a child of the filled snapshot. Three steps, in this order:
+#   corrections: primary cells whose ticker-sheet scale factor is wrong, times `factor`.
+#   sources without `fill`: a public series is the primary source of a series id that has
+#          no usable Bloomberg equivalent (one row per country; a global index is repeated).
+#   sources with `fill: true`: public values go into missing primary cells only, and only
+#          if every overlap month is within `fill_tolerance` of the median ratio.
+#   identical: true (fills only): the public series is the same index as the primary ticker,
+#          from its publisher; the fit then only confirms the unit (median ratio within
+#          identical_tolerance of 1) and no scale is applied.
+# `code` may hold {area}: the provider's code for the country, from `areas` (default: the
+# country code). Values are month ends: the last daily close (Cboe), as published (BIS).
+# ---------------------------------------------------------------------------
+market:
+  fill_tolerance: 0.10
+  min_overlap_months: 12
+  corrections:
+    - series: volatility.implied
+      countries: [BD, ID, MY, PH, TH, VN]
+      factor: 0.01
+      reason: "MSCI 90-day realised volatility (RK004) pulled at scale 1, so it reads 19.6 where every other economy reads a decimal (0.20)"
+    - series: volatility.implied
+      countries: [JP]
+      factor: 100
+      reason: "Nikkei VI (VNKY) pulled at scale 0.0001, so it reads 0.002; x100 gives the decimal (0.20) the other economies use"
+  sources:
+    - series: volatility.skew
+      provider: cboe
+      code: SKEW
+      countries: [BD, BR, CH, CN, DE, ES, EU, GB, ID, IN, JP, MY, PH, TH, US, VN]
+      note: "Cboe SKEW index: the price of S&P 500 tail-risk protection, month-end close. Replaces the Credit Suisse Fear Barometer (CSFB Index, discontinued, empty for every economy in M_TS); same concept (higher is more fear) and, like CSFB, one global series for every economy."
+    - series: fx.neer_broad
+      provider: bis
+      code: "M.N.B.{area}"
+      countries: [BR, CH, CN, DE, ES, EU, GB, ID, IN, JP, MY, PH, TH, US]
+      areas: {EU: XM}
+      note: "BIS nominal effective exchange rate, broad basket (64 economies), monthly average, 2020 = 100. Replaces the JP Morgan broad effective rate (JBDN... Index, FX column 6), which holds no data in M_TS. The BIS does not cover BD and VN (candidate: Bruegel NEER, 120 partners)."
+    - series: volatility.implied
+      provider: cboe
+      code: VXFXI
+      countries: [CN]
+      unit_scale: 0.01
+      fill: true
+      identical: true
+      note: "Cboe China ETF volatility index, the same index as the Bloomberg ticker (VXFXI Index), where the Bloomberg pull is missing. No Cboe data from 2022-02 to 2025-09."
+    - series: volatility.implied
+      provider: cboe
+      code: VXEWZ
+      countries: [BR]
+      unit_scale: 0.01
+      fill: true
+      identical: true
+      note: "Cboe Brazil ETF volatility index, the same index as the Bloomberg ticker (VXEWZ Index), where the Bloomberg pull is missing."

@@ -1,0 +1,60 @@
+﻿# Euro area aggregate.
+#
+# The currency union treated as one economy, which is the right unit for the monetary channel and for
+# the International dimension, since the euro is a reserve currency issued at this level rather than
+# by any member state.
+
+economy:
+  code: eurozone
+  name: Euro area
+  # World Bank aggregate code for the euro area.
+  world_bank: EMU
+  # BIS reporting code for the euro area.
+  bis: XM
+  currency: EUR
+
+data:
+  financial_capital:
+    # The euro-area financial accounts are published by the ECB and through Eurostat, so the chapter
+    # 10.4 primary measure should be available at the aggregate level.
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    default_depreciation_rate: 0.05
+
+  stimulus:
+    # At the union level the central-bank balance sheet is the meaningful stimulus channel, since
+    # fiscal policy remains national.
+    proxy: central_bank_assets
+    reverse_sign: false
+
+calibration:
+  window:
+    # BIS total credit for the euro area begins in 1999, with the currency itself.
+    start: null
+    end: null
+
+notes:
+  - >
+    Latest BIS total credit to the non-financial sector is 238.8 percent of GDP, just below the 250 to
+    350 percent band, and it sits between Germany at 195.6 and France at 323.5 as an aggregate should.
+  - >
+    Membership changed over the window, from 11 states in 1999 to 20 by the mid 2020s, so the aggregate
+    is not a constant-composition series. BIS reports the euro area on its current composition, which
+    means the historical values are not what a contemporary observer in 1999 would have seen. This is a
+    genuine limitation of the aggregate and it must appear on any long-window chart.
+  - >
+    Readings for the euro area are not independent of de.yaml and fr.yaml, which are members. Any
+    comparative ranking that includes the aggregate alongside its members double counts them, so the
+    reporting layer excludes the aggregate from member-level rankings by default.
+  - >
+    The window begins in 1999, which is short relative to the credit cycle at 18 years and far too
+    short for the capital cycle at 90 years. The cycle module will report the longer cycles as
+    unidentifiable for this economy, which is the correct answer rather than a failure.
+  - >
+    The stimulus proxy is the change in central-bank assets rather than the fiscal balance, because
+    fiscal policy remains national while the monetary channel is set at the union level. This is a
+    departure from the default proxy and it must appear on any output for the euro area.
+

@@ -1,0 +1,402 @@
+{
+  "$defs": {
+    "BindingConstraint": {
+      "additionalProperties": false,
+      "description": "A limit that was active at the optimum, with where it came from.",
+      "properties": {
+        "bound": {
+          "title": "Bound",
+          "type": "number"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "dimension": {
+          "title": "Dimension",
+          "type": "string"
+        },
+        "realised": {
+          "title": "Realised",
+          "type": "number"
+        },
+        "side": {
+          "title": "Side",
+          "type": "string"
+        },
+        "source": {
+          "default": "policy",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dimension",
+        "category",
+        "side",
+        "bound",
+        "realised"
+      ],
+      "title": "BindingConstraint",
+      "type": "object"
+    },
+    "FitQuality": {
+      "additionalProperties": false,
+      "description": "How much of the answer the optimisation actually decided.\n\nCarried because the objective's level is dominated by a floor set by the universe size, so a reader who\nsees only the objective value cannot tell a well-fitted portfolio from a constraint-driven one. See\nPCP decisions.md D28 and D29.",
+      "properties": {
+        "conditions_met": {
+          "default": true,
+          "title": "Conditions Met",
+          "type": "boolean"
+        },
+        "objective_floor": {
+          "title": "Objective Floor",
+          "type": "number"
+        },
+        "objective_value": {
+          "title": "Objective Value",
+          "type": "number"
+        },
+        "weight_leverage": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weight Leverage"
+        }
+      },
+      "required": [
+        "objective_value",
+        "objective_floor"
+      ],
+      "title": "FitQuality",
+      "type": "object"
+    },
+    "Holding": {
+      "additionalProperties": false,
+      "description": "One position in a recommended portfolio.",
+      "properties": {
+        "asset_class": {
+          "title": "Asset Class",
+          "type": "string"
+        },
+        "bb_id": {
+          "title": "Bb Id",
+          "type": "integer"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "region_geo": {
+          "title": "Region Geo",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "set_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Set By"
+        },
+        "weight": {
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "bb_id",
+        "name",
+        "weight",
+        "role",
+        "region_geo",
+        "currency",
+        "asset_class"
+      ],
+      "title": "Holding",
+      "type": "object"
+    },
+    "RegimeRef": {
+      "additionalProperties": false,
+      "description": "A reference to a published Regime timeline.\n\nThis is what a per-user contract carries. `regime_id` is the load-bearing field: every downstream\nartefact stamps it, and any two artefacts that must be consistent are checked on it.",
+      "properties": {
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "crisis_tail": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Crisis Tail"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        },
+        "regime_id": {
+          "title": "Regime Id",
+          "type": "string"
+        },
+        "regime_timeline_id": {
+          "title": "Regime Timeline Id",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Economy code or blended market scope, for example 'Global' or 'ch'",
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "regime_id",
+        "regime_timeline_id",
+        "scope",
+        "as_of",
+        "model_version"
+      ],
+      "title": "RegimeRef",
+      "type": "object"
+    },
+    "ReturnSetRef": {
+      "additionalProperties": false,
+      "description": "A reference to a published ReturnSet, keyed on scope and horizon.",
+      "properties": {
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "horizon_years": {
+          "title": "Horizon Years",
+          "type": "number"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        },
+        "regime_id": {
+          "title": "Regime Id",
+          "type": "string"
+        },
+        "return_set_id": {
+          "title": "Return Set Id",
+          "type": "string"
+        },
+        "scope": {
+          "title": "Scope",
+          "type": "string"
+        },
+        "universe_version": {
+          "title": "Universe Version",
+          "type": "string"
+        },
+        "values_unit": {
+          "title": "Values Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "return_set_id",
+        "regime_id",
+        "scope",
+        "horizon_years",
+        "as_of",
+        "model_version",
+        "universe_version",
+        "values_unit"
+      ],
+      "title": "ReturnSetRef",
+      "type": "object"
+    },
+    "Role": {
+      "description": "The four portfolio roles.",
+      "enum": [
+        "Gain",
+        "Income",
+        "Stabilisation",
+        "Protection"
+      ],
+      "title": "Role",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A proposed allocation. Regulated: not advice until a Curator confirms it.",
+  "properties": {
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "binding": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/BindingConstraint"
+      },
+      "title": "Binding",
+      "type": "array"
+    },
+    "decision_record_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Record Id"
+    },
+    "esg": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Esg"
+    },
+    "fit": {
+      "$ref": "#/$defs/FitQuality"
+    },
+    "holdings": {
+      "items": {
+        "$ref": "#/$defs/Holding"
+      },
+      "title": "Holdings",
+      "type": "array"
+    },
+    "household_id": {
+      "title": "Household Id",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "portfolio_map": {
+      "default": [],
+      "items": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "title": "Portfolio Map",
+      "type": "array"
+    },
+    "regime": {
+      "$ref": "#/$defs/RegimeRef"
+    },
+    "released": {
+      "default": false,
+      "title": "Released",
+      "type": "boolean"
+    },
+    "return_profile": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Return Profile",
+      "type": "array"
+    },
+    "returnset": {
+      "$ref": "#/$defs/ReturnSetRef"
+    },
+    "role_allocation": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/Role"
+      },
+      "title": "Role Allocation",
+      "type": "object"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "target_curve": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Target Curve",
+      "type": "array"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trace Id"
+    }
+  },
+  "required": [
+    "as_of",
+    "model_version",
+    "household_id",
+    "snapshot_id",
+    "regime",
+    "returnset",
+    "holdings",
+    "return_profile",
+    "target_curve",
+    "fit"
+  ],
+  "title": "Recommendation",
+  "type": "object",
+  "x-contract-version": "0.1.0",
+  "x-regulated": "Regulated"
+}

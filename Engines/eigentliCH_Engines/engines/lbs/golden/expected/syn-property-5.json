@@ -1,0 +1,118 @@
+{
+ "seed": {
+  "stocks": {
+   "financial_assets": 236000.0,
+   "human_assets": null,
+   "liabilities": null
+  },
+  "net_worth": 236000.0,
+  "household_income": 285860.0,
+  "property": {
+   "g1": {
+    "verdict": "does_not_meet",
+    "binds_on": [
+     "equity"
+    ],
+    "undetermined_because": [],
+    "ineligible_funding": [
+     {
+      "kind": "pillar_2",
+      "amount_chf": 95000,
+      "reason": "vorsorge_capital_only_for_an_owner_occupied_primary_residence"
+     },
+     {
+      "kind": "pillar_3a",
+      "amount_chf": 77000,
+      "reason": "vorsorge_capital_only_for_an_owner_occupied_primary_residence"
+     }
+    ],
+    "levers": [
+     {
+      "lever": "deposit",
+      "required_chf": 450000.0,
+      "hard_required_chf": 450000.0
+     }
+    ],
+    "equity": {
+     "required_chf": 450000.0,
+     "hard_required_chf": 450000.0,
+     "pillar2_cap_chf": 0,
+     "pillar2_may_fund": false,
+     "pillar3a_may_fund": false,
+     "verdict": "does_not_meet"
+    },
+    "affordability": {
+     "annual_cost_chf": 88333.33333333336,
+     "income_required_chf": 265000.0000000001,
+     "price_supported_chf": 1618075.4716981126,
+     "verdict": "meets"
+    }
+   }
+  },
+  "mandate": {
+   "target": 450000.0,
+   "occupancy_used": "second_or_holiday_home",
+   "assumed": false,
+   "horizon_years": 10.258937555185938,
+   "required_return": 0.12446825552615337
+  }
+ },
+ "approved": {
+  "stocks": {
+   "financial_assets": 236000.0,
+   "human_assets": null,
+   "liabilities": null
+  },
+  "net_worth": 236000.0,
+  "household_income": 285860.0,
+  "property": {
+   "g1": {
+    "verdict": "does_not_meet",
+    "binds_on": [
+     "equity"
+    ],
+    "undetermined_because": [],
+    "ineligible_funding": [
+     {
+      "kind": "pillar_2",
+      "amount_chf": 95000,
+      "reason": "vorsorge_capital_only_for_an_owner_occupied_primary_residence"
+     },
+     {
+      "kind": "pillar_3a",
+      "amount_chf": 77000,
+      "reason": "vorsorge_capital_only_for_an_owner_occupied_primary_residence"
+     }
+    ],
+    "levers": [
+     {
+      "lever": "deposit",
+      "required_chf": 450000.0,
+      "hard_required_chf": 450000.0
+     }
+    ],
+    "equity": {
+     "required_chf": 450000.0,
+     "hard_required_chf": 450000.0,
+     "pillar2_cap_chf": 0,
+     "pillar2_may_fund": false,
+     "pillar3a_may_fund": false,
+     "verdict": "does_not_meet"
+    },
+    "affordability": {
+     "annual_cost_chf": 88333.33333333336,
+     "income_required_chf": 265000.0000000001,
+     "price_supported_chf": 1618075.4716981126,
+     "verdict": "meets"
+    }
+   }
+  },
+  "mandate": {
+   "target": 450000.0,
+   "occupancy_used": "second_or_holiday_home",
+   "assumed": false,
+   "horizon_years": 10.258937555185938,
+   "required_return": 0.12446825552615337
+  }
+ }
+}

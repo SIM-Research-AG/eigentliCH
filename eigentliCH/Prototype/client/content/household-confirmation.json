@@ -1,0 +1,75 @@
+{
+  "_about": {
+    "requirement": "eigentliCH app update script v2.1, item 6 — \"The annual review opens with a short structured confirmation of household composition — five or six yes/no items, not a freeform prompt.\"",
+    "why_yes_no_and_not_a_prompt": "A freeform \"has anything changed?\" is answered \"no\" by everyone whose change was not on their mind that morning, and household composition is exactly the input a member does not think of as financial. Five closed items name the changes that move the AHV path, the tax path and goal ownership, so the member recognises their own year rather than having to translate it.",
+    "why_it_is_not_an_interruption": "Principle 4 permits this because the annual review is an already-scheduled return, not something the app raises. The same items are never pushed, emailed or badged.",
+    "what_a_yes_does_and_does_not_do": "Nothing is patched from a yes. A yes means the composition is restated in full through the ordinary question, because a yes/no cannot say who joined, what they are called, or whether they are an adult or a person in the member's care — and guessing any of those would write a fact nobody stated. An all-no confirmation restates the SAME people with today's date, which is what resets the twelve-month horizon.",
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-03",
+    "provisional": false
+  },
+
+  "items": [
+    {
+      "key": "someone_joined",
+      "de": "Ist seit dem letzten Mal jemand in Ihren Haushalt gezogen?",
+      "en": "Has anyone moved into your household since last time?"
+    },
+    {
+      "key": "someone_left",
+      "de": "Hat seit dem letzten Mal jemand Ihren Haushalt verlassen?",
+      "en": "Has anyone left your household since last time?"
+    },
+    {
+      "key": "civil_status_changed",
+      "de": "Hat sich Ihr Zivilstand geändert?",
+      "en": "Has your civil status changed?"
+    },
+    {
+      "key": "care_began",
+      "de": "Ist ein Kind oder eine andere Person neu in Ihrer Obhut?",
+      "en": "Has a child or another person newly come into your care?"
+    },
+    {
+      "key": "care_ended",
+      "de": "Ist eine Person nicht mehr in Ihrer Obhut?",
+      "en": "Is a person no longer in your care?"
+    }
+  ],
+
+  "_signals": {
+    "_about": "Item 6's inferred half: \"visible events set a flag for confirmation rather than changing anything\". A closed set, because a flag raised by an unnamed signal is a flag nobody can explain to the member. Each entry says whether the signal can actually be observed in this build — item 6's own Phase 0 note is that inference is mostly the partner-invite signal until aggregation is live, and that the flag mechanism gets built anyway.",
+    "signals": [
+      {
+        "key": "partner_invited",
+        "why": "A second person given access to the plan is the strongest available hint that the household has two adults in it.",
+        "observable_now": false,
+        "not_yet": "No partner-invite route exists. `AccessGrant` grants a curator access to a member's material, which is a different relation."
+      },
+      {
+        "key": "partner_removed",
+        "why": "The same signal in reverse, and the one that most often precedes a closing.",
+        "observable_now": false,
+        "not_yet": "Same as `partner_invited`."
+      },
+      {
+        "key": "goal_owner_changed",
+        "why": "Goal ownership is stated per household member, so a change to it implies the household changed.",
+        "observable_now": false,
+        "not_yet": "No route revises `goal_owners`. `REVISABLE_FIELDS` in services/goals.py does not include owners."
+      },
+      {
+        "key": "salary_step_change",
+        "why": "A step change in an income line, seen through aggregation, can follow a household event.",
+        "observable_now": false,
+        "not_yet": "Nothing observes a salary line over time. Aggregation was planned for Phase 1 on the back of a FINMA authorisation; that authorisation is no longer being sought (A166), so this signal has no dated route to becoming observable and is not waiting on anything."
+      },
+      {
+        "key": "dated_obligation_added",
+        "why": "A new dated obligation — a second mortgage, a maintenance payment — can imply a household event.",
+        "observable_now": true,
+        "not_yet": null
+      }
+    ]
+  }
+}

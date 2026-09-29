@@ -1,0 +1,421 @@
+ 
+ andersCH — Build Specification v1.0 
+ andersCH 
+ Build specification v1.0 
+ 29 August 2026 
+ Member application — implementation requirements 
+ Derived from the andersCH Customer Journey proposal. Target stack: HTML/JS front end with a Python backend, matching the existing prototype. Scope: the full proposal, built in the phase order given in section 10. 
+ Requirement IDs R-nnn functional · C-nn constraint · S-nn screen · NG-nn non-goal · D-nn open decision 
+ Authority C- constraints override every R- 
+ Instructions to the implementing agent 
+ Read sections 1, 2 and 12 before writing any code. Section 2 contains vetoes that invalidate otherwise reasonable implementations. Section 12 lists decisions you must not make on your own. 
+ Survey the existing estate first (section 9). Several components already exist in some form. Report what you find and what you propose to reuse before creating new files. Do not assume a path in this document is correct — verify it. 
+ Where a requirement is underspecified, stop and ask. Do not invent policy. Inventing a number, a rate, an assessment threshold or a regulatory position is a defect, not a gap-fill. 
+ Every requirement has an ID. Reference the ID in commit messages and in code comments where a non-obvious constraint drove the implementation. 
+ Build the acceptance checks in section 11 as executable tests , not as a manual list. 
+ Contents 
+ Scope and non-goals 
+ Hard constraints 
+ Information architecture 
+ Data model 
+ Screens 
+ HTTP API 
+ Engine integration 
+ Design principles as code rules 
+ Existing estate 
+ Build order 
+ Acceptance checks 
+ Do not invent 
+ 01 Scope and non-goals 
+ andersCH is a member application with two journeys that meet in a Market Place. 
+ Surface Purpose Cadence it must support 
+ Planner & Life Events Build and maintain a plan; handle transitions. Destination is a self-determined life Episodic and deep — weeks or months between sessions. No daily engagement mechanics 
+ Knowledge & Community Learn how money, pensions and the economy work, up to the point of being able to offer that to others Weekly or daily, light 
+ Market Place Shared third surface both journeys open onto. Supply comes partly from members who complete the ladder Occasional, transactional 
+ Non-goals 
+ ID Not built Why it matters to the build 
+ NG-01 Trade execution, order routing, custody No broker integration, no order objects in the data model 
+ NG-02 Decumulation and drawdown modelling — living from assets, capital against annuity, AHV timing Explicitly a later scope. Do not add withdrawal-sequencing logic to any engine call 
+ NG-03 Occupational or professional education content The ladder teaches financial capability only. No course catalogue for trades or professions 
+ NG-04 Any federal or accredited qualification Capability statements are andersCH's own. No claim of accreditation in code, copy, or generated certificates 
+ NG-05 Accounts for members under 25 Age floor enforced at registration. No minor-consent flows 
+ NG-06 Health or medical advice Health appears only as a Protection role label and as Market Place supply 
+ NG-07 Native mobile applications Responsive web only in this phase 
+ 02 Hard constraints 
+ These override any functional requirement. If a requirement in section 5 appears to conflict with a constraint here, the constraint wins and the conflict is a defect in this document — report it. 
+ ID Constraint Implementation 
+ C-01 
+ No personalised investment recommendation anywhere. The application may educate and may illustrate with generic arithmetic. It may not select, rank or weight instruments for an identified member 
+ Any response object that ranks instruments must carry requires_curator: true and be refused by the API unless an open CuratorSession exists. Enforce server-side, not in the UI 
+ C-02 
+ Illustrative arithmetic must be labelled and its assumptions stored, not hardcoded 
+ Rates, horizons and inflation live in a versioned AssumptionSet record. Every illustration response returns the assumption_set_id used. No literal rate in application code 
+ C-03 
+ Engines run server-side only, in the permitted runtime 
+ No engine logic, weights or model files reachable from the browser. No engine invocation from client JavaScript. All engine calls go through the Python backend 
+ C-04 
+ Every stored field carries a data class (the existing K0–K3 scheme). The most sensitive class never leaves the server and never appears in logs 
+ Classification is a column on the model, not a convention. A logging filter drops the top class by field name. A test asserts no top-class field appears in any log line 
+ C-05 
+ andersCH is sole data controller from the first intake question. No third-party analytics, tag managers, fonts-with-logging, or session recorders on any page that touches member data 
+ No external network calls from authenticated pages. Self-host fonts. A test asserts the authenticated bundle makes no cross-origin request 
+ C-06 
+ No notification without a prepared decision. An action item exists only if it carries the options and their consequences 
+ ActionItem.prepared_options is non-nullable with minimum length 2. An item with an empty array cannot be persisted 
+ C-07 
+ No gamification primitives, enforced by absence 
+ The schema contains no points, score, streak, badge, level-number, leaderboard or daily-goal field. A test greps the model layer for those identifiers and fails on a match 
+ C-08 
+ Market Place ordering cannot be bought 
+ The listing query accepts no paid-placement, boost, sponsor or priority parameter. Ordering inputs are limited to role match, capability evidence, and community presence. Fee fields may exist for billing but must not be readable by the ranking function 
+ C-09 
+ Every material change to a member's plan produces a Decision Record 
+ Writes to positions, goals and plan parameters are wrapped in a transaction that also writes a Decision . A plan mutation without a linked decision is a constraint violation, not a warning 
+ C-10 
+ Curator interactions are attributable 
+ Every CuratorSession records the identified curator, the entry point it was opened from, and the outcome. Immutable append-only audit table 
+ 03 Information architecture 
+ Two doors and a shared third surface. The Know is reachable from everywhere, not from a tab. 
+ # top-level navigation 
+Planner & Life Events Knowledge & Community Market Place
+├─ Role grid (default) ├─ Learning path ├─ Browse by role
+├─ Containers ├─ Unit / lesson ├─ Listing detail
+├─ Stage map (the climb) ├─ Capability review └─ Provider application
+├─ Vault └─ Community: lectures,
+├─ Decisions café evenings, meet-ups
+└─ Life event modules
+ # persistent, not a tab — present on every authenticated screen 
+The Know → MiniMind panel → [ Curator ] button
+Action items surface inside The Know, never as a badge on navigation
+ ID Requirement 
+ R-001 The role grid is the default authenticated landing screen , not a dashboard of widgets and not the vault 
+ R-002 The Know is a persistent panel or overlay available from every authenticated screen, carrying a Curator button at all times 
+ R-003 Action items appear inside The Know as items with prepared decisions. They must not appear as counts, dots or badges on navigation elements 
+ R-004 The Market Place is reachable directly from both doors. Browsing and contacting are never gated on learning progress 
+ R-005 Being listed as supply is gated on capability evidence. Reading and hiring are not 
+ R-006 The stage map is content navigation. It must not display a member's progress along it as an achievement, a percentage or a rank 
+ 04 Data model 
+ Entities and their essential fields. Field lists are the minimum, not the maximum. data_class uses the existing K0–K3 scheme — confirm the exact values against the estate before implementing. 
+ // core member and plan 
+ Member {
+ id, created_at, age_at_registration // >= 25, see NG-05 
+ display_name, locale, stage_hint // stage_hint is content routing only 
+ consents[] // versioned, timestamped 
+ data_class: K1
+}
+ Position { // a filled cell in the role grid 
+ id, member_id
+ role: "growth" | "income" | "stabilisation" | "protection"
+ capital_type: "human" | "financial"
+ label, description
+ magnitude // annualised amount OR share of total; unit explicit 
+ magnitude_unit: "chf_per_year" | "share_of_total"
+ // correlation tags — used to detect positions that are really one position 
+ tags: { client_type, skill, reputation_basis, sector, time_basis }
+ started_on, active
+ data_class: K2
+}
+ Goal { // container. reporting layer only, see R-030 
+ id, member_id, name
+ target_amount, target_date
+ safety, liquidity_need, volatility_tolerance // the five parameters 
+ funded_by_position_ids[] // nullable — a goal may be unfunded 
+ data_class: K2
+}
+ VaultItem {
+ id, member_id, kind // policy, statement, contract, note, ... 
+ title, source: "upload" | "forward" | "import" | "capture" | "manual"
+ stored_at, content_hash, version, supersedes_id
+ expiry_date // drives action items — see R-060 
+ extracted_fields{} // nullable, provenance-tagged 
+ data_class: K3
+}
+ Decision { // the andersCH-owned Decision Record 
+ id, member_id, created_at, author // member or curator 
+ question, options_considered[], choice, reasoning
+ linked_vault_item_ids[], linked_position_ids[], linked_goal_ids[]
+ curator_session_id // nullable 
+ immutable: true // append-only; corrections are new records 
+ data_class: K2
+}
+ ActionItem {
+ id, member_id, trigger_kind, due_date, status
+ prepared_options[] // min length 2 — see C-06 
+ // each option: { label, consequence, cost_or_benefit, assumption_set_id } 
+ source_vault_item_id // nullable 
+ data_class: K2
+}
+ AssumptionSet { // see C-02 
+ id, version, effective_from, published_by
+ rates{}, horizons{}, inflation, notes
+ data_class: K0
+}
+ // knowledge and community 
+ LearningUnit {
+ id, title, body_ref, prerequisites[]
+ capability_ids[] // what completing it evidences 
+ ip_owner // see C-03 and section 9 
+}
+ Capability {
+ id, statement // testable, e.g. "can explain what a 
+ // Freizügigkeitskonto in cash costs per year" 
+ rung // see D-01 — DO NOT invent the scheme 
+}
+ CapabilityAssertion {
+ id, member_id, capability_id
+ evidence_kind, evidence_ref, assessed_by, assessed_at
+ data_class: K2
+}
+ // market place 
+ Listing {
+ id, provider_id, roles[] // growth | income | stabilisation | protection 
+ domain: "financial" | "health" | "education"
+ qualification_pipeline: "capability" | "professional_registration"
+ registration_refs[] // for the professional pipeline 
+ disclosures[] // economic relationships — mandatory, may be empty only 
+ // if explicitly asserted as none 
+ standing_inputs{} // capability evidence, community presence 
+ // NO paid placement field readable by ranking — see C-08 
+}
+ CuratorSession {
+ id, member_id, curator_id, opened_from, opened_at, closed_at
+ outcome, liability_flag, decision_ids[]
+ append_only: true // see C-10 
+}
+ ID Requirement 
+ R-020 A Position is valid with only one row filled. The grid must render and be useful at n=1 
+ R-021 Position.tags are used to detect positions that are effectively one position. The comparison rule and its threshold are not yet decided — see D-02 . Store the tags; do not ship the inference 
+ R-030 Goals never partition holdings. A single portfolio must be representable against many goals. No requirement that funded_by_position_ids be disjoint across goals 
+ R-031 A goal whose funding has a liquidity profile inconsistent with its target_date is surfaced as a statement of fact, not as a warning to be dismissed 
+ R-040 Decision records are immutable. A correction is a new record referencing the prior one 
+ R-041 Vault items are versioned with supersedes_id . Nothing is overwritten in place 
+ 05 Screens 
+ S-01 Onboarding 
+ Purpose Establish enough to render the role grid with at least one position and one goal 
+ Reuse An onboarding questionnaire already exists in the estate with a versioned schema. Survey it, report its question count and schema version, and propose a mapping to Position and Goal rather than writing a new one 
+ Requirements 
+ R-100 Age floor 25 enforced server-side, not only in the form 
+ R-101 Must be resumable. Partial state persists per question, not per session 
+ R-102 Ends by writing one Position (employment, human capital, income role) and the member's first Goal if stated 
+ R-103 Consent is captured as versioned records, not a checkbox boolean 
+ Accept A member who abandons at question n and returns resumes at n . Registration with a stated age of 24 is refused by the API even if the client is bypassed 
+ S-02 Role grid — default landing 
+ Purpose Four roles across two kinds of capital. The structure the product is organised around 
+ Layout Four rows (Growth, Income, Stabilisation, Protection) × two columns (human, financial). Eight cells, each empty or holding one or more positions 
+ Requirements 
+ R-110 Renders meaningfully with a single position filled. Empty cells state what would go there, not "no data" 
+ R-111 Each role shows its definition on demand. Definitions are content records, not hardcoded strings — see D-03 
+ R-112 Adding a position is reachable from any empty cell in one action 
+ R-113 No completion meter, no "3 of 8 filled", no progress ring 
+ R-114 Where a figure exists in both kinds of capital, both are shown together 
+ Accept A member with one position sees a screen that tells them something. No element implies eight positions is the goal 
+ S-03 Position detail and add position 
+ Requirements 
+ R-120 Captures role, capital type, label, magnitude with an explicit unit, and the five correlation tags 
+ R-121 Human-capital positions capture a time basis, because hours are the binding constraint. Financial positions do not 
+ R-122 A position may be marked inactive. Inactive positions remain in history and in decisions 
+ R-123 Creating or editing a position writes a Decision in the same transaction — C-09 
+ S-04 Containers 
+ Purpose What each franc is for. A reporting and decision layer over whatever is actually held 
+ Requirements 
+ R-130 Goals may reference overlapping funding. The UI must not imply separate accounts 
+ R-131 Each goal shows the five parameters and whether its funding matches its date 
+ R-132 Courage money is a first-class goal template, not a footnote 
+ R-133 Any projection is an illustration under C-02 and displays its assumption set 
+ S-05 Stage map — the climb 
+ Purpose Content navigation across five stages: 25 career start, 30 family and home, 35 own business, 45 a large asset, 50 optimising 
+ Requirements 
+ R-140 Stages describe a situation. No grading, no locking, no "you are here" score 
+ R-141 A member may open any stage regardless of age 
+ R-142 No stage after 50. Drawdown content is out of scope — NG-02 
+ R-143 Mountain language appears in marketing surfaces only, never in the authenticated product 
+ S-06 Vault 
+ Requirements 
+ R-150 Four intake paths, behind one interface: manual upload, forwarding address, import, camera capture. Build the interface now; the first automated path is D-04 
+ R-151 Extracted fields carry provenance and a confidence indication. Extraction never overwrites a member-entered value 
+ R-152 Expiry dates are first-class and are the primary source of action items 
+ R-153 Member-authored notes, learning and family arrangements are vault items of equal standing to documents 
+ R-154 Full export of everything the member owns, in a documented format, without asking anyone 
+ S-07 Decisions 
+ Purpose The record of what was decided and why. This is an andersCH-owned component and the thing that survives a change of adviser 
+ Requirements 
+ R-160 Chronological, filterable by linked position, goal or vault item 
+ R-161 Shows author and whether a curator was involved 
+ R-162 Append-only. The UI offers "record a correction", never "edit" 
+ S-08 The Know — MiniMind panel 
+ Purpose Answers grounded in the member's own vault, the learning material, and the always-open route to a human 
+ Requirements 
+ R-170 Persistent across all authenticated screens. Carries a Curator button at all times 
+ R-171 Answers cite which vault items or learning units they drew on 
+ R-172 A question that would require a personalised recommendation returns an explanation of the boundary and a Curator handoff — never a hedged recommendation. C-01 
+ R-173 The Curator button opens a CuratorSession recording the screen it was opened from 
+ R-174 Action items are listed here, each expandable to its prepared options and their consequences 
+ R-175 No unsolicited proactive messages. An item appears in the list; it does not interrupt 
+ Accept Asked "should I buy fund X with my 10,000", the system explains the boundary and offers a curator. It does not answer, and it does not produce a suggested breakdown 
+ S-09 Life event modules 
+ Purpose Seven modules: separation, job loss, illness and incapacity, death of a partner, inheritance, caring for parents, move abroad or return 
+ Requirements 
+ R-180 Each module is a content record with the same shape: what to do first, what not to sign, which vault items to retrieve, which curator to call 
+ R-181 A module pulls the relevant vault items automatically rather than asking the member to find them 
+ R-182 Reachable from The Know without navigating a menu 
+ R-183 Module content is authored, not generated. Ship the framework with the modules empty rather than filling them with generated text 
+ S-10 Learning path and capability review 
+ Requirements 
+ R-190 Units have prerequisites and evidence one or more capabilities 
+ R-191 Progression is expressed as capability statements the member can read. No level numbers, no points — C-07 
+ R-192 The rung scheme and the assessment method are not decided — D-01 . Build the data model and leave the scheme configurable 
+ R-193 Three exits are named in the content: run your own affairs, offer a service, start a venture. Only the second and third touch the Market Place 
+ R-194 No claim, anywhere, of federal or accredited status — NG-04 
+ S-11 Market Place — browse and listing 
+ Requirements 
+ R-200 Indexed by the four roles, not by profession. A provider may appear under more than one role 
+ R-201 A member's own role grid pre-filters the view, and the filter is visible and removable 
+ R-202 Every listing displays its disclosures. A listing with no disclosure record cannot be published 
+ R-203 Ranking inputs are role match, capability evidence and community presence. No commercial input — C-08 
+ R-204 Two qualification pipelines: capability-assessed for financial supply, professional-registration for health and education. A listing declares which, and they are not interchangeable 
+ R-205 Member offers and searches sit alongside provider listings: co-investment, succession, property, skills and services 
+ S-12 Curator Workbench 
+ Purpose The curator-side surface. An andersCH-owned component 
+ Requirements 
+ R-210 Curator sees the member's vault, positions, goals and decisions only after the member grants access, scoped and time-limited 
+ R-211 Every session is recorded with entry point and outcome — C-10 
+ R-212 A recommendation made by a curator writes a Decision attributed to that curator 
+ R-213 Access grants are revocable by the member at any time, with immediate effect 
+ S-13 Community 
+ Requirements 
+ R-220 Lectures, café evenings and meet-ups as scheduled items with attendance 
+ R-221 Attendance is an input to community presence for Market Place standing — recorded, and not shown to the member as a score 
+ R-222 The word "events" in the interface means life events. Gatherings are named as lectures, evenings or meet-ups 
+ S-14 Settings, consent and data 
+ Requirements 
+ R-230 Consent history visible and withdrawable 
+ R-231 Export and deletion self-service, both producing a Decision record of the request 
+ R-232 A plain statement of which data class each stored category falls into 
+ 06 HTTP API 
+ Shape, not a contract to copy blindly. Confirm against the existing server before implementing. 
+ # plan 
+GET /api/me
+GET /api/positions # role grid payload 
+POST /api/positions # writes Decision in same txn (C-09) 
+PATCH /api/positions/:id
+GET /api/goals
+POST /api/goals
+GET /api/goals/:id/illustration # returns assumption_set_id (C-02) 
+ # vault and decisions 
+GET /api/vault
+POST /api/vault # upload | capture 
+POST /api/vault/intake/forward # inbound mail webhook 
+GET /api/vault/:id
+GET /api/decisions
+POST /api/decisions
+GET /api/export # full member export (R-154) 
+ # the know 
+POST /api/know/ask # { question } -> { answer, citations[], 
+ # requires_curator: bool } 
+GET /api/actions # prepared_options never empty (C-06) 
+POST /api/curator/sessions # { opened_from } -> session 
+DELETE /api/curator/sessions/:id/grant # member revokes access (R-213) 
+ # knowledge 
+GET /api/learning/path
+GET /api/learning/units/:id
+GET /api/capabilities/me
+ # market place 
+GET /api/marketplace/listings?role=&domain=
+GET /api/marketplace/listings/:id # disclosures always present (R-202) 
+POST /api/marketplace/applications
+ Enforcement point 
+ /api/know/ask is where C-01 lives. The boundary check runs server-side on the response before serialisation. It must not be a prompt instruction alone — a model that ignores its instructions has to be caught by code. 
+ 07 Engine integration 
+ The estate contains a set of analytical engines. Several run out of process because their dependencies are mutually incompatible, each with its own environment. Preserve that pattern; do not attempt to unify the dependency tree. 
+ # pattern: one subprocess per engine, its own venv, JSON over stdio 
+engines/
+ <engine_name>/
+ .venv/ # isolated, never shared 
+ run.py # reads JSON on stdin, writes JSON on stdout 
+ manifest.json # name, version, inputs, outputs, timeout, owner 
+ # backend call site 
+result = call_engine(
+ name="life_balance_sheet",
+ payload={...},
+ timeout_s=<from manifest>,
+)
+ ID Requirement 
+ R-300 Every engine declares a manifest.json with its inputs, outputs, timeout and IP owner. An engine without a manifest is not callable 
+ R-301 Engine calls are never made on a request thread if the manifest timeout exceeds two seconds. Queue and poll 
+ R-302 Engine failure degrades the screen, never the session. A failed engine renders as "not available", not as a zero 
+ R-303 Engine inputs and outputs are logged with the member reference removed, for reproducibility without exposure 
+ R-304 No engine, weight file or model artefact is served to the browser under any circumstance — C-03 
+ R-305 Report the engine inventory found in the estate, with each one's declared owner, before wiring any of them 
+ 08 Design principles as code rules 
+ Each principle forbids something specific. The right-hand column is the testable form. 
+ # Principle Forbidden in code 
+ 1 Answer the question, then show the bigger lever A path that returns only a redirect to onboarding when a member asks a direct question 
+ 2 The first session produces one true, specific statement about the member's own situation An onboarding completion screen that only echoes submitted values 
+ 3 Design for one position, not four Any component that throws, renders empty, or shows a placeholder skeleton when only one position exists 
+ 4 An interruption arrives with the decision prepared, or not at all Push, email or in-app message without a prepared_options payload. Badge counts on navigation 
+ 5 The daily loop is perspective; the deep work is episodic Streak counters, daily-goal state, "you haven't visited in n days" copy anywhere in the planner 
+ 6 Help is one tap; standing is earned Curator access conditioned on learning progress. Any commercial input to listing order 
+ 7 One portfolio, many meanings A uniqueness constraint forcing each holding into exactly one goal 
+ 8 Educate and illustrate by default; recommend only through a licensed human Any endpoint returning ranked instruments without an open curator session 
+ 9 State every figure in both kinds of capital where both apply A summary component that accepts only financial inputs 
+ 10 Plain language in the product; metaphor in the marketing Mountain, hut, tour, summit or climb vocabulary in authenticated UI strings 
+ 09 Existing estate 
+ Components exist in some form already. Survey and report before building. Paths below are indicative and must be verified — the estate is known to contain duplicated and superseded copies. 
+ Component Expected state Action 
+ Onboarding questionnaire Exists as a chat-style page with a versioned question schema Reuse the schema. Report its version and question count 
+ Python server Exists as the prototype backend Extend rather than replace. Report its routes 
+ Analytical engines Multiple, several out of process with isolated environments Wrap behind call_engine . Do not refactor internals 
+ MiniMind Exists. Note that more than one chatbot codebase is present and none is declared current Stop and ask which is canonical. Do not choose one yourself 
+ Client application More than one live version Stop and ask which is canonical. Do not merge them on your own judgement 
+ Decision Record, Curator Workbench, client interface andersCH-owned components, partially built Extend; these are the components andersCH owns outright 
+ Two blocking ambiguities 
+ The estate contains several chatbot codebases and several versions of the client application, with no declaration of which is current. Picking one is a decision with ownership consequences, not a technical preference. Report what exists and wait for an answer. 
+ 10 Build order 
+ Phase Delivers Gate to pass before the next phase 
+ 0 · Survey Written inventory of the estate: engines and their manifests, server routes, onboarding schema, all client and chatbot versions found Canonical versions declared by a human. Nothing is built in this phase 
+ 1 · Spine Data model, migrations, data classification, logging filter, AssumptionSet , Decision Record with immutability, auth with the age floor Constraint tests C-04, C-06, C-07, C-09 pass 
+ 2 · Plan S-01 onboarding wired to the existing schema, S-02 role grid, S-03 positions, S-04 containers Role grid is useful at n=1. No completion meter exists anywhere 
+ 3 · Vault S-06 with manual upload and capture, versioning, expiry extraction, export Full export round-trips. No overwrite in place 
+ 4 · The Know S-08 MiniMind panel with vault grounding, citations, the boundary check, Curator button, action items C-01 enforced server-side and provably not by prompt alone 
+ 5 · Curator S-12 workbench, scoped and revocable access grants, session audit C-10 append-only audit verified. Revocation immediate 
+ 6 · Knowledge S-10 learning path and capability model, with the rung scheme configurable and unset No level numbers or points in schema or UI 
+ 7 · Market Place S-11 listings, disclosures, two qualification pipelines, role index, member offers C-08 verified: no commercial input reachable by the ranking function 
+ 8 · Remainder S-05 stage map, S-09 life event frameworks with empty authored content, S-13 community, S-14 settings Full acceptance checklist in section 11 
+ 11 Acceptance checks 
+ Implement as executable tests, not a manual list. 
+ # constraint tests — these must fail the build, not warn 
+test_no_gamification_identifiers_in_model_layer() # C-07 
+test_top_data_class_never_appears_in_logs() # C-04 
+test_authenticated_bundle_makes_no_cross_origin_request() # C-05 
+test_action_item_with_empty_options_is_rejected() # C-06 
+test_plan_mutation_without_decision_raises() # C-09 
+test_ranked_instruments_refused_without_curator_session() # C-01 
+test_illustration_response_always_carries_assumption_set() # C-02 
+test_listing_ranking_cannot_read_fee_fields() # C-08 
+test_curator_audit_table_rejects_update_and_delete() # C-10 
+test_no_engine_artefact_served_over_http() # C-03 
+ # behavioural 
+test_role_grid_renders_with_one_position() # R-110 
+test_registration_below_age_floor_refused_server_side() # R-100 
+test_onboarding_resumes_at_abandoned_question() # R-101 
+test_two_goals_may_share_funding_positions() # R-030 
+test_decision_correction_creates_new_record() # R-040 
+test_vault_update_creates_version_not_overwrite() # R-041 
+test_curator_access_revocation_takes_immediate_effect() # R-213 
+test_no_mountain_vocabulary_in_authenticated_strings() # R-143 
+test_recommendation_question_returns_boundary_and_handoff() # R-172 
+ 12 Do not invent 
+ These are unresolved. Build the structure that holds them and leave them configurable and empty. Filling one in is a defect. 
+ ID Open decision What to do meanwhile 
+ D-01 The ladder's unit of progression, the rung scheme, and how a capability is assessed Capability.rung stays a nullable configurable field. No default scheme, no invented thresholds, no numbers from research 
+ D-02 The rule and threshold for treating several positions as one, from the five correlation tags Store the tags. Do not ship an inference. No heuristic in code 
+ D-03 The exact role definitions on the financial-capital side, which come from a published model Role definitions are content records loaded from a file, not string literals. Ship the file with the current working definitions clearly marked as provisional 
+ D-04 Which automated vault intake path is built first Build the intake interface with manual and capture only. Leave the other adapters as unimplemented stubs that raise 
+ D-05 What the plan eventually says about where to put a modest lump sum: education only, generic illustration, or curator handoff Curator handoff. It is the only option consistent with C-01 without a policy decision 
+ D-06 Whether health or education ever gets its own product surface Market Place supply and the Protection role label only. No dedicated screens 
+ D-07 The English name for the destination All destination copy comes from a single content key. Do not scatter the phrase through templates 
+ D-08 Which chatbot codebase and which client version are canonical Blocking. Report and wait — see section 9 
+ On underspecification generally 
+ This document is deliberately silent where a decision has not been taken. Silence is not permission to choose. If a screen cannot be built without an answer, say which answer is needed and stop; a wrong policy baked into a schema costs more to remove than the delay costs to absorb. 
+ andersCH build specification v1.0 
+ 10 constraints · 8 open decisions · 14 screens 

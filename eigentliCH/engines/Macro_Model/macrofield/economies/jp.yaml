@@ -1,0 +1,44 @@
+﻿# Japan.
+
+economy:
+  code: jp
+  name: Japan
+  world_bank: JPN
+  bis: JP
+  currency: JPY
+
+data:
+  financial_capital:
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    default_depreciation_rate: 0.05
+
+  stimulus:
+    # Japan's fiscal deficit understates the injection, because the Bank of Japan's balance-sheet
+    # expansion has been the larger channel for most of the period. The proxy is switched here and
+    # the choice is recorded in the manifest, as brief section 2 requires.
+    proxy: central_bank_assets
+    reverse_sign: false
+
+calibration:
+  window:
+    # BIS total credit for Japan begins in 1997, which binds the saturation axis.
+    start: null
+    end: null
+
+notes:
+  - >
+    The most saturated economy in the panel. Latest BIS total credit to the non-financial sector is
+    353.9 percent of GDP, above the upper bound of the 250 to 350 percent band, so the phase
+    classifier places Japan beyond the Phase 3 ceiling on the credit axis alone.
+  - >
+    Book section 20.2 uses the extended Japanese stagnation since the early 1990s as its canonical
+    example of the Stagnation regime, so Japan is the natural test of whether the regime layer and the
+    phase classifier agree.
+  - >
+    The stimulus proxy is the change in central-bank assets rather than the fiscal balance. This is a
+    per-economy departure from the default and it must appear on any output for Japan.
+

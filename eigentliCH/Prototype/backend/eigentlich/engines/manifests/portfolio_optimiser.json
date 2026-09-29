@@ -1,0 +1,20 @@
+{
+  "name": "portfolio_optimiser",
+  "home": "PCP",
+  "runtime": "subprocess",
+  "model_version": "pcp@0.1.0",
+  "timeout_s": 900,
+  "inputs": {
+    "mandate": "str",
+    "market": "str|null",
+    "speed": "str",
+    "optimiser": "str",
+    "household_id": "str|null"
+  },
+  "notes": "Own venv: + scipy. Produces a Recommendation, so C-01 applies to every call site: this output ranks instruments and must not reach a member without an open CuratorSession.",
+  "ip_owner": "SIM Research",
+  "ip_owner_declared_on": "2026-08-30",
+  "outputs": {
+    "contract": "Recommendation"
+  }
+}

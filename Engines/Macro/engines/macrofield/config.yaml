@@ -1,0 +1,56 @@
+# Engine 03, Macro Field (macrofield): the three-body capital-saturation model. Configuration.
+#
+# Committed, so it never holds a password. Keep the local container's password in
+# config.local.yaml (git-ignored) or set MACROFIELD_DB_PASSWORD. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  MACROFIELD_DATABASE_URL / DATABASE_URL  <  MACROFIELD_*
+#
+# Model parameters (uplift, normalisation, fit settings, phase thresholds, the economy
+# registry) are NOT here: they are versioned calibrations, seeded from
+# src/macrofield/calibration.py and extended through PUT /calibration.
+
+service:
+  host: 127.0.0.1
+  # Engine Building Guide section 4 roster. Override with MACROFIELD_PORT.
+  port: 8003
+  # "*" lets the test bench work when opened straight off disk. Narrow it before deployment,
+  # e.g. MACROFIELD_CORS_ORIGINS=https://cockpit.example
+  cors_origins: ["*"]
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema per engine, one role per engine.
+  # See section 8 of the Engine Building Guide. The role owns this schema and holds
+  # SELECT and nothing more on the shared `datafeed` schema.
+  dbname: simtech
+  schema: macrofield
+  user: macrofield
+  sslmode: prefer               # "require" or "verify-full" for anything over a network
+  connect_timeout: 10
+  maintenance_dbname: postgres  # only used by `python -m macrofield init-db`
+
+calibration:
+  # The calibration a run uses when the request names none. Changing it is a deliberate act;
+  # proposing a calibration through PUT /calibration never is.
+  # 1.1.0 = 1.0.0 with the Phase 4 latch over the full history; 1.2.0 = 1.1.0 with Germany on
+  # Genreith's bank balance-sheet measure. 1.0.0 stays the golden reference.
+  # 1.3.0 = 1.2.0 with every economy projectable (IMF sources, euro-area aggregate, weak-evidence
+  # projections flagged).
+  # 1.4.0 = 1.3.0 with review R-005 (28.09.2026): soft saturation ceiling around 5, the four
+  # Phase IV resolution policies of Scenario_SAA.m, crisis and 35-year reset, projection to 2080
+  # (display 2039). Observed-period outputs identical to 1.3.0 in all 16 economies; activated
+  # on that check. 1.3.0 stays stored and can be requested by version.
+  # 1.5.0 = 1.4.0 with TB-27 (29.09.2026): investment share bounded at zero in fit and projection,
+  # parameters carried forward held inside their ranges; every fit and projection integrates.
+  # Active by owner decision (TB-28, 29.09.2026): its fits differ from 1.4.0, but what aggregation
+  # and cycle read is identical. 1.4.0 stays stored and can be requested by version.
+  active: "1.5.0"
+
+run:
+  # Processes a run spreads its economies over. The artefact does not depend on this number.
+  max_workers: 4
+
+data:
+  # The frozen raw snapshot that `python -m macrofield load` reads. Relative to this file.
+  raw_dir: data/raw

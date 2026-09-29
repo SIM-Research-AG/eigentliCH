@@ -1,0 +1,48 @@
+﻿# United States.
+#
+# Only what is distinctive about this economy. Everything else, including the series identifiers,
+# comes from config/defaults.yaml. Adding an economy is a config change, not a code change.
+
+economy:
+  code: us
+  name: United States
+  world_bank: USA
+  bis: US
+  currency: USD
+
+data:
+  # BIS publishes total credit for the United States from 1947, the longest run of any economy in the
+  # panel, so the saturation axis is not the binding constraint on the window here.
+  financial_capital:
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    # Roughly the rate implied by the United States national accounts for the total fixed capital
+    # stock. Held to a prior and stress-tested rather than fitted, since it is weakly identified.
+    default_depreciation_rate: 0.05
+
+  stimulus:
+    proxy: fiscal_balance
+    reverse_sign: true
+
+calibration:
+  window:
+    # Set by the published capital stock, which is the binding series. Left open so the loader takes
+    # the overlap and reports it, rather than asserting a window the data may not support.
+    start: null
+    end: null
+
+notes:
+  - >
+    The framework's central case. Book chapter 14 and chapter 27 treat the United States as the
+    economy furthest into the capital cycle, and the HoNI export dated 2026-04-27 places it least
+    healthy of its 16-economy panel in 2024.
+  - >
+    Book section 5 and the German source note both draw the analogy to Germany in the 1920s. That
+    overlay is available through the validation module and is labelled an analogue, never a prediction.
+  - >
+    Latest BIS total credit to the non-financial sector is 251.2 percent of GDP, which sits just
+    inside the lower bound of the 250 to 350 percent band derived in book section 8.5.
+

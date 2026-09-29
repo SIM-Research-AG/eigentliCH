@@ -1,0 +1,32 @@
+{
+  "_about": {
+    "requirement": "eigentliCH app update script v2.1, item 6 — every input class carries an age and a validity horizon. When a load-bearing input passes its horizon, a finding built on it degrades to \"could not be determined\" rather than being presented as certified.",
+    "why_a_content_record": "A horizon is a number nobody may write into application code (C-02). It is not an engine output either: services/assumptions.py composes an AssumptionSet strictly by reading market_signal and return_estimation, and refuses to compose any value of its own — so an editorially decided horizon has no place in that stream. It is published here instead, as a content record, which is where this build keeps K0 values that a person decided and can review. Chosen by the owner on 3 September 2026 over a separate published InputHorizonSet table.",
+    "what_a_reader_should_know": "A content record carries no database identity, so a Befund fact resting on one has source=\"content\" and owes no assumption_set_id. published_by and effective_from are recorded below rather than in a column, because a value nobody stands behind is the defect C-02 exists to prevent and the mechanism should not change that.",
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-03",
+    "effective_from": "2026-09-03",
+    "provisional": false
+  },
+
+  "horizons": {
+    "household_composition": {
+      "months": 12,
+      "load_bearing": true,
+      "why": "Household composition is the one load-bearing input the system cannot detect for itself. It sets the AHV path, the tax path, goal ownership and the human role vector, and nothing — not aggregation, not a document, not a re-solve — reveals that it changed.",
+      "why_this_length": "Twelve is the shortest horizon of any input class, and it is twelve rather than six or nine so that horizon expiry and the annual review are the same event in the common case. A shorter horizon would create a second cadence with nothing prepared to attach to it, which Principle 4 forbids: an interruption arrives with the decision prepared, or not at all.",
+      "measured_from": "households.composition_as_of — the date the member says the composition describes, not the date the row was written."
+    }
+  },
+
+  "_not_yet_published": {
+    "_about": "Input classes that will need a horizon and do not have one. Listed rather than defaulted: services/currency.py raises for an input class with no published horizon, so an absence here is visible as a refusal rather than silently treated as never expiring. Adding one is an editorial act with an owner, the same as the entry above.",
+    "classes": [
+      "income",
+      "financial_stock",
+      "goal_target",
+      "liquidity_band",
+      "employment_situation"
+    ]
+  }
+}

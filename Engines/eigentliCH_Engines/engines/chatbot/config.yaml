@@ -1,0 +1,65 @@
+# eigentliCH ChatBot (chatbot), Engine 16: configuration.
+#
+# Committed, so it never holds a secret. The database password lives in config.local.yaml
+# (git-ignored) or CHATBOT_DB_PASSWORD; the spark7 access token lives in the family .env
+# (git-ignored), named below by variable only. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  CHATBOT_DATABASE_URL / DATABASE_URL  <  CHATBOT_*
+#
+# Generation parameters (token limit, temperature, seed), the number check and the refusal
+# texts are NOT here: they are versioned calibrations (src/chatbot/calibration.py, PUT /calibration).
+
+service:
+  host: 127.0.0.1
+  port: 8016                    # Engine Building Guide section 4. Override with CHATBOT_PORT.
+  # "*" lets the test bench work when opened straight off disk. Narrow it before
+  # deployment, e.g. CHATBOT_CORS_ORIGINS=https://app.example
+  cors_origins: ["*"]
+
+model:
+  # The one place that says which service computes and with which model (after the OGD
+  # Plattform's inferenz.yaml). Known external generative-AI providers are refused at start,
+  # and so is any host that is neither loopback nor the house's own (*.minimind.ch): CHB-04.
+  service: spark7               # the server; never shown to a client
+  display_name: MiniMind        # the house's AI as readers see it (answer labels, notices): CHB-21
+  protocol: openai              # OpenAI-compatible routes only (vLLM): /v1/models, /v1/chat/completions
+  base_url: https://spark7.minimind.ch      # override with CHATBOT_MODEL_URL
+  model: google/gemma-4-31B-it-qat-w4a16-ct # override with CHATBOT_MODEL_NAME; enters the idempotency key
+  # The access proxy cuts a response that has not started within 125 s (HTTP 524), so every
+  # call streams (SSE) and only the first byte has to beat the proxy.
+  stream: true
+  timeouts:
+    connect_s: 10
+    first_byte_s: 120           # also the longest silence allowed between two chunks
+    total_s: 300
+  headers:
+    # The access proxy must never answer from a cache: on a stream that would be someone
+    # else's answer to this question.
+    Cache-Control: "no-cache, no-store, must-revalidate"
+  headers_from_env:
+    # Header name -> environment variable NAME. Never a value in this file.
+    CF-Access-Client-Id: SPARK7_CLIENT_ID
+    CF-Access-Client-Secret: SPARK7_CLIENT_SECRET
+  # Read for the variables above when they are not already set; relative to this folder.
+  env_file: ../../.env
+  warmup:
+    # A one-token call on a timer keeps the model loaded, so its load time is not a
+    # reader's wait. CHATBOT_WARMUP=0 switches it off (the tests do). Not below 30 s.
+    enabled: true
+    interval_s: 240
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema per engine, one role per engine
+  # (Engine Building Guide section 8). The role owns this schema and reads nothing else.
+  dbname: simtech
+  schema: chatbot
+  user: chatbot
+  sslmode: prefer
+  connect_timeout: 10
+  maintenance_dbname: postgres
+
+calibration:
+  # The calibration a run uses when the request names none.
+  active: "1.1.0"

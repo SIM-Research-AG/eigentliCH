@@ -1,0 +1,260 @@
+{
+  "_about": {
+    "requirement": "Every Befund in the build ends up saying «Das Modell führt keine AHV-Rente». For a member asking whether their retirement is funded that is the single largest missing number: the first pillar is most of the floor under every plan here, and leaving it out makes every projection look worse than it is by an amount nobody can see.",
+    "why_a_content_record": "Same argument as property-funding. This is a statutory table, not an engine output and not a forecast. A 51-row scale inlined in Python is 51 figures nobody signed, and they change when the Bundesrat adjusts pensions. C-02 forbids the float; this is where the figures live instead.",
+    "what_this_is_not": "Not a pension forecast and not an entitlement. The Ausgleichskasse computes the binding figure and only at the point of claim, because only then are the elements known. What this produces is the statutory table applied to inputs the member supplied, which is a computation about the rules and not a promise about their case.",
+    "the_input_nobody_has": "The table is keyed on the **massgebendes durchschnittliches Jahreseinkommen** -- the average of a whole working life, revalued. The build holds a member's CURRENT gross income, which is not that number and is usually higher than it for someone mid-career and lower for someone near the end. Any caller substituting one for the other is producing a real figure about a fictional person, so the service takes mdJE explicitly and never derives it.",
+    "published_by": null,
+    "decided_on": null,
+    "effective_from": null,
+    "provisional": true,
+    "_approval": "NOT APPROVED. Drafted 5 September 2026. services/ahv.py refuses on every path that produces a franc figure while `provisional` is true or `published_by` is empty.",
+    "_for_review": [
+      "The table is «Gültig ab 1. Januar 2025». It is used for 2026 on the strength of the BSV sheet «Beträge gültig ab dem 1. Januar 2026», which states «Keine Änderung der Beträge gegenüber 1.1.2025». That inference is mine and is the first thing to check.",
+      "Whether a member should be shown a figure keyed on an mdJE they have not supplied. The service refuses to guess it; the question is whether the Befund should ask for it, show a band across the whole table, or stay silent until the member states it.",
+      "Erziehungs- und Betreuungsgutschriften raise the mdJE and are not modelled. For a member who raised children the figure produced here is too low, and by an amount that is not small.",
+      "Splitting is not modelled either. For a married member the mdJE is not their own earnings but half the couple's during the marriage years."
+    ],
+    "sources": [
+      "Informationsstelle AHV/IV, «Monatliche Vollrenten, Skala 44 / AHV-IV», 318.117.1 df 07.24, gültig ab 1. Januar 2025 -- the 51-row table below, transcribed from the published PDF.",
+      "BSV, «Beträge gültig ab dem 1. Januar 2026», 06.11.2025 -- the minimum and maximum, and the statement that the amounts did not change.",
+      "BSV, «Berechnungsvorschriften der AHV/IV-Renten», gültig ab 1.1.2026, section 8.2 -- the Teilrentenfaktor table, which is Skala/44 to four decimals.",
+      "AHV/IV-Merkblatt 3.01, Stand 1. Januar 2026 -- Vollrente/Teilrente, the 13th pension, and 1/44 per missing year."
+    ]
+  },
+  "monthly": {
+    "_about": "Monthly full pension (Skala 44) by Bestimmungsgrösse. The Bestimmungsgrösse column is an UPPER bound: the first row whose `up_to` is at or above the member's mdJE gives the pension. Below the first row the minimum applies; at or above the last, the maximum.",
+    "minimum": 1260,
+    "maximum": 2520,
+    "couple_cap": 3780,
+    "couple_cap_why": "150 percent of the maximum, not 200. Two unmarried people with the same incomes receive more together than a married couple with those incomes.",
+    "payments_per_year": 13,
+    "payments_why": "From 2026 a thirteenth pension is paid every December, equal to one twelfth of the annual pension. It is paid on the ALTERSRENTE only -- survivors', invalidity and children's pensions stay at twelve.",
+    "scale_44": [
+      {
+        "up_to": 15120,
+        "monthly": 1260
+      },
+      {
+        "up_to": 16632,
+        "monthly": 1293
+      },
+      {
+        "up_to": 18144,
+        "monthly": 1326
+      },
+      {
+        "up_to": 19656,
+        "monthly": 1358
+      },
+      {
+        "up_to": 21168,
+        "monthly": 1391
+      },
+      {
+        "up_to": 22680,
+        "monthly": 1424
+      },
+      {
+        "up_to": 24192,
+        "monthly": 1457
+      },
+      {
+        "up_to": 25704,
+        "monthly": 1489
+      },
+      {
+        "up_to": 27216,
+        "monthly": 1522
+      },
+      {
+        "up_to": 28728,
+        "monthly": 1555
+      },
+      {
+        "up_to": 30240,
+        "monthly": 1588
+      },
+      {
+        "up_to": 31752,
+        "monthly": 1620
+      },
+      {
+        "up_to": 33264,
+        "monthly": 1653
+      },
+      {
+        "up_to": 34776,
+        "monthly": 1686
+      },
+      {
+        "up_to": 36288,
+        "monthly": 1719
+      },
+      {
+        "up_to": 37800,
+        "monthly": 1751
+      },
+      {
+        "up_to": 39312,
+        "monthly": 1784
+      },
+      {
+        "up_to": 40824,
+        "monthly": 1817
+      },
+      {
+        "up_to": 42336,
+        "monthly": 1850
+      },
+      {
+        "up_to": 43848,
+        "monthly": 1882
+      },
+      {
+        "up_to": 45360,
+        "monthly": 1915
+      },
+      {
+        "up_to": 46872,
+        "monthly": 1935
+      },
+      {
+        "up_to": 48384,
+        "monthly": 1956
+      },
+      {
+        "up_to": 49896,
+        "monthly": 1976
+      },
+      {
+        "up_to": 51408,
+        "monthly": 1996
+      },
+      {
+        "up_to": 52920,
+        "monthly": 2016
+      },
+      {
+        "up_to": 54432,
+        "monthly": 2036
+      },
+      {
+        "up_to": 55944,
+        "monthly": 2056
+      },
+      {
+        "up_to": 57456,
+        "monthly": 2076
+      },
+      {
+        "up_to": 58968,
+        "monthly": 2097
+      },
+      {
+        "up_to": 60480,
+        "monthly": 2117
+      },
+      {
+        "up_to": 61992,
+        "monthly": 2137
+      },
+      {
+        "up_to": 63504,
+        "monthly": 2157
+      },
+      {
+        "up_to": 65016,
+        "monthly": 2177
+      },
+      {
+        "up_to": 66528,
+        "monthly": 2197
+      },
+      {
+        "up_to": 68040,
+        "monthly": 2218
+      },
+      {
+        "up_to": 69552,
+        "monthly": 2238
+      },
+      {
+        "up_to": 71064,
+        "monthly": 2258
+      },
+      {
+        "up_to": 72576,
+        "monthly": 2278
+      },
+      {
+        "up_to": 74088,
+        "monthly": 2298
+      },
+      {
+        "up_to": 75600,
+        "monthly": 2318
+      },
+      {
+        "up_to": 77112,
+        "monthly": 2339
+      },
+      {
+        "up_to": 78624,
+        "monthly": 2359
+      },
+      {
+        "up_to": 80136,
+        "monthly": 2379
+      },
+      {
+        "up_to": 81648,
+        "monthly": 2399
+      },
+      {
+        "up_to": 83160,
+        "monthly": 2419
+      },
+      {
+        "up_to": 84672,
+        "monthly": 2439
+      },
+      {
+        "up_to": 86184,
+        "monthly": 2460
+      },
+      {
+        "up_to": 87696,
+        "monthly": 2480
+      },
+      {
+        "up_to": 89208,
+        "monthly": 2500
+      },
+      {
+        "up_to": 90720,
+        "monthly": 2520
+      }
+    ]
+  },
+  "partial": {
+    "_about": "An incomplete contribution record gives a Teilrente on Skala 1-43. The Berechnungsvorschriften table at 8.2 is Skala/44 to four decimals, so the factor is expressed as the ratio rather than re-transcribed as 43 rounded constants.",
+    "full_scale": 44,
+    "factor_is": "scale / 44",
+    "one_missing_year_costs": "1/44 of the full pension, for life",
+    "contribution_starts": "1 January after the 20th birthday",
+    "gap_can_be_paid_within_years": 5
+  },
+  "not_modelled": {
+    "_about": "Named rather than approximated. The first two move the figure UP, and by amounts that are not small.",
+    "items": [
+      "Erziehungsgutschriften, credited for years with children under 16 in the household.",
+      "Betreuungsgutschriften, for years spent caring for a relative.",
+      "Splitting, which halves and reassigns income earned during a marriage.",
+      "Jugendjahre, contribution years between 18 and 20 that can fill later gaps.",
+      "The revaluation factor applied to early-career income before the average is taken.",
+      "The reduction for drawing early and the supplement for deferring -- both in Merkblatt 3.04.",
+      "The Rentenzuschlag for women born 1961-1969."
+    ]
+  }
+}

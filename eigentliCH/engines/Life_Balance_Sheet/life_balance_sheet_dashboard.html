@@ -1,0 +1,405 @@
+<style>
+  :root{
+    --paper:#FCFBF8; --panel:#FFFFFF; --panel-2:#FAF8F2;
+    --ink:#1B1D2A; --slate:#5A6272; --muted:#8C8677;
+    --rule:#E6E2D8; --rule-strong:#D6D1C4;
+    --teal:#0F6E6B; --teal-fill:rgba(15,110,107,.13);
+    --ochre:#C0872A; --good:#0F6E6B; --warn:#B4472E;
+    --shadow:0 1px 2px rgba(27,29,42,.05), 0 8px 24px rgba(27,29,42,.05);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#15161E; --panel:#1D1F29; --panel-2:#191B24;
+      --ink:#F1EEE6; --slate:#A6ABBA; --muted:#7E8395;
+      --rule:#2C2F3C; --rule-strong:#3A3E4D;
+      --teal:#48B3A9; --teal-fill:rgba(72,179,169,.15);
+      --ochre:#E0A93F; --good:#48B3A9; --warn:#E17B5F;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#FCFBF8; --panel:#FFFFFF; --panel-2:#FAF8F2;
+    --ink:#1B1D2A; --slate:#5A6272; --muted:#8C8677;
+    --rule:#E6E2D8; --rule-strong:#D6D1C4;
+    --teal:#0F6E6B; --teal-fill:rgba(15,110,107,.13);
+    --ochre:#C0872A; --good:#0F6E6B; --warn:#B4472E;
+    --shadow:0 1px 2px rgba(27,29,42,.05), 0 8px 24px rgba(27,29,42,.05);
+  }
+  :root[data-theme="dark"]{
+    --paper:#15161E; --panel:#1D1F29; --panel-2:#191B24;
+    --ink:#F1EEE6; --slate:#A6ABBA; --muted:#7E8395;
+    --rule:#2C2F3C; --rule-strong:#3A3E4D;
+    --teal:#48B3A9; --teal-fill:rgba(72,179,169,.15);
+    --ochre:#E0A93F; --good:#48B3A9; --warn:#E17B5F;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  body{background:var(--paper); color:var(--ink); font-family:var(--sans);
+    line-height:1.55; margin:0; -webkit-font-smoothing:antialiased;
+    font-size:16px; letter-spacing:.005em;}
+  .wrap{max-width:1080px; margin:0 auto; padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 64px;}
+
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--teal); font-weight:600;}
+  h1{font-family:var(--serif); font-weight:600; font-size:clamp(2rem,4.6vw,3rem);
+    line-height:1.04; letter-spacing:-.01em; margin:.28em 0 .12em; text-wrap:balance;}
+  .dek{font-family:var(--serif); font-style:italic; color:var(--slate);
+    font-size:clamp(1.02rem,2.2vw,1.22rem); max-width:52ch;}
+  .meta{font-family:var(--mono); font-size:11.5px; color:var(--muted);
+    letter-spacing:.04em; margin-top:14px; display:flex; flex-wrap:wrap; gap:6px 18px;}
+
+  header.masthead{border-bottom:1.5px solid var(--ink); padding-bottom:22px; margin-bottom:30px;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap;}
+  .theme-btn{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    background:transparent; color:var(--slate); border:1px solid var(--rule-strong);
+    border-radius:100px; padding:7px 13px; cursor:pointer; white-space:nowrap;}
+  .theme-btn:hover{border-color:var(--teal); color:var(--teal);}
+  .theme-btn:focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
+
+  section{margin-top:26px;}
+  .sec-label{font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:10px;}
+  .sec-label::after{content:""; flex:1; height:1px; background:var(--rule);}
+
+  .grid{display:grid; gap:16px;}
+  .verdict{grid-template-columns:1.05fr 1fr 1fr;}
+  .charts{grid-template-columns:1fr 1fr;}
+  @media (max-width:820px){ .verdict,.charts{grid-template-columns:1fr;} }
+
+  .card{background:var(--panel); border:1px solid var(--rule); border-radius:8px;
+    padding:20px 22px; box-shadow:var(--shadow);}
+  .card h3{margin:0; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--slate); font-weight:600;}
+  .big{font-family:var(--serif); font-variant-numeric:tabular-nums; line-height:1;
+    font-size:clamp(2.4rem,6vw,3.4rem); font-weight:600; letter-spacing:-.02em;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  .chip{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono);
+    font-size:11px; letter-spacing:.05em; padding:3px 10px; border-radius:100px; font-weight:600;}
+  .chip.good{color:var(--good); background:color-mix(in srgb, var(--good) 12%, transparent);}
+  .chip.warn{color:var(--warn); background:color-mix(in srgb, var(--warn) 13%, transparent);}
+  .chip .dot{width:7px; height:7px; border-radius:50%; background:currentColor;}
+
+  .gauge-wrap{display:flex; flex-direction:column; align-items:center; text-align:center; gap:4px;}
+  .gauge-cap{font-family:var(--mono); font-size:11px; color:var(--slate); letter-spacing:.03em;}
+
+  .stat-row{display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    padding:9px 0; border-bottom:1px dotted var(--rule);}
+  .stat-row:last-child{border-bottom:none;}
+  .stat-row .k{font-family:var(--mono); font-size:11.5px; color:var(--slate); letter-spacing:.02em;}
+  .stat-row .v{font-family:var(--serif); font-size:1.15rem; font-variant-numeric:tabular-nums;}
+  .lead{font-size:.96rem; color:var(--slate); margin:2px 0 0;}
+
+  .action-card{background:var(--panel-2); border-left:3px solid var(--teal);}
+  .action-text{font-family:var(--serif); font-size:1.16rem; line-height:1.5; margin:10px 0 0;}
+  .action-text b{color:var(--teal); font-weight:600; font-style:normal;}
+  .timebar{display:flex; height:12px; border-radius:3px; overflow:hidden; margin-top:16px;
+    border:1px solid var(--rule);}
+  .timebar span{display:block;}
+  .legend-inline{display:flex; flex-wrap:wrap; gap:10px 16px; margin-top:9px;
+    font-family:var(--mono); font-size:10.5px; color:var(--slate);}
+  .legend-inline i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px;
+    vertical-align:-1px;}
+
+  .insight{background:var(--panel); border:1px solid var(--rule); border-radius:8px;
+    padding:22px 24px; box-shadow:var(--shadow); display:flex; gap:20px; align-items:center; flex-wrap:wrap;}
+  .insight .rate{font-family:var(--serif); font-weight:600; font-size:clamp(2.2rem,5vw,3rem);
+    color:var(--ochre); line-height:1; font-variant-numeric:tabular-nums;}
+  .insight .body{flex:1; min-width:240px;}
+  .insight .body p{margin:0;}
+  .insight .body .head{font-family:var(--serif); font-size:1.2rem; line-height:1.4;}
+
+  figure{margin:0;}
+  .chart-card{background:var(--panel); border:1px solid var(--rule); border-radius:8px;
+    padding:18px 20px 14px; box-shadow:var(--shadow);}
+  .chart-card figcaption{font-family:var(--mono); font-size:10.5px; color:var(--muted);
+    line-height:1.5; margin-top:10px; letter-spacing:.01em;}
+  .chart-title{font-family:var(--serif); font-size:1.06rem; font-weight:600; margin:0 0 2px;}
+  .chart-sub{font-size:.86rem; color:var(--slate); margin:0 0 8px;}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 16px; margin-bottom:6px;
+    font-family:var(--mono); font-size:10.5px; color:var(--slate);}
+  .legend .it{display:inline-flex; align-items:center; gap:6px;}
+  .legend .sw{width:16px; height:0; border-top-width:2.5px; border-top-style:solid;}
+  svg{display:block; width:100%; height:auto; overflow:visible;}
+  .ax{font-family:var(--mono); font-size:10px; fill:var(--muted);}
+  .gridline{stroke:var(--rule); stroke-width:1;}
+  .axisline{stroke:var(--rule-strong); stroke-width:1;}
+
+  .tip{position:absolute; pointer-events:none; z-index:5; background:var(--ink); color:var(--paper);
+    font-family:var(--mono); font-size:11px; padding:7px 9px; border-radius:5px; line-height:1.5;
+    transform:translate(-50%,-115%); white-space:nowrap; opacity:0; transition:opacity .1s; box-shadow:var(--shadow);}
+  .tip b{color:var(--teal-tip,#7fd3cb);}
+
+  .shadow-bars{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .sb-row{display:grid; grid-template-columns:92px 1fr 54px; align-items:center; gap:12px;}
+  .sb-row .lab{font-family:var(--mono); font-size:11px; color:var(--slate);}
+  .sb-track{height:14px; background:var(--panel-2); border:1px solid var(--rule); border-radius:3px; overflow:hidden;}
+  .sb-fill{height:100%; background:var(--teal); border-radius:0;}
+  .sb-row .val{font-family:var(--mono); font-size:11px; color:var(--ink); text-align:right;
+    font-variant-numeric:tabular-nums;}
+
+  footer{margin-top:44px; padding-top:20px; border-top:1px solid var(--rule);
+    font-family:var(--mono); font-size:10.5px; color:var(--muted); line-height:1.7;
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+
+  @media (prefers-reduced-motion: no-preference){
+    .reveal{opacity:0; transform:translateY(10px); animation:rise .6s cubic-bezier(.2,.7,.3,1) forwards;}
+    .draw{stroke-dasharray:var(--len); stroke-dashoffset:var(--len); animation:draw 1.15s ease-out forwards;}
+  }
+  @keyframes rise{to{opacity:1; transform:none;}}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">The Life Balance Sheet · Prescriptive output</div>
+      <h1>Independence at fifty</h1>
+      <div class="dek">What the engine recommends this period, and whether the goal is actually funded — for the flagship special case (see the Nicolas note; the five worked lives are shown in the app gallery).</div>
+      <div class="meta">
+        <span>CASE · Nicolas, age 45</span><span>GOAL · FI by 50 · CHF 120k/yr</span>
+        <span>CONFIDENCE · 90%</span><span>h_res = 0 · no equity release</span>
+      </div>
+    </div>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light or dark theme">◐ Theme</button>
+  </header>
+
+  <section>
+    <div class="sec-label">The verdict</div>
+    <div class="grid verdict">
+      <div class="card reveal gauge-wrap" style="animation-delay:.02s">
+        <h3 style="align-self:flex-start">Financial independence by 50</h3>
+        <div id="gauge"></div>
+        <div class="big num" id="gaugeNum" style="margin-top:-6px">91%</div>
+        <div class="gauge-cap">chance of clearing the goal · target 90%</div>
+        <span class="chip good" style="margin-top:6px"><span class="dot"></span>ON TRACK</span>
+      </div>
+
+      <div class="card reveal" style="animation-delay:.08s">
+        <h3>Work-optional age</h3>
+        <div class="big" style="color:var(--teal); margin:8px 0 2px">50</div>
+        <p class="lead">on the recommended plan — the earliest age passive income plus a safe drawdown covers the CHF 120k lifestyle at 90% confidence.</p>
+        <div class="stat-row" style="margin-top:12px"><span class="k">Keep the current 120k lifestyle</span><span class="v" style="color:var(--warn); font-size:.98rem">not by 58</span></div>
+      </div>
+
+      <div class="card reveal" style="animation-delay:.14s">
+        <h3>Drawable vs total net worth</h3>
+        <div class="stat-row"><span class="k">Net worth</span><span class="v">CHF 3.80M</span></div>
+        <div class="stat-row"><span class="k">Drawable (liquid)</span><span class="v" style="color:var(--teal)">CHF 0.60M</span></div>
+        <div class="stat-row"><span class="k">Needed for FI</span><span class="v">CHF 0.57M</span></div>
+        <p class="lead" style="margin-top:10px">The CHF 5M residence lifts net worth but not drawable wealth — the illiquidity gap the goal actually turns on.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">This period’s action</div>
+    <div class="card action-card reveal">
+      <h3>Apply now — one period</h3>
+      <p class="action-text">Work <b>50%</b> of your productive time, keep spending to <b>~CHF 84k</b> (a <b>49% saving rate</b>), hold <b>a conservative equity tilt</b>, and put nothing extra into skills or network — both are already at their ceiling. Direct the surplus into the <b>liquid, drawable sleeve</b>, not the property.</p>
+      <div class="timebar" id="timebar" role="img" aria-label="Time budget: work 50%, rest 21%, leisure 29%"></div>
+      <div class="legend-inline" id="timelegend"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">The one insight</div>
+    <div class="insight reveal">
+      <div class="rate">5.1×</div>
+      <div class="body">
+        <p class="head">An hour of <b style="color:var(--ochre)">overtime</b> moves you toward independence about <b>5.1× faster</b> than an hour of networking.</p>
+        <p class="lead" style="margin-top:6px">The reverse of a founder’s instinct — but your network is saturated, so its marginal value is low, while the goal is drawable wealth. The ranking is computed from your state, and it shifts as the state shifts.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">How the odds move with time</div>
+    <div class="grid charts">
+      <figure class="chart-card reveal">
+        <p class="chart-title">The work-optional date</p>
+        <p class="chart-sub">Probability of independence by each age, under two plans.</p>
+        <div class="legend">
+          <span class="it"><span class="sw" style="border-color:var(--teal)"></span>Recommended plan</span>
+          <span class="it"><span class="sw" style="border-color:var(--slate); border-top-style:dashed"></span>Keep 120k lifestyle</span>
+          <span class="it"><span class="sw" style="border-color:var(--ochre); border-top-style:dashed"></span>90% target</span>
+        </div>
+        <div id="chartPFI" style="position:relative"></div>
+        <figcaption>The recommended plan crosses the 90% line at <b>age 50</b>; holding the full lifestyle keeps the odds below target throughout — the swing factor is spending discipline, not investment return.</figcaption>
+      </figure>
+
+      <figure class="chart-card reveal" style="animation-delay:.06s">
+        <p class="chart-title">The illiquidity gap</p>
+        <p class="chart-sub">Drawable wealth must clear the requirement; net worth is beside the point.</p>
+        <div class="legend">
+          <span class="it"><span class="sw" style="border-color:var(--slate)"></span>Total net worth</span>
+          <span class="it"><span class="sw" style="border-color:var(--teal)"></span>Drawable wealth</span>
+          <span class="it"><span class="sw" style="border-color:var(--ochre); border-top-style:dashed"></span>Drawable needed</span>
+        </div>
+        <div id="chartWealth" style="position:relative"></div>
+        <figcaption>Drawable wealth (teal) rises to meet the shrinking requirement (ochre) around <b>age 50–51</b>, while net worth towers far above — proof the binding quantity is liquidity, not wealth.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">What the engine weighed</div>
+    <div class="card reveal">
+      <h3>Shadow price of each capital — the scarcest is health</h3>
+      <div class="shadow-bars" id="shadowBars"></div>
+      <p class="lead" style="margin-top:14px">These are the marginal values the optimiser attaches to another unit of each capital toward the goal. Expertise and network are near their ceilings, so more buys little; <b style="color:var(--ink)">health carries the highest shadow price</b> — the quiet limiter behind the whole plan.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Generated by the personal_alm engine · scenario-based MPC with CVaR · Route A</span>
+    <span>Illustrative throughout — not financial advice</span>
+  </footer>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const DATA = {
+  conf:0.90, p_fi_50:0.906, work_optional_age:50,
+  action:{tau_Y:0.4995, tau_E:0.0000001, tau_N:0.0000001, tau_H:0.2092, leisure:0.2913},
+  costates:{E:2.571, N:2.398, H:10.790},
+  pfi:[[46,0.755],[47,0.818],[48,0.868],[49,0.880],[50,0.906],[51,0.926],[52,0.949],[53,0.954],[54,0.961],[55,0.969],[56,0.974],[57,0.983],[58,0.988]],
+  pfi_sq:[[46,0.605],[47,0.617],[48,0.649],[49,0.665],[50,0.668],[51,0.680],[52,0.695],[53,0.719],[54,0.745],[55,0.755],[56,0.774],[57,0.775],[58,0.798]],
+  proj:[[45,0.600,3.800,0.571],[46,0.659,4.011,0.485],[47,0.726,4.234,0.395],[48,0.799,4.469,0.303],[49,0.879,4.716,0.208],[50,0.967,4.975,0.110],[51,1.063,5.248,0.009],[52,1.166,5.533,0],[53,1.277,5.831,0],[54,1.396,6.144,0],[55,1.524,6.470,0],[56,1.660,6.812,0],[57,1.805,7.168,0],[58,1.958,7.540,0]]
+};
+
+const NS="http://www.w3.org/2000/svg";
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const el=(n,a={})=>{const e=document.createElementNS(NS,n); for(const k in a)e.setAttribute(k,a[k]); return e;};
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- gauge ---------- */
+function gauge(){
+  const box=document.getElementById("gauge"); box.innerHTML="";
+  const W=200,H=118,cx=100,cy=104,r=82,sw=15;
+  const svg=el("svg",{viewBox:`0 0 ${W} ${H}`,width:W}); svg.setAttribute("role","img");
+  svg.setAttribute("aria-label",`91 percent, target 90 percent`);
+  const pol=(deg)=>{const a=(180-deg)*Math.PI/180; return [cx+r*Math.cos(a), cy-r*Math.sin(a)];};
+  const arc=(f)=>{const [x0,y0]=pol(0),[x1,y1]=pol(180*f); return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`;};
+  svg.appendChild(el("path",{d:arc(1),fill:"none",stroke:css("--rule-strong"),"stroke-width":sw,"stroke-linecap":"round"}));
+  const val=el("path",{d:arc(DATA.p_fi_50),fill:"none",stroke:css("--teal"),"stroke-width":sw,"stroke-linecap":"round"});
+  svg.appendChild(val);
+  const [tx,ty]=pol(180*DATA.conf), [tx2,ty2]=[cx+(r+sw/2+3)*Math.cos((180-180*DATA.conf)*Math.PI/180), cy-(r+sw/2+3)*Math.sin((180-180*DATA.conf)*Math.PI/180)];
+  const [ix,iy]=[cx+(r-sw/2-3)*Math.cos((180-180*DATA.conf)*Math.PI/180), cy-(r-sw/2-3)*Math.sin((180-180*DATA.conf)*Math.PI/180)];
+  svg.appendChild(el("line",{x1:ix,y1:iy,x2:tx2,y2:ty2,stroke:css("--ochre"),"stroke-width":2.5}));
+  box.appendChild(svg);
+  if(!reduce){const L=Math.PI*r*DATA.p_fi_50; val.style.setProperty("--len",L); val.classList.add("draw");}
+}
+
+/* ---------- time budget bar ---------- */
+function timebar(){
+  const a=DATA.action, segs=[["Work",a.tau_Y,css("--teal")],["Rest",a.tau_H,css("--ochre")],["Leisure",a.leisure,"var(--slate)"]];
+  const bar=document.getElementById("timebar"), leg=document.getElementById("timelegend");
+  segs.forEach(([n,v,c])=>{const s=document.createElement("span"); s.style.width=(v*100)+"%"; s.style.background=c; bar.appendChild(s);
+    const li=document.createElement("span"); li.innerHTML=`<i style="background:${c}"></i>${n} ${Math.round(v*100)}%`; leg.appendChild(li);});
+}
+
+/* ---------- shadow price bars ---------- */
+function shadowBars(){
+  const box=document.getElementById("shadowBars"); const c=DATA.costates;
+  const rows=[["Health",c.H],["Expertise",c.E],["Network",c.N]]; const max=Math.max(...rows.map(r=>r[1]));
+  rows.forEach(([n,v])=>{
+    const row=document.createElement("div"); row.className="sb-row";
+    row.innerHTML=`<span class="lab">${n}</span><div class="sb-track"><div class="sb-fill" style="width:${(v/max*100).toFixed(1)}%"></div></div><span class="val">${v.toFixed(1)}</span>`;
+    box.appendChild(row);
+  });
+}
+
+/* ---------- generic line chart ---------- */
+function lineChart(mountId, opts){
+  const mount=document.getElementById(mountId); mount.innerHTML="";
+  const W=440,H=270, m={l:44,r:16,t:12,b:34};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const xs=opts.xdom, ys=opts.ydom;
+  const X=v=>m.l+(v-xs[0])/(xs[1]-xs[0])*iw;
+  const Y=v=>m.t+ih-(v-ys[0])/(ys[1]-ys[0])*ih;
+  const svg=el("svg",{viewBox:`0 0 ${W} ${H}`}); svg.setAttribute("role","img"); svg.setAttribute("aria-label",opts.aria);
+  // gridlines + y labels
+  opts.yticks.forEach(t=>{
+    svg.appendChild(el("line",{x1:m.l,y1:Y(t),x2:W-m.r,y2:Y(t),class:"gridline"}));
+    const tx=el("text",{x:m.l-8,y:Y(t)+3,class:"ax","text-anchor":"end"}); tx.textContent=opts.yfmt(t); svg.appendChild(tx);
+  });
+  // x labels
+  opts.xticks.forEach(t=>{const tx=el("text",{x:X(t),y:H-m.b+18,class:"ax","text-anchor":"middle"}); tx.textContent=t; svg.appendChild(tx);});
+  svg.appendChild(el("line",{x1:m.l,y1:m.t,x2:m.l,y2:m.t+ih,class:"axisline"}));
+  // goal line
+  if(opts.goal!=null){
+    svg.appendChild(el("line",{x1:m.l,y1:Y(opts.goal),x2:W-m.r,y2:Y(opts.goal),stroke:css("--ochre"),"stroke-width":2,"stroke-dasharray":"5 4"}));
+  }
+  const path=(pts)=>pts.map((p,i)=>(i?"L":"M")+X(p[0])+" "+Y(p[1])).join(" ");
+  // draw each series
+  opts.series.forEach(s=>{
+    if(s.area){
+      const ap=path(s.pts)+` L ${X(s.pts[s.pts.length-1][0])} ${Y(ys[0])} L ${X(s.pts[0][0])} ${Y(ys[0])} Z`;
+      svg.appendChild(el("path",{d:ap,fill:"var(--teal-fill)",stroke:"none"}));
+    }
+    const p=el("path",{d:path(s.pts),fill:"none",stroke:s.color,"stroke-width":s.w||2.5,"stroke-linejoin":"round","stroke-linecap":"round"});
+    if(s.dash)p.setAttribute("stroke-dasharray",s.dash);
+    svg.appendChild(p);
+    if(!reduce && !s.dash){const len=s.pts.reduce((a,p,i)=>i?a+Math.hypot(X(p[0])-X(s.pts[i-1][0]),Y(p[1])-Y(s.pts[i-1][1])):0,0); p.style.setProperty("--len",len); p.classList.add("draw");}
+    if(s.end){const lp=s.pts[s.pts.length-1]; svg.appendChild(el("circle",{cx:X(lp[0]),cy:Y(lp[1]),r:4,fill:s.color,stroke:css("--panel"),"stroke-width":2}));}
+  });
+  // marker (crossing)
+  if(opts.marker){const mk=opts.marker; svg.appendChild(el("circle",{cx:X(mk[0]),cy:Y(mk[1]),r:5,fill:css("--teal"),stroke:css("--panel"),"stroke-width":2.5}));}
+  // hover
+  const focus=el("line",{x1:0,y1:m.t,x2:0,y2:m.t+ih,stroke:css("--slate"),"stroke-width":1,"stroke-dasharray":"3 3",opacity:0}); svg.appendChild(focus);
+  const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent"}); svg.appendChild(hit);
+  const tip=document.getElementById("tip");
+  const prim=opts.series[0].pts;
+  hit.addEventListener("pointermove",ev=>{
+    const r=svg.getBoundingClientRect(), px=(ev.clientX-r.left)/r.width*W;
+    let best=prim[0],bd=1e9; prim.forEach(p=>{const d=Math.abs(X(p[0])-px); if(d<bd){bd=d;best=p;}});
+    focus.setAttribute("x1",X(best[0])); focus.setAttribute("x2",X(best[0])); focus.setAttribute("opacity",1);
+    const mr=mount.getBoundingClientRect();
+    tip.style.left=(mr.left+X(best[0])/W*mr.width)+"px"; tip.style.top=(mr.top+Y(best[1])/H*mr.height)+window.scrollY+"px";
+    tip.innerHTML=opts.tip(best); tip.style.opacity=1;
+  });
+  hit.addEventListener("pointerleave",()=>{focus.setAttribute("opacity",0); tip.style.opacity=0;});
+  mount.appendChild(svg);
+}
+
+function charts(){
+  lineChart("chartPFI",{
+    xdom:[46,58], ydom:[0.5,1], goal:0.90, marker:[50,0.906],
+    xticks:[46,48,50,52,54,56,58], yticks:[0.5,0.6,0.7,0.8,0.9,1.0],
+    yfmt:v=>Math.round(v*100)+"%", aria:"Probability of financial independence by age, recommended plan versus keeping current lifestyle",
+    series:[
+      {pts:DATA.pfi, color:css("--teal"), area:true, end:true},
+      {pts:DATA.pfi_sq, color:css("--slate"), dash:"5 4", w:2}
+    ],
+    tip:p=>`age <b>${p[0]}</b> · ${Math.round(p[1]*100)}%`
+  });
+  const draw=DATA.proj.map(d=>[d[0],d[1]]), nw=DATA.proj.map(d=>[d[0],d[2]]), req=DATA.proj.map(d=>[d[0],d[3]]);
+  lineChart("chartWealth",{
+    xdom:[45,58], ydom:[0,8], goal:null,
+    xticks:[45,48,51,54,58], yticks:[0,2,4,6,8],
+    yfmt:v=>v+"M", aria:"Drawable wealth, drawable needed, and total net worth by age, in millions of francs",
+    series:[
+      {pts:nw, color:css("--slate"), w:2},
+      {pts:draw, color:css("--teal"), area:true, end:true},
+      {pts:req, color:css("--ochre"), dash:"5 4", w:2}
+    ],
+    tip:p=>`age <b>${p[0]}</b> · drawable CHF ${p[1].toFixed(2)}M`
+  });
+}
+
+/* ---------- theme toggle ---------- */
+const root=document.documentElement;
+document.getElementById("themeBtn").addEventListener("click",()=>{
+  const cur=root.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  root.setAttribute("data-theme", cur==="dark"?"light":"dark");
+  gauge(); charts();
+});
+
+gauge(); timebar(); shadowBars(); charts();
+</script>

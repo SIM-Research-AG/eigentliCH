@@ -1,0 +1,67 @@
+{
+  "_about": {
+    "requirement": "Since 5 September the corpus holds a BVG document that answers «Wie funktioniert die Pensionskasse?». The question does not reach it. The document says «berufliche Vorsorge» and «Vorsorgeeinrichtung» where the member says «Pensionskasse», the lexical channel shares no token, and retrieval requires BOTH channels to clear their floor — so a similarity of any size is refused. A139 recorded the same failure across languages; this is it within one.",
+
+    "what_this_changes": "The QUERY, never the corpus. The alternative was to write «Pensionskasse» into the source document so the search would find it, which is tuning the corpus to the test and makes the next question fail the same way silently.",
+
+    "how_it_is_applied": "A group is ONE term slot, not several. It carries the weight of the term the member actually typed, and a passage earns that weight once by carrying any surface form in the group. The denominator is therefore identical to what it was before this record existed, so no term is diluted and no passage can accrue weight it could not accrue before — the only change is which words let it earn a weight it was already eligible for. Adding a group can make retrieval find more; it cannot change the score of anything it already found.",
+
+    "why_that_shape": "The obvious implementation — append synonyms to the question's term list — is wrong here, and measurably. `_term_weights` normalises over every term including ones the corpus has never seen, which is the correction that made the lexical channel a discriminator rather than noise. Appending five synonyms for one word would multiply the denominator and quietly shrink every real match.",
+
+    "the_risk_and_the_limit": "A wrong group makes an irrelevant passage reachable. So a group holds only surface forms of the SAME thing — never a broader term, never a related one, never a hypernym. «Pensionskasse» and «Vorsorgeeinrichtung» name one institution. «Pensionskasse» and «Vorsorge» do not, and that pair is deliberately absent.",
+
+    "not_gated": "Unlike property-funding.json this record does not refuse when unapproved, and the difference is deliberate: those figures tell a member what a lender would say, and these only decide which paragraph is shown alongside a citation the member can check. **An absent or empty record reproduces the behaviour of 5 September exactly.** It can only ever widen reach, so failing open here fails toward showing a real source rather than toward inventing one.",
+
+    "published_by": null,
+    "decided_on": null,
+    "provisional": true,
+    "_for_review": [
+      "Whether «2. Säule» and «zweite Säule» belong with «Pensionskasse». They are the same institution in ordinary Swiss usage, but the pillar is a layer of the system and the Pensionskasse is an entity within it, and a pedant would separate them.",
+      "Whether «Rente» belongs anywhere. It is used for the AHV pension, an occupational pension and a private annuity, and a group that reaches all three would make almost any pension question match almost any pension passage. It is deliberately absent."
+    ]
+  },
+
+  "groups": [
+    {
+      "_note": "The one that motivated the record. Every form names the same institution.",
+      "forms": ["pensionskasse", "vorsorgeeinrichtung", "berufliche vorsorge", "beruflichen vorsorge",
+                "bvg", "zweite saule", "2 saule", "pk"]
+    },
+    {
+      "_note": "The first pillar, by its statute and by the name people use.",
+      "forms": ["ahv", "ahvg", "alters und hinterlassenenversicherung", "altersrente", "staatliche rente"]
+    },
+    {
+      "_note": "The third pillar. «3a» alone is below the minimum term length, so the compound forms carry it.",
+      "forms": ["saule 3a", "saule3a", "bvv3", "gebundene selbstvorsorge", "gebundene vorsorge"]
+    },
+    {
+      "_note": "The reference age. AHV 21 renamed it and both words are still in use.",
+      "forms": ["referenzalter", "rentenalter", "pensionierungsalter"]
+    },
+    {
+      "_note": "Withdrawing pension capital for a home. The statute, the ordinance and the everyday word.",
+      "forms": ["wohneigentumsforderung", "wef", "vorbezug", "wefv"]
+    },
+    {
+      "_note": "The affordability test, by its Swiss name and by what it measures.",
+      "forms": ["tragbarkeit", "tragbarkeitsrechnung", "tragbar"]
+    },
+    {
+      "_note": "The deposit. «Eigenkapital» and «Eigenmittel» are used interchangeably by members and are the same figure in the lending rules.",
+      "forms": ["eigenmittel", "eigenkapital", "anzahlung"]
+    },
+    {
+      "_note": "The loan against the property.",
+      "forms": ["hypothek", "hypothekarkredit", "hypothekardarlehen", "belehnung"]
+    },
+    {
+      "_note": "Leaving one employer's scheme for another's.",
+      "forms": ["freizugigkeit", "freizugigkeitsleistung", "austrittsleistung"]
+    },
+    {
+      "_note": "The statement the member receives once a year, which answers more of these questions than anything else.",
+      "forms": ["vorsorgeausweis", "pensionskassenausweis", "vorsorgeausweise"]
+    }
+  ]
+}

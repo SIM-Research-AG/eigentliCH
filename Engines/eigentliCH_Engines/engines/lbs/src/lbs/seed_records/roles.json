@@ -1,0 +1,113 @@
+{
+  "_about": {
+    "requirement": "R-111 — each role shows its definition on demand. Definitions are content records, not hardcoded strings.",
+    "open_decision": "D-03 — the exact role definitions on the financial-capital side come from a published model. Shipped here marked provisional, as §12 requires.",
+    "source": {
+      "document": "SIM Research — System Build Manual",
+      "url": "https://app.notion.com/p/lcinc/System-Build-Manual-3cc0ba72543f803bae33f8113daa1566",
+      "read_on": "2026-08-30",
+      "human_capital_definitions": "Quoted verbatim from the manual's household-model section, the callout beginning 'The four roles apply to human capital as well as to instruments, and the two sides are substitutes.'",
+      "financial_capital_definitions": "Derived verbatim from the manual's §11.4 rule: 'A block rising with the environment is Gain; paying in crisis is Protection; peaking in contraction is Stabilisation; paying a steady distribution is Income.'"
+    },
+    "naming": {
+      "note": "The manual's canonical financial-capital role is `Gain`, not `Growth`. Its glossary states: 'Roles (4): Gain, Income, Stabilisation, Protection. What an instrument is *for*, not what it is. Any `Growth` label maps to `Gain` at the boundary.' The build specification's §4 enum uses `growth`. Those are reconciled rather than chosen between: `growth` stays the stored key, and `Gain` is the display name on the financial-capital side only. The human-capital side is called Growth in the manual itself.",
+      "stored_key": "growth",
+      "display_financial_en": "Gain",
+      "display_human_en": "Growth"
+    },
+    "language": {
+      "en": "verbatim from the source above where marked, and authoritative",
+      "de": "REVIEWED by Nicolas Bürkler on 30 August 2026. The four labels were corrected (A21) and all eight definitions read and signed off, with three corrections applied: währenddessen for the ungrammatical 'während ihm'; absolviert for gemacht; and the plural Schwankungen. The de_draft flags below are cleared accordingly."
+    },
+    "forbidden": "R-143 / principle 10 — no mountain vocabulary in any of these strings, in either language. No Berg, Gipfel, Hütte, Tour, summit, climb, altitude."
+  },
+
+  "provisional": true,
+
+  "roles": [
+    {
+      "key": "growth",
+      "display": { "human": { "en": "Growth", "de": "Wachstum" }, "financial": { "en": "Gain", "de": "Wertsteigerung" } },
+      "_de_reviewed": "Wertsteigerung, chosen by Nicolas Bürkler on 30 August 2026 over the draft 'Zuwachs'. It reads unambiguously as financial and keeps the Gain/Growth distinction the manual maintains at the boundary: Wachstum on the human side, Wertsteigerung on the financial one.",
+      "definition": {
+        "human": {
+          "en": "The activity with the highest leverage on future earning — the profession being built, the qualification being taken, the venture being started.",
+          "de": "Die Tätigkeit mit der grössten Hebelwirkung auf das künftige Einkommen — der Beruf, der aufgebaut wird, die Ausbildung, die absolviert wird, das Unternehmen, das gegründet wird.",
+          "en_verbatim": true,
+          "de_draft": false
+        },
+        "financial": {
+          "en": "A holding that rises with the environment.",
+          "de": "Eine Anlage, die mit dem Umfeld steigt.",
+          "en_verbatim": true,
+          "de_draft": false
+        }
+      }
+    },
+    {
+      "key": "income",
+      "display": { "human": { "en": "Income", "de": "Einkommen" }, "financial": { "en": "Income", "de": "Einkommen" } },
+      "_de_reviewed": "Einkommen on BOTH sides, chosen by Nicolas Bürkler on 30 August 2026 over the draft 'Ertrag'. Deliberately the same word for both kinds of capital: Income is Income, whether it comes from employment or from a holding. Noted because the drafting had used different terms to keep the two tellable apart, and this overrides that on purpose — R-114 shows both kinds together anyway, and the capital-type column already distinguishes them.",
+      "definition": {
+        "human": {
+          "en": "The dependable mandate or employment that pays the bills now.",
+          "de": "Das verlässliche Mandat oder die Anstellung, die heute die Rechnungen bezahlt.",
+          "en_verbatim": true,
+          "de_draft": false
+        },
+        "financial": {
+          "en": "A holding that pays a steady distribution.",
+          "de": "Eine Anlage, die eine stetige Ausschüttung zahlt.",
+          "en_verbatim": true,
+          "de_draft": false
+        }
+      }
+    },
+    {
+      "key": "stabilisation",
+      "display": { "human": { "en": "Stabilisation", "de": "Stabilisierung" }, "financial": { "en": "Stabilisation", "de": "Stabilisierung" } },
+      "_de_reviewed": "Stabilisierung, confirmed by Nicolas Bürkler on 30 August 2026. The role is about what a holding or an activity does, not what it is, so the noun of action is right on both sides.",
+      "definition": {
+        "human": {
+          "en": "Smaller, unrelated earning streams that reduce the variance of the whole.",
+          "de": "Kleinere, voneinander unabhängige Einkommensquellen, die die Schwankungen des Ganzen verringern.",
+          "en_verbatim": true,
+          "de_draft": false
+        },
+        "financial": {
+          "en": "A holding that peaks in contraction — it pays before the damage, not during it.",
+          "de": "Eine Anlage, die in der Kontraktion am stärksten ist — sie zahlt vor dem Schaden, nicht währenddessen.",
+          "en_verbatim": true,
+          "de_draft": false
+        }
+      }
+    },
+    {
+      "key": "protection",
+      "display": { "human": { "en": "Protection", "de": "Absicherung" }, "financial": { "en": "Protection", "de": "Absicherung" } },
+      "_de_reviewed": "Absicherung, corrected from the draft 'Schutz' by Nicolas Bürkler on 30 August 2026. Schutz is the general word for protection; Absicherung is the term of art for the role, and the one the product uses.",
+      "definition": {
+        "human": {
+          "en": "What keeps a person functioning so the other three continue: health, network, the activity not done for money.",
+          "de": "Was einen Menschen funktionsfähig hält, damit die anderen drei weiterlaufen: Gesundheit, Netzwerk, die Tätigkeit, die nicht des Geldes wegen geschieht.",
+          "en_verbatim": true,
+          "de_draft": false
+        },
+        "financial": {
+          "en": "A holding that pays in crisis — it pays exactly when nothing else does, and costs you something the rest of the time.",
+          "de": "Eine Anlage, die in der Krise zahlt — sie zahlt genau dann, wenn nichts anderes zahlt, und kostet die übrige Zeit etwas.",
+          "en_verbatim": true,
+          "de_draft": false
+        }
+      }
+    }
+  ],
+
+  "substitution_note": {
+    "en": "The two kinds of capital are substitutes, not two separate lists. That is a product-level commitment from the Journey design, and the manual states it has to be in the mathematics or it is decoration.",
+    "de": "Die beiden Arten von Kapital ersetzen einander, sie sind nicht zwei getrennte Listen. Das ist eine Festlegung auf Produktebene aus dem Journey-Entwurf, und das Manual hält fest, dass sie in der Mathematik stehen muss, sonst ist sie Dekoration.",
+    "requirement": "R-114 / principle 9 — where a figure exists in both kinds of capital, both are shown together.",
+    "_de_status": "STILL A DRAFT. The eight role definitions were reviewed on 30 August 2026; this note was not — it was `null` at the time and had nothing to review. It is not rendered anywhere yet.",
+    "de_draft": true
+  }
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eigentliCH — build status</title>
+<!-- C-05: no external reference of any kind. System fonts, same as the live site. -->
+<link rel="stylesheet" href="/style/tokens.css">
+<link rel="stylesheet" href="/style/app.css">
+<style>
+  main { max-width: 1000px; }
+  table { border-collapse: collapse; width: 100%; margin-top: var(--sp-md);
+    background: var(--surface); font-size: 0.9rem; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line);
+    color: var(--ink-black); vertical-align: top; }
+  th { font-size: 10px; letter-spacing: 0.11em; text-transform: uppercase;
+    font-weight: 600; color: var(--muted-text); background: var(--surface-tint); }
+  h2 { margin: var(--sp-2xl) 0 0; padding-bottom: 8px; border-bottom: 2px solid var(--ink);
+    font-size: 1.05rem; }
+  .done { color: var(--ok, #1F6B4E); font-weight: 700; }  /* 6.42:1 on surface */
+  .open { color: var(--attention); font-weight: 600; }
+  code { font-size: 0.87em; }
+  .meta { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .pending { color: var(--muted-text); font-style: italic; }
+  .err { color: var(--attention); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <span class="lbl">eigentliCH · prototype2</span>
+  <h1>Build status</h1>
+
+  <p class="lede">
+    <strong>This page is rendered, not written.</strong> Every row below comes from
+    <a href="/api/health">/api/health</a> when the page loads. It was a hand-maintained table until
+    20&nbsp;September&nbsp;2026, and on that day five of its rows were wrong: a foreign key listed as
+    &ldquo;next&rdquo; that had closed three weeks earlier, a destination phrase said to be read by
+    nothing that had been serving since the day after, a wrong-law risk that had been narrowed, and a
+    whole column for a constraint that no longer exists. None of them was a mistake anyone made; they
+    were a second copy of something that had moved. There is no second copy now.
+  </p>
+
+  <h2>What is enforced, and by what</h2>
+  <p class="lede">Read from <code>constraints_enforced</code>. A constraint that is withdrawn stops
+    appearing here, which is why <strong>C-01</strong> and <strong>C-06</strong> are absent — both were
+    withdrawn on 20&nbsp;September&nbsp;2026, and build-spec §10 gates phase&nbsp;1 on one of them.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Mechanism</th></tr></thead>
+    <tbody id="constraints"><tr><td colspan="2" class="pending">reading /api/health…</td></tr></tbody>
+  </table>
+
+  <h2>Still open</h2>
+  <p class="lede">Read from <code>known_gaps</code>. Each row carries the date it was opened and the
+    person who owns the answer, and each has a strict <code>xfail</code> behind it in
+    <code>tests/test_adversarial.py</code> — so closing one quietly turns the suite red, and listing one
+    that nothing demonstrates does too.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Since</th><th>Owner</th><th>What is not true</th></tr></thead>
+    <tbody id="gaps"><tr><td colspan="4" class="pending">reading /api/health…</td></tr></tbody>
+  </table>
+
+  <h2>The store</h2>
+  <table>
+    <thead><tr><th>Migration revision</th><th>Tables</th><th>Append-only triggers</th></tr></thead>
+    <tbody id="store"><tr><td colspan="3" class="pending">reading /api/health…</td></tr></tbody>
+  </table>
+
+  <h2>Checks</h2>
+  <p><a href="/api/health">/api/health</a> — the source of everything above.<br>
+  <code>/api/export/verify</code> &mdash; the phase 3 gate. Not a link: A11 means it takes no member id
+  and needs a member's bearer token, which this operator page does not have and should not hold.<br>
+  <a href="/docs">/docs</a> — the API surface.</p>
+
+  <p class="lede">The rules are in <code>DECISIONS.md</code>. The record of how they were arrived at,
+  all 169 entries, is in <code>HISTORY.md</code>. The estate survey that preceded the build is in
+  <code>PHASE-0-SURVEY.md</code>.</p>
+
+<script>
+// The whole of this page's content. Deliberately one fetch and one render: a board that computed
+// anything of its own would be a second opinion, and a second opinion is what the five wrong rows were.
+(function () {
+  'use strict';
+
+  function cell(text, className) {
+    var td = document.createElement('td');
+    td.textContent = text == null ? '' : String(text);
+    if (className) { td.className = className; }
+    return td;
+  }
+
+  function fill(tbody, rows, span) {
+    tbody.textContent = '';
+    if (!rows.length) {
+      var empty = document.createElement('tr');
+      var td = cell('nothing listed', 'pending');
+      td.colSpan = span;
+      empty.appendChild(td);
+      tbody.appendChild(empty);
+      return;
+    }
+    rows.forEach(function (cells) {
+      var tr = document.createElement('tr');
+      cells.forEach(function (c) { tr.appendChild(c); });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function failed(message) {
+    ['constraints', 'gaps', 'store'].forEach(function (id) {
+      var tbody = document.getElementById(id);
+      tbody.textContent = '';
+      var tr = document.createElement('tr');
+      var td = cell(message, 'err');
+      td.colSpan = 4;
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    });
+  }
+
+  fetch('/api/health')
+    .then(function (response) {
+      if (!response.ok) { throw new Error('/api/health returned ' + response.status); }
+      return response.json();
+    })
+    .then(function (health) {
+      var enforced = health.constraints_enforced || {};
+      fill(document.getElementById('constraints'), Object.keys(enforced).sort().map(function (id) {
+        var code = document.createElement('td');
+        var el = document.createElement('code');
+        el.textContent = id;
+        code.appendChild(el);
+        return [code, cell(enforced[id])];
+      }), 2);
+
+      var gaps = health.known_gaps || {};
+      fill(document.getElementById('gaps'), Object.keys(gaps).sort().map(function (id) {
+        var row = gaps[id] || {};
+        var code = document.createElement('td');
+        var el = document.createElement('code');
+        el.textContent = id;
+        code.appendChild(el);
+        // `since` and `owner` are required of every row. Rendered as a visible gap rather than as an
+        // empty cell if one is missing, because a blank reads as "none" and this one means "nobody said".
+        return [
+          code,
+          cell(row.since || 'undated', row.since ? 'meta open' : 'err'),
+          cell(row.owner || 'unowned', row.owner ? 'meta' : 'err'),
+          cell(row.what)
+        ];
+      }), 4);
+
+      var triggers = health.append_only_triggers || [];
+      var tables = health.tables || [];
+      fill(document.getElementById('store'), [[
+        (function () { var td = document.createElement('td');
+          var el = document.createElement('code'); el.textContent = health.migration_revision || 'none';
+          td.appendChild(el); return td; })(),
+        cell(tables.length + ' tables'),
+        cell(triggers.length ? triggers.join(', ') : 'none')
+      ]], 3);
+    })
+    .catch(function (error) {
+      failed('Could not read /api/health — ' + error.message + '. This page shows nothing rather than '
+        + 'showing something stale, which is the whole reason it was rewritten.');
+    });
+}());
+</script>
+</main>
+</body>
+</html>

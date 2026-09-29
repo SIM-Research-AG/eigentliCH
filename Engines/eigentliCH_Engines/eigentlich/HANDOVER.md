@@ -1,0 +1,142 @@
+# eigentlich store: handover (29.09.2026)
+
+## State
+
+* **Built:** the package `eigentlich` (settings, store and repository, `schema.sql`, seed, intake
+  extractor, migration, CLI), 275 tests, `dev/verify_regressions.py` (29 fixes, each shown to be guarded),
+  `dev/schema_catalogue.py` (writes SCHEMA.md from `dev/SCHEMA.head.md` and the live schema).
+* **Real schema `eigentlich`:** initialised, seeded and migrated.
+  * 30 tables, 8 views, all commented; no `real` column; every function pins its search_path.
+  * Content: 54 keys at version 1 (2 questionnaires, 3 scoring maps, 14 reference, 35 knowledge notes).
+  * Migration of `Prototype/backend/eigentlich.db` (alembic head `b81f4c2e9a37`, sha256 `a10b6afa...`),
+    one transaction, every migrated table reconciled: 6 curators, 83 clients, 60 consents, 7 curator
+    sessions, 7 events, 518 decisions, 34 households, 38 household members, 297 positions, 128 goals,
+    319 client facts, 306 + 198 + 34 + 39 + 323 decision links, 5 goal fundings, 0 goal owners, 547
+    answers, 60 submissions. Skipped tables are listed with counts and reasons in the reconciliation
+    (`dev/reports/migration-report-eigentlich.json`, and `migration_run.reconciliation` in the store).
+  * The source file is unchanged (hash checked before and after).
+* **Grants:** the curator's default privileges from provisioning reached every table `init-db` created
+  (tested: SELECT, INSERT, UPDATE yes; DELETE, TRUNCATE no).
+
+## The client app (28.09.2026)
+
+* **Built:** the consumer app in this package (`api.py`, `service.py`, `clients.py`, `contracts.py`,
+  `inputs.py`, `grounding.py`, `questionnaires.py`, `appsettings.py`), the browser app in `client/`,
+  `start.cmd` (port 8017), `python -m eigentlich serve`. Decisions EIG-29 to EIG-43. README "The client app"
+  lists the routes and screens.
+* **Tests:** 300 passed, 3 skipped (the opt-in live tests), in about 35 s: the 275 store tests unchanged
+  and green, plus 25 app tests (API on a seeded throwaway schema with stand-in engines; the lbs request
+  builder; a concurrent burst against the app and three stand-in engines on real sockets).
+  `dev/verify_regressions.py`: 29 of 29 still guarded.
+* **Schema:** unchanged (EIG-43). One repository fix in `store.py` (EIG-37: message bodies were stored with
+  JSON quotes; no real row affected).
+* **Engines:** none was running on 28.09.2026, so the live tests were not run. Every mirror in
+  `contracts.py` was checked against the engines' own `contracts.py` of that day, and all 83 migrated
+  clients' lbs requests were built by lbs's own `build_sheet` without error.
+* **Server:** left stopped.
+
+## The owner's decisions of 29.09.2026 (EIG-44 to EIG-52)
+
+* **Content aligned to the scoring maps** (EIG-44): `questionnaire/intake` v2 (`intake@1.2`, 114 questions) and
+  `questionnaire/onboarding` v2 (`onb2@0.2.0`, 22 questions), saved by the curator `Nicolas` with the note
+  "aligned to scoring maps, owner 29.09.2026". `scoring_bind_check`: 169 of 169 ok (was 150). Maps unchanged.
+  New content format: `multi_choice`, and `"offered": false` on an option (SCHEMA.md section 6).
+* **Yearly contribution** (EIG-45): onboarding `annual_contribution` -> `mandate.annual_contribution`.
+* **Encoding** (EIG-46): "C├⌐line B." -> "Céline B." (client, direct update; her household member label,
+  under a decision "encoding correction, owner 29.09.2026") and seven migrated decision texts (correcting
+  decisions). Nothing else found. `python -m eigentlich fix-encoding` lists, `--apply` corrects.
+* **lbs runs by itself** (EIG-47): debounced 5 s after every change in the app, one run per client at a time,
+  `engine_run.requested_by_kind = 'system'`; the home page shows the sheet's age. `POST .../balance-sheet`
+  takes `{"curator_id": ...}` for the cockpit's button (403 unless in service). **Backfill run on the real
+  store** with lbs@1.1.0 up: 74 clients without a sheet, 74 sheets; every client now has one.
+* **MiniMind** (EIG-48), **gaps in plain words** (EIG-49, all 45 keys lbs's engine can emit, German and
+  English; the whole UI in one language), **`thread_message.basis`** (EIG-50, the one additive schema change,
+  applied to the real schema by `init-db`), **wider grounding** plus the sheet's facts for questions about the
+  asker (EIG-51), four decisions confirmed as built (EIG-52).
+* **Tests:** 347 passed, 3 skipped (live, opt-in); with `EIGENTLICH_LIVE=1` against the running lbs, chatbot and report the 3 live tests passed too. `dev/verify_regressions.py` now also reverts Python-level
+  fixes: 40 guards (30 database, 10 code), each shown to fail reverted and pass restored.
+* **Mirrors re-read on 29.09.2026:** lbs `contracts.py` (calibration 1.1.0): `lbs-request@1.0.0` unchanged
+  field for field; all 83 clients' requests validate against lbs's own model. chatbot: `basis` and
+  `model_display_name` added to the `chat-answer` mirror.
+
+### Open points from this day
+
+17. **The app on 8017 was running version 1.0.0** (started outside this session) when the work ended; it
+    must be restarted to serve 1.1.0 (automatic lbs runs, the new home page, MiniMind, basis). Not stopped
+    here, since this session did not start it.
+18. **The auto-run state is in memory** (as the jobs, EIG-34): a run scheduled but not yet started is lost on
+    restart; the next home visit schedules it again.
+19. **`education_hours` and `hours_learning`** both sit in intake section 16 (a band the map scores and a
+    number lbs reads); a curator may want to word them apart.
+20. **Server refusals are recognised by pattern** in `client/app/api.js`; a new refusal text reads as the
+    plain sentence for its status until a pattern is added.
+21. **No note covers growing one's income**; the growth question now gets the nearest notes and a general
+    assessment. A knowledge note on human capital would ground it.
+22. **Parallel test runs** by other sessions can trip the throwaway-schema teardown check ("dropped
+    something else") in `conftest.py`; a rerun passes.
+
+## For the next agents
+
+* **Cockpit:** link to a client's view with `http://127.0.0.1:8017/#/client/<id>/home`; for a report
+  revision call `POST /api/clients/<id>/reports/<request>/produce?revision=true&wait=true`, then write the
+  `revision_sent` event naming the new report (EIG-41).
+* **Backend (consumer web app):** built (above); it uses `eigentlich.store` (README "The repository"). The client picker is
+  `store.list_clients` (view `client_overview`). Plan changes only through `store.plan_change`. Show a
+  knowledge note only when `front_matter.approved` is true. Approval waits only where the client asked
+  (`request_approval`).
+* **Cockpit (curator pages):** SCHEMA.md sections 1, 3, 4 and 7. Connect as `curator`, qualify names or
+  `SET search_path TO eigentlich`. Name the acting curator in every write; a revoked curator is refused.
+  Plan changes are one transaction, decision first.
+
+## Open points
+
+1. **Resolved 29.09.2026 (EIG-44).** ~~Scoring maps and questionnaires disagree in 19 binds~~ (seed report, view `scoring_bind_check`),
+   content for the owner or a curator to resolve, not code:
+   * `scoring/intake-scales` `confidence.options`: `80 %`, `90 % ... es muss halten`, `95 % ... kein
+     Spielraum` are not options of intake `goal_confidence` (which offers `fest`, `70 % ... ich kann
+     nachjustieren`, `eine Idee`).
+   * `learning_commitment.hours` (5 bands) reads `education_hours`, which neither questionnaire asks.
+   * `risk-profile` `sustainability.exclusions.offered` (7 items): intake `esg_exclusions` is free text.
+   * `human-capital` `health.levels` `1` (the intake offers `1 ... sehr gut`), and `rest_hours_bands`
+     `kaum welche`, `5–10`, `mehr als 30` (the intake offers `unter 10`, `10–20`, `20–30`, `über 30`).
+2. **Erasure deletes the client's decisions**, where the prototype (A61) redacted them and kept the
+   shells. **Confirmed by the owner on 28.09.2026: deletion stays** (no redaction path).
+3. **Schema changes after today** need explicit `ALTER` statements added to `schema.sql`: `CREATE TABLE IF
+   NOT EXISTS` does not alter an existing table or constraint (functions, triggers and views are replaced
+   on every `init-db`).
+4. **Submissions are stored whole but not decomposed into answers.** The 60 migrated files are
+   `onb@0.1.x` (onboarding chat), not `intake@1.1`; mapping them onto `questionnaire/intake` or
+   `questionnaire/onboarding` answers is not done.
+5. **The acting curator is chosen, not proven.** There is no sign-in (owner decision), so the database can
+   check that a named curator exists and is in service, not that the person at the cockpit is that curator.
+6. **Which content a client may edit** is not restricted by the database: the owner decided client and
+   curator both edit shared content; the app decides which kinds it offers the client.
+7. **A revised report** must be a new `report` row for the same request, produced by calling the report
+   engine; the cockpit either asks the backend or inserts the row itself after the call (it may insert).
+8. **Migrated test clients** ("Vorschau", "Onboarding Test", ...) are in the picker; archive them
+   (`archived_at`) if the owner wants them hidden.
+9. **Consent purposes** are checked for shape only; the prototype's registry is not replicated.
+10. **English**: the onboarding carries draft English; the intake is German only.
+11. **App: run the live tests** once lbs, chatbot and report are up (`EIGENTLICH_LIVE=1`); the chatbot and
+    report contracts were mirrored while those engines were being finished (EIG-31).
+12. **Resolved 29.09.2026 (EIG-45).** ~~App: the yearly contribution~~ toward the mandate goal is asked by no questionnaire, so lbs never
+    computes a required return or a target curve from the app's requests (EIG-32). A question for the owner
+    or a curator to add to the content.
+13. **App: goal templates** are in code until a `reference/goal-templates` record exists (EIG-35).
+14. **App: a household change closes a household shared with another client** for both (EIG-39); the
+    partner's plan then has no current household until someone restates it.
+15. **App: job state is in memory** (EIG-34): after a restart a failed draft or report shows as open,
+    without the reason; retry works.
+16. **App: an interactive browser check** was done by screenshots only (headless Chrome, every screen);
+    nobody has clicked through it yet.
+
+
+## Parked 28.09.2026 (owner's session)
+
+- The app runs end to end: `EIGENTLICH_LIVE=1` live tests passed (3 of 3) against the real lbs, chatbot and
+  report on spark7.
+- `eigentliCH.lnk` on the desktop now starts `desktop.cmd` in this folder: it starts lbs (8013), report (8015),
+  chatbot (8016) and the app (8017) if they do not answer, each in a minimised window, and opens the browser.
+  The shortcut's previous target was `Projects/eigentliCH/Prototype/desktop/eigentlich.cmd`.
+- The cockpit roster lists the app as `kind: app`, built, autostart.
+- Next: a first click-through by a person; the open points above.

@@ -1,0 +1,1213 @@
+/* The role grid and the chrome around it, wearing the live site's clothes.
+ *
+ * Every surface treatment here has a counterpart in `client/reference/eigentlich-site-styles.css`: white
+ * card on a tinted ground, one hairline in --line, a 12px radius, a shadow so faint it only separates
+ * white from white. What the site does that this does not is move — no hover lift, no fade-up, no
+ * translucent blur. Principle 10: the flourish belongs to the marketing surfaces.
+ *
+ * The layout decision (A24): four role rows x two capital columns on wide screens; below 700px each role
+ * becomes one card holding both kinds of capital stacked, so a role's pair never splits across a scroll.
+ * R-114 says both kinds are shown together, and a column pushed off-screen is not together.
+ *
+ * What is deliberately absent: any element that states how far along a member is. No ring, no bar, no
+ * meter, no "n of 8". R-113 and R-006. Restyling did not add one: there is still nothing here that such
+ * an indicator could be built from without writing new rules, which is a small friction on purpose.
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Targeted rather than a universal reset. A `* { padding: 0 }` would strip the UA padding from inputs,
+ * selects and summary markers, and every one of those would then have to be re-stated here to look like
+ * a control at all. These are the elements this client actually renders. */
+body, h1, p, fieldset, legend { margin: 0; }
+fieldset { padding: 0; border: 0; min-width: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--surface-tint);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Several surfaces toggle the `hidden` attribute to show and hide an error, a definition or the unit
+ * selector (grid.js, position-form.js, onboarding.js). Any author rule that sets `display` on those
+ * elements would silently beat the UA's `[hidden] { display: none }` and leave them permanently visible,
+ * which is a real bug and an easy one to reintroduce. This makes the attribute win outright. */
+[hidden] { display: none !important; }
+
+/* The site's global focus ring. Kept exactly, including the 3px offset: it is the one place where
+ * --primary is load-bearing rather than decorative. --accent-line is 4.47:1 on --surface and 4.10:1 on
+ * --surface-tint, comfortably over the 3:1 WCAG 1.4.11 asks of a focus indicator on both grounds.
+ *
+ * `:focus-visible` alone is not a focus system, it is a focus system for browsers that have it. The
+ * @supports block gives everything else the identical ring on plain `:focus`, so an older engine shows a
+ * ring for a mouse click too — noisier, and enormously better than nothing. There is no bare
+ * `outline: none` in this file for that reason; the two places that suppress a ring are both guarded by
+ * `:not(:focus-visible)`, which cannot fire for a keyboard user. */
+:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 3px; }
+@supports not selector(:focus-visible) {
+  :focus { outline: 2px solid var(--accent-line); outline-offset: 3px; }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface-off); }
+::-webkit-scrollbar-thumb { background: var(--hover-line); border-radius: 3px; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--surface); color: var(--ink);
+  padding: var(--sp-sm) var(--sp-md); border: 1px solid var(--line);
+  border-radius: var(--r-sm); box-shadow: var(--shadow-card);
+  font-size: 0.85rem; font-weight: 700; text-decoration: none; z-index: 10;
+}
+.skip:focus { left: var(--sp-sm); top: var(--sp-sm); }
+
+/* ---------------------------------------------------------------- chrome */
+
+/* The site's nav is a full-bleed bar with a 1100px inner wrapper. There is no inner wrapper in
+ * `index.html` and the markup is not mine to change, so the same result is reached with padding: the bar
+ * spans the viewport, and its content is held to --measure by an inline padding that grows with the
+ * window. Fixed positioning and the backdrop blur are left on the marketing site — an authenticated page
+ * that a member scrolls through slowly does not need its header following them. */
+.chrome {
+  display: flex; align-items: baseline; gap: var(--sp-lg) var(--sp-xl); flex-wrap: wrap;
+  padding: var(--sp-md) max(var(--sp-lg), calc((100% - var(--measure)) / 2));
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+/* THE GRADIENT, and the only one in the product.
+ *
+ * This is the site's `.nav-logo` rule, unchanged. It is the single considered use the brand's signature
+ * device gets here, and it earns the place by being *identity* rather than decoration: it appears once
+ * per page, it names the company, and it touches no data a member entered. The alternatives were a
+ * gradient rule under the chrome and a gradient primary button; both would have put the flourish on the
+ * product's own furniture, and the button would have repeated it on every form. Neither is worth it.
+ *
+ * The colour is declared before the clip so a browser that does not do background-clip: text still gets
+ * a readable wordmark, and forced-colors mode is given it back explicitly below. */
+.wordmark {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  background: var(--grad-sunrise);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* In a forced-colors context the transparent fill would erase the wordmark entirely. */
+@media (forced-colors: active) {
+  .wordmark { background: none; -webkit-text-fill-color: currentColor; }
+}
+
+.doors { display: flex; gap: var(--sp-lg) var(--sp-xl); flex-wrap: wrap; }
+
+.door {
+  color: var(--muted-text); text-decoration: none;
+  font-size: 0.85rem; font-weight: 600; letter-spacing: 0.03em;
+  padding-bottom: 3px; border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+.door:hover { color: var(--ink); }
+/* The site has no active-page state; the product needs one. A 2px rule in --primary is the quietest
+ * borrowing available — no pill, no fill, and emphatically no badge (R-003). */
+.door[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent-line); }
+
+/* A12 / A26: the language switch, and the member, at the end of the bar.
+ *
+ * One container for the pair. `.who` claims `margin-left: auto` and so did the switch in the first draft —
+ * two auto margins in a flex row split the free space between them, so the two drifted apart as the window
+ * widened and the switch ended up marooned in the middle of the header. The container takes the auto
+ * margin; its children sit together.
+ *
+ * No new colours and no new control treatment: both buttons in the switch are `.add`, the client's one
+ * secondary button, which already carries its 44px narrow target and its focus ring. */
+.chrome-end {
+  margin-left: auto;
+  display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap;
+}
+
+/* The two options sit against each other as one control, so the gap is smaller than the header's. */
+.lang { display: flex; align-items: center; gap: var(--sp-xs); flex-wrap: wrap; }
+
+/* The language in force. `.door[aria-current]` states the current page with a rule in --accent-line and
+ * this states the current language the same way, borrowing the same token rather than introducing a fill:
+ * a filled button here would compete with `.primary` on every screen. --ink for the word, because
+ * --muted-text against --accent-line would say "this one is the quiet one". */
+.lang-choice[aria-pressed="true"] {
+  border-color: var(--accent-line);
+  color: var(--ink);
+  /* 1.4.1: the state has to survive greyscale and a monochrome print, so it is not only the border hue. */
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+/* `.add:focus-visible` states focus on the border, which the pressed border already occupies. An outline
+ * as well, so the pressed option does not become the one that cannot show focus. */
+.lang-choice:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 3px; }
+
+/* A11: who is signed in, and the way out.
+ *
+ * No new colours: the name is --muted-text like the doors it sits beside, and the button is `.add`, the
+ * client's one secondary treatment.
+ *
+ * R-003: a name and a button. No count, no dot, no badge, and nothing here for one to be added to. */
+.who {
+  display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap;
+}
+.who-name {
+  color: var(--muted-text);
+  font-size: 0.85rem; font-weight: 600; letter-spacing: 0.03em;
+  /* A display name is something the member typed, in German, and it can be long. */
+  overflow-wrap: anywhere; min-width: 0;
+}
+
+main {
+  max-width: calc(var(--measure) + var(--sp-lg) * 2);
+  margin: 0 auto;
+  padding: var(--sp-2xl) var(--sp-lg) var(--sp-3xl);
+}
+/* `main` and one region in the panel carry tabindex="-1" so a skip link and an arriving answer can be
+ * focused programmatically. A ring around the whole page after a mouse click is noise — but a keyboard
+ * user who just pressed the skip link needs to see where they landed, so this is suppressed only for the
+ * focus that `:focus-visible` itself declines to show. Never a bare `outline: none`. */
+main:focus:not(:focus-visible),
+[tabindex="-1"]:focus:not(:focus-visible) { outline: none; }
+
+/* ---------------------------------------------------------------- headings */
+
+/* The site's `.eyebrow`, in --ink-soft rather than --primary for the contrast reason given in tokens.css.
+ * inline-block because the surfaces render it as a <span> and it still has to hold a margin. */
+.lbl {
+  display: inline-block;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent-text);
+  margin-bottom: var(--sp-xs);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  font-weight: 800; letter-spacing: -0.02em; line-height: 1.15;
+}
+
+/* The site's `.section-sub`, left-aligned and held to a reading measure instead of centred. */
+.lede { max-width: 62ch; margin: var(--sp-md) 0 0; color: var(--muted-text); font-size: 1.05rem; }
+
+/* ---------------------------------------------------------------- the grid */
+
+.grid { margin-top: var(--sp-2xl); }
+
+.grid-head {
+  display: grid; grid-template-columns: 170px minmax(0, 1fr) minmax(0, 1fr);
+  padding-bottom: var(--sp-sm);
+}
+.grid-head span {
+  padding-inline: var(--sp-md);
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted-text);
+}
+
+/* One role, one card — the site's `.card`, with the hairlines drawn by the cells' own borders rather than
+ * by a 1px grid gap over a coloured background. The old technique cannot round its corners; this can.
+ *
+ * `minmax(0, 1fr)` rather than `1fr`, and it is not cosmetic. A grid track sized `1fr` refuses to go below
+ * its content's min-content width, and the min-content width of "Erwerbsunfähigkeitsversicherung" — or of
+ * a 300-character vault title — is wider than the cell. The track grew, the row overflowed, and
+ * `overflow: hidden` two lines down then clipped the text away silently: no scrollbar, no ellipsis, just a
+ * sentence that stops. `minmax(0, 1fr)` lets the track shrink and the wrapping rules below do the rest. */
+.role-row {
+  display: grid; grid-template-columns: 170px minmax(0, 1fr) minmax(0, 1fr);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  margin-bottom: var(--sp-md);
+}
+
+.role-name {
+  background: var(--surface-tint);
+  padding: var(--sp-lg) var(--sp-md);
+  font-weight: 700; font-size: 0.95rem; color: var(--ink);
+}
+
+.cell {
+  background: var(--surface);
+  padding: var(--sp-lg) var(--sp-md);
+  display: flex; flex-direction: column; gap: var(--sp-md);
+  border-top: 2px solid transparent;
+  border-left: 1px solid var(--line);
+}
+.cell[data-capital="human"] { border-top-color: var(--capital-human); }
+.cell[data-capital="financial"] { border-top-color: var(--capital-financial); }
+
+.cell-capital {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted-text);
+}
+/* On wide screens the grid's own column header already says it; inside the card layout it does not.
+ *
+ * Scoped through `.role-name ~` deliberately. `.role-row` is reused by the container list and the vault
+ * list as a plain one-column card, and there `.cell-capital` is not a repeated column header — it is the
+ * goal's template name and the vault item's kind, the only place either is stated. The unscoped rule was
+ * deleting both of them above 700px. The grid's rows are the ones that have a `.role-name`; those cards
+ * do not, so the sibling combinator separates them without a class either file would have to add. */
+@media (min-width: 700px) { .role-name ~ .cell .cell-capital { display: none; } }
+
+.position { border-left: 2px solid var(--line); padding-left: var(--sp-md); }
+.position-label { font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+/* Tabular figures so magnitudes down a column line up. The site has no monospace face and does not need
+ * one; this is the same family asked to behave for numbers. */
+.position-magnitude {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem; color: var(--ink-black);
+}
+.position-meta { font-size: 0.82rem; color: var(--muted-text); }
+.position[data-active="false"] .position-label { color: var(--muted-text); font-weight: 600; }
+
+/* R-110: an empty cell states what would go there, in the role's own words. Not "no data",
+ * and not a skeleton placeholder — principle 3 forbids a component that renders a skeleton at n=1. */
+.cell-prompt { color: var(--muted-text); font-size: 0.88rem; max-width: 44ch; }
+
+/* The site's `.btn-outline .btn-sm`. This is the client's only secondary button: the surfaces reuse it
+ * for add, skip, cancel and resume, so it has to read as "available" without ever competing with
+ * `.primary`. */
+.add {
+  align-self: flex-start;
+  background: transparent; color: var(--ink);
+  /* The button has no fill, so its border is the whole of its affordance and 1.4.11's 3:1 applies to it
+   * rather than merely being nice to have. --quiet-line is 1.46:1 on white. */
+  border: 1.5px solid var(--control-line); border-radius: var(--r-sm);
+  font: inherit; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.03em;
+  padding: 0.5rem 1rem; cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.add:hover { border-color: var(--accent-line); color: var(--accent-text); }
+/* Only inside a cell: it sits at the bottom so the buttons line up across a row whatever each cell holds.
+ * In `.actions` the same class is one of several buttons in a row and must not be pushed anywhere. */
+.cell .add { margin-top: auto; }
+
+.definition-toggle {
+  align-self: flex-start; background: none; border: none; padding: 0;
+  font: inherit; font-size: 0.82rem; color: var(--accent-text); cursor: pointer;
+  border-bottom: 1px dotted var(--accent-text);
+}
+.definition-toggle:hover { color: var(--primary-deep); border-bottom-color: var(--primary-deep); }
+
+/* ---------------------------------------------------------------- narrow: paired cards */
+
+/* 699.98px, not 699px. A24's breakpoint is 700, and the two queries have to meet exactly: at a fractional
+ * viewport width — browser zoom, a scaled display, a 699.5px window — `max-width: 699px` and
+ * `min-width: 700px` both fail, and the grid falls back to its three-column default on a screen too narrow
+ * to hold it. Same value in tokens.css --grid-breakpoint. */
+@media (max-width: 699.98px) {
+  main { padding: var(--sp-xl) var(--sp-md) var(--sp-2xl); }
+  .grid-head { display: none; }
+
+  .role-row {
+    grid-template-columns: 1fr;
+    margin-bottom: var(--sp-lg);
+  }
+  /* The role name stops being a row label and becomes the card's header. */
+  .role-name {
+    padding: var(--sp-md);
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent-text);
+    border-bottom: 1px solid var(--line);
+  }
+  /* Stacked, there is no column to separate; the capital colour's 2px top edge is now the divider between
+   * the role's two cells, which is the distinction that matters here anyway. */
+  .cell { border-left-width: 0; }
+
+  /* ---- targets, at the size a thumb is ----
+   *
+   * WCAG 2.5.8 puts the floor at 24x24 CSS px; the practical figure for a financial form filled in on a
+   * phone is 44. Measured before this block, `.door` was about 20px tall, `.definition-toggle` about 19,
+   * `.add` about 32 and the text inputs about 40 — all of them typed at, tapped at, and none of them
+   * reaching 44. The wide layout is a pointer layout and is left as the site draws it; this is the narrow
+   * one, where every one of these is a touch target.
+   *
+   * `.chrome` aligns on the baseline, so vertical padding on `.door` grows the tap area without moving the
+   * text off the wordmark's line. */
+  /* `.door` and `.definition-toggle` both draw a border-bottom that *means* something — the current page
+   * on one, "this is a control" on the other — and padding would push that line away from the text it
+   * belongs to. So the target is enlarged rather than the box: a transparent pseudo-element, absolutely
+   * positioned inside the control, centred on it and 44px tall. It is part of the control, so it takes the
+   * tap; it is out of flow, so the underline stays where it was drawn.
+   *
+   * The 12px it reaches above and below the text is less than the row gap in both containers it appears
+   * in, so no two targets overlap. */
+  .door, .definition-toggle { position: relative; }
+  .door::before, .definition-toggle::before {
+    content: ''; position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 44px; transform: translateY(-50%);
+  }
+  .doors { gap: var(--sp-xs) var(--sp-lg); }
+
+  /* These three are filled or bordered boxes; growing them is growing the thing itself. */
+  .add, .primary { min-height: 44px; padding-block: 0.7rem; }
+  .tags summary { min-height: 44px; }
+
+  .position-form input[type="text"],
+  .position-form input[type="number"],
+  .position-form input[type="email"],
+  .position-form input[type="password"],
+  .position-form textarea,
+  .position-form select { min-height: 44px; }
+
+  /* 16px is the threshold below which iOS Safari zooms the page on focus, which then leaves the member
+   * scrolled sideways in a form. 0.95rem is 15.2px. */
+  .position-form input, .position-form textarea, .position-form select { font-size: 1rem; }
+
+  /* Two buttons side by side in `.actions` do not fit at 320px once both are 44px tall and padded; they
+   * wrap already, and this stops the wrapped one from sitting flush against the first. */
+  .actions { gap: var(--sp-sm) var(--sp-md); }
+
+  /* The report and the illustration tables on a phone. The card keeps its padding on the block axis and
+   * loses it on the inline axis, because at 320px a 1rem gutter on each side costs a fifth of the line. */
+  .report-block { padding: var(--sp-lg) var(--sp-md); }
+  /* A horizontally scrollable region is a keyboard target as well as a thumb one; 44px is the same floor
+   * everything else in this block gets. */
+  .figures-scroll { min-height: 44px; }
+  .figures { font-size: 0.8rem; }
+  .figures th, .figures td { padding: var(--sp-xs); }
+}
+
+/* ---------------------------------------------------------------- states */
+
+/* The site's `.booking-note`: a purple wash rather than a coloured panel. --ink-black on the wash over
+ * --surface-tint measures 7.24:1, and over --surface 7.84:1. */
+.notice {
+  margin-top: var(--sp-lg); padding: var(--sp-md) var(--sp-lg);
+  background: var(--wash); color: var(--ink-black);
+  border: 1px solid var(--wash-line); border-left: 3px solid var(--attention);
+  border-radius: var(--r-md);
+  font-size: 0.9rem;
+  /* A refusal from the server is one sentence of the server's own prose and can be a long one, sometimes
+   * with an identifier in it that has no spaces. It wraps rather than widening its parent. */
+  overflow-wrap: anywhere;
+}
+
+/* WCAG 1.4.1. A notice and a refusal used to differ by the hue of a 3px rule and nothing else, which is
+ * meaning carried by colour alone: at 3px, on a phone, for anyone whose red and violet sit close together,
+ * the two panels are the same panel. The weight and the width of the rule are the non-colour half — a
+ * refusal is heavier and its edge is thicker, and both survive a greyscale print. The hue stays because it
+ * is right, not because it is the only signal. --refusal is 5.83:1 on white and 4.99:1 on the wash. */
+.notice.error {
+  border-left-color: var(--refusal); border-left-width: 5px;
+  color: var(--ink); font-weight: 600;
+}
+
+/* The forms are flex columns with a gap, and every one of them holds its error node as a direct child. The
+ * notice's own margin-top then stacks on top of that gap and the refusal floats a full line away from the
+ * field it is about. Inside a flow that already spaces its children, the margin is wrong. */
+.position-form > .notice,
+.field > .notice { margin-top: 0; }
+
+/* The site's `.termin-tba-label`, in the attention hue — "provisional" is a statement about how settled
+ * something is, which is what that label means there too. */
+.provisional {
+  display: inline-block; margin-left: var(--sp-sm); vertical-align: middle;
+  padding: 2px var(--sp-sm);
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--attention); background: var(--surface-off);
+  border: 1px solid currentColor; border-radius: var(--r-xs);
+}
+
+/* ---------------------------------------------------------------- S-03 position form */
+
+.position-form { max-width: 620px; margin-top: var(--sp-xl); display: flex; flex-direction: column; gap: var(--sp-lg); }
+.position-form h1 { margin: 0; }
+
+.field { display: flex; flex-direction: column; gap: var(--sp-xs); }
+.field-label { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+.field-hint { font-size: 0.82rem; color: var(--muted-text); max-width: 56ch; }
+
+/* The marketing site has no form controls at all, so these are derived rather than copied: the card's
+ * border and radius at control scale, which is the smallest step that keeps them in the same system. */
+.position-form input[type="text"],
+.position-form input[type="number"],
+/* A11's login, registration and password screens reuse this form wholesale rather than growing a second
+ * set of controls. These two types are listed alongside the others so a password field is not the one
+ * input in the product drawn by the user agent. */
+.position-form input[type="email"],
+.position-form input[type="password"],
+.position-form textarea,
+.position-form select {
+  font: inherit; font-size: 0.95rem; padding: 0.6rem 0.75rem;
+  background: var(--surface); color: var(--ink);
+  /* --control-line, not --line. The hairline that reads correctly between two white cards is 1.21:1 and
+   * disappears entirely as the edge of an input; WCAG 1.4.11 wants 3:1 of the boundary that tells a member
+   * where the field is. See tokens.css. */
+  border: 1px solid var(--control-line); border-radius: var(--r-sm); width: 100%;
+  transition: border-color 0.2s;
+}
+/* --accent-line, not --hover-line. The resting border is now 3.38:1; --hover-line is 1.58:1, so pointing
+ * at a field used to make its edge fainter than leaving it alone. Hover is the same violet the focus ring
+ * uses, one state below it. */
+.position-form input:hover, .position-form textarea:hover, .position-form select:hover {
+  border-color: var(--accent-line);
+}
+/* Tighter than the global 3px offset: at that distance the ring collides with the next field's label. */
+.position-form input:focus-visible,
+.position-form textarea:focus-visible,
+.position-form select:focus-visible {
+  outline: 2px solid var(--accent-line); outline-offset: 1px; border-color: var(--accent-line);
+}
+.position-form textarea { resize: vertical; }
+
+/* D-02: the tags are stored and never interpreted, so they are folded away rather than presented as
+ * something the member must complete. Optional means optional-looking.
+ *
+ * Styled as the site's `.faq-item`, down to the rotating marker — the same "there is more here if you
+ * want it" gesture, and the one place the product and the site render the identical component. */
+.tags {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+  overflow: hidden;
+}
+.tags summary {
+  cursor: pointer; padding: var(--sp-md) var(--sp-lg);
+  font-size: 0.9rem; font-weight: 600; color: var(--ink);
+  list-style: none;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-md);
+  transition: background 0.2s;
+}
+.tags summary::-webkit-details-marker { display: none; }
+.tags summary::after {
+  content: '+';
+  font-size: 1.3rem; font-weight: 300; color: var(--accent-line);
+  flex-shrink: 0; transition: transform 0.2s;
+}
+.tags[open] summary::after { transform: rotate(45deg); }
+.tags summary:hover { background: var(--wash); }
+.tags .field-hint, .tags .field { margin: 0 var(--sp-lg); }
+.tags .field { margin-top: var(--sp-md); }
+.tags > :last-child { margin-bottom: var(--sp-lg); }
+
+/* C-09: the decision is part of the form, not a hidden side effect of saving. It is a card of its own for
+ * that reason — a member should be able to see that they are being asked, not discover it afterwards. */
+.decision {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: var(--sp-md) var(--sp-lg) var(--sp-lg);
+}
+.decision legend { font-size: 0.9rem; font-weight: 700; color: var(--ink); padding: 0 var(--sp-xs); }
+.decision .field { margin-top: var(--sp-md); }
+
+.actions { display: flex; gap: var(--sp-md); align-items: center; flex-wrap: wrap; }
+
+/* The site's `.btn-primary` is the gradient. Here it is solid ink: the gradient is spent on the wordmark
+ * (see above), and a submit button that appears on every form is the wrong place for the brand's loudest
+ * device. Hover moves toward --primary-deep, which is as much purple as a product control needs. */
+.primary {
+  font: inherit; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.03em;
+  padding: 0.75rem 1.5rem; cursor: pointer;
+  background: var(--ink); color: var(--surface);
+  border: 1.5px solid var(--ink); border-radius: var(--r-sm);
+  transition: background 0.2s, border-color 0.2s;
+}
+.primary:hover { background: var(--primary-deep); border-color: var(--primary-deep); }
+
+/* ---------------------------------------------------------------- S-01 onboarding */
+
+.onboarding { margin-top: var(--sp-xl); }
+.question-text {
+  font-size: 1.15rem; font-weight: 700; color: var(--ink);
+  margin: 0 0 var(--sp-xs); max-width: 54ch; line-height: 1.4;
+}
+.onboarding .position-form { gap: var(--sp-md); }
+
+/* S-01's goal question is one question and three elements — a template, what the template means, and the
+ * name the member gives it. `.position-form` is a flex column, so a wrapper without its own gap would
+ * collapse the three against each other; this is the same column one step tighter, because they are one
+ * question rather than three. */
+.goal-choice { display: flex; flex-direction: column; gap: var(--sp-sm); }
+.goal-choice .field-hint:empty { display: none; }
+
+.known {
+  margin-top: var(--sp-2xl); padding-top: var(--sp-lg); border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: var(--sp-sm); align-items: flex-start;
+}
+
+/* ---------------------------------------------------------------- the Befund, the runs, the illustration
+ *
+ * One small vocabulary, shared by three surfaces, because they are three views of the same kind of thing: a
+ * block of statements about the member's own record. `surfaces/befund.js` uses it for the six sections,
+ * `surfaces/runs.js` for one engine run, and `surfaces/containers.js` for a goal's illustration.
+ *
+ * **No new colours.** Every declaration below resolves to a token that already existed for the grid: the
+ * card is `--surface` on `--line` with the same radius and the same one-step shadow as `.role-row`, the
+ * quiet lines are `--muted-text` (never `--ink-mute`, which is 4.06:1 and fails), and the one accent is
+ * `--accent-text` on the small capitals that were already the client's eyebrow treatment.
+ *
+ * **Nothing here can be assembled into a meter.** No bar, no ring, no filled proportion, no width driven by
+ * a value — R-113 and C-07, and the friction is deliberate: drawing one would mean writing new rules on
+ * purpose rather than reaching for something already in the sheet.
+ */
+
+.report { margin-top: var(--sp-xl); }
+
+/* The same card as `.role-row`, one column and without the grid. */
+.report-block {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--sp-lg) var(--sp-md);
+  margin-bottom: var(--sp-md);
+}
+
+.report-heading {
+  margin: 0 0 var(--sp-md);
+  font-size: 1rem; font-weight: 700; color: var(--ink);
+  display: flex; gap: var(--sp-sm); align-items: baseline; flex-wrap: wrap;
+}
+
+/* A run's status, beside the model's name. A word, in the same treatment as every other small capital in
+ * this client — deliberately not a coloured pill: `failed` is "not available" and not an alarm, and a
+ * status that changes hue as it moves is a status a member reads as a verdict. */
+.report-status {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent-text);
+}
+
+.report-facts { display: flex; flex-direction: column; gap: var(--sp-lg); }
+
+/* One fact. The left rule is `.position`'s, for the same reason: it groups a few lines that belong together
+ * without drawing a box around each one. */
+.report-fact { border-left: 2px solid var(--line); padding-left: var(--sp-md); }
+
+.report-sentence { margin: 0; color: var(--ink); }
+
+/* The member's own words. A quotation, visibly — this is the one thing on the screen that eigentliCH did not
+ * write, and `services/befund.py` keeps it in a separate field so that it cannot be spliced into a sentence
+ * the C-01 gate has passed. Marked with an indent and a rule rather than with quotation glyphs, which would
+ * be wrong in one of the two languages. */
+.report-quote {
+  margin: 0 0 var(--sp-xs);
+  padding: var(--sp-xs) 0 var(--sp-xs) var(--sp-md);
+  border-left: 2px solid var(--control-line);
+  color: var(--ink-black);
+  font-size: 0.95rem;
+}
+.report-quote ul { margin: 0; padding-left: 1.2em; }
+.report-quote li + li { margin-top: var(--sp-xs); }
+
+.report-quote-label {
+  display: block;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted-text);
+}
+
+/* Provenance: an assumption set id, a timestamp, the last time this screen asked. Small, quiet, and always
+ * legible — `--muted-text` is 5.37:1 on white. */
+.report-meta { margin: var(--sp-xs) 0 0; font-size: 0.8rem; color: var(--muted-text); }
+
+.report-option { font-weight: 700; color: var(--ink); }
+.report-value { color: var(--ink-black); }
+.report-tree { margin: var(--sp-xs) 0 0; padding-left: 1.2em; }
+.report-tree ul { padding-left: 1.2em; }
+.report-tree li + li { margin-top: var(--sp-xs); }
+
+/* A run that has not come back yet. The wash says "something is here", the sentence says what. There is no
+ * spinner and nothing animated: a member who has asked their system for less movement has asked. */
+.report-waiting {
+  margin-top: var(--sp-md); padding: var(--sp-md);
+  background: var(--wash); border: 1px solid var(--wash-line); border-radius: var(--r-md);
+  color: var(--ink-black);
+}
+
+.runs { display: block; }
+
+/* ---- the illustration (R-133 / C-02) ---- */
+
+.illustration {
+  margin-top: var(--sp-md); padding-top: var(--sp-md);
+  border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: var(--sp-sm);
+}
+.illustration ul { margin: 0; padding-left: 1.2em; }
+.illustration li + li { margin-top: var(--sp-xs); }
+
+.illustration-role {
+  margin-top: var(--sp-md);
+  border-left: 2px solid var(--line); padding-left: var(--sp-md);
+  display: flex; flex-direction: column; gap: var(--sp-xs);
+}
+
+/* Five rows of four figures do not fit on a phone and must not widen the page, so the table scrolls inside
+ * its own box rather than pushing the document sideways. It is focusable and labelled, because a region
+ * that can only be reached by dragging cannot be reached by keyboard at all (WCAG 2.1.1). */
+.figures-scroll { overflow-x: auto; max-width: 100%; }
+.figures-scroll:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+
+.figures {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-top: var(--sp-xs);
+}
+.figures th, .figures td {
+  padding: var(--sp-xs) var(--sp-sm);
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  white-space: nowrap;
+}
+.figures thead th {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted-text);
+  border-bottom: 1px solid var(--control-line);
+}
+/* The scenario name is the row's header and reads as a label, not as a figure. */
+.figures tbody th { text-align: left; font-weight: 700; color: var(--ink); white-space: normal; }
+.figures td { color: var(--ink-black); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- text that is longer than the box
+ *
+ * Everything a member sees here is either their own typing or German. Both break layouts, differently.
+ *
+ *   - A position label is capped at 200 characters and a vault title at 300, and neither cap says anything
+ *     about spaces. A member who pastes a filename or an IBAN into the label field produces one word.
+ *   - German produces one word without anyone doing it on purpose: Freizügigkeitskonto,
+ *     Erwerbsunfähigkeitsversicherung, Selbstbehaltsvereinbarung. The last of those, set at 0.95rem bold,
+ *     is wider than a grid cell at the breakpoint. It is not a pathological input; it is a normal word.
+ *
+ * `overflow-wrap: anywhere` rather than `break-word`, because only `anywhere` also lowers the element's
+ * min-content width — which is what stops a long word from forcing a grid track wider than the page. It
+ * breaks only when the word does not fit, so ordinary text is untouched.
+ *
+ * `hyphens: auto` puts the break where German would put it. It needs a language to do that, and it has
+ * one: `main.js` sets `document.documentElement.lang` on every language change.
+ */
+.role-name,
+.position-label,
+.position-magnitude,
+.position-meta,
+.cell-capital,
+.cell-prompt,
+.field-label,
+.field-hint,
+.question-text,
+.report-sentence,
+.report-quote,
+.report-meta,
+.report-heading,
+.lbl,
+.lede,
+h1 {
+  overflow-wrap: anywhere;
+}
+/* Hyphenation is tried before the hard break, so a German compound that has a dictionary break point gets
+ * a hyphen and the rest get a clean split rather than a word cut at an arbitrary letter. */
+.cell-prompt, .lede, .field-hint, .question-text, .position-meta,
+.role-name, .position-label, .field-label,
+.report-sentence, .report-quote {
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+/* Grid and flex children default to a min-width of their content, which re-creates the same overflow one
+ * level up. The container and vault surfaces build `.role-row` with an inline `grid-template-columns: 1fr`
+ * that this file cannot reach into, so the floor is set on the children instead, where it works for both
+ * the three-column grid and the one-column card. */
+.role-row > *, .cell > *, .position, .field > * { min-width: 0; }
+
+/* ---------------------------------------------------------------- empty, and nearly empty
+ *
+ * The surfaces render nodes unconditionally in a few places and fill them conditionally: `grid.js` writes
+ * `cell.prompt || ''` into `.cell-prompt`, and the panel's answer and action regions exist before there is
+ * anything to put in them. An empty element with padding, a margin or a border is a visible artefact of
+ * nothing, and a member reads it as something that failed to load.
+ */
+.cell-prompt:empty,
+.position-meta:empty,
+.field-hint:empty,
+/* `runs.js` builds one live line before it has anything to say and rewrites it on every poll; the Befund
+ * renders a provenance line only where there is provenance, but the same rule costs nothing here. */
+.report-meta:empty,
+.notice:empty { display: none; }
+
+/* An empty `.field` region is a flex column with a gap and no children; it collapses on its own. An empty
+ * `.actions` row does not — it holds the gap open. */
+.actions:empty { display: none; }
+
+/* R-031's observation list. `containers.js` writes a bare `<ul>` with the list markers left on, which is
+ * right — a plain list, no severity, no icon. At eight items and 1.6 line-height it becomes a wall, and
+ * the observations are individually short, so the reading cost is all in the spacing. */
+.cell ul { margin: 0; padding-left: 1.2em; }
+.cell li + li { margin-top: var(--sp-xs); }
+.cell li { overflow-wrap: anywhere; }
+
+/* ---------------------------------------------------------------- focus, element by element
+ *
+ * The global rule above covers everything by itself. These add to it where the ring alone is not enough or
+ * where it would be clipped, and they exist as separate rules so that "does this control have a focus
+ * style" is answerable by reading the sheet rather than by trusting inheritance.
+ */
+
+/* `.tags` and `.role-row` both clip their overflow, and `summary` sits flush against the top edge of
+ * `.tags`. A 2px ring at a 3px offset is drawn outside the box and is therefore drawn inside the clip: the
+ * top half of it simply does not appear. Pulled inside, all four sides are visible. */
+.tags summary:focus-visible { outline: 2px solid var(--accent-line); outline-offset: -3px; }
+
+/* The outline button's own edge moves with focus as well as with hover, so the state is legible even where
+ * a ring is hard to see — a high-contrast setting that overrides outline colour, or a screenshot. */
+.add:focus-visible { border-color: var(--accent-line); color: var(--accent-text); }
+
+/* The submit button is solid ink; a 4.47:1 ring against it is not enough on its own, so the offset gives
+ * the ring white to sit on. */
+.primary:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 3px; }
+
+/* A text button whose only edge is a dotted underline. On focus the underline becomes solid — one more
+ * channel than the ring alone, and one that is not a colour. */
+.definition-toggle:focus-visible { border-bottom-style: solid; }
+
+.door:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 3px; }
+.skip:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 3px; }
+
+/* ---------------------------------------------------------------- motion
+ *
+ * There is not much to reduce — this client has no animation, only four colour and border transitions and
+ * one 45-degree rotation on the disclosure marker. That is exactly why the block is cheap to write and
+ * worth writing: a member who has asked their system for less movement has asked, and the answer should
+ * not depend on someone remembering the setting exists the next time a transition is added.
+ *
+ * Durations are near-zero rather than zero so that a `transitionend` listener still fires. Nothing in this
+ * client listens for one today; the pattern costs nothing and does not break the day something does.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------- S-07, consent, erasure, capabilities
+ *
+ * A51: **not one new colour.** Every declaration below resolves to a token that already exists, and the
+ * three that state something do it with --refusal (5.83:1 on --surface), --attention and --muted-text —
+ * all of which the contrast suite already computes. `--ink-mute` appears nowhere: it is 4.06:1 and fails.
+ *
+ * The controls are all `.add` and `.primary`, which already carry the 44px target and their own focus
+ * rules. What is added here is layout and one boundary treatment, plus a focus rule for the one genuinely
+ * new control — the consent checkbox.
+ */
+
+/* One decision, in the list and in the chain. Reuses `.report-fact`'s spacing; what it adds is the
+ * left boundary that marks the record a member arrived at inside a chain. */
+.decision-record { position: relative; }
+
+/* The record the member asked for, inside its own correction chain. WCAG 1.4.1: the border is not the only
+ * signal — `decisions.js` also renders a `.lbl` reading "this entry", because a 3px rule in an accent hue
+ * is one colour on a greyscale screen and on a monochrome print. */
+.decision-record[data-asked-for="true"] {
+  border-left: 3px solid var(--accent-line);
+  padding-left: var(--sp-lg);
+}
+
+.decision-chain { margin-top: var(--sp-md); }
+.decision-chain .decision-record + .decision-record {
+  margin-top: var(--sp-lg);
+  border-top: 1px solid var(--quiet-line);
+  padding-top: var(--sp-lg);
+}
+
+/* A position or goal a decision touched, beside the control that filters to it. Wraps rather than
+ * overflows: a German position label and a button do not fit on a phone. */
+.decision-link {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-md);
+  margin-top: var(--sp-md); min-width: 0;
+}
+.decision-link .report-quote { margin: 0; flex: 1 1 16ch; min-width: 0; }
+
+/* ---- R-103: the consent section on the registration form ---- */
+
+.consent { display: flex; flex-direction: column; gap: var(--sp-lg); }
+.consent h2 { margin: 0; font-size: 1.1rem; }
+
+/* The published wording, as authored text rather than as a quotation: it is eigentliCH speaking, not the
+ * member. `.consent-statement` reads at body size because a member is being asked to agree to it. */
+.consent-statement { margin: 0; color: var(--ink); max-width: var(--measure); }
+
+/* A notice is not a choice, so it is not dressed as one. No accent border and no control: the difference
+ * from a consent is stated in words by `login.js` and marked here only by a quieter ground. */
+.consent-purpose[data-kind="notice"] { background: var(--surface-off); }
+
+/* The agreement row: the box and its label on one line, the consequence hint under both. */
+.consent-agree { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: var(--sp-md); }
+.consent-agree .field-hint { flex-basis: 100%; }
+
+/* The one new interactive control in this pass. Sized rather than left at the UA's ~13px: a checkbox that
+ * decides whether an account exists should not be the smallest target on the screen. `accent-color` tints
+ * the check itself with a token that already exists, so the box needs no bespoke painting. */
+.consent-box {
+  width: 24px; height: 24px; margin: 0; flex: none;
+  accent-color: var(--primary); cursor: pointer;
+}
+/* The label wrapping it is the 44px target; the box itself gets a ring of its own. */
+.consent-agree { min-height: 44px; }
+.consent-box:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 3px; }
+
+/* ---- R-230: the consent history and the notices ---- */
+
+.consent-entry { gap: var(--sp-sm); }
+/* A withdrawn consent stays in the list. Stated in words by `settings.js` as well — this only makes the
+ * date easier to find. */
+.consent-withdrawn { color: var(--attention); font-weight: 600; }
+/* A notice, in its own section or as a historical row in the history: the same quieter ground as on the
+ * registration form, so the two screens agree about what a notice looks like. Two selectors because they
+ * are two different things — a published statement every member gets, and a row in this member's history —
+ * and one class for both made the second unfindable. */
+.notice-entry,
+.consent-entry[data-kind="notice"] { background: var(--surface-off); }
+.notice-entry { gap: var(--sp-sm); }
+
+.notices { border-left: 3px solid var(--accent-line); padding-left: var(--sp-lg); }
+
+/* ---- R-231: the erasure ----
+ *
+ * The only destructive control in the product. It is marked with --refusal, which is the token this client
+ * already uses for a refusal, and the marking is a border and a weight rather than a fill: a solid red
+ * button is the shape of a primary action, and this is not one. */
+
+.erasure { border-left: 3px solid var(--refusal); padding-left: var(--sp-lg); }
+.erasure-open { border-color: var(--refusal); color: var(--refusal); }
+.erasure-open:hover,
+.erasure-open:focus-visible { border-color: var(--refusal); color: var(--ink); }
+
+.erasure-form { border-top: 1px solid var(--quiet-line); padding-top: var(--sp-lg); }
+.erasure-irreversible { margin: 0; color: var(--refusal); font-weight: 700; }
+
+/* The sentence to type, shown once, from the payload. Selectable and wrapping: a member may copy it, and
+ * the German one is long enough to wrap on a phone. */
+.erasure-phrase {
+  margin: 0; padding: var(--sp-md) var(--sp-lg);
+  background: var(--surface-off); border: 1px solid var(--control-line); border-radius: var(--r-sm);
+  font-weight: 700; color: var(--ink); user-select: all;
+  overflow-wrap: anywhere;
+}
+
+/* Not filled. `.primary` is solid ink and reads as "the thing to press"; this one has to read as "the
+ * thing to press only if you mean it", so it keeps the outline treatment and takes the refusal hue. */
+.erasure-submit {
+  background: transparent; color: var(--refusal);
+  border-color: var(--refusal); border-width: 2px;
+}
+.erasure-submit:hover { background: var(--refusal); color: var(--surface); border-color: var(--refusal); }
+.erasure-submit:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 3px; }
+
+/* ---- S-10: the capability statements ---- */
+
+/* Reuses `.grid`'s column behaviour; the statements are unordered (D-01) so this is a plain wrap rather
+ * than a sequence with a start and an end. */
+.capability-list { display: flex; flex-direction: column; gap: var(--sp-lg); margin-top: var(--sp-xl); }
+.capability { min-width: 0; }
+.capability-statement { margin: 0; color: var(--ink); max-width: var(--measure); }
+/* What the member has recorded. **No marker of standing and no filled indicator** — C-07, and this is the
+ * screen where a rung would arrive as a drawn affordance rather than as a word. The recorded state is a
+ * quieter ground plus a sentence, never a dot, a bar or a tick out of a total. */
+.capability[data-evidenced="true"] { background: var(--surface-off); }
+.capability-evidence { margin-top: var(--sp-sm); }
+
+/* The three controls on a position: edit, the R-122 act, and its decisions. They sit at the bottom of the
+ * card so they line up across a row, the same reason `.cell .add` does. */
+.position-actions { margin-top: var(--sp-md); flex-wrap: wrap; gap: var(--sp-sm); }
+
+/* ---- S-12's member side, S-11, S-05, S-09, S-13 and S-10's learning path ----
+ *
+ * Six new lists of cards and every one of them is `.capability-list`'s shape: a column with a gap, and
+ * `min-width: 0` on the card so one long German compound cannot blow a track out — the same defence
+ * `test_long_words_are_allowed_to_break` already holds for the grid.
+ *
+ * **No new colour and no new token.** A51: the palette is the live site's. The only state any of these
+ * cards carries is a quieter ground, which is exactly what `.capability[data-evidenced]` does and for the
+ * same reason — C-07 forbids a filled indicator, and a ground plus a sentence on the card is not one. Both
+ * states below are stated in words by their surfaces as well (1.4.1), because a ground alone is one colour
+ * on a greyscale screen.
+ *
+ * **No new interactive selector, deliberately.** Every control on these screens is `.add`, `.primary`,
+ * `.consent-box` or a `.position-form` field, all four of which already carry their 44px narrow target and
+ * their own focus rule. A seventh button treatment is where a new hue and an unreachable tap target arrive
+ * together, which is what A70 recorded and what `test_the_language_switch_reuses_the_existing_button_treatment`
+ * pins one control further out.
+ */
+.grants,
+.market-filter,
+.market-ordering,
+.market-apply,
+.learning-exits,
+.data-classes {
+  display: flex; flex-direction: column; gap: var(--sp-sm);
+  margin-top: var(--sp-2xl);
+}
+.grants h2,
+.learning-exits h2,
+.data-classes h2 { margin: 0; font-size: 1.1rem; }
+
+.grid.market-entries,
+.grid.stage-map,
+.grid.life-event-list,
+.grid.gathering-list,
+.grid.learning-units {
+  display: flex; flex-direction: column; gap: var(--sp-lg);
+  margin-top: var(--sp-xl);
+}
+
+.grant,
+.listing,
+.stage,
+.life-event,
+.life-event-entry,
+.gathering,
+.learning-unit,
+.learning-exit,
+.draft { min-width: 0; }
+
+/* A grant that has ended and a gathering the member was at. Never the only signal: `grants.js` writes
+ * "Diesen Zugang haben Sie entzogen" and `community.js` writes "Sie waren dabei" on the card itself. */
+.grant[data-live="false"],
+.gathering[data-attended="true"] { background: var(--surface-off); }
+
+/* R-202. The disclosures are text on the card rather than a control, so they are set apart by a hairline
+ * and not by a toggle — "displays its disclosures" and "offers to show them" are different promises.
+ * Two disclosures are spaced for the same reason `.cell li + li` spaces two observations: each is short
+ * and several together are a wall. */
+.disclosures { border-top: 1px solid var(--quiet-line); padding-top: var(--sp-sm); }
+.disclosure + .disclosure { margin-top: var(--sp-md); }
+
+/* R-232's category list is long by nature — one line per stored category — so its rows are spaced rather
+ * than run together. */
+.data-classes li + li { margin-top: var(--sp-sm); }
+
+/* ---------------------------------------------------------------- print
+ *
+ * A member prints their plan and takes it to somebody: a partner at a kitchen table, an accountant, a
+ * pension office counter. What comes out of the printer is a document, not a screenshot of an application,
+ * so everything that is only there to be clicked is removed and everything that is a statement is kept.
+ *
+ * Three specific things this has to get right:
+ *
+ *   1. The panel is positioned and sized by `know.js` through `setAttribute('style', ...)`, and the same
+ *      file writes `document.body.style.paddingRight`. Both are inline declarations, so both need
+ *      `!important` here — without it a printed page comes out with a fixed white column down the right
+ *      edge and a 380px indent on every sheet.
+ *   2. The wordmark is a gradient clipped to the text with a transparent fill. Printed, that is a blank
+ *      space where the company name should be. It goes back to solid ink for paper, which is the same
+ *      reason the forced-colors rule near the top exists.
+ *   3. Above 700px `.cell-capital` is hidden because the column header states it once. Paper has page
+ *      breaks: a row can land on the far side of one, away from its header. On paper every cell says which
+ *      kind of capital it is, and the header is dropped instead.
+ *
+ * Ink is not spent on backgrounds. `print-color-adjust: exact` is deliberately NOT set anywhere in here.
+ */
+@media print {
+  @page { margin: 16mm; }
+
+  /* Keep the header (for the wordmark) and the document. Everything else that is a direct child of body is
+   * chrome or apparatus: the skip link, the live region, the panel, its scrim, its launcher. */
+  body > *:not(.chrome):not(main) { display: none !important; }
+
+  html, body {
+    background: #fff !important;
+    color: #000;
+    font-size: 10.5pt;
+    padding-right: 0 !important;
+  }
+
+  .chrome {
+    display: block !important;
+    padding: 0 0 6pt;
+    background: none;
+    border-bottom: 1pt solid #000;
+    margin-bottom: 12pt;
+  }
+  .doors { display: none !important; }
+  /* The member's name and the sign-out button are apparatus, not document. The button is removed by the
+   * `button { display: none }` rule further down; the name would otherwise print beside the wordmark on
+   * a sheet the member is taking to somebody else. */
+  .who { display: none !important; }
+  /* The language switch is apparatus too, and the sheet is already printed in one language. Its buttons
+   * would go anyway under the `button` rule below; the container would otherwise leave a gap. */
+  .chrome-end, .lang { display: none !important; }
+  .wordmark {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: #000;
+    font-size: 12pt;
+  }
+
+  main { max-width: none; margin: 0; padding: 0; }
+
+  h1 { font-size: 16pt; }
+  .lbl { color: #000; }
+  .lede { color: #000; font-size: 10.5pt; max-width: none; }
+
+  /* Every button, in every surface. `.add` is also the export link in the vault surface, which is an
+   * action and not a statement; a printed page cannot be clicked. */
+  .add, .primary, .definition-toggle, button { display: none !important; }
+
+  /* A collapsed disclosure has nothing to print and its marker is a control. An open one prints its
+   * contents as an ordinary block. */
+  .tags summary::after { content: none; }
+  .tags summary { font-weight: 700; }
+
+  .grid-head { display: none !important; }
+  .role-name ~ .cell .cell-capital { display: block; }
+  .cell-capital, .position-meta, .cell-prompt, .field-hint { color: #333; }
+
+  .role-row {
+    background: none;
+    border: 1pt solid #000;
+    box-shadow: none;
+    /* A role and its two kinds of capital belong on one page. R-114 is a layout rule on screen and it is
+     * the same rule on paper. */
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 8pt;
+  }
+  .role-name { background: none; border-bottom: 1pt solid #000; }
+  .cell {
+    background: none;
+    /* The container and vault surfaces render a lone `.cell` as the whole body of a card; a rule down its
+     * left edge there is a line to nowhere. Only the grid's cells sit beside something. */
+    border-left: 0;
+    /* The capital colours are 2.9:1 and 2.1:1 against white and near-identical to each other in luminance;
+     * on a greyscale printer they are the same grey. The label in each cell is what distinguishes them
+     * here, so the coloured edge is replaced by a plain rule rather than being trusted. */
+    border-top: 1pt solid #000 !important;
+  }
+  .role-name ~ .cell { border-left: 1pt solid #000; }
+
+  .position { break-inside: avoid; page-break-inside: avoid; border-left: 1pt solid #666; }
+  .position-magnitude { color: #000; }
+
+  .notice {
+    background: none;
+    border: 1pt solid #000;
+    border-left: 3pt solid #000;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* The refusal keeps the one distinction that survives a monochrome printer. */
+  .notice.error { border-left-width: 5pt; font-weight: 700; }
+
+  .provisional { background: none; color: #000; border: 1pt solid #000; }
+
+  .tags, .decision { background: none; border: 1pt solid #000; break-inside: avoid; }
+
+  /* The Befund is the one screen in this product a member prints and takes to somebody, which is what the
+   * whole of this block was written for. A section is a unit and stays on one page; the member's own words
+   * keep the rule that marks them as quoted, because on paper the indent alone is easy to miss. */
+  .report-block {
+    background: none;
+    border: 1pt solid #000;
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 8pt;
+  }
+  .report-fact { border-left: 1pt solid #666; break-inside: avoid; page-break-inside: avoid; }
+  .report-quote { border-left: 1pt solid #000; }
+  .report-heading { break-after: avoid; page-break-after: avoid; }
+  .report-meta, .report-quote-label, .report-status { color: #333; }
+  .report-sentence { color: #000; }
+  /* "Still working. This screen keeps asking." is true of a screen and false of a sheet of paper. */
+  .report-waiting { display: none !important; }
+
+  .illustration { border-top: 1pt solid #000; }
+  .illustration-role { border-left: 1pt solid #666; break-inside: avoid; page-break-inside: avoid; }
+  /* Paper does not scroll. The table prints in full and is allowed to wrap its headers to fit the page. */
+  .figures-scroll { overflow: visible !important; }
+  .figures { break-inside: avoid; page-break-inside: avoid; }
+  .figures th, .figures td { border-bottom: 0.5pt solid #666; white-space: normal; }
+  .figures thead th { color: #000; border-bottom: 1pt solid #000; }
+  .figures td { color: #000; }
+
+  /* A heading orphaned at the foot of a page, and a two-line paragraph split across a break, are both
+   * cheap to prevent and expensive to read. */
+  h1, .lbl, .question-text, .field-label { break-after: avoid; page-break-after: avoid; }
+  p { orphans: 2; widows: 2; }
+}
+
+/* ==========================================================================================================
+   The ask surface (update script item 1)
+   ==========================================================================================================
+
+   One field, and nothing above it. The whole of this block is about keeping it that way: there is no
+   heading rule, no card, no metric and no panel chrome here, because item 1 names those four as the things
+   that must not be on this screen.
+
+   The field is the widest thing on the page and sits high, because it is the only control a member who has
+   just arrived can use. Everything answered appears BELOW it, so the field never moves down the screen as
+   answers accumulate — on a phone that is the difference between asking a second question and hunting for
+   the box. */
+
+.ask { display: flex; flex-direction: column; gap: var(--sp-lg); }
+
+.ask-form { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+/* `field-sizing: content` would do the growing natively and is not relied on: it is recent, and the
+   fallback is a field that never grows, which is the behaviour item 1 rules out. `ask.js::grow` sets the
+   height, and this only bounds it. `resize: none` because the script's growth and a drag handle fight. */
+.ask-field {
+  width: 100%;
+  min-height: 3.2rem;
+  max-height: 240px;
+  resize: none;
+  overflow-y: hidden;
+  font: inherit;
+  line-height: 1.45;
+  padding: var(--sp-sm) var(--sp-md);
+  /* The same border and radius every other control on this client uses. `--control-line` rather than
+     `--line`: 1.4.11 asks 3:1 of a control's boundary, and `--line` is the quieter rule used between
+     blocks of text. */
+  border: 1.5px solid var(--control-line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.ask-field:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 1px; }
+
+/* The question, above the answer, and the only thing on the screen the member wrote. Larger than the
+   answer on purpose: it is the thing they look for when they come back to the screen. */
+.ask-asked {
+  margin: 0 0 var(--sp-md);
+  font-size: 1.15rem;
+  line-height: 1.4;
+  color: var(--ink);
+  /* A member may paste a long sentence with no spaces. It wraps rather than widening the page. */
+  overflow-wrap: anywhere;
+}
+
+.ask-answer { display: flex; flex-direction: column; gap: var(--sp-md); }
+.ask-answer-text { margin: 0; line-height: 1.6; overflow-wrap: anywhere; }
+
+/* A refusal is the boundary being explained, not a fault (R-172). It gets a rule in the accent line rather
+   than an error colour: an error colour would tell the member they did something wrong by asking. */
+.ask-answer.refused { border-left: 3px solid var(--accent-line); padding-left: var(--sp-md); }
+
+.ask-sources { display: flex; flex-direction: column; gap: var(--sp-xs); }
+.ask-source-list { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 2px; }
+.ask-source-index { color: var(--muted-text); margin-right: 0.4em; }
+
+/* One fold, collapsed. Several disclosures in a row are read as none. */
+.ask-caveat > summary { cursor: pointer; color: var(--muted-text); }
+.ask-caveat-rows { margin: var(--sp-sm) 0 0; display: grid; grid-template-columns: auto 1fr; gap: 4px var(--sp-md); }
+.ask-caveat-rows dt { color: var(--muted-text); }
+.ask-caveat-rows dd { margin: 0; }

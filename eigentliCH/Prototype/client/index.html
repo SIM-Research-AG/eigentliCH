@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<!--
+  No `maximum-scale` and no `user-scalable=no`. Pinch zoom is how a member reads a franc figure on a phone
+  in poor light, and a viewport that forbids it fails WCAG 1.4.4 outright.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  A51: light only, and said in the document as well as in the sheet. `tokens.css` declares
+  `color-scheme: light` on :root; this says the same thing before a single byte of CSS has been fetched, so
+  a browser in dark mode does not paint one dark frame of its own form controls and scrollbars first.
+-->
+<meta name="color-scheme" content="light">
+<title>eigentliCH</title>
+<!--
+  C-05: eigentliCH is sole data controller from the first intake question. There is NOT ONE external
+  reference on this page — no CDN, no font service, no tag manager, no analytics. System fonts only,
+  which is why there is no <link> to fonts.googleapis.com even though the build spec's own document
+  uses one. That document is not an authenticated page; this is.
+
+  No build step (A2). ES modules, served as-is, debuggable in the browser that runs them.
+-->
+<link rel="stylesheet" href="/style/tokens.css">
+<link rel="stylesheet" href="/style/app.css">
+</head>
+<body>
+  <!--
+    A12 / A70: the chrome is translated at runtime. Every element with `data-i18n` is rewritten from
+    `app/i18n.js` by `main.js::applyChrome` on load and on every language change — that is the hook A70
+    recorded as missing, with this file named as the precise location. The German text stays in the
+    document as the served default, so a member whose script has not run yet reads a real header in the
+    default language (A12: de-CH) rather than an empty one or a set of key names.
+  -->
+  <a class="skip" href="#main" data-i18n="chrome.skip">Zum Inhalt springen</a>
+
+  <header class="chrome">
+    <!--
+      The wordmark is the way home, and home is the question field (item 1). It is an anchor rather than a
+      door: `.doors` is the set of pages `aria-current` and the print sheet treat as navigation, and the
+      entry surface is not one of three destinations — it is where you start and where you come back to.
+    -->
+    <a href="#/ask" class="wordmark" data-i18n-aria="chrome.home" aria-label="Zur Frage">eigentliCH</a>
+    <!--
+      R-003: action items appear inside The Know as items with prepared decisions. They must NOT appear
+      as counts, dots or badges on navigation elements. There is deliberately no badge element here to
+      later "just add a number to".
+    -->
+    <nav class="doors" aria-label="Hauptnavigation">
+      <!--
+        Item 8's three destinations. The Vault absorbed the Plan door: item 4 makes it "everything about
+        the client and everything they have to do — goals, action points, documents, decisions taken and
+        the reasoning behind them", and the role grid is the primary view INSIDE it rather than a door of
+        its own (page 2: "nobody meets the four roles before they have entered data").
+
+        **The Befund is no longer a door and is still one tap from the Vault.** It became a door on
+        31 August because the owner opened the application and said "there is still no output" — a report
+        existed behind the API and nothing rendered it. That fix is not undone here: it is a pane inside
+        the Vault, beside the material it reports on, and `vaultLinks` puts it on every Vault screen. The
+        decision to move it is the owner's, taken 4 September 2026.
+      -->
+      <a href="#/vault" data-route="vault" class="door" data-i18n="chrome.door_vault">Tresor</a>
+      <a href="#/know" data-route="know" class="door" data-i18n="chrome.door_know">Wissen</a>
+      <a href="#/market" data-route="market" class="door" data-i18n="chrome.door_market">Marktplatz</a>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1"></main>
+
+  <div id="live" class="visually-hidden" role="status" aria-live="polite"></div>
+
+  <script type="module" src="/app/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+{
+ "client_ref": "syn-liquidity",
+ "as_of": "2026-09-28",
+ "household": {
+  "composition_as_of": "2025-06-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 44
+   }
+  ]
+ },
+ "positions": [
+  {
+   "position_id": "art",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 45000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "real_asset",
+   "owner": "p1",
+   "funds_goals": [
+    "g1",
+    "g4"
+   ]
+  },
+  {
+   "position_id": "car",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 18000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "real_asset",
+   "owner": "p1",
+   "funds_goals": [
+    "g1"
+   ]
+  },
+  {
+   "position_id": "cash",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 2000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "funds_goals": [
+    "g2"
+   ]
+  },
+  {
+   "position_id": "fund",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 30000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": null,
+   "vessel": "free",
+   "owner": "p1",
+   "funds_goals": [
+    "g2"
+   ]
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g1",
+   "kind": "other",
+   "target_amount": 50000.0,
+   "target_date": "2029-12-31"
+  },
+  {
+   "goal_id": "g2",
+   "kind": "other",
+   "target_amount": 50000.0,
+   "target_date": "2030-06-30"
+  },
+  {
+   "goal_id": "g3",
+   "kind": "other",
+   "target_amount": 50000.0,
+   "target_date": null
+  },
+  {
+   "goal_id": "g4",
+   "kind": "other",
+   "target_amount": 50000.0,
+   "target_date": "2026-01-31"
+  }
+ ],
+ "facts": {
+  "civil_status": "ledig"
+ }
+}

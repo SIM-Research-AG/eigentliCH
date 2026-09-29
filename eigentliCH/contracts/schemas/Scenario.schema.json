@@ -1,0 +1,441 @@
+{
+  "$defs": {
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Where a value came from.\n\n`as_of` is the date the data describes. It is deliberately not the time the object was built: see the\nmodule docstring.",
+      "properties": {
+        "as_of": {
+          "description": "The date the value describes, ISO or YYYY-MM",
+          "title": "As Of",
+          "type": "string"
+        },
+        "model_version": {
+          "description": "Version of the engine or model that produced it",
+          "title": "Model Version",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "reliability": {
+          "$ref": "#/$defs/Reliability",
+          "default": "derived"
+        },
+        "source": {
+          "description": "Publishing institution, engine, or person",
+          "title": "Source",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "source",
+        "as_of",
+        "model_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RegimeRef": {
+      "additionalProperties": false,
+      "description": "A reference to a published Regime timeline.\n\nThis is what a per-user contract carries. `regime_id` is the load-bearing field: every downstream\nartefact stamps it, and any two artefacts that must be consistent are checked on it.",
+      "properties": {
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "crisis_tail": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Crisis Tail"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        },
+        "regime_id": {
+          "title": "Regime Id",
+          "type": "string"
+        },
+        "regime_timeline_id": {
+          "title": "Regime Timeline Id",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Economy code or blended market scope, for example 'Global' or 'ch'",
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "regime_id",
+        "regime_timeline_id",
+        "scope",
+        "as_of",
+        "model_version"
+      ],
+      "title": "RegimeRef",
+      "type": "object"
+    },
+    "Reliability": {
+      "description": "How far a value can be trusted. Mirrors the macro programme's ladder.\n\n`SYNTHETIC` must never reach a client-facing surface or a regulated decision. The ground rules forbid\nfilling a gap with placeholder data, so this level exists to make a breach detectable rather than to\npermit one.",
+      "enum": [
+        "published",
+        "derived",
+        "interpolated",
+        "synthetic"
+      ],
+      "title": "Reliability",
+      "type": "string"
+    },
+    "ScenarioChange": {
+      "additionalProperties": false,
+      "description": "The change a scenario applies.",
+      "properties": {
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "field": {
+          "description": "What was changed, for example 'contributions' or 'horizon_years'",
+          "title": "Field",
+          "type": "string"
+        },
+        "from_value": {
+          "default": null,
+          "title": "From Value"
+        },
+        "to_value": {
+          "default": null,
+          "title": "To Value"
+        }
+      },
+      "required": [
+        "field",
+        "description"
+      ],
+      "title": "ScenarioChange",
+      "type": "object"
+    },
+    "Sourced": {
+      "additionalProperties": false,
+      "description": "A number with its provenance attached, for values a human will read.",
+      "properties": {
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "value",
+        "provenance"
+      ],
+      "title": "Sourced",
+      "type": "object"
+    },
+    "Trajectory": {
+      "additionalProperties": false,
+      "description": "A goal's projected path: the S-curve.\n\nModel-derived, not a forecast. The `epsilon` the band is drawn at is recorded, because a band without its\nconfidence level says nothing.",
+      "properties": {
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "epsilon": {
+          "title": "Epsilon",
+          "type": "number"
+        },
+        "goal_kind": {
+          "title": "Goal Kind",
+          "type": "string"
+        },
+        "goal_ref": {
+          "title": "Goal Ref",
+          "type": "string"
+        },
+        "horizon_years": {
+          "title": "Horizon Years",
+          "type": "number"
+        },
+        "household_id": {
+          "title": "Household Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Idempotency Key"
+        },
+        "model_derived": {
+          "default": true,
+          "title": "Model Derived",
+          "type": "boolean"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "on_track": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "On Track"
+        },
+        "points": {
+          "items": {
+            "$ref": "#/$defs/TrajectoryPoint"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "regime": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RegimeRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "trace_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trace Id"
+        }
+      },
+      "required": [
+        "as_of",
+        "model_version",
+        "household_id",
+        "goal_kind",
+        "goal_ref",
+        "horizon_years",
+        "epsilon",
+        "points"
+      ],
+      "title": "Trajectory",
+      "type": "object"
+    },
+    "TrajectoryPoint": {
+      "additionalProperties": false,
+      "description": "One period on a projected path.",
+      "properties": {
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "t_years": {
+          "title": "T Years",
+          "type": "number"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "t_years",
+        "value"
+      ],
+      "title": "TrajectoryPoint",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A what-if: the household's position under a proposed change.\n\nEducation, and it stays education only because the change is the client's. A change the *system* proposed,\npresented as a what-if, would be a recommendation with its label removed.",
+  "properties": {
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "base_snapshot_id": {
+      "title": "Base Snapshot Id",
+      "type": "string"
+    },
+    "change": {
+      "$ref": "#/$defs/ScenarioChange"
+    },
+    "change_origin": {
+      "default": "client",
+      "title": "Change Origin",
+      "type": "string"
+    },
+    "household_id": {
+      "title": "Household Id",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "model_derived": {
+      "default": true,
+      "title": "Model Derived",
+      "type": "boolean"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "outcome": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Sourced"
+      },
+      "title": "Outcome",
+      "type": "object"
+    },
+    "regime": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RegimeRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trace Id"
+    },
+    "trajectory": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Trajectory"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "as_of",
+    "model_version",
+    "household_id",
+    "base_snapshot_id",
+    "change"
+  ],
+  "title": "Scenario",
+  "type": "object",
+  "x-contract-version": "0.1.0",
+  "x-regulated": "Conditional"
+}

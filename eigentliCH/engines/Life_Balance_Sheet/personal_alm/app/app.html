@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Life Balance Sheet</title>
+<style>
+  :root{
+    --paper:#FCFBF8;--panel:#FFFFFF;--panel-2:#FAF8F2;--ink:#1B1D2A;--slate:#5A6272;--muted:#8C8677;--rule:#E6E2D8;--rule-strong:#D6D1C4;
+    --teal:#0F6E6B;--teal-fill:rgba(15,110,107,.13);--ochre:#C0872A;--good:#0F6E6B;--warn:#B4472E;
+    --shadow:0 1px 2px rgba(27,29,42,.05),0 8px 24px rgba(27,29,42,.05);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root{--paper:#15161E;--panel:#1D1F29;--panel-2:#191B24;--ink:#F1EEE6;--slate:#A6ABBA;--muted:#7E8395;--rule:#2C2F3C;--rule-strong:#3A3E4D;--teal:#48B3A9;--teal-fill:rgba(72,179,169,.15);--ochre:#E0A93F;--good:#48B3A9;--warn:#E17B5F;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);}}
+  :root[data-theme="light"]{--paper:#FCFBF8;--panel:#FFFFFF;--panel-2:#FAF8F2;--ink:#1B1D2A;--slate:#5A6272;--muted:#8C8677;--rule:#E6E2D8;--rule-strong:#D6D1C4;--teal:#0F6E6B;--teal-fill:rgba(15,110,107,.13);--ochre:#C0872A;--good:#0F6E6B;--warn:#B4472E;}
+  :root[data-theme="dark"]{--paper:#15161E;--panel:#1D1F29;--panel-2:#191B24;--ink:#F1EEE6;--slate:#A6ABBA;--muted:#7E8395;--rule:#2C2F3C;--rule-strong:#3A3E4D;--teal:#48B3A9;--teal-fill:rgba(72,179,169,.15);--ochre:#E0A93F;--good:#48B3A9;--warn:#E17B5F;}
+  *{box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5;margin:0;font-size:15px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1200px;margin:0 auto;padding:clamp(16px,3vw,36px) clamp(14px,3vw,32px) 60px;}
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);font-weight:600;}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.05;margin:.15em 0 .1em;}
+  header.masthead{border-bottom:1.5px solid var(--ink);padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+  .theme-btn{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:transparent;color:var(--slate);border:1px solid var(--rule-strong);border-radius:100px;padding:7px 13px;cursor:pointer;}
+  .theme-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .layout{display:grid;grid-template-columns:360px 1fr;gap:22px;align-items:start;}
+  @media (max-width:900px){.layout{grid-template-columns:1fr;}}
+  .panel{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:18px;box-shadow:var(--shadow);}
+  .panel h2{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin:0 0 12px;font-weight:600;}
+  .fieldset{border:none;padding:0;margin:0 0 14px;}
+  .fieldset legend{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);padding:0;margin-bottom:7px;}
+  .field{display:flex;flex-direction:column;gap:3px;margin-bottom:9px;}
+  .field label{font-family:var(--mono);font-size:11px;color:var(--slate);display:flex;justify-content:space-between;}
+  .field label .val{color:var(--teal);}
+  .field input,.field select{font-family:var(--mono);font-size:13px;background:var(--panel-2);color:var(--ink);border:1px solid var(--rule-strong);border-radius:5px;padding:7px 9px;width:100%;}
+  .field input[type=range]{padding:0;accent-color:var(--teal);}
+  .field input:focus,.field select:focus{outline:2px solid var(--teal);outline-offset:1px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .btn{font-family:var(--mono);font-size:12px;letter-spacing:.04em;border-radius:6px;padding:10px 14px;cursor:pointer;border:1px solid var(--rule-strong);background:var(--panel-2);color:var(--ink);}
+  .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:600;width:100%;}
+  .btn.primary:hover{background:var(--teal);border-color:var(--teal);}
+  .btn:hover{border-color:var(--teal);color:var(--teal);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btnrow{display:flex;gap:8px;margin-top:4px;}.btnrow .btn{flex:1;}
+  .goalcard{border:1px solid var(--rule);border-radius:7px;padding:11px;margin-bottom:9px;background:var(--panel-2);}
+  .goalcard .ghead{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+  .goalcard .ghead .gi{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ochre);}
+  .goalcard .rm{background:none;border:none;color:var(--slate);cursor:pointer;font-family:var(--mono);font-size:12px;}
+  .userlist{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+  .userlist .u{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;border:1px solid var(--rule);border-radius:6px;padding:7px 10px;}
+  .userlist .u a{color:var(--teal);text-decoration:none;cursor:pointer;}
+  .userlist .u button{background:none;border:none;color:var(--slate);cursor:pointer;}
+  .hint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4;}
+  #results{min-height:300px;}
+  .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:340px;text-align:center;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:1.1rem;gap:10px;}
+  .spinner{width:26px;height:26px;border:3px solid var(--rule);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .banner{font-family:var(--mono);font-size:11px;color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);border-radius:6px;padding:8px 12px;margin-bottom:14px;}
+  .rhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px;}
+  .rhead .name{font-family:var(--serif);font-size:1.5rem;font-weight:600;}
+  .rhead .meta{font-family:var(--mono);font-size:10.5px;color:var(--muted);}
+  .grid{display:grid;gap:14px;}
+  .gauges{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));}
+  .duo{grid-template-columns:1fr 1fr;}
+  .charts{grid-template-columns:1fr 1fr;}
+  @media (max-width:680px){.duo,.charts{grid-template-columns:1fr;}}
+  .card{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;box-shadow:var(--shadow);}
+  .card h3{margin:0;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);font-weight:600;}
+  .big{font-family:var(--serif);font-variant-numeric:tabular-nums;line-height:1;font-size:clamp(1.9rem,4.5vw,2.6rem);font-weight:600;letter-spacing:-.02em;}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:100px;font-weight:600;}
+  .chip.good{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);}
+  .chip.warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent);}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .gauge-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;}
+  .gauge-cap{font-family:var(--mono);font-size:10px;color:var(--slate);}
+  .stat-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dotted var(--rule);}
+  .stat-row:last-child{border-bottom:none;}
+  .stat-row .k{font-family:var(--mono);font-size:11px;color:var(--slate);}
+  .stat-row .v{font-family:var(--serif);font-size:1.05rem;font-variant-numeric:tabular-nums;}
+  .lead{font-size:.88rem;color:var(--slate);margin:2px 0 0;}
+  .action-card{background:var(--panel-2);border-left:3px solid var(--teal);}
+  .action-text{font-family:var(--serif);font-size:1.08rem;line-height:1.5;margin:8px 0 0;}
+  .timebar{display:flex;height:11px;border-radius:3px;overflow:hidden;margin-top:14px;border:1px solid var(--rule);}
+  .timebar span{display:block;}
+  .legend-inline{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--slate);}
+  .legend-inline i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
+  .insight{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+  .insight .rate{font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4vw,2.5rem);color:var(--ochre);line-height:1;}
+  .insight .body{flex:1;min-width:220px;}
+  .insight .head{font-family:var(--serif);font-size:1.05rem;line-height:1.4;}
+  figure{margin:0;}
+  .chart-title{font-family:var(--serif);font-size:1rem;font-weight:600;margin:0 0 2px;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:6px;font-family:var(--mono);font-size:10px;color:var(--slate);}
+  .legend .it{display:inline-flex;align-items:center;gap:6px;}
+  .legend .sw{width:15px;height:0;border-top-width:2.5px;border-top-style:solid;}
+  svg{display:block;width:100%;height:auto;overflow:visible;}
+  .ax{font-family:var(--mono);font-size:9.5px;fill:var(--muted);}
+  .gridline{stroke:var(--rule);stroke-width:1;}.axisline{stroke:var(--rule-strong);stroke-width:1;}
+  figcaption{font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px;}
+  .tip{position:absolute;pointer-events:none;z-index:5;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:11px;padding:6px 8px;border-radius:5px;transform:translate(-50%,-115%);white-space:nowrap;opacity:0;transition:opacity .1s;}
+  .shadow-bars{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+  .sb-row{display:grid;grid-template-columns:80px 1fr 48px;align-items:center;gap:10px;}
+  .sb-row .lab{font-family:var(--mono);font-size:11px;color:var(--slate);}
+  .sb-track{height:13px;background:var(--panel-2);border:1px solid var(--rule);border-radius:3px;overflow:hidden;}
+  .sb-fill{height:100%;background:var(--teal);}
+  .sb-row .val{font-family:var(--mono);font-size:11px;text-align:right;font-variant-numeric:tabular-nums;}
+  .sec-label{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px;display:flex;align-items:center;gap:10px;}
+  .sec-label::after{content:"";flex:1;height:1px;background:var(--rule);}
+  #scheduleTable{overflow-x:auto;}
+  .plan{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11.5px;white-space:nowrap;}
+  .plan th{text-align:left;color:var(--slate);font-weight:600;text-transform:uppercase;font-size:9.5px;letter-spacing:.07em;padding:6px 10px;border-bottom:1.2px solid var(--rule-strong);}
+  .plan td{padding:6px 10px;border-bottom:1px solid var(--rule);font-variant-numeric:tabular-nums;}
+  .plan td.wide{white-space:normal;color:var(--slate);}
+  .alloc{display:flex;height:12px;border-radius:3px;overflow:hidden;border:1px solid var(--rule);margin:2px 0 6px;}
+  .alloc span{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div><div class="eyebrow">The Life Balance Sheet · prescriptive engine</div><h1>Plan a life</h1></div>
+    <button class="theme-btn" id="themeBtn">◐ Theme</button>
+  </header>
+  <div class="layout">
+    <form class="panel" id="form" onsubmit="return false;">
+      <h2>Inputs</h2>
+      <div class="field"><label for="preset">Load an example</label>
+        <select id="preset"><option value="">— the five lives —</option></select>
+        <div class="hint">Loads a book case you can edit. Only Nicolas is calibrated.</div></div>
+      <fieldset class="fieldset"><legend>Person</legend>
+        <div class="row2"><div class="field"><label for="name">Name</label><input id="name" value="Custom"></div>
+          <div class="field"><label for="age">Age</label><input id="age" type="number" value="45" min="18" max="80"></div></div></fieldset>
+      <fieldset class="fieldset"><legend>Wealth (CHF)</legend>
+        <div class="field"><label for="W_L">Liquid</label><input id="W_L" type="number" value="600000" step="10000"></div>
+        <div class="row2"><div class="field"><label for="W_R">Property</label><input id="W_R" type="number" value="5000000" step="50000"></div>
+          <div class="field"><label for="D">Debt</label><input id="D" type="number" value="1800000" step="50000"></div></div></fieldset>
+      <fieldset class="fieldset"><legend>Capitals (0 = none · 1 = fully developed)</legend>
+        <div class="field"><label for="E">Expertise <span class="val" id="Ev">0.90</span></label><input id="E" type="range" min="0" max="1.5" step="0.01" value="0.90"></div>
+        <div class="field"><label for="N">Network <span class="val" id="Nv">0.90</span></label><input id="N" type="range" min="0" max="1.5" step="0.01" value="0.90"></div>
+        <div class="field"><label for="H">Health <span class="val" id="Hv">0.70</span></label><input id="H" type="range" min="0" max="1" step="0.01" value="0.70"></div></fieldset>
+      <fieldset class="fieldset"><legend>Goals — one or more</legend>
+        <div id="goals"></div>
+        <button class="btn" id="addGoal" type="button">+ Add goal</button></fieldset>
+      <button class="btn primary" id="computeBtn" type="button">Compute plan</button>
+      <div class="btnrow"><button class="btn" id="saveBtn" type="button">Save user</button></div>
+      <h2 style="margin-top:22px">Saved users</h2>
+      <div class="userlist" id="userlist"></div>
+    </form>
+    <div id="results"><div class="placeholder"><div>Enter inputs, then <b>Compute plan</b>.</div><div style="font-size:.85rem">Loading an example is the quickest start.</div></div></div>
+  </div>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+let PRESETS=__PRESETS__, USERS=__USERS__, DATA=null;
+const NS="http://www.w3.org/2000/svg";
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const el=(n,a={})=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const $=id=>document.getElementById(id);
+const chf=v=>"CHF "+Math.round(v).toLocaleString("en-CH");
+const chfM=v=>"CHF "+(v/1e6).toFixed(2)+"M";
+const pct=v=>Math.round(v*100)+"%";
+
+const GOAL_KINDS={fi:"Financial independence",home:"Buy a home",company:"Found a company",retirement:"Retirement"};
+const PARAMS={
+  fi:[["G","Annual spend, CHF",120000,5000],["swr","Safe withdrawal %",3.5,0.1],["h_res","Residence haircut",0,0.05]],
+  home:[["price","Purchase price, CHF",400000,10000]],
+  company:[["B_buffer","Cash buffer, CHF",200000,10000],["N_min","Network ≥",0.7,0.05],["E_min","Expertise ≥",0.7,0.05]],
+  retirement:[["G_ret","Annual spend, CHF",90000,5000],["years_in_retirement","Years in retirement",25,1]],
+};
+let goalSeq=0;
+function goalCard(g){
+  g=g||{kind:"fi",horizon:5,confidence:0.9,params:{}};
+  const id=goalSeq++;
+  const card=document.createElement("div"); card.className="goalcard"; card.dataset.id=id;
+  card.innerHTML=`<div class="ghead"><span class="gi">Goal</span><button class="rm" title="remove" type="button">✕</button></div>
+    <div class="field"><label>Type</label><select class="g-kind">${Object.entries(GOAL_KINDS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>
+    <div class="row2">
+      <div class="field"><label>Years <span class="val g-hl"></span></label><input class="g-horizon" type="range" min="1" max="30" step="1"></div>
+      <div class="field"><label>Confidence <span class="val g-cl"></span></label><input class="g-conf" type="range" min="0.5" max="0.95" step="0.01"></div>
+    </div>
+    <div class="g-params"></div>`;
+  const kindSel=card.querySelector(".g-kind"), hz=card.querySelector(".g-horizon"), cf=card.querySelector(".g-conf");
+  kindSel.value=g.kind; hz.value=g.horizon; cf.value=g.confidence;
+  const syncLabels=()=>{card.querySelector(".g-hl").textContent=hz.value; card.querySelector(".g-cl").textContent=pct(+cf.value);};
+  hz.addEventListener("input",syncLabels); cf.addEventListener("input",syncLabels); syncLabels();
+  function renderParams(){
+    const box=card.querySelector(".g-params"); box.innerHTML="";
+    PARAMS[kindSel.value].forEach(([pk,label,def,step])=>{
+      let val=g.params&&g.params[pk]!=null?g.params[pk]:def;
+      if(pk==="swr") val=g.params&&g.params.swr!=null?g.params.swr*100:def;   // fraction→%
+      const f=document.createElement("div"); f.className="field";
+      f.innerHTML=`<label>${label}</label><input class="g-p" data-pk="${pk}" type="number" step="${step}" value="${val}">`;
+      box.appendChild(f);
+    });
+  }
+  kindSel.addEventListener("change",()=>{g.params={};renderParams();}); renderParams();
+  card.querySelector(".rm").addEventListener("click",()=>{ if($("goals").children.length>1) card.remove(); });
+  return card;
+}
+function addGoal(g){ $("goals").appendChild(goalCard(g)); }
+$("addGoal").addEventListener("click",()=>addGoal());
+function gatherGoals(){
+  return [...$("goals").children].map(card=>{
+    const kind=card.querySelector(".g-kind").value; const params={};
+    card.querySelectorAll(".g-p").forEach(inp=>{ let v=+inp.value; if(inp.dataset.pk==="swr") v=v/100; params[inp.dataset.pk]=v; });
+    return {kind, horizon:+card.querySelector(".g-horizon").value, confidence:+card.querySelector(".g-conf").value, params};
+  });
+}
+
+function bindRange(id,fmt){const r=$(id),o=$(id+"v");const u=()=>o.textContent=fmt(+r.value);r.addEventListener("input",u);u();}
+bindRange("E",v=>v.toFixed(2));bindRange("N",v=>v.toFixed(2));bindRange("H",v=>v.toFixed(2));
+
+function fillForm(inp){
+  $("name").value=inp.name;$("age").value=inp.age;$("W_L").value=inp.W_L;$("W_R").value=inp.W_R;$("D").value=inp.D;
+  $("E").value=inp.E;$("N").value=inp.N;$("H").value=inp.H;["E","N","H"].forEach(id=>$(id).dispatchEvent(new Event("input")));
+  $("goals").innerHTML=""; (inp.goals||[]).forEach(g=>addGoal(g)); if(!$("goals").children.length) addGoal();
+}
+function gather(){
+  return {name:$("name").value||"Custom",age:+$("age").value,W_L:+$("W_L").value,W_R:+$("W_R").value,D:+$("D").value,
+    E:+$("E").value,N:+$("N").value,H:+$("H").value,goals:gatherGoals()};
+}
+function initPresets(){const sel=$("preset");PRESETS.forEach((p,i)=>{const o=document.createElement("option");o.value=i;o.textContent=p.name;sel.appendChild(o);});
+  sel.addEventListener("change",()=>{if(sel.value!=="")fillForm(PRESETS[+sel.value]);});}
+function renderUsers(){const box=$("userlist");box.innerHTML="";
+  if(!USERS.length){box.innerHTML='<div class="hint">None yet. Fill the form and Save user.</div>';return;}
+  USERS.forEach(u=>{const d=document.createElement("div");d.className="u";d.innerHTML=`<a>${u.name}</a><button title="delete">✕</button>`;
+    d.querySelector("a").onclick=()=>fillForm(u);
+    d.querySelector("button").onclick=async()=>{USERS=await(await fetch("/api/users/delete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:u.name})})).json();renderUsers();};
+    box.appendChild(d);});}
+
+async function compute(){
+  const btn=$("computeBtn");btn.disabled=true;btn.textContent="Solving…";
+  $("results").innerHTML='<div class="placeholder"><div class="spinner"></div><div style="font-size:.85rem">Running the optimiser and Monte-Carlo — typically 10–30 seconds.<br>The button is working; results appear here when it finishes.</div></div>';
+  try{const r=await fetch("/api/compute",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(gather())});
+    if(!r.ok)throw new Error(await r.text());DATA=await r.json();buildResults();render();}
+  catch(e){$("results").innerHTML=`<div class="banner">Could not compute: ${e.message}</div>`;}
+  btn.disabled=false;btn.textContent="Compute plan";}
+$("computeBtn").addEventListener("click",compute);
+$("saveBtn").addEventListener("click",async()=>{USERS=await(await fetch("/api/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(gather())})).json();renderUsers();});
+
+function buildResults(){
+  const gauges=DATA.goals.map((g,i)=>`<div class="card gauge-wrap"><h3 style="align-self:flex-start">${g.goal_label}</h3><div id="gauge${i}"></div><div class="big" id="gnum${i}"></div><div class="gauge-cap" id="gcap${i}"></div><span class="chip" id="gchip${i}"><span class="dot"></span><span></span></span><p class="lead" id="gdate${i}" style="text-align:center"></p></div>`).join("");
+  $("results").innerHTML=`<div id="banner"></div>
+    <div class="rhead"><div class="name" id="rname"></div><div class="meta" id="rmeta"></div></div>
+    <div class="grid gauges">${gauges}</div>
+    <div class="sec-label">The trajectory — how your capitals evolve</div>
+    <figure class="card"><p class="chart-title">Expertise, network and health over time</p>
+      <div class="legend" id="capLegend"></div>
+      <div id="chartCapitals" style="position:relative"></div>
+      <figcaption>Each capital follows an S-curve — expertise leads, the network accelerates once its ceiling is lifted by expertise and wealth, and health dips under load before recovering. The shape of the path, not just the effort, is what decides feasibility.</figcaption></figure>
+    <div class="sec-label">Wealth position</div>
+    <div class="card"><div id="wealthRows"></div><p class="lead" id="wealthLead"></p></div>
+    <div class="sec-label">Taxes & investment strategy</div>
+    <div class="grid duo">
+      <div class="card"><h3>Taxes — estimated, per year</h3><div id="taxRows"></div><p class="lead" id="taxLead"></p></div>
+      <div class="card"><h3>Investment strategy</h3><div id="stratBox"></div><p class="lead">Mock view — a detailed strategy (fund selection, rebalancing, tax-optimised placement) will link in here.</p></div>
+    </div>
+    <div class="sec-label">This period’s action</div>
+    <div class="card action-card"><p class="action-text" id="actionText"></p><div class="timebar" id="timebar"></div><div class="legend-inline" id="timelegend"></div></div>
+    <div class="sec-label">Your plan over time</div>
+    <div class="card"><div id="scheduleTable"></div><p class="lead">The engine’s planned path, re-optimised each period. Figures are per year at that period’s projected income; “invest/yr” is what flows into savings after spending, debt service and tax.</p></div>
+    <div class="sec-label">The one insight</div>
+    <div class="card insight"><div class="rate" id="insightRate"></div><div class="body"><p class="head" id="insightHead"></p><p class="lead">Computed from this state; it shifts as the state shifts.</p></div></div>
+    <div class="sec-label">Over time (primary goal: ${DATA.goals[0].goal_label})</div>
+    <div class="grid charts">
+      <figure class="card"><p class="chart-title">Probability of the goal by age</p><div class="legend"><span class="it"><span class="sw" style="border-color:var(--teal)"></span>Plan</span><span class="it"><span class="sw" style="border-color:var(--ochre);border-top-style:dashed"></span>Target</span></div><div id="chartPFI" style="position:relative"></div><figcaption id="c1cap"></figcaption></figure>
+      <figure class="card"><p class="chart-title">Wealth over time</p><div class="legend" id="c2legend"></div><div id="chartWealth" style="position:relative"></div><figcaption id="c2cap"></figcaption></figure>
+    </div>
+    <div class="sec-label">What the engine weighed</div>
+    <div class="card"><h3>Shadow price of each capital toward the goal</h3><div class="shadow-bars" id="shadowBars"></div><p class="lead" id="shadowLead" style="margin-top:12px"></p></div>`;
+}
+
+function gaugeInto(mountId,p_goal,conf){const box=$(mountId);box.innerHTML="";const W=190,H=112,cx=95,cy=99,r=78,sw=14;
+  const svg=el("svg",{viewBox:`0 0 ${W} ${H}`});
+  const pol=(deg,rr)=>{const a=(180-deg)*Math.PI/180;return[cx+rr*Math.cos(a),cy-rr*Math.sin(a)];};
+  const arc=f=>{const[x0,y0]=pol(0,r),[x1,y1]=pol(180*f,r);return`M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`;};
+  svg.appendChild(el("path",{d:arc(1),fill:"none",stroke:css("--rule-strong"),"stroke-width":sw,"stroke-linecap":"round"}));
+  const col=p_goal>=conf?css("--teal"):css("--warn");
+  svg.appendChild(el("path",{d:arc(Math.max(.001,p_goal)),fill:"none",stroke:col,"stroke-width":sw,"stroke-linecap":"round"}));
+  const[ix,iy]=pol(180*conf,r-sw/2-3),[ox,oy]=pol(180*conf,r+sw/2+3);
+  svg.appendChild(el("line",{x1:ix,y1:iy,x2:ox,y2:oy,stroke:css("--ochre"),"stroke-width":2.5}));box.appendChild(svg);}
+
+function fillText(){
+  $("rname").textContent=DATA.name;
+  $("rmeta").innerHTML=`age ${DATA.age.toFixed(0)} · ${DATA.goals.length} goal${DATA.goals.length>1?"s":""}`;
+  DATA.goals.forEach((g,i)=>{
+    gaugeInto("gauge"+i,g.p_goal,g.confidence);
+    $("gnum"+i).textContent=pct(g.p_goal);
+    $("gcap"+i).textContent=`by age ${g.deadline_age.toFixed(0)} · target ${pct(g.confidence)}`;
+    const ok=g.p_goal>=g.confidence,chip=$("gchip"+i);chip.className="chip "+(ok?"good":"warn");
+    chip.querySelector("span:last-child").textContent=ok?"ON TRACK":"BELOW TARGET";
+    const when=g.crossing_age?(g.kind==="fi"?`work-optional at ${g.crossing_age.toFixed(0)}`:`reachable by ${g.crossing_age.toFixed(0)}`):`not at target in window`;
+    $("gdate"+i).innerHTML=`${when} · binds: ${g.binding}`;
+  });
+  const wr=$("wealthRows");const row=(k,v,c)=>`<div class="stat-row"><span class="k">${k}</span><span class="v" ${c?`style="color:${c}"`:""}>${v}</span></div>`;
+  let html=row("Net worth",chf(DATA.net_worth))+row("Drawable (liquid)",chf(DATA.drawable),"var(--teal)");
+  if(DATA.required!=null)html+=row("Needed (primary goal)",chf(DATA.required));
+  wr.innerHTML=html;$("wealthLead").textContent=DATA.required!=null?"Only drawable wealth counts toward independence; the residence lifts net worth, not what you can spend.":"";
+  $("actionText").textContent=DATA.action_text;
+  const xr=DATA.exchange;
+  $("insightRate").textContent = xr.dominant ? "≫" : xr.ratio.toFixed(1)+"×";
+  $("insightHead").innerHTML = xr.dominant
+    ? `An hour of <b style="color:var(--ochre)">${xr.winner}</b> moves you toward the primary goal far more than the alternative — the other lever barely helps here.`
+    : `An hour of <b style="color:var(--ochre)">${xr.winner}</b> moves you toward the primary goal about <b>${xr.ratio.toFixed(1)}×</b> faster than the alternative.`;
+  $("banner").innerHTML=DATA.calibrated?"":`<div class="banner">Illustrative — not calibrated to a target. The mechanism (which constraint binds) is meaningful; exact numbers are not.</div>`;
+  const c=DATA.costates;const top=c.H>=c.E&&c.H>=c.N?"health":(c.E>=c.N?"expertise":"network");
+  $("shadowLead").innerHTML=`The scarcest capital here is <b style="color:var(--ink)">${top}</b> — the highest marginal value toward the goal.`;
+  // taxes
+  const tx=DATA.taxes;
+  $("taxRows").innerHTML=row("Income tax",chf(tx.income))+row("Wealth tax",chf(tx.wealth))+row("Total",chf(tx.total),"var(--warn)");
+  $("taxLead").textContent=`About ${tx.effective_pct}% of your ${chf(tx.gross_inflow)}/yr gross inflow. Mortgage interest is deducted before income tax.`;
+  // investment strategy (mock)
+  const st=DATA.strategy;
+  $("stratBox").innerHTML=`<div class="alloc"><span style="width:${st.risky_pct}%;background:var(--teal)"></span><span style="width:${st.safe_pct}%;background:var(--rule-strong)"></span></div>`
+    +`<div class="legend-inline"><span><i style="background:var(--teal)"></i>Risky ${st.risky_pct}%</span><span><i style="background:var(--rule-strong)"></i>Safe ${st.safe_pct}%</span></div>`
+    +row("Expected return",st.exp_return_pct+"%/yr")+row("Volatility",st.exp_vol_pct+"%/yr");
+  scheduleTable();
+}
+function scheduleTable(){
+  const tilt=t=>t<0.25?"conservative":t<0.55?"moderate":"aggressive";
+  const rows=DATA.schedule.map(s=>{
+    const also=[];
+    if(s.network>0.02)also.push(`${Math.round(s.network*50)} h/wk network`);
+    if(s.learn>0.02)also.push(`${Math.round(s.learn*50)} h/wk learning`);
+    if(s.p_A>1)also.push(`pay ${chf(s.p_A)} to mortgage`);
+    return `<tr><td>${s.age.toFixed(0)}</td><td>${Math.round(s.work*100)}%</td><td>${chf(s.invest_per_year)}</td><td>${chf(s.consume)}</td><td>${tilt(s.theta)} (${Math.round(s.theta*100)}%)</td><td class="wide">${also.join(" · ")||"—"}</td></tr>`;
+  }).join("");
+  $("scheduleTable").innerHTML=`<table class="plan"><thead><tr><th>Age</th><th>Work</th><th>Invest/yr</th><th>Consume/yr</th><th>Risk tilt</th><th>Also</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function timebar(){const a=DATA.action,lo=Math.max(0,1-(a.tau_Y+a.tau_E+a.tau_N+a.tau_H));
+  const segs=[["Work",a.tau_Y,css("--teal")],["Learn",a.tau_E,css("--teal-fill")],["Network",a.tau_N,css("--ochre")],["Rest",a.tau_H,"var(--slate)"],["Leisure",lo,"var(--rule-strong)"]];
+  const bar=$("timebar"),leg=$("timelegend");bar.innerHTML="";leg.innerHTML="";
+  segs.forEach(([n,v,c])=>{if(v<=.005)return;const s=document.createElement("span");s.style.width=(v*100)+"%";s.style.background=c;bar.appendChild(s);
+    const li=document.createElement("span");li.innerHTML=`<i style="background:${c}"></i>${n} ${Math.round(v*100)}%`;leg.appendChild(li);});}
+function shadowBars(){const box=$("shadowBars");box.innerHTML="";const c=DATA.costates;const rows=[["Health",c.H],["Expertise",c.E],["Network",c.N]];
+  const max=Math.max(...rows.map(r=>Math.abs(r[1])),1e-9);
+  rows.forEach(([n,v])=>{const row=document.createElement("div");row.className="sb-row";
+    row.innerHTML=`<span class="lab">${n}</span><div class="sb-track"><div class="sb-fill" style="width:${Math.max(0,v/max*100).toFixed(1)}%"></div></div><span class="val">${v.toFixed(1)}</span>`;box.appendChild(row);});}
+function lineChart(mountId,opts){const mount=$(mountId);mount.innerHTML="";const W=440,H=250,m={l:44,r:14,t:10,b:30},iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const xs=opts.xdom,ys=opts.ydom;const X=v=>m.l+(v-xs[0])/(xs[1]-xs[0])*iw,Y=v=>m.t+ih-(v-ys[0])/(ys[1]-ys[0])*ih;
+  const svg=el("svg",{viewBox:`0 0 ${W} ${H}`});
+  opts.yticks.forEach(t=>{svg.appendChild(el("line",{x1:m.l,y1:Y(t),x2:W-m.r,y2:Y(t),class:"gridline"}));const tx=el("text",{x:m.l-7,y:Y(t)+3,class:"ax","text-anchor":"end"});tx.textContent=opts.yfmt(t);svg.appendChild(tx);});
+  opts.xticks.forEach(t=>{const tx=el("text",{x:X(t),y:H-m.b+17,class:"ax","text-anchor":"middle"});tx.textContent=t;svg.appendChild(tx);});
+  svg.appendChild(el("line",{x1:m.l,y1:m.t,x2:m.l,y2:m.t+ih,class:"axisline"}));
+  if(opts.goal!=null)svg.appendChild(el("line",{x1:m.l,y1:Y(opts.goal),x2:W-m.r,y2:Y(opts.goal),stroke:css("--ochre"),"stroke-width":2,"stroke-dasharray":"5 4"}));
+  const path=pts=>pts.map((p,i)=>(i?"L":"M")+X(p[0])+" "+Y(p[1])).join(" ");
+  opts.series.forEach(s=>{const pts=s.pts.filter(p=>p[1]!=null);if(!pts.length)return;
+    if(s.area){const ap=path(pts)+` L ${X(pts[pts.length-1][0])} ${Y(ys[0])} L ${X(pts[0][0])} ${Y(ys[0])} Z`;svg.appendChild(el("path",{d:ap,fill:"var(--teal-fill)",stroke:"none"}));}
+    const p=el("path",{d:path(pts),fill:"none",stroke:s.color,"stroke-width":s.w||2.5,"stroke-linejoin":"round","stroke-linecap":"round"});if(s.dash)p.setAttribute("stroke-dasharray",s.dash);svg.appendChild(p);
+    if(s.end){const lp=pts[pts.length-1];svg.appendChild(el("circle",{cx:X(lp[0]),cy:Y(lp[1]),r:4,fill:s.color,stroke:css("--panel"),"stroke-width":2}));
+      if(s.label){const t=el("text",{x:X(lp[0])+7,y:Y(lp[1])+3.5,fill:s.color,"font-size":11,"font-weight":700,"font-family":"ui-monospace,monospace"});t.textContent=s.label;svg.appendChild(t);}}});
+  if(opts.marker)svg.appendChild(el("circle",{cx:X(opts.marker[0]),cy:Y(opts.marker[1]),r:5,fill:css("--teal"),stroke:css("--panel"),"stroke-width":2.5}));
+  const focus=el("line",{x1:0,y1:m.t,x2:0,y2:m.t+ih,stroke:css("--slate"),"stroke-width":1,"stroke-dasharray":"3 3",opacity:0});svg.appendChild(focus);
+  const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent"});svg.appendChild(hit);
+  const tip=$("tip"),prim=opts.series[0].pts.filter(p=>p[1]!=null);
+  hit.addEventListener("pointermove",ev=>{const rc=svg.getBoundingClientRect(),px=(ev.clientX-rc.left)/rc.width*W;let best=prim[0],bd=1e9;prim.forEach(p=>{const d=Math.abs(X(p[0])-px);if(d<bd){bd=d;best=p;}});
+    focus.setAttribute("x1",X(best[0]));focus.setAttribute("x2",X(best[0]));focus.setAttribute("opacity",1);
+    const mr=mount.getBoundingClientRect();tip.style.left=(mr.left+X(best[0])/W*mr.width)+"px";tip.style.top=(mr.top+Y(best[1])/H*mr.height+window.scrollY)+"px";tip.innerHTML=opts.tip(best);tip.style.opacity=1;});
+  hit.addEventListener("pointerleave",()=>{focus.setAttribute("opacity",0);tip.style.opacity=0;});mount.appendChild(svg);}
+function charts(){
+  // Capitals trajectory (the book's signature S-curves).
+  const cap=k=>DATA.projection.map(d=>[d.age,d[k]]);
+  const capAges=DATA.projection.map(d=>d.age),cx0=Math.min(...capAges),cx1=Math.max(...capAges);
+  const cmax=Math.max(1,...DATA.projection.flatMap(d=>[d.E,d.N,d.H]));
+  const ctop=Math.ceil(cmax*2)/2; const cyt=[];for(let v=0;v<=ctop+1e-9;v+=0.5)cyt.push(v);
+  const cxt=[];for(let a=Math.ceil(cx0);a<=cx1;a+=Math.max(1,Math.round((cx1-cx0)/6)))cxt.push(a);
+  lineChart("chartCapitals",{xdom:[cx0,cx1],ydom:[0,ctop],goal:null,xticks:cxt,yticks:cyt,yfmt:v=>v.toFixed(1),
+    series:[{pts:cap("E"),color:css("--teal"),w:2.5,end:true,label:"E"},
+            {pts:cap("N"),color:css("--ochre"),w:2.5,end:true,label:"N"},
+            {pts:cap("H"),color:css("--slate"),w:2,dash:"4 3",end:true,label:"H"}],
+    tip:p=>`age <b>${p[0].toFixed(0)}</b>`});
+  $("capLegend").innerHTML=`<span class="it"><span class="sw" style="border-color:var(--teal)"></span>Expertise</span><span class="it"><span class="sw" style="border-color:var(--ochre)"></span>Network</span><span class="it"><span class="sw" style="border-color:var(--slate);border-top-style:dashed"></span>Health</span>`;
+
+  const g0=DATA.goals[0];const cv=g0.curve.map(d=>[d.age,d.p]);const ax=cv.map(d=>d[0]),x0=Math.min(...ax),x1=Math.max(...ax);
+  const xt=[];for(let a=Math.ceil(x0);a<=x1;a+=Math.max(1,Math.round((x1-x0)/6)))xt.push(a);
+  lineChart("chartPFI",{xdom:[x0,x1],ydom:[0,1],goal:g0.confidence,marker:g0.crossing_age?[g0.crossing_age,g0.confidence]:null,
+    xticks:xt,yticks:[0,.25,.5,.75,1],yfmt:v=>Math.round(v*100)+"%",series:[{pts:cv,color:css("--teal"),area:true,end:true}],tip:p=>`age <b>${p[0].toFixed(0)}</b> · ${Math.round(p[1]*100)}%`});
+  $("c1cap").innerHTML=g0.crossing_age?`Crosses the ${pct(g0.confidence)} line at <b>age ${g0.crossing_age.toFixed(0)}</b>.`:`Stays below the ${pct(g0.confidence)} target in the window shown.`;
+  const nw=DATA.projection.map(d=>[d.age,d.net_worth/1e6]),dr=DATA.projection.map(d=>[d.age,d.drawable/1e6]),rq=DATA.projection.map(d=>[d.age,d.required!=null?d.required/1e6:null]);
+  const ymax=Math.max(...nw.map(d=>d[1]),1)*1.05,pa=DATA.projection.map(d=>d.age),px0=Math.min(...pa),px1=Math.max(...pa);
+  const pxt=[];for(let a=Math.ceil(px0);a<=px1;a+=Math.max(1,Math.round((px1-px0)/5)))pxt.push(a);
+  const series=[{pts:nw,color:css("--slate"),w:2},{pts:dr,color:css("--teal"),area:true,end:true}];
+  let leg=`<span class="it"><span class="sw" style="border-color:var(--slate)"></span>Net worth</span><span class="it"><span class="sw" style="border-color:var(--teal)"></span>Drawable</span>`;
+  if(DATA.required!=null){series.push({pts:rq,color:css("--ochre"),dash:"5 4",w:2});leg+=`<span class="it"><span class="sw" style="border-color:var(--ochre);border-top-style:dashed"></span>Needed</span>`;}
+  $("c2legend").innerHTML=leg;
+  lineChart("chartWealth",{xdom:[px0,px1],ydom:[0,Math.ceil(ymax)],goal:null,xticks:pxt,yticks:_ticks(Math.ceil(ymax)),yfmt:v=>v+"M",series,tip:p=>`age <b>${p[0].toFixed(0)}</b> · ${chfM(p[1]*1e6)}`});
+  $("c2cap").textContent=DATA.required!=null?"Drawable (teal) must rise to meet the requirement (ochre); net worth sits above it.":"Drawable (liquid) wealth is what the goal can actually spend.";}
+function _ticks(max){const n=4,s=max/n,out=[];for(let i=0;i<=n;i++)out.push(Math.round(i*s));return[...new Set(out)];}
+function render(){if(!DATA)return;fillText();timebar();shadowBars();charts();}
+const root=document.documentElement;
+$("themeBtn").addEventListener("click",()=>{const cur=root.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");root.setAttribute("data-theme",cur==="dark"?"light":"dark");if(DATA){buildResults();render();}});
+initPresets(); renderUsers(); addGoal();
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+/* Design tokens — the eigentliCH palette, taken from the live site.
+ *
+ * These values are not an interpretation. They are the :root of andersch.sim-research.ch, copied so the
+ * member application and the public site are demonstrably one brand rather than two that resemble each
+ * other. `client/reference/eigentlich-site-styles.css` is the source; when the site moves, this moves.
+ *
+ * What is *not* copied is the site's exuberance. Principle 10 puts metaphor and flourish in the marketing
+ * surfaces and plainness in the product: the same ink, lines and spacing, applied quietly. The gradient
+ * is the clearest case — it is the brand's signature device on the site and it is used exactly once here
+ * (see `.wordmark` in app.css).
+ *
+ * C-05: system font stacks only. No @import, no font service, no remote asset of any kind. The live site
+ * makes the same choice, so matching it costs nothing.
+ */
+
+:root {
+  /* ---- the palette, verbatim from the live site ---- */
+  --ink: #1A1740;
+  --ink-black: #4d4d4d;
+  --ink-soft: #5d4591;
+  --ink-mute: #7E7AA0;
+  --line: #ECE8F4;
+  --surface: #FFFFFF;
+  --surface-off: #fafafa;
+  --surface-tint: #F6F4FB;
+
+  --g0: #62bfe6;
+  --g1: #8890e7;
+  --g2: #A059C1;
+  --g3: #FEA479;
+  --g4: #FFE8A1;
+
+  --primary: var(--g2);
+  --primary-deep: #3A3080;
+
+  --grad-sunrise: linear-gradient(110deg, var(--g1), var(--g2) 40%, var(--g3) 80%, var(--g4));
+  --grad-cool: linear-gradient(135deg, var(--g1), var(--g2));
+
+  /* ---- how the palette is allowed to be used ----
+   *
+   * --primary is 4.47:1 on white. That is the site's own choice and it is fine for the borders, rules and
+   * focus rings it carries there, but it is under the 4.5:1 floor for small text. The palette already
+   * contains the answer: --ink-soft is the same violet taken to 7.5:1, so every *word* that wants to be
+   * purple uses --ink-soft and every *line* that wants to be purple uses --primary. Nothing is invented.
+   */
+  --accent-text: var(--ink-soft);
+  --accent-line: var(--primary);
+
+  /* The same split, made a second time, because the same problem is there a second time.
+   *
+   * --ink-mute is the site's quiet grey-violet and it carries almost every secondary word in this client:
+   * the lede, the field hints, the position meta lines, the capital labels, the nav doors. Measured, it is
+   * 4.06:1 on --surface and 3.72:1 on --surface-tint — under the 4.5:1 floor on white and under it again,
+   * further, on the tinted ground the product actually uses as its page. On a phone in daylight those
+   * sentences are the first thing to go.
+   *
+   * --ink-quiet is --ink-mute's own hue (246.3deg) and saturation (16.7%) with the lightness taken from
+   * 0.553 to 0.48: 5.37:1 on --surface, 4.92:1 on --surface-tint. Nothing invented, same as --ink-soft.
+   * --ink-mute keeps its value and its name for the record, and for whatever needs a line rather than a
+   * word.
+   */
+  --ink-quiet: #6A668F;
+  --muted-text: var(--ink-quiet);
+
+  /* The boundary of a control is not decoration, and WCAG 1.4.11 asks 3:1 of it. --line is 1.21:1 on
+   * white: correct as the hairline between two white cards, invisible as the edge of a text input or of a
+   * button whose only affordance IS its edge. --control-line is the same grey-violet family again, at
+   * 3.38:1 on --surface and 3.10:1 on --surface-tint. It is used ONLY where the edge has to be findable —
+   * inputs, selects, textareas, the outline button. Cards and rules keep --line.
+   */
+  --control-line: #8C88AA;
+
+  /* The site's two translucent purples, lifted from `.booking-note` and `.card:hover`. Kept as tokens
+   * because they are mixed against white in the original and a hex would drift the moment a surface
+   * behind them changes. */
+  --wash: rgba(160, 89, 193, 0.06);
+  --wash-line: rgba(160, 89, 193, 0.18);
+  --hover-line: rgba(160, 89, 193, 0.35);
+  /* The site's .btn-outline border. Kept as the site wrote it; no longer the edge of `.add`, because at
+   * 1.46:1 over white it is a suggestion of a button rather than a button — see --control-line above. */
+  --quiet-line: rgba(26, 23, 64, 0.18);
+
+  /* ---- two hues the marketing site never needed ----
+   *
+   * The site states things; the product refuses them, and a refusal a member cannot distinguish from a
+   * hint is a bad refusal. Both are pulled toward the palette rather than borrowed from a generic UI kit:
+   * --attention is the --g3 orange taken down to 4.9:1 as text, --refusal a rose that sits between --g2
+   * and --g3 rather than a signal red, which would be the only saturated primary colour in the product.
+   */
+  --attention: #A85B2A;
+  --refusal: #B03A5B;
+
+  /* Human capital and financial capital are distinguished by a quiet edge colour, never by prominence.
+   * R-114 and principle 9 make them equals: neither is the "real" one. Both are drawn from the cool end
+   * of the gradient ramp, adjacent and of equal weight, and neither is --primary — giving one of them the
+   * brand's accent colour would be exactly the ranking those rules forbid. They are used as 2px edges
+   * only, never as text, so their contrast against white is not in question. */
+  --capital-human: var(--g1);
+  --capital-financial: var(--g0);
+
+  /* C-05. The live site's stack, unchanged. */
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* ---- spacing, the site's scale ---- */
+  --sp-xs: 0.4rem;
+  --sp-sm: 0.6rem;
+  --sp-md: 1rem;
+  --sp-lg: 1.4rem;
+  --sp-xl: 1.7rem;
+  --sp-2xl: 2.5rem;
+  --sp-3xl: 3rem;
+
+  /* ---- radii, the site's set: 4 on chips, 8 on controls, 10 on panels, 12 on cards ---- */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 12px;
+
+  /* The site's card elevation. One step, barely there; it separates a white card from a white surface
+   * without pretending the interface has depth. */
+  --shadow-card: 0 1px 2px rgba(26, 23, 64, 0.03);
+
+  --measure: 1100px;   /* the site's .container */
+
+  /* The one breakpoint that matters: below it the 4x2 matrix becomes paired cards per role, so that a
+   * role's two kinds of capital never split across a scroll (A24).
+   *
+   * Declared here for the record, and hardcoded in app.css's media queries — custom properties are not
+   * permitted in a media condition. If this value changes, both queries in app.css change with it.
+   *
+   * The narrow query is written `max-width: 699.98px`, not `699px`. Viewport widths are fractional under
+   * browser zoom and on scaled displays, and a pair of queries that reads `<= 699` and `>= 700` leaves a
+   * real gap between them where neither applies and the grid falls back to three columns on a screen that
+   * cannot hold three columns. */
+  --grid-breakpoint: 700px;
+
+  /* Names the previous token set used. Kept pointing at the new palette so anything written against the
+   * old vocabulary still renders, the way the live sheet keeps its own legacy aliases. New rules should
+   * use the palette names above. */
+  --paper: var(--surface-tint);
+  --card: var(--surface);
+  --rule: var(--line);
+  --ink-2: var(--ink-black);
+  --ink-3: var(--ink-mute);
+  --id: var(--accent-text);
+
+  /* Light only, and said out loud. See the note below. */
+  color-scheme: light;
+}
+
+/* ---------------------------------------------------------------- on dark mode
+ *
+ * There was a `prefers-color-scheme: dark` block here. It has been removed rather than re-derived.
+ *
+ * The live site is light-only: every colour above is authored against white, and three of them are
+ * translucent purples that mean nothing over a dark ground. A dark palette would therefore be an
+ * invention — a second eigentliCH nobody has approved — and the parts that could not be mechanically
+ * inverted (the gradient wordmark, the two capital edge hues, the washes) are exactly the parts that
+ * carry the brand. A half-derived dark mode that gets those wrong is worse than none.
+ *
+ * `color-scheme: light` above is the other half of committing: without it a browser in dark mode paints
+ * its own dark form controls and scrollbars into a light page, which is the half-working state this
+ * decision is meant to avoid.
+ */

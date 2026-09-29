@@ -1,0 +1,206 @@
+{
+  "_about": {
+    "screen": "S-05 — the stage map. Five stages: 25 career start, 30 family and home, 35 own business, 45 a large asset, 50 optimising.",
+    "requirements": {
+      "R-140": "Stages DESCRIBE A SITUATION. No grading, no locking, no 'you are here' score. Every record below describes circumstances and the questions those circumstances raise — never an assessment of the member reading it.",
+      "R-141": "A member may open any stage regardless of age. `age_marker` names the age at which a situation typically arrives; it is not an entry condition, and no record carries one.",
+      "R-142": "No stage after 50. Drawdown — living from assets, capital against annuity, AHV timing — is NG-02 and out of scope. `no_stage_after` is 50 and `services/stages.py` refuses to load a record beyond it.",
+      "R-143": "No mountain vocabulary, in either language (A12 makes every copy rule a two-language rule). This is the file most at risk of breaking that rule, because 'the climb' is this screen's own marketing name. It appears nowhere below, and `test_stages.py` is what keeps it that way.",
+      "R-006": "The stage map is content navigation. Nothing here is a percentage, a rank or an achievement, and there is no field an interface could render as one."
+    },
+    "authoring": "A12 — German is the authored language, de-CH. Every German string is a DRAFT (`de_draft: true`): it has not been read by the owner, unlike the eight role definitions of A42. The English is a draft translation and says so per string.",
+    "why_not_empty": "R-183's ship-it-empty rule is scoped to the S-09 life-event modules, and the build order says the same for phase 8: 'life event frameworks with empty authored content'. S-05 carries no such rule, so these descriptions exist and are marked unreviewed rather than withheld.",
+    "register": "A situation, stated plainly, and the questions it raises. No answers: an answer to 'where should this money go' is a recommendation, and C-01 puts that behind a licensed human.",
+    "forbidden": "R-143 mountain vocabulary; C-07 game-mechanic vocabulary; and NG-02 drawdown vocabulary — Entnahme, Rentenbezug, decumulation, drawdown, annuitisation — none of which appears in any string below."
+  },
+
+  "version": "stages@0.1.0",
+
+  "reviewed": false,
+
+  "no_stage_after": 50,
+  "no_stage_after_reason": "NG-02",
+
+  "stages": [
+    {
+      "key": "career_start",
+      "age_marker": 25,
+      "title": {
+        "de": "Berufseinstieg",
+        "de_draft": true,
+        "en": "Career start",
+        "en_draft": true
+      },
+      "situation": {
+        "de": "Das erste regelmässige Einkommen ist da. Der grösste Teil dessen, was Ihnen gehört, liegt noch auf keinem Konto: er steckt in der Ausbildung, in der Gesundheit und in den Arbeitsjahren, die vor Ihnen liegen.",
+        "de_draft": true,
+        "en": "The first regular income has arrived. Most of what you own is not in any account yet: it is in your training, your health and the working years ahead of you.",
+        "en_draft": true
+      },
+      "questions": [
+        {
+          "de": "Was bleibt am Ende des Monats übrig, und wo liegt es dann?",
+          "de_draft": true,
+          "en": "What is left at the end of the month, and where does it then sit?",
+          "en_draft": true
+        },
+        {
+          "de": "Welche Versicherungen laufen über den Arbeitgeber, und welche laufen nicht mehr, wenn die Anstellung endet?",
+          "de_draft": true,
+          "en": "Which insurance runs through the employer, and which stops running when the employment ends?",
+          "en_draft": true
+        },
+        {
+          "de": "Was passiert mit dem Geld auf einem Säule-3a-Konto, wenn sonst nichts entschieden wird?",
+          "de_draft": true,
+          "en": "What happens to money in a Säule 3a account if nothing else is decided?",
+          "en_draft": true
+        }
+      ]
+    },
+    {
+      "key": "family_and_home",
+      "age_marker": 30,
+      "title": {
+        "de": "Familie und Wohneigentum",
+        "de_draft": true,
+        "en": "Family and home",
+        "en_draft": true
+      },
+      "situation": {
+        "de": "Zwei Leben werden ein Haushalt, oder ein Haushalt wird grösser. Entscheidungen betreffen ab jetzt mehr als eine Person, und einzelne davon binden über Jahrzehnte.",
+        "de_draft": true,
+        "en": "Two lives become one household, or a household grows. Decisions now involve more than one person, and some of them bind for decades.",
+        "en_draft": true
+      },
+      "questions": [
+        {
+          "de": "Wovon lebt dieser Haushalt, wenn ein Einkommen für ein Jahr ausfällt?",
+          "de_draft": true,
+          "en": "What does this household live on if one income stops for a year?",
+          "en_draft": true
+        },
+        {
+          "de": "Was ändert ein Erwerbsunterbruch oder ein Teilzeitpensum an der eigenen Vorsorge, und für welche der beiden Personen?",
+          "de_draft": true,
+          "en": "What does a career break or part-time work change about a person's own pension provision, and for which of the two people?",
+          "en_draft": true
+        },
+        {
+          "de": "Welche Abmachungen zwischen zwei Personen bestehen bisher nur im Gespräch und nirgends schriftlich?",
+          "de_draft": true,
+          "en": "Which arrangements between two people exist so far only in conversation and nowhere in writing?",
+          "en_draft": true
+        }
+      ]
+    },
+    {
+      "key": "own_business",
+      "age_marker": 35,
+      "title": {
+        "de": "Selbständigkeit",
+        "de_draft": true,
+        "en": "Own business",
+        "en_draft": true
+      },
+      "situation": {
+        "de": "Das Einkommen kommt nicht mehr von einem Arbeitgeber, sondern von Kundinnen und Kunden. Was vorher automatisch lief — Pensionskasse, Unfallversicherung, Lohnfortzahlung im Krankheitsfall —, läuft jetzt nur, wenn es jemand einrichtet.",
+        "de_draft": true,
+        "en": "Income no longer comes from an employer but from clients. What used to run by itself — the pension fund, accident cover, continued salary during illness — now runs only if somebody sets it up.",
+        "en_draft": true
+      },
+      "questions": [
+        {
+          "de": "Welche Deckungen sind mit der Anstellung weggefallen, und welche davon bestehen heute wieder?",
+          "de_draft": true,
+          "en": "Which cover ended with the employment, and which of it exists again today?",
+          "en_draft": true
+        },
+        {
+          "de": "Wie viele Monate Aufwand sind gedeckt, wenn drei Monate lang keine Rechnung bezahlt wird?",
+          "de_draft": true,
+          "en": "How many months of outgoings are covered if no invoice is paid for three months?",
+          "en_draft": true
+        },
+        {
+          "de": "Hängen Einkommen und Erspartes an derselben Branche oder an denselben wenigen Auftraggebern?",
+          "de_draft": true,
+          "en": "Do the income and the savings depend on the same sector, or on the same few clients?",
+          "en_draft": true
+        }
+      ]
+    },
+    {
+      "key": "large_asset",
+      "age_marker": 45,
+      "title": {
+        "de": "Ein grosser Vermögenswert",
+        "de_draft": true,
+        "en": "A large asset",
+        "en_draft": true
+      },
+      "situation": {
+        "de": "Ein einzelner Posten ist gross genug, dass er alles andere überstimmt: eine Liegenschaft, eine Beteiligung, ein Erbe, der Erlös aus einem Verkauf. Die Frage ist nicht mehr, wie viel dazukommt, sondern wovon dieser eine Posten abhängt.",
+        "de_draft": true,
+        "en": "A single holding is large enough to outweigh everything else: a property, a shareholding, an inheritance, the proceeds of a sale. The question is no longer how much is being added, but what this one holding depends on.",
+        "en_draft": true
+      },
+      "questions": [
+        {
+          "de": "Wie schnell liesse sich dieser Posten zu Geld machen, und was hinge davon ab, wann das geschieht?",
+          "de_draft": true,
+          "en": "How quickly could this holding be turned into money, and what would depend on when that happens?",
+          "en_draft": true
+        },
+        {
+          "de": "Was von der übrigen Lage bewegt sich mit demselben Ereignis wie dieser Posten?",
+          "de_draft": true,
+          "en": "What else in the picture moves with the same occurrence as this holding?",
+          "en_draft": true
+        },
+        {
+          "de": "Wer ausser Ihnen weiss, was dieser Posten ist, wo die Unterlagen dazu liegen und was mit ihm geschehen soll?",
+          "de_draft": true,
+          "en": "Who besides you knows what this holding is, where its papers are, and what is meant to happen to it?",
+          "en_draft": true
+        }
+      ]
+    },
+    {
+      "key": "optimising",
+      "age_marker": 50,
+      "title": {
+        "de": "Ordnen",
+        "de_draft": true,
+        "en": "Optimising",
+        "en_draft": true
+      },
+      "situation": {
+        "de": "Die Teile sind beisammen: Konten, Policen, Verträge, oft mehrere Vorsorgegefässe aus mehreren Anstellungen. Was in dieser Zeit gefragt wird, betrifft die Ordnung dieser Teile — was doppelt läuft, was leer läuft, was seit Jahren niemand mehr gelesen hat.",
+        "de_draft": true,
+        "en": "The parts are all there: accounts, policies, contracts, often several pension pots from several employments. What gets asked in this period is about the order of those parts — what runs twice, what runs empty, what nobody has read for years.",
+        "en_draft": true
+      },
+      "questions": [
+        {
+          "de": "Wie viele Vorsorgegefässe bestehen, und ist von allen bekannt, wo sie liegen?",
+          "de_draft": true,
+          "en": "How many pension pots exist, and is it known where all of them are?",
+          "en_draft": true
+        },
+        {
+          "de": "Welche Verträge laufen weiter, obwohl der Grund, aus dem sie abgeschlossen wurden, weggefallen ist?",
+          "de_draft": true,
+          "en": "Which contracts are still running although the reason they were taken out has gone?",
+          "en_draft": true
+        },
+        {
+          "de": "Was kostet das, was ohnehin schon da ist, pro Jahr in Franken?",
+          "de_draft": true,
+          "en": "What does what is already held cost per year, in francs?",
+          "en_draft": true
+        }
+      ]
+    }
+  ]
+}

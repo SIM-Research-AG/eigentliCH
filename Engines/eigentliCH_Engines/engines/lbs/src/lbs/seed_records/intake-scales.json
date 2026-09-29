@@ -1,0 +1,56 @@
+{
+  "_about": {
+    "requirement": "eigentliCH app update script v2.1, item 3 — the intake identities reimplemented in Python from andersCH-prototype/onboarding-chat.html. These are the numbers those functions turn on.",
+    "why_a_content_record": "C-02 forbids a float literal in application code, and `tests/test_constraints.py::test_no_literal_rate_in_application_code` enforces the SHAPE rather than trying to tell a rate from any other number — it says so in its own docstring. The port's first version kept these in code on the argument that they are declared conventions rather than rates. The guard disagreed, and the guard is the standing decision: 24 entries in its allowlist would have been 24 holes in the one check that stops an invented rate reaching a member.",
+    "provisional": true,
+    "what_provisional_means_here": "NOBODY HAS CALIBRATED THESE. They are carried verbatim from the prototype, whose own comment reads: 'Both maps are DECLARED CONVENTIONS. The counts are observations; the scale they land on is this model's own construct and has no published calibration behind it.' Publishing them is not a claim that they are right — `roles.json` ships D-03's role definitions marked provisional for exactly this reason. The flag is what stops a reader mistaking a record for an endorsement.",
+    "carried_from": "andersCH-prototype/onboarding-chat.html",
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-03"
+  },
+  "confidence": {
+    "_about": "The confidence answers as the questionnaire words them, and the epsilon each means. These are the question's own options, so they belong beside the wording rather than in a service.",
+    "options": {
+      "70 % — ich kann nachjustieren": 0.7,
+      "80 %": 0.8,
+      "90 % — es muss halten": 0.9,
+      "95 % — kein Spielraum": 0.95
+    }
+  },
+  "network": {
+    "_about": "Saturating in the number of people who would actually answer, with mandates as visibility on top. The prototype's own note: 'The scale of 8 is chosen so the questionnaire's own working range separates: 1 contact -> 0.12, 3 -> 0.31, 6 -> 0.53, 15 -> 0.84. Mandates add 0.06 each to a ceiling of 0.18, because a board seat is a real visibility signal and three of them are not three times one.'",
+    "people_scale": 8,
+    "per_mandate": 0.06,
+    "mandate_ceiling": 0.18,
+    "ceiling": 0.98
+  },
+  "civil_status": {
+    "_about": "Answers that mean a second adult is present, and the subset taxed jointly. The prototype's note: 'the difference between them is legal rather than cosmetic: cohabiting partners share a household and are taxed separately, which is exactly the case a single has-a-partner flag would get wrong.'",
+    "partnered": [
+      "ledig, mit Partner",
+      "verheiratet",
+      "eingetragene Partnerschaft"
+    ],
+    "married": [
+      "verheiratet",
+      "eingetragene Partnerschaft"
+    ]
+  },
+  "learning_commitment": {
+    "_about": "Expertise is asked as free text, which cannot be scored deterministically — and the prototype is explicit that a language model scoring it 'would be exactly the line the schema draws'. So the score uses the STRUCTURED answers around it: recent or planned education, hours invested, and a training budget are observable commitments. The free-text answer is not read and must not be.",
+    "neutral_floor": 0.5,
+    "recent_education": 0.12,
+    "planned_education": 0.08,
+    "hours": {
+      "kaum welche": 0,
+      "1–2": 0.02,
+      "3–5": 0.06,
+      "5–10": 0.1,
+      "mehr als 10": 0.14
+    },
+    "budget_threshold_chf": 5000,
+    "budget_credit": 0.06,
+    "ceiling": 0.95,
+    "_renamed": "Called `expertise` until 6 September 2026. Renamed because `services/human_capital` now computes a second number that is also expertise and is a different quantity: this one scores what a person is putting into learning, that one scores the qualification they hold, against published median wages. Only that one reaches the engine's E. The reference fixture still keys this `expertiseScale`, which is what the original prototype called it and must not change."
+  }
+}

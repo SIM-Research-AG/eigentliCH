@@ -1,0 +1,1478 @@
+{
+ "db-01": [
+  {
+   "after": "the request has 2 goals and does not state this goal's share of the yearly saving (goals[g1].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": "the household's stated yearly saving is 30,000; this goal's share is not stated, so the most it can receive (100.0%, 30,000 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 30,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[0]"
+  },
+  {
+   "after": 0.0,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.input"
+  },
+  {
+   "after": 1.0,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.value"
+  },
+  {
+   "after": 0.1,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.weight"
+  },
+  {
+   "after": [],
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.missing"
+  },
+  {
+   "after": "<absent>",
+   "before": "debt_service",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.missing[0]"
+  },
+  {
+   "after": 0.5426190476190477,
+   "before": 0.4917989417989418,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.value"
+  },
+  {
+   "after": 0.0,
+   "before": null,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity_inputs.debt_service_share"
+  },
+  {
+   "after": "submission: a stated mortgage of 0 is a paid-off mortgage",
+   "before": "absent",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity_inputs.sources.debt_service_share"
+  },
+  {
+   "after": [],
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.caveats"
+  },
+  {
+   "after": "<absent>",
+   "before": "capacity was computed without: debt_service",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.caveats[0]"
+  }
+ ],
+ "db-02": [
+  {
+   "after": "the request has 2 goals and does not state this goal's share of the yearly saving (goals[g2].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": "the household's stated yearly saving is 9,000; this goal's share is not stated, so the most it can receive (100.0%, 9,000 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 9,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[1]"
+  }
+ ],
+ "db-03": [
+  {
+   "after": "the request has 2 goals and does not state this goal's share of the yearly saving (goals[g1].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": "the household's stated yearly saving is 15,000; this goal's share is not stated, so the most it can receive (100.0%, 15,000 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 15,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[0]"
+  }
+ ],
+ "db-04": [
+  {
+   "after": "the request has 2 goals and does not state this goal's share of the yearly saving (goals[g1].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": "the household's stated yearly saving is 0; this goal's share is not stated, so the most it can receive (100.0%, 0 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 0 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[0]"
+  }
+ ],
+ "db-05": [
+  {
+   "after": "the request has 2 goals and does not state this goal's share of the yearly saving (goals[g1].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": "the household's stated yearly saving is 20,000; this goal's share is not stated, so the most it can receive (100.0%, 20,000 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 20,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[0]"
+  },
+  {
+   "after": 0.0,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.input"
+  },
+  {
+   "after": 1.0,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.value"
+  },
+  {
+   "after": 0.1,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.weight"
+  },
+  {
+   "after": [],
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.missing"
+  },
+  {
+   "after": "<absent>",
+   "before": "debt_service",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.missing[0]"
+  },
+  {
+   "after": 0.8105777777777777,
+   "before": 0.7895308641975308,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.value"
+  },
+  {
+   "after": 0.0,
+   "before": null,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity_inputs.debt_service_share"
+  },
+  {
+   "after": "submission: a stated mortgage of 0 is a paid-off mortgage",
+   "before": "absent",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity_inputs.sources.debt_service_share"
+  },
+  {
+   "after": [],
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.caveats"
+  },
+  {
+   "after": "<absent>",
+   "before": "capacity was computed without: debt_service",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.caveats[0]"
+  }
+ ],
+ "db-06": [
+  {
+   "after": "the request has 2 goals and does not state this goal's share of the yearly saving (goals[g2].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": "the household's stated yearly saving is 8,000; this goal's share is not stated, so the most it can receive (100.0%, 8,000 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 8,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[0]"
+  }
+ ],
+ "db-07": [
+  {
+   "after": "the request has 2 goals and does not state this goal's share of the yearly saving (goals[g2].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": "the household's stated yearly saving is 52,000; this goal's share is not stated, so the most it can receive (100.0%, 52,000 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 52,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[1]"
+  }
+ ],
+ "db-08": [],
+ "q-ceiling": [],
+ "q-horizon": [],
+ "q-no-vessel": [],
+ "q-zero-income": [
+  {
+   "after": "the request has 2 goals and does not state this goal's share of the yearly saving (goals[home].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": "the household's stated yearly saving is 10,000; this goal's share is not stated, so the most it can receive (100.0%, 10,000 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 10,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[0]"
+  }
+ ],
+ "r-human-capital": [
+  {
+   "after": "<absent>",
+   "before": "the property finding could not be determined: a funding position states no vessel",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "gaps[property.home|a_funding_position_states_no_vessel|not_in_the_request]"
+  },
+  {
+   "after": "a human-capital position funds this goal; human capital is not drawable wealth and is not counted as equity of any class (LBS-28)",
+   "before": "<absent>",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "gaps[property.home|training.capital_type|not_in_the_request]"
+  },
+  {
+   "after": "<absent>",
+   "before": "a funding position states no vessel, so it is not counted as equity of any class: it may be pension capital, which a let or second home may not use; the equity is judged with and without it",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "gaps[property.home|training.vessel|not_in_the_request]"
+  },
+  {
+   "after": "<absent>",
+   "before": [],
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].binds_on"
+  },
+  {
+   "after": "equity",
+   "before": "<absent>",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].binds_on[0]"
+  },
+  {
+   "after": "does_not_meet",
+   "before": "could_not_be_determined",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].equity.verdict"
+  },
+  {
+   "after": "<absent>",
+   "before": [],
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].levers"
+  },
+  {
+   "after": 100000.0,
+   "before": "<absent>",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].levers[0].hard_required_chf"
+  },
+  {
+   "after": "deposit",
+   "before": "<absent>",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].levers[0].lever"
+  },
+  {
+   "after": 200000.0,
+   "before": "<absent>",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].levers[0].required_chf"
+  },
+  {
+   "after": [],
+   "before": "<absent>",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].undetermined_because"
+  },
+  {
+   "after": "<absent>",
+   "before": "a_funding_position_states_no_vessel",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].undetermined_because[0]"
+  },
+  {
+   "after": "does_not_meet",
+   "before": "could_not_be_determined",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "property[home].verdict"
+  },
+  {
+   "after": 0.6521739130434783,
+   "before": 0.7894736842105263,
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "risk_profile.capacity.components.free_share.input"
+  },
+  {
+   "after": 30.0,
+   "before": 60.0,
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "risk_profile.capacity.components.reserve.input"
+  },
+  {
+   "after": 0.6521739130434783,
+   "before": 0.7894736842105263,
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "risk_profile.capacity_inputs.free_share"
+  },
+  {
+   "after": 30.0,
+   "before": 60.0,
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "risk_profile.capacity_inputs.reserve_months"
+  },
+  {
+   "after": "plan; human-capital stocks (training) are human capital, not financial wealth, and are left out",
+   "before": "plan",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "risk_profile.capacity_inputs.sources.free_share"
+  }
+ ],
+ "r-paid-mortgage": [
+  {
+   "after": 0.20055689051055242,
+   "before": 0.1783965450117249,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Gain.lower"
+  },
+  {
+   "after": "the risk profile 0.5014 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "before": "the risk profile 0.4460 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Gain.reasoning"
+  },
+  {
+   "after": 0.5259049470796476,
+   "before": 0.4898943856440529,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Gain.upper"
+  },
+  {
+   "after": 0.07493038868618096,
+   "before": 0.0777004318735344,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Income.lower"
+  },
+  {
+   "after": "the risk profile 0.5014 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "before": "the risk profile 0.4460 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Income.reasoning"
+  },
+  {
+   "after": 0.3498607773723619,
+   "before": 0.3554008637470688,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Income.upper"
+  },
+  {
+   "after": 0.1495823321170857,
+   "before": 0.16620259124120634,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Protection.lower"
+  },
+  {
+   "after": "the risk profile 0.5014 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "before": "the risk profile 0.4460 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Protection.reasoning"
+  },
+  {
+   "after": 0.4743734981756285,
+   "before": 0.4993038868618095,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Protection.upper"
+  },
+  {
+   "after": 0.12479116605854285,
+   "before": 0.1331012956206032,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Stabilisation.lower"
+  },
+  {
+   "after": "the risk profile 0.5014 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "before": "the risk profile 0.4460 (capacity binds) interpolates the risk-profile anchors between cautious and aggressive",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Stabilisation.reasoning"
+  },
+  {
+   "after": 0.3997215547447238,
+   "before": 0.41080172749413757,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.bounds.role.Stabilisation.upper"
+  },
+  {
+   "after": 0.03257657244520096,
+   "before": 0.02952952493911217,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.curve_shape.ceiling_offset"
+  },
+  {
+   "after": -0.03257657244520096,
+   "before": -0.02952952493911217,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.curve_shape.floor_offset"
+  },
+  {
+   "after": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.32451272080326665}, 'Equity': {'lower': 0.0, 'upper': 0.40111378102110484}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "before": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.34390302311474075}, 'Equity': {'lower': 0.0, 'upper': 0.3567930900234498}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.notes[1]"
+  },
+  {
+   "after": -0.01029230572302331,
+   "before": -0.007218464223127074,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[0]"
+  },
+  {
+   "after": 0.016766279620406006,
+   "before": 0.017265552587408906,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[10]"
+  },
+  {
+   "after": 0.01943230077648889,
+   "before": 0.019681303769202393,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[11]"
+  },
+  {
+   "after": 0.024743114363361903,
+   "before": 0.024495368747790677,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[13]"
+  },
+  {
+   "after": 0.027387981690268976,
+   "before": 0.026893738328743255,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[14]"
+  },
+  {
+   "after": 0.030025872142849665,
+   "before": 0.029286369493148577,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[15]"
+  },
+  {
+   "after": 0.032656822432765555,
+   "before": 0.03167328963531681,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[16]"
+  },
+  {
+   "after": 0.035280868982678404,
+   "before": 0.03405452595386091,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[17]"
+  },
+  {
+   "after": 0.0378980479292756,
+   "before": 0.03643010545355609,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[18]"
+  },
+  {
+   "after": 0.04050839512625614,
+   "before": 0.038800054947177524,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[19]"
+  },
+  {
+   "after": -0.00755326101100653,
+   "before": -0.0047429097757106155,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[1]"
+  },
+  {
+   "after": 0.04311194614727778,
+   "before": 0.041164401057315995,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[20]"
+  },
+  {
+   "after": 0.045708736288865785,
+   "before": 0.043523170218172404,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[21]"
+  },
+  {
+   "after": 0.048298800573284166,
+   "before": 0.04587638867733108,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[22]"
+  },
+  {
+   "after": 0.05088217375136976,
+   "before": 0.048224082497512186,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[23]"
+  },
+  {
+   "after": 0.053458890305329784,
+   "before": 0.050566277558303716,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[24]"
+  },
+  {
+   "after": -0.0048216981763923115,
+   "before": -0.0022734685675738983,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[2]"
+  },
+  {
+   "after": -0.002097576456040548,
+   "before": 0.00018988951950848527,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[3]"
+  },
+  {
+   "after": 0.0006191445809620076,
+   "before": 0.0026471943817326254,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[4]"
+  },
+  {
+   "after": 0.0033285050369022463,
+   "before": 0.005098475695442315,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[5]"
+  },
+  {
+   "after": 0.006030544688992552,
+   "before": 0.007543762919279466,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[6]"
+  },
+  {
+   "after": 0.008725302992874804,
+   "before": 0.009983085296308303,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[7]"
+  },
+  {
+   "after": 0.011412819086077284,
+   "before": 0.01241647185611369,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[8]"
+  },
+  {
+   "after": 0.014093131791425266,
+   "before": 0.014843951416874,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "mandate_proposal.target_curve[9]"
+  },
+  {
+   "after": 0.32451272080326665,
+   "before": 0.34390302311474075,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.asset_class_bounds.Cash.upper"
+  },
+  {
+   "after": 0.40111378102110484,
+   "before": 0.3567930900234498,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.asset_class_bounds.Equity.upper"
+  },
+  {
+   "after": 0.0,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.input"
+  },
+  {
+   "after": 1.0,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.value"
+  },
+  {
+   "after": 0.1,
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.components.debt_service.weight"
+  },
+  {
+   "after": [],
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.missing"
+  },
+  {
+   "after": "<absent>",
+   "before": "debt_service",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.missing[0]"
+  },
+  {
+   "after": 0.501392226276381,
+   "before": 0.4459913625293122,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity.value"
+  },
+  {
+   "after": 0.0,
+   "before": null,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity_inputs.debt_service_share"
+  },
+  {
+   "after": "submission: a stated mortgage of 0 is a paid-off mortgage",
+   "before": "absent",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.capacity_inputs.sources.debt_service_share"
+  },
+  {
+   "after": [],
+   "before": "<absent>",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.caveats"
+  },
+  {
+   "after": "<absent>",
+   "before": "capacity was computed without: debt_service",
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.caveats[0]"
+  },
+  {
+   "after": 0.03257657244520096,
+   "before": 0.02952952493911217,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.curve_slope.ceiling_offset"
+  },
+  {
+   "after": -0.03257657244520096,
+   "before": -0.02952952493911217,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.curve_slope.floor_offset"
+  },
+  {
+   "after": 0.20055689051055242,
+   "before": 0.1783965450117249,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.role_bounds.Gain.lower"
+  },
+  {
+   "after": 0.5259049470796476,
+   "before": 0.4898943856440529,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.role_bounds.Gain.upper"
+  },
+  {
+   "after": 0.07493038868618096,
+   "before": 0.0777004318735344,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.role_bounds.Income.lower"
+  },
+  {
+   "after": 0.3498607773723619,
+   "before": 0.3554008637470688,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.role_bounds.Income.upper"
+  },
+  {
+   "after": 0.1495823321170857,
+   "before": 0.16620259124120634,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.role_bounds.Protection.lower"
+  },
+  {
+   "after": 0.4743734981756285,
+   "before": 0.4993038868618095,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.role_bounds.Protection.upper"
+  },
+  {
+   "after": 0.12479116605854285,
+   "before": 0.1331012956206032,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.role_bounds.Stabilisation.lower"
+  },
+  {
+   "after": 0.3997215547447238,
+   "before": 0.41080172749413757,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.role_bounds.Stabilisation.upper"
+  },
+  {
+   "after": 0.501392226276381,
+   "before": 0.4459913625293122,
+   "by": [
+    "zero_mortgage_is_a_stated_zero"
+   ],
+   "path": "risk_profile.value"
+  }
+ ],
+ "r-share-missing": [
+  {
+   "after": "the request has 3 goals and does not state this goal's share of the yearly saving (goals[home].contribution_share); the most it can receive, 40.0% of it, is used, so the required return is a lower bound",
+   "before": "<absent>",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "gaps[mandate_proposal|contribution_share|not_in_the_request]"
+  },
+  {
+   "after": 12000.0,
+   "before": 30000.0,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.annual_contribution"
+  },
+  {
+   "after": "the household's stated yearly saving is 30,000; this goal's share is not stated, so the most it can receive (40.0%, 12,000 a year) is used: the required return and the curve's level are lower bounds until the share is stated",
+   "before": "the contribution of 30,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[0]"
+  },
+  {
+   "after": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.2783333333333333}, 'Equity': {'lower': 0.0, 'upper': 0.5066666666666667}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "before": "this calibration does not split the saving between goals, so the stated contribution shares are not read (they are from calibration 1.3.0 on)",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[1]"
+  },
+  {
+   "after": "<absent>",
+   "before": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.2783333333333333}, 'Equity': {'lower': 0.0, 'upper': 0.5066666666666667}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[2]"
+  },
+  {
+   "after": 0.14705186340142973,
+   "before": 0.06833775792620145,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.required_return"
+  },
+  {
+   "after": 0.10185104171313113,
+   "before": 0.028105732087881,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[0]"
+  },
+  {
+   "after": 0.13139045515102635,
+   "before": 0.059870331799291236,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[10]"
+  },
+  {
+   "after": 0.13429696608572408,
+   "before": 0.0629919947710614,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[11]"
+  },
+  {
+   "after": 0.13719505369119406,
+   "before": 0.06610394328053527,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[12]"
+  },
+  {
+   "after": 0.14008476664951167,
+   "before": 0.06920623760205241,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[13]"
+  },
+  {
+   "after": 0.1429661532219356,
+   "before": 0.07229893745071972,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[14]"
+  },
+  {
+   "after": 0.14583926125374438,
+   "before": 0.07538210198930828,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[15]"
+  },
+  {
+   "after": 0.14870413817900313,
+   "before": 0.07845578983504423,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[16]"
+  },
+  {
+   "after": 0.15156083102526252,
+   "before": 0.0815200590662955,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[17]"
+  },
+  {
+   "after": 0.15440938641819055,
+   "before": 0.08457496722915654,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[18]"
+  },
+  {
+   "after": 0.1572498505861389,
+   "before": 0.08762057134393275,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[19]"
+  },
+  {
+   "after": 0.1048445596366944,
+   "before": 0.03132798295618034,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[1]"
+  },
+  {
+   "after": 0.16008226936464426,
+   "before": 0.09065692791152634,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[20]"
+  },
+  {
+   "after": 0.1629066882008663,
+   "before": 0.09368409291972574,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[21]"
+  },
+  {
+   "after": 0.16572315215796304,
+   "before": 0.0967021218493998,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[22]"
+  },
+  {
+   "after": 0.16853170591940486,
+   "before": 0.09971106968059926,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[23]"
+  },
+  {
+   "after": 0.17133239379322798,
+   "before": 0.10271099089856615,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[24]"
+  },
+  {
+   "after": 0.10782914314936615,
+   "before": 0.03453988426377628,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[2]"
+  },
+  {
+   "after": 0.11080484542351882,
+   "before": 0.037741502281462634,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[3]"
+  },
+  {
+   "after": 0.11377171915825665,
+   "before": 0.04093290264554167,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[4]"
+  },
+  {
+   "after": 0.11672981658501562,
+   "before": 0.04411415036589809,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[5]"
+  },
+  {
+   "after": 0.11967918947308072,
+   "before": 0.04728530983394482,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[6]"
+  },
+  {
+   "after": 0.12261988913502221,
+   "before": 0.050446444830443464,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[7]"
+  },
+  {
+   "after": 0.12555196643205213,
+   "before": 0.05359761853320135,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[8]"
+  },
+  {
+   "after": 0.12847547177930244,
+   "before": 0.05673889352464769,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[9]"
+  }
+ ],
+ "r-share-stated": [
+  {
+   "after": 12000.0,
+   "before": 30000.0,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.annual_contribution"
+  },
+  {
+   "after": "the household's stated yearly saving is 30,000; this goal's stated share of it, 40.0%, is 12,000 a year, paid in twelve monthly steps",
+   "before": "the contribution of 30,000 a year is the household's stated yearly saving, read as going wholly to this goal in twelve monthly steps; savings shared with other goals would make the required return higher than shown",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[0]"
+  },
+  {
+   "after": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.2783333333333333}, 'Equity': {'lower': 0.0, 'upper': 0.5066666666666667}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "before": "this calibration does not split the saving between goals, so the stated contribution shares are not read (they are from calibration 1.3.0 on)",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[1]"
+  },
+  {
+   "after": "<absent>",
+   "before": "the risk profile also interpolates asset-class bounds {'Cash': {'lower': 0.0, 'upper': 0.2783333333333333}, 'Equity': {'lower': 0.0, 'upper': 0.5066666666666667}}; asset class is a policy dimension, so they are a suggestion for the curator and not a derived bound",
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.notes[2]"
+  },
+  {
+   "after": 0.14705186340142973,
+   "before": 0.06833775792620145,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.required_return"
+  },
+  {
+   "after": 0.10185104171313113,
+   "before": 0.028105732087881,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[0]"
+  },
+  {
+   "after": 0.13139045515102635,
+   "before": 0.059870331799291236,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[10]"
+  },
+  {
+   "after": 0.13429696608572408,
+   "before": 0.0629919947710614,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[11]"
+  },
+  {
+   "after": 0.13719505369119406,
+   "before": 0.06610394328053527,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[12]"
+  },
+  {
+   "after": 0.14008476664951167,
+   "before": 0.06920623760205241,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[13]"
+  },
+  {
+   "after": 0.1429661532219356,
+   "before": 0.07229893745071972,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[14]"
+  },
+  {
+   "after": 0.14583926125374438,
+   "before": 0.07538210198930828,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[15]"
+  },
+  {
+   "after": 0.14870413817900313,
+   "before": 0.07845578983504423,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[16]"
+  },
+  {
+   "after": 0.15156083102526252,
+   "before": 0.0815200590662955,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[17]"
+  },
+  {
+   "after": 0.15440938641819055,
+   "before": 0.08457496722915654,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[18]"
+  },
+  {
+   "after": 0.1572498505861389,
+   "before": 0.08762057134393275,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[19]"
+  },
+  {
+   "after": 0.1048445596366944,
+   "before": 0.03132798295618034,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[1]"
+  },
+  {
+   "after": 0.16008226936464426,
+   "before": 0.09065692791152634,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[20]"
+  },
+  {
+   "after": 0.1629066882008663,
+   "before": 0.09368409291972574,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[21]"
+  },
+  {
+   "after": 0.16572315215796304,
+   "before": 0.0967021218493998,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[22]"
+  },
+  {
+   "after": 0.16853170591940486,
+   "before": 0.09971106968059926,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[23]"
+  },
+  {
+   "after": 0.17133239379322798,
+   "before": 0.10271099089856615,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[24]"
+  },
+  {
+   "after": 0.10782914314936615,
+   "before": 0.03453988426377628,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[2]"
+  },
+  {
+   "after": 0.11080484542351882,
+   "before": 0.037741502281462634,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[3]"
+  },
+  {
+   "after": 0.11377171915825665,
+   "before": 0.04093290264554167,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[4]"
+  },
+  {
+   "after": 0.11672981658501562,
+   "before": 0.04411415036589809,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[5]"
+  },
+  {
+   "after": 0.11967918947308072,
+   "before": 0.04728530983394482,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[6]"
+  },
+  {
+   "after": 0.12261988913502221,
+   "before": 0.050446444830443464,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[7]"
+  },
+  {
+   "after": 0.12555196643205213,
+   "before": 0.05359761853320135,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[8]"
+  },
+  {
+   "after": 0.12847547177930244,
+   "before": 0.05673889352464769,
+   "by": [
+    "contribution_is_split_by_goal_share"
+   ],
+   "path": "mandate_proposal.target_curve[9]"
+  }
+ ],
+ "syn-couple": [
+  {
+   "after": 0.05352112676056338,
+   "before": 0.0743801652892562,
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "risk_profile.capacity.components.free_share.input"
+  },
+  {
+   "after": 0.05352112676056338,
+   "before": 0.0743801652892562,
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "risk_profile.capacity_inputs.free_share"
+  },
+  {
+   "after": "plan; human-capital stocks (skills) are human capital, not financial wealth, and are left out",
+   "before": "plan",
+   "by": [
+    "human_capital_is_never_free_wealth"
+   ],
+   "path": "risk_profile.capacity_inputs.sources.free_share"
+  }
+ ],
+ "syn-liquidity": [],
+ "syn-property-1": [],
+ "syn-property-2": [],
+ "syn-property-3": [],
+ "syn-property-4": [],
+ "syn-property-5": []
+}

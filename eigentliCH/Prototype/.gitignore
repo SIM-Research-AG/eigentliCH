@@ -1,0 +1,67 @@
+# The eigentliCH prototype — what version control must not carry.
+#
+# The repo root's .gitignore already covers `Prototype/client/submissions/` and two `**/`-anchored
+# onboarding patterns. This file covers what THIS build produces, and it is deliberately separate so that
+# moving the directory does not silently drop the protection — which is exactly what happened to the
+# submissions when they were copied out of `andersCH-prototype/` on 30 August 2026.
+
+# The application database. Empty today; from phase 2 it holds member positions, goals and decisions (K2)
+# and from phase 3 vault items (K3). There is no version of this file that is safe to commit.
+# Unanchored on 1 September 2026, deliberately. These were written as `backend/andersch.db`, which is
+# where the server creates the file when it is started the documented way. A tool run from the repo
+# root instead creates `andersch.db` HERE, one directory up, and the anchored pattern did not cover it:
+# a stray database sat untracked-but-committable until someone read the status output carefully. The
+# path is the accident, the content is the risk, so match the name wherever it lands.
+# Widened again on 1 September 2026, to a trailing wildcard, after `backend/andersch.db.before-fk` was
+# found COMMITTED and `andersch.db.before-stock-unit` untracked-but-committable. Both are migration
+# backups, and both slipped every rule above for the same reason: the filename does not END in `.db`, so
+# neither `*.sqlite`, nor an exact `andersch.db`, nor a `*.db` pathspec ever matched them. The committed
+# one carries 24 members, 13 credential hashes and 6 vault items. A backup of a file that must never be
+# committed must never be committed either, whatever suffix the person taking it chose.
+**/andersch.db*
+# And under the name the file has carried since the eigentlich rename of 21 September 2026. The rule
+# above was written when the database was `andersch.db`; renaming the package renamed the file and left
+# the rule pointing at a name nothing writes any more. `backend/eigentlich.db` and its seven migration
+# backups — 24 members, 13 credential hashes, 6 vault items — sat untracked-but-committable until
+# `git check-ignore` was asked. The old pattern stays: the backups taken before the rename still carry
+# the old name, and a rule that protects a file that no longer exists costs nothing.
+**/eigentlich.db*
+*.sqlite
+*.sqlite3
+
+# The virtual environment. A9 accepts four dependencies here; the tree they install is still build output.
+.venv/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# The vault's bytes. K3 documents - policies, statements, contracts a member uploaded. There is no
+# version of this directory that is safe to commit, and it lives outside the database precisely so a K3
+# document is not carried by every incidental query and every backup.
+backend/vault_store/
+vault_store/
+
+# Any export produced by R-154. A full member export is the most concentrated K3 artefact the system can
+# make, and it lands as a file with a predictable name.
+exports/
+*-export-*.json
+*-export-*.zip
+
+# The raw case captures under `reports/`. Same reason `client/submissions/` is ignored above: these are
+# real people's answers about their own money, under their own names — a full API capture per member,
+# every position, goal, decision and balance. Regenerable in one command from a live server, so nothing
+# is lost by keeping them out:
+#
+#     python tools/run_cases.py && python tools/allocation_check.py && python tools/property_check.py
+#
+# The curated report itself (`reports/members-*.html`) IS tracked — it is the deliverable — and it does
+# carry the same names and figures. Whether that should also be ignored is the owner's call and is
+# recorded in PICK-UP-HERE.
+reports/cases.json
+reports/allocation.json
+reports/members-system-output.txt
+reports/members-allocation.txt
+reports/members-arithmetic.txt
+reports/members-property-arithmetic.txt

@@ -1,0 +1,4 @@
+# Offline ETL and tests only. Never in the client path.
+openpyxl==3.1.5   # reads the Steiner workbooks; store/etl/long_record.py only
+pytest==8.3.4
+httpx==0.28.1     # fastapi TestClient

@@ -1,0 +1,46 @@
+# Portfolio Creation Program (pcp): configuration.
+#
+# Committed, so it never holds a password. Keep the local container's password in
+# config.local.yaml (git-ignored) or set PCP_DB_PASSWORD. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  PCP_DATABASE_URL / DATABASE_URL  <  PCP_*
+#
+# Model parameters (vocabularies, ingest maps, solver settings, the budget check, the
+# instrument classification table) are NOT here: they are versioned calibrations, seeded
+# from src/pcp/calibration.py and extended through PUT /calibration.
+
+service:
+  host: 127.0.0.1
+  port: 8007                    # Engine Building Guide section 4. Override with PCP_PORT.
+  # "*" lets a test bench work when opened straight off disk. Narrow it before
+  # deployment, e.g. PCP_CORS_ORIGINS=https://cockpit.example
+  cors_origins: ["*"]
+
+upstream:
+  # The Regime (aggregation, Engine 04) and the ReturnSet with the instrument register
+  # (fmre, Engine 06). The run request names the regime_id and the return_set_id.
+  # Override with PCP_AGGREGATION_URL, PCP_FMRE_URL.
+  aggregation_url: http://127.0.0.1:8004
+  fmre_url: http://127.0.0.1:8006
+  timeout_s: 120                # a full Regime is a few MB
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema per engine, one role per engine
+  # (Engine Building Guide section 8). The role owns this schema and reads nothing else.
+  dbname: simtech
+  schema: pcp
+  user: pcp
+  sslmode: prefer               # "require" or "verify-full" for anything over a network
+  connect_timeout: 10
+  maintenance_dbname: postgres  # only used by `python -m pcp init-db` to CREATE DATABASE
+
+calibration:
+  # The calibration a run uses when the request does not name one. Changing it is a
+  # deliberate act; proposing a new calibration through PUT /calibration never is.
+  active: "1.1.0"
+
+run:
+  # The solver settings when a request names none: fast or exact (calibration).
+  speed_mode: exact

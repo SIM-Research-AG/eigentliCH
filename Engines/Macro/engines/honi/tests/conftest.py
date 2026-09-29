@@ -1,0 +1,146 @@
+"""Shared fixtures, on the Instruments engine's pattern.
+
+* **A real PostgreSQL server**, no fallback: unreachable means the run stops with the
+  remedy, never a quietly skipped store.
+* **A throwaway schema per test module** for honi's own store, dropped afterwards.
+* **A real datafeed**, not a mock: once per session, datafeed is bootstrapped into its own
+  throwaway schema (``--frozen --offline``: the frozen raw snapshot and the frozen public
+  responses, so no MATLAB folder and no network) and served on a free port as a separate
+  process. honi talks to it over HTTP exactly as in production. Needs the ``datafeed``
+  package installed in the same environment (``pip install -e ../datafeed[dev]``).
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import socket
+import subprocess
+import sys
+import time
+import uuid
+from dataclasses import replace
+from pathlib import Path
+
+import httpx
+import psycopg
+import pytest
+
+from honi.contracts import Panel
+from honi.settings import Settings, load
+
+GOLDEN = Path(__file__).resolve().parent.parent / "golden"
+SNAPSHOT = GOLDEN / "snapshot_2026-01-05"
+#: datafeed's raw snapshot, as its frozen bootstrap builds it (r3 on 27.09.2026), read from
+#: datafeed's manifest so that a new datafeed import does not break this suite. honi's golden
+#: input is the earlier 21-series import of the same M_TS.mat, matlab-m_ts-2026-01-05; the
+#: HoNI series are identical in every re-import (test_golden checks it cell by cell).
+RAW_ID = json.loads((Path(__file__).resolve().parents[2] / "datafeed" / "golden" / "snapshot_2026-01-05"
+                     / "manifest.json").read_text(encoding="utf-8"))["snapshot_id"]
+
+
+def pytest_configure(config):
+    target = load().database
+    try:
+        with psycopg.connect(target.conninfo(), connect_timeout=5):
+            pass
+    except Exception as exc:  # noqa: BLE001
+        raise pytest.UsageError(
+            f"cannot reach PostgreSQL at {target.redacted_url()}: {exc}\n"
+            "  The suite runs against a real server; there is no fallback.\n"
+            "  Start it:  docker compose up -d   (in Projects\\PostgreSQL)\n"
+            "  Create the database once:  python -m honi init-db") from exc
+    try:
+        import datafeed  # noqa: F401
+    except ImportError as exc:
+        raise pytest.UsageError("the datafeed engine is not installed here: "
+                                "pip install -e ../datafeed[dev]") from exc
+
+
+def _free_port() -> int:
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+@pytest.fixture(scope="session")
+def datafeed() -> dict:
+    """A live, bootstrapped datafeed: {'url', 'raw', 'filled'}."""
+    db = load().database
+    schema = f"t_df_{uuid.uuid4().hex[:10]}"
+    port = _free_port()
+    env = {**os.environ, "DATAFEED_DB_SCHEMA": schema, "DATAFEED_PORT": str(port),
+           "DATAFEED_DB_PASSWORD": db.password, "PYTHONUTF8": "1"}
+    boot = subprocess.run([sys.executable, "-m", "datafeed", "bootstrap", "--frozen", "--offline"],
+                          env=env, capture_output=True, text=True, timeout=300)
+    if boot.returncode != 0:
+        raise pytest.UsageError(f"datafeed bootstrap failed:\n{boot.stdout}\n{boot.stderr}")
+    proc = subprocess.Popen([sys.executable, "-m", "datafeed", "serve"], env=env,
+                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    url = f"http://127.0.0.1:{port}"
+    deadline = time.time() + 60
+    while True:
+        try:
+            if httpx.get(f"{url}/health", timeout=2).status_code == 200:
+                break
+        except httpx.HTTPError:
+            pass
+        if proc.poll() is not None or time.time() > deadline:
+            proc.kill()
+            raise pytest.UsageError(f"datafeed did not start: {proc.stderr.read().decode()[-2000:]}")
+        time.sleep(0.2)
+    snapshots = httpx.get(f"{url}/snapshots", timeout=30).json()
+    filled = next(s["snapshot_id"] for s in snapshots if s["parent_id"] == RAW_ID)
+    yield {"url": url, "raw": RAW_ID, "filled": filled}
+    proc.terminate()
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+    # The throwaway schema is owned by the datafeed role, and honi's role may not drop it
+    # (Engine Building Guide 8.2), so it is dropped with datafeed's own credentials.
+    from datafeed.settings import load as load_datafeed
+
+    owner = load_datafeed().database
+    with psycopg.connect(owner.conninfo(), autocommit=True) as conn:
+        conn.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE")
+
+
+@pytest.fixture(scope="session")
+def panel_json() -> str:
+    return (SNAPSHOT / "panel.json").read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="session")
+def panel(panel_json) -> Panel:
+    return Panel.model_validate_json(panel_json)
+
+
+@pytest.fixture(scope="session")
+def matlab_export() -> dict:
+    return json.loads((GOLDEN / "matlab_export_2025-11.json").read_text(encoding="utf-8"))
+
+
+@pytest.fixture(scope="session")
+def expected_build() -> dict:
+    return json.loads((SNAPSHOT / "expected_1.0.0.json").read_text(encoding="utf-8"))
+
+
+@pytest.fixture(scope="module")
+def settings(datafeed) -> Settings:
+    """honi settings: a throwaway schema for this module, upstream at the live datafeed."""
+    base = load()
+    schema = f"t_{uuid.uuid4().hex[:12]}"
+    s = replace(base, database=replace(base.database, schema=schema), datafeed_url=datafeed["url"])
+    yield s
+    with psycopg.connect(s.database.conninfo(), autocommit=True) as conn:
+        conn.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE")
+
+
+@pytest.fixture(scope="module")
+def client(settings):
+    from fastapi.testclient import TestClient
+
+    from honi.api import create_app
+    with TestClient(create_app(settings)) as c:
+        yield c

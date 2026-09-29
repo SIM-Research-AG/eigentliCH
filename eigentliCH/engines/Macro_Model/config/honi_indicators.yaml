@@ -1,0 +1,149 @@
+# HoNI indicator set and dimension mapping.
+#
+# Source of record: the current HoNI export, modified 2026-04-27, at
+# SIM_NAS\Knowledge_Center\Marianne Work Folder\LaTex Documents\HoNI\HoNI_Export 11-25.xlsx
+#
+# This supersedes the 83-indicator methodology workbook dated 2022-01-16, which is retained only as
+# a band reference in config/honi_bands.yaml. The current model uses 15 indicators in three groups
+# of five, and emits exactly the three sub-indices the brief specifies.
+#
+# Dimension assignment: the 15 indicators occupy columns 2 to 16 in three contiguous blocks of five,
+# aligned with the three sub-index columns (24, 25, 26) named Financial, International and Real in that
+# order. The export's chart blocks name them "Financial Economy", "International Resilience" and
+# "Real Economy".
+#
+# CONFIRMED by the author on 2026-07-28: the three blocks of five are correct. This was previously
+# recorded as inferred from column ordering and requiring confirmation, which it no longer does.
+
+provenance:
+  source_document: "HoNI_Export 11-25.xlsx"
+  source_path: "SIM_NAS\\Knowledge_Center\\Marianne Work Folder\\LaTex Documents\\HoNI"
+  source_modified: "2026-04-27"
+  supersedes: "HoNI_Methodology.xlsx dated 2022-01-16, 83 indicators"
+  panel_years: [2004, 2024]
+  panel_countries:
+    [Bangladesh, Brazil, CH, China, EU, Germany, India, Indonesia, Japan, Malaysia,
+     Philippines, Spain, Thailand, UK, USA, Vietnam]
+  dimension_mapping_basis: >
+    three contiguous blocks of five indicators aligned with the three sub-index columns, confirmed by the
+    author on 2026-07-28.
+
+# Which sheet of the export carries each of this programme's economies.
+#
+# The panel is the export's, not ours, and the two do not coincide: FRANCE HAS NO SHEET, so `fr` has no
+# HoNI reading and the scorer reports that rather than substituting the euro area for it. Substituting
+# would be the kind of quiet approximation that makes a comparative table wrong in a way nobody can see.
+sheet_by_economy:
+  us: USA
+  cn: China
+  jp: Japan
+  de: Germany
+  gb: UK
+  in: India
+  eurozone: EU
+  # fr: intentionally absent. The export's panel does not include France.
+
+dimensions:
+  financial:
+    label: "Financial Economy"
+    export_column: 24
+    indicators: [budget_balance, monetary_supply, gov_debt, real_10y, market_cap]
+  international:
+    label: "International Resilience"
+    export_column: 25
+    indicators: [extdebt_afford, extdebt_expo, terms_trade, import_res, corruption]
+  real:
+    label: "Real Economy"
+    export_column: 26
+    indicators: [cons_power, pop_growth, gdp_growth_capita, depend_cons, labour_force]
+
+# The 15 indicators. `export_column` is the column in a country sheet of the export.
+# `export_name` is the header as it appears there, including its spelling as found.
+indicators:
+  budget_balance:
+    export_name: Budget_Balance
+    export_column: 2
+    description: "General government fiscal balance as a share of GDP"
+  monetary_supply:
+    export_name: Monetary_Supply
+    export_column: 3
+    description: "Growth of the relevant broad monetary aggregate"
+  gov_debt:
+    export_name: Gov_Debt
+    export_column: 4
+    description: "General government debt as a share of GDP"
+  real_10y:
+    export_name: Real_10y
+    export_column: 5
+    description: "Real ten-year government yield"
+  market_cap:
+    export_name: Market_Cap
+    export_column: 6
+    description: "Listed equity market capitalisation as a share of GDP"
+  extdebt_afford:
+    export_name: Extdebt_afford
+    export_column: 7
+    description: "External debt affordability, debt service against capacity to pay"
+  extdebt_expo:
+    export_name: Extdebt_expo
+    export_column: 8
+    description: "External debt exposure, including the hard-currency share"
+  terms_trade:
+    export_name: Terms_Trade
+    export_column: 9
+    description: "Terms of trade"
+  import_res:
+    export_name: Import_Res
+    export_column: 10
+    description: "Import cover from reserves"
+  corruption:
+    export_name: Corruptopm
+    export_column: 11
+    description: "Institutional quality, corruption measure"
+    note: >
+      The export's column header is misspelled as "Corruptopm". The loader matches the header as
+      found and maps it to this key, so the misspelling is tolerated rather than depended upon.
+  cons_power:
+    export_name: Cons_Power
+    export_column: 12
+    description: "Consumption power"
+  pop_growth:
+    export_name: Pop_Growth
+    export_column: 13
+    description: "Population growth"
+  gdp_growth_capita:
+    export_name: GDP_Growth_Capita
+    export_column: 14
+    description: "GDP growth per capita"
+  depend_cons:
+    export_name: Depend_Cons
+    export_column: 15
+    description: "Dependency ratio against consumption"
+  labour_force:
+    export_name: Labour_Force
+    export_column: 16
+    description: "Labour force participation"
+
+# Derived columns the export also carries, used as cross-checks rather than as inputs.
+derived_columns:
+  capital_saturation: 20
+  market_capital_to_gdp: 22
+
+# Aggregation from indicators to sub-indices, and from sub-indices to the composite.
+#
+# Two strategies, because the export and the book disagree and the choice changes what the score
+# means. Selected by `honi.aggregation.strategy` in defaults.yaml.
+#
+#   absolute:        a weighted mean on the fixed 1 to 5 axis. The score has the same meaning in
+#                    every year and for every panel, which is what the book's four-stage taxonomy
+#                    requires, and what makes a timeline reading valid.
+#
+#   panel_min_max:   what the current export does. Within each year the panel is rescaled so the
+#                    healthiest economy takes exactly 1.0 and the least healthy exactly 5.0. Every
+#                    one of the export's 21 years contains exactly one 1.0 and one 5.0, which is how
+#                    this was identified. It produces a clean relative ranking, but the score is not
+#                    comparable across years, it depends on which countries are in the panel, and one
+#                    economy always reads as perfectly healthy even in a year when all of them are
+#                    saturated. The four-stage taxonomy cannot be applied to it.
+aggregation:
+  strategies: [absolute, panel_min_max]

@@ -1,0 +1,39 @@
+{
+ "built_by": "dev/build_golden.py",
+ "interpreter": "C:\\Users\\nicol\\Desktop\\SIM_NAS\\Projects\\eigentliCH\\Prototype\\.venv\\Scripts\\python.exe",
+ "as_of": "2026-09-28",
+ "prototype": "C:\\Users\\nicol\\Desktop\\SIM_NAS\\Projects\\eigentliCH\\Prototype",
+ "database_sha256": "a10b6afa3552b66c8b1e1282d97f6aedcf91c88d1202695ba1fc19b20051535b",
+ "content_records_sha256": {
+  "ahv-pension": "397579479f0e7958a155d8d837548573d8c9674dc6b587c8c187330175fb710f",
+  "bvg-projection": "daa7d192af3c3b2083c7a3171adc05b1f5e099e494771e5d08a0b7005fc873cd",
+  "human-capital": "8d242c19e416a3dc6f315216185f9c1ef9aad96876f713bd3c96d1bfe047ce1e",
+  "property-funding": "55662136b968d54a1e2f0e4ce01e647450ec0b8bbefd8a9c77939099b09407f7",
+  "liquidity-levers": "e8d699177c4415cf5f6dfcd4f6234082d3091cd6e8ea48dea914b0e83e841156",
+  "risk-profile": "1332020715928aaa512e08c80407e179b1ec2d97ecea5db115ee41fd2133d11a",
+  "intake-scales": "9becbe4c795368692b041ade0fb68c93caea1fd3adbd3b037a48728662b8fe91",
+  "roles": "b29b146adc323488364f63c938d54a82f78c36d60d1826183f8de9f7bce63889",
+  "currency-horizons": "e477f840e2bb779cfef4295aaac291ef549d0dfa035c0eb26f97eeef55bbffc2"
+ },
+ "variants": {
+  "seed": "records as shipped",
+  "approved": "ahv-pension and risk-profile approved by an in-memory fixture"
+ },
+ "cases": [
+  "db-01",
+  "db-02",
+  "db-03",
+  "db-04",
+  "db-05",
+  "db-06",
+  "db-07",
+  "db-08",
+  "syn-couple",
+  "syn-liquidity",
+  "syn-property-1",
+  "syn-property-2",
+  "syn-property-3",
+  "syn-property-4",
+  "syn-property-5"
+ ]
+}

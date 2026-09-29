@@ -1,0 +1,49 @@
+# Health of Nations Index engine (honi): configuration.
+#
+# Committed, so it never holds a password. Keep the local container's password in
+# config.local.yaml (git-ignored) or set HONI_DB_PASSWORD. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  HONI_DATABASE_URL / DATABASE_URL  <  HONI_*
+#
+# Model parameters (ranges, weights, missing-data policy) are NOT here: they are versioned
+# calibrations, seeded from src/honi/calibration.py and extended through PUT /calibration.
+
+service:
+  host: 127.0.0.1
+  port: 8002                    # Engine Building Guide section 4. Override with HONI_PORT.
+  # "*" lets the test bench work when opened straight off disk. Narrow it before
+  # deployment, e.g. HONI_CORS_ORIGINS=https://cockpit.example
+  cors_origins: ["*"]
+
+upstream:
+  datafeed_url: http://127.0.0.1:8001
+  timeout_s: 30
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema per engine, one role per engine.
+  # See section 8 of the Engine Building Guide. The role owns this schema and holds
+  # SELECT and nothing more on the shared `datafeed` schema.
+  dbname: simtech
+  schema: honi
+  user: honi
+  sslmode: prefer               # "require" or "verify-full" for anything over a network
+  connect_timeout: 10
+  maintenance_dbname: postgres  # only used by `python -m honi init-db` to CREATE DATABASE
+
+calibration:
+  # The calibration a run uses when the request does not name one. Changing it is a
+  # deliberate act; proposing a new calibration through PUT /calibration never is.
+  active: "1.1.0"
+
+run:
+  # Output window when a request gives none: the last N complete years in the snapshot.
+  # 19, not 20: on the 2006-2025 snapshot the first year has no growth rates (D-28).
+  default_window_years: 19
+  # Peer set when a request gives none, as datafeed country codes. Every score is relative
+  # to this set (manual 6.3), so changing it changes every country's history.
+  countries: [BR, CH, CN, EU, IN, ID, MY, PH, TH, GB, US, JP, BD, VN, DE, ES]
+
+# Country names and valid codes come from datafeed (GET /countries, its `country` table):
+# one registry for every engine.

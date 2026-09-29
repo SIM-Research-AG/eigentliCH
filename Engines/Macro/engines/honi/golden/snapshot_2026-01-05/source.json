@@ -1,0 +1,1 @@
+{"_note":"Frozen copy of datafeed's raw snapshot, fetched from GET /panel. The checksum is datafeed's manifest checksum; test_golden checks the copy against it.","snapshot_id":"matlab-m_ts-2026-01-05","datafeed_checksum":"7f22f614dcadb4af27db2ef8016c00dbf5486da1b03f2c22d8d4f9374033a863","datafeed_source":"matlab:M_TS.mat"}

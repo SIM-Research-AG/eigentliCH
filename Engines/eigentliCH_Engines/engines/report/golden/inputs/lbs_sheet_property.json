@@ -1,0 +1,825 @@
+{
+ "contract_version": "lbs-balance-sheet@1.0.0",
+ "artefact_id": "LBS-999ac61106461286",
+ "client_ref": "syn-property-1",
+ "as_of": "2026-09-28",
+ "calibration_version": "1.0.0",
+ "household": {
+  "stated": true,
+  "composition_as_of": "2026-09-01",
+  "adults": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 35
+   }
+  ],
+  "dependants": [],
+  "married": false,
+  "currency": {
+   "input_class": "household_composition",
+   "stated_on": "2026-09-01",
+   "age_days": 27,
+   "horizon_months": 12,
+   "expires_on": "2027-09-01",
+   "expired": false,
+   "load_bearing": true,
+   "determination": "stands"
+  }
+ },
+ "grid": [
+  {
+   "role": "gain",
+   "capital_type": "human",
+   "display": "Growth",
+   "definition": "The activity with the highest leverage on future earning — the profession being built, the qualification being taken, the venture being started.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "gain",
+   "capital_type": "financial",
+   "display": "Gain",
+   "definition": "A holding that rises with the environment.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "income",
+   "capital_type": "human",
+   "display": "Income",
+   "definition": "The dependable mandate or employment that pays the bills now.",
+   "positions": [
+    "i1"
+   ],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": 69550.0,
+   "shares_of_total": null
+  },
+  {
+   "role": "income",
+   "capital_type": "financial",
+   "display": "Income",
+   "definition": "A holding that pays a steady distribution.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "stabilisation",
+   "capital_type": "human",
+   "display": "Stabilisation",
+   "definition": "Smaller, unrelated earning streams that reduce the variance of the whole.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "display": "Stabilisation",
+   "definition": "A holding that peaks in contraction — it pays before the damage, not during it.",
+   "positions": [
+    "a1"
+   ],
+   "assets_chf": 475600.0,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "protection",
+   "capital_type": "human",
+   "display": "Protection",
+   "definition": "What keeps a person functioning so the other three continue: health, network, the activity not done for money.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "protection",
+   "capital_type": "financial",
+   "display": "Protection",
+   "definition": "A holding that pays in crisis — it pays exactly when nothing else does, and costs you something the rest of the time.",
+   "positions": [
+    "a3"
+   ],
+   "assets_chf": 17750.0,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  }
+ ],
+ "totals": {
+  "financial_assets": 493350.0,
+  "human_assets": null,
+  "total_assets": 493350.0,
+  "liabilities": 0.0,
+  "net_worth": 493350.0,
+  "identity_holds": true,
+  "by_vessel": {
+   "free": 475600.0,
+   "pillar_2": null,
+   "pillar_3a": 17750.0,
+   "real_asset": null,
+   "not_stated": null
+  },
+  "drawable": 475600.0,
+  "household_income": 69550.0,
+  "household_income_basis": "income_positions"
+ },
+ "human_capital": [
+  {
+   "person_id": "p1",
+   "E": {
+    "key": "E",
+    "value": null,
+    "source": "absent",
+    "inputs": {},
+    "absent_because": "the intake does not ask a question this could be derived from",
+    "note": "Education was given as free text, which a reader can judge and a mapping cannot. `expertise.intake_question` in the record is the structured question that closes it."
+   },
+   "N": {
+    "key": "N",
+    "value": null,
+    "source": "absent",
+    "inputs": {},
+    "absent_because": "the question was asked and left blank",
+    "note": "Neither the number of people nor the number of mandates was given."
+   },
+   "H": {
+    "key": "H",
+    "value": null,
+    "source": "absent",
+    "inputs": {},
+    "absent_because": "the question was asked and left blank",
+    "note": null
+   },
+   "caveats": [
+    "expertise is unknown, so earning power rests on the network alone",
+    "the network is unknown",
+    "health is unknown; earning power is reported at full health and is overstated"
+   ],
+   "time_budget": {
+    "productive_week_hours": 100.0,
+    "tau_Y": null,
+    "tau_E": null,
+    "tau_N": null,
+    "tau_H": null,
+    "leisure": null,
+    "sources": {
+     "tau_Y": "absent",
+     "tau_H": "absent",
+     "tau_E": "absent",
+     "tau_N": "absent"
+    },
+    "caveats": [
+     "no hours were stated for Lernen and Netzwerk, so the leisure residual cannot be computed"
+    ]
+   },
+   "earning_power": {
+    "status": "not_available",
+    "reason": "not available in lbs@1.0.0: earning power is personal_alm's income equation (the stochastic model), which the owner assigned to lbsim; lbs reports E, N and H and the time budget only",
+    "record": null
+   }
+  }
+ ],
+ "pensions": [
+  {
+   "person_id": "p1",
+   "ahv": {
+    "status": "not_available",
+    "reason": "not available: record not approved (ahv-pension carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+    "record": "ahv-pension"
+   },
+   "bvg": {
+    "status": "available",
+    "from_age": 35,
+    "to_age": 65,
+    "opening_balance": 0.0,
+    "gross_salary": 69550.0,
+    "coordinated": 43090.0,
+    "interest_rate": 0.0125,
+    "years": [
+     {
+      "age": 35,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 0.0,
+      "closing": 4309.0
+     },
+     {
+      "age": 36,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 53.862500000000004,
+      "closing": 8671.8625
+     },
+     {
+      "age": 37,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 108.39828125,
+      "closing": 13089.26078125
+     },
+     {
+      "age": 38,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 163.615759765625,
+      "closing": 17561.876541015623
+     },
+     {
+      "age": 39,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 219.5234567626953,
+      "closing": 22090.399997778317
+     },
+     {
+      "age": 40,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 276.129999972229,
+      "closing": 26675.529997750546
+     },
+     {
+      "age": 41,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 333.4441249718818,
+      "closing": 31317.974122722426
+     },
+     {
+      "age": 42,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 391.4746765340303,
+      "closing": 36018.44879925646
+     },
+     {
+      "age": 43,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 450.2306099907058,
+      "closing": 40777.67940924717
+     },
+     {
+      "age": 44,
+      "credit_rate": 0.1,
+      "credit": 4309.0,
+      "interest": 509.72099261558964,
+      "closing": 45596.40040186276
+     },
+     {
+      "age": 45,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 569.9550050232846,
+      "closing": 52629.85540688605
+     },
+     {
+      "age": 46,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 657.8731925860757,
+      "closing": 59751.228599472124
+     },
+     {
+      "age": 47,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 746.8903574934016,
+      "closing": 66961.61895696553
+     },
+     {
+      "age": 48,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 837.0202369620691,
+      "closing": 74262.13919392759
+     },
+     {
+      "age": 49,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 928.276739924095,
+      "closing": 81653.91593385169
+     },
+     {
+      "age": 50,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 1020.6739491731462,
+      "closing": 89138.08988302483
+     },
+     {
+      "age": 51,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 1114.2261235378105,
+      "closing": 96715.81600656264
+     },
+     {
+      "age": 52,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 1208.9477000820332,
+      "closing": 104388.26370664468
+     },
+     {
+      "age": 53,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 1304.8532963330586,
+      "closing": 112156.61700297774
+     },
+     {
+      "age": 54,
+      "credit_rate": 0.15,
+      "credit": 6463.5,
+      "interest": 1401.9577125372218,
+      "closing": 120022.07471551496
+     },
+     {
+      "age": 55,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 1500.2759339439372,
+      "closing": 129278.55064945889
+     },
+     {
+      "age": 56,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 1615.9818831182363,
+      "closing": 138650.73253257715
+     },
+     {
+      "age": 57,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 1733.1341566572146,
+      "closing": 148140.06668923437
+     },
+     {
+      "age": 58,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 1851.7508336154297,
+      "closing": 157748.0175228498
+     },
+     {
+      "age": 59,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 1971.8502190356228,
+      "closing": 167476.06774188543
+     },
+     {
+      "age": 60,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 2093.450846773568,
+      "closing": 177325.71858865902
+     },
+     {
+      "age": 61,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 2216.571482358238,
+      "closing": 187298.49007101727
+     },
+     {
+      "age": 62,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 2341.2311258877157,
+      "closing": 197395.921196905
+     },
+     {
+      "age": 63,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 2467.4490149613125,
+      "closing": 207619.57021186632
+     },
+     {
+      "age": 64,
+      "credit_rate": 0.18,
+      "credit": 7756.2,
+      "interest": 2595.2446276483292,
+      "closing": 217971.01483951465
+     }
+    ],
+    "closing_balance": 217971.01483951465,
+    "total_credited": 185287.00000000006,
+    "total_interest": 32684.01483951455,
+    "conversion_rate": 0.068,
+    "monthly_pension": 1235.169084090583,
+    "yearly_pension": 14822.029009086997,
+    "caveats": [
+     "interest_is_a_statutory_minimum_not_a_return",
+     "the_obligatory_portion_only_the_ueberobligatorium_is_not_visible_here",
+     "the_salary_is_assumed_unchanged_to_the_reference_age",
+     "no_position_names_a_pension_fund_so_the_opening_balance_is_zero"
+    ],
+    "levers": [
+     {
+      "dimension": "coordinated_salary",
+      "stands_at": 43090.0,
+      "gross": 69550.0,
+      "deduction": 26460
+     },
+     {
+      "dimension": "years_remaining",
+      "stands_at": 30
+     },
+     {
+      "dimension": "opening_balance",
+      "stands_at": 0.0,
+      "grows_to": 217971.01483951465,
+      "of_which_interest": 32684.01483951455,
+      "of_which_credits": 185287.00000000006
+     },
+     {
+      "dimension": "not_modelled",
+      "note": "The überobligatorisch portion, which for most members is the larger one and is credited and converted at whatever the fund's regulations say."
+     },
+     {
+      "dimension": "not_modelled",
+      "note": "Salary growth, and any change of pension fund."
+     },
+     {
+      "dimension": "not_modelled",
+      "note": "Einkäufe — voluntary purchases into the fund, which are the single largest lever a member over 50 has."
+     },
+     {
+      "dimension": "not_modelled",
+      "note": "A WEF withdrawal already taken, which reduces the balance and the future credits on it."
+     },
+     {
+      "dimension": "not_modelled",
+      "note": "Risk and administration costs, which are charged alongside the credits and are not part of them."
+     },
+     {
+      "dimension": "not_modelled",
+      "note": "A part-time pensum changing, which changes the coordinated salary more than proportionally."
+     },
+     {
+      "dimension": "not_modelled",
+      "note": "Any fund that insures more than the obligatory minimum, which is nearly all of them."
+     }
+    ]
+   }
+  }
+ ],
+ "couple_cap": {
+  "status": "not_available",
+  "reason": "not available: record not approved (ahv-pension carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+  "record": "ahv-pension"
+ },
+ "property": [
+  {
+   "goal_id": "g1",
+   "verdict": "does_not_meet",
+   "price_chf": 1500000.0,
+   "target_date": "2038-12-31",
+   "occupancy": "owner_occupied_primary",
+   "equity": {
+    "required_chf": 300000.0,
+    "hard_required_chf": 150000.0,
+    "pillar2_cap_chf": 150000.0,
+    "pillar2_may_fund": true,
+    "pillar3a_may_fund": true,
+    "verdict": "meets"
+   },
+   "affordability": {
+    "annual_cost_chf": 88333.33333333336,
+    "income_required_chf": 265000.0000000001,
+    "price_supported_chf": 393679.24528301874,
+    "verdict": "does_not_meet"
+   },
+   "binds_on": [
+    "affordability"
+   ],
+   "undetermined_because": [],
+   "ineligible_funding": [],
+   "levers": [
+    {
+     "lever": "price",
+     "supported_chf": 393679.24528301874,
+     "stated_chf": 1500000.0,
+     "difference_chf": 1106320.7547169812
+    },
+    {
+     "lever": "household_income",
+     "required_chf": 265000.0000000001,
+     "recorded_chf": 69550.0,
+     "difference_chf": 195450.00000000012
+    }
+   ],
+   "occupancy_options": [
+    {
+     "value": "owner_occupied_primary",
+     "label": {
+      "de": "Ich wohne selbst darin",
+      "en": "I live in it myself",
+      "en_draft": true
+     },
+     "why": "The only case in which pillar 2 and pillar 3a may be drawn or pledged at all. Pillar 3a counts toward the hard-equity portion; pillar 2 does not, so the occupational pension can cover at most half the deposit."
+    },
+    {
+     "value": "second_or_holiday_home",
+     "label": {
+      "de": "Ein Zweit- oder Ferienobjekt",
+      "en": "A second home or holiday property",
+      "en_draft": true
+     },
+     "why": "Not a primary residence, so no Vorsorge capital may be used — the whole deposit is hard equity. Lenders also require more of it than for a home the member lives in, and the 30 % here is the common floor rather than a rule with a statute behind it."
+    },
+    {
+     "value": "let_to_someone_else",
+     "label": {
+      "de": "Ich vermiete es",
+      "en": "I let it out",
+      "en_draft": true
+     },
+     "why": "An investment property, not a residence, so again no Vorsorge capital. Lenders commonly want a quarter down and assess the rent conservatively rather than counting it in full."
+    }
+   ],
+   "conventions": "property-funding"
+  }
+ ],
+ "liquidity": [],
+ "retirement": [],
+ "observations": [
+  {
+   "goal_id": "g1",
+   "observations": []
+  }
+ ],
+ "risk_profile": {
+  "status": "not_available",
+  "reason": "not available: record not approved (risk-profile carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+  "record": "risk-profile"
+ },
+ "mandate_proposal": {
+  "status": "available",
+  "shape": "pcp-mandate@1.0.0",
+  "client": "syn-property-1",
+  "name": "lbs-g1",
+  "currency": "CHF",
+  "horizon_years": 1.0,
+  "curve_unit": "annualised_log_return",
+  "target_curve": [
+   -0.025317807984289876,
+   -0.02318333545565725,
+   -0.021053409197832346,
+   -0.018928009885518866,
+   -0.01680711831638124,
+   -0.014690715410003647,
+   -0.012578782206860116,
+   -0.010471299867295402,
+   -0.00836824967051661,
+   -0.0062696130135953985,
+   -0.004175371410480639,
+   -0.0020855064910213776,
+   3.469446951953614e-18,
+   0.0020811662038245668,
+   0.004158010148663694,
+   0.006230549750636073,
+   0.008298802814695092,
+   0.010362787035546588,
+   0.012422519998557152,
+   0.01447801918065318,
+   0.01652930195121056,
+   0.018576385572935415,
+   0.020619287202735686,
+   0.022658023892583968,
+   0.024692612590371508
+  ],
+  "universe": null,
+  "max_single_position": null,
+  "esg_min": null,
+  "fixed_allocations": {},
+  "bounds": {
+   "currency": {
+    "CHF": {
+     "lower": 0.5,
+     "upper": 1.0,
+     "reasoning": "every stock is stated in chf and the goal is a CHF amount: a 50% floor in the goal's currency, because currency risk against a fixed liability is not diversification (derive.py)"
+    }
+   },
+   "liquidity": {
+    "Daily": {
+     "lower": 0.1,
+     "upper": 1.0,
+     "reasoning": "a 12.26-year deadline (at most 15 years) forces reachable wealth: Daily in [0.1, 1] (derive.py deadline ladder)"
+    }
+   }
+  },
+  "bound_sources": {
+   "currency": "derived",
+   "liquidity": "derived"
+  },
+  "regime_weights": null,
+  "regime_market": null,
+  "goal_id": "g1",
+  "goal_kind": "property",
+  "target_basis": "deposit: 20% of the price 1,500,000 (occupancy owner_occupied_primary); the rest is a mortgage, which the affordability test governs",
+  "target_chf": 300000.0,
+  "goal_horizon_years": 12.257609670287549,
+  "drawable_chf": 475600.0,
+  "annual_contribution": 12000.0,
+  "required_return": 0.0,
+  "feasible": true,
+  "curve_shape": {
+   "source": "policy",
+   "floor_offset": -0.025,
+   "ceiling_offset": 0.025,
+   "why": "CIO policy (derive.py M50): a mandate asks less of a crisis than of a boom; no approved risk profile supplies a household slope",
+   "level": "the ramp is level-shifted so its equal-weighted mean over the 25 states is the required return (the ramp is symmetric); pcp weights states by the client's regime blend (LBS-11)",
+   "unit": "each decimal point p is published as the log return ln(1 + p)"
+  },
+  "curator_to_fill": [
+   {
+    "field": "bounds.role",
+    "reason": "role bounds derive from the risk profile, whose record is not approved or could not be computed"
+   },
+   {
+    "field": "esg_min",
+    "reason": "the ESG floor comes from the risk-profile record, which is not approved"
+   },
+   {
+    "field": "universe",
+    "reason": "the investable set is policy; lbs holds no instrument register"
+   },
+   {
+    "field": "max_single_position",
+    "reason": "derive.py derived per-instrument caps from each block's crisis-state return against the goal buffer; lbs reads no ReturnSet, so the cap is the curator's"
+   },
+   {
+    "field": "regime_weights",
+    "reason": "the client's economy blend (or a regime_market) is the curator's; pcp blends the Regime from it (PCP-04)"
+   },
+   {
+    "field": "bounds.region|capital_type|phase|asset_class",
+    "reason": "policy dimensions (System Build Manual 14.2); never derived"
+   }
+  ],
+  "complete": false,
+  "release_state": "unreleased",
+  "notes": [
+   "the goal is already funded at a zero return: the mandate is capital preservation"
+  ]
+ },
+ "gaps": [
+  {
+   "section": "human_capital",
+   "input": "earning_power",
+   "kind": "owned_by_another_engine",
+   "reason": "earning power is computed by the stochastic model personal_alm, assigned to lbsim (LBS-10)"
+  },
+  {
+   "section": "human_capital",
+   "input": "p1.E",
+   "kind": "not_in_the_request",
+   "reason": "E is absent: the intake does not ask a question this could be derived from"
+  },
+  {
+   "section": "human_capital",
+   "input": "p1.H",
+   "kind": "not_in_the_request",
+   "reason": "H is absent: the question was asked and left blank"
+  },
+  {
+   "section": "human_capital",
+   "input": "p1.N",
+   "kind": "not_in_the_request",
+   "reason": "N is absent: the question was asked and left blank"
+  },
+  {
+   "section": "pensions.p1",
+   "input": "ahv",
+   "kind": "record_not_approved",
+   "reason": "ahv-pension is not approved (provisional, no publisher): no AHV figure is shown"
+  },
+  {
+   "section": "pensions.p1",
+   "input": "pillar_2_balance",
+   "kind": "not_in_the_request",
+   "reason": "no pillar 2 position is stated for the person; the projection opens at zero and says so"
+  },
+  {
+   "section": "risk_profile",
+   "input": "risk-profile",
+   "kind": "record_not_approved",
+   "reason": "risk-profile is not approved: no profile, role bounds, curve slope or ESG floor is derived"
+  }
+ ],
+ "provenance": {
+  "engine_version": "lbs@1.0.0",
+  "contract_versions": {
+   "LifeBalanceSheetRequest": "lbs-request@1.0.0",
+   "LifeBalanceSheet": "lbs-balance-sheet@1.0.0",
+   "ValidationReport": "lbs-validation@1.0.0",
+   "Calibration": "lbs-calibration@1.0.0",
+   "Mandate(pcp)": "pcp-mandate@1.0.0"
+  },
+  "calibration_version": "1.0.0",
+  "calibration_hash": "CAL-2c0d67f4f820dfc9",
+  "idempotency_key": "IDK-7d077f81e1d3ec8b",
+  "request_hash": "REQ-89097137260e9a2e",
+  "as_of": "2026-09-28",
+  "records": [
+   {
+    "record": "ahv-pension",
+    "approved": false,
+    "published_by": null,
+    "decided_on": null,
+    "effective_from": null,
+    "read_without_gate": false
+   },
+   {
+    "record": "bvg-projection",
+    "approved": true,
+    "published_by": "Nicolas Bürkler, SIM Research",
+    "decided_on": "2026-09-22",
+    "effective_from": "2026-01-01",
+    "read_without_gate": false
+   },
+   {
+    "record": "currency-horizons",
+    "approved": true,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-03",
+    "effective_from": "2026-09-03",
+    "read_without_gate": false
+   },
+   {
+    "record": "human-capital",
+    "approved": true,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": null,
+    "effective_from": null,
+    "read_without_gate": true
+   },
+   {
+    "record": "intake-scales",
+    "approved": false,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-03",
+    "effective_from": null,
+    "read_without_gate": true
+   },
+   {
+    "record": "liquidity-levers",
+    "approved": true,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-04",
+    "effective_from": null,
+    "read_without_gate": false
+   },
+   {
+    "record": "property-funding",
+    "approved": true,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-04",
+    "effective_from": "2026-09-04",
+    "read_without_gate": false
+   },
+   {
+    "record": "risk-profile",
+    "approved": false,
+    "published_by": null,
+    "decided_on": null,
+    "effective_from": null,
+    "read_without_gate": false
+   },
+   {
+    "record": "roles",
+    "approved": false,
+    "published_by": null,
+    "decided_on": null,
+    "effective_from": null,
+    "read_without_gate": true
+   }
+  ],
+  "label": "model-derived"
+ },
+ "notice": "Model-derived research output. Not investment advice."
+}

@@ -1,0 +1,11 @@
+We calibrate United States over 1975 to 2024. The economy classifies in the Saturation and reordering phase. That reading follows from K_R/K_I = 0.710 is below 1.00. Credit to the non-financial sector stands at 2.49 times output, below the 2.50 to 3.50 band derived from the bifurcation analysis.
+
+The Health of Nations composite could not be computed on this run. Financial value not covered by the productive economy stands at 0.72 times output.
+
+The dominant stock-to-gold driver could not be computed on this run. The crisis tail weight could not be computed on this run.
+
+Turning-point agreement could not be computed on this run.
+
+We qualify this reading as follows: the real-capital ratio is published through 2019 and extended to 2024 in ratio space. The extended values are computed, not published, and any output using them carries the extension label.; the highest published capital-to-output ratio over the window is 4.11, which makes the investment share r = 1 - K_R/Y equal -3.11 at that point. Wherever r is negative the reduced output equation Y_dot = (p_b Y + r K_I + S) / 2 drives output towards zero, so the system does not integrate. A common scale of 0.2187 applied to both capital stocks brings the maximum K_R/Y to 0.90, so r stays positive for every period and section 0.2's definition of it as a share holds throughout. The scale is applied to both stocks, so K_R/K_I and therefore the Phase 4 condition are unchanged, and being multiplicative it cannot alter growth rates, direction or turning points. The consequence is that K_R/Y cannot cross one inside the calibration window, so the production-versus-financial transition of section 0.5 is not observable on the normalised path..
+
+This is model-derived research and decision support, not investment advice. Projected paths are consequences of the calibrated model rather than dated predictions.

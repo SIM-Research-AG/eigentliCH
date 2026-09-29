@@ -1,0 +1,504 @@
+{
+ "contract_version": "lbs-balance-sheet@1.0.0",
+ "artefact_id": "LBS-c5aa8490d47dee10",
+ "client_ref": "syn-liquidity",
+ "as_of": "2026-09-28",
+ "calibration_version": "1.0.0",
+ "household": {
+  "stated": true,
+  "composition_as_of": "2025-06-01",
+  "adults": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 44
+   }
+  ],
+  "dependants": [],
+  "married": false,
+  "currency": {
+   "input_class": "household_composition",
+   "stated_on": "2025-06-01",
+   "age_days": 484,
+   "horizon_months": 12,
+   "expires_on": "2026-06-01",
+   "expired": true,
+   "load_bearing": true,
+   "determination": "could_not_be_determined"
+  }
+ },
+ "grid": [
+  {
+   "role": "gain",
+   "capital_type": "human",
+   "display": "Growth",
+   "definition": "The activity with the highest leverage on future earning — the profession being built, the qualification being taken, the venture being started.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "gain",
+   "capital_type": "financial",
+   "display": "Gain",
+   "definition": "A holding that rises with the environment.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "income",
+   "capital_type": "human",
+   "display": "Income",
+   "definition": "The dependable mandate or employment that pays the bills now.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "income",
+   "capital_type": "financial",
+   "display": "Income",
+   "definition": "A holding that pays a steady distribution.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "stabilisation",
+   "capital_type": "human",
+   "display": "Stabilisation",
+   "definition": "Smaller, unrelated earning streams that reduce the variance of the whole.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "display": "Stabilisation",
+   "definition": "A holding that peaks in contraction — it pays before the damage, not during it.",
+   "positions": [
+    "art",
+    "car",
+    "cash",
+    "fund"
+   ],
+   "assets_chf": 95000.0,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "protection",
+   "capital_type": "human",
+   "display": "Protection",
+   "definition": "What keeps a person functioning so the other three continue: health, network, the activity not done for money.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  },
+  {
+   "role": "protection",
+   "capital_type": "financial",
+   "display": "Protection",
+   "definition": "A holding that pays in crisis — it pays exactly when nothing else does, and costs you something the rest of the time.",
+   "positions": [],
+   "assets_chf": null,
+   "liabilities_chf": null,
+   "flows_chf_per_year": null,
+   "shares_of_total": null
+  }
+ ],
+ "totals": {
+  "financial_assets": 95000.0,
+  "human_assets": null,
+  "total_assets": 95000.0,
+  "liabilities": null,
+  "net_worth": null,
+  "identity_holds": null,
+  "by_vessel": {
+   "free": 32000.0,
+   "pillar_2": null,
+   "pillar_3a": null,
+   "real_asset": 63000.0,
+   "not_stated": null
+  },
+  "drawable": 32000.0,
+  "household_income": null,
+  "household_income_basis": "no_income_position"
+ },
+ "human_capital": [
+  {
+   "person_id": "p1",
+   "E": {
+    "key": "E",
+    "value": null,
+    "source": "absent",
+    "inputs": {},
+    "absent_because": "the intake does not ask a question this could be derived from",
+    "note": "Education was given as free text, which a reader can judge and a mapping cannot. `expertise.intake_question` in the record is the structured question that closes it."
+   },
+   "N": {
+    "key": "N",
+    "value": null,
+    "source": "absent",
+    "inputs": {},
+    "absent_because": "the question was asked and left blank",
+    "note": "Neither the number of people nor the number of mandates was given."
+   },
+   "H": {
+    "key": "H",
+    "value": null,
+    "source": "absent",
+    "inputs": {},
+    "absent_because": "the question was asked and left blank",
+    "note": null
+   },
+   "caveats": [
+    "expertise is unknown, so earning power rests on the network alone",
+    "the network is unknown",
+    "health is unknown; earning power is reported at full health and is overstated"
+   ],
+   "time_budget": {
+    "productive_week_hours": 100.0,
+    "tau_Y": null,
+    "tau_E": null,
+    "tau_N": null,
+    "tau_H": null,
+    "leisure": null,
+    "sources": {
+     "tau_Y": "absent",
+     "tau_H": "absent",
+     "tau_E": "absent",
+     "tau_N": "absent"
+    },
+    "caveats": [
+     "no hours were stated for Lernen and Netzwerk, so the leisure residual cannot be computed"
+    ]
+   },
+   "earning_power": {
+    "status": "not_available",
+    "reason": "not available in lbs@1.0.0: earning power is personal_alm's income equation (the stochastic model), which the owner assigned to lbsim; lbs reports E, N and H and the time budget only",
+    "record": null
+   }
+  }
+ ],
+ "pensions": [
+  {
+   "person_id": "p1",
+   "ahv": {
+    "status": "not_available",
+    "reason": "not available: record not approved (ahv-pension carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+    "record": "ahv-pension"
+   },
+   "bvg": {
+    "status": "not_available",
+    "reason": "not available: no gross income is stated for the person",
+    "record": null
+   }
+  }
+ ],
+ "couple_cap": {
+  "status": "not_available",
+  "reason": "not available: record not approved (ahv-pension carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+  "record": "ahv-pension"
+ },
+ "property": [],
+ "liquidity": [
+  {
+   "goal_id": "g1",
+   "state": "short_on_date",
+   "gap_chf": 63000.0,
+   "due_date": "2029-12-31",
+   "reason": "funding_is_illiquid",
+   "position_ids": [
+    "art",
+    "car"
+   ],
+   "blocks_certification": true,
+   "prepared": {
+    "lever": "add_a_monthly_contribution",
+    "considered": [
+     {
+      "lever": "move_funding_to_a_liquid_form",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "move_the_goal_date",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "add_a_monthly_contribution",
+      "verdict": "closes"
+     }
+    ],
+    "requires_curator": false,
+    "reason": null
+   }
+  },
+  {
+   "goal_id": "g4",
+   "state": "short_on_date",
+   "gap_chf": 45000.0,
+   "due_date": "2026-01-31",
+   "reason": "funding_is_illiquid",
+   "position_ids": [
+    "art"
+   ],
+   "blocks_certification": true,
+   "prepared": {
+    "lever": "reduce_the_goal_size",
+    "considered": [
+     {
+      "lever": "move_funding_to_a_liquid_form",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "move_the_goal_date",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "add_a_monthly_contribution",
+      "verdict": "does_not_close"
+     },
+     {
+      "lever": "reduce_the_goal_size",
+      "verdict": "closes"
+     }
+    ],
+    "requires_curator": false,
+    "reason": null
+   }
+  }
+ ],
+ "retirement": [],
+ "observations": [
+  {
+   "goal_id": "g1",
+   "observations": [
+    {
+     "kind": "dated_but_funding_is_illiquid",
+     "target_date": "2029-12-31",
+     "position_ids": [
+      "art",
+      "car"
+     ]
+    },
+    {
+     "kind": "funding_shared_with_other_goals",
+     "position_ids": [
+      "art"
+     ]
+    }
+   ]
+  },
+  {
+   "goal_id": "g2",
+   "observations": [
+    {
+     "kind": "liquidity_not_stated",
+     "position_ids": [
+      "fund"
+     ],
+     "note": "cannot_compare_without_it"
+    }
+   ]
+  },
+  {
+   "goal_id": "g3",
+   "observations": []
+  },
+  {
+   "goal_id": "g4",
+   "observations": [
+    {
+     "kind": "dated_but_funding_is_illiquid",
+     "target_date": "2026-01-31",
+     "position_ids": [
+      "art"
+     ]
+    },
+    {
+     "kind": "funding_shared_with_other_goals",
+     "position_ids": [
+      "art"
+     ]
+    }
+   ]
+  }
+ ],
+ "risk_profile": {
+  "status": "not_available",
+  "reason": "not available: record not approved (risk-profile carries no publisher, or is marked provisional; the prototype refuses to compute from it)",
+  "record": "risk-profile"
+ },
+ "mandate_proposal": {
+  "status": "not_available",
+  "reason": "not available: no goal is designated for the mandate (request.mandate)",
+  "record": null
+ },
+ "gaps": [
+  {
+   "section": "household",
+   "input": "composition_as_of",
+   "kind": "past_its_validity_horizon",
+   "reason": "the composition was stated on 2025-06-01 and its 12-month horizon ran out on 2026-06-01; findings resting on it could not be determined"
+  },
+  {
+   "section": "human_capital",
+   "input": "earning_power",
+   "kind": "owned_by_another_engine",
+   "reason": "earning power is computed by the stochastic model personal_alm, assigned to lbsim (LBS-10)"
+  },
+  {
+   "section": "human_capital",
+   "input": "p1.E",
+   "kind": "not_in_the_request",
+   "reason": "E is absent: the intake does not ask a question this could be derived from"
+  },
+  {
+   "section": "human_capital",
+   "input": "p1.H",
+   "kind": "not_in_the_request",
+   "reason": "H is absent: the question was asked and left blank"
+  },
+  {
+   "section": "human_capital",
+   "input": "p1.N",
+   "kind": "not_in_the_request",
+   "reason": "N is absent: the question was asked and left blank"
+  },
+  {
+   "section": "mandate_proposal",
+   "input": "mandate.goal_id",
+   "kind": "not_in_the_request",
+   "reason": "no goal is designated for the mandate; choosing one for the household would decide what its portfolio is for"
+  },
+  {
+   "section": "pensions.p1",
+   "input": "ahv",
+   "kind": "record_not_approved",
+   "reason": "ahv-pension is not approved (provisional, no publisher): no AHV figure is shown"
+  },
+  {
+   "section": "pensions.p1",
+   "input": "gross_income",
+   "kind": "not_in_the_request",
+   "reason": "the BVG projection credits a share of the gross salary; none is stated"
+  },
+  {
+   "section": "risk_profile",
+   "input": "risk-profile",
+   "kind": "record_not_approved",
+   "reason": "risk-profile is not approved: no profile, role bounds, curve slope or ESG floor is derived"
+  },
+  {
+   "section": "totals",
+   "input": "household_income",
+   "kind": "not_in_the_request",
+   "reason": "no active income position in chf_per_year is stated"
+  },
+  {
+   "section": "totals",
+   "input": "liabilities",
+   "kind": "not_in_the_request",
+   "reason": "no liability is stated, which is not a statement that there is no debt; net worth is left open until a liability is stated or facts.has_no_liabilities is set"
+  }
+ ],
+ "provenance": {
+  "engine_version": "lbs@1.0.0",
+  "contract_versions": {
+   "LifeBalanceSheetRequest": "lbs-request@1.0.0",
+   "LifeBalanceSheet": "lbs-balance-sheet@1.0.0",
+   "ValidationReport": "lbs-validation@1.0.0",
+   "Calibration": "lbs-calibration@1.0.0",
+   "Mandate(pcp)": "pcp-mandate@1.0.0"
+  },
+  "calibration_version": "1.0.0",
+  "calibration_hash": "CAL-2c0d67f4f820dfc9",
+  "idempotency_key": "IDK-cdc5d81ac524a0a2",
+  "request_hash": "REQ-8289b399bd26a6b7",
+  "as_of": "2026-09-28",
+  "records": [
+   {
+    "record": "ahv-pension",
+    "approved": false,
+    "published_by": null,
+    "decided_on": null,
+    "effective_from": null,
+    "read_without_gate": false
+   },
+   {
+    "record": "bvg-projection",
+    "approved": true,
+    "published_by": "Nicolas Bürkler, SIM Research",
+    "decided_on": "2026-09-22",
+    "effective_from": "2026-01-01",
+    "read_without_gate": false
+   },
+   {
+    "record": "currency-horizons",
+    "approved": true,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-03",
+    "effective_from": "2026-09-03",
+    "read_without_gate": false
+   },
+   {
+    "record": "human-capital",
+    "approved": true,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": null,
+    "effective_from": null,
+    "read_without_gate": true
+   },
+   {
+    "record": "intake-scales",
+    "approved": false,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-03",
+    "effective_from": null,
+    "read_without_gate": true
+   },
+   {
+    "record": "liquidity-levers",
+    "approved": true,
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-04",
+    "effective_from": null,
+    "read_without_gate": false
+   },
+   {
+    "record": "risk-profile",
+    "approved": false,
+    "published_by": null,
+    "decided_on": null,
+    "effective_from": null,
+    "read_without_gate": false
+   },
+   {
+    "record": "roles",
+    "approved": false,
+    "published_by": null,
+    "decided_on": null,
+    "effective_from": null,
+    "read_without_gate": true
+   }
+  ],
+  "label": "model-derived"
+ },
+ "notice": "Model-derived research output. Not investment advice."
+}

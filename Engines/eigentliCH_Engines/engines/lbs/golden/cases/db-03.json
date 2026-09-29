@@ -1,0 +1,153 @@
+{
+ "client_ref": "db-03",
+ "as_of": "2026-09-28",
+ "household": {
+  "composition_as_of": "2026-09-05",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 55,
+    "stated_gross_income": 170000.0,
+    "human_capital": {
+     "qualification_highest": "Fachhochschule FH",
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": "CAS IT Management & Agile Transformation",
+     "network_people": 1.0,
+     "mandates": 0.0,
+     "network_reach": null,
+     "health": "0.7",
+     "hours_per_week": 10.0,
+     "rest_hours": "mehr als 30",
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "contribution_years_missing": 5
+    }
+   }
+  ],
+  "principal": "p1"
+ },
+ "positions": [
+  {
+   "position_id": "a1",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 170000.0,
+   "unit": "chf_per_year",
+   "stock_kind": null,
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a2",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 570000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a3",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 70000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "within_years",
+   "vessel": "real_asset",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a4",
+   "role": "growth",
+   "capital_type": "financial",
+   "magnitude": 50000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a5",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 200000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_3a",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a6",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 120000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g1",
+   "kind": "retirement",
+   "target_amount": 200000.0,
+   "target_date": "2036-12-31",
+   "occupancy": null
+  },
+  {
+   "goal_id": "g2",
+   "kind": "other",
+   "target_amount": null,
+   "target_date": "2040-12-31",
+   "occupancy": null
+  }
+ ],
+ "facts": {
+  "canton": "Freiburg",
+  "civil_status": "ledig, mit Partner"
+ },
+ "risk": {
+  "stated_loss": 0.1,
+  "crisis_behaviour": "nichts, ich blieb investiert",
+  "esg_exclusions": [],
+  "esg_level": null,
+  "employment": "derzeit ohne Erwerb",
+  "liquidity_reserve_months": null,
+  "spend_now_per_year": 120000.0,
+  "variable_income_per_year": 0.0,
+  "gross_income_per_year": 170000.0,
+  "mandates": 0,
+  "plan_until_age": 90.0,
+  "mortgage": 200000.0,
+  "mortgage_rate_pct": null,
+  "amortisation_per_year": 4000.0
+ },
+ "mandate": {
+  "goal_id": "g1",
+  "annual_contribution": 15000.0
+ }
+}

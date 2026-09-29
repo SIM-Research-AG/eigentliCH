@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Life Balance Sheet</title>
+<style>
+  :root{ --ink:#1B1D2A; --paper:#FCFBF8; --teal:#0F6E6B; --teallt:#5BA9A5; --ochre:#C0872A; --slate:#5A6272; --rule:#E6E2D8; }
+  @page{ size:A4; margin:22mm 20mm 20mm 20mm;
+    @top-left{ content:string(parttitle); font-family:"IBM Plex Mono"; font-size:7.5pt; color:#9a9384; letter-spacing:.06em; }
+    @top-right{ content:string(chaptitle); font-family:"IBM Plex Mono"; font-size:7.5pt; color:#9a9384; letter-spacing:.04em; }
+    @bottom-right{ content:counter(page); font-family:"IBM Plex Mono"; font-size:8.5pt; color:#5A6272; } }
+  @page cover{ margin:0; @top-left{content:none} @top-right{content:none} @bottom-right{content:none} }
+  @page part{ margin:0; @top-left{content:none} @top-right{content:none} @bottom-right{content:none} }
+  *{box-sizing:border-box;}
+  body{ font-family:"IBM Plex Sans"; color:var(--ink); background:var(--paper); font-size:10.3pt; line-height:1.58; margin:0; }
+  h1,h2,h3,h4{ font-family:"IBM Plex Serif"; font-weight:600; line-height:1.16; }
+  p{ margin:0 0 .66em 0; text-align:justify; -weasy-hyphens:auto; }
+  em{font-style:italic;} strong{font-weight:600;}
+  .mono{font-family:"IBM Plex Mono";}
+  .eyebrow{ font-family:"IBM Plex Mono"; font-size:8pt; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); font-weight:500; }
+  /* Self-contained typographic cover (no external image) */
+  .cover{ page:cover; height:297mm; width:210mm; position:relative; overflow:hidden; page-break-after:always;
+    background:radial-gradient(120% 90% at 78% 8%, #22485f 0%, #1B1D2A 46%, #14151f 100%); color:var(--paper); }
+  .cover .grid{ position:absolute; inset:0; opacity:.14;
+    background-image:linear-gradient(#5BA9A5 1px, transparent 1px), linear-gradient(90deg,#5BA9A5 1px, transparent 1px);
+    background-size:18mm 18mm; -webkit-mask-image:linear-gradient(160deg, rgba(0,0,0,.9), rgba(0,0,0,0) 70%); mask-image:linear-gradient(160deg, rgba(0,0,0,.9), rgba(0,0,0,0) 70%); }
+  .cover .scurve{ position:absolute; top:26mm; right:14mm; width:120mm; opacity:.9; }
+  .cover .block{ position:absolute; top:120mm; left:22mm; right:22mm; }
+  .cover .kicker{ font-family:"IBM Plex Mono"; font-size:9pt; letter-spacing:.24em; text-transform:uppercase; color:var(--ochre); margin-bottom:9mm; }
+  .cover h1{ font-size:44pt; line-height:1.02; letter-spacing:-.015em; margin:0 0 7mm 0; color:var(--paper); }
+  .cover .sub{ font-size:12.5pt; color:#d7d4cb; max-width:150mm; line-height:1.5; font-style:italic; font-family:"IBM Plex Serif"; font-weight:300; }
+  .cover .foot{ position:absolute; bottom:22mm; left:22mm; right:22mm; display:flex; justify-content:space-between; align-items:flex-end; border-top:1px solid rgba(230,226,216,.28); padding-top:5mm; font-family:"IBM Plex Mono"; font-size:8.5pt; color:#b9b6ad; letter-spacing:.03em; }
+  .cover .foot .r{ text-align:right; }
+  .part{ page:part; height:297mm; width:210mm; position:relative; page-break-before:always; background:var(--ink); color:var(--paper); page-break-after:always; }
+  .part .inner{ position:absolute; top:110mm; left:24mm; right:24mm; }
+  .part .pn{ font-family:"IBM Plex Mono"; font-size:11pt; letter-spacing:.35em; color:var(--ochre); text-transform:uppercase; margin-bottom:8mm; }
+  .part h1{ font-size:33pt; color:var(--paper); margin:0 0 7mm 0; line-height:1.08; }
+  .part .desc{ font-family:"IBM Plex Serif"; font-weight:300; font-style:italic; font-size:12.5pt; color:#c9c6bc; max-width:120mm; line-height:1.5; }
+  .part .chs{ position:absolute; bottom:26mm; left:24mm; right:24mm; border-top:1px solid #3a3c46; padding-top:5mm; font-family:"IBM Plex Mono"; font-size:8.5pt; color:#9a9384; line-height:1.9; }
+  .halftitle{ page-break-after:always; padding-top:70mm; text-align:center; }
+  .halftitle .t{ font-family:"IBM Plex Serif"; font-weight:600; font-size:22pt; }
+  .halftitle .s{ font-family:"IBM Plex Mono"; font-size:8.5pt; letter-spacing:.14em; text-transform:uppercase; color:var(--slate); margin-top:5mm; }
+  .contents{ page-break-before:always; }
+  .contents h2{ font-size:20pt; border-bottom:1.4px solid var(--ink); padding-bottom:3mm; margin-bottom:5mm; }
+  .toc{ font-family:"IBM Plex Mono"; font-size:9.3pt; }
+  .toc .part-row{ color:var(--ochre); text-transform:uppercase; letter-spacing:.1em; margin:4mm 0 1.5mm 0; font-size:8.3pt; }
+  .toc .row{ display:flex; justify-content:space-between; line-height:1.95; border-bottom:1px dotted var(--rule); }
+  .toc .row span:last-child{ color:var(--slate); }
+  .chapter{ page-break-before:always; }
+  .chap-open{ margin-bottom:6mm; }
+  .chap-open .cnum{ font-family:"IBM Plex Mono"; font-size:9pt; letter-spacing:.2em; text-transform:uppercase; color:var(--ochre); }
+  .chap-open h1{ font-size:25pt; margin:2mm 0 0 0; letter-spacing:-.01em; }
+  .chap-open .rule{ height:1.6px; background:var(--ink); margin-top:4mm; }
+  h2.sec{ font-size:13pt; margin:6mm 0 2mm 0; }
+  h3.sub{ font-size:11pt; margin:4mm 0 1mm 0; }
+  .lead{ font-size:11.4pt; line-height:1.55; color:#33353f; text-align:left; }
+  /* Equation rows now carry inline MathML rather than image assets */
+  .eqrow{ position:relative; text-align:center; margin:3.8mm 0; page-break-inside:avoid; padding:0 14mm; }
+  .eqrow math{ font-size:12.5pt; }
+  .eqrow.sm math{ font-size:11.5pt; }
+  .eqrow .num{ position:absolute; right:0; top:50%; transform:translateY(-50%); font-family:"IBM Plex Mono"; font-size:8.5pt; color:var(--slate); }
+  math{ font-family:"IBM Plex Serif", "Cambria Math", serif; }
+  figure{ margin:4mm 0 3mm 0; page-break-inside:avoid; }
+  figure svg, figure img{ width:100%; display:block; border:1px solid var(--rule); background:#fff; }
+  figcaption{ font-family:"IBM Plex Mono"; font-size:8pt; color:var(--slate); margin-top:2mm; line-height:1.5; }
+  figcaption b{ color:var(--teal); font-weight:600; }
+  .def{ border:1px solid var(--rule); border-left:3px solid var(--teal); background:#fff; padding:3.5mm 4.5mm; margin:3.5mm 0; page-break-inside:avoid; }
+  .def .lab{ font-family:"IBM Plex Mono"; font-size:8pt; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); font-weight:600; display:block; margin-bottom:1.5mm; }
+  .def.assume{ border-left-color:var(--ochre); } .def.assume .lab{ color:var(--ochre); }
+  .def p{ margin:0; text-align:left; }
+  table{ width:100%; border-collapse:collapse; font-size:8.8pt; margin:3mm 0; page-break-inside:avoid; }
+  th{ font-family:"IBM Plex Mono"; font-size:7.6pt; text-transform:uppercase; letter-spacing:.06em; color:var(--slate); text-align:left; border-bottom:1.2px solid var(--ink); padding:2mm 2mm; font-weight:500; }
+  td{ padding:1.6mm 2mm; border-bottom:1px solid var(--rule); vertical-align:top; }
+  .tabmono td:first-child{ font-family:"IBM Plex Mono"; }
+  caption{ caption-side:top; text-align:left; font-family:"IBM Plex Mono"; font-size:8pt; color:var(--slate); margin-bottom:1.5mm; }
+  .case-open{ display:grid; grid-template-columns:1fr 44mm; gap:6mm; align-items:end; border-bottom:1.6px solid var(--ink); padding-bottom:3mm; margin-bottom:4mm; }
+  .case-open .who .nm{ font-family:"IBM Plex Serif"; font-weight:600; font-size:20pt; }
+  .case-open .who .role{ font-size:10pt; color:var(--slate); }
+  .case-open .tag{ font-family:"IBM Plex Mono"; font-size:8pt; text-align:right; color:var(--ochre); text-transform:uppercase; letter-spacing:.08em; line-height:1.6; }
+  .lever{ border-left:3px solid var(--ochre); background:#fff; padding:2.5mm 4mm; margin:3mm 0; font-family:"IBM Plex Mono"; font-size:9pt; page-break-inside:avoid; }
+  .lever b{ color:var(--ochre); }
+  .diagram{ width:100%; background:#fff; border:1px solid var(--rule); padding:3mm; }
+  .nodelabel{ font-size:11px; fill:var(--ink); font-weight:500; font-family:"IBM Plex Sans"; }
+  .nodesub{ font-family:"IBM Plex Mono"; font-size:8px; fill:var(--slate); }
+  .colhead{ font-family:"IBM Plex Mono"; font-size:8.5px; fill:var(--slate); letter-spacing:1.2px; text-transform:uppercase; }
+  .edgelab{ font-family:"IBM Plex Mono"; font-size:8.5px; fill:var(--slate); }
+  .disc{ font-size:8.6pt; color:var(--slate); line-height:1.5; text-align:left; }
+  .twocol{ column-count:2; column-gap:8mm; } .twocol p{ text-align:left; }
+  .roles{ display:flex; gap:3mm; margin:3mm 0; flex-wrap:wrap; }
+  .role-chip{ border:1px solid var(--rule); border-top:2.5px solid var(--teal); background:#fff; padding:2mm 3mm; font-size:8.6pt; flex:1; min-width:32mm; }
+  .role-chip b{ font-family:"IBM Plex Mono"; font-size:8pt; text-transform:uppercase; letter-spacing:.06em; color:var(--teal); display:block; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="grid"></div>
+  <svg class="scurve" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <path d="M0,270 C120,268 180,250 250,150 C300,80 360,45 480,38" stroke="#5BA9A5" stroke-width="2.4"/>
+    <path d="M0,278 C140,276 210,265 300,205 C360,165 420,150 480,146" stroke="#C0872A" stroke-width="2.2" stroke-dasharray="1 0"/>
+    <path d="M0,262 C90,250 150,215 230,205 C320,194 400,225 480,255" stroke="#9aa0ad" stroke-width="1.8" stroke-dasharray="5 4"/>
+    <path d="M0,285 C160,283 300,270 480,120" stroke="#e7e3d8" stroke-width="1.2" stroke-dasharray="2 4" opacity=".7"/>
+  </svg>
+  <div class="block">
+    <div class="kicker">A control-theoretic model of a life</div>
+    <h1>The Life<br>Balance Sheet</h1>
+    <div class="sub">Savings, skill, network, health and time as assets; the milestones we plan for as liabilities; and a standard of living that compounds. How a person reaches their goals over time, and whether those goals are actually feasible.</div>
+  </div>
+  <div class="foot"><div>Nicolas B&uuml;rkler</div><div class="r">First edition &middot; 2026<br>Illustrative throughout, not financial advice</div></div>
+</div>
+
+<div class="halftitle">
+  <div class="t">The Life Balance Sheet</div>
+  <div class="s">Asset&ndash;liability management for a human life</div>
+</div>
+
+<section class="contents">
+  <h2>Contents</h2>
+  <div class="toc">
+    <div class="row"><span>Preface &mdash; why a balance sheet for a life</span><span>vi</span></div>
+    <div class="part-row">Part I &middot; The idea</div>
+    <div class="row"><span>1 &nbsp; The reframe</span><span>2</span></div>
+    <div class="row"><span>2 &nbsp; A person as a dynamical system</span><span>5</span></div>
+    <div class="part-row">Part II &middot; The model</div>
+    <div class="row"><span>3 &nbsp; The state: four capitals and a habit</span><span>9</span></div>
+    <div class="row"><span>4 &nbsp; The controls: two budgets and a portfolio</span><span>12</span></div>
+    <div class="row"><span>5 &nbsp; Dynamics</span><span>15</span></div>
+    <div class="row"><span>6 &nbsp; Coupling</span><span>20</span></div>
+    <div class="row"><span>7 &nbsp; Goals as liabilities</span><span>23</span></div>
+    <div class="row"><span>8 &nbsp; Feasibility and uncertainty</span><span>27</span></div>
+    <div class="row"><span>9 &nbsp; The objective</span><span>31</span></div>
+    <div class="row"><span>10 &nbsp; Solving it</span><span>34</span></div>
+    <div class="row"><span>11 &nbsp; The regime layer and calibration</span><span>39</span></div>
+    <div class="part-row">Part III &middot; Worked lives</div>
+    <div class="row"><span>12 &nbsp; How to read a case</span><span>43</span></div>
+    <div class="row"><span>13 &nbsp; The young professional &mdash; hedge and build</span><span>44</span></div>
+    <div class="row"><span>14 &nbsp; Independence by fifty &mdash; a drawable target</span><span>47</span></div>
+    <div class="row"><span>15 &nbsp; The near-retiree &mdash; a preservation glide</span><span>50</span></div>
+    <div class="row"><span>16 &nbsp; The entrepreneur &mdash; diversifying the undiversifiable</span><span>53</span></div>
+    <div class="row"><span>17 &nbsp; The tail shock &mdash; a pre-positioned buffer</span><span>56</span></div>
+    <div class="row"><span>18 &nbsp; What the five have in common</span><span>59</span></div>
+    <div class="part-row">Part IV &middot; Limits and extensions</div>
+    <div class="row"><span>19 &nbsp; Honest limits</span><span>62</span></div>
+    <div class="row"><span>20 &nbsp; Extensions</span><span>64</span></div>
+    <div class="part-row">Appendices</div>
+    <div class="row"><span>A Equation reference &middot; B Parameters &middot; C Algorithm &middot; Notation</span><span>66</span></div>
+  </div>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Preface</div><h1>Why a balance sheet for a life</h1><div class="rule"></div></div>
+  <p class="lead">This book takes an idea from institutional finance &mdash; asset&ndash;liability management &mdash; and asks what happens if we apply it honestly to a single human life.</p>
+  <p>A pension fund does not measure success by how much cash it holds. It asks whether its <em>assets</em> will meet its <em>liabilities</em> as they fall due, under uncertainty, with an acceptable margin of safety. That question &mdash; not &ldquo;how much do we have?&rdquo; but &ldquo;will what we have meet what we owe, on time, probably?&rdquo; &mdash; turns out to be exactly the right one to ask of a person deciding how to spend the next decade.</p>
+  <p>The trouble with money-only planning is not that money is unimportant; it is that money is downstream. What actually produces the money, and the life, is a set of slower-moving capitals: what you know, who you know, and the health and hours you have to deploy them. Those capitals grow in a characteristic way, they feed one another, and they decay if neglected. A model that keeps them on the balance sheet can say things a cash-flow spreadsheet cannot &mdash; most usefully, what an hour of your time is actually worth, and toward which goal.</p>
+  <p>The book has four parts. <strong>Part I</strong> motivates the reframe and the dynamical-systems view. <strong>Part II</strong> builds the model in full: the state, the controls, the stochastic dynamics, the goals, the notion of feasibility, and the optimisation that turns all of it into a recommendation. This part is deliberately mathematical; readers who want the argument without the machinery can follow the prose and skip the displayed equations without losing the thread. <strong>Part III</strong> works five lives in detail, each chosen to stress a different part of the model, and each an <em>instance</em> of the one framework rather than a model of its own. <strong>Part IV</strong> is candid about what the model cannot do, and where it should go next. Everything numerical here is illustrative, chosen to make the behaviour legible; none of it is financial advice.</p>
+  <p>A note on this edition. The model now carries a standard-of-living <strong>habit</strong> as a state variable, names the first portfolio role <strong>Gain</strong>, and treats the macro <strong>regime</strong> as a layer the adviser can switch on to couple a personal plan to the wider capital cycle. These are set out where they belong, in Chapters 3 to 6 and 11, and they are the through-line to the author's institutional work.</p>
+</section>
+
+<div class="part">
+  <div class="inner"><div class="pn">Part One</div><h1>The idea</h1>
+    <div class="desc">Before any equations: why a life is better understood as a controlled system of capitals than as a stream of cash, and what that reframe buys us.</div></div>
+  <div class="chs">1 &middot; The reframe &nbsp;&nbsp;&nbsp; 2 &middot; A person as a dynamical system</div>
+</div>
+
+<section class="chapter">
+  <h2 style="string-set:parttitle 'Part I — The idea'; position:absolute; left:-9999px;">.</h2>
+  <div class="chap-open"><div class="cnum">Chapter 1</div><h1 style="string-set:chaptitle 'The reframe'">The reframe</h1><div class="rule"></div></div>
+  <p class="lead">Three moves turn a life into something an asset&ndash;liability manager would recognise. Each is small on its own; together they change what questions we can ask.</p>
+  <h2 class="sec">Move one: capitals are assets</h2>
+  <p>We treat everything that carries value across time as an asset. Financial wealth is the obvious one, but it is joined by <strong>expertise</strong> (what you can do), <strong>network</strong> (who will act on your behalf), and <strong>health</strong> (the energy that makes the other three usable). These are not metaphors. Each can be invested in, each yields a return, and each depreciates if left alone. The difference from money is only that we lack a tidy account statement for them &mdash; which is precisely the gap the model fills.</p>
+  <h2 class="sec">Move two: goals are liabilities</h2>
+  <p>A milestone &mdash; a home, a company, financial independence, retirement &mdash; is a <em>claim</em>: an amount, due at a date, that the assets must be able to meet. Framing goals this way imports the whole apparatus of liability management: matching, funding ratios, duration, and the discipline of asking not whether a goal is nice to have but whether it is <em>funded</em>.</p>
+  <div class="def"><span class="lab">Definition 1.1 &mdash; Liability</span><p>A goal is a triple <span class="mono">(deadline, region, confidence)</span>: a time by which it must be met, a set of states that count as meeting it, and the probability of success the planner requires. A goal with no required confidence is a wish, not a liability.</p></div>
+  <h2 class="sec">Move three: the saving rate is an output, and time is the constraint</h2>
+  <p>The two moves above are natural; the third is where most planning goes wrong. People treat the saving rate as a dial they set. It is not. The saving rate is what remains after consumption and self-investment &mdash; an <em>output</em> of the plan, not an input to it. Set the inputs and the saving rate is determined; try to set the saving rate directly and you have merely hidden the real decisions.</p>
+  <p>And the truly scarce resource is not money but <strong>time</strong>. Money can be borrowed, saved, and compounded; the twenty-four-hour day cannot. Every hour spent earning is an hour not spent learning, connecting, or recovering. A plan that does not treat the time budget as a hard constraint will always look more feasible on paper than it is in a life &mdash; because on paper, time is free.</p>
+  <div class="def assume"><span class="lab">Assumption 1.2 &mdash; Time is binding</span><p>The allocation of time is constrained to a fixed budget each period and cannot be stored or transferred across periods. This single assumption is responsible for most of the model&rsquo;s more useful and less obvious recommendations.</p></div>
+  <p>The reward for the extra structure is a richer question. A money-only tool asks &ldquo;will I have enough?&rdquo; This model asks &ldquo;what should I do this period, given everything I am trying to become, and what is the marginal hour worth toward each goal?&rdquo; The rest of the book is the machinery that answers it.</p>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 2</div><h1 style="string-set:chaptitle 'A person as a dynamical system'">A person as a dynamical system</h1><div class="rule"></div></div>
+  <p class="lead">If capitals are assets and goals are liabilities, then a life is a <em>controlled dynamical system</em>: a state that evolves over time, steered by decisions, disturbed by chance, aiming to reach target regions.</p>
+  <p>Control theory gives us the vocabulary. A <strong>state</strong> summarises everything about the present that matters for the future. A <strong>control</strong> is what the decision-maker can set. <strong>Dynamics</strong> describe how the state responds to the control and to random disturbance. A goal is a region of the state space we would like to enter; <strong>feasibility</strong> is the question of whether the reachable set of the controlled system intersects that region before the deadline. This is the same structure an engineer uses to regulate a plant &mdash; applied, here, to a career and a portfolio.</p>
+  <p>The characteristic motion of each capital is the <strong>S-curve</strong>. Growth is slow while a capital is small, accelerates once it is large enough to reinforce itself (skill compounds; networks introduce you to more networks), and flattens as it approaches a natural ceiling. This is the logistic law, and it is why timing matters so much: the same effort produces almost nothing in the slow phase and a great deal in the accelerating one.</p>
+  <p>Goals-as-regions is not a formality. Because the capitals are distinct dimensions, a goal can require several of them <em>at once</em> &mdash; and no amount of one can substitute for a shortfall in another. Founding a company is the clean example: money without a network, or a network without the competence to use it, does not clear the bar. The phase portrait below shows why the path you take through the state space, not just the effort you expend, decides whether you arrive.</p>
+  <figure>
+    <svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+      <rect width="480" height="260" fill="#fff"/>
+      <line x1="60" y1="220" x2="440" y2="220" stroke="#1B1D2A" stroke-width="1.2"/>
+      <line x1="60" y1="220" x2="60" y2="24" stroke="#1B1D2A" stroke-width="1.2"/>
+      <text x="250" y="248" text-anchor="middle" class="edgelab">Expertise E</text>
+      <text x="24" y="120" text-anchor="middle" class="edgelab" transform="rotate(-90 24 120)">Network N</text>
+      <rect x="330" y="40" width="110" height="86" fill="#C0872A" opacity=".12"/>
+      <rect x="330" y="40" width="110" height="86" fill="none" stroke="#C0872A" stroke-dasharray="4 3"/>
+      <text x="385" y="34" text-anchor="middle" class="edgelab" style="fill:#C0872A">goal region</text>
+      <circle cx="80" cy="200" r="4" fill="#1B1D2A"/>
+      <path d="M80,200 C180,196 250,190 330,170 C380,158 410,150 430,120" fill="none" stroke="#0F6E6B" stroke-width="2.2"/>
+      <path d="M80,200 C170,150 210,120 250,110 C320,92 360,120 372,150" fill="none" stroke="#5A6272" stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="360" y="196" class="edgelab" style="fill:#0F6E6B">network-heavy path (arrives)</text>
+      <text x="150" y="104" class="edgelab" style="fill:#5A6272">earning-heavy path (stalls)</text>
+    </svg>
+    <figcaption><b>Fig. 2.1 &mdash;</b> Two lives, same start, same goal region (high expertise <em>and</em> high network). The earning-heavy path builds expertise but stalls short on network; the network-heavy path curves into the region. The goal is a set, not a number, and the <b>trajectory</b> decides feasibility.</figcaption></figure>
+  <p>With the picture in place, Part II makes each element precise: what exactly is in the state, what the controls are and how they are constrained, the equations of motion, the shape of the goals, and the optimisation that chooses the controls.</p>
+</section>
+
+<div class="part">
+  <div class="inner"><div class="pn">Part Two</div><h1>The model</h1>
+    <div class="desc">The full construction: state and controls, stochastic dynamics, coupling, goals, feasibility as a chance constraint, the objective, and how the whole thing is solved, switched between regimes, and calibrated.</div></div>
+  <div class="chs">3 State &nbsp; 4 Controls &nbsp; 5 Dynamics &nbsp; 6 Coupling &nbsp; 7 Goals &nbsp; 8 Feasibility &nbsp; 9 Objective &nbsp; 10 Solving &nbsp; 11 Regime &amp; calibration</div>
+</div>
+
+<section class="chapter">
+  <h2 style="string-set:parttitle 'Part II — The model'; position:absolute; left:-9999px;">.</h2>
+  <div class="chap-open"><div class="cnum">Chapter 3</div><h1 style="string-set:chaptitle 'The state'">The state: four capitals and a habit</h1><div class="rule"></div></div>
+  <p class="lead">The state is what we must carry forward in time. Four capitals suffice, with wealth split into three components because a single number cannot tell an honest financial story, and alongside them a standard-of-living habit that turns out to have consequences.</p>
+  <div class="eqrow"><math display="block"><mrow><mi>x</mi><mo>=</mo><mo>(</mo><msub><mi>W</mi><mi>L</mi></msub><mo>,</mo><msub><mi>W</mi><mi>R</mi></msub><mo>,</mo><mi>D</mi><mo>,</mo><mi>E</mi><mo>,</mo><mi>N</mi><mo>,</mo><mi>H</mi><mo>,</mo><mi>&#954;</mi><mo>&#8739;</mo><mi>m</mi><mo>)</mo></mrow></math><span class="num">(3.1)</span></div>
+  <p>Here <span class="mono">W<sub>L</sub></span> is <strong>liquid financial wealth</strong> (cash and marketable investments), <span class="mono">W<sub>R</sub></span> is <strong>real or illiquid assets</strong> (property, private stakes), and <span class="mono">D</span> is <strong>debt</strong>. Splitting wealth this way is not fastidiousness. A person can be wealthy in a house they live in and unable to spend a franc of it; a leveraged asset behaves nothing like cash. The distinction becomes decisive for the independence goal in Chapter 7 and for the worked lives of Part III. Net worth is the derived quantity</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>W</mi><mo>=</mo><msub><mi>W</mi><mi>L</mi></msub><mo>+</mo><msub><mi>W</mi><mi>R</mi></msub><mo>&#8722;</mo><mi>D</mi></mrow></math><span class="num">(3.2)</span></div>
+  <p>The next three capitals are dimensionless indices, normalised so that a well-developed professional sits near <span class="mono">1.0</span>: <strong>E</strong> for expertise, <strong>N</strong> for network, and <strong>H</strong> for health, bounded in <span class="mono">[0,1]</span> and acting as an efficiency multiplier on everything the person does. Health earns its place in the state precisely because it closes a feedback loop a static plan would miss: overwork erodes it, and its erosion quietly lowers the return on all the other capitals.</p>
+  <p>Carried alongside the capitals is a standard-of-living <strong>habit</strong> <span class="mono">&#954;</span>, a stock that tracks recent consumption. It is on by default, because it is not a bare reference point but a stock with consequences: a maintained lifestyle keeps a person in the rooms and memberships that raise the network (and, weakly, the expertise) ceiling, so cutting spending costs more than the spending itself. The habit is a scalar carried beside the four capitals, and Chapter 5 gives its law of motion.</p>
+  <p>The final entry, the macro <strong>regime</strong> <span class="mono">m</span>, is optional and written after the bar in (3.1). Switched off, the return parameters are constant and the reader may ignore it; switched on, it couples the personal problem to the capital cycle, and Chapter 11 says how. It takes values across the phases from boom to crisis.</p>
+  <div class="def"><span class="lab">Definition 3.1 &mdash; Capital</span><p>A capital is a stock that (i) carries value across periods, (ii) can be increased by allocating time or money, (iii) yields a flow return, and (iv) depreciates without maintenance. Wealth satisfies (i)&ndash;(iii) and, uniquely, does not depreciate &mdash; it earns a return instead. The habit <span class="mono">&#954;</span> is not a capital in this sense: it is a reference stock that shapes utility and lifts ceilings, not an asset one draws on.</p></div>
+  <p>Two properties distinguish the capitals mathematically, and Chapter 5 respects both. Expertise, network and health <em>saturate</em> &mdash; each rises toward a ceiling. Wealth <em>accumulates</em> &mdash; it compounds without one. Modelling all four with a single tidy law would be elegant and wrong.</p>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 4</div><h1 style="string-set:chaptitle 'The controls'">The controls: two budgets and a portfolio</h1><div class="rule"></div></div>
+  <p class="lead">You cannot move the capitals directly. You move them by allocating time and money each period, and by choosing a portfolio. The control vector collects every lever the planner actually holds.</p>
+  <div class="eqrow"><math display="block"><mrow><mi>u</mi><mo>=</mo><mo>(</mo><mi>&#964;</mi><mo>,</mo><mi>C</mi><mo>,</mo><msub><mi>m</mi><mi>E</mi></msub><mo>,</mo><msub><mi>m</mi><mi>N</mi></msub><mo>,</mo><msub><mi>p</mi><mi>A</mi></msub><mo>,</mo><mi>w</mi><mo>&#8739;</mo><mtext>jumps</mtext><mo>)</mo></mrow></math><span class="num">(4.1)</span></div>
+  <p>The time shares <span class="mono">&tau; = (&tau;<sub>Y</sub>, &tau;<sub>E</sub>, &tau;<sub>N</sub>, &tau;<sub>H</sub>)</span> divide the productive day between earning, learning, networking and recovery. The money flows are consumption <span class="mono">C</span>, education and network spend <span class="mono">m<sub>E</sub>, m<sub>N</sub></span>, and amortisation <span class="mono">p<sub>A</sub></span>. The portfolio <span class="mono">w</span> is discussed just below. Note what is <em>not</em> a control: the saving rate. It falls out of the money flows, exactly as argued in Chapter 1.</p>
+  <h2 class="sec">The portfolio and its four roles</h2>
+  <p>The portfolio is expressed not as a list of asset classes but as weights on four <em>roles</em>, the same taxonomy the author&rsquo;s institutional Optimizer uses, so that a personal plan and a pension fund share one calibration.</p>
+  <div class="roles">
+    <div class="role-chip"><b>Gain</b> growth assets that compound the estate: broad equity and equity-like risk.</div>
+    <div class="role-chip"><b>Income</b> cash-flow assets: yielding credit, dividend and rental streams.</div>
+    <div class="role-chip"><b>Stabilization</b> diversifiers that cushion drawdowns: high-grade duration and the like.</div>
+    <div class="role-chip"><b>Protection</b> convex tail hedges and cash that pay off precisely in the bad states.</div>
+  </div>
+  <p>Written as a vector, <span class="mono">w = (w<sub>G</sub>, w<sub>I</sub>, w<sub>S</sub>, w<sub>P</sub>)</span> over Gain, Income, Stabilization and Protection, with cash the residual. When the regime layer of Chapter 11 is switched off, this vector collapses to a single scalar <strong>risk tilt</strong> <span class="mono">&theta;</span> between a risky block and a safe block, which is the lean default used through most of the book. When the layer is on, the four roles rotate as the cycle turns. Throughout, <span class="mono">&theta;</span> denotes the risk tilt and nothing else.</p>
+  <h2 class="sec">Admissibility</h2>
+  <p>The time budget is the hard constraint. The shares are non-negative and sum to at most one, with the slack counted as leisure; the risk tilt lives in the unit interval and the role weights lie on the simplex.</p>
+  <div class="eqrow"><math display="block"><mrow><msub><mi>&#964;</mi><mi>i</mi></msub><mo>&#8805;</mo><mn>0</mn><mo>,</mo><munder><mo>&#8721;</mo><mi>i</mi></munder><msub><mi>&#964;</mi><mi>i</mi></msub><mo>&#8804;</mo><mn>1</mn><mo>,</mo><msub><mi>&#964;</mi><mi>L</mi></msub><mo>=</mo><mn>1</mn><mo>&#8722;</mo><munder><mo>&#8721;</mo><mi>i</mi></munder><msub><mi>&#964;</mi><mi>i</mi></msub><mo>,</mo><mspace width="1em"/><mi>&#952;</mi><mo>&#8712;</mo><mo>[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>]</mo></mrow></math><span class="num">(4.2)</span></div>
+  <p>The money side is constrained by liquidity: spending plus debt service cannot exceed income, asset yield and accessible liquid wealth, and a buffer floor keeps liquid wealth from going negative.</p>
+  <div class="eqrow"><math display="block"><mrow><mi>C</mi><mo>+</mo><mtext>debt&#8202;service</mtext><mo>&#8804;</mo><mi>Y</mi><mo>+</mo><mtext>yields</mtext><mo>+</mo><mtext>accessible&#8202;</mtext><msub><mi>W</mi><mi>L</mi></msub><mo>,</mo><mspace width="1em"/><msub><mi>W</mi><mi>L</mi></msub><mo>&#8805;</mo><msub><mi>W</mi><mtext>buf</mtext></msub></mrow></math><span class="num">(4.3)</span></div>
+  <p>Two controls are discrete and fire only at events rather than every period: taking on leverage to acquire property (which converts liquid wealth into real assets and debt) and founding a company (which draws down a buffer and shifts the income process). These are handled as jumps in the state, described where the relevant goals are defined.</p>
+  <div class="def assume"><span class="lab">Assumption 4.1 &mdash; Separable effort</span><p>Time and money contribute additively to each capital&rsquo;s growth, up to the saturation term. This is a simplification &mdash; in reality money can buy time and vice versa &mdash; but it keeps the control problem tractable and the recommendations interpretable. Chapter 20 sketches how to relax it.</p></div>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 5</div><h1 style="string-set:chaptitle 'Dynamics'">Dynamics</h1><div class="rule"></div></div>
+  <p class="lead">The equations of motion. Each is a stochastic differential equation; together they say how today&rsquo;s state and controls, plus chance, produce tomorrow&rsquo;s state.</p>
+  <h2 class="sec">Income</h2>
+  <p>Income is the hinge between the capitals and wealth. It is Cobb&ndash;Douglas in expertise and network, scaled by the share of time spent earning and by health.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>Y</mi><mo>=</mo><msub><mi>A</mi><mi>Y</mi></msub><msub><mi>&#964;</mi><mi>Y</mi></msub><mi>&#966;</mi><mo>(</mo><mi>H</mi><mo>)</mo><msup><mi>E</mi><mi>a</mi></msup><msup><mi>N</mi><mi>b</mi></msup><mo>,</mo><mspace width="1em"/><mi>a</mi><mo>,</mo><mi>b</mi><mo>&lt;</mo><mn>1</mn></mrow></math><span class="num">(5.1)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><mi>&#966;</mi><mo>(</mo><mi>H</mi><mo>)</mo><mo>=</mo><msup><mi>H</mi><mi>c</mi></msup></mrow></math><span class="num">(5.2)</span></div>
+  <p>The exponents <span class="mono">a, b</span> (both below one) encode diminishing returns and the fact that expertise and network are complements: doubling one does not double income, but neglecting either caps it. Health enters multiplicatively through <span class="mono">&phi;</span>, so a person running at reduced health earns less from the same hour.</p>
+  <h2 class="sec">Wealth accumulates</h2>
+  <p>Define the net cash flowing into liquid wealth each instant,</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>F</mi><mo>=</mo><mi>Y</mi><mo>+</mo><mtext>yields</mtext><mo>&#8722;</mo><mi>C</mi><mo>&#8722;</mo><msub><mi>m</mi><mi>E</mi></msub><mo>&#8722;</mo><msub><mi>m</mi><mi>N</mi></msub><mo>&#8722;</mo><msub><mi>p</mi><mi>A</mi></msub><mo>&#8722;</mo><mtext>debt&#8202;service</mtext></mrow></math><span class="num">(5.3)</span></div>
+  <p>then liquid wealth follows a controlled process whose drift and diffusion carry the role weights and, under the regime layer, the phase-dependent role returns.</p>
+  <div class="eqrow"><math display="block"><mrow><mi>d</mi><msub><mi>W</mi><mi>L</mi></msub><mo>=</mo><mo>[</mo><mi>F</mi><mo>+</mo><msub><mi>W</mi><mi>L</mi></msub><mo>(</mo><msub><mi>r</mi><mi>f</mi></msub><mo>+</mo><msup><mi>w</mi><mo>&#8868;</mo></msup><mo>(</mo><msub><mi>&#956;</mi><mi>m</mi></msub><mo>&#8722;</mo><msub><mi>r</mi><mi>f</mi></msub><mn>1</mn><mo>)</mo><mo>)</mo><mo>]</mo><mi>d</mi><mi>t</mi><mo>+</mo><msub><mi>W</mi><mi>L</mi></msub><msup><mi>w</mi><mo>&#8868;</mo></msup><msubsup><mi>&#931;</mi><mi>m</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msubsup><mi>d</mi><mi>B</mi></mrow></math><span class="num">(5.4)</span></div>
+  <p>where <span class="mono">&mu;<sub>m</sub></span> and <span class="mono">&Sigma;<sub>m</sub></span> are the role-return mean and covariance in regime <span class="mono">m</span>. With the regime layer off they are constant and the vector collapses to the scalar tilt, recovering the familiar risky/safe blend.</p>
+  <div class="eqrow sm"><math display="block"><mrow><msub><mi>&#956;</mi><mi>P</mi></msub><mo>=</mo><msub><mi>r</mi><mi>f</mi></msub><mo>+</mo><mi>&#952;</mi><mo>(</mo><msub><mi>&#956;</mi><mi>M</mi></msub><mo>&#8722;</mo><msub><mi>r</mi><mi>f</mi></msub><mo>)</mo><mo>,</mo><mspace width="1em"/><msub><mi>&#963;</mi><mi>P</mi></msub><mo>=</mo><mi>&#952;</mi><msub><mi>&#963;</mi><mi>M</mi></msub></mrow></math><span class="num">(5.5)</span></div>
+  <p>Real assets appreciate and yield, with their own shock; debt is drawn down by amortisation and jumps up when leverage is taken on.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>d</mi><msub><mi>W</mi><mi>R</mi></msub><mo>=</mo><mo>(</mo><msub><mi>&#956;</mi><mi>R</mi></msub><mo>+</mo><msub><mi>y</mi><mi>R</mi></msub><mo>)</mo><msub><mi>W</mi><mi>R</mi></msub><mi>d</mi><mi>t</mi><mo>+</mo><msub><mi>&#963;</mi><mi>R</mi></msub><msub><mi>W</mi><mi>R</mi></msub><mi>d</mi><msub><mi>B</mi><mi>R</mi></msub></mrow></math><span class="num">(5.6)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><mi>d</mi><mi>D</mi><mo>=</mo><mo>&#8722;</mo><msub><mi>p</mi><mi>A</mi></msub><mi>d</mi><mi>t</mi><mo>+</mo><mi>&#916;</mi><msup><mi>D</mi><mtext>jump</mtext></msup></mrow></math><span class="num">(5.7)</span></div>
+  <h2 class="sec">Expertise, network and health saturate</h2>
+  <p>Each of the three remaining capitals follows a logistic law: a growth term driven by time and money and by self-reinforcement, throttled by a saturation factor, minus depreciation, plus noise.</p>
+  <div class="eqrow"><math display="block"><mrow><mover><mi>E</mi><mo>&#775;</mo></mover><mo>=</mo><mo>[</mo><msub><mi>g</mi><mi>E</mi></msub><mo>(</mo><msub><mi>&#964;</mi><mi>E</mi></msub><mo>,</mo><msub><mi>m</mi><mi>E</mi></msub><mo>)</mo><mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>E</mi><mo>/</mo><mover><mi>E</mi><mo>&#175;</mo></mover><mo>)</mo><mo>&#8722;</mo><msub><mi>&#948;</mi><mi>E</mi></msub><mo>]</mo><mi>E</mi></mrow></math><span class="num">(5.8)</span></div>
+  <div class="eqrow"><math display="block"><mrow><mover><mi>N</mi><mo>&#775;</mo></mover><mo>=</mo><mo>[</mo><msub><mi>g</mi><mi>N</mi></msub><mo>(</mo><msub><mi>&#964;</mi><mi>N</mi></msub><mo>,</mo><msub><mi>m</mi><mi>N</mi></msub><mo>)</mo><mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>N</mi><mo>/</mo><mover><mi>N</mi><mo>&#175;</mo></mover><mo>)</mo><mo>&#8722;</mo><msub><mi>&#948;</mi><mi>N</mi></msub><mo>]</mo><mi>N</mi></mrow></math><span class="num">(5.9)</span></div>
+  <div class="eqrow"><math display="block"><mrow><mover><mi>H</mi><mo>&#775;</mo></mover><mo>=</mo><mo>[</mo><msub><mi>g</mi><mi>H</mi></msub><mo>(</mo><msub><mi>&#964;</mi><mi>H</mi></msub><mo>)</mo><mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>H</mi><mo>)</mo><mo>&#8722;</mo><msub><mi>&#948;</mi><mi>H</mi></msub><mo>(</mo><msub><mi>&#964;</mi><mi>Y</mi></msub><mo>)</mo><mo>]</mo><mi>H</mi></mrow></math><span class="num">(5.10)</span></div>
+  <p>The depreciation terms <span class="mono">&delta;</span> are the reason maintenance matters: stop investing and the capital drifts down. Health carries the model&rsquo;s most important feedback. Its decay rate <em>rises with overwork</em> &mdash; time spent earning beyond a threshold accelerates the loss of the very health that makes earning productive.</p>
+  <div class="eqrow sm"><math display="block"><mrow><msub><mi>&#948;</mi><mi>H</mi></msub><mo>(</mo><msub><mi>&#964;</mi><mi>Y</mi></msub><mo>)</mo><mo>=</mo><msub><mi>&#948;</mi><mrow><mi>H</mi><mn>0</mn></mrow></msub><mo>+</mo><mi>&#951;</mi><mo>&#183;</mo><mi>max</mi><mo>(</mo><mn>0</mn><mo>,</mo><msub><mi>&#964;</mi><mi>Y</mi></msub><mo>&#8722;</mo><msubsup><mi>&#964;</mi><mi>Y</mi><mo>&#8727;</mo></msubsup><mo>)</mo></mrow></math><span class="num">(5.11)</span></div>
+  <h2 class="sec">The habit adjusts toward recent consumption</h2>
+  <p>The standard-of-living habit relaxes toward the level of consumption actually sustained, at a speed set by <span class="mono">&alpha;</span>. A step up in spending pulls the habit up over time; a cut leaves consumption below the accustomed level and is felt as a loss, which is the point of carrying it.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>d</mi><mi>&#954;</mi><mo>=</mo><mi>&#945;</mi><mo>(</mo><mi>C</mi><mo>&#8722;</mo><mi>&#954;</mi><mo>)</mo><mi>d</mi><mi>t</mi></mrow></math><span class="num">(5.12)</span></div>
+  <p>Under the regime layer, the macro state is a continuous-time Markov chain with generator <span class="mono">Q</span>, so that over a small step the phase switches with probability set by the generator.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>Pr</mi><mo>[</mo><msub><mi>m</mi><mrow><mi>t</mi><mo>+</mo><mi>d</mi><mi>t</mi></mrow></msub><mo>=</mo><mi>n</mi><mo>&#8739;</mo><msub><mi>m</mi><mi>t</mi></msub><mo>=</mo><mi>m</mi><mo>]</mo><mo>=</mo><msub><mi>Q</mi><mrow><mi>m</mi><mi>n</mi></mrow></msub><mi>d</mi><mi>t</mi></mrow></math><span class="num">(5.13)</span></div>
+  <div class="def assume"><span class="lab">Assumption 5.1 &mdash; Mixed growth</span><p>Wealth obeys an accumulation law with no upper bound; expertise, network and health obey logistic laws with capital-specific ceilings; the habit obeys a mean-reverting law toward consumption. No single capital can grow without limit except wealth, and wealth cannot grow at all without the others feeding income.</p></div>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 6</div><h1 style="string-set:chaptitle 'Coupling'">Coupling</h1><div class="rule"></div></div>
+  <p class="lead">The capitals are wired together. The single most consequential wire is the one that lets expertise, wealth <em>and a maintained standard of living</em> raise the <em>ceiling</em> on your network.</p>
+  <div class="eqrow"><math display="block"><mrow><mover><mi>N</mi><mo>&#175;</mo></mover><mo>=</mo><msub><mi>N</mi><mn>0</mn></msub><mo>+</mo><msub><mi>&#955;</mi><mi>E</mi></msub><mi>E</mi><mo>+</mo><msub><mi>&#955;</mi><mi>W</mi></msub><mi>W</mi><mo>+</mo><msub><mi>&#955;</mi><mi>&#954;</mi></msub><mi>&#954;</mi></mrow></math><span class="num">(6.1)</span></div>
+  <p>Equation (6.1) says the network you can sustain is not fixed: competence (<span class="mono">&lambda;<sub>E</sub></span>), resources (<span class="mono">&lambda;<sub>W</sub></span>) and a maintained standard of living (<span class="mono">&lambda;<sub>&#954;</sub></span>) open doors that would otherwise stay shut. The habit term is the new wire, and it is why a cut in spending is not free even when the goal is purely financial: it lowers the ceiling on the very network that lifts income. The coefficient <span class="mono">&lambda;<sub>&#954;</sub></span> is the least identifiable in the model and is held small and stress-tested rather than estimated precisely (Chapter 11). A weak habit term may likewise be added to the expertise ceiling. The diagram gathers all the couplings in one place.</p>
+  <div class="diagram">
+  <svg viewBox="0 0 720 380" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#5A6272"/></marker>
+      <marker id="aht" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#0F6E6B"/></marker>
+      <marker id="aho" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#C0872A"/></marker>
+    </defs>
+    <text class="colhead" x="60" y="24">Budgets</text><text class="colhead" x="285" y="24">Capitals</text><text class="colhead" x="500" y="24">Output</text><text class="colhead" x="628" y="24">Goals</text>
+    <rect x="30" y="70" width="96" height="42" rx="4" fill="#fff" stroke="#1B1D2A" stroke-width="1.3"/><text class="nodelabel" x="78" y="88" text-anchor="middle">Time</text><text class="nodesub" x="78" y="102" text-anchor="middle">&#964;</text>
+    <rect x="30" y="210" width="96" height="42" rx="4" fill="#fff" stroke="#1B1D2A" stroke-width="1.3"/><text class="nodelabel" x="78" y="228" text-anchor="middle">Money</text><text class="nodesub" x="78" y="242" text-anchor="middle">C, m, w</text>
+    <rect x="250" y="44" width="104" height="40" rx="4" fill="#fff" stroke="#0F6E6B" stroke-width="1.4"/><text class="nodelabel" x="302" y="69" text-anchor="middle">Expertise</text>
+    <rect x="250" y="120" width="104" height="40" rx="4" fill="#fff" stroke="#0F6E6B" stroke-width="1.4"/><text class="nodelabel" x="302" y="145" text-anchor="middle">Network</text>
+    <rect x="250" y="196" width="104" height="40" rx="4" fill="#fff" stroke="#0F6E6B" stroke-width="1.4"/><text class="nodelabel" x="302" y="221" text-anchor="middle">Health</text>
+    <rect x="250" y="278" width="104" height="46" rx="4" fill="#fff" stroke="#1B1D2A" stroke-width="1.4"/><text class="nodelabel" x="302" y="299" text-anchor="middle">Wealth</text><text class="nodesub" x="302" y="313" text-anchor="middle">liquid &middot; property &minus; debt</text>
+    <rect x="250" y="340" width="104" height="30" rx="4" fill="#fff" stroke="#C0872A" stroke-width="1.3"/><text class="nodelabel" x="302" y="359" text-anchor="middle">Habit &#954;</text>
+    <rect x="470" y="120" width="86" height="46" rx="4" fill="#fff" stroke="#C0872A" stroke-width="1.5"/><text class="nodelabel" x="513" y="141" text-anchor="middle">Income</text><text class="nodesub" x="513" y="155" text-anchor="middle">Y</text>
+    <rect x="600" y="60" width="96" height="26" rx="13" fill="#fff" stroke="#C0872A" stroke-width="1.1"/><text class="nodesub" x="648" y="77" text-anchor="middle" style="fill:#1B1D2A">Home</text>
+    <rect x="600" y="98" width="96" height="26" rx="13" fill="#fff" stroke="#C0872A" stroke-width="1.1"/><text class="nodesub" x="648" y="115" text-anchor="middle" style="fill:#1B1D2A">Company</text>
+    <rect x="600" y="136" width="96" height="26" rx="13" fill="#fff" stroke="#C0872A" stroke-width="1.1"/><text class="nodesub" x="648" y="153" text-anchor="middle" style="fill:#1B1D2A">Independence</text>
+    <rect x="600" y="174" width="96" height="26" rx="13" fill="#fff" stroke="#C0872A" stroke-width="1.1"/><text class="nodesub" x="648" y="191" text-anchor="middle" style="fill:#1B1D2A">Retirement</text>
+    <g fill="none" stroke="#5A6272" stroke-width="1.1" marker-end="url(#ah)"><path d="M126,84 C180,70 200,64 250,64"/><path d="M126,92 C185,120 205,138 250,140"/><path d="M126,100 C180,190 205,214 250,216"/><path d="M126,224 C185,150 205,150 250,150"/><path d="M126,238 C180,290 205,300 250,300"/></g>
+    <g fill="none" stroke="#5A6272" stroke-width="1.1" marker-end="url(#ah)"><path d="M354,66 C420,80 440,128 470,134"/><path d="M354,140 C410,142 440,143 470,143"/><path d="M354,214 C420,200 440,158 470,152"/></g>
+    <text class="edgelab" x="420" y="96">a</text><text class="edgelab" x="420" y="136">b</text><text class="edgelab" x="420" y="192">&#966;</text>
+    <path d="M513,166 C513,235 420,300 356,300" fill="none" stroke="#5A6272" stroke-width="1.3" marker-end="url(#ah)"/><text class="edgelab" x="470" y="250">cash flow</text>
+    <g fill="none" stroke="#0F6E6B" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#aht)"><path d="M290,84 C276,98 276,104 290,120"/><path d="M300,278 C296,235 298,205 300,160"/></g>
+    <text class="edgelab" x="196" y="108" style="fill:#0F6E6B">raises ceiling</text>
+    <path d="M280,344 C250,300 250,220 262,162" fill="none" stroke="#C0872A" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#aho)"/><text class="edgelab" x="150" y="330" style="fill:#C0872A">habit lifts ceiling</text>
+    <path d="M356,300 C420,320 470,350 470,350" fill="none" stroke="#5A6272" stroke-width="1" stroke-dasharray="2 3"/>
+    <path d="M258,60 C210,120 214,190 250,205" fill="none" stroke="#C0872A" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#aho)"/><text class="edgelab" x="150" y="168" style="fill:#C0872A">overwork &minus;</text>
+    <g fill="none" stroke="#1B1D2A" stroke-width="1" stroke-dasharray="1.5 3"><path d="M354,300 C480,300 540,150 600,140"/><path d="M354,140 C470,110 520,110 600,112"/><path d="M556,143 C575,143 585,150 600,150"/></g>
+  </svg>
+  </div>
+  <p class="disc"><span class="mono">Solid</span> = drives &middot; <span class="mono" style="color:var(--teal)">dashed teal</span> = raises a ceiling &middot; <span class="mono" style="color:var(--ochre)">dashed ochre</span> = habit lifts the network ceiling / overwork erodes health &middot; <span class="mono">dotted</span> = capitals tested against goals.</p>
+  <p>Two feedback loops deserve names. The <strong>reinforcing loop</strong> runs expertise &rarr; income &rarr; wealth &rarr; network ceiling &rarr; income: success compounds, and the habit reinforces it, since a maintained standard of living holds the ceiling up. The <strong>balancing loop</strong> runs earning &rarr; overwork &rarr; lower health &rarr; lower income: the system resists being pushed too hard. A healthy plan rides the first loop without tripping the second, and much of what the optimiser does is find that line.</p>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 7</div><h1 style="string-set:chaptitle 'Goals as liabilities'">Goals as liabilities</h1><div class="rule"></div></div>
+  <p class="lead">Four archetypes cover most of a life. Each is a region of the state space, with a deadline and a required confidence.</p>
+  <h2 class="sec">Lump claim: a home</h2>
+  <p>A purchase at price <span class="mono">P</span> demands two things at once &mdash; a deposit and the income to service the loan at a stressed rate.</p>
+  <div class="eqrow"><math display="block"><mrow><msub><mi>W</mi><mi>L</mi></msub><mo>&#8805;</mo><mi>&#958;</mi><mi>P</mi><mspace width="1.4em"/><mtext>and</mtext><mspace width="1.4em"/><mi>a</mi><mi>Y</mi><mo>&#8805;</mo><msub><mi>i</mi><mtext>calc</mtext></msub><mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>&#958;</mi><mo>)</mo><mi>P</mi><mo>+</mo><msub><mi>&#956;</mi><mtext>maint</mtext></msub><mi>P</mi></mrow></math><span class="num">(7.1)</span></div>
+  <p>On execution the state jumps: liquid wealth falls by the deposit, real assets rise by the price, debt rises by the balance. The serviceability half of (7.1) is what a deposit-only rule of thumb misses, and it is what binds for young buyers.</p>
+  <h2 class="sec">Joint region: a company</h2>
+  <p>Founding requires a cash buffer <em>and</em> a network <em>and</em> the expertise, simultaneously above threshold. No substitution is allowed &mdash; the intersection, not the sum.</p>
+  <div class="eqrow"><math display="block"><mrow><msub><mi>W</mi><mi>L</mi></msub><mo>&#8805;</mo><msub><mi>B</mi><mtext>buf</mtext></msub><mspace width="1em"/><mo>&#8743;</mo><mspace width="1em"/><mi>N</mi><mo>&#8805;</mo><msub><mi>N</mi><mtext>min</mtext></msub><mspace width="1em"/><mo>&#8743;</mo><mspace width="1em"/><mi>E</mi><mo>&#8805;</mo><msub><mi>E</mi><mtext>min</mtext></msub></mrow></math><span class="num">(7.2)</span></div>
+  <h2 class="sec">Liability stream: retirement</h2>
+  <p>Retirement is not a date but a stream. It is funded when assets plus the present value of future income cover the present value of future consumption and fixed claims.</p>
+  <div class="eqrow"><math display="block"><mrow><mi>&#934;</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><mfrac><mrow><msub><mi>W</mi><mi>L</mi></msub><mo>+</mo><msub><mi>h</mi><mi>R</mi></msub><msub><mi>W</mi><mi>R</mi></msub><mo>&#8722;</mo><mi>D</mi><mo>+</mo><msub><mi>h</mi><mi>H</mi></msub><mtext>HC</mtext></mrow><mrow><mi>L</mi><mo>(</mo><mi>t</mi><mo>)</mo></mrow></mfrac><mo>&#8805;</mo><mn>1</mn></mrow></math><span class="num">(7.3)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><mi>L</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><msub><mi>E</mi><mi>t</mi></msub><mo>[</mo><msubsup><mo>&#8747;</mo><mi>t</mi><mi>T</mi></msubsup><msup><mi>c</mi><mo>&#8727;</mo></msup><mo>(</mo><mi>s</mi><mo>)</mo><mi>M</mi><mo>(</mo><mi>t</mi><mo>,</mo><mi>s</mi><mo>)</mo><mi>d</mi><mi>s</mi><mo>+</mo><munder><mo>&#8721;</mo><mi>k</mi></munder><msub><mi>G</mi><mi>k</mi></msub><mi>M</mi><mo>(</mo><mi>t</mi><mo>,</mo><msub><mi>T</mi><mi>k</mi></msub><mo>)</mo><mo>]</mo></mrow></math><span class="num">(7.4)</span></div>
+  <h2 class="sec">Counterfactual: financial independence</h2>
+  <p>Independence is the subtlest, and the most misunderstood. It is the point at which work becomes <em>optional</em> &mdash; whether or not the person stops. The test is a counterfactual: switch off labour income and ask whether passive cash flow plus a safe drawdown still covers desired spending. Two things matter. First, only <strong>drawable</strong> wealth counts &mdash; a residence you live in enters at a haircut <span class="mono">h<sub>home</sub></span>, which is zero, and income-producing real assets at a haircut <span class="mono">h<sub>R</sub></span>.</p>
+  <div class="eqrow sm"><math display="block"><mrow><msup><mi>&#937;</mi><mtext>draw</mtext></msup><mo>=</mo><msub><mi>W</mi><mi>L</mi></msub><mo>+</mo><msub><mi>h</mi><mi>R</mi></msub><msub><mi>W</mi><mi>R</mi></msub><mo>&#8722;</mo><mi>D</mi><mo>,</mo><mspace width="1em"/><msub><mi>h</mi><mtext>home</mtext></msub><mo>=</mo><mn>0</mn></mrow></math><span class="num">(7.5)</span></div>
+  <p>Second, the condition can be written as a flow (passive income covers spend) or, equivalently, as a stock (drawable wealth plus the present value of non-labour income covers the present value of the spending stream, with labour income set to zero). Human capital is excluded from both, since the whole meaning of independence is that one need no longer work.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>y</mi><mo>(</mo><msub><mi>W</mi><mi>L</mi></msub><mo>+</mo><msub><mi>h</mi><mi>R</mi></msub><msub><mi>W</mi><mi>R</mi></msub><mo>&#8722;</mo><mi>D</mi><mo>)</mo><mo>+</mo><msub><mi>y</mi><mi>R</mi></msub><msub><mi>W</mi><mi>R</mi></msub><mo>&#8805;</mo><msup><mi>c</mi><mo>&#8727;</mo></msup></mrow></math><span class="num">(7.6)</span></div>
+  <div class="eqrow"><math display="block"><mrow><msup><mi>&#937;</mi><mtext>draw</mtext></msup><mo>+</mo><msub><mi>PV</mi><mtext>non-labour</mtext></msub><mo>&#8805;</mo><msub><mi>PV</mi><mrow><msup><mi>c</mi><mo>&#8727;</mo></msup></mrow></msub></mrow></math><span class="num">(7.7)</span></div>
+  <p>Rearranging the flow condition gives the drawable wealth a person must hold at the target date. With a conservative sustainable real yield <span class="mono">y</span> and required real consumption <span class="mono">c<sup>&#8727;</sup></span>, net of the residence&rsquo;s own operating yield, the perpetuity form is simply</p>
+  <div class="eqrow sm"><math display="block"><mrow><msup><mtext>Fundable</mtext><mo>&#8727;</mo></msup><mo>=</mo><mfrac><msup><mi>c</mi><mo>&#8727;</mo></msup><mi>y</mi></mfrac></mrow></math><span class="num">(7.8)</span></div>
+  <div class="def"><span class="lab">Definition 7.1 &mdash; Independence &ne; net worth</span><p>A goal defined on net worth <span class="mono">&Omega;</span> can be satisfied while the independence goal on drawable wealth <span class="mono">&Omega;<sup>draw</sup></span> is not. When wealth is concentrated in an illiquid residence, the two diverge sharply &mdash; the central fact of the independence and entrepreneur cases in Part III. Neither human capital nor the self-occupied residence enters the fundable base.</p></div>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 8</div><h1 style="string-set:chaptitle 'Feasibility and uncertainty'">Feasibility and uncertainty</h1><div class="rule"></div></div>
+  <p class="lead">The future is not a line. Feasibility is therefore not a yes or no but a probability, and the planner chooses how much of it to demand.</p>
+  <p>For each goal <span class="mono">k</span> we require that the probability of the trajectory entering the goal region by the deadline clears one minus a tolerance.</p>
+  <div class="eqrow"><math display="block"><mrow><mi>Pr</mi><mo>(</mo><msub><mi>x</mi><msub><mi>T</mi><mi>k</mi></msub></msub><mo>&#8712;</mo><msub><mi>G</mi><mi>k</mi></msub><mo>)</mo><mo>&#8805;</mo><mn>1</mn><mo>&#8722;</mo><msub><mi>&#949;</mi><mi>k</mi></msub></mrow></math><span class="num">(8.1)</span></div>
+  <p>This probability has no closed form for a system as coupled as ours, so we estimate it by Monte Carlo: simulate many futures under the candidate plan and count the fraction that succeed. The estimator and its standard error are elementary, which is a virtue &mdash; the reported confidence comes with its own error bar.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mover><mi>p</mi><mo>&#770;</mo></mover><mo>=</mo><mfrac><mn>1</mn><mi>M</mi></mfrac><munderover><mo>&#8721;</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><mn>1</mn><mo>{</mo><msup><mi>x</mi><mrow><mo>(</mo><mi>j</mi><mo>)</mo></mrow></msup><mo>&#8712;</mo><mi>G</mi><mo>}</mo></mrow></math><span class="num">(8.2)</span></div>
+  <figure>
+    <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg">
+      <rect width="480" height="210" fill="#fff"/>
+      <line x1="40" y1="170" x2="450" y2="170" stroke="#1B1D2A" stroke-width="1.1"/>
+      <path d="M40,170 C120,168 150,60 210,45 C270,60 300,168 380,169 C410,169 430,170 450,170" fill="#9aa0ad" opacity=".22"/>
+      <path d="M40,170 C120,168 150,60 210,45 C270,60 300,168 380,169 C410,169 430,170 450,170" fill="none" stroke="#5A6272" stroke-width="1.6"/>
+      <line x1="150" y1="30" x2="150" y2="170" stroke="#C0872A" stroke-width="1.6" stroke-dasharray="5 3"/>
+      <text x="150" y="24" text-anchor="middle" class="edgelab" style="fill:#C0872A">goal threshold</text>
+      <path d="M40,170 C90,169 110,150 130,120 L130,170 Z" fill="#0F6E6B" opacity=".25"/>
+      <line x1="95" y1="60" x2="95" y2="170" stroke="#0F6E6B" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <text x="95" y="54" text-anchor="middle" class="edgelab" style="fill:#0F6E6B">VaR</text>
+      <text x="70" y="150" class="edgelab" style="fill:#0F6E6B">CVaR tail</text>
+      <text x="300" y="150" text-anchor="middle" class="edgelab">success mass &rarr;</text>
+    </svg>
+    <figcaption><b>Fig. 8.1 &mdash;</b> The distribution of outcomes at the deadline. Feasibility is the mass to the right of the <b>goal threshold</b>. Value-at-Risk marks the worst case at a given confidence; <b>CVaR</b> averages the tail beyond it &mdash; the quantity we constrain, because it is convex and penalises how badly a plan fails, not merely how often.</figcaption></figure>
+  <p>Constraining a probability directly is awkward for an optimiser: the count of successful scenarios is discontinuous in the controls. The standard remedy is to constrain the <strong>Conditional Value-at-Risk</strong> of the shortfall instead. CVaR is the expected loss in the worst <span class="mono">&epsilon;</span> tail, and it has a tractable variational form (Rockafellar&ndash;Uryasev).</p>
+  <div class="eqrow"><math display="block"><mrow><msub><mtext>CVaR</mtext><mi>&#949;</mi></msub><mo>(</mo><mi>L</mi><mo>)</mo><mo>=</mo><munder><mi>min</mi><mi>&#950;</mi></munder><mo>{</mo><mi>&#950;</mi><mo>+</mo><mfrac><mn>1</mn><mi>&#949;</mi></mfrac><mi>E</mi><mo>[</mo><msup><mrow><mo>(</mo><mi>L</mi><mo>&#8722;</mo><mi>&#950;</mi><mo>)</mo></mrow><mo>+</mo></msup><mo>]</mo><mo>}</mo></mrow></math><span class="num">(8.3)</span></div>
+  <p>Requiring the CVaR of the negative goal-slack to be non-positive is a convex, conservative surrogate for the chance constraint (8.1): it implies feasibility at the required confidence, and penalises deep failures rather than merely counting them, one constraint per active goal.</p>
+  <div class="eqrow sm"><math display="block"><mrow><msub><mtext>CVaR</mtext><msub><mi>&#949;</mi><mi>k</mi></msub></msub><mo>(</mo><msub><mtext>shortfall</mtext><mi>k</mi></msub><mo>)</mo><mo>&#8804;</mo><mn>0</mn></mrow></math><span class="num">(8.4)</span></div>
+  <div class="def assume"><span class="lab">Assumption 8.1 &mdash; Estimable dynamics</span><p>The model of the world is good enough that Monte-Carlo frequencies approximate true probabilities. The resulting numbers are well-reasoned estimates conditional on the model, not guarantees; Chapter 19 returns to this honestly.</p></div>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 9</div><h1 style="string-set:chaptitle 'The objective'">The objective</h1><div class="rule"></div></div>
+  <p class="lead">What are we optimising? A life lived well now, subject to keeping every goal on track with the confidence demanded of it.</p>
+  <p>Consumption enters through a constant-relative-risk-aversion utility, but of consumption measured <em>against the habit</em>: what is enjoyed is the margin of spending over the accustomed standard of living, which is how people actually experience a setback.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>U</mi><mo>(</mo><mi>z</mi><mo>)</mo><mo>=</mo><mfrac><msup><mi>z</mi><mrow><mn>1</mn><mo>&#8722;</mo><mi>&#947;</mi></mrow></msup><mrow><mn>1</mn><mo>&#8722;</mo><mi>&#947;</mi></mrow></mfrac><mo>,</mo><mspace width="1.2em"/><mi>z</mi><mo>=</mo><mi>C</mi><mo>&#8722;</mo><mi>&#954;</mi></mrow></math><span class="num">(9.1)</span></div>
+  <p>The planner maximises expected discounted utility of habit-adjusted consumption and of leisure over the horizon, plus a terminal term for bequest or legacy.</p>
+  <div class="eqrow"><math display="block"><mrow><munder><mi>max</mi><mrow><mi>u</mi><mo>(</mo><mo>&#183;</mo><mo>)</mo></mrow></munder><mspace width="0.4em"/><mi>E</mi><mo>[</mo><msubsup><mo>&#8747;</mo><mn>0</mn><mi>T</mi></msubsup><msup><mi>e</mi><mrow><mo>&#8722;</mo><mi>&#961;</mi><mi>t</mi></mrow></msup><mo>(</mo><mi>U</mi><mo>(</mo><mi>C</mi><mo>&#8722;</mo><mi>&#954;</mi><mo>)</mo><mo>+</mo><mi>&#968;</mi><mspace width="0.15em"/><mi>v</mi><mo>(</mo><msub><mi>&#964;</mi><mi>L</mi></msub><mo>,</mo><mi>H</mi><mo>)</mo><mo>)</mo><mi>d</mi><mi>t</mi><mo>+</mo><msup><mi>e</mi><mrow><mo>&#8722;</mo><mi>&#961;</mi><mi>T</mi></mrow></msup><mi>B</mi><mo>(</mo><msub><mi>x</mi><mi>T</mi></msub><mo>)</mo><mo>]</mo></mrow></math><span class="num">(9.2)</span></div>
+  <p>The two terms are <em>distinct channels</em> and are not collapsed into one. Habit-adjusted consumption <span class="mono">U(C&minus;&#954;)</span> runs through the reference stock of (5.12) and through the ceilings of (6.1); the leisure term <span class="mono">&psi;&thinsp;v(&tau;<sub>L</sub>, H)</span> runs through time to health and wellbeing, and is what stops the model prescribing a life of pure accumulation. Read plainly, the objective is: <em>live as well as you can now, while keeping each goal funded to the confidence you require.</em> Assembled with the constraints of Chapters 4&ndash;8, the full problem is the maximisation of (9.2) subject to the dynamics (5.1)&ndash;(5.13), the admissibility conditions (4.2)&ndash;(4.3), and one CVaR surrogate (8.4) per active goal, written in sample-average form for the solver of the next chapter.</p>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 10</div><h1 style="string-set:chaptitle 'Solving it'">Solving it</h1><div class="rule"></div></div>
+  <p class="lead">A consumer cannot be handed a forty-year plan. The engine solves a finite-horizon problem from the current state, applies only this period&rsquo;s action, and re-solves next period.</p>
+  <h2 class="sec">The optimum: a Hamilton&ndash;Jacobi&ndash;Bellman equation</h2>
+  <p>The optimal value function <span class="mono">V(x, t)</span> satisfies a Hamilton&ndash;Jacobi&ndash;Bellman equation, carrying a regime-jump term when the layer is on. We state it once for rigour and then decline to grid it, because a state of this dimension makes a direct solution infeasible.</p>
+  <div class="eqrow"><math display="block"><mrow><mi>&#961;</mi><mi>V</mi><mo>=</mo><munder><mi>max</mi><mrow><mi>u</mi><mo>&#8712;</mo><mi>U</mi></mrow></munder><mo>{</mo><mi>U</mi><mo>(</mo><mi>C</mi><mo>&#8722;</mo><mi>&#954;</mi><mo>)</mo><mo>+</mo><mi>&#968;</mi><mi>v</mi><mo>+</mo><msub><mi>V</mi><mi>t</mi></msub><mo>+</mo><msup><mrow><mo>&#8711;</mo><mi>V</mi></mrow><mo>&#8868;</mo></msup><mi>f</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>tr</mi><mo>(</mo><mi>&#963;</mi><msup><mi>&#963;</mi><mo>&#8868;</mo></msup><msubsup><mo>&#8711;</mo><mrow><mi>x</mi><mi>x</mi></mrow><mn>2</mn></msubsup><mi>V</mi><mo>)</mo><mo>+</mo><munder><mo>&#8721;</mo><mi>n</mi></munder><msub><mi>Q</mi><mrow><mi>m</mi><mi>n</mi></mrow></msub><mo>(</mo><mi>V</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>n</mi><mo>)</mo><mo>&#8722;</mo><mi>V</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>m</mi><mo>)</mo><mo>)</mo><mo>}</mo></mrow></math><span class="num">(10.1)</span></div>
+  <h2 class="sec">Discretise, then sample</h2>
+  <p>The continuous dynamics are stepped with an Euler&ndash;Maruyama scheme, and the expectation in the objective is replaced by an average over <span class="mono">M</span> sampled scenarios &mdash; sample-average approximation. The first-period control is shared across all scenarios (non-anticipativity); later controls may adapt. This turns the stochastic program into a finite nonlinear program solvable at interactive speed.</p>
+  <div class="eqrow sm"><math display="block"><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><mi>f</mi><mo>(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>,</mo><msub><mi>u</mi><mi>k</mi></msub><mo>)</mo><mi>&#916;</mi><mi>t</mi><mo>+</mo><mi>&#963;</mi><msqrt><mrow><mi>&#916;</mi><mi>t</mi></mrow></msqrt><msub><mi>&#950;</mi><mi>k</mi></msub></mrow></math><span class="num">(10.2)</span></div>
+  <h2 class="sec">Model-predictive control</h2>
+  <figure>
+    <svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="480" height="200" fill="#fff"/>
+      <line x1="40" y1="150" x2="450" y2="150" stroke="#1B1D2A" stroke-width="1.1"/>
+      <circle cx="70" cy="120" r="4" fill="#1B1D2A"/><text x="70" y="170" text-anchor="middle" class="edgelab">now</text>
+      <g fill="none" stroke="#9aa0ad" stroke-width="1" opacity=".8"><path d="M70,120 C150,100 220,60 320,40"/><path d="M70,120 C150,110 230,110 330,120"/><path d="M70,120 C150,130 230,150 330,168"/></g>
+      <path d="M70,120 C110,112 130,108 150,104" fill="none" stroke="#0F6E6B" stroke-width="2.6"/>
+      <circle cx="150" cy="104" r="3.5" fill="#0F6E6B"/>
+      <text x="150" y="96" text-anchor="middle" class="edgelab" style="fill:#0F6E6B">apply first action</text>
+      <text x="300" y="30" class="edgelab" style="fill:#9aa0ad">sampled futures</text>
+    </svg>
+    <figcaption><b>Fig. 10.1 &mdash;</b> Receding-horizon control. From today&rsquo;s realised state the engine samples futures, optimises the plan, and applies <b>only the first action</b>. Next period it observes what actually happened and re-solves. A missed month or a windfall simply becomes the new starting point.</figcaption></figure>
+  <h2 class="sec">Shadow prices: what an hour is worth</h2>
+  <p>The Lagrangian of the discretised program attaches a multiplier to each state-transition constraint, and these multipliers are the <strong>costates</strong> &mdash; the marginal value of each capital at the optimum, read as the sensitivity of the optimal value to the initial state.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>&#955;</mi><mo>=</mo><mfrac><mrow><mo>&#8706;</mo><msup><mi>J</mi><mo>&#8727;</mo></msup></mrow><mrow><mo>&#8706;</mo><msub><mi>x</mi><mn>0</mn></msub></mrow></mfrac></mrow></math><span class="num">(10.3)</span></div>
+  <p>Their ratios are the exchange rates the model is really for. Comparing the value of an hour of networking against an hour of earning is a matter of comparing costate-weighted marginal effects,</p>
+  <div class="eqrow sm"><math display="block"><mrow><mtext>ER</mtext><mo>=</mo><mfrac><mrow><msub><mi>&#955;</mi><mi>N</mi></msub><mo>&#183;</mo><mo>&#8706;</mo><mover><mi>N</mi><mo>&#775;</mo></mover><mo>/</mo><mo>&#8706;</mo><msub><mi>&#964;</mi><mi>N</mi></msub></mrow><mrow><msub><mi>&#955;</mi><msub><mi>W</mi><mi>L</mi></msub></msub><mo>&#183;</mo><mo>&#8706;</mo><mi>Y</mi><mo>/</mo><mo>&#8706;</mo><msub><mi>&#964;</mi><mi>Y</mi></msub></mrow></mfrac></mrow></math><span class="num">(10.4)</span></div>
+  <p>and whichever side is larger is where the next hour should go, for that goal, at that moment. The ranking is not a rule of thumb; it is computed from the person&rsquo;s state and shifts as the state shifts. It is also the answer to the question people actually ask &mdash; not &ldquo;will I make it?&rdquo; but &ldquo;what should I do tonight?&rdquo;</p>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 11</div><h1 style="string-set:chaptitle 'The regime layer and calibration'">The regime layer and calibration</h1><div class="rule"></div></div>
+  <p class="lead">Two loose ends from Part II: the optional regime layer that couples a life to the capital cycle, and where the parameters come from and how to know whether they are right.</p>
+  <h2 class="sec">The regime layer</h2>
+  <p>The regime <span class="mono">m</span> is the wire that ties the personal plan to the wider field model. Switched on, the role returns <span class="mono">&mu;<sub>m</sub>, &Sigma;<sub>m</sub></span> become phase-dependent, so the portfolio rotates across the four roles as the capital cycle turns: protection and stabilization carry weight into contraction and crisis, gain and income into expansion and boom, exactly as the institutional allocation does. The same cycle the macro notes describe therefore drives the returns the personal plan faces, and the personal and institutional problems become two instances of one machinery. Switched off, the model is the honest lean default of the earlier chapters, with constant returns and the scalar risk tilt <span class="mono">&theta;</span>. The layer is not a future extension but an option the adviser turns on when the cycle view is part of the mandate.</p>
+  <div class="def"><span class="lab">Validation 11.1 &mdash; the Merton limit</span><p>With a single liquid capital, no goals, no habit and constant returns, the problem must collapse to Merton&rsquo;s rule, the optimal risky weight <span class="mono">w<sup>&#8727;</sup> = (&mu; &minus; r)/(&gamma;&sigma;<sup>2</sup>)</span> with consumption a fixed fraction of wealth. Reproducing this is a unit test the engine must pass, not the framing of the model.</p></div>
+  <h2 class="sec">Where the parameters come from</h2>
+  <p>The parameters fall into three groups. <strong>Market</strong> parameters (role returns, volatilities, rates) come from standard financial data and are common across users. <strong>Structural</strong> parameters (the growth, saturation and depreciation rates of the capitals; the income exponents; the habit speed <span class="mono">&alpha;</span>) are estimated from panel data on careers, earnings and health, and are broadly shared. <strong>Personal</strong> parameters (initial state, risk aversion, the leisure weight, goal thresholds) are elicited from the individual. Only the last group must be set per person; the first two are the product&rsquo;s calibrated backbone.</p>
+  <p>The honest test of a structural calibration is whether it reproduces real trajectories. A person whose past is known becomes a backtest: run the dynamics forward from their early state with their actual choices, and check that the model recovers their observed capitals and wealth at known dates. A companion case study does exactly this over a twenty-six-year record; if the fitted dynamics cannot retrodict a life that was actually lived, they have no business predicting one that has not been.</p>
+  <div class="def assume"><span class="lab">Assumption 11.2 &mdash; Identifiability</span><p>Not every parameter is separately identifiable from a single life. Where data cannot pin a parameter down (the habit-to-network coupling <span class="mono">&lambda;<sub>&#954;</sub></span> is the clearest case), it is fixed small from population priors and its influence is stress-tested by sensitivity analysis rather than estimated spuriously.</p></div>
+  <p>The default parameter values used throughout the worked lives are collected in Appendix B. They are chosen to make the model&rsquo;s behaviour legible and internally consistent, not fitted to any individual; a real deployment would replace them with calibrated values and report the sensitivity of each recommendation to the least certain among them.</p>
+</section>
+
+<div class="part">
+  <div class="inner"><div class="pn">Part Three</div><h1>Worked lives</h1>
+    <div class="desc">One framework, filled with different capitals, goals and constraints, produces different optimal lives. Five instances of the same machinery, each chosen to stress a different part of it.</div></div>
+  <div class="chs">13 Young professional &nbsp; 14 Independence by fifty &nbsp; 15 Near-retiree &nbsp; 16 Entrepreneur &nbsp; 17 Tail shock &nbsp; 18 Lessons</div>
+</div>
+
+<section class="chapter">
+  <h2 style="string-set:parttitle 'Part III — Worked lives'; position:absolute; left:-9999px;">.</h2>
+  <div class="chap-open"><div class="cnum">Chapter 12</div><h1 style="string-set:chaptitle 'How to read a case'">How to read a case</h1><div class="rule"></div></div>
+  <p class="lead">The framework is a generic stochastic control problem, not a personal model. Its content is what happens when it is instantiated with a specific capital mix, goal set, risk aversion and constraints. The next five chapters are that test.</p>
+  <p>Everything that distinguishes one life from another enters as a parameter of the same control problem: the initial capitals (including the starting habit <span class="mono">&#954;<sub>0</sub></span>), the dated goals with their required confidences <span class="mono">&epsilon;<sub>k</sub></span>, the risk aversion <span class="mono">&gamma;</span>, and the constraints on labour, liquidity and permitted assets. A case is a choice of that tuple; the solver returns a state-contingent policy for consumption, the time budget, capital investment, the role weights and the discrete jumps. The five lives differ only in this tuple.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mo>(</mo><msub><mi>K</mi><mn>0</mn></msub><mo>,</mo><mspace width="0.3em"/><mo>{</mo><mo>(</mo><msub><mi>G</mi><mi>k</mi></msub><mo>,</mo><msub><mi>T</mi><mi>k</mi></msub><mo>,</mo><msub><mi>&#949;</mi><mi>k</mi></msub><mo>)</mo><mo>}</mo><mo>,</mo><mspace width="0.3em"/><msup><mi>c</mi><mo>&#8727;</mo></msup><mo>,</mo><mspace width="0.3em"/><mi>&#947;</mi><mo>,</mo><mspace width="0.3em"/><mo>{</mo><mtext>constraints</mtext><mo>}</mo><mo>)</mo></mrow></math><span class="num">(12.1)</span></div>
+  <p>Each chapter opens with the person and their goal as a formal liability, gives the <strong>initial state</strong> (the six capitals as numbers, with the starting habit noted), states the <strong>parameters</strong> that differ from the Appendix B defaults, shows what the engine <strong>outputs</strong>, and identifies the <strong>binding constraint</strong>. It closes with a <strong>lever</strong>. Wealth figures are in Swiss francs; the indices <span class="mono">E, N, H</span> are on the normalised zero-to-one scale of Chapter 3. Numbers are illustrative &mdash; the point is the shape of the reasoning, not the digits. A sixth life, a real twenty-six-year trajectory used to calibrate the dynamics, is treated separately as a companion case study.</p>
+</section>
+
+<section class="chapter">
+  <div class="case-open"><div class="who"><div class="nm" style="string-set:chaptitle 'The young professional — hedge and build'">The young professional</div><div class="role">28 &middot; technologist &middot; high, market-correlated human capital</div></div><div class="tag">Chapter 13<br>Archetype:<br>human-capital<br>Merton</div></div>
+  <p class="lead">Most of the estate is human capital, and if the career is market-correlated the person is already long the Gain role before they buy a single share. The right financial book is defensive, and the right investment is in the still-steep expertise and network S-curves.</p>
+  <table class="tabmono"><caption>Initial state &mdash; the young professional, age 28 (habit &#954;<sub>0</sub> &asymp; CHF 46k)</caption>
+    <tr><th>Liquid</th><th>Real</th><th>Debt</th><th>Expertise</th><th>Network</th><th>Health</th><th>Free time</th></tr>
+    <tr><td>CHF 40k</td><td>0</td><td>0</td><td>0.45</td><td>0.30</td><td>0.92</td><td>0.75</td></tr></table>
+  <p><strong>Goal.</strong> Build toward long-run independence while hedging a career that is itself a leveraged bet on the Gain role. There is no single dated lump here; the case is about the <em>policy</em>, in particular the weight the financial book should place on Gain given how much of it the career already carries.</p>
+  <p><strong>The human-capital-adjusted Merton rule.</strong> With human capital <span class="mono">HC</span> several times financial wealth <span class="mono">W</span>, and a high effective beta <span class="mono">&beta;<sub>HC</sub></span> of that human capital to the Gain role, the optimal Gain weight scales to total wealth and is then offset by the market exposure the career already supplies.</p>
+  <div class="eqrow"><math display="block"><mrow><msubsup><mi>w</mi><mi>G</mi><mo>&#8727;</mo></msubsup><mo>=</mo><mfrac><mrow><mi>&#956;</mi><mo>&#8722;</mo><mi>r</mi></mrow><mrow><mi>&#947;</mi><msup><mi>&#963;</mi><mn>2</mn></msup></mrow></mfrac><mo>&#183;</mo><mfrac><mrow><mi>W</mi><mo>+</mo><mtext>HC</mtext></mrow><mi>W</mi></mfrac><mo>&#8722;</mo><msub><mi>&#946;</mi><mtext>HC</mtext></msub><mfrac><mtext>HC</mtext><mi>W</mi></mfrac></mrow></math><span class="num">(13.1)</span></div>
+  <p>With <span class="mono">HC</span> large and <span class="mono">&beta;<sub>HC</sub></span> high, the second term dominates and <span class="mono">w<sub>G</sub><sup>&#8727;</sup></span> is driven low or even negative: the young professional should hold a financial book tilted to Income and Protection, not chase Gain.</p>
+  <figure>
+    <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg">
+      <rect width="480" height="210" fill="#fff"/>
+      <line x1="50" y1="105" x2="450" y2="105" stroke="#5A6272" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="50" y1="30" x2="50" y2="185" stroke="#1B1D2A" stroke-width="1.1"/>
+      <line x1="50" y1="185" x2="450" y2="185" stroke="#1B1D2A" stroke-width="1.1"/>
+      <path d="M50,55 C150,72 260,100 450,150" fill="none" stroke="#0F6E6B" stroke-width="2.4"/>
+      <text x="60" y="48" class="edgelab" style="fill:#0F6E6B">optimal Gain weight w&#8323;*</text>
+      <text x="455" y="108" class="edgelab" style="fill:#5A6272">0</text>
+      <text x="250" y="205" text-anchor="middle" class="edgelab">human capital / financial wealth  (HC / W)  &rarr;</text>
+      <text x="360" y="140" class="edgelab" style="fill:#C0872A">defensive / short Gain</text>
+    </svg>
+    <figcaption><b>Fig. 13.1 &mdash;</b> The Gain weight of (13.1) as human capital rises relative to financial wealth. Early in a market-correlated career the ratio is high, the offset dominates, and the optimal financial book is defensive, underweight Gain, even short it.</figcaption></figure>
+  <p><strong>Output and binding constraint.</strong> The policy also directs heavy investment of time and money into expertise and network, because their S-curves are still steep and their marginal return exceeds that of financial assets. The binding lever is not the portfolio but the allocation of hours: the exchange rate of Chapter 10 favours building and hedging the human capitals over trading the financial ones.</p>
+  <div class="lever"><b>Lever &mdash;</b> hold the financial book defensive (Income and Protection, cash the residual) and pour the marginal hour into expertise and network while their S-curves are steep. The plan for the young is to build the human capitals and hedge them, not to double a career bet in the portfolio.</div>
+</section>
+
+<section class="chapter">
+  <div class="case-open"><div class="who"><div class="nm" style="string-set:chaptitle 'Independence by fifty — a drawable target'">Independence by fifty</div><div class="role">40 &middot; mid-career &middot; work by choice, not need</div></div><div class="tag">Chapter 14<br>Archetype:<br>counterfactual</div></div>
+  <p class="lead">A defined lifestyle net of mortgage, a residence that will not be drawn on, and a conservative yield in a saturated regime. Those three facts fix a concrete drawable-wealth target, and the plan is the path that reaches it in the bad tail as well as the median.</p>
+  <table class="tabmono"><caption>Initial state &mdash; independence by fifty, age 40 (habit &#954;<sub>0</sub> &asymp; CHF 110k)</caption>
+    <tr><th>Liquid</th><th>Real (residence)</th><th>Debt</th><th>Expertise</th><th>Network</th><th>Health</th><th>Free time</th></tr>
+    <tr><td>CHF 1.6m</td><td>CHF 1.1m</td><td>CHF 300k</td><td>0.80</td><td>0.72</td><td>0.80</td><td>0.45</td></tr></table>
+  <p><strong>Goal.</strong> Independence at fifty on <span class="mono">c<sup>&#8727;</sup> = CHF 120k</span> per year in real terms, net of mortgage service, at confidence 0.85, with the residence walled off (<span class="mono">h<sub>home</sub> = 0</span>). At a conservative sustainable real withdrawal of <span class="mono">y = 3%</span>, the independence condition (7.8) fixes the required drawable wealth.</p>
+  <div class="eqrow"><math display="block"><mrow><msup><mtext>Fundable</mtext><mo>&#8727;</mo></msup><mo>=</mo><mfrac><msup><mi>c</mi><mo>&#8727;</mo></msup><mi>y</mi></mfrac><mo>=</mo><mfrac><mrow><mn>120</mn><mo>,</mo><mn>000</mn></mrow><mrow><mn>0.03</mn></mrow></mfrac><mo>=</mo><mn>4</mn><mo>,</mo><mn>000</mn><mo>,</mo><mn>000</mn></mrow></math><span class="num">(14.1)</span></div>
+  <p><strong>Parameters that differ.</strong> Four million of drawable wealth in real terms, with the residence excluded and human capital excluded because independence is precisely the state of not needing it. The solver steers liquid and income-producing wealth to the target by the date subject to the tail constraint, choosing the saving, allocation and labour path that reaches it across the widest range of regime scenarios.</p>
+  <figure>
+    <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg">
+      <rect width="480" height="210" fill="#fff"/>
+      <line x1="50" y1="180" x2="450" y2="180" stroke="#1B1D2A" stroke-width="1.1"/>
+      <line x1="50" y1="30" x2="50" y2="180" stroke="#1B1D2A" stroke-width="1.1"/>
+      <line x1="50" y1="55" x2="450" y2="55" stroke="#C0872A" stroke-width="1.5" stroke-dasharray="5 3"/>
+      <text x="150" y="49" class="edgelab" style="fill:#C0872A">Fundable* = CHF 4.0m</text>
+      <path d="M50,168 C160,150 280,95 420,55" fill="none" stroke="#0F6E6B" stroke-width="2.4"/>
+      <path d="M50,168 C170,158 300,130 440,96" fill="none" stroke="#9aa0ad" stroke-width="1.4" stroke-dasharray="4 3"/>
+      <path d="M50,168 C150,140 260,70 400,38" fill="none" stroke="#9aa0ad" stroke-width="1.4" stroke-dasharray="4 3"/>
+      <text x="60" y="150" class="edgelab" style="fill:#0F6E6B">drawable wealth (median)</text>
+      <text x="300" y="200" text-anchor="middle" class="edgelab">age 40 &rarr; 50</text>
+    </svg>
+    <figcaption><b>Fig. 14.1 &mdash;</b> Drawable wealth climbing to the CHF 4.0m target by the deadline, with a confidence band. The tail constraint requires the worst paths, not just the median, to clear the line at the required confidence.</figcaption></figure>
+  <p><strong>Output and binding constraint.</strong> The binding quantity is drawable wealth, not net worth: the residence is walled off, so only the liquid and income-producing sleeve counts toward (14.1). Because work continues by choice, labour supply does not collapse at the independence date; independence changes its meaning, from a source that must be harvested into one free to be withdrawn.</p>
+  <div class="lever"><b>Lever &mdash;</b> direct earned income preferentially into the drawable sleeve rather than into the residence, and hold permanent lifestyle inflation down, since every franc added to <span class="mono">c<sup>&#8727;</sup></span> raises the four-million bar in direct proportion.</div>
+</section>
+
+<section class="chapter">
+  <div class="case-open"><div class="who"><div class="nm" style="string-set:chaptitle 'The near-retiree — a preservation glide'">The near-retiree</div><div class="role">60 &middot; approaching decumulation &middot; horizon short, tail binding</div></div><div class="tag">Chapter 15<br>Archetype:<br>liability stream</div></div>
+  <p class="lead">As the horizon shortens and the tolerance for a bad path falls, the tail constraint binds and pulls the portfolio toward the value-preserving roles. The glide is not a fixed schedule but a response to the realised funding ratio.</p>
+  <table class="tabmono"><caption>Initial state &mdash; the near-retiree, age 60 (habit &#954;<sub>0</sub> &asymp; CHF 95k)</caption>
+    <tr><th>Liquid</th><th>Real</th><th>Debt</th><th>Expertise</th><th>Network</th><th>Health</th><th>Free time</th></tr>
+    <tr><td>CHF 1.6m</td><td>CHF 1.4m</td><td>CHF 0.1m</td><td>0.82</td><td>0.75</td><td>0.68</td><td>0.55</td></tr></table>
+  <p><strong>Goal.</strong> Fund a retirement stream from age 65 to about 90 (the funding-ratio condition of 7.3) at confidence 0.90, against sequence-of-returns risk.</p>
+  <p><strong>Output and binding constraint.</strong> The danger is that early drawdown-phase losses permanently impair the funding ratio. As the terminal date nears and the shortfall tail tightens, the CVaR constraint (8.4) becomes active and pulls the Gain weight down until the worst-tail funding shortfall is back within tolerance, gliding the book toward Protection and Income. Because model-predictive control re-solves each period, a good early sequence relaxes the constraint and permits more Gain, a bad one tightens it and forces further de-risking.</p>
+  <figure>
+    <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg">
+      <rect width="480" height="210" fill="#fff"/>
+      <line x1="50" y1="180" x2="450" y2="180" stroke="#1B1D2A" stroke-width="1.1"/>
+      <line x1="50" y1="20" x2="50" y2="180" stroke="#1B1D2A" stroke-width="1.1"/>
+      <path d="M50,40 C130,45 200,60 260,95 C320,128 390,150 450,158" fill="#0F6E6B" opacity=".13"/>
+      <path d="M50,40 C130,45 200,60 260,95 C320,128 390,150 450,158" fill="none" stroke="#0F6E6B" stroke-width="2.2"/>
+      <path d="M50,175 C130,168 210,150 300,120 C360,100 410,72 450,55" fill="none" stroke="#C0872A" stroke-width="2.2"/>
+      <text x="60" y="34" class="edgelab" style="fill:#0F6E6B">Gain weight (glides down)</text>
+      <text x="250" y="70" class="edgelab" style="fill:#C0872A">Protection + Income (rise)</text>
+      <text x="300" y="200" text-anchor="middle" class="edgelab">age 60 &rarr; 65 (drawdown begins)</text>
+    </svg>
+    <figcaption><b>Fig. 15.1 &mdash;</b> The preservation glide. As the tail constraint binds, the Gain weight is pulled down and the Protection and Income roles rise, a schedule that responds to the realised funding ratio rather than the calendar alone.</figcaption></figure>
+  <div class="lever"><b>Lever &mdash;</b> a modest encore income for a few years lowers the required nest egg more than one more full year of work, because a franc earned late in the accumulation phase substitutes for many francs of capital, and it protects health and network, which a hard stop tends to erode.</div>
+</section>
+
+<section class="chapter">
+  <div class="case-open"><div class="who"><div class="nm" style="string-set:chaptitle 'The entrepreneur — diversifying the undiversifiable'">The entrepreneur</div><div class="role">46 &middot; founder &middot; balance sheet dominated by one venture</div></div><div class="tag">Chapter 16<br>Archetype:<br>concentration</div></div>
+  <p class="lead">The business is simultaneously real capital, intellectual capital and the whole of the founder&rsquo;s human capital, all loaded on one idiosyncratic risk. The plan diversifies an undiversifiable balance sheet by making everything the founder controls outside the business the opposite of the business.</p>
+  <table class="tabmono"><caption>Initial state &mdash; the entrepreneur, age 46 (habit &#954;<sub>0</sub> &asymp; CHF 130k)</caption>
+    <tr><th>Liquid</th><th>Real (venture + stakes)</th><th>Debt</th><th>Expertise</th><th>Network</th><th>Health</th><th>Free time</th></tr>
+    <tr><td>CHF 300k</td><td>CHF 2.5m</td><td>CHF 0.6m</td><td>0.85</td><td>0.70</td><td>0.72</td><td>0.40</td></tr></table>
+  <p><strong>Goal.</strong> Sustain a lifestyle and edge toward independence while most of the estate is locked in the venture, at confidence 0.80. The liquidity and capital-type constraints cap the fundable illiquid share and force the liquid sleeve to diversify away from the venture&rsquo;s risk rather than toward it.</p>
+  <p><strong>Output and binding constraint.</strong> The optimal policy is counterintuitive to many founders. Because the business already supplies extreme concentration and behaves like a leveraged Gain-role holding, the liquid capital should be maximally diversified and uncorrelated with the venture, tilted to Stabilization and Protection, with a portion moved deliberately into value-preserving assets outside the venture&rsquo;s fate. The binding constraint is drawable liquidity against a concentrated, illiquid book, not net worth.</p>
+  <figure>
+    <svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="480" height="200" fill="#fff"/>
+      <text x="120" y="24" text-anchor="middle" class="edgelab">whole estate</text>
+      <rect x="70" y="40" width="100" height="120" fill="#C0872A" opacity=".8"/>
+      <text x="120" y="105" text-anchor="middle" class="nodesub" style="fill:#fff">venture (Gain-like, illiquid)</text>
+      <text x="360" y="24" text-anchor="middle" class="edgelab">liquid sleeve (the lever)</text>
+      <rect x="310" y="40" width="100" height="40" fill="#5BA9A5"/><text x="360" y="64" text-anchor="middle" class="nodesub" style="fill:#fff">Stabilization</text>
+      <rect x="310" y="84" width="100" height="40" fill="#0F6E6B"/><text x="360" y="108" text-anchor="middle" class="nodesub" style="fill:#fff">Protection</text>
+      <rect x="310" y="128" width="100" height="32" fill="#9aa0ad"/><text x="360" y="148" text-anchor="middle" class="nodesub" style="fill:#fff">cash</text>
+      <path d="M175,100 C230,100 255,100 305,100" fill="none" stroke="#5A6272" stroke-width="1.4" marker-end="url(#ah)"/>
+      <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#5A6272"/></marker></defs>
+      <text x="240" y="92" text-anchor="middle" class="edgelab">offset</text>
+    </svg>
+    <figcaption><b>Fig. 16.1 &mdash;</b> Diversifying the undiversifiable. The venture is a concentrated, illiquid, Gain-like holding; the liquid sleeve is tilted to Stabilization and Protection so that everything the founder controls outside the business is the opposite of the business.</figcaption></figure>
+  <div class="lever"><b>Lever &mdash;</b> build and hold a diversified liquid sleeve uncorrelated with the venture rather than reinvesting every spare franc back into it; the concentration is already extreme, so the marginal franc is worth far more outside than inside.</div>
+</section>
+
+<section class="chapter">
+  <div class="case-open"><div class="who"><div class="nm" style="string-set:chaptitle 'The tail shock — a pre-positioned buffer'">The tail shock</div><div class="role">a scenario, not a person &middot; job loss, disability, a health event</div></div><div class="tag">Chapter 17<br>Archetype:<br>tail constraint</div></div>
+  <p class="lead">The last case is not a different person but a different scenario for any of them: the realised tail. The tail constraint exists precisely to pre-position for it, so the plan carries liquidity and insurance that look excessive in the central case and prove exactly sufficient in the bad one.</p>
+  <p><strong>Goal.</strong> Hold, before any shock, a buffer <span class="mono">B</span> in the Protection role and a hedge <span class="mono">q</span> large enough that the funding shortfall in the worst <span class="mono">&epsilon;</span> tail stays within tolerance, i.e. so that (8.4) holds when a shock impairs human capital and raises liabilities at once.</p>
+  <p><strong>Sizing.</strong> The requirement follows directly: the buffer plus hedge payout must cover the drop in fundable capital plus the rise in liabilities across the tail scenarios, evaluated at the <span class="mono">&epsilon;</span> quantile.</p>
+  <div class="eqrow"><math display="block"><mrow><mi>B</mi><mo>+</mo><mtext>hedge&#8202;payout</mtext><mo>&#8805;</mo><msub><mrow><mo>(</mo><mi>&#916;</mi><mi>L</mi><mo>&#8722;</mo><mi>&#916;</mi><mtext>fundable</mtext><mo>)</mo></mrow><mtext>tail</mtext></msub></mrow></math><span class="num">(17.1)</span></div>
+  <p><strong>Output and binding constraint.</strong> Requiring <span class="mono">CVaR<sub>&epsilon;</sub>(shortfall) &le; 0</span> forces the plan to provision in advance rather than after the event, when provisioning is impossible or ruinous. The binding constraint is the tail itself: the worst <span class="mono">&epsilon;</span> of scenarios sets the buffer, and the central case merely carries it. This is the entire purpose of solving with a tail constraint rather than to an expectation.</p>
+  <figure>
+    <svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="480" height="200" fill="#fff"/>
+      <line x1="40" y1="160" x2="450" y2="160" stroke="#1B1D2A" stroke-width="1.1"/>
+      <path d="M40,160 C120,158 150,55 210,42 C270,55 300,158 380,159 C410,159 430,160 450,160" fill="none" stroke="#5A6272" stroke-width="1.5"/>
+      <path d="M40,160 C90,159 110,140 128,112 L128,160 Z" fill="#0F6E6B" opacity=".22"/>
+      <line x1="128" y1="60" x2="128" y2="160" stroke="#C0872A" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="128" y="52" text-anchor="middle" class="edgelab" style="fill:#C0872A">&epsilon; quantile</text>
+      <text x="70" y="150" class="edgelab" style="fill:#0F6E6B">worst &epsilon; tail</text>
+      <path d="M150,178 L128,178" stroke="#0F6E6B" stroke-width="1.2" marker-end="url(#ah2)"/>
+      <defs><marker id="ah2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#0F6E6B"/></marker></defs>
+      <text x="250" y="185" text-anchor="middle" class="edgelab">buffer B + hedge sized to cover this tail &rarr;</text>
+    </svg>
+    <figcaption><b>Fig. 17.1 &mdash;</b> The tail constraint sizes the provision. The buffer and hedge are set so that fundable capital net of liabilities clears the requirement even at the <b>&epsilon; quantile</b>, before any shock has been realised.</figcaption></figure>
+  <div class="lever"><b>Lever &mdash;</b> size the Protection buffer and any hedge to the tail, not to the average; the provision that looks like drag in the central case is exactly what keeps the plan solvent when the shock lands.</div>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 18</div><h1 style="string-set:chaptitle 'What the five have in common'">What the five have in common</h1><div class="rule"></div></div>
+  <p class="lead">Across the five, the four-capital state, the two budgets and the role-based portfolio, the habit-adjusted objective, the per-goal tail constraints, and the model-predictive solver never change. Only the parameter tuple (12.1) does.</p>
+  <p>That the same machinery produces a defensive book for one, a four-million drawable target for another, a preservation glide for a third, forced diversification for a fourth, and a pre-positioned protection buffer for the fifth is the demonstration that the framework is generic and the cases are instantiations, not a personal recipe dressed as a method.</p>
+  <p>Three lessons recur. First, <strong>the binding constraint is usually not money.</strong> For the young professional it is the market beta of a career; for the independence-seeker, drawable liquidity against a walled-off residence; for the near-retiree, sequence risk in the tail; for the entrepreneur, concentration; for the tail case, the worst-<span class="mono">&epsilon;</span> scenario itself. A money-only tool would have missed the real lever in every case.</p>
+  <p>Second, <strong>time and health are the quiet limiters.</strong> They do not appear on a bank statement, yet they cap what every other capital can produce, and the overwork loop means they can be spent without noticing until the bill arrives. The model keeps them on the balance sheet precisely so they cannot be quietly overdrawn.</p>
+  <p>Third, <strong>the tail is where a plan earns its keep.</strong> A conventional glide path, a fixed savings rate and a single risk questionnaire hand materially different lives the same template and are wrong for almost all of them. The framework beats the cookie-cutter by solving each life&rsquo;s actual problem with its actual capitals, goals and constraints, and by re-solving as the state evolves. Together with the balance-sheet and control notes, this closes the loop with the institutional Optimizer: the same coherent, tail-aware, role-based, regime-conditional machinery governs a pension fund and a life, because both are capitals funding liabilities across an uncertain cycle.</p>
+</section>
+
+<div class="part">
+  <div class="inner"><div class="pn">Part Four</div><h1>Limits and extensions</h1>
+    <div class="desc">What the model does not claim, where it can mislead, and the directions in which it should grow.</div></div>
+  <div class="chs">19 &middot; Honest limits &nbsp;&nbsp;&nbsp; 20 &middot; Extensions</div>
+</div>
+
+<section class="chapter">
+  <h2 style="string-set:parttitle 'Part IV — Limits and extensions'; position:absolute; left:-9999px;">.</h2>
+  <div class="chap-open"><div class="cnum">Chapter 19</div><h1 style="string-set:chaptitle 'Honest limits'">Honest limits</h1><div class="rule"></div></div>
+  <p class="lead">A model is a lens, not a crystal ball. Being clear about its limits is what makes it safe to use.</p>
+  <div class="twocol">
+  <p>The model reduces a person to a handful of capitals and a habit. Real lives are richer, and the things hardest to quantify &mdash; judgement, love, luck, meaning &mdash; often matter most. The capitals are chosen because they are the ones a plan can act on, not because they are all that count.</p>
+  <p>The parameters are illustrative unless calibrated, and the probabilities are conditional on the model being right about how the world works, which it never fully is. A reported &ldquo;85% chance&rdquo; is a well-reasoned estimate inside a particular set of assumptions, not a law of nature. The right use is comparative &mdash; this plan versus that one &mdash; rather than absolute. The habit-to-network coupling <span class="mono">&lambda;<sub>&#954;</sub></span> is the least identifiable parameter and is deliberately held small; a recommendation that hinges on it should be treated with suspicion.</p>
+  <p>The optimiser can also be confidently wrong in a specific way: if a capital or coupling is mis-specified, the shadow prices will point somewhere plausible and mistaken. This is why the calibration backtest and the sensitivity analysis are not optional extras but part of the method.</p>
+  <p>Finally, nothing here is personalised financial, tax, or legal advice. It is a way of thinking and a tool for exploring trade-offs. What it offers over a money-only plan is an honest accounting: time and health on the balance sheet, goals as claims that can be missed, a standard of living that compounds, and the trade-offs between them priced in a common currency. Used to inform judgement rather than replace it, it earns its keep; used as an oracle, it will mislead like any other.</p>
+  </div>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Chapter 20</div><h1 style="string-set:chaptitle 'Extensions'">Extensions</h1><div class="rule"></div></div>
+  <p class="lead">Directions in which the model naturally grows, each already anticipated by the structure.</p>
+  <h3 class="sub">1 &nbsp; Expertise as a vector</h3>
+  <p>Chapter 3 treats expertise as a scalar. Serial reinvention &mdash; the move from one field to another &mdash; is better modelled by promoting <span class="mono">E</span> to a vector of domain-specific capitals, where a pivot seeds a new component and the existing network accelerates its ceiling. The scalar version is the special case of a single active domain.</p>
+  <h3 class="sub">2 &nbsp; Households and dependants</h3>
+  <p>A single-person state can be extended by coupling two state vectors through shared wealth, correlated time budgets, and children as a time-and-money liability with its own schedule.</p>
+  <h3 class="sub">3 &nbsp; Taxes and institutions</h3>
+  <p>Pension pillars, mortgage rules, and tax treatment are jurisdiction-specific and enter as constraints and cash-flow adjustments. They do not change the structure but they change the numbers, sometimes decisively; the reference implementation already carries a Swiss-style progressive income tax and a wealth tax.</p>
+  <h3 class="sub">4 &nbsp; The regime layer, already switched on</h3>
+  <p>The regime-switching dynamics that once sat here as a future extension are now part of the model proper (Chapters 3, 5 and 11): the constant parameters can be made regime-dependent so returns, volatilities and even growth rates shift with a slow-moving macro state. What remains as extension is richer regime estimation and a fuller two-way coupling with the institutional cycle model.</p>
+  <h3 class="sub">5 &nbsp; Behaviour and adherence</h3>
+  <p>The largest gap between a plan and a life is adherence. Modelling the person&rsquo;s own follow-through &mdash; the probability that a recommended action is actually taken &mdash; would let the engine prefer plans that are not merely optimal but likely to be followed.</p>
+  <p>None of these require abandoning the framework; each is a place where more structure can be added when the data and the use case justify it. That is the mark of a model built to grow rather than to impress.</p>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Appendix A</div><h1 style="string-set:chaptitle 'Appendix A — Equation reference'; string-set:parttitle 'Appendices'">Equation reference</h1><div class="rule"></div></div>
+  <p class="disc">The model on a page. Numbers refer to the chapters where each is introduced.</p>
+  <div class="eqrow sm"><math display="block"><mrow><mi>Y</mi><mo>=</mo><msub><mi>A</mi><mi>Y</mi></msub><msub><mi>&#964;</mi><mi>Y</mi></msub><mi>&#966;</mi><mo>(</mo><mi>H</mi><mo>)</mo><msup><mi>E</mi><mi>a</mi></msup><msup><mi>N</mi><mi>b</mi></msup></mrow></math><span class="num">income (5.1)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><mi>d</mi><msub><mi>W</mi><mi>L</mi></msub><mo>=</mo><mo>[</mo><mi>F</mi><mo>+</mo><msub><mi>W</mi><mi>L</mi></msub><mo>(</mo><msub><mi>r</mi><mi>f</mi></msub><mo>+</mo><msup><mi>w</mi><mo>&#8868;</mo></msup><mo>(</mo><msub><mi>&#956;</mi><mi>m</mi></msub><mo>&#8722;</mo><msub><mi>r</mi><mi>f</mi></msub><mn>1</mn><mo>)</mo><mo>)</mo><mo>]</mo><mi>d</mi><mi>t</mi><mo>+</mo><msub><mi>W</mi><mi>L</mi></msub><msup><mi>w</mi><mo>&#8868;</mo></msup><msubsup><mi>&#931;</mi><mi>m</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msubsup><mi>d</mi><mi>B</mi></mrow></math><span class="num">liquid wealth (5.4)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><mi>d</mi><mi>&#954;</mi><mo>=</mo><mi>&#945;</mi><mo>(</mo><mi>C</mi><mo>&#8722;</mo><mi>&#954;</mi><mo>)</mo><mi>d</mi><mi>t</mi></mrow></math><span class="num">habit (5.12)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><mover><mi>N</mi><mo>&#175;</mo></mover><mo>=</mo><msub><mi>N</mi><mn>0</mn></msub><mo>+</mo><msub><mi>&#955;</mi><mi>E</mi></msub><mi>E</mi><mo>+</mo><msub><mi>&#955;</mi><mi>W</mi></msub><mi>W</mi><mo>+</mo><msub><mi>&#955;</mi><mi>&#954;</mi></msub><mi>&#954;</mi></mrow></math><span class="num">network ceiling (6.1)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><msup><mi>&#937;</mi><mtext>draw</mtext></msup><mo>=</mo><msub><mi>W</mi><mi>L</mi></msub><mo>+</mo><msub><mi>h</mi><mi>R</mi></msub><msub><mi>W</mi><mi>R</mi></msub><mo>&#8722;</mo><mi>D</mi><mo>,</mo><mspace width="0.6em"/><msub><mi>h</mi><mtext>home</mtext></msub><mo>=</mo><mn>0</mn></mrow></math><span class="num">fundable base (7.5)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><msub><mtext>CVaR</mtext><msub><mi>&#949;</mi><mi>k</mi></msub></msub><mo>(</mo><msub><mtext>shortfall</mtext><mi>k</mi></msub><mo>)</mo><mo>&#8804;</mo><mn>0</mn></mrow></math><span class="num">tail constraint (8.4)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><munder><mi>max</mi><mrow><mi>u</mi><mo>(</mo><mo>&#183;</mo><mo>)</mo></mrow></munder><mspace width="0.3em"/><mi>E</mi><mo>[</mo><msubsup><mo>&#8747;</mo><mn>0</mn><mi>T</mi></msubsup><msup><mi>e</mi><mrow><mo>&#8722;</mo><mi>&#961;</mi><mi>t</mi></mrow></msup><mo>(</mo><mi>U</mi><mo>(</mo><mi>C</mi><mo>&#8722;</mo><mi>&#954;</mi><mo>)</mo><mo>+</mo><mi>&#968;</mi><mi>v</mi><mo>)</mo><mi>d</mi><mi>t</mi><mo>+</mo><msup><mi>e</mi><mrow><mo>&#8722;</mo><mi>&#961;</mi><mi>T</mi></mrow></msup><mi>B</mi><mo>]</mo></mrow></math><span class="num">objective (9.2)</span></div>
+  <div class="eqrow sm"><math display="block"><mrow><msubsup><mi>w</mi><mi>G</mi><mo>&#8727;</mo></msubsup><mo>=</mo><mfrac><mrow><mi>&#956;</mi><mo>&#8722;</mo><mi>r</mi></mrow><mrow><mi>&#947;</mi><msup><mi>&#963;</mi><mn>2</mn></msup></mrow></mfrac><mo>&#183;</mo><mfrac><mrow><mi>W</mi><mo>+</mo><mtext>HC</mtext></mrow><mi>W</mi></mfrac><mo>&#8722;</mo><msub><mi>&#946;</mi><mtext>HC</mtext></msub><mfrac><mtext>HC</mtext><mi>W</mi></mfrac></mrow></math><span class="num">HC-adjusted Merton (13.1)</span></div>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Appendix B</div><h1 style="string-set:chaptitle 'Appendix B — Parameters'">Default parameters</h1><div class="rule"></div></div>
+  <p class="disc">Illustrative defaults used across the worked lives. All are to be calibrated in a real deployment; the values here are chosen for legibility and internal consistency, not fitted to any individual.</p>
+  <table class="tabmono">
+    <tr><th>Symbol</th><th>Meaning</th><th>Default</th><th>Unit</th></tr>
+    <tr><td>w0</td><td>income scale at E=N=H=1, full earning time</td><td>200,000</td><td>CHF/yr</td></tr>
+    <tr><td>a, b</td><td>income exponents on expertise, network</td><td>0.5, 0.4</td><td>&mdash;</td></tr>
+    <tr><td>c</td><td>health exponent in &phi;(H)</td><td>1.0</td><td>&mdash;</td></tr>
+    <tr><td>&alpha;E, &beta;E, &delta;E</td><td>expertise: time-gain, self-compounding, decay</td><td>0.30, 0.15, 0.03</td><td>1/yr</td></tr>
+    <tr><td>&alpha;N, &beta;N, &delta;N</td><td>network: time-gain, self-compounding, decay</td><td>0.25, 0.20, 0.08</td><td>1/yr</td></tr>
+    <tr><td>&alpha;H, &delta;H0, &eta;</td><td>health: recovery, baseline decay, overwork slope</td><td>0.50, 0.02, 0.30</td><td>1/yr</td></tr>
+    <tr><td>&tau;Y*</td><td>overwork threshold (earning share)</td><td>0.50</td><td>share</td></tr>
+    <tr><td>&lambda;E, &lambda;W</td><td>network-ceiling lift from expertise, wealth</td><td>0.5, 0.3</td><td>&mdash;</td></tr>
+    <tr><td>&alpha; (habit)</td><td>habit adjustment speed toward consumption</td><td>0.35</td><td>1/yr</td></tr>
+    <tr><td>&lambda;&#954;</td><td>habit-to-network-ceiling lift (least identifiable; held small, stress-tested)</td><td>0.10</td><td>&mdash;</td></tr>
+    <tr><td>rf, &mu;M, &sigma;M</td><td>risk-free, risky (Gain) return, risky volatility</td><td>0.01, 0.06, 0.16</td><td>1/yr</td></tr>
+    <tr><td>&mu;R, &sigma;R, yR</td><td>property appreciation, volatility, operating yield</td><td>0.03, 0.08, 0.02</td><td>1/yr</td></tr>
+    <tr><td>i, i-calc</td><td>mortgage rate, stressed serviceability rate</td><td>0.02, 0.05</td><td>1/yr</td></tr>
+    <tr><td>&xi;</td><td>down-payment fraction</td><td>0.20</td><td>&mdash;</td></tr>
+    <tr><td>y (swr)</td><td>safe withdrawal / sustainable yield (independence)</td><td>0.03&ndash;0.035</td><td>1/yr</td></tr>
+    <tr><td>h-R, h-home</td><td>drawable haircut on income-producing real assets, on residence</td><td>&ge;0, 0.0</td><td>&mdash;</td></tr>
+    <tr><td>&rho;, &gamma;</td><td>utility discount rate, risk aversion</td><td>0.02, 2.0</td><td>&mdash;</td></tr>
+    <tr><td>&Delta;t, M</td><td>simulation step, Monte-Carlo scenarios</td><td>1/12, 200&ndash;1000</td><td>yr, count</td></tr>
+  </table>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Appendix C</div><h1 style="string-set:chaptitle 'Appendix C — Algorithm'">The engine, in pseudocode</h1><div class="rule"></div></div>
+  <p class="disc">The receding-horizon loop of Chapter 10, as it would be implemented.</p>
+  <div class="def"><p class="mono" style="font-size:8.6pt; line-height:1.7; white-space:pre-wrap;">initialise x &larr; observed state (onboarding), regime m if the layer is on
+for each period k = 0, 1, 2, ...:
+    active &larr; goals not yet met and not past deadline
+    sample M scenarios of the shocks (and regime path) over horizon H
+    solve the finite-horizon NLP (SAA objective with habit-adjusted
+        U(C-&#954;); CVaR surrogate per active goal; time + money constraints;
+        role-weight simplex or scalar tilt)
+        &rarr; optimal control path u*, costates &#955;
+    apply only u*[0]                 # this period's action
+    read shadow prices from &#955;        # the exchange rates
+    x &larr; observe new state              # real data, or simulate one step
+    emit: P(goal) per goal, funding ratio, u*[0] in words,
+          top exchange-rate insight, any early warning</p></div>
+  <p>The inner NLP is solved with an interior-point method; automatic differentiation supplies both the gradients and, through the constraint multipliers, the costates that become the exchange rates. Typical settings: monthly step, a horizon running to the last goal&rsquo;s deadline, and a few hundred scenarios &mdash; enough for stable probabilities at interactive speed.</p>
+</section>
+
+<section class="chapter">
+  <div class="chap-open"><div class="cnum">Notation</div><h1 style="string-set:chaptitle 'Notation'">Notation &amp; colophon</h1><div class="rule"></div></div>
+  <table class="tabmono">
+    <tr><th>Symbol</th><th>Meaning</th><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td>W<sup>L</sup>, W<sup>R</sup>, D</td><td>liquid wealth, real assets, debt</td><td>&Omega;</td><td>net worth</td></tr>
+    <tr><td>E, N, H</td><td>expertise, network, health</td><td>&Omega;<sup>draw</sup></td><td>drawable wealth</td></tr>
+    <tr><td>&kappa;</td><td>standard-of-living habit (stock)</td><td>&alpha;</td><td>habit adjustment speed</td></tr>
+    <tr><td>&tau;</td><td>time shares (earn/learn/network/rest)</td><td>&theta;</td><td>portfolio risk tilt (scalar, layer off)</td></tr>
+    <tr><td>w</td><td>role weights (Gain, Income, Stabilization, Protection)</td><td>m</td><td>macro regime (optional layer)</td></tr>
+    <tr><td>C, m<sub>E</sub>, m<sub>N</sub></td><td>consumption, education, network spend</td><td>p<sub>A</sub></td><td>amortisation</td></tr>
+    <tr><td>Y</td><td>income</td><td>K<sub>N</sub>, N&#772;</td><td>network ceiling</td></tr>
+    <tr><td>h<sub>R</sub>, h<sub>home</sub></td><td>drawable haircuts (real assets; residence = 0)</td><td>HC, &beta;<sub>HC</sub></td><td>human capital, its beta to Gain</td></tr>
+    <tr><td>&#119970;<sub>k</sub></td><td>goal region k</td><td>&epsilon;<sub>k</sub></td><td>failure tolerance (1&minus;confidence)</td></tr>
+    <tr><td>&lambda;</td><td>costate / shadow price</td><td>&lambda;<sub>&#954;</sub></td><td>habit-to-network-ceiling lift</td></tr>
+    <tr><td>swr, y</td><td>safe withdrawal / sustainable yield</td><td>&rho;, &gamma;</td><td>discount rate, risk aversion</td></tr>
+  </table>
+  <div class="def" style="margin-top:6mm"><span class="lab">Colophon</span><p>Set in IBM Plex Serif (display), Sans (text) and Mono (data and captions). Mathematics typeset in MathML so the book is self-contained. All charts share one visual grammar: ink axes, a teal control signal, an ochre goal line, and grey clouds of possible futures. Figures and case-study numbers are illustrative throughout. First edition, 2026.</p></div>
+</section>
+
+</body>
+</html>

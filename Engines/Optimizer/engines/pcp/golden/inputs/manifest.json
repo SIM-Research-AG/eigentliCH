@@ -1,0 +1,20 @@
+{
+ "_note": "Frozen upstream inputs for pcp's tests (dev/freeze_inputs.py).",
+ "files": {
+  "regime.json": {
+   "url": "http://127.0.0.1:8004/regime/RGM-e2658e8e9bbbc81e",
+   "sha256": "0ae469f8dcfe60f415fe3b2f631e1eb201b0f089cbb0143b57491dc7cba71815",
+   "bytes": 4269149
+  },
+  "return_set.json": {
+   "url": "http://127.0.0.1:8006/v1/return-set?include_instruments=true&include_blocks=false",
+   "sha256": "f52821404851475f19406a3e1da7816c0083a598c68973abe58ca7eb39c7380a",
+   "bytes": 119298
+  },
+  "instruments.json": {
+   "url": "http://127.0.0.1:8006/v1/instruments?active_only=true",
+   "sha256": "c07ec470f205a9da485ea28b70ca9a4b27cc6230e85b40304a1dcdff627dcac8",
+   "bytes": 28253
+  }
+ }
+}

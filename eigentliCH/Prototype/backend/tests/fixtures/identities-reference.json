@@ -1,0 +1,561 @@
+{
+  "_about": "Generated from andersCH-prototype/onboarding-chat.html by tools/extract_identities.mjs. The reference output the Python reimplementation is held to. Regenerate only if the ORIGINAL changes.",
+  "source": "andersCH-prototype/onboarding-chat.html",
+  "tables": {
+    "CONF": {
+      "70 % — ich kann nachjustieren": 0.7,
+      "80 %": 0.8,
+      "90 % — es muss halten": 0.9,
+      "95 % — kein Spielraum": 0.95
+    },
+    "PARTNERED": [
+      "ledig, mit Partner",
+      "verheiratet",
+      "eingetragene Partnerschaft"
+    ],
+    "MARRIED": [
+      "verheiratet",
+      "eingetragene Partnerschaft"
+    ]
+  },
+  "parseGoalText": [
+    {
+      "in": "2040 Ferienvilla in Südfrankreich, 1 Mio",
+      "out": {
+        "target_year": 2040,
+        "amount_chf": 1000000
+      }
+    },
+    {
+      "in": "2030: 750'000 für die Firma",
+      "out": {
+        "target_year": 2030,
+        "amount_chf": 750000
+      }
+    },
+    {
+      "in": "Wohneigentum 2038 1.5 Mio",
+      "out": {
+        "target_year": 2038,
+        "amount_chf": 1500000
+      }
+    },
+    {
+      "in": "Ausgaben ab 65 aus eigenem Vermögen gedeckt",
+      "out": {
+        "target_year": null,
+        "amount_chf": null
+      }
+    },
+    {
+      "in": "Ferienhaus",
+      "out": {
+        "target_year": null,
+        "amount_chf": null
+      }
+    },
+    {
+      "in": "",
+      "out": {
+        "target_year": null,
+        "amount_chf": null
+      }
+    },
+    {
+      "in": null,
+      "out": {
+        "target_year": null,
+        "amount_chf": null
+      }
+    },
+    {
+      "in": "3 Kinder",
+      "out": {
+        "target_year": null,
+        "amount_chf": null
+      }
+    },
+    {
+      "in": "im Jahr 2035 etwa 250 000",
+      "out": {
+        "target_year": 2035,
+        "amount_chf": 250000
+      }
+    },
+    {
+      "in": "ca. 80k für ein Sabbatical",
+      "out": {
+        "target_year": null,
+        "amount_chf": 80000
+      }
+    },
+    {
+      "in": "1'250'000",
+      "out": {
+        "target_year": null,
+        "amount_chf": 1250000
+      }
+    },
+    {
+      "in": "12345",
+      "out": {
+        "target_year": null,
+        "amount_chf": 12345
+      }
+    },
+    {
+      "in": "2027",
+      "out": {
+        "target_year": 2027,
+        "amount_chf": null
+      }
+    },
+    {
+      "in": "2.5 Mio bis 2045",
+      "out": {
+        "target_year": 2045,
+        "amount_chf": 2500000
+      }
+    },
+    {
+      "in": "500 tsd",
+      "out": {
+        "target_year": null,
+        "amount_chf": 500000
+      }
+    },
+    {
+      "in": "1,5 mio",
+      "out": {
+        "target_year": null,
+        "amount_chf": 1500000
+      }
+    }
+  ],
+  "goalsFrom": [
+    {
+      "in": {
+        "data": {
+          "birth_year": 1993,
+          "spend_now": 60000,
+          "goal_confidence": "80 %"
+        },
+        "year": 2026
+      },
+      "out": [
+        {
+          "kind": "retirement",
+          "description": "Ausgaben ab 65 aus eigenem Vermögen gedeckt",
+          "target_year": 2058,
+          "amount_chf": 60000,
+          "confidence": 0.8,
+          "is_consumption": false
+        }
+      ]
+    },
+    {
+      "in": {
+        "data": {
+          "birth_year": 1993,
+          "spend_later": 48000,
+          "spend_now": 60000,
+          "goal_confidence": "90 % — es muss halten"
+        },
+        "year": 2026
+      },
+      "out": [
+        {
+          "kind": "retirement",
+          "description": "Ausgaben ab 65 aus eigenem Vermögen gedeckt",
+          "target_year": 2058,
+          "amount_chf": 48000,
+          "confidence": 0.9,
+          "is_consumption": false
+        }
+      ]
+    },
+    {
+      "in": {
+        "data": {
+          "birth_year": 1955,
+          "spend_now": 55000,
+          "goal_confidence": "70 % — ich kann nachjustieren"
+        },
+        "year": 2026
+      },
+      "out": [
+        {
+          "kind": "fi",
+          "description": "Ausgaben aus frei verfügbarem Vermögen gedeckt",
+          "target_year": 2031,
+          "amount_chf": 55000,
+          "confidence": 0.7,
+          "is_consumption": false
+        }
+      ]
+    },
+    {
+      "in": {
+        "data": {
+          "birth_year": 1961,
+          "spend_now": 40000
+        },
+        "year": 2026
+      },
+      "out": [
+        {
+          "kind": "fi",
+          "description": "Ausgaben aus frei verfügbarem Vermögen gedeckt",
+          "target_year": 2031,
+          "amount_chf": 40000,
+          "confidence": null,
+          "is_consumption": false
+        }
+      ]
+    },
+    {
+      "in": {
+        "data": {
+          "birth_year": 2002,
+          "spend_now": 47000,
+          "goals": "Wohneigentum 2038 1.5 Mio",
+          "goal_confidence": "95 % — kein Spielraum"
+        },
+        "year": 2026
+      },
+      "out": [
+        {
+          "kind": "retirement",
+          "description": "Ausgaben ab 65 aus eigenem Vermögen gedeckt",
+          "target_year": 2067,
+          "amount_chf": 47000,
+          "confidence": 0.95,
+          "is_consumption": false
+        },
+        {
+          "kind": "other",
+          "description": "Wohneigentum 2038 1.5 Mio",
+          "target_year": 2038,
+          "amount_chf": 1500000,
+          "confidence": 0.95,
+          "is_consumption": null
+        }
+      ]
+    },
+    {
+      "in": {
+        "data": {
+          "goals": "2040 Ferienvilla, 1 Mio"
+        },
+        "year": 2026
+      },
+      "out": [
+        {
+          "kind": "other",
+          "description": "2040 Ferienvilla, 1 Mio",
+          "target_year": 2040,
+          "amount_chf": 1000000,
+          "confidence": null,
+          "is_consumption": null
+        }
+      ]
+    },
+    {
+      "in": {
+        "data": {
+          "birth_year": 1993
+        },
+        "year": 2026
+      },
+      "out": []
+    },
+    {
+      "in": {
+        "data": {},
+        "year": 2026
+      },
+      "out": []
+    },
+    {
+      "in": {
+        "data": {
+          "birth_year": 1993,
+          "spend_now": 0,
+          "goals": ""
+        },
+        "year": 2026
+      },
+      "out": []
+    }
+  ],
+  "netScale": [
+    {
+      "in": {
+        "people": null,
+        "mandates": null
+      },
+      "out": null
+    },
+    {
+      "in": {
+        "people": 0,
+        "mandates": 0
+      },
+      "out": 0
+    },
+    {
+      "in": {
+        "people": 1,
+        "mandates": 0
+      },
+      "out": 0.12
+    },
+    {
+      "in": {
+        "people": 3,
+        "mandates": 0
+      },
+      "out": 0.31
+    },
+    {
+      "in": {
+        "people": 6,
+        "mandates": 0
+      },
+      "out": 0.53
+    },
+    {
+      "in": {
+        "people": 15,
+        "mandates": 0
+      },
+      "out": 0.85
+    },
+    {
+      "in": {
+        "people": 20,
+        "mandates": 0
+      },
+      "out": 0.92
+    },
+    {
+      "in": {
+        "people": 100,
+        "mandates": 0
+      },
+      "out": 0.98
+    },
+    {
+      "in": {
+        "people": 0,
+        "mandates": 1
+      },
+      "out": 0.06
+    },
+    {
+      "in": {
+        "people": 0,
+        "mandates": 3
+      },
+      "out": 0.18
+    },
+    {
+      "in": {
+        "people": 0,
+        "mandates": 5
+      },
+      "out": 0.18
+    },
+    {
+      "in": {
+        "people": 3,
+        "mandates": 2
+      },
+      "out": 0.43
+    },
+    {
+      "in": {
+        "people": 20,
+        "mandates": 4
+      },
+      "out": 0.98
+    },
+    {
+      "in": {
+        "people": null,
+        "mandates": 3
+      },
+      "out": 0.18
+    },
+    {
+      "in": {
+        "people": 6,
+        "mandates": null
+      },
+      "out": 0.53
+    },
+    {
+      "in": {
+        "people": "20",
+        "mandates": "2"
+      },
+      "out": 0.98
+    }
+  ],
+  "expertiseScale": [
+    {
+      "in": {},
+      "out": null
+    },
+    {
+      "in": {
+        "education_recent": "nein"
+      },
+      "out": 0.5
+    },
+    {
+      "in": {
+        "education_recent": "CAS Finanzen"
+      },
+      "out": 0.62
+    },
+    {
+      "in": {
+        "education_recent": "CAS",
+        "education_planned": [
+          "MAS"
+        ]
+      },
+      "out": 0.7
+    },
+    {
+      "in": {
+        "education_recent": "CAS",
+        "education_planned": [
+          "MAS"
+        ],
+        "education_hours": "3–5"
+      },
+      "out": 0.76
+    },
+    {
+      "in": {
+        "education_hours": "kaum welche"
+      },
+      "out": 0.5
+    },
+    {
+      "in": {
+        "education_hours": "1–2"
+      },
+      "out": 0.52
+    },
+    {
+      "in": {
+        "education_hours": "5–10"
+      },
+      "out": 0.6
+    },
+    {
+      "in": {
+        "education_hours": "mehr als 10"
+      },
+      "out": 0.64
+    },
+    {
+      "in": {
+        "education_budget": 5000
+      },
+      "out": 0.56
+    },
+    {
+      "in": {
+        "education_budget": 4999
+      },
+      "out": 0.5
+    },
+    {
+      "in": {
+        "education_recent": "CAS",
+        "education_planned": [
+          "a",
+          "b"
+        ],
+        "education_hours": "mehr als 10",
+        "education_budget": 9000
+      },
+      "out": 0.9
+    },
+    {
+      "in": {
+        "education_planned": []
+      },
+      "out": null
+    },
+    {
+      "in": {
+        "education_recent": ""
+      },
+      "out": null
+    }
+  ],
+  "childAges": [
+    {
+      "in": {
+        "text": "2020 und 2022",
+        "year": 2026
+      },
+      "out": [
+        6,
+        4
+      ]
+    },
+    {
+      "in": {
+        "text": "2015",
+        "year": 2026
+      },
+      "out": [
+        11
+      ]
+    },
+    {
+      "in": {
+        "text": "",
+        "year": 2026
+      },
+      "out": null
+    },
+    {
+      "in": {
+        "text": null,
+        "year": 2026
+      },
+      "out": null
+    },
+    {
+      "in": {
+        "text": "keine",
+        "year": 2026
+      },
+      "out": null
+    },
+    {
+      "in": {
+        "text": "1998, 2001 und 2030",
+        "year": 2026
+      },
+      "out": [
+        28,
+        25
+      ]
+    },
+    {
+      "in": {
+        "text": "1950",
+        "year": 2026
+      },
+      "out": []
+    }
+  ]
+}

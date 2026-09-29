@@ -1,0 +1,47 @@
+# Aggregation layer (aggregation): configuration.
+#
+# Committed, so it never holds a password. Keep the local container's password in
+# config.local.yaml (git-ignored) or set AGGREGATION_DB_PASSWORD. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  AGGREGATION_DATABASE_URL / DATABASE_URL  <  AGGREGATION_*
+#
+# Model parameters (blend weights, tilts, kernels, optimism targets, market blends) are NOT
+# here: they are versioned calibrations, seeded from src/aggregation/calibration.py and
+# extended through PUT /calibration.
+
+service:
+  host: 127.0.0.1
+  port: 8004                    # Engine Building Guide section 4. Override with AGGREGATION_PORT.
+  # "*" lets a test bench work when opened straight off disk. Narrow it before
+  # deployment, e.g. AGGREGATION_CORS_ORIGINS=https://cockpit.example
+  cors_origins: ["*"]
+
+upstream:
+  # The three inputs. Each is read by artefact id (GET /artefacts/{id}); the run request
+  # names the ids. Override with AGGREGATION_MRS_URL, AGGREGATION_CYCLE_URL,
+  # AGGREGATION_MACROFIELD_URL.
+  mrs_url: http://127.0.0.1:8005
+  cycle_url: http://127.0.0.1:8012
+  macrofield_url: http://127.0.0.1:8003
+  timeout_s: 120                # a full MacroState is a few MB
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema per engine, one role per engine
+  # (Engine Building Guide section 8). The role owns this schema and reads nothing else.
+  dbname: simtech
+  schema: aggregation
+  user: aggregation
+  sslmode: prefer               # "require" or "verify-full" for anything over a network
+  connect_timeout: 10
+  maintenance_dbname: postgres  # only used by `python -m aggregation init-db` to CREATE DATABASE
+
+calibration:
+  # The calibration a run uses when the request does not name one. Changing it is a
+  # deliberate act; proposing a new calibration through PUT /calibration never is.
+  active: "1.2.0"
+
+run:
+  # The optimism level when a request names none.
+  optimism_scale: default

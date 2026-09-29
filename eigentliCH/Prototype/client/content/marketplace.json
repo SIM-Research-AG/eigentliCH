@@ -1,0 +1,571 @@
+{
+  "_about": {
+    "screen": "S-11 — Market Place: browse, listing detail, and the application to be listed.",
+    "requirements": {
+      "R-200": "Indexed by the four roles, not by profession. Every listing below names one or more of growth, income, stabilisation, protection, and two providers appear under more than one role — Vorsorgewerkstatt Muri and Lernraum Emmental each carry two listings.",
+      "R-201": "A member's own role grid pre-filters the browse view. The filter is visible and removable, so the payload names it and names how to drop it. Nothing in this file encodes the filter; it is derived from the member's positions at read time.",
+      "R-202": "Every listing displays its disclosures, and a listing with no disclosure record cannot be published. Every listing below therefore carries at least one, and `none_declared` is one of the kinds — it is a positive statement somebody made, not an empty field.",
+      "R-203": "Ordering inputs are role match, capability evidence and community presence. `standing_inputs` below carries the second and third as lists of references; the first is computed against the roles a member asked for. There is no fourth input and no commercial one.",
+      "R-204": "Two qualification pipelines. Financial supply is capability-assessed; health and education go through professional registration. `registration_refs` is populated for the professional listings and empty for the capability ones, and the model carries a CHECK that keeps the two apart.",
+      "R-205": "`member_offers` sits alongside `listings`, not beneath it — co-investment, succession, property, skills and services. The browse payload interleaves both kinds into one ordered list of peers rather than putting one under a heading below the other."
+    },
+    "constraint": "C-08 — Market Place ordering cannot be bought. No record in this file carries a fee, a plan, a placement, a boost, a sponsor or a priority. Fee fields exist on `Provider` for billing and this file does not populate them: the seed data must not be the reason a commercial signal is within reach of the ordering.",
+    "fictional": "A41 — this is demonstration supply. Every provider, listing, disclosure and member offer below carries `fictional: true`, and `services/marketplace.py` refuses to write a record that does not. The names are invented: no organisation, practice or person named here exists, and a screenshot of this data must not be mistakable for a real market.",
+    "qualification": "NG-04 — nothing here claims federal or accredited standing. The registration references are invented register entries and say so with `(fiktiv)`. eigentliCH's capability statements are its own, and where a professional listing also carries capability evidence in `standing_inputs`, that is standing, not qualification: it does not stand in for a registration, and R-204 is what makes that structural rather than a matter of care.",
+    "standing_inputs": "`capability_evidence` names keys from `learning.json`. `community_presence` names gatherings — lectures, café evenings and meet-ups, S-13, which is phase 8 — so these are references to records that do not exist yet, and the marketplace service reads how many there are and nothing else. Neither list is ever shown to a member as a number: R-221 records attendance as an input to standing and forbids showing it back as a score.",
+    "language": "A12 — German is the authored language, de-CH default, so no eszett anywhere below. The English is a draft translation and says so per string. Provider display names are names and are not translated.",
+    "register": "Plain descriptions of what a supplier actually does, in the register the learning content already uses: specific, checkable, about money, health or learning in Switzerland. Not marketing copy, and no superlatives — a market place whose seed data sells is a market place whose ordering looks bought whether or not it is."
+  },
+
+  "version": "marketplace@0.1.0",
+
+  "fictional": true,
+
+  "providers": [
+    {
+      "key": "vorsorgewerkstatt_muri",
+      "fictional": true,
+      "display_name": "Vorsorgewerkstatt Muri",
+      "contact": "kontakt@vorsorgewerkstatt-muri.example"
+    },
+    {
+      "key": "zahlenwerk_olten",
+      "fictional": true,
+      "display_name": "Zahlenwerk Olten",
+      "contact": "buero@zahlenwerk-olten.example"
+    },
+    {
+      "key": "budgetstube_luzern",
+      "fictional": true,
+      "display_name": "Budgetstube Luzern",
+      "contact": "anmeldung@budgetstube-luzern.example"
+    },
+    {
+      "key": "nachfolgetisch_thurgau",
+      "fictional": true,
+      "display_name": "Nachfolgetisch Thurgau",
+      "contact": "tisch@nachfolgetisch-tg.example"
+    },
+    {
+      "key": "praxis_sonnhalde_baden",
+      "fictional": true,
+      "display_name": "Praxis Sonnhalde, Baden",
+      "contact": "praxis@sonnhalde-baden.example"
+    },
+    {
+      "key": "atemraum_stgallen",
+      "fictional": true,
+      "display_name": "Atemraum St. Gallen",
+      "contact": "termine@atemraum-sg.example"
+    },
+    {
+      "key": "lernraum_emmental",
+      "fictional": true,
+      "display_name": "Lernraum Emmental",
+      "contact": "lernraum@emmental-lernen.example"
+    },
+    {
+      "key": "sprachtisch_biel",
+      "fictional": true,
+      "display_name": "Sprachtisch Biel",
+      "contact": "info@sprachtisch-biel.example"
+    }
+  ],
+
+  "listings": [
+    {
+      "key": "fzk_kostenrechnung",
+      "fictional": true,
+      "provider_key": "vorsorgewerkstatt_muri",
+      "domain": "financial",
+      "qualification_pipeline": "capability",
+      "roles": ["stabilisation", "income"],
+      "registration_refs": [],
+      "standing_inputs": {
+        "capability_evidence": [
+          "freizuegigkeitskonto_kosten",
+          "fondskosten_in_franken",
+          "eigene_verbindungen_offenlegen"
+        ],
+        "community_presence": ["lecture_2026_03_vorsorge", "cafe_2026_05_konten"]
+      },
+      "title": {
+        "de": "Freizügigkeitskonto: was es pro Jahr kostet",
+        "en": "Freizügigkeitskonto: what it costs per year",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Wir rechnen mit Ihnen durch, was ein Freizügigkeitskonto in bar pro Jahr kostet, und halten das Ergebnis in Franken fest. Sie nehmen eine Seite mit, die Sie jemand anderem zeigen können.",
+        "en": "We work out with you what a Freizügigkeitskonto left in cash costs per year, and write the result down in francs. You leave with one page you can show to somebody else.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_fzk_kostenrechnung_1",
+          "fictional": true,
+          "kind": "none_declared",
+          "declared_at": "2026-05-14T09:00:00+00:00",
+          "declared_by": "Vorsorgewerkstatt Muri, Geschäftsleitung",
+          "statement": {
+            "de": "Wir erhalten von keiner Bank und keiner Versicherung eine Vergütung für Vermittlungen. Das ist eine Aussage, die wir machen, und keine leere Zeile.",
+            "en": "We receive no payment from any bank or insurer for referrals. That is a statement we are making, not an empty field.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "saeule3a_staffelung",
+      "fictional": true,
+      "provider_key": "vorsorgewerkstatt_muri",
+      "domain": "financial",
+      "qualification_pipeline": "capability",
+      "roles": ["income", "growth"],
+      "registration_refs": [],
+      "standing_inputs": {
+        "capability_evidence": ["saeule_3a_gestaffelt", "verrechnungssteuer_rueckfordern"],
+        "community_presence": ["lecture_2026_03_vorsorge"]
+      },
+      "title": {
+        "de": "Säule 3a auf mehrere Konten verteilen",
+        "en": "Spreading Säule 3a across several accounts",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Ein Gespräch über die Frage, ob sich mehrere 3a-Konten in Ihrem Fall lohnen — gerechnet mit Ihren eigenen Zahlen und Ihrem eigenen Steuersatz, nicht an einem Beispiel.",
+        "en": "A conversation about whether several 3a accounts are worth it in your case, worked out with your own figures and your own tax rate rather than on an example.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_saeule3a_staffelung_1",
+          "fictional": true,
+          "kind": "none_declared",
+          "declared_at": "2026-05-14T09:00:00+00:00",
+          "declared_by": "Vorsorgewerkstatt Muri, Geschäftsleitung",
+          "statement": {
+            "de": "Keine wirtschaftlichen Verbindungen zu einer Anbieterin von 3a-Konten oder 3a-Fonds.",
+            "en": "No economic relationship with any provider of 3a accounts or 3a funds.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "fondskosten_durchsicht",
+      "fictional": true,
+      "provider_key": "zahlenwerk_olten",
+      "domain": "financial",
+      "qualification_pipeline": "capability",
+      "roles": ["growth"],
+      "registration_refs": [],
+      "standing_inputs": {
+        "capability_evidence": ["fondskosten_in_franken"],
+        "community_presence": ["cafe_2026_05_konten", "meetup_2026_06_olten"]
+      },
+      "title": {
+        "de": "Fondskosten in Franken statt in Prozent",
+        "en": "Fund costs in francs rather than in per cent",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Sie bringen Ihre Depotauszüge mit. Wir rechnen die laufenden Kosten in Franken um und schreiben auf, welche Positionen den grössten Anteil davon ausmachen.",
+        "en": "You bring your custody statements. We convert the running costs into francs and write down which holdings account for the largest share of them.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_fondskosten_durchsicht_1",
+          "fictional": true,
+          "kind": "shared_ownership",
+          "declared_at": "2026-04-02T09:00:00+00:00",
+          "declared_by": "Zahlenwerk Olten, Inhaberin",
+          "statement": {
+            "de": "Zahlenwerk Olten gehört zur Hälfte einer Treuhandgesellschaft, die auch Steuererklärungen erstellt. Wir nennen das, weil dieselbe Gesellschaft Ihnen später eine Dienstleistung anbieten könnte.",
+            "en": "Zahlenwerk Olten is half-owned by a fiduciary firm that also prepares tax returns. We name it because the same firm may later offer you a service.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "haushaltsbudget_aufstellen",
+      "fictional": true,
+      "provider_key": "budgetstube_luzern",
+      "domain": "financial",
+      "qualification_pipeline": "capability",
+      "roles": ["stabilisation", "protection"],
+      "registration_refs": [],
+      "standing_inputs": {
+        "capability_evidence": ["fixkosten_eines_monats"],
+        "community_presence": ["cafe_2026_05_konten"]
+      },
+      "title": {
+        "de": "Was ein Monat bei Ihnen wirklich kostet",
+        "en": "What one month actually costs you",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Zwei Abende, an denen Sie Ihre Fixkosten für einen Monat zusammentragen und benennen, welche davon Sie innerhalb von drei Monaten ändern könnten.",
+        "en": "Two evenings in which you gather your fixed costs for one month and name which of them you could change within three months.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_haushaltsbudget_aufstellen_1",
+          "fictional": true,
+          "kind": "none_declared",
+          "declared_at": "2026-03-20T09:00:00+00:00",
+          "declared_by": "Budgetstube Luzern, Leitung",
+          "statement": {
+            "de": "Keine wirtschaftlichen Verbindungen zu Banken, Versicherungen oder Kreditvermittlern.",
+            "en": "No economic relationships with banks, insurers or credit brokers.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "hypothek_amortisation_check",
+      "fictional": true,
+      "provider_key": "zahlenwerk_olten",
+      "domain": "financial",
+      "qualification_pipeline": "capability",
+      "roles": ["stabilisation", "growth"],
+      "registration_refs": [],
+      "standing_inputs": {
+        "capability_evidence": ["hypothek_indirekte_amortisation", "pk_einkauf_sperrfrist"],
+        "community_presence": []
+      },
+      "title": {
+        "de": "Indirekte Amortisation: nachrechnen statt glauben",
+        "en": "Indirect amortisation: check the arithmetic rather than believe it",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Wir stellen Ihrer bestehenden Hypothek die direkte und die indirekte Amortisation gegenüber, mit Ihren Zahlen, und halten fest, welche Annahmen der Vergleich gebraucht hat.",
+        "en": "We set direct against indirect amortisation for your existing mortgage, using your figures, and write down which assumptions the comparison needed.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_hypothek_amortisation_1",
+          "fictional": true,
+          "kind": "referral_arrangement",
+          "declared_at": "2026-04-02T09:00:00+00:00",
+          "declared_by": "Zahlenwerk Olten, Inhaberin",
+          "statement": {
+            "de": "Wir arbeiten mit zwei regionalen Banken zusammen und erhalten von ihnen eine Vermittlungsentschädigung, wenn ein Gespräch zu einem Abschluss führt.",
+            "en": "We work with two regional banks and receive a referral payment from them when a conversation leads to a contract.",
+            "en_draft": true
+          }
+        },
+        {
+          "key": "d_hypothek_amortisation_2",
+          "fictional": true,
+          "kind": "own_working_document",
+          "declared_at": "2026-04-02T09:00:00+00:00",
+          "declared_by": "Zahlenwerk Olten, Inhaberin",
+          "statement": {
+            "de": "Die Vergleichstabelle, die Sie mitnehmen, ist unser eigenes Arbeitsmittel. Sie ist von niemandem ausserhalb des Büros geprüft worden.",
+            "en": "The comparison table you take away is our own working document. Nobody outside the office has reviewed it.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "nachfolge_zahlen_ordnen",
+      "fictional": true,
+      "provider_key": "nachfolgetisch_thurgau",
+      "domain": "financial",
+      "qualification_pipeline": "capability",
+      "roles": ["income", "protection"],
+      "registration_refs": [],
+      "standing_inputs": {
+        "capability_evidence": ["eigene_verbindungen_offenlegen"],
+        "community_presence": ["meetup_2026_06_frauenfeld", "cafe_2026_05_nachfolge"]
+      },
+      "title": {
+        "de": "Nachfolge: die Zahlen ordnen, bevor die Familie darüber redet",
+        "en": "Succession: putting the figures in order before the family talks about them",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Wir tragen zusammen, was ein Betrieb an Substanz, Schulden und laufenden Verpflichtungen hat, und schreiben auf, welche Fragen offen bleiben. Die Gespräche in der Familie führen Sie selbst.",
+        "en": "We gather what a business holds in substance, debt and running obligations, and write down which questions remain open. You hold the family conversations yourself.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_nachfolge_zahlen_ordnen_1",
+          "fictional": true,
+          "kind": "none_declared",
+          "declared_at": "2026-06-11T09:00:00+00:00",
+          "declared_by": "Nachfolgetisch Thurgau, Vorstand",
+          "statement": {
+            "de": "Wir vermitteln keine Käuferinnen und Käufer und erhalten keinen Anteil an einem Verkaufserlös.",
+            "en": "We do not introduce buyers and take no share of a sale price.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "belastung_gespraech",
+      "fictional": true,
+      "provider_key": "praxis_sonnhalde_baden",
+      "domain": "health",
+      "qualification_pipeline": "professional_registration",
+      "roles": ["protection"],
+      "registration_refs": ["Kantonales Berufsregister AG, Eintrag PSY-4711 (fiktiv)"],
+      "standing_inputs": {
+        "capability_evidence": [],
+        "community_presence": ["lecture_2026_04_belastung", "cafe_2026_05_konten"]
+      },
+      "title": {
+        "de": "Einzelgespräche bei anhaltender Belastung",
+        "en": "One-to-one sessions under sustained strain",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Für Menschen, die über längere Zeit unter Druck stehen — nach einer Trennung, einem Stellenverlust oder einer Erkrankung in der Familie. Keine Beratung zu Geld und kein Teil des eigentliCH-Lernwegs.",
+        "en": "For people under pressure over a longer period — after a separation, a job loss or an illness in the family. No advice about money, and no part of the eigentliCH learning path.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_belastung_gespraech_1",
+          "fictional": true,
+          "kind": "none_declared",
+          "declared_at": "2026-02-05T09:00:00+00:00",
+          "declared_by": "Praxis Sonnhalde, Praxisleitung",
+          "statement": {
+            "de": "Keine wirtschaftlichen Verbindungen zu eigentliCH und zu keiner Anbieterin im Bereich Finanzen.",
+            "en": "No economic relationship with eigentliCH and none with any supplier in the financial domain.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "atemtherapie_begleitung",
+      "fictional": true,
+      "provider_key": "atemraum_stgallen",
+      "domain": "health",
+      "qualification_pipeline": "professional_registration",
+      "roles": ["protection"],
+      "registration_refs": ["Kantonales Berufsregister SG, Eintrag KT-2288 (fiktiv)"],
+      "standing_inputs": {
+        "capability_evidence": ["eigene_verbindungen_offenlegen"],
+        "community_presence": []
+      },
+      "title": {
+        "de": "Atemtherapie in Einzelsitzungen",
+        "en": "Breathing therapy in single sessions",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Sitzungen von je einer Stunde, in der Regel über drei Monate. Die Grundversicherung übernimmt die Kosten nicht; klären Sie eine Zusatzversicherung vorher ab.",
+        "en": "Sessions of one hour each, usually over three months. Basic health insurance does not cover this; check any supplementary cover beforehand.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_atemtherapie_begleitung_1",
+          "fictional": true,
+          "kind": "commission_from_third_party",
+          "declared_at": "2026-05-28T09:00:00+00:00",
+          "declared_by": "Atemraum St. Gallen, Inhaber",
+          "statement": {
+            "de": "Wir verkaufen in der Praxis Produkte einer einzelnen Herstellerin und erhalten darauf eine Marge.",
+            "en": "We sell one manufacturer's products in the practice and take a margin on them.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "mathe_lernbegleitung",
+      "fictional": true,
+      "provider_key": "lernraum_emmental",
+      "domain": "education",
+      "qualification_pipeline": "professional_registration",
+      "roles": ["growth"],
+      "registration_refs": ["Kantonales Lehrpersonenregister BE, Eintrag LP-9021 (fiktiv)"],
+      "standing_inputs": {
+        "capability_evidence": [],
+        "community_presence": ["meetup_2026_06_langnau"]
+      },
+      "title": {
+        "de": "Lernbegleitung Mathematik, Sekundarstufe I",
+        "en": "Mathematics learning support, lower secondary",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Wöchentliche Einzelbegleitung für Jugendliche, am Schulstoff und nicht an einer Prüfung ausgerichtet. Wir sprechen mit der Lehrperson, wenn die Eltern das wünschen.",
+        "en": "Weekly one-to-one support for teenagers, built around school material rather than around an exam. We speak with the class teacher where the parents want that.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_mathe_lernbegleitung_1",
+          "fictional": true,
+          "kind": "none_declared",
+          "declared_at": "2026-01-16T09:00:00+00:00",
+          "declared_by": "Lernraum Emmental, Leitung",
+          "statement": {
+            "de": "Keine wirtschaftlichen Verbindungen zu einem Verlag, einer Schule oder einer Lernplattform.",
+            "en": "No economic relationships with any publisher, school or learning platform.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "deutsch_zweitsprache",
+      "fictional": true,
+      "provider_key": "sprachtisch_biel",
+      "domain": "education",
+      "qualification_pipeline": "professional_registration",
+      "roles": ["growth"],
+      "registration_refs": ["Kantonales Lehrpersonenregister BE, Eintrag LP-7734 (fiktiv)"],
+      "standing_inputs": {
+        "capability_evidence": [],
+        "community_presence": ["meetup_2026_06_biel"]
+      },
+      "title": {
+        "de": "Deutsch als Zweitsprache, Kleingruppen",
+        "en": "German as a second language, small groups",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Gruppen von höchstens sechs Personen, zweimal wöchentlich am Abend. Wir bereiten auf keine Prüfung vor und stellen keine Bestätigung aus, die irgendwo gilt.",
+        "en": "Groups of at most six people, twice a week in the evening. We prepare for no examination and issue no confirmation that counts anywhere.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_deutsch_zweitsprache_1",
+          "fictional": true,
+          "kind": "none_declared",
+          "declared_at": "2026-02-27T09:00:00+00:00",
+          "declared_by": "Sprachtisch Biel, Vereinsvorstand",
+          "statement": {
+            "de": "Keine wirtschaftlichen Verbindungen ausserhalb des Vereins. Die Räume mieten wir von der Stadt.",
+            "en": "No economic relationships outside the association. We rent the rooms from the city.",
+            "en_draft": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "lehrstellen_begleitung",
+      "fictional": true,
+      "provider_key": "lernraum_emmental",
+      "domain": "education",
+      "qualification_pipeline": "professional_registration",
+      "roles": ["growth", "income"],
+      "registration_refs": ["Kantonales Lehrpersonenregister BE, Eintrag LP-9021 (fiktiv)"],
+      "standing_inputs": {
+        "capability_evidence": ["fixkosten_eines_monats"],
+        "community_presence": ["meetup_2026_06_langnau", "cafe_2026_05_nachfolge"]
+      },
+      "title": {
+        "de": "Begleitung bei der Lehrstellensuche",
+        "en": "Support while looking for an apprenticeship",
+        "en_draft": true
+      },
+      "summary": {
+        "de": "Sechs Termine über ein halbes Jahr: Bewerbungen, Schnuppertage und die Frage, wovon ein Lehrjahr überhaupt lebt. Für Jugendliche und ein Elternteil zusammen.",
+        "en": "Six appointments over half a year: applications, trial days, and the question of what an apprenticeship year actually lives on. For a teenager and one parent together.",
+        "en_draft": true
+      },
+      "disclosures": [
+        {
+          "key": "d_lehrstellen_begleitung_1",
+          "fictional": true,
+          "kind": "none_declared",
+          "declared_at": "2026-01-16T09:00:00+00:00",
+          "declared_by": "Lernraum Emmental, Leitung",
+          "statement": {
+            "de": "Keine wirtschaftlichen Verbindungen zu einem Lehrbetrieb, den wir Jugendlichen vorschlagen.",
+            "en": "No economic relationships with any training company we suggest to a young person.",
+            "en_draft": true
+          }
+        }
+      ]
+    }
+  ],
+
+  "member_offers": [
+    {
+      "key": "mo_werkhalle_mitfinanzieren",
+      "fictional": true,
+      "direction": "search",
+      "kind": "co_investment",
+      "roles": ["growth", "income"],
+      "title": {
+        "de": "Mitfinanzierung für eine Werkhalle im Seeland gesucht",
+        "en": "Looking for co-investment in a workshop building in the Seeland",
+        "en_draft": true
+      },
+      "body": {
+        "de": "Ein Mitglied sucht zwei bis drei Personen, die sich an einer Werkhalle beteiligen, die heute zur Hälfte vermietet ist. Kaufpreis, Mietverträge und der Instandhaltungsrückstand liegen offen; die Bank ist noch nicht angefragt.",
+        "en": "A member is looking for two or three people to take a share in a workshop building that is currently half let. Price, tenancies and the maintenance backlog are on the table; the bank has not been approached yet.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "mo_nachfolge_praxis",
+      "fictional": true,
+      "direction": "offer",
+      "kind": "succession",
+      "roles": ["income", "protection"],
+      "title": {
+        "de": "Physiotherapiepraxis Winterthur zur Übergabe in drei Jahren",
+        "en": "Physiotherapy practice in Winterthur to hand over in three years",
+        "en_draft": true
+      },
+      "body": {
+        "de": "Zwei Behandlungsräume, vier Angestellte, Übergabe schrittweise ab 2029. Das Mitglied sucht jemanden, der zuerst mitarbeitet und später übernimmt, und ist bereit, den Preis über mehrere Jahre zu strecken.",
+        "en": "Two treatment rooms, four employees, handover in steps from 2029. The member is looking for somebody to work alongside first and take over later, and is willing to spread the price over several years.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "mo_wohnung_zwischennutzung",
+      "fictional": true,
+      "direction": "offer",
+      "kind": "property",
+      "roles": ["stabilisation"],
+      "title": {
+        "de": "3.5-Zimmer-Wohnung in Chur zur Zwischennutzung",
+        "en": "Three-and-a-half room flat in Chur, available in the interim",
+        "en_draft": true
+      },
+      "body": {
+        "de": "Frei für achtzehn Monate, bis der Umbau beginnt. Miete zum Selbstkostenpreis, dafür ohne Ersatz, wenn im Winter die Heizung ausfällt. Das Mitglied nennt die Bedingungen lieber jetzt als später.",
+        "en": "Free for eighteen months, until the conversion work starts. Rent at cost, and in exchange no replacement if the heating fails in winter. The member would rather name the conditions now than later.",
+        "en_draft": true
+      }
+    },
+    {
+      "key": "mo_buchhaltung_stunden",
+      "fictional": true,
+      "direction": "offer",
+      "kind": "skills",
+      "roles": ["income"],
+      "title": {
+        "de": "Buchhaltung für Kleinbetriebe, stundenweise",
+        "en": "Bookkeeping for small businesses, by the hour",
+        "en_draft": true
+      },
+      "body": {
+        "de": "Ein Mitglied führt seit vierzehn Jahren die Bücher eines Gewerbebetriebs und hat wöchentlich einen halben Tag frei. Mehrwertsteuerabrechnung und Lohnwesen inbegriffen, Jahresabschluss nicht.",
+        "en": "A member has kept the books of a trade business for fourteen years and has half a day free each week. VAT returns and payroll included, annual accounts not.",
+        "en_draft": true
+      }
+    }
+  ]
+}

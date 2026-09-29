@@ -1,0 +1,53 @@
+{
+ "cases": [
+  {
+   "mandate": "fixture_balanced",
+   "file": "fixture_balanced.json",
+   "sha256": "d09292c3406f8cec4b8929534414762e5047a7c24e991d54b1ed524bba4fc198",
+   "objective": 0.6075192746687442,
+   "conditions_met": "yes"
+  },
+  {
+   "mandate": "derived_onb-1981-sz",
+   "file": "derived_onb-1981-sz.json",
+   "sha256": "0ed7772f66d1914d4824d13c7478b94889c9853809bb1c42d180ca693ced840f",
+   "objective": 0.22485575369356967,
+   "conditions_met": "yes"
+  },
+  {
+   "mandate": "derived_onb-2001-stgallen-20260826",
+   "file": "derived_onb-2001-stgallen-20260826.json",
+   "sha256": "ecf68cbba2883b88db1f4bd09ae4d6167ffbc9a2b9fc9ee831e7983b52acffb3",
+   "objective": 158.6860008122368,
+   "conditions_met": "yes"
+  },
+  {
+   "mandate": "derived_onb-1968-thurgau-20260901",
+   "file": "derived_onb-1968-thurgau-20260901.json",
+   "sha256": "ceeb149157fda57991de0c99e811d9b1de6df9fd0adfe4b587052d1960ca19e1",
+   "objective": 0.22485575369356967,
+   "conditions_met": "yes"
+  },
+  {
+   "mandate": "derived_onb-1980-aargau-20260821",
+   "file": "derived_onb-1980-aargau-20260821.json",
+   "sha256": "939cd67f791ac1903e71a23815f923e4016ca8af4e2e774887907d6c9b79accf",
+   "objective": 0.22485575369356967,
+   "conditions_met": "yes"
+  },
+  {
+   "mandate": "derived_onb-2005-thurgau-20260824",
+   "file": "derived_onb-2005-thurgau-20260824.json",
+   "sha256": "8e85a55274a2085b3af1fc535919331d114abceda34e166f3e4fa63cab844341",
+   "objective": 31.891640494323102,
+   "conditions_met": "yes"
+  },
+  {
+   "mandate": "derived_onb-chain-ueliw",
+   "file": "derived_onb-chain-ueliw.json",
+   "sha256": "c5707e99bc35383c2fd23886485506e84da97ebfedfdcb352c946935d6c1ce17",
+   "objective": 0.22501750828444697,
+   "conditions_met": "yes"
+  }
+ ]
+}

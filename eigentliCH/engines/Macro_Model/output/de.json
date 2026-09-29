@@ -1,0 +1,254 @@
+{
+  "header": {
+    "economy": "de",
+    "calibration_window": {
+      "first": 1999,
+      "last": 2024
+    },
+    "data_vintage": {
+      "Y": "World Bank 2026-07-27",
+      "saturation": "BIS 2026-07-27",
+      "K_R_over_Y": "Penn World Table 10.01 (DOI 10.34894/QT5BCC)",
+      "p_s": "World Bank 2026-07-27",
+      "stimulus_share": "World Bank 2026-07-27",
+      "equity_share": "World Bank 2026-07-27"
+    },
+    "standardising_adjustments": {
+      "Y": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "saturation": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "K_R_over_Y": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "p_s": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "stimulus_share": {
+        "level_scale": 1.0,
+        "dynamics_neutral": true,
+        "rationale": "",
+        "source": "",
+        "prior_range": null
+      },
+      "capital_normalisation": {
+        "scale": 0.23555608698261166,
+        "target_capital_output_ratio": 0.9,
+        "observed_capital_output_ratio": 3.8207460971553515,
+        "preserves_real_to_financial_ratio": true,
+        "dynamics_neutral": true,
+        "rationale": "the published capital-to-output ratio at the window start is 3.82, which makes the investment share r = 1 - K_R/Y equal -2.82. At that value the exchange term r K_I dominates the equations of motion and the system does not integrate. A common scale of 0.2356 applied to both capital stocks brings K_R/Y to 0.90, so r returns to the range in which section 0.2's definition of it as a share is meaningful. The scale is applied to both stocks, so K_R/K_I and therefore the Phase 4 condition are unchanged, and being multiplicative it cannot alter growth rates, direction or turning points."
+      }
+    },
+    "projection_label": "illustrative, model-derived",
+    "disclaimer": "This is model-derived research and decision support, not investment advice. Projected paths are consequences of the calibrated model rather than dated predictions.",
+    "notes": [
+      "the real-capital ratio is published through 2019 and extended to 2025 in ratio space. The extended values are computed, not published, and any output using them carries the extension label.",
+      "the published capital-to-output ratio at the window start is 3.82, which makes the investment share r = 1 - K_R/Y equal -2.82. At that value the exchange term r K_I dominates the equations of motion and the system does not integrate. A common scale of 0.2356 applied to both capital stocks brings K_R/Y to 0.90, so r returns to the range in which section 0.2's definition of it as a share is meaningful. The scale is applied to both stocks, so K_R/K_I and therefore the Phase 4 condition are unchanged, and being multiplicative it cannot alter growth rates, direction or turning points.",
+      "K_R is reconstructed as the Penn World Table capital-to-output ratio multiplied by market-valued output, so it is market-valued by construction and no PPP conversion factor is involved. It is a reconstruction rather than a published level."
+    ]
+  },
+  "diagnostics": {
+    "phase": "Optimisation",
+    "saturation": 1.9680000000000002,
+    "calibration": {
+      "economy": "de",
+      "window": {
+        "first": 1999,
+        "last": 2024,
+        "periods": 26
+      },
+      "converged": true,
+      "optimiser_message": "`gtol` termination condition is satisfied.",
+      "integration_accuracy": "search",
+      "fit_quality": {
+        "mean_relative_residual": null,
+        "per_series": {
+          "Y": null,
+          "K_R": null,
+          "K_I": null
+        }
+      },
+      "free_parameters": {
+        "p_p_scale": {
+          "value": 1.0,
+          "standard_error": null,
+          "identifiability": "not identified: the data do not constrain this parameter"
+        },
+        "p_b_scale": {
+          "value": 1.0,
+          "standard_error": null,
+          "identifiability": "not identified: the data do not constrain this parameter"
+        },
+        "alpha_scale": {
+          "value": 1.0,
+          "standard_error": null,
+          "identifiability": "not identified: the data do not constrain this parameter"
+        },
+        "savings_scale": {
+          "value": 1.0,
+          "standard_error": null,
+          "identifiability": "not identified: the data do not constrain this parameter"
+        },
+        "stimulus_scale": {
+          "value": 1.0,
+          "standard_error": null,
+          "identifiability": "not identified: the data do not constrain this parameter"
+        },
+        "initial_output": {
+          "value": 2213873468586.88,
+          "standard_error": null,
+          "identifiability": "not identified: the data do not constrain this parameter"
+        },
+        "initial_real": {
+          "value": 1992486121728.1917,
+          "standard_error": null,
+          "identifiability": "not identified: the data do not constrain this parameter"
+        },
+        "initial_financial": {
+          "value": 1370430056329.035,
+          "standard_error": null,
+          "identifiability": "not identified: the data do not constrain this parameter"
+        }
+      },
+      "weakly_identified": [
+        "p_p_scale",
+        "p_b_scale",
+        "alpha_scale",
+        "savings_scale",
+        "stimulus_scale",
+        "initial_output",
+        "initial_real",
+        "initial_financial"
+      ],
+      "identity_diagnostics": {
+        "identity_correction_departures": {
+          "p_p_scale": 0.0,
+          "p_b_scale": 0.0,
+          "alpha_scale": 0.0
+        },
+        "worst_identity_correction": "p_p_scale",
+        "worst_identity_correction_departure": 0.0
+      },
+      "two_body_worst_relative_residual": 1.503825904069111e-15,
+      "derivative_smoothing": {
+        "method": "savitzky_golay",
+        "window_years": 5,
+        "polynomial_order": 2,
+        "note": "alpha, p_p and p_b are all defined through time derivatives, so this choice propagates into every one of them and into the fitted free parameters"
+      },
+      "notes": [
+        "the fitted parameter set integrates at search tolerance but not at reporting tolerance, so the simulated path is reported at the looser setting. That means the trajectory runs close to the finite-time singularity of the unbounded investment share documented in model/edm.py. Treat the level of the simulated path with caution even where the fit statistics look reasonable, and prefer the qualitative reading.",
+        "the fitted parameter set does not integrate over the whole window, so no simulated path is reported. This is the finite-time singularity documented in model/edm.py: the unbounded investment share makes some parameter regions unreachable, and the optimiser could not find a set that both fits and integrates.",
+        "the identity corrections stayed within 10 per cent of one (largest departure 0.0%), so over this window the definitions of section 0.2 are close to consistent with the equations of motion.",
+        "weakly identified parameters: p_p_scale, p_b_scale, alpha_scale, savings_scale, stimulus_scale, initial_output, initial_real, initial_financial. Brief section 4 requires these to be held to plausible priors and stress-tested rather than over-fitted, which is what calibration/validate.py does."
+      ]
+    }
+  },
+  "series": {
+    "state": {
+      "Y_observed": [
+        2213873468586.88,
+        1966980701145.1,
+        1966381496641.73,
+        2102350798305.89,
+        2534715518349.01,
+        2852317768061.78,
+        2893393187361.87,
+        3046308753670.58,
+        3484056680854.91,
+        3808197720125.0,
+        3478545516683.59,
+        3467093769666.67,
+        3823575803793.78,
+        3596483233406.25,
+        3807023797050.99,
+        3964870735760.77,
+        3425099578746.09,
+        3536787895179.0,
+        3765351626105.89,
+        4055433215301.96,
+        3959894794039.21,
+        3941398957073.94,
+        4355251953410.78,
+        4201021706478.62,
+        4562207532490.28,
+        4685592577804.69
+      ],
+      "K_R_observed": [
+        1992486121728.1917,
+        1708525587813.8943,
+        1652231938481.07,
+        1727412076396.5647,
+        2103228252835.6016,
+        2352283350950.1543,
+        2352212803885.1855,
+        2574881376186.4824,
+        2998500976750.8594,
+        3487062586986.3193,
+        3483651222125.464,
+        3466007194738.6094,
+        3822501950815.883,
+        3817055184801.0303,
+        4216250203589.131,
+        4447916812104.585,
+        3826222982536.1587,
+        3861465816904.7334,
+        3998457441188.532,
+        4335326889726.8374,
+        4278749023767.6514,
+        4469837985393.406,
+        4788051224676.93,
+        4575934924232.027,
+        5048140584950.541,
+        5236194353358.961
+      ],
+      "K_I_observed": [
+        1370430056329.035,
+        1264802144184.7883,
+        1217751421787.829,
+        1219883069396.2773,
+        1554584582181.4688,
+        1710466188597.6511,
+        1754650736764.271,
+        1918492502423.4822,
+        2184873741936.0745,
+        2161543308845.1248,
+        2121834880742.1821,
+        2184143208966.575,
+        2273091974655.3257,
+        2235071576793.3413,
+        2425363327176.0415,
+        2401637604831.0996,
+        2095226451270.03,
+        2145427928720.4197,
+        2330730977160.4785,
+        2328782002718.514,
+        2379380609626.591,
+        2639051367317.935,
+        2871222865375.5967,
+        2487607191441.235,
+        2651618480022.2695,
+        2653655897301.416
+      ]
+    }
+  }
+}

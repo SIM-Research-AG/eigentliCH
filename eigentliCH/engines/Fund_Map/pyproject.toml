@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fmre"
+version = "0.2.0"
+description = "Fund Map and Return Estimation programme"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "SIM Research" }]
+dependencies = [
+    # Upper-bounded deliberately. Under pandas 3 a DatetimeIndex reconstructed from a list of dates
+    # carries datetime64[us] where one built by date_range carries datetime64[s], so the regime timeline
+    # round-trip compares unequal on index dtype. Pinned below 3 rather than loosening the round-trip
+    # assertion, because that assertion is what guarantees a published timeline reads back identically.
+    "pandas>=2.0,<3",
+    "numpy>=1.24,<3",
+    "scipy>=1.10",
+    "jinja2>=3.1",
+    "pyarrow>=14",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+bloomberg = ["xbbg>=0.7", "blpapi"]
+
+[project.scripts]
+fmre = "fmre.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"fmre.registers" = ["seed/*.csv", "seed/*.json"]
+"fmre.contracts" = ["schemas/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --strict-markers"

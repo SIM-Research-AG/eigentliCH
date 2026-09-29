@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cycle"
+version = "1.0.0"
+description = "Cycle model engine. Model-derived research output; not investment advice."
+requires-python = ">=3.11"
+# Runtime. Every entry is on the Engine Building Guide allowlist (section 3) except
+# psycopg, admitted by decision C-02. GET /meta reports this check live.
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+    "pydantic==2.10.4",
+    "numpy>=2.0,<3",
+    "scipy>=1.11",        # signal.hilbert and signal.welch, as the first draft
+    "PyYAML>=6.0,<7",
+    "httpx==0.28.1",
+    "psycopg[binary]==3.2.3",
+]
+
+[project.optional-dependencies]
+# Building and testing only; never in the deploy folder.
+dev = [
+    "pytest==8.3.4",
+    "hypothesis>=6.100",
+    "statsmodels>=0.14,<0.15",   # golden/build_golden.py runs the first draft, which filters with it
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+cycle = ["schema.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

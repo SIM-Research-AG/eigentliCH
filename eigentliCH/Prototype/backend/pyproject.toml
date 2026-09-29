@@ -1,0 +1,28 @@
+[project]
+name = "eigentlich"
+version = "0.1.0"
+description = "eigentliCH member application — backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sqlalchemy>=2.0",
+    "alembic>=1.14",
+    "pydantic>=2.9",
+]
+
+[project.optional-dependencies]
+# numpy is NOT a runtime dependency of the application and must not become one. It is here so that the
+# Life Balance Sheet engine can be imported under test: `services/human_capital.earning_power` calls the
+# engine's own income equation rather than reimplementing it, and the test that asserts the record and
+# the engine still agree about the constants the BFS calibration relied on cannot run without it.
+# Without numpy the service returns None and the application is unaffected, which is the intended
+# degradation -- the engine is a separate programme, reached the way the Optimiser is.
+test = ["pytest>=8", "httpx>=0.27", "numpy>=1.26"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error::DeprecationWarning"]
+
+[tool.setuptools.packages.find]
+include = ["eigentlich*"]

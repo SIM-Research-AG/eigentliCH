@@ -1,0 +1,43 @@
+﻿# France.
+
+economy:
+  code: fr
+  name: France
+  world_bank: FRA
+  bis: FR
+  currency: EUR
+
+data:
+  financial_capital:
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    default_depreciation_rate: 0.05
+
+  stimulus:
+    proxy: fiscal_balance
+    reverse_sign: true
+
+calibration:
+  window:
+    # BIS total credit for France begins in 1998.
+    start: null
+    end: null
+
+notes:
+  - >
+    Latest BIS total credit to the non-financial sector is 323.5 percent of GDP, inside the 250 to 350
+    percent band and the highest of the European economies in the panel, well above Germany at 195.6.
+    That spread within one currency union is a useful check that the saturation axis is measuring
+    something national rather than monetary.
+  - >
+    A euro-area member, so the same caveat as Germany applies: the national fiscal balance is the
+    stimulus proxy, the monetary channel belongs to eurozone.yaml, and readings for France and the euro
+    area are not independent.
+  - >
+    The 1790s French hyperinflation is one of the two resolution paths the framework names, alongside
+    the 1930s debt deflation. It is a historical reference in the scenario module, not a series in this
+    economy's window.
+

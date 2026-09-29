@@ -1,0 +1,353 @@
+{
+ "_note": "Golden layer: spark7's replies frozen from the live server (dev/build_golden.py --live) and the engine's output for them.",
+ "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+ "cases": [
+  {
+   "name": "de_3a_maximum",
+   "model_reply": "{\"status\": \"answer\", \"from_notes\": \"Erwerbstätige mit Pensionskasse dürfen 2026 höchstens CHF 7'258 pro Jahr in die Säule 3a einzahlen.\", \"general\": \"\", \"cited\": [\"N1\"]}",
+   "expected": {
+    "answer": "Erwerbstätige mit Pensionskasse dürfen 2026 höchstens CHF 7'258 pro Jahr in die Säule 3a einzahlen.",
+    "cited_ids": [
+     "N1"
+    ],
+    "numbers": [
+     {
+      "text": "2026",
+      "matched": [
+       "N1",
+       "question"
+      ]
+     },
+     {
+      "text": "7'258",
+      "matched": [
+       "N1"
+      ]
+     }
+    ],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "client_situation",
+    "basis": "grounded",
+    "warnings": [],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_not_in_the_notes",
+   "model_reply": "{\"status\": \"answer\", \"from_notes\": \"\", \"general\": \"Informationen zum aktuellen Leitzins der Schweizerischen Nationalbank liegen mir nicht vor. Sie können den aktuellen Zinssatz direkt auf der Webseite der Schweizerischen Nationalbank einsehen. Erstens besuchen Sie die offizielle Internetseite der Nationalbank. Zweitens suchen Sie im Bereich Geldpolitik nach dem aktuellen Leitzins.\", \"cited\": []}",
+   "expected": {
+    "answer": "Allgemeine Einschätzung von MiniMind, nicht aus den geprüften Unterlagen:\nInformationen zum aktuellen Leitzins der Schweizerischen Nationalbank liegen mir nicht vor. Sie können den aktuellen Zinssatz direkt auf der Webseite der Schweizerischen Nationalbank einsehen. Erstens besuchen Sie die offizielle Internetseite der Nationalbank. Zweitens suchen Sie im Bereich Geldpolitik nach dem aktuellen Leitzins.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "population_fact",
+    "basis": "general",
+    "warnings": [
+     "part or all of the answer is a general assessment, not drawn from the grounding notes"
+    ],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_client_needs_arithmetic",
+   "model_reply": "{\n  \"status\": \"answer\",\n  \"from_notes\": \"Das Referenzalter der AHV beträgt 65 Jahre für Frauen wie für Männer.\",\n  \"general\": \"Sie können die verbleibenden Jahre bis zum Referenzalter selbst berechnen, indem Sie Ihr aktuelles Alter von 48 Jahren vom Referenzalter abziehen.\",\n  \"cited\": [\n    \"N2\"\n  ]\n}",
+   "expected": {
+    "answer": "Das Referenzalter der AHV beträgt 65 Jahre für Frauen wie für Männer.\n\nAllgemeine Einschätzung von MiniMind, nicht aus den geprüften Unterlagen:\nSie können die verbleibenden Jahre bis zum Referenzalter selbst berechnen, indem Sie Ihr aktuelles Alter von 48 Jahren vom Referenzalter abziehen.",
+    "cited_ids": [
+     "N2"
+    ],
+    "numbers": [
+     {
+      "text": "65",
+      "matched": [
+       "N2"
+      ]
+     },
+     {
+      "text": "48",
+      "matched": [
+       "fact:age",
+       "question"
+      ]
+     }
+    ],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "client_situation",
+    "basis": "mixed",
+    "warnings": [
+     "part or all of the answer is a general assessment, not drawn from the grounding notes"
+    ],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "en_conversion_rate",
+   "model_reply": "{\"status\": \"answer\", \"from_notes\": \"The statutory minimum conversion rate in the mandatory part of occupational pensions (BVG) is 6.8 %.\", \"general\": \"\", \"cited\": [\"N3\"]}",
+   "expected": {
+    "answer": "The statutory minimum conversion rate in the mandatory part of occupational pensions (BVG) is 6.8 %.",
+    "cited_ids": [
+     "N3"
+    ],
+    "numbers": [
+     {
+      "text": "6.8",
+      "matched": [
+       "N3"
+      ]
+     }
+    ],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "population_fact",
+    "basis": "grounded",
+    "warnings": [],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_no_grounding",
+   "model_reply": "{\n  \"status\": \"answer\",\n  \"from_notes\": \"\",\n  \"general\": \"Ein ETF ist ein börsengehandelter Indexfonds. Er bildet die Wertentwicklung eines bestehenden Index, wie zum Beispiel des SMI, eins zu eins nach. Anstatt einzelne Aktien auszuwählen, investieren Sie mit einem ETF in einen ganzen Korb von Wertpapieren. Erstens können Sie sich über einen Online-Broker oder Ihre Bank über verfügbare ETFs informieren. Zweitens können Sie die Kosten, insbesondere die Verwaltungsgebühren, vergleichen. Drittens können Sie den ETF über die Börse kaufen und verkaufen.\",\n  \"cited\": []\n}",
+   "expected": {
+    "answer": "Allgemeine Einschätzung von MiniMind, nicht aus den geprüften Unterlagen:\nEin ETF ist ein börsengehandelter Indexfonds. Er bildet die Wertentwicklung eines bestehenden Index, wie zum Beispiel des SMI, eins zu eins nach. Anstatt einzelne Aktien auszuwählen, investieren Sie mit einem ETF in einen ganzen Korb von Wertpapieren. Erstens können Sie sich über einen Online-Broker oder Ihre Bank über verfügbare ETFs informieren. Zweitens können Sie die Kosten, insbesondere die Verwaltungsgebühren, vergleichen. Drittens können Sie den ETF über die Börse kaufen und verkaufen.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "population_fact",
+    "basis": "general",
+    "warnings": [
+     "no grounding notes were sent: the answer is a general assessment",
+     "part or all of the answer is a general assessment, not drawn from the grounding notes"
+    ],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_growth_strategy",
+   "model_reply": "{\n  \"status\": \"answer\",\n  \"from_notes\": \"\",\n  \"general\": \"Um Ihr Einkommen als Projektleiterin in einem KMU zu steigern, können Sie verschiedene Schritte unternehmen. Erstens analysieren Sie Ihre aktuellen Kompetenzen und identifizieren Sie Marktlücken oder gefragte Zertifizierungen in Ihrem Bereich. Zweitens führen Sie ein strukturiertes Gespräch mit Ihrer Vorgesetzten über Ihre Leistungsziele und die Bedingungen für eine Gehaltserhöhung. Drittens prüfen Sie den externen Arbeitsmarkt, um Ihren aktuellen Marktwert zu ermitteln. Viertens könnten Sie sich über Weiterbildungen informieren, die zu einer Beförderung oder einem Wechsel in eine höher dotierte Position führen. Fünftens können Sie überlegen, ob Sie zusätzliche Verantwortungen im Unternehmen übernehmen, die einen direkten Einfluss auf den Unternehmenserfolg haben.\",\n  \"cited\": []\n}",
+   "expected": {
+    "answer": "Allgemeine Einschätzung von MiniMind, nicht aus den geprüften Unterlagen:\nUm Ihr Einkommen als Projektleiterin in einem KMU zu steigern, können Sie verschiedene Schritte unternehmen. Erstens analysieren Sie Ihre aktuellen Kompetenzen und identifizieren Sie Marktlücken oder gefragte Zertifizierungen in Ihrem Bereich. Zweitens führen Sie ein strukturiertes Gespräch mit Ihrer Vorgesetzten über Ihre Leistungsziele und die Bedingungen für eine Gehaltserhöhung. Drittens prüfen Sie den externen Arbeitsmarkt, um Ihren aktuellen Marktwert zu ermitteln. Viertens könnten Sie sich über Weiterbildungen informieren, die zu einer Beförderung oder einem Wechsel in eine höher dotierte Position führen. Fünftens können Sie überlegen, ob Sie zusätzliche Verantwortungen im Unternehmen übernehmen, die einen direkten Einfluss auf den Unternehmenserfolg haben.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "client_situation",
+    "basis": "general",
+    "warnings": [
+     "no grounding notes were sent: the answer is a general assessment",
+     "part or all of the answer is a general assessment, not drawn from the grounding notes"
+    ],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_mixed",
+   "model_reply": "{\n  \"status\": \"answer\",\n  \"from_notes\": \"Erwerbstätige mit Pensionskasse dürfen 2026 höchstens CHF 7'258 pro Jahr in die Säule 3a einzahlen. Ohne Pensionskasse sind es 20 % des Erwerbseinkommens, höchstens CHF 36'288.\",\n  \"general\": \"Erstens informieren Sie sich bei Ihrer Bank oder Versicherung über die verschiedenen Kontomodelle. Zweitens entscheiden Sie, ob Sie einen einmaligen Betrag oder regelmässige Daueraufträge einzahlen möchten. Drittens eröffnen Sie das Konto und reichen den Einzahlungsbeleg bei Ihrer nächsten Steuererklärung ein, um den Betrag vom steuerbaren Einkommen abzuziehen.\",\n  \"cited\": [\n    \"N1\"\n  ]\n}",
+   "expected": {
+    "answer": "Erwerbstätige mit Pensionskasse dürfen 2026 höchstens CHF 7'258 pro Jahr in die Säule 3a einzahlen. Ohne Pensionskasse sind es 20 % des Erwerbseinkommens, höchstens CHF 36'288.\n\nAllgemeine Einschätzung von MiniMind, nicht aus den geprüften Unterlagen:\nErstens informieren Sie sich bei Ihrer Bank oder Versicherung über die verschiedenen Kontomodelle. Zweitens entscheiden Sie, ob Sie einen einmaligen Betrag oder regelmässige Daueraufträge einzahlen möchten. Drittens eröffnen Sie das Konto und reichen den Einzahlungsbeleg bei Ihrer nächsten Steuererklärung ein, um den Betrag vom steuerbaren Einkommen abzuziehen.",
+    "cited_ids": [
+     "N1"
+    ],
+    "numbers": [
+     {
+      "text": "2026",
+      "matched": [
+       "N1",
+       "question"
+      ]
+     },
+     {
+      "text": "7'258",
+      "matched": [
+       "N1"
+      ]
+     },
+     {
+      "text": "20",
+      "matched": [
+       "N1"
+      ]
+     },
+     {
+      "text": "36'288",
+      "matched": [
+       "N1"
+      ]
+     }
+    ],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "client_situation",
+    "basis": "mixed",
+    "warnings": [
+     "part or all of the answer is a general assessment, not drawn from the grounding notes"
+    ],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "en_out_of_domain",
+   "model_reply": "{\"status\": \"out_of_domain\", \"from_notes\": \"\", \"general\": \"\", \"cited\": []}",
+   "expected": {
+    "answer": "This question is outside what MiniMind can help with: MiniMind answers questions about money, income, work, pensions, insurance, taxes, housing and investing.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": true,
+    "refusal_code": "not_covered",
+    "refusal_reason": "out_of_domain: the model found the question outside the system's domain",
+    "route": "client_situation",
+    "basis": null,
+    "warnings": [],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_unintelligible",
+   "model_reply": null,
+   "expected": {
+    "answer": "Diese Frage konnte MiniMind nicht verstehen. Formulieren Sie sie bitte in einem ganzen Satz neu.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": true,
+    "refusal_code": "not_covered",
+    "refusal_reason": "unintelligible: the question has no word in it",
+    "route": "population_fact",
+    "basis": null,
+    "warnings": [],
+    "model": null,
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_care_for_a_parent",
+   "model_reply": "{\"status\": \"answer\", \"from_notes\": \"\", \"general\": \"Um Ihre Mutter zu unterstützen, ohne Ihre eigene Vorsorge und Gesundheit zu gefährden, können Sie folgende Schritte unternehmen. Erstens klären Sie die finanziellen Möglichkeiten Ihrer Mutter, etwa durch die Prüfung ihres Vermögens und ihrer Renten, um zu sehen, welche Kosten sie selbst tragen kann. Zweitens informieren Sie sich bei der zuständigen Pro Senectute oder der Gemeinde über staatliche Ergänzungsleistungen und kantonale Beiträge zur Pflegefinanzierung. Drittens prüfen Sie, welche Entlastungsangebote es gibt, wie etwa Spitex oder Tageszentren, um die physische und psychische Belastung für Sie zu reduzieren. Viertens besprechen Sie mit Ihrer Mutter oder ihrem gesetzlichen Vertreter die rechtliche Situation, etwa durch die Erstellung eines Vorsorgeauftrags, falls dies noch nicht geschehen ist. Fünftens setzen Sie sich mit Ihrem Arbeitgeber in Verbindung, um über Möglichkeiten wie Teilzeit oder flexible Arbeitszeitmodelle zu sprechen, damit Sie die Betreuung organisieren können, ohne Ihren Beruf und damit Ihr Einkommen und Ihre Vorsorge zu gefährden.\", \"cited\": []}",
+   "expected": {
+    "answer": "Allgemeine Einschätzung von MiniMind, nicht aus den geprüften Unterlagen:\nUm Ihre Mutter zu unterstützen, ohne Ihre eigene Vorsorge und Gesundheit zu gefährden, können Sie folgende Schritte unternehmen. Erstens klären Sie die finanziellen Möglichkeiten Ihrer Mutter, etwa durch die Prüfung ihres Vermögens und ihrer Renten, um zu sehen, welche Kosten sie selbst tragen kann. Zweitens informieren Sie sich bei der zuständigen Pro Senectute oder der Gemeinde über staatliche Ergänzungsleistungen und kantonale Beiträge zur Pflegefinanzierung. Drittens prüfen Sie, welche Entlastungsangebote es gibt, wie etwa Spitex oder Tageszentren, um die physische und psychische Belastung für Sie zu reduzieren. Viertens besprechen Sie mit Ihrer Mutter oder ihrem gesetzlichen Vertreter die rechtliche Situation, etwa durch die Erstellung eines Vorsorgeauftrags, falls dies noch nicht geschehen ist. Fünftens setzen Sie sich mit Ihrem Arbeitgeber in Verbindung, um über Möglichkeiten wie Teilzeit oder flexible Arbeitszeitmodelle zu sprechen, damit Sie die Betreuung organisieren können, ohne Ihren Beruf und damit Ihr Einkommen und Ihre Vorsorge zu gefährden.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "client_situation",
+    "basis": "general",
+    "warnings": [
+     "part or all of the answer is a general assessment, not drawn from the grounding notes"
+    ],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_incapacity",
+   "model_reply": "{\"status\": \"answer\", \"from_notes\": \"\", \"general\": \"Wenn Sie nicht mehr urteilsfähig sind, entscheidet in der Schweiz primär die Person, die Sie in einem Vorsorgeauftrag eingesetzt haben. Ohne einen solchen Auftrag bestimmt die KESB (Kindes- und Erwachsenenschutzbehörde), wer Sie vertritt, wobei Verwandte oft priorisiert werden. In einen Vorsorgeauftrag gehören drei Bereiche: Erstens die Personensorge, also die Entscheidung über Ihren Wohnort und die medizinische Betreuung. Zweitens die Vermögenssorge, was die Verwaltung Ihrer Finanzen, Zahlungen und Verträge umfasst. Drittens die Vertretung gegenüber Behörden und Versicherungen. Um dies umzusetzen, können Sie erstens ein Dokument verfassen, in dem Sie eine Vertrauensperson benennen und die Aufgaben genau definieren. Zweitens müssen Sie dieses Dokument entweder eigenhändig unterschreiben und datieren oder von einem Notar öffentlich beurkunden lassen, damit es gültig ist. Drittens sollten Sie das Dokument an einem sicheren Ort aufbewahren und die beauftragte Person darüber informieren.\", \"cited\": []}",
+   "expected": {
+    "answer": "Allgemeine Einschätzung von MiniMind, nicht aus den geprüften Unterlagen:\nWenn Sie nicht mehr urteilsfähig sind, entscheidet in der Schweiz primär die Person, die Sie in einem Vorsorgeauftrag eingesetzt haben. Ohne einen solchen Auftrag bestimmt die KESB (Kindes- und Erwachsenenschutzbehörde), wer Sie vertritt, wobei Verwandte oft priorisiert werden. In einen Vorsorgeauftrag gehören drei Bereiche: Erstens die Personensorge, also die Entscheidung über Ihren Wohnort und die medizinische Betreuung. Zweitens die Vermögenssorge, was die Verwaltung Ihrer Finanzen, Zahlungen und Verträge umfasst. Drittens die Vertretung gegenüber Behörden und Versicherungen. Um dies umzusetzen, können Sie erstens ein Dokument verfassen, in dem Sie eine Vertrauensperson benennen und die Aufgaben genau definieren. Zweitens müssen Sie dieses Dokument entweder eigenhändig unterschreiben und datieren oder von einem Notar öffentlich beurkunden lassen, damit es gültig ist. Drittens sollten Sie das Dokument an einem sicheren Ort aufbewahren und die beauftragte Person darüber informieren.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "client_situation",
+    "basis": "general",
+    "warnings": [
+     "part or all of the answer is a general assessment, not drawn from the grounding notes"
+    ],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_inheritance",
+   "model_reply": "{\"status\": \"answer\", \"from_notes\": \"\", \"general\": \"Ob diese Aufteilung im Sinne des Erbrechts gerecht ist, lässt sich ohne die Kenntnis Ihres gesamten Vermögens nicht beurteilen, da das Schweizer Erbrecht Pflichtteile vorsieht. Diese stellen einen gesetzlich geschützten Mindestanteil am Nachlass dar, den die Kinder zwingend erhalten müssen. Wenn die Übertragung des Chalets und die Zahlung an die Tochter dazu führen, dass ein Kind weniger als seinen Pflichtteil erhält, könnte dies anfechtbar sein. Erstens sollten Sie eine vollständige Vermögensaufstellung erstellen, um den Gesamtwert des Nachlasses zu ermitteln. Zweitens empfiehlt es sich, die aktuellen Verkehrswerte des Chalets festzulegen, da die Übertragung als Erbvorbezug gewertet wird. Drittens sollten Sie prüfen, ob Sie durch ein Testament oder einen Erbvertrag die Quoten anpassen können, sofern dies innerhalb der gesetzlichen Spielräume möglich ist. Viertens ist es ratsam, die Übertragung schriftlich als Erbvorbezug zu fixieren, um spätere Streitigkeiten bei der definitiven Erbteilung zu vermeiden. Für die rechtssichere Umsetzung dieser Schritte ist die Konsultation einer Fachperson für Erbrecht oder eines Notars in Ihrem Wohnkanton Bern notwendig.\", \"cited\": []}",
+   "expected": {
+    "answer": "Allgemeine Einschätzung von MiniMind, nicht aus den geprüften Unterlagen:\nOb diese Aufteilung im Sinne des Erbrechts gerecht ist, lässt sich ohne die Kenntnis Ihres gesamten Vermögens nicht beurteilen, da das Schweizer Erbrecht Pflichtteile vorsieht. Diese stellen einen gesetzlich geschützten Mindestanteil am Nachlass dar, den die Kinder zwingend erhalten müssen. Wenn die Übertragung des Chalets und die Zahlung an die Tochter dazu führen, dass ein Kind weniger als seinen Pflichtteil erhält, könnte dies anfechtbar sein. Erstens sollten Sie eine vollständige Vermögensaufstellung erstellen, um den Gesamtwert des Nachlasses zu ermitteln. Zweitens empfiehlt es sich, die aktuellen Verkehrswerte des Chalets festzulegen, da die Übertragung als Erbvorbezug gewertet wird. Drittens sollten Sie prüfen, ob Sie durch ein Testament oder einen Erbvertrag die Quoten anpassen können, sofern dies innerhalb der gesetzlichen Spielräume möglich ist. Viertens ist es ratsam, die Übertragung schriftlich als Erbvorbezug zu fixieren, um spätere Streitigkeiten bei der definitiven Erbteilung zu vermeiden. Für die rechtssichere Umsetzung dieser Schritte ist die Konsultation einer Fachperson für Erbrecht oder eines Notars in Ihrem Wohnkanton Bern notwendig.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": false,
+    "refusal_code": null,
+    "refusal_reason": null,
+    "route": "client_situation",
+    "basis": "general",
+    "warnings": [
+     "part or all of the answer is a general assessment, not drawn from the grounding notes"
+    ],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  },
+  {
+   "name": "de_medical_diagnosis",
+   "model_reply": "{\"status\": \"out_of_domain\", \"from_notes\": \"\", \"general\": \"\", \"cited\": []}",
+   "expected": {
+    "answer": "Diese Frage liegt ausserhalb dessen, wobei MiniMind helfen kann: MiniMind beantwortet Fragen zu Geld, Einkommen, Beruf, Vorsorge, Versicherungen, Steuern, Wohnen und Anlegen.",
+    "cited_ids": [],
+    "numbers": [],
+    "unverified_numbers": [],
+    "refused": true,
+    "refusal_code": "not_covered",
+    "refusal_reason": "out_of_domain: the model found the question outside the system's domain",
+    "route": "client_situation",
+    "basis": null,
+    "warnings": [],
+    "model": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "model_display_name": "MiniMind",
+    "prompt_version": "chatbot-prompt@1.2.0",
+    "notice": "Composed by MiniMind. Model-derived research output. Not investment advice."
+   }
+  }
+ ]
+}

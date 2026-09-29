@@ -1,0 +1,204 @@
+{
+  "$defs": {
+    "RegimeRef": {
+      "additionalProperties": false,
+      "description": "A reference to a published Regime timeline.\n\nThis is what a per-user contract carries. `regime_id` is the load-bearing field: every downstream\nartefact stamps it, and any two artefacts that must be consistent are checked on it.",
+      "properties": {
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "crisis_tail": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Crisis Tail"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        },
+        "regime_id": {
+          "title": "Regime Id",
+          "type": "string"
+        },
+        "regime_timeline_id": {
+          "title": "Regime Timeline Id",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Economy code or blended market scope, for example 'Global' or 'ch'",
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "regime_id",
+        "regime_timeline_id",
+        "scope",
+        "as_of",
+        "model_version"
+      ],
+      "title": "RegimeRef",
+      "type": "object"
+    },
+    "ScoreComponent": {
+      "additionalProperties": false,
+      "description": "One contribution to a score, with its weight, so a score can be taken apart.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "weight": {
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "weight"
+      ],
+      "title": "ScoreComponent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A household's standing, computed from its event stream and the Regime.\n\nEducational and deliberately decomposable: an opaque number a client cannot interrogate is not education.",
+  "properties": {
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "components": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ScoreComponent"
+      },
+      "title": "Components",
+      "type": "array"
+    },
+    "events_considered": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Events Considered"
+    },
+    "household_id": {
+      "title": "Household Id",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "regime": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RegimeRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "scale_max": {
+      "default": 100.0,
+      "title": "Scale Max",
+      "type": "number"
+    },
+    "scale_min": {
+      "default": 0.0,
+      "title": "Scale Min",
+      "type": "number"
+    },
+    "tier": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tier"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trace Id"
+    },
+    "value": {
+      "title": "Value",
+      "type": "number"
+    }
+  },
+  "required": [
+    "as_of",
+    "model_version",
+    "household_id",
+    "value"
+  ],
+  "title": "Score",
+  "type": "object",
+  "x-contract-version": "0.1.0",
+  "x-regulated": "Education"
+}

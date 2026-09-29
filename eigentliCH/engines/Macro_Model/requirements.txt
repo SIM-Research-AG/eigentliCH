@@ -1,0 +1,20 @@
+# Pinned dependencies for the macrofield programme.
+# Install with: .venv\Scripts\python.exe -m pip install -r requirements.txt
+numpy==2.5.1
+scipy==1.18.0
+pandas==3.0.5
+statsmodels==0.14.6
+matplotlib==3.11.1
+PyYAML==6.0.3
+requests==2.34.2
+openpyxl==3.1.5
+odfpy==1.4.1
+pytest==9.1.1
+
+# Optional, needed only for the cockpit dashboard (macrofield cockpit). The rest of the programme does not
+# import these, and the CLI names them if they are missing. Plotly is loaded in the browser from a CDN
+# rather than installed here, so the cockpit needs no Python plotting dependency.
+fastapi==0.140.7
+uvicorn==0.51.0
+httpx==0.28.1
+

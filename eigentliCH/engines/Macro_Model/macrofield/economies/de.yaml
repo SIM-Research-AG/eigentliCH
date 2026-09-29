@@ -1,0 +1,45 @@
+﻿# Germany.
+
+economy:
+  code: de
+  name: Germany
+  world_bank: DEU
+  bis: DE
+  currency: EUR
+
+data:
+  financial_capital:
+    # Germany publishes financial balance sheets through the OECD and Eurostat financial accounts, so
+    # the chapter 10.4 primary measure should be available.
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    default_depreciation_rate: 0.05
+
+  stimulus:
+    proxy: fiscal_balance
+    reverse_sign: true
+
+calibration:
+  window:
+    # BIS total credit for Germany begins in 1998.
+    start: null
+    end: null
+
+notes:
+  - >
+    Latest BIS total credit to the non-financial sector is 195.6 percent of GDP, below the 250 to 350
+    percent band, which makes Germany the least credit-saturated of the advanced economies in the
+    panel and a useful contrast to Japan and France.
+  - >
+    Germany is a member of the euro area, so its monetary policy and part of its stimulus channel are
+    set at the currency-union level. The stimulus proxy here captures the national fiscal balance only,
+    and the euro-area aggregate in eurozone.yaml is the appropriate unit for the monetary channel.
+    Comparisons between de.yaml and eurozone.yaml are therefore not independent observations.
+  - >
+    Germany in the 1920s is the framework's historical analogue for the present United States. That
+    episode is far outside the BIS window and is handled by the analogue facility in the validation
+    module using its own separately sourced series, clearly labelled as an analogue.
+

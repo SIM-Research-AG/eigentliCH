@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>andersCH — Build Specification v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F6F3;
+    --card:#FFFFFF;
+    --ink:#16181A;
+    --ink-2:#4A5157;
+    --ink-3:#858E96;
+    --rule:#D9DCD8;
+    --id:#3A4E8F;
+    --veto:#9E2B2B;
+    --open:#8A5A12;
+    --ok:#1F6B4E;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"IBM Plex Sans",-apple-system,"Segoe UI",Helvetica,sans-serif;
+    font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:0 28px 110px}
+  code,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+  .lbl{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
+
+  header{padding:52px 0 0}
+  .kick{display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;margin-bottom:20px}
+  h1{margin:0;font-size:clamp(1.85rem,5vw,2.7rem);font-weight:700;letter-spacing:-.025em;line-height:1.1}
+  .sub{max-width:70ch;margin:16px 0 0;color:var(--ink-2)}
+  .hmeta{margin-top:26px;padding-top:14px;border-top:1px solid var(--rule);display:flex;gap:30px;flex-wrap:wrap}
+  .hmeta div{display:flex;flex-direction:column;gap:3px}
+  .hmeta b{font-weight:600;font-size:.9rem}
+
+  .agentnote{
+    margin:34px 0 0;padding:20px 22px;background:var(--card);
+    border:1px solid var(--rule);border-left:3px solid var(--id);
+  }
+  .agentnote .lbl{display:block;margin-bottom:10px;color:var(--id)}
+  .agentnote ol{margin:0;padding-left:20px}
+  .agentnote li{margin:0 0 7px;font-size:.94rem;color:var(--ink-2)}
+  .agentnote li:last-child{margin-bottom:0}
+  .agentnote b{color:var(--ink);font-weight:600}
+
+  nav.toc{margin:40px 0 0;padding:20px 22px;background:var(--card);border:1px solid var(--rule)}
+  nav.toc .lbl{display:block;margin-bottom:12px}
+  nav.toc ol{margin:0;padding-left:22px;columns:2;column-gap:34px}
+  nav.toc li{margin:0 0 5px;font-size:.92rem}
+  nav.toc a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid transparent}
+  nav.toc a:hover{color:var(--ink);border-bottom-color:var(--rule)}
+  @media (max-width:640px){nav.toc ol{columns:1}}
+
+  h2{
+    margin:64px 0 0;padding-bottom:11px;border-bottom:2px solid var(--ink);
+    font-size:clamp(1.2rem,3.2vw,1.5rem);font-weight:700;letter-spacing:-.02em;
+    display:flex;gap:13px;align-items:baseline;flex-wrap:wrap;
+  }
+  h2 .n{font-family:"IBM Plex Mono",monospace;font-size:.72em;font-weight:500;color:var(--ink-3)}
+  h3{margin:34px 0 0;font-size:1.02rem;font-weight:600;letter-spacing:-.008em}
+  h4{margin:22px 0 0;font-size:.95rem;font-weight:600}
+  p{max-width:78ch;margin:13px 0 0;color:var(--ink-2)}
+  p.tight{margin-top:7px}
+  b,strong{color:var(--ink);font-weight:600}
+  ul,ol{max-width:78ch;margin:12px 0 0;padding-left:21px}
+  li{margin:0 0 7px;color:var(--ink-2);font-size:.96rem}
+
+  table{border-collapse:collapse;width:100%;margin-top:16px;background:var(--card);font-size:.9rem}
+  .tw{overflow-x:auto;border:1px solid var(--rule);margin-top:16px}
+  .tw table{margin:0;min-width:660px;border:none}
+  th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);color:var(--ink-2);vertical-align:top;line-height:1.47}
+  th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:500;color:var(--ink-3);background:var(--paper)}
+  tr:last-child td{border-bottom:none}
+  th:last-child,td:last-child{border-right:none}
+  td b{color:var(--ink)}
+  td code{font-size:.86em}
+
+  .rid{font-family:"IBM Plex Mono",monospace;font-size:.82rem;font-weight:600;color:var(--id);white-space:nowrap}
+  .rid.v{color:var(--veto)}
+  .rid.o{color:var(--open)}
+
+  pre{
+    margin:16px 0 0;padding:16px 18px;background:#1D2024;color:#DCE1E4;
+    border-radius:0;overflow-x:auto;font-size:12.5px;line-height:1.58;
+  }
+  pre .c{color:#7C8894}
+  pre .k{color:#9BC4E2}
+  pre .s{color:#B4D6A4}
+
+  .box{margin-top:20px;padding:17px 19px;background:var(--card);border:1px solid var(--rule)}
+  .box.veto{border-left:3px solid var(--veto)}
+  .box.open{border-left:3px solid var(--open)}
+  .box .lbl{display:block;margin-bottom:8px}
+  .box.veto .lbl{color:var(--veto)}
+  .box.open .lbl{color:var(--open)}
+  .box p{margin-top:0}
+
+  .screen{margin-top:30px;padding-top:22px;border-top:1px solid var(--rule)}
+  .screen:first-of-type{border-top:none;padding-top:0}
+  .sh{display:flex;gap:13px;align-items:baseline;flex-wrap:wrap}
+  .sh h3{margin:0}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:6px 16px;margin-top:13px}
+  .kv dt{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);padding-top:4px}
+  .kv dd{margin:0;font-size:.94rem;color:var(--ink-2)}
+  .kv dd ul{margin:0;padding-left:18px}
+  .kv dd li{margin:0 0 5px}
+  @media (max-width:620px){.kv{grid-template-columns:1fr;gap:3px}.kv dt{padding-top:9px}}
+
+  footer{margin-top:80px;padding-top:20px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+  @media (max-width:520px){body{font-size:15px}.wrap{padding:0 19px 80px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kick">
+    <span class="lbl" style="color:var(--id)">andersCH</span>
+    <span class="lbl">Build specification v1.0</span>
+    <span class="lbl">29 August 2026</span>
+  </div>
+  <h1>Member application — implementation requirements</h1>
+  <p class="sub">Derived from the andersCH Customer Journey proposal. Target stack: HTML/JS front end with a Python backend, matching the existing prototype. Scope: the full proposal, built in the phase order given in section 10.</p>
+  <div class="hmeta">
+    <div><span class="lbl">Requirement IDs</span><b>R-nnn functional · C-nn constraint · S-nn screen · NG-nn non-goal · D-nn open decision</b></div>
+    <div><span class="lbl">Authority</span><b>C- constraints override every R-</b></div>
+  </div>
+</header>
+
+<div class="agentnote">
+  <span class="lbl">Instructions to the implementing agent</span>
+  <ol>
+    <li><b>Read sections 1, 2 and 12 before writing any code.</b> Section 2 contains vetoes that invalidate otherwise reasonable implementations. Section 12 lists decisions you must not make on your own.</li>
+    <li><b>Survey the existing estate first</b> (section 9). Several components already exist in some form. Report what you find and what you propose to reuse before creating new files. Do not assume a path in this document is correct — verify it.</li>
+    <li><b>Where a requirement is underspecified, stop and ask.</b> Do not invent policy. Inventing a number, a rate, an assessment threshold or a regulatory position is a defect, not a gap-fill.</li>
+    <li><b>Every requirement has an ID.</b> Reference the ID in commit messages and in code comments where a non-obvious constraint drove the implementation.</li>
+    <li><b>Build the acceptance checks in section 11 as executable tests</b>, not as a manual list.</li>
+  </ol>
+</div>
+
+<nav class="toc">
+  <span class="lbl">Contents</span>
+  <ol>
+    <li><a href="#s1">Scope and non-goals</a></li>
+    <li><a href="#s2">Hard constraints</a></li>
+    <li><a href="#s3">Information architecture</a></li>
+    <li><a href="#s4">Data model</a></li>
+    <li><a href="#s5">Screens</a></li>
+    <li><a href="#s6">HTTP API</a></li>
+    <li><a href="#s7">Engine integration</a></li>
+    <li><a href="#s8">Design principles as code rules</a></li>
+    <li><a href="#s9">Existing estate</a></li>
+    <li><a href="#s10">Build order</a></li>
+    <li><a href="#s11">Acceptance checks</a></li>
+    <li><a href="#s12">Do not invent</a></li>
+  </ol>
+</nav>
+
+<!-- ================= 1 ================= -->
+<h2 id="s1"><span class="n">01</span> Scope and non-goals</h2>
+
+<p>andersCH is a member application with two journeys that meet in a Market Place.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th>Surface</th><th>Purpose</th><th>Cadence it must support</th></tr></thead>
+  <tbody>
+    <tr><td><b>Planner &amp; Life Events</b></td><td>Build and maintain a plan; handle transitions. Destination is a self-determined life</td><td>Episodic and deep — weeks or months between sessions. No daily engagement mechanics</td></tr>
+    <tr><td><b>Knowledge &amp; Community</b></td><td>Learn how money, pensions and the economy work, up to the point of being able to offer that to others</td><td>Weekly or daily, light</td></tr>
+    <tr><td><b>Market Place</b></td><td>Shared third surface both journeys open onto. Supply comes partly from members who complete the ladder</td><td>Occasional, transactional</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Non-goals</h3>
+<div class="tw">
+<table>
+  <thead><tr><th>ID</th><th>Not built</th><th>Why it matters to the build</th></tr></thead>
+  <tbody>
+    <tr><td><span class="rid">NG-01</span></td><td>Trade execution, order routing, custody</td><td>No broker integration, no order objects in the data model</td></tr>
+    <tr><td><span class="rid">NG-02</span></td><td>Decumulation and drawdown modelling — living from assets, capital against annuity, AHV timing</td><td>Explicitly a later scope. Do not add withdrawal-sequencing logic to any engine call</td></tr>
+    <tr><td><span class="rid">NG-03</span></td><td>Occupational or professional education content</td><td>The ladder teaches financial capability only. No course catalogue for trades or professions</td></tr>
+    <tr><td><span class="rid">NG-04</span></td><td>Any federal or accredited qualification</td><td>Capability statements are andersCH's own. No claim of accreditation in code, copy, or generated certificates</td></tr>
+    <tr><td><span class="rid">NG-05</span></td><td>Accounts for members under 25</td><td>Age floor enforced at registration. No minor-consent flows</td></tr>
+    <tr><td><span class="rid">NG-06</span></td><td>Health or medical advice</td><td>Health appears only as a Protection role label and as Market Place supply</td></tr>
+    <tr><td><span class="rid">NG-07</span></td><td>Native mobile applications</td><td>Responsive web only in this phase</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ================= 2 ================= -->
+<h2 id="s2"><span class="n">02</span> Hard constraints</h2>
+
+<p>These override any functional requirement. If a requirement in section 5 appears to conflict with a constraint here, the constraint wins and the conflict is a defect in this document — report it.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th>ID</th><th>Constraint</th><th>Implementation</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="rid v">C-01</span></td>
+      <td><b>No personalised investment recommendation anywhere.</b> The application may educate and may illustrate with generic arithmetic. It may not select, rank or weight instruments for an identified member</td>
+      <td>Any response object that ranks instruments must carry <code>requires_curator: true</code> and be refused by the API unless an open <code>CuratorSession</code> exists. Enforce server-side, not in the UI</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-02</span></td>
+      <td><b>Illustrative arithmetic must be labelled and its assumptions stored, not hardcoded</b></td>
+      <td>Rates, horizons and inflation live in a versioned <code>AssumptionSet</code> record. Every illustration response returns the <code>assumption_set_id</code> used. No literal rate in application code</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-03</span></td>
+      <td><b>Engines run server-side only, in the permitted runtime</b></td>
+      <td>No engine logic, weights or model files reachable from the browser. No engine invocation from client JavaScript. All engine calls go through the Python backend</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-04</span></td>
+      <td><b>Every stored field carries a data class</b> (the existing K0–K3 scheme). The most sensitive class never leaves the server and never appears in logs</td>
+      <td>Classification is a column on the model, not a convention. A logging filter drops the top class by field name. A test asserts no top-class field appears in any log line</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-05</span></td>
+      <td><b>andersCH is sole data controller from the first intake question.</b> No third-party analytics, tag managers, fonts-with-logging, or session recorders on any page that touches member data</td>
+      <td>No external network calls from authenticated pages. Self-host fonts. A test asserts the authenticated bundle makes no cross-origin request</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-06</span></td>
+      <td><b>No notification without a prepared decision.</b> An action item exists only if it carries the options and their consequences</td>
+      <td><code>ActionItem.prepared_options</code> is non-nullable with minimum length 2. An item with an empty array cannot be persisted</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-07</span></td>
+      <td><b>No gamification primitives, enforced by absence</b></td>
+      <td>The schema contains no points, score, streak, badge, level-number, leaderboard or daily-goal field. A test greps the model layer for those identifiers and fails on a match</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-08</span></td>
+      <td><b>Market Place ordering cannot be bought</b></td>
+      <td>The listing query accepts no paid-placement, boost, sponsor or priority parameter. Ordering inputs are limited to role match, capability evidence, and community presence. Fee fields may exist for billing but must not be readable by the ranking function</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-09</span></td>
+      <td><b>Every material change to a member's plan produces a Decision Record</b></td>
+      <td>Writes to positions, goals and plan parameters are wrapped in a transaction that also writes a <code>Decision</code>. A plan mutation without a linked decision is a constraint violation, not a warning</td>
+    </tr>
+    <tr>
+      <td><span class="rid v">C-10</span></td>
+      <td><b>Curator interactions are attributable</b></td>
+      <td>Every <code>CuratorSession</code> records the identified curator, the entry point it was opened from, and the outcome. Immutable append-only audit table</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ================= 3 ================= -->
+<h2 id="s3"><span class="n">03</span> Information architecture</h2>
+
+<p>Two doors and a shared third surface. The Know is reachable from everywhere, not from a tab.</p>
+
+<pre><span class="c"># top-level navigation</span>
+Planner &amp; Life Events        Knowledge &amp; Community        Market Place
+├─ Role grid  (default)      ├─ Learning path             ├─ Browse by role
+├─ Containers                ├─ Unit / lesson             ├─ Listing detail
+├─ Stage map (the climb)     ├─ Capability review         └─ Provider application
+├─ Vault                     └─ Community: lectures,
+├─ Decisions                    café evenings, meet-ups
+└─ Life event modules
+
+<span class="c"># persistent, not a tab — present on every authenticated screen</span>
+The Know  →  MiniMind panel  →  [ Curator ] button
+Action items surface inside The Know, never as a badge on navigation
+</pre>
+
+<div class="tw">
+<table>
+  <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+  <tbody>
+    <tr><td><span class="rid">R-001</span></td><td>The <b>role grid is the default authenticated landing screen</b>, not a dashboard of widgets and not the vault</td></tr>
+    <tr><td><span class="rid">R-002</span></td><td>The Know is a persistent panel or overlay available from every authenticated screen, carrying a Curator button at all times</td></tr>
+    <tr><td><span class="rid">R-003</span></td><td>Action items appear inside The Know as items with prepared decisions. They must not appear as counts, dots or badges on navigation elements</td></tr>
+    <tr><td><span class="rid">R-004</span></td><td>The Market Place is reachable directly from both doors. Browsing and contacting are never gated on learning progress</td></tr>
+    <tr><td><span class="rid">R-005</span></td><td>Being <b>listed</b> as supply is gated on capability evidence. Reading and hiring are not</td></tr>
+    <tr><td><span class="rid">R-006</span></td><td>The stage map is content navigation. It must not display a member's progress along it as an achievement, a percentage or a rank</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ================= 4 ================= -->
+<h2 id="s4"><span class="n">04</span> Data model</h2>
+
+<p>Entities and their essential fields. Field lists are the minimum, not the maximum. <code>data_class</code> uses the existing K0–K3 scheme — confirm the exact values against the estate before implementing.</p>
+
+<pre><span class="c">// core member and plan</span>
+<span class="k">Member</span> {
+  id, created_at, <span class="s">age_at_registration</span> <span class="c">// >= 25, see NG-05</span>
+  display_name, locale, stage_hint            <span class="c">// stage_hint is content routing only</span>
+  consents[]                                  <span class="c">// versioned, timestamped</span>
+  data_class: K1
+}
+
+<span class="k">Position</span> {                                     <span class="c">// a filled cell in the role grid</span>
+  id, member_id
+  role: "growth" | "income" | "stabilisation" | "protection"
+  capital_type: "human" | "financial"
+  label, description
+  magnitude                                   <span class="c">// annualised amount OR share of total; unit explicit</span>
+  magnitude_unit: "chf_per_year" | "share_of_total"
+  <span class="c">// correlation tags — used to detect positions that are really one position</span>
+  tags: { client_type, skill, reputation_basis, sector, time_basis }
+  started_on, active
+  data_class: K2
+}
+
+<span class="k">Goal</span> {                                         <span class="c">// container. reporting layer only, see R-030</span>
+  id, member_id, name
+  target_amount, target_date
+  safety, liquidity_need, volatility_tolerance <span class="c">// the five parameters</span>
+  funded_by_position_ids[]                     <span class="c">// nullable — a goal may be unfunded</span>
+  data_class: K2
+}
+
+<span class="k">VaultItem</span> {
+  id, member_id, kind                          <span class="c">// policy, statement, contract, note, ...</span>
+  title, source: "upload" | "forward" | "import" | "capture" | "manual"
+  stored_at, content_hash, version, supersedes_id
+  expiry_date                                  <span class="c">// drives action items — see R-060</span>
+  extracted_fields{}                           <span class="c">// nullable, provenance-tagged</span>
+  data_class: K3
+}
+
+<span class="k">Decision</span> {                                     <span class="c">// the andersCH-owned Decision Record</span>
+  id, member_id, created_at, author            <span class="c">// member or curator</span>
+  question, options_considered[], choice, reasoning
+  linked_vault_item_ids[], linked_position_ids[], linked_goal_ids[]
+  curator_session_id                           <span class="c">// nullable</span>
+  immutable: true                              <span class="c">// append-only; corrections are new records</span>
+  data_class: K2
+}
+
+<span class="k">ActionItem</span> {
+  id, member_id, trigger_kind, due_date, status
+  prepared_options[]                           <span class="c">// min length 2 — see C-06</span>
+  <span class="c">// each option: { label, consequence, cost_or_benefit, assumption_set_id }</span>
+  source_vault_item_id                         <span class="c">// nullable</span>
+  data_class: K2
+}
+
+<span class="k">AssumptionSet</span> {                                <span class="c">// see C-02</span>
+  id, version, effective_from, published_by
+  rates{}, horizons{}, inflation, notes
+  data_class: K0
+}
+
+<span class="c">// knowledge and community</span>
+<span class="k">LearningUnit</span> {
+  id, title, body_ref, prerequisites[]
+  capability_ids[]                             <span class="c">// what completing it evidences</span>
+  ip_owner                                     <span class="c">// see C-03 and section 9</span>
+}
+
+<span class="k">Capability</span> {
+  id, statement                                <span class="c">// testable, e.g. "can explain what a</span>
+                                               <span class="c">// Freizügigkeitskonto in cash costs per year"</span>
+  rung                                         <span class="c">// see D-01 — DO NOT invent the scheme</span>
+}
+
+<span class="k">CapabilityAssertion</span> {
+  id, member_id, capability_id
+  evidence_kind, evidence_ref, assessed_by, assessed_at
+  data_class: K2
+}
+
+<span class="c">// market place</span>
+<span class="k">Listing</span> {
+  id, provider_id, roles[]                     <span class="c">// growth | income | stabilisation | protection</span>
+  domain: "financial" | "health" | "education"
+  qualification_pipeline: "capability" | "professional_registration"
+  registration_refs[]                          <span class="c">// for the professional pipeline</span>
+  disclosures[]                                <span class="c">// economic relationships — mandatory, may be empty only</span>
+                                               <span class="c">// if explicitly asserted as none</span>
+  standing_inputs{}                            <span class="c">// capability evidence, community presence</span>
+  <span class="c">// NO paid placement field readable by ranking — see C-08</span>
+}
+
+<span class="k">CuratorSession</span> {
+  id, member_id, curator_id, opened_from, opened_at, closed_at
+  outcome, liability_flag, decision_ids[]
+  append_only: true                            <span class="c">// see C-10</span>
+}
+</pre>
+
+<div class="tw">
+<table>
+  <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+  <tbody>
+    <tr><td><span class="rid">R-020</span></td><td>A <code>Position</code> is valid with only one row filled. The grid must render and be useful at n=1</td></tr>
+    <tr><td><span class="rid">R-021</span></td><td><code>Position.tags</code> are used to detect positions that are effectively one position. The comparison rule and its threshold are <b>not yet decided</b> — see <span class="rid o">D-02</span>. Store the tags; do not ship the inference</td></tr>
+    <tr><td><span class="rid">R-030</span></td><td>Goals never partition holdings. A single portfolio must be representable against many goals. No requirement that <code>funded_by_position_ids</code> be disjoint across goals</td></tr>
+    <tr><td><span class="rid">R-031</span></td><td>A goal whose funding has a liquidity profile inconsistent with its <code>target_date</code> is surfaced as a statement of fact, not as a warning to be dismissed</td></tr>
+    <tr><td><span class="rid">R-040</span></td><td><code>Decision</code> records are immutable. A correction is a new record referencing the prior one</td></tr>
+    <tr><td><span class="rid">R-041</span></td><td>Vault items are versioned with <code>supersedes_id</code>. Nothing is overwritten in place</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ================= 5 ================= -->
+<h2 id="s5"><span class="n">05</span> Screens</h2>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-01</span><h3>Onboarding</h3></div>
+  <dl class="kv">
+    <dt>Purpose</dt><dd>Establish enough to render the role grid with at least one position and one goal</dd>
+    <dt>Reuse</dt><dd>An onboarding questionnaire already exists in the estate with a versioned schema. Survey it, report its question count and schema version, and propose a mapping to <code>Position</code> and <code>Goal</code> rather than writing a new one</dd>
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-100</span> Age floor 25 enforced server-side, not only in the form</li>
+      <li><span class="rid">R-101</span> Must be resumable. Partial state persists per question, not per session</li>
+      <li><span class="rid">R-102</span> Ends by writing one <code>Position</code> (employment, human capital, income role) and the member's first <code>Goal</code> if stated</li>
+      <li><span class="rid">R-103</span> Consent is captured as versioned records, not a checkbox boolean</li>
+    </ul></dd>
+    <dt>Accept</dt><dd>A member who abandons at question <i>n</i> and returns resumes at <i>n</i>. Registration with a stated age of 24 is refused by the API even if the client is bypassed</dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-02</span><h3>Role grid — default landing</h3></div>
+  <dl class="kv">
+    <dt>Purpose</dt><dd>Four roles across two kinds of capital. The structure the product is organised around</dd>
+    <dt>Layout</dt><dd>Four rows (Growth, Income, Stabilisation, Protection) × two columns (human, financial). Eight cells, each empty or holding one or more positions</dd>
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-110</span> Renders meaningfully with a single position filled. Empty cells state what would go there, not "no data"</li>
+      <li><span class="rid">R-111</span> Each role shows its definition on demand. Definitions are content records, not hardcoded strings — see <span class="rid o">D-03</span></li>
+      <li><span class="rid">R-112</span> Adding a position is reachable from any empty cell in one action</li>
+      <li><span class="rid">R-113</span> No completion meter, no "3 of 8 filled", no progress ring</li>
+      <li><span class="rid">R-114</span> Where a figure exists in both kinds of capital, both are shown together</li>
+    </ul></dd>
+    <dt>Accept</dt><dd>A member with one position sees a screen that tells them something. No element implies eight positions is the goal</dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-03</span><h3>Position detail and add position</h3></div>
+  <dl class="kv">
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-120</span> Captures role, capital type, label, magnitude with an explicit unit, and the five correlation tags</li>
+      <li><span class="rid">R-121</span> Human-capital positions capture a time basis, because hours are the binding constraint. Financial positions do not</li>
+      <li><span class="rid">R-122</span> A position may be marked inactive. Inactive positions remain in history and in decisions</li>
+      <li><span class="rid">R-123</span> Creating or editing a position writes a <code>Decision</code> in the same transaction — <span class="rid v">C-09</span></li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-04</span><h3>Containers</h3></div>
+  <dl class="kv">
+    <dt>Purpose</dt><dd>What each franc is for. A reporting and decision layer over whatever is actually held</dd>
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-130</span> Goals may reference overlapping funding. The UI must not imply separate accounts</li>
+      <li><span class="rid">R-131</span> Each goal shows the five parameters and whether its funding matches its date</li>
+      <li><span class="rid">R-132</span> Courage money is a first-class goal template, not a footnote</li>
+      <li><span class="rid">R-133</span> Any projection is an illustration under <span class="rid v">C-02</span> and displays its assumption set</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-05</span><h3>Stage map — the climb</h3></div>
+  <dl class="kv">
+    <dt>Purpose</dt><dd>Content navigation across five stages: 25 career start, 30 family and home, 35 own business, 45 a large asset, 50 optimising</dd>
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-140</span> Stages describe a situation. No grading, no locking, no "you are here" score</li>
+      <li><span class="rid">R-141</span> A member may open any stage regardless of age</li>
+      <li><span class="rid">R-142</span> No stage after 50. Drawdown content is out of scope — <span class="rid">NG-02</span></li>
+      <li><span class="rid">R-143</span> Mountain language appears in marketing surfaces only, never in the authenticated product</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-06</span><h3>Vault</h3></div>
+  <dl class="kv">
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-150</span> Four intake paths, behind one interface: manual upload, forwarding address, import, camera capture. Build the interface now; the first automated path is <span class="rid o">D-04</span></li>
+      <li><span class="rid">R-151</span> Extracted fields carry provenance and a confidence indication. Extraction never overwrites a member-entered value</li>
+      <li><span class="rid">R-152</span> Expiry dates are first-class and are the primary source of action items</li>
+      <li><span class="rid">R-153</span> Member-authored notes, learning and family arrangements are vault items of equal standing to documents</li>
+      <li><span class="rid">R-154</span> Full export of everything the member owns, in a documented format, without asking anyone</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-07</span><h3>Decisions</h3></div>
+  <dl class="kv">
+    <dt>Purpose</dt><dd>The record of what was decided and why. This is an andersCH-owned component and the thing that survives a change of adviser</dd>
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-160</span> Chronological, filterable by linked position, goal or vault item</li>
+      <li><span class="rid">R-161</span> Shows author and whether a curator was involved</li>
+      <li><span class="rid">R-162</span> Append-only. The UI offers "record a correction", never "edit"</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-08</span><h3>The Know — MiniMind panel</h3></div>
+  <dl class="kv">
+    <dt>Purpose</dt><dd>Answers grounded in the member's own vault, the learning material, and the always-open route to a human</dd>
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-170</span> Persistent across all authenticated screens. Carries a Curator button at all times</li>
+      <li><span class="rid">R-171</span> Answers cite which vault items or learning units they drew on</li>
+      <li><span class="rid">R-172</span> A question that would require a personalised recommendation returns an explanation of the boundary and a Curator handoff — never a hedged recommendation. <span class="rid v">C-01</span></li>
+      <li><span class="rid">R-173</span> The Curator button opens a <code>CuratorSession</code> recording the screen it was opened from</li>
+      <li><span class="rid">R-174</span> Action items are listed here, each expandable to its prepared options and their consequences</li>
+      <li><span class="rid">R-175</span> No unsolicited proactive messages. An item appears in the list; it does not interrupt</li>
+    </ul></dd>
+    <dt>Accept</dt><dd>Asked "should I buy fund X with my 10,000", the system explains the boundary and offers a curator. It does not answer, and it does not produce a suggested breakdown</dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-09</span><h3>Life event modules</h3></div>
+  <dl class="kv">
+    <dt>Purpose</dt><dd>Seven modules: separation, job loss, illness and incapacity, death of a partner, inheritance, caring for parents, move abroad or return</dd>
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-180</span> Each module is a content record with the same shape: what to do first, what not to sign, which vault items to retrieve, which curator to call</li>
+      <li><span class="rid">R-181</span> A module pulls the relevant vault items automatically rather than asking the member to find them</li>
+      <li><span class="rid">R-182</span> Reachable from The Know without navigating a menu</li>
+      <li><span class="rid">R-183</span> Module content is authored, not generated. Ship the framework with the modules empty rather than filling them with generated text</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-10</span><h3>Learning path and capability review</h3></div>
+  <dl class="kv">
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-190</span> Units have prerequisites and evidence one or more capabilities</li>
+      <li><span class="rid">R-191</span> Progression is expressed as capability statements the member can read. No level numbers, no points — <span class="rid v">C-07</span></li>
+      <li><span class="rid">R-192</span> The rung scheme and the assessment method are <b>not decided</b> — <span class="rid o">D-01</span>. Build the data model and leave the scheme configurable</li>
+      <li><span class="rid">R-193</span> Three exits are named in the content: run your own affairs, offer a service, start a venture. Only the second and third touch the Market Place</li>
+      <li><span class="rid">R-194</span> No claim, anywhere, of federal or accredited status — <span class="rid">NG-04</span></li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-11</span><h3>Market Place — browse and listing</h3></div>
+  <dl class="kv">
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-200</span> Indexed by the four roles, not by profession. A provider may appear under more than one role</li>
+      <li><span class="rid">R-201</span> A member's own role grid pre-filters the view, and the filter is visible and removable</li>
+      <li><span class="rid">R-202</span> Every listing displays its disclosures. A listing with no disclosure record cannot be published</li>
+      <li><span class="rid">R-203</span> Ranking inputs are role match, capability evidence and community presence. No commercial input — <span class="rid v">C-08</span></li>
+      <li><span class="rid">R-204</span> Two qualification pipelines: capability-assessed for financial supply, professional-registration for health and education. A listing declares which, and they are not interchangeable</li>
+      <li><span class="rid">R-205</span> Member offers and searches sit alongside provider listings: co-investment, succession, property, skills and services</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-12</span><h3>Curator Workbench</h3></div>
+  <dl class="kv">
+    <dt>Purpose</dt><dd>The curator-side surface. An andersCH-owned component</dd>
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-210</span> Curator sees the member's vault, positions, goals and decisions only after the member grants access, scoped and time-limited</li>
+      <li><span class="rid">R-211</span> Every session is recorded with entry point and outcome — <span class="rid v">C-10</span></li>
+      <li><span class="rid">R-212</span> A recommendation made by a curator writes a <code>Decision</code> attributed to that curator</li>
+      <li><span class="rid">R-213</span> Access grants are revocable by the member at any time, with immediate effect</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-13</span><h3>Community</h3></div>
+  <dl class="kv">
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-220</span> Lectures, café evenings and meet-ups as scheduled items with attendance</li>
+      <li><span class="rid">R-221</span> Attendance is an input to community presence for Market Place standing — recorded, and not shown to the member as a score</li>
+      <li><span class="rid">R-222</span> The word "events" in the interface means life events. Gatherings are named as lectures, evenings or meet-ups</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<div class="screen">
+  <div class="sh"><span class="rid">S-14</span><h3>Settings, consent and data</h3></div>
+  <dl class="kv">
+    <dt>Requirements</dt><dd><ul>
+      <li><span class="rid">R-230</span> Consent history visible and withdrawable</li>
+      <li><span class="rid">R-231</span> Export and deletion self-service, both producing a <code>Decision</code> record of the request</li>
+      <li><span class="rid">R-232</span> A plain statement of which data class each stored category falls into</li>
+    </ul></dd>
+  </dl>
+</div>
+
+<!-- ================= 6 ================= -->
+<h2 id="s6"><span class="n">06</span> HTTP API</h2>
+
+<p>Shape, not a contract to copy blindly. Confirm against the existing server before implementing.</p>
+
+<pre><span class="c"># plan</span>
+GET    /api/me
+GET    /api/positions                       <span class="c"># role grid payload</span>
+POST   /api/positions                       <span class="c"># writes Decision in same txn (C-09)</span>
+PATCH  /api/positions/:id
+GET    /api/goals
+POST   /api/goals
+GET    /api/goals/:id/illustration          <span class="c"># returns assumption_set_id (C-02)</span>
+
+<span class="c"># vault and decisions</span>
+GET    /api/vault
+POST   /api/vault                           <span class="c"># upload | capture</span>
+POST   /api/vault/intake/forward            <span class="c"># inbound mail webhook</span>
+GET    /api/vault/:id
+GET    /api/decisions
+POST   /api/decisions
+GET    /api/export                          <span class="c"># full member export (R-154)</span>
+
+<span class="c"># the know</span>
+POST   /api/know/ask                        <span class="c"># { question } -> { answer, citations[],</span>
+                                            <span class="c">#   requires_curator: bool }</span>
+GET    /api/actions                         <span class="c"># prepared_options never empty (C-06)</span>
+POST   /api/curator/sessions                <span class="c"># { opened_from } -> session</span>
+DELETE /api/curator/sessions/:id/grant      <span class="c"># member revokes access (R-213)</span>
+
+<span class="c"># knowledge</span>
+GET    /api/learning/path
+GET    /api/learning/units/:id
+GET    /api/capabilities/me
+
+<span class="c"># market place</span>
+GET    /api/marketplace/listings?role=&amp;domain=
+GET    /api/marketplace/listings/:id        <span class="c"># disclosures always present (R-202)</span>
+POST   /api/marketplace/applications
+</pre>
+
+<div class="box veto">
+  <span class="lbl">Enforcement point</span>
+  <p><code>/api/know/ask</code> is where <span class="rid v">C-01</span> lives. The boundary check runs server-side on the response before serialisation. It must not be a prompt instruction alone — a model that ignores its instructions has to be caught by code.</p>
+</div>
+
+<!-- ================= 7 ================= -->
+<h2 id="s7"><span class="n">07</span> Engine integration</h2>
+
+<p>The estate contains a set of analytical engines. Several run out of process because their dependencies are mutually incompatible, each with its own environment. Preserve that pattern; do not attempt to unify the dependency tree.</p>
+
+<pre><span class="c"># pattern: one subprocess per engine, its own venv, JSON over stdio</span>
+engines/
+  &lt;engine_name&gt;/
+    .venv/                  <span class="c"># isolated, never shared</span>
+    run.py                  <span class="c"># reads JSON on stdin, writes JSON on stdout</span>
+    manifest.json           <span class="c"># name, version, inputs, outputs, timeout, owner</span>
+
+<span class="c"># backend call site</span>
+result = call_engine(
+    name="life_balance_sheet",
+    payload={...},
+    timeout_s=&lt;from manifest&gt;,
+)
+</pre>
+
+<div class="tw">
+<table>
+  <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+  <tbody>
+    <tr><td><span class="rid">R-300</span></td><td>Every engine declares a <code>manifest.json</code> with its inputs, outputs, timeout and IP owner. An engine without a manifest is not callable</td></tr>
+    <tr><td><span class="rid">R-301</span></td><td>Engine calls are never made on a request thread if the manifest timeout exceeds two seconds. Queue and poll</td></tr>
+    <tr><td><span class="rid">R-302</span></td><td>Engine failure degrades the screen, never the session. A failed engine renders as "not available", not as a zero</td></tr>
+    <tr><td><span class="rid">R-303</span></td><td>Engine inputs and outputs are logged with the member reference removed, for reproducibility without exposure</td></tr>
+    <tr><td><span class="rid">R-304</span></td><td>No engine, weight file or model artefact is served to the browser under any circumstance — <span class="rid v">C-03</span></td></tr>
+    <tr><td><span class="rid">R-305</span></td><td>Report the engine inventory found in the estate, with each one's declared owner, before wiring any of them</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ================= 8 ================= -->
+<h2 id="s8"><span class="n">08</span> Design principles as code rules</h2>
+
+<p>Each principle forbids something specific. The right-hand column is the testable form.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th>#</th><th>Principle</th><th>Forbidden in code</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Answer the question, then show the bigger lever</td><td>A path that returns only a redirect to onboarding when a member asks a direct question</td></tr>
+    <tr><td>2</td><td>The first session produces one true, specific statement about the member's own situation</td><td>An onboarding completion screen that only echoes submitted values</td></tr>
+    <tr><td>3</td><td>Design for one position, not four</td><td>Any component that throws, renders empty, or shows a placeholder skeleton when only one position exists</td></tr>
+    <tr><td>4</td><td>An interruption arrives with the decision prepared, or not at all</td><td>Push, email or in-app message without a <code>prepared_options</code> payload. Badge counts on navigation</td></tr>
+    <tr><td>5</td><td>The daily loop is perspective; the deep work is episodic</td><td>Streak counters, daily-goal state, "you haven't visited in n days" copy anywhere in the planner</td></tr>
+    <tr><td>6</td><td>Help is one tap; standing is earned</td><td>Curator access conditioned on learning progress. Any commercial input to listing order</td></tr>
+    <tr><td>7</td><td>One portfolio, many meanings</td><td>A uniqueness constraint forcing each holding into exactly one goal</td></tr>
+    <tr><td>8</td><td>Educate and illustrate by default; recommend only through a licensed human</td><td>Any endpoint returning ranked instruments without an open curator session</td></tr>
+    <tr><td>9</td><td>State every figure in both kinds of capital where both apply</td><td>A summary component that accepts only financial inputs</td></tr>
+    <tr><td>10</td><td>Plain language in the product; metaphor in the marketing</td><td>Mountain, hut, tour, summit or climb vocabulary in authenticated UI strings</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ================= 9 ================= -->
+<h2 id="s9"><span class="n">09</span> Existing estate</h2>
+
+<p>Components exist in some form already. Survey and report before building. Paths below are indicative and must be verified — the estate is known to contain duplicated and superseded copies.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th>Component</th><th>Expected state</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td>Onboarding questionnaire</td><td>Exists as a chat-style page with a versioned question schema</td><td>Reuse the schema. Report its version and question count</td></tr>
+    <tr><td>Python server</td><td>Exists as the prototype backend</td><td>Extend rather than replace. Report its routes</td></tr>
+    <tr><td>Analytical engines</td><td>Multiple, several out of process with isolated environments</td><td>Wrap behind <code>call_engine</code>. Do not refactor internals</td></tr>
+    <tr><td>MiniMind</td><td>Exists. Note that more than one chatbot codebase is present and <b>none is declared current</b></td><td><b>Stop and ask which is canonical.</b> Do not choose one yourself</td></tr>
+    <tr><td>Client application</td><td>More than one live version</td><td><b>Stop and ask which is canonical.</b> Do not merge them on your own judgement</td></tr>
+    <tr><td>Decision Record, Curator Workbench, client interface</td><td>andersCH-owned components, partially built</td><td>Extend; these are the components andersCH owns outright</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box veto">
+  <span class="lbl">Two blocking ambiguities</span>
+  <p>The estate contains several chatbot codebases and several versions of the client application, with no declaration of which is current. Picking one is a decision with ownership consequences, not a technical preference. Report what exists and wait for an answer.</p>
+</div>
+
+<!-- ================= 10 ================= -->
+<h2 id="s10"><span class="n">10</span> Build order</h2>
+
+<div class="tw">
+<table>
+  <thead><tr><th>Phase</th><th>Delivers</th><th>Gate to pass before the next phase</th></tr></thead>
+  <tbody>
+    <tr><td><b>0 · Survey</b></td><td>Written inventory of the estate: engines and their manifests, server routes, onboarding schema, all client and chatbot versions found</td><td>Canonical versions declared by a human. Nothing is built in this phase</td></tr>
+    <tr><td><b>1 · Spine</b></td><td>Data model, migrations, data classification, logging filter, <code>AssumptionSet</code>, Decision Record with immutability, auth with the age floor</td><td>Constraint tests C-04, C-06, C-07, C-09 pass</td></tr>
+    <tr><td><b>2 · Plan</b></td><td>S-01 onboarding wired to the existing schema, S-02 role grid, S-03 positions, S-04 containers</td><td>Role grid is useful at n=1. No completion meter exists anywhere</td></tr>
+    <tr><td><b>3 · Vault</b></td><td>S-06 with manual upload and capture, versioning, expiry extraction, export</td><td>Full export round-trips. No overwrite in place</td></tr>
+    <tr><td><b>4 · The Know</b></td><td>S-08 MiniMind panel with vault grounding, citations, the boundary check, Curator button, action items</td><td>C-01 enforced server-side and provably not by prompt alone</td></tr>
+    <tr><td><b>5 · Curator</b></td><td>S-12 workbench, scoped and revocable access grants, session audit</td><td>C-10 append-only audit verified. Revocation immediate</td></tr>
+    <tr><td><b>6 · Knowledge</b></td><td>S-10 learning path and capability model, with the rung scheme configurable and unset</td><td>No level numbers or points in schema or UI</td></tr>
+    <tr><td><b>7 · Market Place</b></td><td>S-11 listings, disclosures, two qualification pipelines, role index, member offers</td><td>C-08 verified: no commercial input reachable by the ranking function</td></tr>
+    <tr><td><b>8 · Remainder</b></td><td>S-05 stage map, S-09 life event frameworks with empty authored content, S-13 community, S-14 settings</td><td>Full acceptance checklist in section 11</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ================= 11 ================= -->
+<h2 id="s11"><span class="n">11</span> Acceptance checks</h2>
+
+<p>Implement as executable tests, not a manual list.</p>
+
+<pre><span class="c"># constraint tests — these must fail the build, not warn</span>
+test_no_gamification_identifiers_in_model_layer()          <span class="c"># C-07</span>
+test_top_data_class_never_appears_in_logs()                <span class="c"># C-04</span>
+test_authenticated_bundle_makes_no_cross_origin_request()  <span class="c"># C-05</span>
+test_action_item_with_empty_options_is_rejected()          <span class="c"># C-06</span>
+test_plan_mutation_without_decision_raises()               <span class="c"># C-09</span>
+test_ranked_instruments_refused_without_curator_session()  <span class="c"># C-01</span>
+test_illustration_response_always_carries_assumption_set() <span class="c"># C-02</span>
+test_listing_ranking_cannot_read_fee_fields()              <span class="c"># C-08</span>
+test_curator_audit_table_rejects_update_and_delete()       <span class="c"># C-10</span>
+test_no_engine_artefact_served_over_http()                 <span class="c"># C-03</span>
+
+<span class="c"># behavioural</span>
+test_role_grid_renders_with_one_position()                 <span class="c"># R-110</span>
+test_registration_below_age_floor_refused_server_side()    <span class="c"># R-100</span>
+test_onboarding_resumes_at_abandoned_question()            <span class="c"># R-101</span>
+test_two_goals_may_share_funding_positions()               <span class="c"># R-030</span>
+test_decision_correction_creates_new_record()              <span class="c"># R-040</span>
+test_vault_update_creates_version_not_overwrite()          <span class="c"># R-041</span>
+test_curator_access_revocation_takes_immediate_effect()    <span class="c"># R-213</span>
+test_no_mountain_vocabulary_in_authenticated_strings()     <span class="c"># R-143</span>
+test_recommendation_question_returns_boundary_and_handoff() <span class="c"># R-172</span>
+</pre>
+
+<!-- ================= 12 ================= -->
+<h2 id="s12"><span class="n">12</span> Do not invent</h2>
+
+<p>These are unresolved. Build the structure that holds them and leave them configurable and empty. Filling one in is a defect.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th>ID</th><th>Open decision</th><th>What to do meanwhile</th></tr></thead>
+  <tbody>
+    <tr><td><span class="rid o">D-01</span></td><td>The ladder's unit of progression, the rung scheme, and how a capability is assessed</td><td><code>Capability.rung</code> stays a nullable configurable field. No default scheme, no invented thresholds, no numbers from research</td></tr>
+    <tr><td><span class="rid o">D-02</span></td><td>The rule and threshold for treating several positions as one, from the five correlation tags</td><td>Store the tags. Do not ship an inference. No heuristic in code</td></tr>
+    <tr><td><span class="rid o">D-03</span></td><td>The exact role definitions on the financial-capital side, which come from a published model</td><td>Role definitions are content records loaded from a file, not string literals. Ship the file with the current working definitions clearly marked as provisional</td></tr>
+    <tr><td><span class="rid o">D-04</span></td><td>Which automated vault intake path is built first</td><td>Build the intake interface with manual and capture only. Leave the other adapters as unimplemented stubs that raise</td></tr>
+    <tr><td><span class="rid o">D-05</span></td><td>What the plan eventually says about where to put a modest lump sum: education only, generic illustration, or curator handoff</td><td>Curator handoff. It is the only option consistent with <span class="rid v">C-01</span> without a policy decision</td></tr>
+    <tr><td><span class="rid o">D-06</span></td><td>Whether health or education ever gets its own product surface</td><td>Market Place supply and the Protection role label only. No dedicated screens</td></tr>
+    <tr><td><span class="rid o">D-07</span></td><td>The English name for the destination</td><td>All destination copy comes from a single content key. Do not scatter the phrase through templates</td></tr>
+    <tr><td><span class="rid o">D-08</span></td><td>Which chatbot codebase and which client version are canonical</td><td>Blocking. Report and wait — see section 9</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box open">
+  <span class="lbl">On underspecification generally</span>
+  <p>This document is deliberately silent where a decision has not been taken. Silence is not permission to choose. If a screen cannot be built without an answer, say which answer is needed and stop; a wrong policy baked into a schema costs more to remove than the delay costs to absorb.</p>
+</div>
+
+<footer>
+  <span class="lbl">andersCH build specification v1.0</span>
+  <span class="lbl">10 constraints · 8 open decisions · 14 screens</span>
+</footer>
+
+</div>
+</body>
+</html>

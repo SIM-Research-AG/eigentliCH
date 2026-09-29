@@ -1,0 +1,790 @@
+{
+ "description": "Frozen raw sources for the threebody engine. Never edited; a new freeze is a new snapshot.",
+ "frozen_on": "2026-09-27",
+ "files": [
+  {
+   "path": "bis/WS_TC_csv_flat.zip",
+   "sha256": "aab49fd183db1d8623e9ea2c3c10167ace31ed7a36f58ba6b5983529090eabac",
+   "bytes": 1803310,
+   "url": "https://data.bis.org/static/bulk/WS_TC_csv_flat.zip",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "pwt/pwt1001.xlsx",
+   "sha256": "bf2b66c5fd8b465870eeab8bbfa3a57e73253a3236a933286259efbbb5fb67a2",
+   "bytes": 6551843,
+   "url": "https://dataverse.nl/api/access/datafile/354095",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/BGD/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "4c884e309532f994ff33e7808c0ebad3e11a9b3820584cd37ae95219eb15048f",
+   "bytes": 15620,
+   "url": "https://api.worldbank.org/v2/country/BGD/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/BGD/NE.GDI.FTOT.ZS.json",
+   "sha256": "9b050d13f2b29d2e3ea151b8e62d0c48002723ad0148f400cc381d598b838506",
+   "bytes": 15229,
+   "url": "https://api.worldbank.org/v2/country/BGD/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/BGD/NY.GDP.MKTP.CD.json",
+   "sha256": "aa5475d0c0f83148d4e8614c7eec80aeb4c7c241588d06f6b6c5c01d4206b0e5",
+   "bytes": 13921,
+   "url": "https://api.worldbank.org/v2/country/BGD/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/BGD/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "0f769c49a26a3234714f91ca761b079d1b4188bc5e839b6590709e62b00fefaa",
+   "bytes": 14407,
+   "url": "https://api.worldbank.org/v2/country/BGD/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/BGD/NY.GNS.ICTR.ZS.json",
+   "sha256": "cc83203266508345a7f8e9d8cfeb2d02fe5645bfd8272b4145d4d25e904253df",
+   "bytes": 14216,
+   "url": "https://api.worldbank.org/v2/country/BGD/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/BGD/SP.POP.TOTL.json",
+   "sha256": "050f9636118262b80435915204e0f81100c6893b3711b53ee0fcdf3559d66c61",
+   "bytes": 13269,
+   "url": "https://api.worldbank.org/v2/country/BGD/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/BRA/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "c0b60ad0e1417ed5dea94ef5ca1902656b664ae46782a2608099a3747cea7f28",
+   "bytes": 15270,
+   "url": "https://api.worldbank.org/v2/country/BRA/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/BRA/NE.GDI.FTOT.ZS.json",
+   "sha256": "99acf4c3270a84c02074d8584a2df86f71f49b06a3ba12d799964fbd18f2ee3f",
+   "bytes": 15083,
+   "url": "https://api.worldbank.org/v2/country/BRA/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/BRA/NY.GDP.MKTP.CD.json",
+   "sha256": "6c64ea0d15873e7a33de77362040e73a85068e52253ecbba1b79f2f5b4790a2e",
+   "bytes": 13684,
+   "url": "https://api.worldbank.org/v2/country/BRA/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/BRA/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "df464da20ffa68b3d77c7c62453afa3f2043e12cd432706f4eea5b222262230b",
+   "bytes": 14124,
+   "url": "https://api.worldbank.org/v2/country/BRA/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/BRA/NY.GNS.ICTR.ZS.json",
+   "sha256": "0c7c315c1eaa50004d5818f548c21c1ab8dae8ab485c1bb70c420da48a4c62e0",
+   "bytes": 13965,
+   "url": "https://api.worldbank.org/v2/country/BRA/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/BRA/SP.POP.TOTL.json",
+   "sha256": "601db910fbe0de457fc6c943bffcea4662d9195534498b3be0028c7eb780e003",
+   "bytes": 13018,
+   "url": "https://api.worldbank.org/v2/country/BRA/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHE/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "d1a04d00ab947eaee4ed2a8136595989e9dfb6ef91e096c6b3c38f00517592c5",
+   "bytes": 16031,
+   "url": "https://api.worldbank.org/v2/country/CHE/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHE/NE.GDI.FTOT.ZS.json",
+   "sha256": "49136a8c10692876ddc87c2a6d0092a450b4f5f9e5bed4cd2574f20c459ba844",
+   "bytes": 15410,
+   "url": "https://api.worldbank.org/v2/country/CHE/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHE/NY.GDP.MKTP.CD.json",
+   "sha256": "916ea4a99cc4fde840d79d1ac8409105494aa924ae272d31228271d1f4878982",
+   "bytes": 14011,
+   "url": "https://api.worldbank.org/v2/country/CHE/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHE/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "dae50f8c3fc6b70ab89d4dc1ad96098695e1bf5e44a82fd820f67fa7e6f08677",
+   "bytes": 14481,
+   "url": "https://api.worldbank.org/v2/country/CHE/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHE/NY.GNS.ICTR.ZS.json",
+   "sha256": "18d7c323144a954702baf9f337ec18ac409e28548025ff7adab16fa3fff786c0",
+   "bytes": 14269,
+   "url": "https://api.worldbank.org/v2/country/CHE/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHE/SP.POP.TOTL.json",
+   "sha256": "0edb1cf03099c1bec8359c725f8455669d82f07d5360ba2424287791d5baa7cb",
+   "bytes": 13228,
+   "url": "https://api.worldbank.org/v2/country/CHE/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHN/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "f9b8b77853cf94b9d88b8a0a19637bb7ac5aa783fec3198020d66f8a3ba9bc6c",
+   "bytes": 15010,
+   "url": "https://api.worldbank.org/v2/country/CHN/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHN/NE.GDI.FTOT.ZS.json",
+   "sha256": "eee4e9b149fbcf0a62b5878559853bc6c07bef3f1c85817b71a4b44b16f7b440",
+   "bytes": 15126,
+   "url": "https://api.worldbank.org/v2/country/CHN/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHN/NY.GDP.MKTP.CD.json",
+   "sha256": "a12474506c63f858f061adaae914d0b30423511a5993eba745651900c883d0f8",
+   "bytes": 13607,
+   "url": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHN/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "cc16a88f6048699f152af6480024062c2b3b00b682677cbbb5e820406d1ade05",
+   "bytes": 14073,
+   "url": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHN/NY.GNS.ICTR.ZS.json",
+   "sha256": "7ef069367adbede57b5306223964d972f7ca7116affddd3ff13c0676ee4f5a65",
+   "bytes": 13809,
+   "url": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/CHN/SP.POP.TOTL.json",
+   "sha256": "8ad7c49a7104059612deb10d78ae12f0e05dc3534789362282534a2badeecb28",
+   "bytes": 13008,
+   "url": "https://api.worldbank.org/v2/country/CHN/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/DEU/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "2d66499223f2631d89129e24c3525e0cbf6a1c702f240c062e732254cd4707c0",
+   "bytes": 15833,
+   "url": "https://api.worldbank.org/v2/country/DEU/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/DEU/NE.GDI.FTOT.ZS.json",
+   "sha256": "866804783e6ce9323becfc59cf793d305b8239302d7f7d037c8981f1edb82c90",
+   "bytes": 15149,
+   "url": "https://api.worldbank.org/v2/country/DEU/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/DEU/NY.GDP.MKTP.CD.json",
+   "sha256": "b280f573f7422a0cdb8bf879609c48b248251e2e1387279c0b42e99657f210a6",
+   "bytes": 13743,
+   "url": "https://api.worldbank.org/v2/country/DEU/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/DEU/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "3d0742b914dd6fa578bf626420a5acf658ce57920756b79d3a1ecc63ebd0dd9f",
+   "bytes": 14224,
+   "url": "https://api.worldbank.org/v2/country/DEU/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/DEU/NY.GNS.ICTR.ZS.json",
+   "sha256": "4e04af2e4bd7d244445ed7813b72a903105b9d94c93a2e0d5076e6c25f52e0fe",
+   "bytes": 13980,
+   "url": "https://api.worldbank.org/v2/country/DEU/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/DEU/SP.POP.TOTL.json",
+   "sha256": "94c117f37e61846d58235f0043e47ea6fef61a102657885176984302caf304f6",
+   "bytes": 13030,
+   "url": "https://api.worldbank.org/v2/country/DEU/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/EMU/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "7fc9e0cdaf86727cb47e2df9f15d9452a9e75a002b58f2aaf3d74bdb1df89d7a",
+   "bytes": 15963,
+   "url": "https://api.worldbank.org/v2/country/EMU/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/EMU/NE.GDI.FTOT.ZS.json",
+   "sha256": "ecd47da02f69bbe14b92027648b86d9132c8dfe888c4fa151dae13c57f4bdcc9",
+   "bytes": 15281,
+   "url": "https://api.worldbank.org/v2/country/EMU/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/EMU/NY.GDP.MKTP.CD.json",
+   "sha256": "a0761d2d93b46caa8a4afe4cdc3214da1cc1d809b69d23ab5f7008ec81b501aa",
+   "bytes": 13879,
+   "url": "https://api.worldbank.org/v2/country/EMU/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/EMU/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "97d3333d0b2da9d27fb2e97811e2c12676eaa97fd92f39a29e14c09efdc60cb8",
+   "bytes": 14351,
+   "url": "https://api.worldbank.org/v2/country/EMU/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/EMU/NY.GNS.ICTR.ZS.json",
+   "sha256": "6356f529fa45ed00342183a875f4ff4300594a59294e29c65d9bf29eda4ffb9c",
+   "bytes": 14069,
+   "url": "https://api.worldbank.org/v2/country/EMU/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/EMU/SP.POP.TOTL.json",
+   "sha256": "6f783a22dcba8e08fd26f0640189d0a7823cfb08006be6f55b016c990a9a0aab",
+   "bytes": 13228,
+   "url": "https://api.worldbank.org/v2/country/EMU/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/ESP/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "d9f7134665b9b7f65f2bec383fb484a477f29f0bfbe423959b49650da3bba295",
+   "bytes": 15684,
+   "url": "https://api.worldbank.org/v2/country/ESP/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/ESP/NE.GDI.FTOT.ZS.json",
+   "sha256": "4d31910b081f0a845c81996952766be4d74d0045be4489b93b0993433d4134ea",
+   "bytes": 15014,
+   "url": "https://api.worldbank.org/v2/country/ESP/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/ESP/NY.GDP.MKTP.CD.json",
+   "sha256": "3b1646525bfd65b78a3446a6aac9bc3f288bb2a8ed7408b4c7b4f7d2f200185b",
+   "bytes": 13615,
+   "url": "https://api.worldbank.org/v2/country/ESP/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/ESP/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "35984071207bf1fc947283a2942565bd2c69270251728d9f8f091ecc2fdbaa99",
+   "bytes": 14082,
+   "url": "https://api.worldbank.org/v2/country/ESP/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/ESP/NY.GNS.ICTR.ZS.json",
+   "sha256": "e27969b83d8513cca7dab01144b91088378a2c0c999014b856c8d210e42c7e6c",
+   "bytes": 13896,
+   "url": "https://api.worldbank.org/v2/country/ESP/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/ESP/SP.POP.TOTL.json",
+   "sha256": "0b2d7d4d58e6628dfc7fe427a82e1a16abd22d6eeb8fa573e3439b706e82a0b9",
+   "bytes": 12898,
+   "url": "https://api.worldbank.org/v2/country/ESP/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/GBR/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "e9654429f8cfea53433a7c7136c1de0121bebf6ba55353437053d6e4aef2549b",
+   "bytes": 16290,
+   "url": "https://api.worldbank.org/v2/country/GBR/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/GBR/NE.GDI.FTOT.ZS.json",
+   "sha256": "40f76b1bc69f2904e06ad927941f1f5bd64e60d1c0820c49baefdb377ac24d49",
+   "bytes": 15609,
+   "url": "https://api.worldbank.org/v2/country/GBR/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/GBR/NY.GDP.MKTP.CD.json",
+   "sha256": "c1e42b27f57f78a89efe76de0d36f3e43d0dada56d68d2848a29276914400d46",
+   "bytes": 14211,
+   "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/GBR/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "c131bb7d3c8be3a6f29d5c7f2e20fd350cee31cb52109aeb6d176b935d7b9289",
+   "bytes": 14675,
+   "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/GBR/NY.GNS.ICTR.ZS.json",
+   "sha256": "6e2673cd6ad6aa4f773c9a67368940ae901ce35c0f3e60075648fd9224b984f2",
+   "bytes": 14554,
+   "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/GBR/SP.POP.TOTL.json",
+   "sha256": "da595741e998c94238207faf3508dec936cdd2f67fe491c8983262502563eb5d",
+   "bytes": 13492,
+   "url": "https://api.worldbank.org/v2/country/GBR/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/IDN/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "6755f388fd3ec3f92739c5c191190f08952d2fc49010a5b59e3bf22b145dffd2",
+   "bytes": 15695,
+   "url": "https://api.worldbank.org/v2/country/IDN/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/IDN/NE.GDI.FTOT.ZS.json",
+   "sha256": "17128d6ca0c94a561a119f29bec9f570df1d16699e0f6919a228c2dfe035c7ec",
+   "bytes": 15403,
+   "url": "https://api.worldbank.org/v2/country/IDN/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/IDN/NY.GDP.MKTP.CD.json",
+   "sha256": "985d83ecec8fbe11678121a700b46ef6764b096405c593a411a9237d737291d8",
+   "bytes": 13799,
+   "url": "https://api.worldbank.org/v2/country/IDN/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/IDN/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "40593f2efbac48730e6aa0b39228310620e520db6fa2214da5b0e7b843cd0084",
+   "bytes": 14333,
+   "url": "https://api.worldbank.org/v2/country/IDN/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/IDN/NY.GNS.ICTR.ZS.json",
+   "sha256": "44e581a8ed9e08ab555ad9914fad70a610458c65b892bd743fc3a82ec6137bd3",
+   "bytes": 14094,
+   "url": "https://api.worldbank.org/v2/country/IDN/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/IDN/SP.POP.TOTL.json",
+   "sha256": "bccfb37e6dfae26e448c46541ca8c397b9420aa444b7453385bd62dee17ab993",
+   "bytes": 13223,
+   "url": "https://api.worldbank.org/v2/country/IDN/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/IND/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "23ae52b9749aad3fa737aa7c8a459796c29cb97de3e5572e217bcecd9b736a71",
+   "bytes": 15611,
+   "url": "https://api.worldbank.org/v2/country/IND/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/IND/NE.GDI.FTOT.ZS.json",
+   "sha256": "38934472d6d79720c07e9960033a29a0c43863a00e5c0906e2b113dcad22a179",
+   "bytes": 15138,
+   "url": "https://api.worldbank.org/v2/country/IND/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/IND/NY.GDP.MKTP.CD.json",
+   "sha256": "6cfc29ed8e0e160979f5bed9d47dccdd601e4e7dae126dc3d98c66f96f0348a1",
+   "bytes": 13612,
+   "url": "https://api.worldbank.org/v2/country/IND/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/IND/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "41c44479e957dfa9c605f837fe70d9bffc51bf823c3f3c154ef902b13c812d7a",
+   "bytes": 14074,
+   "url": "https://api.worldbank.org/v2/country/IND/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/IND/NY.GNS.ICTR.ZS.json",
+   "sha256": "5ea08ae80f3fc719bcfca2f9eb9ada01108166583c67d38803a6fcccc366f2fc",
+   "bytes": 13899,
+   "url": "https://api.worldbank.org/v2/country/IND/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/IND/SP.POP.TOTL.json",
+   "sha256": "d136b089ce0745d401a1029ea8531caf7b084759f1a24eb2de7a5231f2f06c67",
+   "bytes": 12992,
+   "url": "https://api.worldbank.org/v2/country/IND/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/JPN/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "4e45fad8ecff4397ee7a766590b795c1727e3550afda4c914cd640d92e400f0e",
+   "bytes": 15010,
+   "url": "https://api.worldbank.org/v2/country/JPN/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/JPN/NE.GDI.FTOT.ZS.json",
+   "sha256": "f7f6a9f600ebf8bd9494c7bd6f9934d2778a35bbcf6d27b63fe244d8179c5415",
+   "bytes": 15004,
+   "url": "https://api.worldbank.org/v2/country/JPN/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/JPN/NY.GDP.MKTP.CD.json",
+   "sha256": "887f6e2f010804b94c2974ea0aedd1d606b6690d568616389f00e934543660a3",
+   "bytes": 13615,
+   "url": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/JPN/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "a3d2252262137ea05511871bc1534d2c250ba7068f906ff01e6058127aabd70b",
+   "bytes": 14092,
+   "url": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/JPN/NY.GNS.ICTR.ZS.json",
+   "sha256": "b572183a616df6facf7415884b94c8c7a82ba545865a8395c7952c447358ea71",
+   "bytes": 13635,
+   "url": "https://api.worldbank.org/v2/country/JPN/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/JPN/SP.POP.TOTL.json",
+   "sha256": "12ef84a8c68196259f01ef0a1cdda2f030bd6b121eaf7b9928f7e4cb815bcd10",
+   "bytes": 12956,
+   "url": "https://api.worldbank.org/v2/country/JPN/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-28",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/MYS/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "0851450d8635753a2efb9a3d3fb4a4a6bac21c131e410ca63f59a65895ac6ea4",
+   "bytes": 15582,
+   "url": "https://api.worldbank.org/v2/country/MYS/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/MYS/NE.GDI.FTOT.ZS.json",
+   "sha256": "e0fcddccbb785dd1d8ba7ff1a60be5c8692d5db27d762402f3857772e5a8659e",
+   "bytes": 15333,
+   "url": "https://api.worldbank.org/v2/country/MYS/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/MYS/NY.GDP.MKTP.CD.json",
+   "sha256": "da49dd5a343c323df115f5145526b317ec828fc4ef35086bef5da33cd0d20c55",
+   "bytes": 13818,
+   "url": "https://api.worldbank.org/v2/country/MYS/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/MYS/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "4da3636189b63ca1380f1cbac81a4c9d590a03559454cdaa1b8c9f0f90ad360f",
+   "bytes": 14274,
+   "url": "https://api.worldbank.org/v2/country/MYS/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/MYS/NY.GNS.ICTR.ZS.json",
+   "sha256": "a38889778b9d735f617e246862b0284aa8645c1db393f72430f9696ed9098180",
+   "bytes": 14102,
+   "url": "https://api.worldbank.org/v2/country/MYS/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/MYS/SP.POP.TOTL.json",
+   "sha256": "81a4060363538e9c947a76edc8f331e0ff13518b8d02b1f079228f6ec293eb36",
+   "bytes": 13086,
+   "url": "https://api.worldbank.org/v2/country/MYS/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/PHL/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "36fa0af07fb0aab5598ba13e91e9f415645f7ac32f5da9317f1ecbd9ac3f9ed5",
+   "bytes": 15783,
+   "url": "https://api.worldbank.org/v2/country/PHL/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/PHL/NE.GDI.FTOT.ZS.json",
+   "sha256": "07ed8696cbf44a03a0c5c55682af2a2212e7b40d88be9129d8d7f16d327968b2",
+   "bytes": 15058,
+   "url": "https://api.worldbank.org/v2/country/PHL/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/PHL/NY.GDP.MKTP.CD.json",
+   "sha256": "fa7e3dc4a22774d3a9ecf0f11124416aa7aab1ee27fe6905c303fe3213cbdefa",
+   "bytes": 14009,
+   "url": "https://api.worldbank.org/v2/country/PHL/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/PHL/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "42823ec68394bccc88bbd12e2ffcdd41f70cd549ea6fe9cacd4b4f4a30dbe85b",
+   "bytes": 14472,
+   "url": "https://api.worldbank.org/v2/country/PHL/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/PHL/NY.GNS.ICTR.ZS.json",
+   "sha256": "f8dc2700f837bb13ae669162ef5a51577228cba4a161f38c69466336630c66a5",
+   "bytes": 14228,
+   "url": "https://api.worldbank.org/v2/country/PHL/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/PHL/SP.POP.TOTL.json",
+   "sha256": "33edd63cc4d49db5d2f7147a9ea500951fa894554519fa6eaf979d413acc27af",
+   "bytes": 13308,
+   "url": "https://api.worldbank.org/v2/country/PHL/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/THA/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "2dd3e0e2eae438a4f95fa49a9923a503092868d9cb0335d13e8deb79a20dea68",
+   "bytes": 15885,
+   "url": "https://api.worldbank.org/v2/country/THA/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/THA/NE.GDI.FTOT.ZS.json",
+   "sha256": "fbb16978b33f93f1ae08f98bb3cf5560e2a74516e139ea048bc9c954761ccac3",
+   "bytes": 15333,
+   "url": "https://api.worldbank.org/v2/country/THA/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/THA/NY.GDP.MKTP.CD.json",
+   "sha256": "e07cc45c77ca511f4f3966e8373833ad70ef1b0ad9d2677525a1501eecb72b26",
+   "bytes": 13815,
+   "url": "https://api.worldbank.org/v2/country/THA/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/THA/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "b00a01f52fb4b29698411948653d9fe743e597c3fa2199c19a1d4cf46d889f41",
+   "bytes": 14276,
+   "url": "https://api.worldbank.org/v2/country/THA/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/THA/NY.GNS.ICTR.ZS.json",
+   "sha256": "fd2d0b4727dc8dd7b6b74dc581e35098ce1fecd8f44607a3ab7c011c35e11998",
+   "bytes": 14100,
+   "url": "https://api.worldbank.org/v2/country/THA/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/THA/SP.POP.TOTL.json",
+   "sha256": "c0b6bd40ffc82442bfe401c4ebd95d6f764e1faaab96763be039d94cee9ee392",
+   "bytes": 13096,
+   "url": "https://api.worldbank.org/v2/country/THA/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/USA/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "abc7542c52606aca6eb92aaa6138c94ab55d34875a2ea1d512eb185c40f18913",
+   "bytes": 16227,
+   "url": "https://api.worldbank.org/v2/country/USA/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/USA/NE.GDI.FTOT.ZS.json",
+   "sha256": "81f1a231b2efbc6bf992bcb26b46af890471b0863fc99d9e61352b47fb2464bc",
+   "bytes": 15532,
+   "url": "https://api.worldbank.org/v2/country/USA/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/USA/NY.GDP.MKTP.CD.json",
+   "sha256": "7d3d0cbcd6f9789acb16048ce60fa111f3c0c1ac996b769916e501d1940310c9",
+   "bytes": 14005,
+   "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/USA/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "76cbfd9388cf4b7662a9b77f13bda16c3c12236590d14dd4accc3eea14541b70",
+   "bytes": 14608,
+   "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/USA/NY.GNS.ICTR.ZS.json",
+   "sha256": "b2e719a0516cb3a7170579dfe9f38d448b661b162abe3de462bfe21dc3550593",
+   "bytes": 14475,
+   "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/USA/SP.POP.TOTL.json",
+   "sha256": "7f98bfacd7c9876925d6c036a8578c14f44d642c8ce0b1ffd2de3fc6042c307e",
+   "bytes": 13492,
+   "url": "https://api.worldbank.org/v2/country/USA/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-07-27",
+   "origin": "macrofield cache"
+  },
+  {
+   "path": "worldbank/VNM/GC.NLD.TOTL.GD.ZS.json",
+   "sha256": "77eebe2088cf9d12cd6fff9e9a807c4437761682869e1f558302fe1f0ae74891",
+   "bytes": 15208,
+   "url": "https://api.worldbank.org/v2/country/VNM/indicator/GC.NLD.TOTL.GD.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/VNM/NE.GDI.FTOT.ZS.json",
+   "sha256": "dbed988023f96b8ae53c8577fd8d31d5a8f9e225fb19eb73860a8c6d5ad598a1",
+   "bytes": 14915,
+   "url": "https://api.worldbank.org/v2/country/VNM/indicator/NE.GDI.FTOT.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/VNM/NY.GDP.MKTP.CD.json",
+   "sha256": "6588781ffbe311d85974625150f7e6a8a72521f95fc96372b9cca91bd61b3ea2",
+   "bytes": 13521,
+   "url": "https://api.worldbank.org/v2/country/VNM/indicator/NY.GDP.MKTP.CD?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/VNM/NY.GDP.MKTP.KD.ZG.json",
+   "sha256": "bce4235928a1e04ac92778115a2fb281f46862d857e793ab1511e2a6aa31d147",
+   "bytes": 13981,
+   "url": "https://api.worldbank.org/v2/country/VNM/indicator/NY.GDP.MKTP.KD.ZG?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/VNM/NY.GNS.ICTR.ZS.json",
+   "sha256": "b5f56e3551b0faa6c15eed49beda4f09bf19eb8a561f23fa79a9ad154290b415",
+   "bytes": 13838,
+   "url": "https://api.worldbank.org/v2/country/VNM/indicator/NY.GNS.ICTR.ZS?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  },
+  {
+   "path": "worldbank/VNM/SP.POP.TOTL.json",
+   "sha256": "ae62cd09649e29f3d5d12799cbabb70efd925fec82a1f1864dbe79cbeeead54f",
+   "bytes": 13099,
+   "url": "https://api.worldbank.org/v2/country/VNM/indicator/SP.POP.TOTL?date=1960:2026&format=json&per_page=20000",
+   "retrieved_on": "2026-09-27",
+   "origin": "live fetch"
+  }
+ ]
+}

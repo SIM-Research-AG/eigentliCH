@@ -1,0 +1,59 @@
+# Instruments engine -- store configuration.
+#
+# Copy to `config.toml` and edit. `config.toml` is git-ignored; this file is not, so
+# **do not put a real password here**. If no `config.toml` exists, this file is used as
+# the fallback, which is why its defaults point at the local Docker container.
+#
+# Precedence, lowest to highest:
+#
+#   built-in defaults  <  this file  <  DATABASE_URL  <  INSTRUMENTS_DB_*  <  test overrides
+#
+# That order is the point: the file describes the *shape* of the setup and lives in the
+# repository; the secret comes from the environment and does not. In deployment, set
+# INSTRUMENTS_DB_PASSWORD (or a full INSTRUMENTS_DATABASE_URL) and leave the file alone.
+
+[database.postgresql]
+host = "127.0.0.1"
+port = 5432
+
+# One database for the whole system, one schema per engine, one role per engine.
+# `python -m store.provision` creates the layout and the grants; `--show` prints it.
+#
+# The role owns `fmre` and `fmre_feed` and holds SELECT and nothing more on the shared
+# `datafeed` schema, so writing outside its own schemas is refused by the server.
+dbname = "simtech"
+schema = "fmre"
+
+# Interim: Fund Map's private copy of the series it reads. Not the shared feed, which is
+# Engine 01's `datafeed`. Retired when this engine reads Engine 01's Panel.
+datafeed_schema = "fmre_feed"
+
+user = "fmre"
+
+# Local development only. In deployment, leave this out and set INSTRUMENTS_DB_PASSWORD.
+password = "mysecretpassword"
+
+# "prefer" locally; "require" or "verify-full" for anything over a network.
+sslmode = "prefer"
+
+connect_timeout = 10
+
+# The database used to CREATE the one above, since a database cannot be created from
+# inside itself. Only touched by `python -m store.etl.bootstrap --create-database`.
+maintenance_dbname = "postgres"
+
+
+# ---------------------------------------------------------------------------
+# A hosted database instead. Uncomment, and set the password in the environment.
+#
+# Most providers (Neon, Supabase, RDS, Azure, Cloud SQL) hand you a single URL. Paste it
+# into INSTRUMENTS_DATABASE_URL and it overrides everything above -- host, port, user,
+# password, dbname -- so the block above can stay as it is.
+#
+#   INSTRUMENTS_DATABASE_URL=postgresql://user:pass@host.provider.com:5432/dbname?sslmode=require
+#
+# Two things to check on a hosted database:
+#   1. sslmode=require at minimum. "prefer" silently accepts an unencrypted connection.
+#   2. Whether the account may CREATE DATABASE. Many managed plans say no, in which case
+#      point dbname at the one they gave you and rely on `schema` for isolation.
+# ---------------------------------------------------------------------------

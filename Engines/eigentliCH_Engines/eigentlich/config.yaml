@@ -1,0 +1,61 @@
+# eigentlich store: configuration.
+#
+# Committed, so it never holds a password. Keep the local container's password in
+# config.local.yaml (git-ignored) or set EIGENTLICH_DB_PASSWORD. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  EIGENTLICH_DATABASE_URL / DATABASE_URL  <  EIGENTLICH_*
+#
+# The store is one schema, `eigentlich`, owned by the login role `eigentlich` (Build Instruction
+# section 9.1). No engine reads it. The cockpit writes it directly as the separate role `curator`;
+# that role's connection is described below only so the tests can prove its boundary.
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  dbname: simtech
+  schema: eigentlich
+  user: eigentlich
+  sslmode: prefer               # "require" or "verify-full" for anything over a network
+  connect_timeout: 10
+
+curator:
+  # The cockpit's login. Used by the tests (role boundary) and by nothing else in this package.
+  # Password from config.local.yaml or EIGENTLICH_CURATOR_PASSWORD.
+  user: curator
+
+sources:
+  # Prior art, read only. `seed` reads the questionnaire, scoring maps, reference content and
+  # knowledge notes from here; `migrate --from` defaults to the prototype's SQLite file.
+  # Override with EIGENTLICH_PROTOTYPE_ROOT and EIGENTLICH_MIGRATE_FROM.
+  prototype_root: C:/Users/nicol/Desktop/SIM_NAS/Projects/eigentliCH/Prototype
+  migrate_from: C:/Users/nicol/Desktop/SIM_NAS/Projects/eigentliCH/Prototype/backend/eigentlich.db
+
+app:
+  # The consumer web app (`python -m eigentlich serve`, start.cmd). Port 8017; override with
+  # EIGENTLICH_APP_HOST / EIGENTLICH_APP_PORT. No sign-in anywhere (owner decision, 9.1).
+  host: 127.0.0.1
+  port: 8017
+  cors_origins: []              # same origin only: the browser app is served by the app itself
+  # The engines the app calls, over HTTP only (contracts mirrored in contracts.py, never imported).
+  # Override with EIGENTLICH_LBS_URL, EIGENTLICH_CHATBOT_URL, EIGENTLICH_REPORT_URL.
+  lbs_url: http://127.0.0.1:8013       # POST /run, GET /artefacts/{id}   lbs-request@1.0.0
+  chatbot_url: http://127.0.0.1:8016   # POST /answer                     chat-request@1.0.0
+  report_url: http://127.0.0.1:8015    # POST /report                     report-request@1.0.0
+  timeouts:
+    connect_s: 5
+    lbs_s: 60
+    chatbot_s: 330                # the chatbot streams from spark7; its own total limit is 300 s
+    report_s: 330
+    health_s: 1.5                 # the probe in /health
+  lbs_auto:
+    # The balance sheet runs by itself after every change of a client's plan or answers (EIG-47):
+    # once the changes pause for debounce_s, one run at a time per client.
+    enabled: true
+    debounce_s: 5
+  grounding:
+    # How the question box chooses approved knowledge notes for the chatbot (EIG-33).
+    max_notes: 4
+    max_chars_per_note: 5800      # the chatbot refuses a note above 6000 characters
+    min_score: 2
+    floor: 1                      # none reaches min_score: send the best fallback_notes at or above floor
+    fallback_notes: 2

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cockpit"
+version = "0.1.0"
+description = "sim-tech cockpit: CIO workspace, engine status and test benches behind one origin. Model-derived research output; not investment advice."
+requires-python = ">=3.11"
+# Every entry is on the Engine Building Guide allowlist (section 3). The Excel export and the
+# desktop window use the standard library only (DECISIONS.md C-04, C-05). psycopg is the
+# allowlist exception admitted system-wide; the cockpit uses it for the curator's direct
+# connection to schema eigentlich only (DECISIONS.md C-16).
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+    "pydantic==2.10.4",
+    "PyYAML>=6.0,<7",
+    "httpx==0.28.1",
+    "psycopg[binary]==3.2.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.4"]
+
+[project.scripts]
+cockpit = "cockpit.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+cockpit = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,226 @@
+{
+ "seed": {
+  "stocks": {
+   "financial_assets": 56000.0,
+   "human_assets": null,
+   "liabilities": null
+  },
+  "household_income": 71000.0,
+  "human_capital": {
+   "p1": {
+    "E": {
+     "value": null,
+     "source": "absent",
+     "absent_because": "the intake does not ask a question this could be derived from"
+    },
+    "N": {
+     "value": 0.91,
+     "source": "submission",
+     "absent_because": null
+    },
+    "H": {
+     "value": 0.8,
+     "source": "submission",
+     "absent_because": null
+    },
+    "caveats": [
+     "expertise is unknown, so earning power rests on the network alone"
+    ],
+    "time_budget": {
+     "tau_Y": 0.46,
+     "tau_E": null,
+     "tau_N": null,
+     "tau_H": 0.15,
+     "leisure": null,
+     "caveats": [
+      "recovery was given as the band '10–20' and read at 15 hours by the record's convention, not measured",
+      "no hours were stated for Lernen and Netzwerk, so the leisure residual cannot be computed"
+     ]
+    }
+   }
+  },
+  "bvg": {
+   "p1": {
+    "status": "available",
+    "closing_balance": 200232.31901945666,
+    "yearly_pension": 13615.797693323053,
+    "opening_balance": 0,
+    "gross_salary": 71000.0
+   }
+  },
+  "ahv": {
+   "p1": {
+    "status": "not_available",
+    "refused": "ScaleNotApproved"
+   }
+  },
+  "property": {},
+  "retirement": {
+   "g1": {
+    "verdict": "does_not_meet",
+    "undetermined_because": [
+     "the_ahv_table_is_not_approved"
+    ],
+    "covered_per_year": 13615.797693323053,
+    "shortfall_per_year": 48384.20230667695,
+    "needs_per_year": 62000.0,
+    "ahv_yearly": null,
+    "pillar2_closing": 200232.31901945666,
+    "pillar2_yearly": 13615.797693323053
+   }
+  },
+  "liquidity": {
+   "g1": null,
+   "g2": null
+  },
+  "observations": {
+   "g1": [
+    "dated_but_unfunded"
+   ],
+   "g2": [
+    "dated_but_unfunded"
+   ]
+  },
+  "risk_profile": {
+   "status": "not_available",
+   "refused": "ProfileNotApproved"
+  },
+  "mandate": {
+   "target": 250000.0,
+   "horizon_years": 5.2567814534179345,
+   "required_return": 0.3167280447378289
+  }
+ },
+ "approved": {
+  "stocks": {
+   "financial_assets": 56000.0,
+   "human_assets": null,
+   "liabilities": null
+  },
+  "household_income": 71000.0,
+  "human_capital": {
+   "p1": {
+    "E": {
+     "value": null,
+     "source": "absent",
+     "absent_because": "the intake does not ask a question this could be derived from"
+    },
+    "N": {
+     "value": 0.91,
+     "source": "submission",
+     "absent_because": null
+    },
+    "H": {
+     "value": 0.8,
+     "source": "submission",
+     "absent_because": null
+    },
+    "caveats": [
+     "expertise is unknown, so earning power rests on the network alone"
+    ],
+    "time_budget": {
+     "tau_Y": 0.46,
+     "tau_E": null,
+     "tau_N": null,
+     "tau_H": 0.15,
+     "leisure": null,
+     "caveats": [
+      "recovery was given as the band '10–20' and read at 15 hours by the record's convention, not measured",
+      "no hours were stated for Lernen and Netzwerk, so the leisure residual cannot be computed"
+     ]
+    }
+   }
+  },
+  "bvg": {
+   "p1": {
+    "status": "available",
+    "closing_balance": 200232.31901945666,
+    "yearly_pension": 13615.797693323053,
+    "opening_balance": 0,
+    "gross_salary": 71000.0
+   }
+  },
+  "ahv": {
+   "p1": {
+    "status": "available",
+    "monthly": 2258,
+    "yearly": 29354,
+    "full_monthly": 2258,
+    "factor": 1,
+    "caveats": [
+     "current_income_was_used_where_a_lifetime_average_belongs",
+     "mdje_is_a_lifetime_average_and_was_supplied_not_derived"
+    ]
+   }
+  },
+  "property": {},
+  "retirement": {
+   "g1": {
+    "verdict": "does_not_meet",
+    "undetermined_because": [],
+    "covered_per_year": 42969.79769332305,
+    "shortfall_per_year": 19030.202306676947,
+    "needs_per_year": 62000.0,
+    "ahv_yearly": 29354,
+    "pillar2_closing": 200232.31901945666,
+    "pillar2_yearly": 13615.797693323053
+   }
+  },
+  "liquidity": {
+   "g1": null,
+   "g2": null
+  },
+  "observations": {
+   "g1": [
+    "dated_but_unfunded"
+   ],
+   "g2": [
+    "dated_but_unfunded"
+   ]
+  },
+  "risk_profile": {
+   "status": "available",
+   "value": 0.4285714285714286,
+   "binds_on": "willingness",
+   "capacity": 0.5119031458534257,
+   "willingness": 0.4285714285714286,
+   "role_bounds": {
+    "Protection": {
+     "lower": 0.1714285714285714,
+     "upper": 0.5071428571428571
+    },
+    "Stabilisation": {
+     "lower": 0.13571428571428573,
+     "upper": 0.41428571428571426
+    },
+    "Income": {
+     "lower": 0.07857142857142857,
+     "upper": 0.35714285714285715
+    },
+    "Gain": {
+     "lower": 0.17142857142857146,
+     "upper": 0.4785714285714286
+    }
+   },
+   "curve_slope": {
+    "floor_offset": -0.028571428571428574,
+    "ceiling_offset": 0.028571428571428574
+   },
+   "esg_min": 0,
+   "capacity_inputs": {
+    "horizon_years": 5.260273972602739,
+    "reserve_months": 7.655172413793104,
+    "employment": "mehrere Anstellungen",
+    "variable_share": 0.11267605633802817,
+    "mandates": 0,
+    "free_share": 0.6607142857142857,
+    "debt_service_share": null
+   }
+  },
+  "mandate": {
+   "target": 250000.0,
+   "horizon_years": 5.2567814534179345,
+   "required_return": 0.3167280447378289
+  }
+ }
+}

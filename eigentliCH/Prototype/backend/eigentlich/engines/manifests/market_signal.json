@@ -1,0 +1,19 @@
+{
+  "name": "market_signal",
+  "home": "Macro_Model",
+  "runtime": "subprocess",
+  "model_version": "ms@0.1.0",
+  "timeout_s": 1800,
+  "inputs": {
+    "scope": "str",
+    "economies": "list[str]",
+    "publish": "bool",
+    "blend_weight": "float|null"
+  },
+  "notes": "Own venv: pandas 3.0.5 / numpy 2.5.1. Cannot share an interpreter with return_estimation.",
+  "ip_owner": "SIM Research",
+  "ip_owner_declared_on": "2026-08-30",
+  "outputs": {
+    "contract": "Regime"
+  }
+}

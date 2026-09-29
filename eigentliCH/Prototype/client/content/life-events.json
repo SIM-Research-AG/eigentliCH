@@ -1,0 +1,101 @@
+{
+  "_about": {
+    "screen": "S-09 — life event modules. Seven: separation, job loss, illness and incapacity, death of a partner, inheritance, caring for parents, move abroad or return.",
+    "requirements": {
+      "R-180": "Each module is a content record with the SAME shape: what to do first, what not to sign, which vault items to retrieve, which curator to call. All four fields exist on all seven records below, and all four are empty on all seven.",
+      "R-181": "A module pulls the relevant vault items automatically rather than asking the member to find them. The retrieval is built and works — `relevant_vault_items` in `backend/andersch/services/stages.py` — but it retrieves by the `vault_kinds` a module names, and no module names any yet. So a module returns nothing and says why, rather than letting an empty list read as an empty vault.",
+      "R-182": "Reachable from The Know without navigating a menu. The `key` of each module is stable and is the whole address; The Know opens one directly. That wiring lives in the client and in `services/know.py`, neither of which this change owns.",
+      "R-183": "MODULE CONTENT IS AUTHORED, NOT GENERATED. Ship the framework with the modules EMPTY rather than filling them with generated text. That is the whole reason this file looks like this."
+    },
+    "why_every_field_is_null": "Not an oversight, not a to-do, and not a placeholder waiting for a model to fill it. A person facing a separation or a death reads this screen at the worst week of their life, and 'what not to sign' is a legal statement with consequences. Text that reads plausibly and was written by nobody is worse than a screen that says nothing yet — it is the one case where a wrong answer is not a smaller version of a right one. Every module below therefore carries `authored: false` and no prose at all, and `backend/tests/test_stages.py` asserts that all seven are still unauthored. That test failing is how anyone will know the modules were written, and by whom.",
+    "why_even_the_titles_are_null": "The seven names in `key` are the build specification's own identifiers, taken verbatim from S-09 rather than coined here — the same move A22 made for the destination phrase. A rendered title is copy, in two languages, so it is authored like everything else. A client that needs a label before then can key its own string table off `key`.",
+    "who_authors_these": "Not decided here. A module states what to do first and what not to sign in a Swiss legal and insurance context; whoever writes one is making statements eigentliCH stands behind. The `authored_by` field exists so that the record names them.",
+    "shape": "Adding a field to one module means adding it to all seven — R-180 says 'the same shape', and a module that carries something the others do not is the beginning of seven different screens.",
+    "language": "A12 — every authored field is bilingual, de-CH authored. The `de`/`en` pairs are present and null, so that adding the German later is filling a key rather than changing a shape."
+  },
+
+  "version": "life-events@0.1.0",
+
+  "authored": false,
+  "unauthored_reason": "R-183",
+
+  "modules": [
+    {
+      "key": "separation",
+      "authored": false,
+      "authored_by": null,
+      "authored_at": null,
+      "title": { "de": null, "en": null },
+      "first_steps": [],
+      "do_not_sign": [],
+      "vault_kinds": [],
+      "curator_role": null
+    },
+    {
+      "key": "job_loss",
+      "authored": false,
+      "authored_by": null,
+      "authored_at": null,
+      "title": { "de": null, "en": null },
+      "first_steps": [],
+      "do_not_sign": [],
+      "vault_kinds": [],
+      "curator_role": null
+    },
+    {
+      "key": "illness_and_incapacity",
+      "authored": false,
+      "authored_by": null,
+      "authored_at": null,
+      "title": { "de": null, "en": null },
+      "first_steps": [],
+      "do_not_sign": [],
+      "vault_kinds": [],
+      "curator_role": null
+    },
+    {
+      "key": "death_of_a_partner",
+      "authored": false,
+      "authored_by": null,
+      "authored_at": null,
+      "title": { "de": null, "en": null },
+      "first_steps": [],
+      "do_not_sign": [],
+      "vault_kinds": [],
+      "curator_role": null
+    },
+    {
+      "key": "inheritance",
+      "authored": false,
+      "authored_by": null,
+      "authored_at": null,
+      "title": { "de": null, "en": null },
+      "first_steps": [],
+      "do_not_sign": [],
+      "vault_kinds": [],
+      "curator_role": null
+    },
+    {
+      "key": "caring_for_parents",
+      "authored": false,
+      "authored_by": null,
+      "authored_at": null,
+      "title": { "de": null, "en": null },
+      "first_steps": [],
+      "do_not_sign": [],
+      "vault_kinds": [],
+      "curator_role": null
+    },
+    {
+      "key": "move_abroad_or_return",
+      "authored": false,
+      "authored_by": null,
+      "authored_at": null,
+      "title": { "de": null, "en": null },
+      "first_steps": [],
+      "do_not_sign": [],
+      "vault_kinds": [],
+      "curator_role": null
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "s_curve_trajectory",
+  "home": "Master_Model",
+  "runtime": "in_process",
+  "model_version": "scurve@0.1.0",
+  "timeout_s": 30,
+  "inputs": {
+    "household_id": "str",
+    "initial_wealth": "float",
+    "horizon_years": "float",
+    "annual_return": "float",
+    "target": "float|null"
+  },
+  "notes": "Native. Still over the 2s R-301 threshold, so still queued rather than called on a request thread.",
+  "ip_owner": "SIM Research",
+  "ip_owner_declared_on": "2026-08-30",
+  "outputs": {
+    "contract": "Trajectory"
+  }
+}

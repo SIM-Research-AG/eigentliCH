@@ -1,0 +1,53 @@
+﻿# China.
+
+economy:
+  code: cn
+  name: China
+  world_bank: CHN
+  bis: CN
+  currency: CNY
+
+data:
+  financial_capital:
+    # The consolidated financial-asset stock of book chapter 10.4 is not published for China on a
+    # basis comparable to the OECD financial accounts, so the fallback is expected to be used. Book
+    # chapter 10.4 notes that developing economies typically sit at 100 to 200 percent of GDP on the
+    # primary measure, so a fallback reading near that range is not evidence of an error.
+    primary: consolidated_financial_assets
+    fallback: credit_only
+
+  real_capital_extension:
+    enabled: true
+    # Higher than the advanced-economy prior, reflecting the younger and more construction-weighted
+    # capital stock. Weakly identified, so it is stress-tested in the sensitivity run.
+    default_depreciation_rate: 0.06
+
+  stimulus:
+    # The general-government balance omits local-government financing vehicles and policy-bank
+    # lending, which are the larger channels. Net new credit captures both.
+    proxy: net_new_credit
+    reverse_sign: false
+
+calibration:
+  window:
+    # BIS total credit for China begins in 1995.
+    start: null
+    end: null
+
+notes:
+  - >
+    Latest BIS total credit to the non-financial sector is 300.1 percent of GDP, inside the 250 to 350
+    percent band. Book section 12.2 notes that China is increasingly a reserve-currency issuer, which
+    changes its International dimension dynamics relative to other developing economies.
+  - >
+    Book chapter 12 and the HoNI reports use the United States against China as the standard pairwise
+    comparison, so this economy and us.yaml must both calibrate for that comparison to be available.
+  - >
+    Data reliability warrants more caution here than for the OECD economies. Book section 10.6 treats
+    measurement reliability explicitly, and the multi-indicator approach of section 10.7 is the
+    framework's response. Conclusions for China should rest on the qualitative phase reading rather
+    than on precise ratio values.
+  - >
+    The stimulus proxy is net new credit rather than the fiscal balance, and that choice must appear on
+    any output for China.
+

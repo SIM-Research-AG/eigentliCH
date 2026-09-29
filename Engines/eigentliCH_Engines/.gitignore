@@ -1,0 +1,16 @@
+# Local configuration: the only place a password may live.
+config.local.yaml
+
+# Build output
+deploy/
+*.egg-info/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.venv/
+venv/
+
+# spark7 service token (SPARK7_CLIENT_ID, SPARK7_CLIENT_SECRET)
+.env

@@ -1,0 +1,255 @@
+<!doctype html>
+<!--
+  Life Balance Sheet (lbs) test bench. Development only: not part of the system and not in the deploy folder.
+
+  A client of the engine's HTTP surface, nothing more: every figure is read from lbs's endpoints. Served by the
+  engine at "/", or opened off disk, when it calls http://127.0.0.1:8013. Plotly from CDN, no build step
+  (Engine Building Guide section 3). Colour: the house palette of the other benches.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LBS test bench</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --rest: #c3c2b7;
+    --critical: #d03b3b; --good: #0ca30c; --band: rgba(208,59,59,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --rest: #4a4a47;
+      --band: rgba(230,103,103,0.12);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --rest: #4a4a47;
+    --band: rgba(230,103,103,0.12);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; }
+  #sub { color: var(--ink-2); font-size: 12px; }
+  #themeBtn { margin-left: auto; }
+  main { padding: 8px 24px 48px; max-width: 1320px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 16px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  input, select, button, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  button { cursor: pointer; } button:disabled { opacity: .55; cursor: default; }
+  button.primary { background: var(--s1); color: #fff; border-color: var(--s1); }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; margin-bottom: 16px; min-width: 0; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; }
+  .q { color: var(--ink-2); margin: 0 0 10px; font-size: 13px; }
+  .note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 10px 12px; }
+  .tile .v { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tile .k { color: var(--ink-2); font-size: 12px; }
+  .chart { width: 100%; height: 360px; }
+  .side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .side { grid-template-columns: 1fr; } main, header { padding-left: 16px; padding-right: 16px; } }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; vertical-align: top; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  .warn::before { content: "\26A0  "; color: var(--critical); }
+  .ok::before { content: "\2713  "; color: var(--good); font-weight: 700; }
+  .na { color: var(--muted); font-style: italic; }
+  textarea { width: 100%; font: 12px ui-monospace, Consolas, monospace; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Life Balance Sheet · test bench</h1>
+  <span id="sub">connecting…</span>
+  <button id="themeBtn" type="button">Theme</button>
+</header>
+<main>
+  <div class="filters">
+    <label>Engine <input id="api" size="26"></label>
+    <label>Calibration <select id="cal"></select></label>
+    <button id="validateBtn" type="button">Validate</button>
+    <button id="runBtn" class="primary" type="button">Run</button>
+    <button id="resetBtn" type="button">Example request</button>
+  </div>
+  <div class="card">
+    <h2>Request</h2>
+    <p class="q">The client's facts as JSON (lbs-request@1.0.0). An opaque client_ref only: no names, no e-mail addresses.</p>
+    <textarea id="req" rows="14"></textarea>
+    <p class="note" id="status"></p>
+  </div>
+  <div id="panel"></div>
+  <p class="note">Model-derived research output. Not investment advice.</p>
+</main>
+<script>
+"use strict";
+const DEFAULT_API = "http://127.0.0.1:8013";
+const params = new URLSearchParams(location.search);
+const store = { get(k) { try { return localStorage.getItem("lbs." + k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem("lbs." + k, v); } catch {} } };
+const $ = id => document.getElementById(id);
+$("api").value = params.get("api") || store.get("api") || (location.protocol === "file:" ? DEFAULT_API : location.origin);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const chf = v => v === null || v === undefined ? "–" : Math.round(Number(v)).toLocaleString("de-CH");
+const pct = (v, d = 2) => v === null || v === undefined ? "–" : (100 * Number(v)).toFixed(d) + "%";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const base = () => $("api").value.replace(/\/$/, "");
+async function call(path, init) {
+  let r;
+  try { r = await fetch(base() + path, init); } catch { throw new Error(`cannot reach ${base()}. Is the engine running?`); }
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${path} → ${r.status} ${text.slice(0, 500)}`);
+  return text ? JSON.parse(text) : null;
+}
+const post = (path, body) => call(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+
+const EXAMPLE = {
+  client_ref: "bench-01", as_of: "2026-09-28",
+  household: { composition_as_of: "2026-06-01", principal: "p1", persons: [
+    { person_id: "p1", kind: "adult", age: 40,
+      human_capital: { qualification_highest: "Fachhochschule FH", qualification_year: 2014, years_in_field: 12,
+                       network_people: 6, health: "0.85", hours_per_week: 42, rest_hours: "5–10" },
+      ahv: { contribution_years_missing: 1 } }] },
+  positions: [
+    { position_id: "cash", role: "stabilisation", capital_type: "financial", magnitude: 80000, unit: "chf", stock_kind: "asset", liquidity: "immediate", vessel: "free", owner: "p1", funds_goals: ["home"] },
+    { position_id: "depot", role: "gain", capital_type: "financial", magnitude: 120000, unit: "chf", stock_kind: "asset", liquidity: "immediate", vessel: "free", owner: "p1", funds_goals: ["home"] },
+    { position_id: "pk", role: "protection", capital_type: "financial", magnitude: 150000, unit: "chf", stock_kind: "asset", liquidity: "illiquid", vessel: "pillar_2", owner: "p1" },
+    { position_id: "salary", role: "income", capital_type: "human", magnitude: 120000, unit: "chf_per_year", owner: "p1" },
+    { position_id: "loan", role: "stabilisation", capital_type: "financial", magnitude: 20000, unit: "chf", stock_kind: "liability", owner: "p1" }],
+  goals: [
+    { goal_id: "home", kind: "property", target_amount: 1600000, target_date: "2032-12-31", occupancy: "owner_occupied_primary", owners: ["p1"], contribution_share: 0.8 },
+    { goal_id: "later", kind: "retirement", target_amount: 80000, target_date: "2051-01-01", contribution_share: 0.2 }],
+  facts: { civil_status: "ledig" },
+  mandate: { goal_id: "home", annual_contribution: 24000 },
+};
+$("req").value = store.get("req") || JSON.stringify(EXAMPLE, null, 1);
+
+function layout(extra = {}) {
+  const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false, tickfont: { color: css("--muted") }, title: { font: { color: css("--ink-2") } } };
+  const merged = Object.assign({
+    paper_bgcolor: css("--surface"), plot_bgcolor: css("--surface"),
+    font: { family: "system-ui, -apple-system, Segoe UI, sans-serif", color: css("--ink"), size: 12 },
+    margin: { l: 64, r: 24, t: 16, b: 48 }, hovermode: "closest", showlegend: true,
+    legend: { orientation: "h", y: -0.22, font: { color: css("--ink-2") } },
+    hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--axis"), font: { color: css("--ink") } },
+  }, extra);
+  merged.xaxis = Object.assign({}, axis, extra.xaxis || {}); merged.yaxis = Object.assign({}, axis, extra.yaxis || {});
+  return merged;
+}
+function body() {
+  const b = JSON.parse($("req").value);
+  if ($("cal").value) b.calibration_version = $("cal").value; else delete b.calibration_version;
+  store.set("req", $("req").value);
+  return b;
+}
+const na = v => v && v.status === "not_available";
+
+async function doValidate() {
+  try {
+    const v = await post("/validate", body());
+    $("status").innerHTML = v.ok ? `<span class="ok">${v.gaps.length} gap(s); calibration ${esc(v.calibration_version)}</span>`
+      : v.problems.map(p => `<div class="warn">${esc(p)}</div>`).join("");
+  } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+}
+
+async function doRun() {
+  $("runBtn").disabled = true;
+  try {
+    const run = await post("/run", body());
+    if (run.status !== "succeeded") {
+      const st = await call(`/runs/${run.run_id}`);
+      throw new Error(st.error || "the run failed");
+    }
+    $("status").innerHTML = `<span class="ok">${esc(run.artefact_id)}${run.cached ? " (cached)" : ""}</span>`;
+    render(await call(`/sheet/${run.artefact_id}`));
+  } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+  finally { $("runBtn").disabled = false; }
+}
+
+function render(s) {
+  const t = s.totals, m = s.mandate_proposal;
+  const tiles = [["Financial assets", chf(t.financial_assets)], ["Liabilities", chf(t.liabilities)],
+                 ["Net worth", chf(t.net_worth)], ["Drawable", chf(t.drawable)],
+                 ["Household income / year", chf(t.household_income)],
+                 ["Required return", na(m) ? "–" : pct(m.required_return)], ["Gaps", s.gaps.length]];
+  const cells = s.grid.map(c => `<tr><td>${esc(c.display)} <span class="note">${esc(c.capital_type)}</span></td>
+      <td>${chf(c.assets_chf)}</td><td>${chf(c.liabilities_chf)}</td><td>${chf(c.flows_chf_per_year)}</td><td>${esc(c.positions.join(", "))}</td></tr>`).join("");
+  const hc = s.human_capital.map(h => `<tr><td>${esc(h.person_id)}</td>${["E", "N", "H"].map(k => `<td>${h[k].value === null ? `<span class="na">${esc(h[k].absent_because)}</span>` : h[k].value.toFixed(4)}</td>`).join("")}
+      <td class="na">${esc(h.earning_power.reason)}</td></tr>`).join("");
+  const pens = s.pensions.map(p => `<tr><td>${esc(p.person_id)}</td>
+      <td>${na(p.ahv) ? `<span class="na">${esc(p.ahv.reason)}</span>` : chf(p.ahv.yearly)}</td>
+      <td>${na(p.bvg) ? `<span class="na">${esc(p.bvg.reason)}</span>` : chf(p.bvg.closing_balance) + " at " + p.bvg.to_age}</td>
+      <td>${na(p.bvg) ? "–" : chf(p.bvg.yearly_pension)}</td></tr>`).join("");
+  const findings = [
+    ...s.property.map(f => `<tr><td>property ${esc(f.goal_id)}</td><td>${esc(f.verdict)}</td><td>${esc([...f.binds_on, ...f.undetermined_because].join(", "))}</td></tr>`),
+    ...s.retirement.map(f => `<tr><td>retirement ${esc(f.goal_id)}</td><td>${esc(f.verdict)}</td><td>${esc(f.undetermined_because.join(", "))} ${f.covered_per_year === null ? "" : "covered " + chf(f.covered_per_year)}</td></tr>`),
+    ...s.liquidity.map(f => `<tr><td>liquidity ${esc(f.goal_id)}</td><td>short on ${esc(f.due_date)}</td><td>gap ${chf(f.gap_chf)}; prepared: ${esc(f.prepared.lever || "a curator")}</td></tr>`)].join("");
+  const gaps = s.gaps.map(g => `<tr><td>${esc(g.section)}</td><td>${esc(g.input)}</td><td>${esc(g.kind)}</td><td style="text-align:left">${esc(g.reason)}</td></tr>`).join("");
+  const bounds = na(m) ? "" : Object.entries(m.bounds).flatMap(([d, bs]) => Object.entries(bs).map(([k, b]) =>
+      `<tr><td>${esc(d)}</td><td>${esc(k)}</td><td>${b.lower}</td><td>${b.upper}</td><td style="text-align:left">${esc(b.reasoning)}</td></tr>`)).join("");
+  const curator = na(m) ? "" : m.curator_to_fill.map(c => `<li><b>${esc(c.field)}</b>: ${esc(c.reason)}</li>`).join("");
+  $("panel").innerHTML = `
+    <div class="tiles">${tiles.map(([k, v]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("")}</div>
+    <div class="card"><h2>Grid</h2><p class="q">Role by capital type. Sums over active positions per unit; blank where a cell states nothing.</p>
+      <div class="scroll"><table><tr><th>Cell</th><th>Assets CHF</th><th>Liabilities CHF</th><th>Flows CHF / year</th><th>Positions</th></tr>${cells}</table></div></div>
+    <div class="side">
+      <div class="card"><h2>Human capital</h2><p class="q">E, N and H per adult; absent is never zero.</p>
+        <div class="scroll"><table><tr><th>Person</th><th>E</th><th>N</th><th>H</th><th>Earning power</th></tr>${hc}</table></div></div>
+      <div class="card"><h2>Pensions</h2><p class="q">AHV (Skala 44) and BVG at the Mindestzinssatz, or why not.</p>
+        <div class="scroll"><table><tr><th>Person</th><th>AHV / year</th><th>BVG balance</th><th>BVG / year</th></tr>${pens}</table></div>
+        <div id="bvgChart" class="chart"></div></div>
+    </div>
+    <div class="card"><h2>Findings</h2><div class="scroll"><table><tr><th>Goal</th><th>Verdict</th><th style="text-align:left">Why</th></tr>${findings || '<tr><td class="na">none</td></tr>'}</table></div></div>
+    <div class="card"><h2>Mandate proposal</h2>
+      <p class="q">${na(m) ? esc(m.reason) : `In the shape of pcp-mandate@1.0.0, unreleased and incomplete by design: ${esc(m.target_basis)}; horizon ${m.goal_horizon_years === null ? "–" : m.goal_horizon_years.toFixed(2)} years; curve shape ${esc(m.curve_shape.source)}.`}</p>
+      <div id="curveChart" class="chart"></div>
+      <div class="scroll"><table><tr><th>Dimension</th><th>Bucket</th><th>Lower</th><th>Upper</th><th style="text-align:left">Reasoning</th></tr>${bounds}</table></div>
+      <p class="q">For the curator:</p><ul class="note">${curator}</ul></div>
+    <div class="card"><h2>Gaps</h2><p class="q">Every input the sheet could not use, and why. Nothing here was filled in.</p>
+      <div class="scroll"><table><tr><th>Section</th><th>Input</th><th>Kind</th><th style="text-align:left">Reason</th></tr>${gaps}</table></div></div>`;
+  const traces = s.pensions.filter(p => !na(p.bvg)).map((p, i) => ({ x: p.bvg.years.map(y => y.age + 1), y: p.bvg.years.map(y => y.closing),
+    name: p.person_id, type: "scatter", mode: "lines", line: { color: css(["--s1", "--s2", "--s3"][i % 3]), width: 2 },
+    hovertemplate: "age %{x}: CHF %{y:,.0f}<extra></extra>" }));
+  if (traces.length) Plotly.newPlot("bvgChart", traces, layout({ xaxis: { title: { text: "age" } }, yaxis: { title: { text: "BVG balance, CHF" } } }), { displayModeBar: false, responsive: true });
+  else $("bvgChart").style.display = "none";
+  if (!na(m) && m.target_curve) {
+    Plotly.newPlot("curveChart", [{ x: Array.from({ length: 25 }, (_, i) => i + 1), y: m.target_curve.map(v => 100 * v), name: "target curve (log return, %)",
+      type: "scatter", mode: "lines+markers", line: { color: css("--s1"), width: 2 }, marker: { size: 5 }, hovertemplate: "state %{x}: %{y:.3f}%<extra></extra>" }],
+      layout({ shapes: [{ type: "rect", xref: "x", yref: "paper", x0: 0.5, x1: 5.5, y0: 0, y1: 1, fillcolor: css("--band"), line: { width: 0 }, layer: "below" }],
+               xaxis: { title: { text: "regime state (1 crisis to 25 boom)" }, dtick: 4 }, yaxis: { title: { text: "annualised log return, %" } } }),
+      { displayModeBar: false, responsive: true });
+  } else $("curveChart").style.display = "none";
+}
+
+async function boot() {
+  try {
+    const [health, versions] = await Promise.all([call("/health"), call("/calibration/versions")]);
+    $("sub").textContent = `${health.engine_version} at ${base()}`;
+    $("cal").innerHTML = `<option value="">active</option>` + versions.map(v => `<option>${esc(v.version)}</option>`).join("");
+  } catch (e) { $("sub").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+}
+$("api").addEventListener("change", () => { store.set("api", $("api").value); boot(); });
+$("validateBtn").addEventListener("click", doValidate);
+$("runBtn").addEventListener("click", doRun);
+$("resetBtn").addEventListener("click", () => { $("req").value = JSON.stringify(EXAMPLE, null, 1); });
+$("themeBtn").addEventListener("click", () => {
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("theme", document.documentElement.dataset.theme);
+});
+if (store.get("theme")) document.documentElement.dataset.theme = store.get("theme");
+boot();
+</script>
+</body>
+</html>

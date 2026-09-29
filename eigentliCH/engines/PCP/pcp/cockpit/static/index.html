@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Creation Program cockpit</title>
+<!-- Vendored 2026-08-02, was https://cdn.plot.ly/plotly-2.35.2.min.js. The cockpit ran for a day on a machine
+     with no internet drawing blank charts, because the tables kept working and nothing said the library had
+     failed to load. Served by the /static route in server.py. -->
+<script src="/static/plotly-2.35.2.min.js" charset="utf-8"></script>
+<style>
+  :root {
+    --bg: #12151a; --panel: #1a1f27; --line: #2b3240; --ink: #e6e9ef; --dim: #98a2b3;
+    --accent: #6ba3d6; --warn: #e0a458; --bad: #d1615d; --good: #7fa86f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.5 "Segoe UI", system-ui, sans-serif;
+  }
+  header {
+    padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel);
+    display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header .meta { color: var(--dim); font-size: 12px; }
+  main { padding: 16px 20px 60px; max-width: 1500px; margin: 0 auto; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px 16px; margin-bottom: 16px;
+  }
+  .panel h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: var(--dim);
+    margin: 0 0 12px; font-weight: 600;
+  }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+  label { display: block; font-size: 11px; color: var(--dim); margin-bottom: 4px; }
+  select, input, button {
+    background: #10141a; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 4px; padding: 7px 9px; font: inherit; font-size: 13px;
+  }
+  button {
+    background: var(--accent); color: #0d1117; border: none; font-weight: 600; cursor: pointer;
+    padding: 8px 18px;
+  }
+  button.secondary { background: #2b3240; color: var(--ink); font-weight: 500; }
+  button:disabled { opacity: .5; cursor: default; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 16px; }
+  .stamps { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; }
+  .stamps div span { color: var(--dim); }
+  .stamps div b { font-weight: 600; font-family: ui-monospace, Consolas, monospace; }
+  .banner { border-radius: 5px; padding: 10px 13px; margin-bottom: 12px; font-size: 13px; }
+  .banner.bad { background: rgba(209,97,93,.14); border: 1px solid var(--bad); }
+  .banner.warn { background: rgba(224,164,88,.12); border: 1px solid var(--warn); }
+  .banner.good { background: rgba(127,168,111,.12); border: 1px solid var(--good); }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--dim); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  td.num, th.num { text-align: right; font-family: ui-monospace, Consolas, monospace; }
+  .chart { width: 100%; height: 330px; }
+  .chart.tall { height: 420px; }
+  ul.notes { margin: 0; padding-left: 18px; color: var(--dim); font-size: 12.5px; }
+  ul.notes li { margin-bottom: 6px; }
+  .scroll { overflow-x: auto; }
+  footer { color: var(--dim); font-size: 12px; padding: 0 20px 30px; max-width: 1500px; margin: 0 auto; }
+  .hidden { display: none; }
+  .tag {
+    display: inline-block; font-size: 10.5px; padding: 1px 6px; border-radius: 3px;
+    background: #2b3240; color: var(--dim); margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Portfolio Creation Program</h1>
+  <span class="meta" id="engine"></span>
+  <span class="meta">asymmetric squared-shortfall curve fit</span>
+</header>
+
+<main>
+  <!-- 1. Run panel -->
+  <section class="panel">
+    <h2>1 &middot; Run</h2>
+    <div class="row">
+      <div>
+        <label for="mandate">Mandate</label>
+        <select id="mandate"></select>
+      </div>
+      <div>
+        <label for="market">Market scope</label>
+        <select id="market"></select>
+      </div>
+      <div>
+        <label for="optimiser">Optimiser</label>
+        <select id="optimiser"></select>
+      </div>
+      <div>
+        <label for="speed">Speed</label>
+        <select id="speed"></select>
+      </div>
+      <div>
+        <label for="months">Backtest months (0 = live)</label>
+        <input id="months" type="number" min="0" value="0" style="width:120px">
+      </div>
+      <button id="run">Run</button>
+      <button id="export" class="secondary">Write artefacts</button>
+    </div>
+    <div id="runmeta" class="meta" style="margin-top:10px"></div>
+  </section>
+
+  <div id="failure" class="panel hidden">
+    <h2>Cannot run</h2>
+    <div id="failuretext" class="banner bad"></div>
+    <ul class="notes" id="failurenotes"></ul>
+  </div>
+
+  <div id="results" class="hidden">
+    <!-- provenance -->
+    <section class="panel">
+      <h2>Provenance</h2>
+      <div id="feasibility"></div>
+      <div class="stamps" id="stamps"></div>
+    </section>
+
+    <div class="grid2">
+      <!-- 2. Allocation -->
+      <section class="panel">
+        <h2>2 &middot; Allocation</h2>
+        <div id="chart-allocation" class="chart tall"></div>
+        <div id="allocation-omitted" class="meta"></div>
+      </section>
+
+      <section class="panel">
+        <h2>2b &middot; Breakdown</h2>
+        <div id="chart-breakdown" class="chart tall"></div>
+      </section>
+
+      <!-- 3. Portfolio map -->
+      <section class="panel">
+        <h2>3 &middot; Portfolio map, role by scenario</h2>
+        <div id="chart-pfmap" class="chart"></div>
+        <div id="pfmap-note" class="meta"></div>
+      </section>
+
+      <!-- 4. Curve fit -->
+      <section class="panel">
+        <h2>4 &middot; Return curve fit</h2>
+        <div id="chart-curve" class="chart"></div>
+        <div id="curve-note" class="meta"></div>
+      </section>
+
+      <!-- 5. Regime tilt -->
+      <section class="panel">
+        <h2>5 &middot; Regime tilt</h2>
+        <div id="chart-regime" class="chart"></div>
+        <div id="regime-note" class="meta"></div>
+      </section>
+
+      <!-- 6. Backtest -->
+      <section class="panel">
+        <h2>6 &middot; Backtest <span class="tag">model-derived</span></h2>
+        <div id="chart-backtest" class="chart"></div>
+        <div id="backtest-note" class="meta"></div>
+      </section>
+    </div>
+
+    <!-- 7. Constraints -->
+    <section class="panel">
+      <h2>7 &middot; Constraints and feasibility</h2>
+      <div id="binding"></div>
+      <div class="scroll"><table id="exposures"></table></div>
+    </section>
+
+    <section class="panel">
+      <h2>What a reader must know</h2>
+      <ul class="notes" id="notes"></ul>
+    </section>
+  </div>
+</main>
+
+<footer id="disclaimer"></footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const pct = (v) => (100 * v).toFixed(2) + "%";
+const LAYOUT = {
+  paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+  font: { color: "#e6e9ef", size: 11 },
+  margin: { l: 60, r: 20, t: 24, b: 60 },
+  xaxis: { gridcolor: "#2b3240", zerolinecolor: "#2b3240" },
+  yaxis: { gridcolor: "#2b3240", zerolinecolor: "#2b3240" },
+  legend: { orientation: "h", y: -0.22, font: { size: 10 } },
+};
+const CFG = { displayModeBar: false, responsive: true };
+const draw = (id, traces, extra) => Plotly.react(id, traces, Object.assign({}, LAYOUT, extra || {}), CFG);
+
+let CONTEXT = null;
+
+async function boot() {
+  const r = await fetch("/api/context");
+  const c = await r.json();
+  CONTEXT = c;
+  if (!c.ok) { fail(c.reason || "configuration could not be loaded"); return; }
+
+  $("engine").textContent = c.engine_version;
+  $("disclaimer").textContent = c.disclaimer;
+
+  for (const m of c.mandates) {
+    const o = document.createElement("option");
+    o.value = m.id;
+    o.textContent = `${m.client} / ${m.mandate}  (${m.universe_size})`;
+    $("mandate").appendChild(o);
+  }
+  // Only scopes with a published Regime can be run; the rest would fail on read.
+  const published = new Set(c.published_regimes);
+  const auto = document.createElement("option");
+  auto.value = ""; auto.textContent = "(the mandate's own)";
+  $("market").appendChild(auto);
+  for (const s of c.market_scopes.concat(c.published_regimes)) {
+    if ($("market").querySelector(`option[value="${s}"]`)) continue;
+    const o = document.createElement("option");
+    o.value = s;
+    o.textContent = published.has(s) ? s : `${s} (not published)`;
+    o.disabled = !published.has(s);
+    $("market").appendChild(o);
+  }
+  for (const o of c.optimisers) {
+    const e = document.createElement("option"); e.value = o.id; e.textContent = o.label;
+    $("optimiser").appendChild(e);
+  }
+  for (const s of c.speeds) {
+    const e = document.createElement("option"); e.value = s; e.textContent = s;
+    if (s === "exact") e.selected = true;
+    $("speed").appendChild(e);
+  }
+  $("months").max = c.max_backtest_months;
+}
+
+function fail(reason, notes) {
+  $("results").classList.add("hidden");
+  $("failure").classList.remove("hidden");
+  $("failuretext").textContent = reason;
+  $("failurenotes").innerHTML = (notes || []).map((n) => `<li>${n}</li>`).join("");
+}
+
+function params() {
+  const p = new URLSearchParams();
+  p.set("mandate", $("mandate").value);
+  if ($("market").value) p.set("market", $("market").value);
+  p.set("optimiser", $("optimiser").value);
+  p.set("speed", $("speed").value);
+  p.set("backtest_months", $("months").value || "0");
+  return p;
+}
+
+async function run() {
+  $("run").disabled = true;
+  $("run").textContent = "Running";
+  try {
+    const r = await fetch("/api/run?" + params().toString(), { method: "POST" });
+    const d = await r.json();
+    if (!d.ok) { fail(d.reason, d.feasibility_notes); return; }
+    render(d);
+  } catch (e) {
+    fail("the cockpit could not reach the engine: " + e);
+  } finally {
+    $("run").disabled = false;
+    $("run").textContent = "Run";
+  }
+}
+
+async function writeArtefacts() {
+  $("export").disabled = true;
+  const r = await fetch("/api/export?" + params().toString(), { method: "POST" });
+  const d = await r.json();
+  $("runmeta").textContent = d.ok
+    ? "written: " + Object.values(d.written).join(", ")
+    : "export failed: " + d.reason;
+  $("export").disabled = false;
+}
+
+function render(d) {
+  $("failure").classList.add("hidden");
+  $("results").classList.remove("hidden");
+  const h = d.header, v = d.views;
+
+  // Feasibility banner: the binding condition is shown before any number.
+  const box = $("feasibility");
+  if (h.conditions_met !== "yes") {
+    box.className = "banner bad";
+    box.textContent =
+      "Conditions not met: the budget equality was not satisfied within tolerance. The weights below " +
+      "are renormalised, which does not make this mandate feasible. Read this before the numbers.";
+  } else if (v.constraints.binding.length === 0) {
+    box.className = "banner warn";
+    box.textContent =
+      "Feasible, and no constraint binds: every exposure below was chosen by the curve fit rather than " +
+      "by a mandate limit.";
+  } else {
+    box.className = "banner good";
+    box.textContent =
+      `Feasible. ${v.constraints.binding.length} constraint(s) bind, so those exposures were set by the ` +
+      `mandate rather than by the fit.`;
+  }
+
+  $("stamps").innerHTML = [
+    ["mandate", `${h.client} / ${h.mandate}`], ["market", h.market], ["currency", h.currency],
+    ["as of", h.as_of], ["regime", h.regime_id], ["returnset", h.return_set_id],
+    ["universe", h.universe_version], ["engine", h.engine_version],
+    ["optimiser", h.optimiser], ["speed", h.speed], ["trace", h.trace_id],
+    ["crisis tail", pct(h.crisis_tail)], ["label", h.label],
+  ].map(([k, val]) => `<div><span>${k}</span><br><b>${val}</b></div>`).join("");
+
+  $("runmeta").textContent =
+    `${v.regime.window.months} months of regime, ${v.constraints.rows} constraint rows, ` +
+    `window ${v.regime.window.first} to ${v.regime.window.last}`;
+
+  // 2. Allocation
+  const a = v.allocation;
+  draw("chart-allocation", [{
+    type: "bar", orientation: "h",
+    y: a.labels.slice().reverse(), x: a.weights.slice().reverse(),
+    marker: { color: "#6ba3d6" },
+    hovertemplate: "%{y}<br>%{x:.2%}<extra></extra>",
+  }], { xaxis: { tickformat: ".0%", gridcolor: "#2b3240" }, yaxis: { automargin: true }, margin: { l: 220, r: 20, t: 10, b: 40 } });
+  $("allocation-omitted").textContent = a.omitted
+    ? `${a.omitted} position(s) below 0.005 percent omitted.` : "";
+
+  // 2b. Breakdown
+  const groups = [["role", a.by_role], ["region", a.by_region], ["currency", a.by_currency], ["asset class", a.by_asset_class]];
+  draw("chart-breakdown", groups.map(([name, obj], i) => ({
+    type: "bar", name: name,
+    x: Object.keys(obj), y: Object.values(obj),
+    xaxis: "x" + (i + 1), yaxis: "y" + (i + 1),
+    marker: { color: ["#6ba3d6", "#7fa86f", "#e0a458", "#a58bd6"][i] },
+    hovertemplate: "%{x}<br>%{y:.2%}<extra></extra>",
+  })), {
+    grid: { rows: 2, columns: 2, pattern: "independent" },
+    showlegend: false,
+    yaxis: { tickformat: ".0%" }, yaxis2: { tickformat: ".0%" },
+    yaxis3: { tickformat: ".0%" }, yaxis4: { tickformat: ".0%" },
+    margin: { l: 50, r: 15, t: 24, b: 60 },
+  });
+
+  // 3. Portfolio map
+  draw("chart-pfmap", [{
+    type: "heatmap", z: v.portfolio_map.z, x: v.portfolio_map.x, y: v.portfolio_map.y,
+    colorscale: "Viridis", transpose: true,
+    hovertemplate: "%{y} held for %{x}<br>%{z:.2%}<extra></extra>",
+    colorbar: { tickformat: ".0%", thickness: 12 },
+  }], { xaxis: { title: "Scenario" }, yaxis: { title: "Role", automargin: true } });
+  $("pfmap-note").textContent = v.portfolio_map.note;
+
+  // 4. Curve fit
+  draw("chart-curve", [
+    { type: "scatter", mode: "lines+markers", name: "mandate target", x: v.curve_fit.states, y: v.curve_fit.target, line: { color: "#e0a458", width: 2 } },
+    { type: "scatter", mode: "lines+markers", name: "achieved profile", x: v.curve_fit.states, y: v.curve_fit.achieved, line: { color: "#6ba3d6", width: 2 } },
+    { type: "bar", name: "shortfall", x: v.curve_fit.states, y: v.curve_fit.shortfall, marker: { color: "rgba(209,97,93,.45)" }, yaxis: "y2" },
+  ], {
+    xaxis: { title: "Regime state, crisis 1 to boom 25", dtick: 2 },
+    yaxis: { title: "Annualised return", tickformat: ".0%" },
+    yaxis2: { title: "Shortfall", overlaying: "y", side: "right", showgrid: false },
+  });
+  $("curve-note").textContent = v.curve_fit.note;
+
+  // 5. Regime tilt
+  draw("chart-regime", [{
+    type: "scatter", mode: "lines", fill: "tozeroy", x: v.regime.states, y: v.regime.weights,
+    line: { color: "#7fa86f" }, fillcolor: "rgba(127,168,111,.25)",
+    hovertemplate: "state %{x}<br>%{y:.3f}<extra></extra>",
+  }, {
+    type: "bar", x: [1, 2, 3, 4, 5], y: v.regime.weights.slice(0, 5),
+    marker: { color: "rgba(209,97,93,.55)" }, name: "crisis tail",
+  }], {
+    xaxis: { title: "Regime state, crisis 1 to boom 25", dtick: 2 },
+    yaxis: { title: "Probability" }, showlegend: false,
+  });
+  const contributors = Object.entries(v.regime.contributors || {})
+    .map(([k, c]) => `${k} ${(100 * c.weight).toFixed(0)}%`).join(", ");
+  $("regime-note").textContent =
+    `${v.regime.regime_id}. Crisis tail ${pct(v.regime.crisis_tail)} on the five most cautious states. ` +
+    (contributors ? `Blend: ${contributors}.` : "Single economy.");
+
+  // 6. Backtest
+  if (v.backtest) {
+    const shown = v.backtest.series
+      .map((s, i) => ({ name: v.backtest.labels[i], s }))
+      .filter((r) => Math.max(...r.s) > 0.005);
+    draw("chart-backtest", shown.map((r) => ({
+      type: "scatter", mode: "lines", stackgroup: "one", name: r.name,
+      x: v.backtest.periods, y: r.s,
+      hovertemplate: "%{x}<br>%{y:.2%}<extra>" + r.name + "</extra>",
+    })), { yaxis: { tickformat: ".0%", title: "Weight" }, xaxis: { title: "Period" } });
+    const bad = v.backtest.conditions_met.filter((c) => c !== "yes").length;
+    $("backtest-note").textContent =
+      `${v.backtest.periods.length} periods re-optimised, model-derived, not realised returns.` +
+      (bad ? ` ${bad} period(s) did not meet the budget equality.` : "");
+  } else {
+    Plotly.purge("chart-backtest");
+    $("chart-backtest").innerHTML =
+      '<p style="color:#98a2b3;font-size:12.5px">Live run: set backtest months above zero to re-optimise over history.</p>';
+    $("backtest-note").textContent = "";
+  }
+
+  // 7. Constraints
+  const b = v.constraints.binding;
+  $("binding").innerHTML = b.length
+    ? `<table><tr><th>dimension</th><th>category</th><th>side</th><th class="num">bound</th><th class="num">realised</th></tr>` +
+      b.map((x) => `<tr><td>${x.dimension}</td><td>${x.category}</td><td>${x.side}</td>` +
+        `<td class="num">${x.bound.toFixed(4)}</td><td class="num">${x.realised.toFixed(4)}</td></tr>`).join("") +
+      `</table>`
+    : '<p class="meta">No constraint is active at the optimum.</p>';
+
+  const rows = [];
+  for (const [dim, cats] of Object.entries(v.constraints.realised)) {
+    for (const [cat, val] of Object.entries(cats)) {
+      const bd = (v.constraints.bounds[dim] || {})[cat];
+      if (val <= 1e-12 && !bd) continue;
+      const lo = bd ? bd.lower : 0, hi = bd ? bd.upper : 1;
+      const tight = val <= lo + 1e-6 && lo > 0 ? "lower" : (val >= hi - 1e-6 && hi < 1 ? "upper" : "");
+      rows.push(`<tr><td>${dim}</td><td>${cat}</td><td class="num">${pct(val)}</td>` +
+        `<td class="num">${lo.toFixed(2)}</td><td class="num">${hi.toFixed(2)}</td>` +
+        `<td style="color:${tight ? "#e0a458" : "#98a2b3"}">${tight || ""}</td></tr>`);
+    }
+  }
+  $("exposures").innerHTML =
+    `<tr><th>dimension</th><th>category</th><th class="num">realised</th><th class="num">lower</th>` +
+    `<th class="num">upper</th><th>at bound</th></tr>` + rows.join("");
+
+  $("notes").innerHTML = (d.notes || []).map((n) => `<li>${n}</li>`).join("")
+    || '<li>Nothing further to report.</li>';
+}
+
+$("run").addEventListener("click", run);
+$("export").addEventListener("click", writeArtefacts);
+boot();
+</script>
+</body>
+</html>

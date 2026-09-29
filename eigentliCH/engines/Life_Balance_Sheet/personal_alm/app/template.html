@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Life Balance Sheet — __NAME__</title>
+<style>
+  :root{
+    --paper:#FCFBF8; --panel:#FFFFFF; --panel-2:#FAF8F2;
+    --ink:#1B1D2A; --slate:#5A6272; --muted:#8C8677;
+    --rule:#E6E2D8; --rule-strong:#D6D1C4;
+    --teal:#0F6E6B; --teal-fill:rgba(15,110,107,.13);
+    --ochre:#C0872A; --good:#0F6E6B; --warn:#B4472E;
+    --shadow:0 1px 2px rgba(27,29,42,.05), 0 8px 24px rgba(27,29,42,.05);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#15161E; --panel:#1D1F29; --panel-2:#191B24;
+      --ink:#F1EEE6; --slate:#A6ABBA; --muted:#7E8395;
+      --rule:#2C2F3C; --rule-strong:#3A3E4D;
+      --teal:#48B3A9; --teal-fill:rgba(72,179,169,.15);
+      --ochre:#E0A93F; --good:#48B3A9; --warn:#E17B5F;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{ --paper:#FCFBF8; --panel:#FFFFFF; --panel-2:#FAF8F2;
+    --ink:#1B1D2A; --slate:#5A6272; --muted:#8C8677; --rule:#E6E2D8; --rule-strong:#D6D1C4;
+    --teal:#0F6E6B; --teal-fill:rgba(15,110,107,.13); --ochre:#C0872A; --good:#0F6E6B; --warn:#B4472E; }
+  :root[data-theme="dark"]{ --paper:#15161E; --panel:#1D1F29; --panel-2:#191B24;
+    --ink:#F1EEE6; --slate:#A6ABBA; --muted:#7E8395; --rule:#2C2F3C; --rule-strong:#3A3E4D;
+    --teal:#48B3A9; --teal-fill:rgba(72,179,169,.15); --ochre:#E0A93F; --good:#48B3A9; --warn:#E17B5F; }
+
+  *{box-sizing:border-box;}
+  body{background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.55;
+    margin:0; -webkit-font-smoothing:antialiased; font-size:16px;}
+  .wrap{max-width:1080px; margin:0 auto; padding:clamp(18px,3.5vw,44px) clamp(16px,4vw,40px) 60px;}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--teal); font-weight:600;}
+  h1{font-family:var(--serif); font-weight:600; font-size:clamp(1.8rem,4vw,2.6rem); line-height:1.05; margin:.2em 0 .1em; text-wrap:balance;}
+  .dek{font-family:var(--serif); font-style:italic; color:var(--slate); font-size:clamp(1rem,2vw,1.15rem);}
+  .meta{font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:.04em; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px 16px;}
+  header.masthead{border-bottom:1.5px solid var(--ink); padding-bottom:18px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
+  .theme-btn{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; background:transparent; color:var(--slate); border:1px solid var(--rule-strong); border-radius:100px; padding:7px 13px; cursor:pointer;}
+  .theme-btn:hover{border-color:var(--teal); color:var(--teal);}
+  .theme-btn:focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
+
+  .selector{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
+  .selector a{font-family:var(--mono); font-size:12px; text-decoration:none; color:var(--slate);
+    border:1px solid var(--rule-strong); border-radius:100px; padding:7px 14px; transition:.12s;}
+  .selector a:hover{border-color:var(--teal); color:var(--teal);}
+  .selector a.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .selector a .k{font-size:10px; color:var(--muted); margin-left:6px;}
+  .selector a.active .k{color:var(--rule);}
+
+  .banner{font-family:var(--mono); font-size:11.5px; color:var(--warn); background:color-mix(in srgb,var(--warn) 10%,transparent);
+    border:1px solid color-mix(in srgb,var(--warn) 30%,transparent); border-radius:6px; padding:8px 12px; margin-bottom:18px;}
+
+  section{margin-top:22px;}
+  .sec-label{font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:11px; display:flex; align-items:center; gap:10px;}
+  .sec-label::after{content:""; flex:1; height:1px; background:var(--rule);}
+  .grid{display:grid; gap:16px;}
+  .verdict{grid-template-columns:1.05fr 1fr 1fr;}
+  .charts{grid-template-columns:1fr 1fr;}
+  @media (max-width:820px){ .verdict,.charts{grid-template-columns:1fr;} }
+  .card{background:var(--panel); border:1px solid var(--rule); border-radius:8px; padding:20px 22px; box-shadow:var(--shadow);}
+  .card h3{margin:0; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--slate); font-weight:600;}
+  .big{font-family:var(--serif); font-variant-numeric:tabular-nums; line-height:1; font-size:clamp(2.2rem,5.5vw,3.2rem); font-weight:600; letter-spacing:-.02em;}
+  .chip{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11px; letter-spacing:.05em; padding:3px 10px; border-radius:100px; font-weight:600;}
+  .chip.good{color:var(--good); background:color-mix(in srgb, var(--good) 12%, transparent);}
+  .chip.warn{color:var(--warn); background:color-mix(in srgb, var(--warn) 13%, transparent);}
+  .chip .dot{width:7px; height:7px; border-radius:50%; background:currentColor;}
+  .gauge-wrap{display:flex; flex-direction:column; align-items:center; text-align:center; gap:4px;}
+  .gauge-cap{font-family:var(--mono); font-size:11px; color:var(--slate);}
+  .stat-row{display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px dotted var(--rule);}
+  .stat-row:last-child{border-bottom:none;}
+  .stat-row .k{font-family:var(--mono); font-size:11.5px; color:var(--slate);}
+  .stat-row .v{font-family:var(--serif); font-size:1.12rem; font-variant-numeric:tabular-nums;}
+  .lead{font-size:.94rem; color:var(--slate); margin:2px 0 0;}
+  .action-card{background:var(--panel-2); border-left:3px solid var(--teal);}
+  .action-text{font-family:var(--serif); font-size:1.14rem; line-height:1.5; margin:10px 0 0;}
+  .timebar{display:flex; height:12px; border-radius:3px; overflow:hidden; margin-top:16px; border:1px solid var(--rule);}
+  .timebar span{display:block;}
+  .legend-inline{display:flex; flex-wrap:wrap; gap:10px 16px; margin-top:9px; font-family:var(--mono); font-size:10.5px; color:var(--slate);}
+  .legend-inline i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px;}
+  .insight{background:var(--panel); border:1px solid var(--rule); border-radius:8px; padding:20px 24px; box-shadow:var(--shadow); display:flex; gap:20px; align-items:center; flex-wrap:wrap;}
+  .insight .rate{font-family:var(--serif); font-weight:600; font-size:clamp(2rem,4.5vw,2.8rem); color:var(--ochre); line-height:1; font-variant-numeric:tabular-nums;}
+  .insight .body{flex:1; min-width:240px;}
+  .insight .body .head{font-family:var(--serif); font-size:1.15rem; line-height:1.4;}
+  figure{margin:0;}
+  .chart-card{background:var(--panel); border:1px solid var(--rule); border-radius:8px; padding:18px 20px 14px; box-shadow:var(--shadow);}
+  .chart-card figcaption{font-family:var(--mono); font-size:10.5px; color:var(--muted); line-height:1.5; margin-top:10px;}
+  .chart-title{font-family:var(--serif); font-size:1.04rem; font-weight:600; margin:0 0 2px;}
+  .chart-sub{font-size:.84rem; color:var(--slate); margin:0 0 8px;}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 16px; margin-bottom:6px; font-family:var(--mono); font-size:10.5px; color:var(--slate);}
+  .legend .it{display:inline-flex; align-items:center; gap:6px;}
+  .legend .sw{width:16px; height:0; border-top-width:2.5px; border-top-style:solid;}
+  svg{display:block; width:100%; height:auto; overflow:visible;}
+  .ax{font-family:var(--mono); font-size:10px; fill:var(--muted);}
+  .gridline{stroke:var(--rule); stroke-width:1;}
+  .axisline{stroke:var(--rule-strong); stroke-width:1;}
+  .tip{position:absolute; pointer-events:none; z-index:5; background:var(--ink); color:var(--paper); font-family:var(--mono); font-size:11px; padding:7px 9px; border-radius:5px; line-height:1.5; transform:translate(-50%,-115%); white-space:nowrap; opacity:0; transition:opacity .1s; box-shadow:var(--shadow);}
+  .shadow-bars{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .sb-row{display:grid; grid-template-columns:92px 1fr 54px; align-items:center; gap:12px;}
+  .sb-row .lab{font-family:var(--mono); font-size:11px; color:var(--slate);}
+  .sb-track{height:14px; background:var(--panel-2); border:1px solid var(--rule); border-radius:3px; overflow:hidden;}
+  .sb-fill{height:100%; background:var(--teal);}
+  .sb-row .val{font-family:var(--mono); font-size:11px; color:var(--ink); text-align:right; font-variant-numeric:tabular-nums;}
+  footer{margin-top:40px; padding-top:18px; border-top:1px solid var(--rule); font-family:var(--mono); font-size:10.5px; color:var(--muted); line-height:1.7; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  @media (prefers-reduced-motion: no-preference){
+    .reveal{opacity:0; transform:translateY(10px); animation:rise .5s cubic-bezier(.2,.7,.3,1) forwards;}
+  }
+  @keyframes rise{to{opacity:1; transform:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">The Life Balance Sheet · Prescriptive engine</div>
+      <h1 id="title">—</h1>
+      <div class="dek" id="persona">—</div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light or dark theme">◐ Theme</button>
+  </header>
+
+  <nav class="selector" aria-label="Choose a life"><!--__SELECTOR__--></nav>
+
+  <div id="banner"></div>
+
+  <section>
+    <div class="sec-label">The verdict</div>
+    <div class="grid verdict">
+      <div class="card reveal gauge-wrap">
+        <h3 style="align-self:flex-start" id="goalLabel">Goal</h3>
+        <div id="gauge"></div>
+        <div class="big" id="gaugeNum" style="margin-top:-6px">—</div>
+        <div class="gauge-cap" id="gaugeCap">—</div>
+        <span class="chip" id="statusChip"><span class="dot"></span><span></span></span>
+      </div>
+      <div class="card reveal" id="dateCard">
+        <h3 id="dateHead">Goal date</h3>
+        <div class="big" id="dateBig" style="color:var(--teal); margin:8px 0 2px">—</div>
+        <p class="lead" id="dateLead">—</p>
+      </div>
+      <div class="card reveal" id="wealthCard">
+        <h3>Wealth position</h3>
+        <div id="wealthRows"></div>
+        <p class="lead" id="wealthLead"></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">This period’s action</div>
+    <div class="card action-card reveal">
+      <h3>Apply now — one period</h3>
+      <p class="action-text" id="actionText">—</p>
+      <div class="timebar" id="timebar" role="img" aria-label="Time budget"></div>
+      <div class="legend-inline" id="timelegend"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">The one insight</div>
+    <div class="insight reveal">
+      <div class="rate" id="insightRate">—</div>
+      <div class="body">
+        <p class="head" id="insightHead">—</p>
+        <p class="lead">Computed from this state; it shifts as the state shifts.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">How the odds move with time</div>
+    <div class="grid charts">
+      <figure class="chart-card reveal">
+        <p class="chart-title" id="c1title">Probability of the goal by age</p>
+        <p class="chart-sub" id="c1sub">Under the recommended plan.</p>
+        <div class="legend">
+          <span class="it"><span class="sw" style="border-color:var(--teal)"></span>Recommended plan</span>
+          <span class="it"><span class="sw" style="border-color:var(--ochre); border-top-style:dashed"></span>Confidence target</span>
+        </div>
+        <div id="chartPFI" style="position:relative"></div>
+        <figcaption id="c1cap"></figcaption>
+      </figure>
+      <figure class="chart-card reveal">
+        <p class="chart-title">Wealth over time</p>
+        <p class="chart-sub" id="c2sub">Net worth versus what the goal can actually draw on.</p>
+        <div class="legend" id="c2legend"></div>
+        <div id="chartWealth" style="position:relative"></div>
+        <figcaption id="c2cap"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">What the engine weighed</div>
+    <div class="card reveal">
+      <h3>Shadow price of each capital — the marginal value toward the goal</h3>
+      <div class="shadow-bars" id="shadowBars"></div>
+      <p class="lead" id="shadowLead" style="margin-top:14px"></p>
+    </div>
+  </section>
+
+  <footer>
+    <span>personal_alm engine · scenario MPC with CVaR · Route A</span>
+    <span>Illustrative — not financial advice</span>
+  </footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const DATA = __DATA__;
+const NS="http://www.w3.org/2000/svg";
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const el=(n,a={})=>{const e=document.createElementNS(NS,n); for(const k in a)e.setAttribute(k,a[k]); return e;};
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const chf=v=>"CHF "+Math.round(v).toLocaleString("en-CH");
+const chfM=v=>"CHF "+(v/1e6).toFixed(2)+"M";
+const pct=v=>Math.round(v*100)+"%";
+
+function fillText(){
+  document.getElementById("title").textContent = DATA.name;
+  document.getElementById("persona").textContent = DATA.persona;
+  document.getElementById("meta").innerHTML =
+    `<span>GOAL · ${DATA.goal_label}</span><span>DEADLINE · age ${DATA.deadline_age.toFixed(0)}</span>`
+    + `<span>CONFIDENCE · ${pct(DATA.confidence)}</span><span>BINDS · ${DATA.binding}</span>`;
+  document.getElementById("goalLabel").textContent = DATA.goal_label;
+  document.getElementById("gaugeNum").textContent = pct(DATA.p_goal);
+  document.getElementById("gaugeCap").textContent =
+    `chance of clearing by age ${DATA.deadline_age.toFixed(0)} · target ${pct(DATA.confidence)}`;
+  const ok = DATA.p_goal >= DATA.confidence;
+  const chip = document.getElementById("statusChip");
+  chip.className = "chip " + (ok ? "good" : "warn");
+  chip.querySelector("span:last-child").textContent = ok ? "ON TRACK" : "BELOW TARGET";
+
+  // date card
+  document.getElementById("dateHead").textContent =
+    DATA.kind === "fi" ? "Work-optional age" : "Goal reachable by";
+  if (DATA.crossing_age){
+    document.getElementById("dateBig").textContent = DATA.crossing_age.toFixed(0);
+    document.getElementById("dateLead").textContent =
+      `earliest age the goal clears the ${pct(DATA.confidence)} confidence target under the recommended plan.`;
+  } else {
+    document.getElementById("dateBig").textContent = "—";
+    document.getElementById("dateBig").style.color = "var(--warn)";
+    document.getElementById("dateLead").textContent =
+      `not reached at ${pct(DATA.confidence)} confidence within the horizon shown — a lever is needed.`;
+  }
+
+  // wealth card
+  const wr = document.getElementById("wealthRows");
+  const row=(k,v,c)=>`<div class="stat-row"><span class="k">${k}</span><span class="v" ${c?`style="color:${c}"`:""}>${v}</span></div>`;
+  let html = row("Net worth", chf(DATA.net_worth)) + row("Drawable (liquid)", chf(DATA.drawable), "var(--teal)");
+  if (DATA.required != null) html += row("Needed for goal", chf(DATA.required));
+  wr.innerHTML = html;
+  document.getElementById("wealthLead").textContent = DATA.required != null
+    ? "Only drawable wealth counts toward independence; the residence lifts net worth, not what you can spend."
+    : "";
+
+  // action + insight
+  document.getElementById("actionText").textContent = DATA.action_text;
+  document.getElementById("insightRate").textContent = DATA.exchange.ratio.toFixed(1) + "×";
+  document.getElementById("insightHead").innerHTML =
+    `An hour of <b style="color:var(--ochre)">${DATA.exchange.winner}</b> moves you toward the goal about `
+    + `<b>${DATA.exchange.ratio.toFixed(1)}×</b> faster than the alternative.`;
+
+  // banner
+  if (!DATA.calibrated){
+    document.getElementById("banner").innerHTML =
+      `<div class="banner">Illustrative — this case is not yet calibrated to its target. `
+      + `The mechanism (which constraint binds) is meaningful; the exact numbers are not.</div>`;
+  }
+  // shadow lead
+  const c = DATA.costates;
+  const top = c.H >= c.E && c.H >= c.N ? "health" : (c.E >= c.N ? "expertise" : "network");
+  document.getElementById("shadowLead").innerHTML =
+    `The scarcest capital here is <b style="color:var(--ink)">${top}</b> — the lever with the highest marginal value toward the goal.`;
+}
+
+function gauge(){
+  const box=document.getElementById("gauge"); box.innerHTML="";
+  const W=200,H=118,cx=100,cy=104,r=82,sw=15;
+  const svg=el("svg",{viewBox:`0 0 ${W} ${H}`}); svg.setAttribute("role","img");
+  svg.setAttribute("aria-label",`${pct(DATA.p_goal)}, target ${pct(DATA.confidence)}`);
+  const pol=(deg,rr)=>{const a=(180-deg)*Math.PI/180; return [cx+rr*Math.cos(a), cy-rr*Math.sin(a)];};
+  const arc=(f)=>{const [x0,y0]=pol(0,r),[x1,y1]=pol(180*f,r); return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`;};
+  svg.appendChild(el("path",{d:arc(1),fill:"none",stroke:css("--rule-strong"),"stroke-width":sw,"stroke-linecap":"round"}));
+  const col = DATA.p_goal>=DATA.confidence ? css("--teal") : css("--warn");
+  svg.appendChild(el("path",{d:arc(Math.max(0.001,DATA.p_goal)),fill:"none",stroke:col,"stroke-width":sw,"stroke-linecap":"round"}));
+  const [ix,iy]=pol(180*DATA.confidence, r-sw/2-3), [ox,oy]=pol(180*DATA.confidence, r+sw/2+3);
+  svg.appendChild(el("line",{x1:ix,y1:iy,x2:ox,y2:oy,stroke:css("--ochre"),"stroke-width":2.5}));
+  box.appendChild(svg);
+}
+
+function timebar(){
+  const a=DATA.action;
+  const leftover = Math.max(0, 1-(a.tau_Y+a.tau_E+a.tau_N+a.tau_H));
+  const segs=[["Work",a.tau_Y,css("--teal")],["Learn",a.tau_E,css("--teal-fill")],
+              ["Network",a.tau_N,css("--ochre")],["Rest",a.tau_H,"var(--slate)"],["Leisure",leftover,"var(--rule-strong)"]];
+  const bar=document.getElementById("timebar"), leg=document.getElementById("timelegend");
+  bar.innerHTML=""; leg.innerHTML="";
+  segs.forEach(([n,v,c])=>{ if(v<=0.005) return;
+    const s=document.createElement("span"); s.style.width=(v*100)+"%"; s.style.background=c; bar.appendChild(s);
+    const li=document.createElement("span"); li.innerHTML=`<i style="background:${c}"></i>${n} ${Math.round(v*100)}%`; leg.appendChild(li);});
+}
+
+function shadowBars(){
+  const box=document.getElementById("shadowBars"); box.innerHTML="";
+  const c=DATA.costates;
+  const rows=[["Health",c.H],["Expertise",c.E],["Network",c.N]];
+  const max=Math.max(...rows.map(r=>Math.abs(r[1])),1e-9);
+  rows.forEach(([n,v])=>{
+    const row=document.createElement("div"); row.className="sb-row";
+    row.innerHTML=`<span class="lab">${n}</span><div class="sb-track"><div class="sb-fill" style="width:${Math.max(0,v/max*100).toFixed(1)}%"></div></div><span class="val">${v.toFixed(1)}</span>`;
+    box.appendChild(row);
+  });
+}
+
+function lineChart(mountId, opts){
+  const mount=document.getElementById(mountId); mount.innerHTML="";
+  const W=440,H=260, m={l:46,r:16,t:12,b:32}, iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const xs=opts.xdom, ys=opts.ydom;
+  const X=v=>m.l+(v-xs[0])/(xs[1]-xs[0])*iw, Y=v=>m.t+ih-(v-ys[0])/(ys[1]-ys[0])*ih;
+  const svg=el("svg",{viewBox:`0 0 ${W} ${H}`}); svg.setAttribute("role","img"); svg.setAttribute("aria-label",opts.aria);
+  opts.yticks.forEach(t=>{ svg.appendChild(el("line",{x1:m.l,y1:Y(t),x2:W-m.r,y2:Y(t),class:"gridline"}));
+    const tx=el("text",{x:m.l-8,y:Y(t)+3,class:"ax","text-anchor":"end"}); tx.textContent=opts.yfmt(t); svg.appendChild(tx);});
+  opts.xticks.forEach(t=>{const tx=el("text",{x:X(t),y:H-m.b+18,class:"ax","text-anchor":"middle"}); tx.textContent=t; svg.appendChild(tx);});
+  svg.appendChild(el("line",{x1:m.l,y1:m.t,x2:m.l,y2:m.t+ih,class:"axisline"}));
+  if(opts.goal!=null) svg.appendChild(el("line",{x1:m.l,y1:Y(opts.goal),x2:W-m.r,y2:Y(opts.goal),stroke:css("--ochre"),"stroke-width":2,"stroke-dasharray":"5 4"}));
+  const path=(pts)=>pts.map((p,i)=>(i?"L":"M")+X(p[0])+" "+Y(p[1])).join(" ");
+  opts.series.forEach(s=>{
+    const pts=s.pts.filter(p=>p[1]!=null);
+    if(!pts.length) return;
+    if(s.area){ const ap=path(pts)+` L ${X(pts[pts.length-1][0])} ${Y(ys[0])} L ${X(pts[0][0])} ${Y(ys[0])} Z`;
+      svg.appendChild(el("path",{d:ap,fill:"var(--teal-fill)",stroke:"none"})); }
+    const p=el("path",{d:path(pts),fill:"none",stroke:s.color,"stroke-width":s.w||2.5,"stroke-linejoin":"round","stroke-linecap":"round"});
+    if(s.dash)p.setAttribute("stroke-dasharray",s.dash);
+    svg.appendChild(p);
+    if(s.end){const lp=pts[pts.length-1]; svg.appendChild(el("circle",{cx:X(lp[0]),cy:Y(lp[1]),r:4,fill:s.color,stroke:css("--panel"),"stroke-width":2}));}
+  });
+  if(opts.marker) svg.appendChild(el("circle",{cx:X(opts.marker[0]),cy:Y(opts.marker[1]),r:5,fill:css("--teal"),stroke:css("--panel"),"stroke-width":2.5}));
+  const focus=el("line",{x1:0,y1:m.t,x2:0,y2:m.t+ih,stroke:css("--slate"),"stroke-width":1,"stroke-dasharray":"3 3",opacity:0}); svg.appendChild(focus);
+  const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent"}); svg.appendChild(hit);
+  const tip=document.getElementById("tip"); const prim=opts.series[0].pts.filter(p=>p[1]!=null);
+  hit.addEventListener("pointermove",ev=>{ const rc=svg.getBoundingClientRect(), px=(ev.clientX-rc.left)/rc.width*W;
+    let best=prim[0],bd=1e9; prim.forEach(p=>{const d=Math.abs(X(p[0])-px); if(d<bd){bd=d;best=p;}});
+    focus.setAttribute("x1",X(best[0])); focus.setAttribute("x2",X(best[0])); focus.setAttribute("opacity",1);
+    const mr=mount.getBoundingClientRect();
+    tip.style.left=(mr.left+X(best[0])/W*mr.width)+"px"; tip.style.top=(mr.top+Y(best[1])/H*mr.height+window.scrollY)+"px";
+    tip.innerHTML=opts.tip(best); tip.style.opacity=1; });
+  hit.addEventListener("pointerleave",()=>{focus.setAttribute("opacity",0); tip.style.opacity=0;});
+  mount.appendChild(svg);
+}
+
+function charts(){
+  const cv=DATA.curve.map(d=>[d.age,d.p]);
+  const ax=cv.map(d=>d[0]); const x0=Math.min(...ax), x1=Math.max(...ax);
+  const xt=[]; for(let a=Math.ceil(x0);a<=x1;a+=Math.max(1,Math.round((x1-x0)/6))) xt.push(a);
+  lineChart("chartPFI",{ xdom:[x0,x1], ydom:[0,1], goal:DATA.confidence,
+    marker: DATA.crossing_age?[DATA.crossing_age,DATA.confidence]:null,
+    xticks:xt, yticks:[0,.25,.5,.75,1], yfmt:v=>Math.round(v*100)+"%",
+    aria:"Probability of the goal by age under the recommended plan",
+    series:[{pts:cv, color:css("--teal"), area:true, end:true}],
+    tip:p=>`age <b>${p[0].toFixed(0)}</b> · ${Math.round(p[1]*100)}%` });
+  document.getElementById("c1cap").innerHTML = DATA.crossing_age
+    ? `Crosses the ${pct(DATA.confidence)} line at <b>age ${DATA.crossing_age.toFixed(0)}</b>.`
+    : `Stays below the ${pct(DATA.confidence)} target within the window shown.`;
+
+  const nw=DATA.projection.map(d=>[d.age,d.net_worth/1e6]);
+  const dr=DATA.projection.map(d=>[d.age,d.drawable/1e6]);
+  const rq=DATA.projection.map(d=>[d.age, d.required!=null? d.required/1e6 : null]);
+  const ymax=Math.max(...nw.map(d=>d[1]),1)*1.05;
+  const pa=DATA.projection.map(d=>d.age); const px0=Math.min(...pa), px1=Math.max(...pa);
+  const pxt=[]; for(let a=Math.ceil(px0);a<=px1;a+=Math.max(1,Math.round((px1-px0)/5))) pxt.push(a);
+  const series=[{pts:nw,color:css("--slate"),w:2},{pts:dr,color:css("--teal"),area:true,end:true}];
+  let leg=`<span class="it"><span class="sw" style="border-color:var(--slate)"></span>Net worth</span>`
+        + `<span class="it"><span class="sw" style="border-color:var(--teal)"></span>Drawable</span>`;
+  if(DATA.required!=null){ series.push({pts:rq,color:css("--ochre"),dash:"5 4",w:2});
+    leg += `<span class="it"><span class="sw" style="border-color:var(--ochre); border-top-style:dashed"></span>Needed</span>`; }
+  document.getElementById("c2legend").innerHTML = leg;
+  lineChart("chartWealth",{ xdom:[px0,px1], ydom:[0,Math.ceil(ymax)], goal:null,
+    xticks:pxt, yticks:_ticks(Math.ceil(ymax)), yfmt:v=>v+"M",
+    aria:"Wealth over time in millions of francs",
+    series, tip:p=>`age <b>${p[0].toFixed(0)}</b> · drawable ${chfM(DATA.projection.find(d=>d.age===p[0])?.drawable||p[1]*1e6)}` });
+  document.getElementById("c2cap").textContent = DATA.required!=null
+    ? "Drawable wealth (teal) must rise to meet the requirement (ochre); net worth sits far above it."
+    : "Drawable (liquid) wealth is what the goal can actually spend.";
+}
+function _ticks(max){const n=4,s=max/n,out=[];for(let i=0;i<=n;i++)out.push(Math.round(i*s));return [...new Set(out)];}
+
+function render(){ fillText(); gauge(); timebar(); shadowBars(); charts(); }
+const root=document.documentElement;
+document.getElementById("themeBtn").addEventListener("click",()=>{
+  const cur=root.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  root.setAttribute("data-theme", cur==="dark"?"light":"dark"); render();
+});
+render();
+</script>
+</body>
+</html>

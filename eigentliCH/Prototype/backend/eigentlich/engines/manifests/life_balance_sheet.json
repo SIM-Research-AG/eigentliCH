@@ -1,0 +1,20 @@
+{
+  "name": "life_balance_sheet",
+  "home": "Life_Balance_Sheet",
+  "runtime": "subprocess",
+  "model_version": "lbs@0.1.0",
+  "timeout_s": 600,
+  "inputs": {
+    "household_id": "str",
+    "W_L": "float",
+    "W_R": "float",
+    "D": "float",
+    "E": "float"
+  },
+  "notes": "Own venv: + casadi. The engine the onboarding schema's `state`/`params` field names belong to.",
+  "ip_owner": "SIM Research",
+  "ip_owner_declared_on": "2026-08-30",
+  "outputs": {
+    "contract": "Trajectory"
+  }
+}

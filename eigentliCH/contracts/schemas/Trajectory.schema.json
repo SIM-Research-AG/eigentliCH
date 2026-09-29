@@ -1,0 +1,221 @@
+{
+  "$defs": {
+    "RegimeRef": {
+      "additionalProperties": false,
+      "description": "A reference to a published Regime timeline.\n\nThis is what a per-user contract carries. `regime_id` is the load-bearing field: every downstream\nartefact stamps it, and any two artefacts that must be consistent are checked on it.",
+      "properties": {
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "crisis_tail": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Crisis Tail"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        },
+        "regime_id": {
+          "title": "Regime Id",
+          "type": "string"
+        },
+        "regime_timeline_id": {
+          "title": "Regime Timeline Id",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Economy code or blended market scope, for example 'Global' or 'ch'",
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "regime_id",
+        "regime_timeline_id",
+        "scope",
+        "as_of",
+        "model_version"
+      ],
+      "title": "RegimeRef",
+      "type": "object"
+    },
+    "TrajectoryPoint": {
+      "additionalProperties": false,
+      "description": "One period on a projected path.",
+      "properties": {
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "t_years": {
+          "title": "T Years",
+          "type": "number"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "t_years",
+        "value"
+      ],
+      "title": "TrajectoryPoint",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A goal's projected path: the S-curve.\n\nModel-derived, not a forecast. The `epsilon` the band is drawn at is recorded, because a band without its\nconfidence level says nothing.",
+  "properties": {
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "number"
+    },
+    "goal_kind": {
+      "title": "Goal Kind",
+      "type": "string"
+    },
+    "goal_ref": {
+      "title": "Goal Ref",
+      "type": "string"
+    },
+    "horizon_years": {
+      "title": "Horizon Years",
+      "type": "number"
+    },
+    "household_id": {
+      "title": "Household Id",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "model_derived": {
+      "default": true,
+      "title": "Model Derived",
+      "type": "boolean"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "on_track": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "On Track"
+    },
+    "points": {
+      "items": {
+        "$ref": "#/$defs/TrajectoryPoint"
+      },
+      "title": "Points",
+      "type": "array"
+    },
+    "regime": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RegimeRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "target": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trace Id"
+    }
+  },
+  "required": [
+    "as_of",
+    "model_version",
+    "household_id",
+    "goal_kind",
+    "goal_ref",
+    "horizon_years",
+    "epsilon",
+    "points"
+  ],
+  "title": "Trajectory",
+  "type": "object",
+  "x-contract-version": "0.1.0",
+  "x-regulated": "Education"
+}

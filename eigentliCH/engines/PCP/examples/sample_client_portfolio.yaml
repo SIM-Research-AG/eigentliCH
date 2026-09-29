@@ -1,0 +1,9 @@
+﻿# A worked example: a plausible client portfolio to score against the mandate.
+# bb_id to weight. Percentages are detected and converted.
+weights:
+  2: 25    # CH Equities
+  5: 20    # US Equities
+  18: 20   # CHF Corporate Loans IG
+  26: 15   # Real Estate direct
+  33: 10   # Precious Metals
+  32: 10   # CHF Cash

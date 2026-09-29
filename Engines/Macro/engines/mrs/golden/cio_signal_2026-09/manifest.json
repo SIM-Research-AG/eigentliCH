@@ -1,0 +1,13 @@
+{
+  "kind": "signal",
+  "url": "https://sim-tech.ch/CIO/data/signal.txt",
+  "file_name": "signal.txt",
+  "sha256": "29ad0cf9c5c3411acb97320a34d66f12f454c382cd808b7487c9be808f18fab9",
+  "produced_by": "SIM_Tech/Master_Controller/Functions/Market Risk/MRS_Tester/MRS_Tester.m",
+  "optimism": "Default",
+  "pairs_with": "golden/cio_assets_2026-09/assets.txt",
+  "pairs_with_sha256": "572999b311d9618cc89b37665bdb536ddb22f49e3e2282849692118308f6e13f",
+  "first_month": "2006-09",
+  "months": 241,
+  "note": "Supplied by the owner and downloaded 27.09.2026. MATLAB WM: weighted kernel column per segment, economy and month. EMCN is a blend (India 0.60, Brazil 0.20, Indonesia, Malaysia, Philippines, Thailand 0.05 each). Corrected 28.09.2026: the export was written on 03.09.2026 from the M_TS of that run (CIO assets export, frozen in ../cio_assets_2026-09/), months 2006-09 to 2026-09, not from the local M_TS.mat of 05.01.2026 (MRS-20)."
+}

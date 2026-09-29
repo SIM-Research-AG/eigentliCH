@@ -1,0 +1,317 @@
+<!doctype html>
+<!--
+  Cycle model test bench. Development only: not part of the system and not in the deploy folder.
+
+  A client of the engine's HTTP surface, nothing more. Served by the engine at "/", or opened
+  straight off disk, in which case it calls http://127.0.0.1:8012 (override with ?api=...).
+  Plotly from CDN, no build step (Engine Building Guide section 3).
+
+  Colour: the five cycles take categorical slots 1 to 5 in fixed order (validated with the
+  dataviz validator, adjacent pairs, both modes). Light-mode slots 3 to 5 sit below 3:1 on the
+  surface, so every line is direct-labelled and the Table tab carries the figures. The layer
+  heatmap uses the one-hue blue ramp. Styles are honi's test bench, plus slots 4 and 5.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cycle test bench</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --rest: #c3c2b7;
+    --critical: #d03b3b; --good: #0ca30c; --band: rgba(42,120,214,0.07);
+    --seq: #cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf,#184f95,#0d366b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --rest: #4a4a47; --band: rgba(57,135,229,0.10);
+      --seq: #104281,#184f95,#1c5cab,#256abf,#3987e5,#6da7ec,#b7d3f6;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --rest: #4a4a47; --band: rgba(57,135,229,0.10);
+    --seq: #104281,#184f95,#1c5cab,#256abf,#3987e5,#6da7ec,#b7d3f6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; }
+  #sub { color: var(--ink-2); font-size: 12px; }
+  #themeBtn { margin-left: auto; }
+  nav { display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--grid); overflow-x: auto; }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 12px;
+               color: var(--ink-2); font: inherit; cursor: pointer; white-space: nowrap; }
+  nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--s1); font-weight: 600; }
+  main { padding: 16px 24px 48px; max-width: 1280px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 16px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  input, select, button { font: inherit; color: var(--ink); background: var(--surface);
+                          border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  button.primary { background: var(--s1); color: #fff; border-color: var(--s1); cursor: pointer; }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px;
+          padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; }
+  .q { color: var(--ink-2); margin: 0 0 8px; font-size: 13px; }
+  .note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 12px 14px; }
+  .tile .v { font-size: 22px; font-weight: 600; }
+  .tile .k { color: var(--ink-2); font-size: 12px; }
+  .chart { width: 100%; height: 440px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  .scroll { overflow-x: auto; }
+  .warn { color: var(--ink); } .warn::before { content: "\26A0  "; color: var(--critical); }
+  .err { border-left: 3px solid var(--critical); }
+  code, pre { font: 12px ui-monospace, Consolas, monospace; }
+  pre { background: var(--page); padding: 8px; border-radius: 6px; overflow-x: auto; }
+  .hidden { display: none; }
+  .ph { display: inline-block; min-width: 88px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cycle Model · test bench</h1>
+  <span id="sub">connecting…</span>
+  <button id="themeBtn" type="button">Theme</button>
+</header>
+<nav id="tabs" role="tablist"></nav>
+<main>
+  <div class="filters">
+    <label>Engine <input id="api" size="24"></label>
+    <label>Snapshot <select id="snapshot"></select></label>
+    <label>Calibration <select id="calibration"></select></label>
+    <button class="primary" id="runBtn" type="button">Run</button>
+    <label>Economy <select id="economy"></select></label>
+  </div>
+  <div id="panel"></div>
+</main>
+<script>
+"use strict";
+const DEFAULT_API = "http://127.0.0.1:8012";
+const params = new URLSearchParams(location.search);
+const store = { get(k) { try { return localStorage.getItem("cycle." + k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem("cycle." + k, v); } catch {} } };
+const $ = id => document.getElementById(id);
+$("api").value = params.get("api") || store.get("api") || (location.protocol === "file:" ? DEFAULT_API : location.origin);
+const state = { artefact: null, run: null, current: null, tab: store.get("tab") || "current" };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (v, d = 2) => v === null || v === undefined ? "–" : Number(v).toFixed(d);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+async function call(path, init) {
+  let r;
+  try { r = await fetch($("api").value.replace(/\/$/, "") + path, init); }
+  catch (e) { throw new Error(`cannot reach the engine at ${$("api").value}. Start cycle and datafeed with their start.cmd.`); }
+  if (!r.ok) throw new Error(`${path} → ${r.status} ${(await r.text()).slice(0, 300)}`);
+  return r.json();
+}
+function layout(extra = {}) {
+  const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false,
+                 tickfont: { color: css("--muted") }, titlefont: { color: css("--ink-2") } };
+  const base = {
+    paper_bgcolor: css("--surface"), plot_bgcolor: css("--surface"),
+    font: { family: "system-ui, -apple-system, Segoe UI, sans-serif", color: css("--ink"), size: 12 },
+    margin: { l: 56, r: 130, t: 16, b: 48 }, hovermode: "x unified", showlegend: true,
+    legend: { orientation: "h", y: -0.18, font: { color: css("--ink-2") } },
+    hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--axis"), font: { color: css("--ink") } },
+    xaxis: { ...axis }, yaxis: { ...axis },
+  };
+  if (extra.yaxis) extra = { ...extra, yaxis: { ...axis, ...extra.yaxis } };
+  return Object.assign(base, extra);
+}
+const seqScale = () => css("--seq").split(",").map((c, i, a) => [i / (a.length - 1), c.trim()]);
+function plot(el, traces, lay) { Plotly.react(el, traces, layout(lay), { displaylogo: false, responsive: true }); }
+function card(title, question, note) {
+  const d = document.createElement("section"); d.className = "card";
+  d.innerHTML = `<h2>${title}</h2><p class="q">${question}</p><div class="body"></div>${note ? `<p class="note">${note}</p>` : ""}`;
+  $("panel").appendChild(d); return d.querySelector(".body");
+}
+function problem(e) { const b = card("Problem", esc(e.message)); b.parentElement.classList.add("err"); }
+const economy = () => state.artefact.economies.find(e => e.code === $("economy").value) || state.artefact.economies[0];
+
+const TABS = [["current", "Current"], ["cycles", "Over time"], ["layer", "Layer"], ["table", "Table"], ["run", "Run"]];
+function tabs() {
+  $("tabs").innerHTML = TABS.map(([k, l]) => `<button role="tab" data-k="${k}" aria-selected="${k === state.tab}">${l}</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => { state.tab = b.dataset.k; store.set("tab", state.tab); tabs(); render(); });
+}
+
+function render() {
+  $("panel").innerHTML = "";
+  if (!state.artefact) { card("No run yet", "Pick a snapshot and press Run."); return; }
+  ({ current: renderCurrent, cycles: renderCycles, layer: renderLayer, table: renderTable, run: renderRun })[state.tab]();
+}
+
+function renderCurrent() {
+  const c = state.current, names = state.artefact.cycles.map(x => x.name);
+  const b = card(`Current phases, ${c.year}`, "Where is each cycle in each economy now?",
+    "A phase is read off the phase angle: 0 is the peak, ±π the trough. A year beside a phase means the cycle's input ends before the final year; – means no position (unidentified or unanchored).");
+  b.innerHTML = `<div class="scroll"><table><thead><tr><th>Economy</th>${names.map(n => `<th>${n}</th>`).join("")}<th>layer mean bin</th><th>alignment</th><th>in window</th></tr></thead><tbody>${
+    c.economies.map(e => `<tr><td>${esc(e.name)} (${e.code})</td>${e.cycles.map(x => `<td><span class="ph">${x.phase || "–"}</span>${x.year && x.year !== c.year ? ` <span class="note">${x.year}</span>` : ""}</td>`).join("")}<td>${fmt(e.layer_mean_bin, 1)}</td><td>${fmt(e.alignment)}</td><td>${e.in_synchrony_window ? "yes" : "no"}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+const CYCLE_LABEL = { fundamental_pulse: "pulse", business: "business", credit: "credit", innovation: "innovation", capital: "capital" };
+const cycleLabel = n => CYCLE_LABEL[n] || n;
+const yearsWith = (years, series) => { const y = years.filter((_, i) => series[i] !== null); return y.length ? [y[0], y[y.length - 1]] : null; };
+const listOf = names => names.map(cycleLabel).join(", ").replace(/, ([^,]*)$/, " and $1");
+
+// The aggregate (R-004, C-25). Both lines are the engine's published fields, unaltered:
+// "aggregate" is e.superposition (every interference member, where all have a position);
+// the dashed continuation is e.superposition_anchored (the anchored members only, weights
+// re-normalised by the engine), drawn only after the last year the full aggregate covers.
+function aggregateTraces(e, years) {
+  const full = yearsWith(years, e.superposition);
+  const after = full ? years.indexOf(full[1]) : -1;
+  const cont = e.superposition_anchored.map((v, i) => i > after ? v : null);
+  const ink = css("--ink");
+  const out = [{ x: years, y: e.superposition, name: "aggregate", mode: "lines", line: { width: 4.5, color: ink },
+                 hovertemplate: "aggregate: %{y:.2f}<extra></extra>" }];
+  if (cont.some(v => v !== null))
+    out.push({ x: years, y: cont, name: `aggregate, ${listOf(e.anchored_members)} only`, mode: "lines",
+               line: { width: 4.5, color: ink, dash: "dash" }, hovertemplate: "aggregate (anchored only): %{y:.2f}<extra></extra>" });
+  return { traces: out, full, cont: yearsWith(years, cont) };
+}
+
+function renderCycles() {
+  const a = state.artefact, e = economy(), years = a.years;
+  const agg = aggregateTraces(e, years);
+  const parts = [];
+  if (agg.full) parts.push(`${agg.full[0]} to ${agg.full[1]}: all of ${listOf(e.interference_members)} (solid)`);
+  if (agg.cont) parts.push(`${agg.cont[0]} to ${agg.cont[1]}: ${listOf(e.anchored_members)} only, weights re-normalised (dashed)`);
+  const aggNote = parts.length ? `The thick line is the aggregate, the engine's weighted superposition of the unit-amplitude cycles on the same −1 to +1 scale. It contains ${parts.join("; ")}.`
+                               : "No aggregate: no interference member has a position.";
+  const b = card(`${esc(e.name)}: one economy over time`,
+    `The five cycles year by year${a.projected_until ? `, projected to ${a.projected_until} (shaded)` : ""}, with their aggregate and how far they agree.`,
+    `${aggNote} Pulse and business are band-passed from macrofield's data and stop where it ends, so the full aggregate, the alignment and the synchrony windows stop there too; innovation, credit and capital are anchored and continue. Lower panel: alignment, the engine's measure of agreement over the same members as the full aggregate (the absolute weighted sum over the sum of magnitudes: 0 they cancel, 1 all point the same way), with the engine's synchrony windows shaded. Level = cos(phase angle). ` + e.notes.map(esc).join(" · "));
+  const el = document.createElement("div"); el.className = "chart"; el.style.height = "560px"; b.appendChild(el);
+  const traces = [];
+  e.cycles.forEach((t, i) => {
+    if (!t.identifiable) return;
+    const color = css(`--s${i + 1}`), label = cycleLabel(t.cycle);
+    traces.push({ x: years, y: t.level, name: label, mode: "lines", line: { width: t.cycle === "fundamental_pulse" ? 1 : 1.5, color },
+      opacity: t.cycle === "fundamental_pulse" ? 0.55 : 0.85, customdata: t.phase.map(p => p || "–"),
+      hovertemplate: `${label}: %{y:.2f} · %{customdata}<extra></extra>` });
+    const k = t.level.map(v => v !== null).lastIndexOf(true);
+    if (k >= 0) traces.push({ x: [years[k]], y: [t.level[k]], mode: "text", text: [`  ${label}`], textposition: "middle right",
+      textfont: { color: css("--ink-2") }, showlegend: false, hoverinfo: "skip", cliponaxis: false });
+  });
+  traces.push(...agg.traces);
+  for (const span of [agg.full, agg.cont]) if (span) {
+    const k = years.indexOf(span[1]), v = (span === agg.full ? e.superposition : e.superposition_anchored)[k];
+    traces.push({ x: [span[1]], y: [v], mode: "text", text: [`  <b>aggregate</b>`], textposition: "middle right",
+      textfont: { color: css("--ink") }, showlegend: false, hoverinfo: "skip", cliponaxis: false });
+  }
+  traces.push({ x: years, y: e.alignment, name: "alignment", mode: "lines", line: { width: 1.5, color: css("--ink-2") }, yaxis: "y2",
+    hovertemplate: "alignment: %{y:.2f}<extra></extra>" });
+  const shapes = e.synchrony_windows.map(w => ({ type: "rect", xref: "x", yref: "y2", x0: w.start_year - 0.5, x1: w.end_year + 0.5,
+    y0: 0, y1: 1, fillcolor: css("--s1"), opacity: 0.18, line: { width: 0 }, layer: "below" }));
+  const annotations = [];
+  if (a.projected_until) {
+    shapes.push({ type: "rect", xref: "x", yref: "paper", x0: a.observed_until + 0.5, x1: a.projected_until + 0.5, y0: 0, y1: 1,
+      fillcolor: css("--band"), line: { width: 0 }, layer: "below" });
+    annotations.push({ x: (a.observed_until + a.projected_until) / 2 + 0.5, y: 1, xref: "x", yref: "paper", yanchor: "bottom",
+      text: "projection", showarrow: false, font: { color: css("--muted"), size: 11 } });
+  }
+  plot(el, traces, { margin: { l: 56, r: 110, t: 20, b: 48 }, shapes, annotations,
+    yaxis: { range: [-1.1, 1.1], title: "level (trough −1, peak +1)", domain: [0.3, 1] },
+    yaxis2: { range: [0, 1.05], title: "alignment", domain: [0, 0.2], gridcolor: css("--grid"), linecolor: css("--axis"),
+              zeroline: false, tickvals: [0, 0.5, 1], tickfont: { color: css("--muted") }, titlefont: { color: css("--ink-2") } },
+    legend: { orientation: "h", y: -0.12, font: { color: css("--ink-2") } } });
+}
+
+function renderLayer() {
+  const e = economy(), years = state.artefact.years;
+  const b = card(`${esc(e.name)}: the cycle layer`, "How is the cycles' mixture spread over the 25-bin axis each year?",
+    "Bin 1 cautious, 25 aggressive. Each cycle is a kernel whose width says what its position is worth; the mixture is linear. The line is the mean bin.");
+  const el = document.createElement("div"); el.className = "chart"; b.appendChild(el);
+  const z = Array.from({ length: 25 }, (_, bin) => e.layer.map(row => row ? row[bin] : null));
+  plot(el, [{ type: "heatmap", x: years, y: Array.from({ length: 25 }, (_, i) => i + 1), z, colorscale: seqScale(), xgap: 2, ygap: 2,
+              hovertemplate: "%{x} · bin %{y}: %{z:.3f}<extra></extra>", colorbar: { tickfont: { color: css("--muted") } }, showlegend: false },
+             { x: years, y: e.layer_mean_bin, name: "mean bin", mode: "lines", line: { width: 2, color: css("--s2") },
+               hovertemplate: "mean bin %{y:.1f}<extra></extra>" }],
+       { yaxis: { title: "bin" }, hovermode: "closest" });
+}
+
+function renderTable() {
+  const e = economy(), years = state.artefact.years;
+  const b = card(`${esc(e.name)}: every figure`, "The cycles year by year: phase, level and bin centre.");
+  b.innerHTML = `<div class="scroll"><table><thead><tr><th>Year</th>${e.cycles.map(t => `<th>${t.cycle}</th>`).join("")}<th>aggregate</th><th>aggregate, anchored only</th><th>alignment</th></tr></thead><tbody>${
+    years.map((y, i) => `<tr><td>${y}</td>${e.cycles.map(t => `<td>${t.phase[i] ? `${t.phase[i]} ${fmt(t.level[i])} · bin ${fmt(t.bin_centre[i], 1)}` : "–"}</td>`).join("")}<td>${fmt(e.superposition[i])}</td><td>${fmt(e.superposition_anchored[i])}</td><td>${fmt(e.alignment[i])}</td></tr>`).join("")}</tbody></table></div>`;
+  const c = card("Cycle notes", "Why each cycle has the position, or lack of one, it has.");
+  c.innerHTML = e.cycles.map(t => `<p><strong>${t.cycle}</strong> (${t.confidence || "no position"}${t.order_breaks.length ? `; backward steps in ${t.order_breaks.join(", ")}` : ""}): ${t.notes.map(esc).join(" ")}</p>`).join("");
+}
+
+function renderRun() {
+  const r = state.run, cov = state.artefact.coverage;
+  const b = card("Run", `${r.run_id} · ${r.status} · ${fmt(r.wall_clock_ms, 0)} ms · artefact ${state.artefact.artefact_id}`);
+  b.innerHTML = `<div class="tiles">${[["economies", cov.economies], ["years", cov.years], ["cycle cells", cov.cycle_cells],
+    ["without phase", cov.cycle_cells_without_phase], ["layer unplaced", cov.layer_cells_unplaced]].map(([k, v]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("")}</div>
+    ${r.warnings.map(w => `<p class="warn">${esc(w)}</p>`).join("")}
+    <h2>Input gaps</h2><pre>${esc(JSON.stringify(cov.input_gaps, null, 1))}</pre>
+    <h2>Public fills</h2><pre>${esc(JSON.stringify(cov.public_fills, null, 1))}</pre>
+    <h2>Provenance</h2><pre>${esc(JSON.stringify(state.artefact.provenance, null, 1))}</pre>`;
+}
+
+async function run() {
+  $("runBtn").disabled = true; $("panel").innerHTML = ""; card("Running…", "");
+  try {
+    const body = { snapshot_id: $("snapshot").value };
+    if ($("calibration").value) body.calibration_version = $("calibration").value;
+    store.set("snapshot", body.snapshot_id);
+    const accepted = await call("/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    state.run = await call(`/runs/${accepted.run_id}`);
+    if (accepted.status !== "succeeded") throw new Error(`run ${accepted.run_id} failed: ${state.run.error}`);
+    [state.artefact, state.current] = await Promise.all([call(`/artefacts/${accepted.artefact_id}`), call(`/cycles/${accepted.artefact_id}/current`)]);
+    const keep = store.get("economy");
+    $("economy").innerHTML = state.artefact.economies.map(e => `<option value="${e.code}">${esc(e.name)}</option>`).join("");
+    if (keep && state.artefact.economies.some(e => e.code === keep)) $("economy").value = keep;
+  } catch (e) { $("panel").innerHTML = ""; problem(e); return; }
+  finally { $("runBtn").disabled = false; }
+  render();
+}
+
+// Snapshots come from datafeed directly: a development convenience, since the engine itself
+// only ever asks datafeed for the snapshot a run names.
+async function loadSnapshots(datafeedUrl) {
+  let snaps = [];
+  try { snaps = await (await fetch(datafeedUrl.replace(/\/$/, "") + "/snapshots")).json(); } catch {}
+  $("snapshot").innerHTML = snaps.map(s => `<option value="${s.snapshot_id}">${s.snapshot_id}${s.parent_id ? " (with public fills)" : " (raw)"}</option>`).join("")
+    || `<option value="">datafeed unreachable</option>`;
+  const remembered = store.get("snapshot") || "bloomberg-2026-01-05";
+  if (snaps.some(s => s.snapshot_id === remembered)) $("snapshot").value = remembered;
+}
+
+async function start() {
+  tabs();
+  try {
+    const [health, meta, versions] = await Promise.all([call("/health"), call("/meta"), call("/calibration/versions")]);
+    $("sub").textContent = `${health.engine_version} · store ${meta.store.dbname}.${meta.store.schema} @ ${meta.store.host} · upstream ${meta.upstream.datafeed} · development tool, not part of the system`;
+    $("calibration").innerHTML = versions.map(v => `<option value="${v.version}"${v.active ? " selected" : ""}>${v.version}${v.active ? " (active)" : ""}</option>`).join("");
+    await loadSnapshots(meta.upstream.datafeed);
+  } catch (e) { problem(e); return; }
+  render();
+}
+$("runBtn").onclick = run;
+$("economy").onchange = () => { store.set("economy", $("economy").value); render(); };
+$("api").onchange = () => { store.set("api", $("api").value); start(); };
+$("themeBtn").onclick = () => {
+  const now = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.dataset.theme = now === "dark" ? "light" : "dark"; render();
+};
+start();
+</script>
+</body>
+</html>

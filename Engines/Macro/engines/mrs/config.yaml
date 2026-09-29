@@ -1,0 +1,45 @@
+# Market Risk Signal engine (mrs): configuration.
+#
+# Committed, so it never holds a password. Keep the local container's password in
+# config.local.yaml (git-ignored) or set MRS_DB_PASSWORD. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  MRS_DATABASE_URL / DATABASE_URL  <  MRS_*
+#
+# Model parameters (segment and indicator weights, kernels, grid, windows, thresholds) are NOT
+# here: they are versioned calibrations, seeded from src/mrs/calibration.py and extended
+# through PUT /calibration.
+
+service:
+  host: 127.0.0.1
+  port: 8005                    # Engine Building Guide section 4. Override with MRS_PORT.
+  # "*" lets a test bench work when opened straight off disk. Narrow it before
+  # deployment, e.g. MRS_CORS_ORIGINS=https://cockpit.example
+  cors_origins: ["*"]
+
+upstream:
+  datafeed_url: http://127.0.0.1:8001       # The input panel. Override with MRS_DATAFEED_URL.
+  # The datafeed snapshot read when a request names none: the Bloomberg M_TS.mat of 2026-01-05
+  # (44 series) with public fills and the market layer (DF-18: implied volatility in one unit,
+  # Cboe SKEW and BIS NEER), as one snapshot. It replaced
+  # matlab-m_ts-2026-01-05.r3.public-21886dde.market-690ff362 on 2026-09-28 (identical cells).
+  # Override with MRS_SNAPSHOT_ID.
+  snapshot_id: bloomberg-2026-01-05
+  timeout_s: 60
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema per engine, one role per engine.
+  # See section 8 of the Engine Building Guide. The role owns this schema and holds
+  # SELECT and nothing more on the shared `datafeed` schema.
+  dbname: simtech
+  schema: mrs
+  user: mrs
+  sslmode: prefer               # "require" or "verify-full" for anything over a network
+  connect_timeout: 10
+  maintenance_dbname: postgres  # only used by `python -m mrs init-db` to CREATE DATABASE
+
+calibration:
+  # The calibration a run uses when the request does not name one. Changing it is a
+  # deliberate act; proposing a new calibration through PUT /calibration never is.
+  active: "2.0.0"

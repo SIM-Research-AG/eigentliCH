@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lbs"
+version = "1.2.0"
+description = "Life Balance Sheet: the client's deterministic life balance sheet and the mandate proposal it derives. Model-derived research output; not investment advice."
+requires-python = ">=3.11"
+# Runtime. Every entry is on the Engine Building Guide allowlist (section 3) except
+# psycopg, admitted by decision LBS-02 (as pcp PCP-02). GET /meta reports this check live.
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+    "pydantic==2.10.4",
+    "numpy>=2.0,<3",
+    "PyYAML>=6.0,<7",
+    "httpx==0.28.1",
+    "psycopg[binary]==3.2.3",
+]
+
+[project.optional-dependencies]
+# Building and testing only; never in the deploy folder.
+dev = [
+    "pytest==8.3.4",
+    "hypothesis>=6.100",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+lbs = ["schema.sql", "seed_records/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

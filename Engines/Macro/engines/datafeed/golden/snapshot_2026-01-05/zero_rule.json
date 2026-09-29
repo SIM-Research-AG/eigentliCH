@@ -1,0 +1,4266 @@
+{
+ "_note": "What MATLAB's zeros became, per country/series (etl/matlab.py).",
+ "conversions": {
+  "BD/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "BD/consumer.wage_growth": {
+   "nan": 112,
+   "leading_zero": 2,
+   "trailing_zero": 1,
+   "interior_zero": 0
+  },
+  "BD/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/debt.external": {
+   "nan": 0,
+   "leading_zero": 68,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "BD/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "BD/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 109,
+   "trailing_zero": 86,
+   "interior_zero": 31
+  },
+  "BD/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 72,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 52,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 75,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 75,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 76,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 46,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/fx.beer": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "BD/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "BD/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 102,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "BD/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 40,
+   "trailing_zero": 0,
+   "interior_zero": 3
+  },
+  "BD/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 131,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 49,
+   "trailing_zero": 0,
+   "interior_zero": 3
+  },
+  "BD/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BD/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 88,
+   "trailing_zero": 0,
+   "interior_zero": 9
+  },
+  "BD/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "BD/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "BR/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 74,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 74,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 2,
+   "interior_zero": 0
+  },
+  "BR/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 44,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "BR/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "BR/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 3
+  },
+  "BR/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 62,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 14,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "BR/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 4,
+   "interior_zero": 0
+  },
+  "CH/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "CH/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 147,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 3,
+   "interior_zero": 11
+  },
+  "CH/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "CH/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 11,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CH/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 120,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 11,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/debt.external": {
+   "nan": 0,
+   "leading_zero": 92,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 11,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "CN/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 3
+  },
+  "CN/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 2
+  },
+  "CN/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "CN/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 4
+  },
+  "CN/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 193,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 41,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "CN/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 42,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 3
+  },
+  "DE/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 167,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 121,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 2,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 2
+  },
+  "DE/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 2
+  },
+  "DE/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 12
+  },
+  "DE/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "DE/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "DE/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "DE/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "ES/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 12
+  },
+  "ES/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 107,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "ES/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 2,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 25,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 4
+  },
+  "ES/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "ES/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 2
+  },
+  "ES/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 2
+  },
+  "ES/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ES/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "ES/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "EU/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 1,
+   "interior_zero": 2
+  },
+  "EU/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/debt.external": {
+   "nan": 0,
+   "leading_zero": 2,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 2,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 11,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 132,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "EU/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "GB/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 35,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "GB/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 4
+  },
+  "GB/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "GB/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "GB/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/consumer.wage_growth": {
+   "nan": 21,
+   "leading_zero": 2,
+   "trailing_zero": 35,
+   "interior_zero": 3
+  },
+  "ID/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/debt.external": {
+   "nan": 0,
+   "leading_zero": 24,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "ID/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 119,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 3,
+   "trailing_zero": 0,
+   "interior_zero": 10
+  },
+  "ID/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 94,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "ID/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "IN/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 65,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 120,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "IN/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 135,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 87,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "IN/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 71,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 22,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "IN/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 8
+  },
+  "JP/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/debt.external": {
+   "nan": 0,
+   "leading_zero": 98,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "JP/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "JP/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 10
+  },
+  "JP/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 2
+  },
+  "JP/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 23,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 3
+  },
+  "JP/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 9
+  },
+  "JP/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "JP/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "JP/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "MY/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 48,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 11,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/debt.external": {
+   "nan": 0,
+   "leading_zero": 38,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 11,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "MY/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "MY/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 121,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 60,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 23,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "MY/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "PH/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 8,
+   "trailing_zero": 2,
+   "interior_zero": 183
+  },
+  "PH/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "PH/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 72,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "PH/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "PH/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 13
+  },
+  "PH/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "PH/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 156,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "PH/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "PH/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "TH/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 12
+  },
+  "TH/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 2,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "TH/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "TH/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 4,
+   "trailing_zero": 0,
+   "interior_zero": 36
+  },
+  "TH/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 99,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 120,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "TH/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "TH/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "US/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 62,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 4
+  },
+  "US/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/money.m1_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "US/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/production.imports": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 4
+  },
+  "US/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "US/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/commodity.gold": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/consumer.corruption_freedom": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/consumer.gdp_per_capita": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/consumer.household_consumption": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/consumer.labour_force_participation": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/consumer.population": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/consumer.unemployment": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/consumer.wage_growth": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "VN/debt.corporate_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "VN/debt.external": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/debt.financial_sector": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/debt.government_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/debt.household_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/debt.npl_ratio": {
+   "nan": 0,
+   "leading_zero": 101,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/debt.senior_loan_etf": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "VN/equity.banks_total_return": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "VN/equity.capital_stock_decrease": {
+   "nan": 0,
+   "leading_zero": 37,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "VN/equity.debt_to_assets": {
+   "nan": 0,
+   "leading_zero": 30,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/equity.dividend_yield": {
+   "nan": 0,
+   "leading_zero": 30,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/equity.market_cap_gdp": {
+   "nan": 0,
+   "leading_zero": 23,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/equity.pe_long_term": {
+   "nan": 0,
+   "leading_zero": 30,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/equity.price_to_sales": {
+   "nan": 0,
+   "leading_zero": 30,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/equity.profit_margin": {
+   "nan": 0,
+   "leading_zero": 30,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/equity.total_return": {
+   "nan": 0,
+   "leading_zero": 10,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/fx.beer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/fx.dxy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/fx.ois_1y": {
+   "nan": 0,
+   "leading_zero": 12,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/fx.reserves": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/fx.terms_of_trade": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/fx.trade_balance": {
+   "nan": 0,
+   "leading_zero": 11,
+   "trailing_zero": 0,
+   "interior_zero": 1
+  },
+  "VN/inflation.cpi_yoy": {
+   "nan": 0,
+   "leading_zero": 8,
+   "trailing_zero": 0,
+   "interior_zero": 2
+  },
+  "VN/inflation.ppi_yoy": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  },
+  "VN/money.broad_money": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/money.budget_balance_gdp": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/money.m1_yoy": {
+   "nan": 30,
+   "leading_zero": 0,
+   "trailing_zero": 6,
+   "interior_zero": 0
+  },
+  "VN/production.gdp_nominal": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/production.imports": {
+   "nan": 0,
+   "leading_zero": 11,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/production.manufacturing_confidence": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/volatility.fear_barometer": {
+   "nan": 0,
+   "leading_zero": 241,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/volatility.implied": {
+   "nan": 0,
+   "leading_zero": 13,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/yields.govt_10y": {
+   "nan": 0,
+   "leading_zero": 2,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/yields.govt_2y": {
+   "nan": 0,
+   "leading_zero": 22,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/yields.high_yield_index": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0
+  },
+  "VN/yields.high_yield_ytw": {
+   "nan": 0,
+   "leading_zero": 0,
+   "trailing_zero": 0,
+   "interior_zero": 0,
+   "placeholder": 241
+  }
+ }
+}

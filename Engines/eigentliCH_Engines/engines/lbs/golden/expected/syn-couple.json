@@ -1,0 +1,117 @@
+{
+ "seed": {
+  "stocks": {
+   "financial_assets": 1775000.0,
+   "human_assets": 40000.0,
+   "liabilities": 780000.0
+  },
+  "net_worth": 1035000.0,
+  "household_income": 174000.0,
+  "ahv": {
+   "p1": {
+    "status": "not_available",
+    "refused": "ScaleNotApproved"
+   },
+   "p2": {
+    "status": "not_available",
+    "refused": "ScaleNotApproved"
+   }
+  },
+  "bvg": {
+   "p1": {
+    "status": "available",
+    "closing_balance": 519880.6971873372,
+    "yearly_pension": 35351.887408738934,
+    "opening_balance": 310000.0,
+    "gross_salary": 110000.0,
+    "total_credited": 144585.0,
+    "total_interest": 65295.697187337384
+   },
+   "p2": {
+    "status": "available",
+    "closing_balance": 257359.66184299122,
+    "yearly_pension": 17500.457005323406,
+    "opening_balance": 120000.0,
+    "gross_salary": 64000.0,
+    "total_credited": 101357.99999999997,
+    "total_interest": 36001.66184299104
+   }
+  },
+  "couple": {
+   "status": "not_available"
+  },
+  "mandate": {
+   "target": 180000.0,
+   "horizon_years": 4.75300656413205,
+   "required_return": 0.021487417892785743
+  }
+ },
+ "approved": {
+  "stocks": {
+   "financial_assets": 1775000.0,
+   "human_assets": 40000.0,
+   "liabilities": 780000.0
+  },
+  "net_worth": 1035000.0,
+  "household_income": 174000.0,
+  "ahv": {
+   "p1": {
+    "status": "available",
+    "monthly": 2405.4545454545455,
+    "yearly": 31270.909090909092,
+    "full_monthly": 2520,
+    "factor": 0.9545454545454546,
+    "caveats": [
+     "current_income_was_used_where_a_lifetime_average_belongs",
+     "mdje_is_a_lifetime_average_and_was_supplied_not_derived",
+     "the_contribution_record_is_incomplete"
+    ]
+   },
+   "p2": {
+    "status": "available",
+    "monthly": 1929.6136363636363,
+    "yearly": 25084.977272727272,
+    "full_monthly": 2177,
+    "factor": 0.8863636363636364,
+    "caveats": [
+     "current_income_was_used_where_a_lifetime_average_belongs",
+     "mdje_is_a_lifetime_average_and_was_supplied_not_derived",
+     "the_contribution_record_is_incomplete"
+    ]
+   }
+  },
+  "bvg": {
+   "p1": {
+    "status": "available",
+    "closing_balance": 519880.6971873372,
+    "yearly_pension": 35351.887408738934,
+    "opening_balance": 310000.0,
+    "gross_salary": 110000.0,
+    "total_credited": 144585.0,
+    "total_interest": 65295.697187337384
+   },
+   "p2": {
+    "status": "available",
+    "closing_balance": 257359.66184299122,
+    "yearly_pension": 17500.457005323406,
+    "opening_balance": 120000.0,
+    "gross_salary": 64000.0,
+    "total_credited": 101357.99999999997,
+    "total_interest": 36001.66184299104
+   }
+  },
+  "couple": {
+   "uncapped_monthly": 4335.068181818182,
+   "cap": 3780,
+   "monthly": 3780,
+   "yearly": 49140,
+   "cap_binds": true,
+   "lost_to_the_cap_monthly": 555.068181818182
+  },
+  "mandate": {
+   "target": 180000.0,
+   "horizon_years": 4.75300656413205,
+   "required_return": 0.021487417892785743
+  }
+ }
+}

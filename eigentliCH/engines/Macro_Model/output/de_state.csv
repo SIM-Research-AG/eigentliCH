@@ -1,0 +1,33 @@
+# economy: de
+# calibration window: 1999 to 2024
+# data vintage: {"K_R_over_Y": "Penn World Table 10.01 (DOI 10.34894/QT5BCC)", "Y": "World Bank 2026-07-27", "equity_share": "World Bank 2026-07-27", "p_s": "World Bank 2026-07-27", "saturation": "BIS 2026-07-27", "stimulus_share": "World Bank 2026-07-27"}
+# standardising adjustments: {"K_R_over_Y": {"dynamics_neutral": true, "level_scale": 1.0, "prior_range": null, "rationale": "", "source": ""}, "Y": {"dynamics_neutral": true, "level_scale": 1.0, "prior_range": null, "rationale": "", "source": ""}, "capital_normalisation": {"dynamics_neutral": true, "observed_capital_output_ratio": 3.8207460971553515, "preserves_real_to_financial_ratio": true, "rationale": "the published capital-to-output ratio at the window start is 3.82, which makes the investment share r = 1 - K_R/Y equal -2.82. At that value the exchange term r K_I dominates the equations of motion and the system does not integrate. A common scale of 0.2356 applied to both capital stocks brings K_R/Y to 0.90, so r returns to the range in which section 0.2's definition of it as a share is meaningful. The scale is applied to both stocks, so K_R/K_I and therefore the Phase 4 condition are unchanged, and being multiplicative it cannot alter growth rates, direction or turning points.", "scale": 0.23555608698261166, "target_capital_output_ratio": 0.9}, "p_s": {"dynamics_neutral": true, "level_scale": 1.0, "prior_range": null, "rationale": "", "source": ""}, "saturation": {"dynamics_neutral": true, "level_scale": 1.0, "prior_range": null, "rationale": "", "source": ""}, "stimulus_share": {"dynamics_neutral": true, "level_scale": 1.0, "prior_range": null, "rationale": "", "source": ""}}
+# projected paths are: illustrative, model-derived
+# This is model-derived research and decision support, not investment advice. Projected paths are consequences of the calibrated model rather than dated predictions.
+period,Y_observed,K_R_observed,K_I_observed
+1999,2213873468586.88,1992486121728.1917,1370430056329.035
+2000,1966980701145.1,1708525587813.8943,1264802144184.7883
+2001,1966381496641.73,1652231938481.07,1217751421787.829
+2002,2102350798305.89,1727412076396.5647,1219883069396.2773
+2003,2534715518349.01,2103228252835.6016,1554584582181.4688
+2004,2852317768061.78,2352283350950.1543,1710466188597.6511
+2005,2893393187361.87,2352212803885.1855,1754650736764.271
+2006,3046308753670.58,2574881376186.4824,1918492502423.4822
+2007,3484056680854.91,2998500976750.8594,2184873741936.0745
+2008,3808197720125.0,3487062586986.3193,2161543308845.1248
+2009,3478545516683.59,3483651222125.464,2121834880742.1821
+2010,3467093769666.67,3466007194738.6094,2184143208966.575
+2011,3823575803793.78,3822501950815.883,2273091974655.3257
+2012,3596483233406.25,3817055184801.0303,2235071576793.3413
+2013,3807023797050.99,4216250203589.131,2425363327176.0415
+2014,3964870735760.77,4447916812104.585,2401637604831.0996
+2015,3425099578746.09,3826222982536.1587,2095226451270.03
+2016,3536787895179.0,3861465816904.7334,2145427928720.4197
+2017,3765351626105.89,3998457441188.532,2330730977160.4785
+2018,4055433215301.96,4335326889726.8374,2328782002718.514
+2019,3959894794039.21,4278749023767.6514,2379380609626.591
+2020,3941398957073.94,4469837985393.406,2639051367317.935
+2021,4355251953410.78,4788051224676.93,2871222865375.5967
+2022,4201021706478.62,4575934924232.027,2487607191441.235
+2023,4562207532490.28,5048140584950.541,2651618480022.2695
+2024,4685592577804.69,5236194353358.961,2653655897301.416

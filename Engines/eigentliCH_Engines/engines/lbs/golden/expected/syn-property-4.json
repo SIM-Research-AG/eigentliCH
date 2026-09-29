@@ -1,0 +1,110 @@
+{
+ "seed": {
+  "stocks": {
+   "financial_assets": 285200.0,
+   "human_assets": null,
+   "liabilities": null
+  },
+  "net_worth": 285200.0,
+  "household_income": 175000.0,
+  "property": {
+   "g1": {
+    "verdict": "does_not_meet",
+    "binds_on": [
+     "affordability"
+    ],
+    "undetermined_because": [],
+    "ineligible_funding": [],
+    "levers": [
+     {
+      "lever": "price",
+      "supported_chf": 990566.0377358487,
+      "stated_chf": 1100000,
+      "difference_chf": 109433.96226415131
+     },
+     {
+      "lever": "household_income",
+      "required_chf": 194333.3333333334,
+      "recorded_chf": 175000,
+      "difference_chf": 19333.3333333334
+     }
+    ],
+    "equity": {
+     "required_chf": 220000.0,
+     "hard_required_chf": 110000.0,
+     "pillar2_cap_chf": 110000.0,
+     "pillar2_may_fund": true,
+     "pillar3a_may_fund": true,
+     "verdict": "meets"
+    },
+    "affordability": {
+     "annual_cost_chf": 64777.777777777796,
+     "income_required_chf": 194333.3333333334,
+     "price_supported_chf": 990566.0377358487,
+     "verdict": "does_not_meet"
+    }
+   }
+  },
+  "mandate": {
+   "target": 220000.0,
+   "occupancy_used": "owner_occupied_primary",
+   "assumed": false,
+   "horizon_years": 8.257527533077338,
+   "required_return": 0.0
+  }
+ },
+ "approved": {
+  "stocks": {
+   "financial_assets": 285200.0,
+   "human_assets": null,
+   "liabilities": null
+  },
+  "net_worth": 285200.0,
+  "household_income": 175000.0,
+  "property": {
+   "g1": {
+    "verdict": "does_not_meet",
+    "binds_on": [
+     "affordability"
+    ],
+    "undetermined_because": [],
+    "ineligible_funding": [],
+    "levers": [
+     {
+      "lever": "price",
+      "supported_chf": 990566.0377358487,
+      "stated_chf": 1100000,
+      "difference_chf": 109433.96226415131
+     },
+     {
+      "lever": "household_income",
+      "required_chf": 194333.3333333334,
+      "recorded_chf": 175000,
+      "difference_chf": 19333.3333333334
+     }
+    ],
+    "equity": {
+     "required_chf": 220000.0,
+     "hard_required_chf": 110000.0,
+     "pillar2_cap_chf": 110000.0,
+     "pillar2_may_fund": true,
+     "pillar3a_may_fund": true,
+     "verdict": "meets"
+    },
+    "affordability": {
+     "annual_cost_chf": 64777.777777777796,
+     "income_required_chf": 194333.3333333334,
+     "price_supported_chf": 990566.0377358487,
+     "verdict": "does_not_meet"
+    }
+   }
+  },
+  "mandate": {
+   "target": 220000.0,
+   "occupancy_used": "owner_occupied_primary",
+   "assumed": false,
+   "horizon_years": 8.257527533077338,
+   "required_return": 0.0
+  }
+ }
+}

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life Balance Sheet — Training</title>
+<style>
+  :root{
+    --paper:#FCFBF8; --panel:#FFFFFF; --panel-2:#FAF8F2; --ink:#1B1D2A; --slate:#5A6272; --muted:#8C8677;
+    --rule:#E6E2D8; --rule-strong:#D6D1C4; --teal:#0F6E6B; --teal-soft:rgba(15,110,107,.10);
+    --ochre:#C0872A; --warn:#B4472E;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
+    --shadow:0 1px 2px rgba(27,29,42,.05),0 8px 24px rgba(27,29,42,.05);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#15161E;--panel:#1D1F29;--panel-2:#191B24;--ink:#F1EEE6;--slate:#A6ABBA;--muted:#7E8395;
+    --rule:#2C2F3C;--rule-strong:#3A3E4D;--teal:#48B3A9;--teal-soft:rgba(72,179,169,.13);--ochre:#E0A93F;--warn:#E17B5F;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);}}
+  :root[data-theme="light"]{--paper:#FCFBF8;--panel:#FFFFFF;--panel-2:#FAF8F2;--ink:#1B1D2A;--slate:#5A6272;--muted:#8C8677;--rule:#E6E2D8;--rule-strong:#D6D1C4;--teal:#0F6E6B;--teal-soft:rgba(15,110,107,.10);--ochre:#C0872A;--warn:#B4472E;}
+  :root[data-theme="dark"]{--paper:#15161E;--panel:#1D1F29;--panel-2:#191B24;--ink:#F1EEE6;--slate:#A6ABBA;--muted:#7E8395;--rule:#2C2F3C;--rule-strong:#3A3E4D;--teal:#48B3A9;--teal-soft:rgba(72,179,169,.13);--ochre:#E0A93F;--warn:#E17B5F;}
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.62;margin:0;font-size:16px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:820px;margin:0 auto;padding:clamp(22px,4vw,56px) clamp(18px,5vw,44px) 80px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);font-weight:600;}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,5vw,2.9rem);line-height:1.05;letter-spacing:-.015em;margin:.3em 0 .15em;text-wrap:balance;}
+  .lede{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,2.4vw,1.32rem);color:var(--slate);line-height:1.5;max-width:60ch;}
+  h2{font-family:var(--serif);font-weight:600;font-size:1.5rem;line-height:1.15;margin:2.4em 0 .1em;letter-spacing:-.01em;scroll-margin-top:20px;}
+  h2 .n{font-family:var(--mono);font-size:.8rem;color:var(--ochre);font-weight:600;margin-right:.6em;vertical-align:.15em;}
+  h3{font-family:var(--serif);font-weight:600;font-size:1.12rem;margin:1.6em 0 .2em;}
+  p{margin:.7em 0;max-width:68ch;}
+  strong{font-weight:600;} em{font-style:italic;}
+  .mono{font-family:var(--mono);font-size:.92em;}
+  a{color:var(--teal);}
+  header.top{border-bottom:1.5px solid var(--ink);padding-bottom:22px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+  .meta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.03em;margin-top:14px;}
+  .theme-btn{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:transparent;color:var(--slate);border:1px solid var(--rule-strong);border-radius:100px;padding:7px 13px;cursor:pointer;}
+  .theme-btn:hover{border-color:var(--teal);color:var(--teal);}
+  nav.toc{background:var(--panel-2);border:1px solid var(--rule);border-radius:8px;padding:16px 20px;margin:26px 0 8px;}
+  nav.toc .t{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  nav.toc ol{margin:0;padding-left:1.4em;columns:2;column-gap:28px;}
+  @media (max-width:560px){nav.toc ol{columns:1;}}
+  nav.toc li{font-family:var(--mono);font-size:12.5px;margin:3px 0;}
+  nav.toc a{text-decoration:none;color:var(--ink);}
+  nav.toc a:hover{color:var(--teal);}
+  .def{border:1px solid var(--rule);border-left:3px solid var(--teal);background:var(--panel);border-radius:0 7px 7px 0;padding:14px 18px;margin:16px 0;box-shadow:var(--shadow);}
+  .def.ochre{border-left-color:var(--ochre);}
+  .def .lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--teal);font-weight:600;display:block;margin-bottom:4px;}
+  .def.ochre .lab{color:var(--ochre);}
+  .def p{margin:0;}
+  figure{margin:22px 0;}
+  figure svg{display:block;width:100%;height:auto;background:var(--panel);border:1px solid var(--rule);border-radius:8px;}
+  figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;}
+  figcaption b{color:var(--teal);}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0;}
+  th{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--slate);text-align:left;border-bottom:1.4px solid var(--ink);padding:8px 10px;font-weight:600;}
+  td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top;}
+  td.k{font-family:var(--mono);font-size:12.5px;color:var(--teal);white-space:nowrap;}
+  ul.clean{list-style:none;padding-left:0;}
+  ul.clean li{padding-left:1.4em;position:relative;margin:.4em 0;max-width:66ch;}
+  ul.clean li::before{content:"→";position:absolute;left:0;color:var(--ochre);font-family:var(--mono);}
+  .note{font-size:14.5px;color:var(--slate);}
+  .callout{background:color-mix(in srgb,var(--warn) 8%,transparent);border:1px solid color-mix(in srgb,var(--warn) 28%,transparent);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:14.5px;}
+  .callout .lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--warn);font-weight:600;display:block;margin-bottom:4px;}
+  .pill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 9px;border-radius:100px;border:1px solid var(--rule-strong);color:var(--slate);}
+  footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--mono);font-size:11px;color:var(--slate);margin-top:8px;}
+  .legend i{display:inline-block;width:16px;height:0;border-top-width:2.5px;border-top-style:solid;vertical-align:4px;margin-right:5px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">Life Balance Sheet · Training</div>
+      <h1>A personal balance sheet as a control model</h1>
+      <div class="meta">Idea · Model · Engine · Using the app · Limits</div>
+    </div>
+    <button class="theme-btn" id="themeBtn">◐ Theme</button>
+  </header>
+
+  <p class="lede" style="margin-top:24px">Run a life the way a pension fund is run: don't ask “how much do I have?”, ask “will my assets meet my liabilities on time and with enough confidence?”</p>
+
+  <nav class="toc">
+    <div class="t">Contents</div>
+    <ol>
+      <li><a href="#idea">The idea</a></li>
+      <li><a href="#state">The state: four capitals</a></li>
+      <li><a href="#controls">The controls: two budgets</a></li>
+      <li><a href="#coupling">Coupling &amp; feedback loops</a></li>
+      <li><a href="#goals">Goals as liabilities</a></li>
+      <li><a href="#engine">The engine</a></li>
+      <li><a href="#app">Using the app</a></li>
+      <li><a href="#limits">Honest limits &amp; status</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="idea"><span class="n">1</span>The idea</h2>
+  <p>Institutional asset–liability management measures success not by cash on hand, but by whether the <strong>assets</strong> will meet the <strong>liabilities</strong> as they fall due — under uncertainty, with a margin of safety. We apply exactly that question to a single life. Three re-framings carry the model:</p>
+  <ul class="clean">
+    <li><strong>Capitals are assets.</strong> Not only money — also <em>expertise</em>, <em>network</em> and <em>health</em>. Each carries value across time, yields a return, and depreciates without maintenance.</li>
+    <li><strong>Goals are liabilities.</strong> A home, founding a company, financial independence, retirement — each a claim: an amount, due at a date, with a required probability of success.</li>
+    <li><strong>Time is the binding constraint — the saving rate is an output.</strong> Money can be borrowed and compounded; the 24-hour day cannot. And you don't set the saving rate as a dial — it falls out of income minus consumption and self-investment.</li>
+  </ul>
+  <div class="def"><span class="lab">Definition — liability</span><p>A goal is a triple <span class="mono">(deadline, region, confidence)</span>: a time by which it must be met; a set of states that count as meeting it; and the probability of success required. A goal with no required confidence is a wish, not a liability.</p></div>
+
+  <h2 id="state"><span class="n">2</span>The state: four capitals</h2>
+  <p>The state is everything we must carry forward in time. Wealth is deliberately split three ways, because a single number cannot tell an honest financial story.</p>
+  <table>
+    <tr><th>Symbol</th><th>Capital</th><th>Behaviour</th></tr>
+    <tr><td class="k">W_L</td><td>Liquid wealth (cash, securities)</td><td>accumulates, earns a return</td></tr>
+    <tr><td class="k">W_R</td><td>Real / illiquid assets (property)</td><td>appreciates, yields, illiquid</td></tr>
+    <tr><td class="k">D</td><td>Debt (mortgage)</td><td>amortises; jumps on borrowing</td></tr>
+    <tr><td class="k">E</td><td>Expertise / human capital</td><td>S-curve (logistic)</td></tr>
+    <tr><td class="k">N</td><td>Network / social capital</td><td>S-curve; ceiling rises with E and W</td></tr>
+    <tr><td class="k">H</td><td>Health / energy</td><td>S-curve; a multiplier on everything</td></tr>
+    <tr><td class="k">&kappa;</td><td>Standard-of-living habit (a stock, not a capital)</td><td>relaxes toward recent consumption; lifts the network ceiling</td></tr>
+  </table>
+  <p>The characteristic motion of each capital is the <strong>S-curve</strong>: slow while small; accelerating once large enough to self-reinforce; flattening at a natural ceiling. Wealth, by contrast, <em>accumulates</em> without a ceiling. This is why timing matters so much — the same effort produces almost nothing in the slow phase and a great deal in the accelerating one.</p>
+  <p>The four capitals are joined by a standard-of-living <strong>habit</strong> <span class="mono">&kappa;</span>, carried as an extra stock and <strong>on by default</strong>. It tracks recent consumption via <span class="mono">d&kappa; = &alpha;(C &minus; &kappa;) dt</span>, and it is not a bare reference point: a maintained lifestyle keeps a person in the rooms and memberships that lift the network ceiling, so a cut in spending is felt as a loss and also lowers a ceiling. An optional <strong>macro-regime</strong> layer can be switched on (off by default) to couple the plan to the capital cycle; see the engine section.</p>
+
+  <figure>
+    <svg viewBox="0 0 440 210" role="img" aria-label="S-curves of expertise, network and health over time">
+      <line x1="42" y1="176" x2="418" y2="176" stroke="var(--rule-strong)" stroke-width="1"/>
+      <line x1="42" y1="20" x2="42" y2="176" stroke="var(--rule-strong)" stroke-width="1"/>
+      <text x="30" y="28" font-family="var(--mono)" font-size="9" fill="var(--muted)" text-anchor="end">high</text>
+      <text x="30" y="176" font-family="var(--mono)" font-size="9" fill="var(--muted)" text-anchor="end">0</text>
+      <text x="230" y="198" font-family="var(--mono)" font-size="9" fill="var(--muted)" text-anchor="middle">time / age →</text>
+      <path d="M42 168 C 120 168, 150 60, 250 48 C 330 40, 380 40, 418 40" fill="none" stroke="var(--teal)" stroke-width="2.6"/>
+      <circle cx="418" cy="40" r="3.5" fill="var(--teal)"/><text x="424" y="43" font-family="var(--mono)" font-size="11" font-weight="700" fill="var(--teal)">E</text>
+      <path d="M42 172 C 160 172, 210 150, 280 90 C 340 40, 380 30, 418 26" fill="none" stroke="var(--ochre)" stroke-width="2.6"/>
+      <circle cx="418" cy="26" r="3.5" fill="var(--ochre)"/><text x="424" y="29" font-family="var(--mono)" font-size="11" font-weight="700" fill="var(--ochre)">N</text>
+      <path d="M42 46 C 130 60, 180 120, 250 118 C 330 116, 380 84, 418 78" fill="none" stroke="var(--slate)" stroke-width="2.2" stroke-dasharray="5 3"/>
+      <circle cx="418" cy="78" r="3.5" fill="var(--slate)"/><text x="424" y="81" font-family="var(--mono)" font-size="11" font-weight="700" fill="var(--slate)">H</text>
+    </svg>
+    <div class="legend"><span><i style="border-color:var(--teal)"></i>Expertise leads</span><span><i style="border-color:var(--ochre)"></i>Network accelerates later</span><span><i style="border-color:var(--slate);border-top-style:dashed"></i>Health: dip &amp; recovery</span></div>
+    <figcaption>The model's signature: expertise rises first; the network accelerates once its ceiling is lifted by expertise and wealth; health dips in intense years and recovers. <b>The shape of the path — not just the effort — decides feasibility.</b></figcaption>
+  </figure>
+
+  <h2 id="controls"><span class="n">3</span>The controls: two budgets</h2>
+  <p>You cannot move the capitals directly. You move them by allocating <strong>time</strong> and <strong>money</strong> each period.</p>
+  <table>
+    <tr><th>Budget</th><th>Levers</th></tr>
+    <tr><td class="k">Time (τ)</td><td>Shares for earning (τ_Y), learning (τ_E), networking (τ_N), recovery (τ_H). Sum ≤ 1; the rest is leisure.</td></tr>
+    <tr><td class="k">Money</td><td>Consumption C, education spend m_E, network spend m_N, amortisation p_A.</td></tr>
+    <tr><td class="k">w / θ</td><td>Portfolio over four roles — <strong>Gain, Income, Stabilization, Protection</strong> (cash the residual). With the regime layer off this collapses to a single risk tilt θ (risky vs safe); with it on, the four roles rotate as the cycle turns.</td></tr>
+  </table>
+  <p class="note">Note: <strong>consumption</strong> is the lever — the <em>saving rate</em> falls out of it. Set the saving rate directly and you have merely hidden the real decision. The portfolio roles are the same taxonomy the institutional Optimizer uses, so a personal plan and a fund share one calibration.</p>
+
+  <h2 id="coupling"><span class="n">4</span>Coupling &amp; feedback loops</h2>
+  <p>The capitals are wired together. The single most consequential wire: expertise, wealth <em>and a maintained standard of living</em> raise the <em>ceiling</em> of the network — competence, resources and the habit open doors that would otherwise stay shut (<span class="mono">N&#772; = N&#8320; + &lambda;_E&thinsp;E + &lambda;_W&thinsp;W + &lambda;_&kappa;&thinsp;&kappa;</span>). The habit coefficient <span class="mono">&lambda;_&kappa;</span> is the least identifiable parameter and is held small.</p>
+  <figure>
+    <svg viewBox="0 0 440 150" role="img" aria-label="Coupling from budgets through capitals to income and goals">
+      <g font-family="var(--mono)" font-size="10">
+        <rect x="8" y="55" width="86" height="40" rx="5" fill="var(--panel-2)" stroke="var(--rule-strong)"/><text x="51" y="79" text-anchor="middle" fill="var(--ink)">Time &amp; money</text>
+        <rect x="150" y="14" width="92" height="26" rx="5" fill="var(--panel-2)" stroke="var(--teal)"/><text x="196" y="31" text-anchor="middle" fill="var(--ink)">Expertise</text>
+        <rect x="150" y="62" width="92" height="26" rx="5" fill="var(--panel-2)" stroke="var(--teal)"/><text x="196" y="79" text-anchor="middle" fill="var(--ink)">Network</text>
+        <rect x="150" y="110" width="92" height="26" rx="5" fill="var(--panel-2)" stroke="var(--teal)"/><text x="196" y="127" text-anchor="middle" fill="var(--ink)">Health</text>
+        <rect x="298" y="38" width="70" height="30" rx="5" fill="var(--panel-2)" stroke="var(--ochre)"/><text x="333" y="57" text-anchor="middle" fill="var(--ink)">Income</text>
+        <rect x="298" y="92" width="70" height="30" rx="5" fill="var(--panel-2)" stroke="var(--rule-strong)"/><text x="333" y="111" text-anchor="middle" fill="var(--ink)">Goals</text>
+      </g>
+      <g fill="none" stroke="var(--slate)" stroke-width="1.1">
+        <path d="M94 68 C120 45,130 27,150 27"/><path d="M94 75 L150 75"/><path d="M94 82 C120 105,130 123,150 123"/>
+        <path d="M242 27 C270 35,280 48,298 50"/><path d="M242 75 C270 68,280 58,298 56"/><path d="M242 123 C270 100,280 66,298 62"/>
+        <path d="M368 55 C385 78,360 107,368 107"/>
+      </g>
+      <path d="M196 40 C176 48,176 54,196 62" fill="none" stroke="var(--teal)" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <text x="150" y="54" font-family="var(--mono)" font-size="8" fill="var(--teal)">raises ceiling</text>
+    </svg>
+    <figcaption>Budgets feed the capitals; expertise and network produce income; income feeds wealth; the capitals are tested against the goals. <b>Dashed (teal):</b> expertise raises the network ceiling.</figcaption>
+  </figure>
+  <p>Two loops deserve names:</p>
+  <ul class="clean">
+    <li><strong>Reinforcing loop:</strong> expertise → income → wealth → network ceiling → income. Success compounds.</li>
+    <li><strong>Balancing loop:</strong> earning → overwork → lower health → lower income. The system resists being pushed too hard.</li>
+  </ul>
+  <div class="def ochre"><span class="lab">Takeaway</span><p>A healthy plan rides the reinforcing loop without tripping the balancing one. That line is exactly what the optimiser looks for.</p></div>
+
+  <h2 id="goals"><span class="n">5</span>Goals as liabilities</h2>
+  <p>Four archetypes cover most life goals. Each is a region of the state space, with a deadline and a required confidence.</p>
+  <table>
+    <tr><th>Archetype</th><th>Condition</th></tr>
+    <tr><td class="k">Home</td><td>Lump claim <em>and</em> serviceability: enough deposit <strong>and</strong> income to carry the mortgage at a stressed rate.</td></tr>
+    <tr><td class="k">Company</td><td>Joint region: cash buffer <strong>and</strong> network <strong>and</strong> expertise above threshold simultaneously — no substitution between them.</td></tr>
+    <tr><td class="k">Retirement</td><td>Liability stream: wealth plus the present value of future income covers the present value of future spending (funding ratio ≥ 1).</td></tr>
+    <tr><td class="k">Independence</td><td>Counterfactual: set labour income to zero — do passive returns plus a safe drawdown cover desired spending? Only <strong>drawable</strong> wealth counts: <span class="mono">W_L + h_R&thinsp;W_R &minus; D</span>, with the self-occupied residence at <span class="mono">h_home = 0</span> and <strong>human capital excluded</strong> (independence is the state of not needing it).</td></tr>
+  </table>
+  <div class="def"><span class="lab">Definition — feasibility as a probability</span><p>The future is not a line. Feasibility is therefore not yes/no but a <strong>probability</strong>: we simulate many futures (Monte-Carlo) and count the fraction that reach the goal by the deadline. That number is the gauge you see in the app. Inside the optimiser it is replaced by a convex, conservative surrogate — the <span class="mono">CVaR</span> (Conditional Value-at-Risk) of the shortfall.</p></div>
+
+  <h2 id="engine"><span class="n">6</span>The engine</h2>
+  <p>A consumer cannot be handed a 40-year plan. The engine works as <strong>Model-Predictive Control (MPC)</strong> over a receding horizon:</p>
+  <ul class="clean">
+    <li>From today's state, sample many scenarios and solve a finite-horizon optimisation.</li>
+    <li>Apply only <strong>this period's action</strong> — the rest stays a plan.</li>
+    <li>Next period: observe what actually happened and re-solve. “Life happened” simply becomes the new starting point.</li>
+  </ul>
+  <p>From the problem's shadow prices (the cost of the state transitions) comes the most differentiated output: the <strong>exchange rate</strong> between levers.</p>
+  <div class="def ochre"><span class="lab">Example — exchange rate</span><p>“An hour of networking moves you toward your goal about 1.8× faster than an hour of overtime.” This ranking is not a rule of thumb — it is computed from the state and shifts as the state shifts. With a saturated network, overtime often wins; when founding a company, networking wins.</p></div>
+  <p><strong>Taxes</strong> are built in (Swiss-style: progressive income tax with interest deduction, plus a wealth tax) and reduce net inflows. They are shown explicitly in the app.</p>
+  <div class="def"><span class="lab">Reliability — the two-phase solve</span><p>Hard goals used to make a single-pass optimiser give up and collapse the plan (probability jumping between ~100% and ~0%). The engine now solves in two phases: first it <strong>restores feasibility</strong> (how well <em>can</em> the goal be funded?), then it <strong>maximises the life</strong> subject to that achievable funding bound. The result responds smoothly to the inputs instead of flipping between “achieve” and “give up”.</p></div>
+  <div class="def ochre"><span class="lab">Optional — the regime layer</span><p>Switched on, the four role returns become phase-dependent, so the portfolio rotates across Gain / Income / Stabilization / Protection as the macro cycle turns — the same cycle the institutional Optimizer uses. Switched off (the default), returns are constant and the portfolio is the scalar tilt θ.</p></div>
+
+  <h2 id="app"><span class="n">7</span>Using the app</h2>
+  <p>Launch via the desktop shortcut <span class="pill">Life Balance Sheet</span>. A console window starts the engine, the browser shows the interface. Close the window to stop the app.</p>
+  <h3>Inputs (left)</h3>
+  <ul class="clean">
+    <li><strong>Person &amp; wealth:</strong> age, liquid / real wealth, debt.</li>
+    <li><strong>Capitals:</strong> expertise, network, health on a 0–1 scale (1 = fully developed).</li>
+    <li><strong>Goals — one or more:</strong> type, years to deadline, confidence and type-specific parameters. Add several at once with “+ Add goal”.</li>
+    <li><strong>Load an example</strong> (the five worked lives: young professional, independence by fifty, near-retiree, entrepreneur, tail shock) and <strong>save your own users</strong>.</li>
+  </ul>
+  <h3>Results (right)</h3>
+  <ul class="clean">
+    <li><strong>Goal gauges:</strong> one probability per goal against its confidence target, plus the binding constraint.</li>
+    <li><strong>Trajectory:</strong> the S-curves of expertise, network and health over time.</li>
+    <li><strong>This period's action</strong> in plain words, and the <strong>plan over time</strong> (work, save/invest per year, consumption, risk tilt).</li>
+    <li><strong>Taxes</strong>, <strong>investment strategy</strong> (mock), the one <strong>insight</strong> (exchange rate), and the capitals' <strong>shadow prices</strong>.</li>
+  </ul>
+  <p class="note">A calculation typically takes 10–30 seconds — the engine solves a genuine stochastic optimal-control problem and runs Monte-Carlo.</p>
+
+  <h2 id="limits"><span class="n">8</span>Honest limits &amp; current status</h2>
+  <ul class="clean">
+    <li><strong>Numbers are illustrative.</strong> The value is comparative (this plan vs. that one) and in the <em>binding constraint</em> — which lever matters — not in the exact percentage.</li>
+    <li><strong>The worked lives are calibrated to their mechanism.</strong> Each is set so the right binding constraint bites at a sensible target confidence; the exact percentage is illustrative. Custom inputs run the same engine.</li>
+    <li><strong>Solver reliability is addressed by the two-phase solve.</strong> Results are now stable across scenario counts rather than flipping between “achieve” and “give up”. Very hard or genuinely infeasible goals still report a low probability — honestly, not as a bug.</li>
+    <li><strong>Not financial, tax or legal advice.</strong> A tool for thinking — to make trade-offs visible, with time and health on the balance sheet and goals as claims that can be missed.</li>
+  </ul>
+  <div class="callout"><span class="lab">Note</span>Some inputs are simply <strong>infeasible</strong> (e.g. too large a goal in too little time). The app then deliberately shows 0% / “below target” — that is the model being honest, not a bug.</div>
+
+  <footer>
+    Life Balance Sheet · personal_alm engine · training note · illustrative, not financial advice.<br>
+    Based on “The Life Balance Sheet” (N. Bürkler) and the implementation specification (personal ALM).
+  </footer>
+</div>
+<script>
+  const root=document.documentElement;
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const cur=root.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
+    root.setAttribute("data-theme",cur==="dark"?"light":"dark");
+  });
+</script>
+</body>
+</html>

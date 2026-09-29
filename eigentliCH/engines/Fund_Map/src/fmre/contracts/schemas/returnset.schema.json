@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sim-research.ch/fmre/schemas/returnset.schema.json",
+  "title": "ReturnSet",
+  "description": "Contract emitted by the Return Estimation engine. Carries per-block scenario profiles under a stamped regime; never carries mu, sigma, or covariance. See spec section 3.5.",
+  "type": "object",
+  "required": [
+    "return_set_id",
+    "regime_id",
+    "as_of",
+    "model_version",
+    "universe_version",
+    "state_to_scenario_version",
+    "horizon_years",
+    "state_grid",
+    "scenarios",
+    "state_to_scenario",
+    "house_view",
+    "role_profiles",
+    "building_blocks",
+    "provenance",
+    "values_unit"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "return_set_id": {
+      "type": "string",
+      "pattern": "^RS-[0-9a-f]{16}$",
+      "description": "Deterministic SHA-256 truncated hash of the canonical payload."
+    },
+    "regime_id": {
+      "type": "string",
+      "description": "Regime the estimation was performed under. A consumer optimiser must reject a ReturnSet whose regime_id does not match the balance-sheet snapshot it is optimising (spec 3.5)."
+    },
+    "as_of": { "type": "string", "description": "Timeline as_of stamp (ISO date or YYYY-MM)." },
+    "model_version": { "type": "string", "pattern": "^re@" },
+    "universe_version": { "type": "string", "pattern": "^fm@" },
+    "state_to_scenario_version": { "type": "string", "pattern": "^sts@" },
+    "horizon_years": { "type": "number", "exclusiveMinimum": 0 },
+    "state_grid": { "type": "integer", "const": 25 },
+    "scenarios": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": { "enum": ["crisis", "contraction", "stagnation", "expansion", "boom"] }
+    },
+    "state_to_scenario": {
+      "type": "object",
+      "description": "Partition of 25 ordered states into 5 scenarios; keys are stringified state indices 0..24.",
+      "propertyNames": { "pattern": "^([0-9]|1[0-9]|2[0-4])$" },
+      "additionalProperties": { "enum": ["crisis", "contraction", "stagnation", "expansion", "boom"] },
+      "minProperties": 25,
+      "maxProperties": 25
+    },
+    "house_view": {
+      "type": "object",
+      "description": "Investment-Committee probability weighting over the 5 scenarios. Sums to 1. Crisis weight strictly positive (non-zero tail, spec 5.6).",
+      "required": ["crisis", "contraction", "stagnation", "expansion", "boom"],
+      "additionalProperties": false,
+      "properties": {
+        "crisis":       { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "contraction":  { "type": "number", "minimum": 0, "maximum": 1 },
+        "stagnation":   { "type": "number", "minimum": 0, "maximum": 1 },
+        "expansion":    { "type": "number", "minimum": 0, "maximum": 1 },
+        "boom":         { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "role_profiles": {
+      "type": "object",
+      "description": "Aggregated scenario profile per canonical role.",
+      "additionalProperties": false,
+      "properties": {
+        "gain":          { "$ref": "#/$defs/ScenarioProfile" },
+        "income":        { "$ref": "#/$defs/ScenarioProfile" },
+        "stabilisation": { "$ref": "#/$defs/ScenarioProfile" },
+        "protection":    { "$ref": "#/$defs/ScenarioProfile" }
+      }
+    },
+    "building_blocks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/BuildingBlock" }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["data_vintage", "series_sources", "timeline_id"],
+      "properties": {
+        "data_vintage":       { "type": "string" },
+        "series_sources":     { "type": "array", "items": { "type": "string" } },
+        "calibration_window": { "type": ["string", "null"] },
+        "timeline_id":        { "type": "string" },
+        "timeline_model_version": { "type": "string" },
+        "current_state":      { "type": ["integer", "null"], "minimum": 0, "maximum": 24 },
+        "current_phase":      { "type": ["integer", "null"] },
+        "current_saturation_pct": { "type": ["number", "null"] }
+      }
+    },
+    "values_unit": {
+      "type": "string",
+      "enum": ["annualised_decimal", "annualised_pct"]
+    }
+  },
+  "$defs": {
+    "ScenarioProfile": {
+      "type": "object",
+      "required": ["crisis", "contraction", "stagnation", "expansion", "boom"],
+      "additionalProperties": false,
+      "properties": {
+        "crisis":       { "type": "number" },
+        "contraction":  { "type": "number" },
+        "stagnation":   { "type": "number" },
+        "expansion":    { "type": "number" },
+        "boom":         { "type": "number" }
+      }
+    },
+    "BuildingBlock": {
+      "type": "object",
+      "description": "One building block: its return profile plus the register classification a consumer needs to place it in an allocation constraint.",
+      "required": [
+        "bb_id",
+        "name",
+        "ticker",
+        "role",
+        "region_geo",
+        "region_scope",
+        "home_scenario",
+        "currency",
+        "asset_class",
+        "economic_phase",
+        "capital_type",
+        "liquidity",
+        "esg",
+        "profile_by_state",
+        "profile_by_scenario",
+        "estimation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "bb_id": { "type": ["integer", "string"] },
+        "name": { "type": "string" },
+        "ticker": { "type": "string" },
+        "role": { "enum": ["gain", "income", "stabilisation", "protection"] },
+        "region_geo": {
+          "enum": ["Switzerland", "Europe", "East Asia", "South Asia", "North America", "South Pacific", "Others"],
+          "description": "Where the exposure is. Drives the consumer's regional allocation constraint. `Others` means no single geography (a World index, gold, bitcoin), not unknown."
+        },
+        "region_scope": {
+          "enum": ["Europe", "Americas", "Asia", "Sino", "Global"],
+          "description": "The regime signal scope: which macro Regime applies to this block. Never geography, and never to be used as such."
+        },
+        "home_scenario": {
+          "enum": ["Crisis", "Contraction", "Stagnation", "Expansion", "Boom"],
+          "description": "The scenario the block is held for. Columns of the consumer's role by scenario portfolio map."
+        },
+        "currency": { "type": "string" },
+        "asset_class": { "enum": ["Cash", "Fixed Income", "Equity", "Real Estate", "Alternative"] },
+        "economic_phase": { "enum": ["Foundation", "Maturing", "Optimizing", "Saturation"] },
+        "capital_type": { "enum": ["Financial", "Real"] },
+        "liquidity": { "enum": ["Daily", "Quarterly", "Yearly", "Decade"] },
+        "esg": { "type": "integer", "description": "Per-instrument ESG score. The consumer's ESG floor is a weighted average of these." },
+        "profile_by_state": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": { "type": "number" },
+          "description": "Return per regime state, ordered crisis (index 0) to boom (index 24)."
+        },
+        "profile_by_scenario": { "$ref": "#/$defs/ScenarioProfile" },
+        "estimation": {
+          "type": "object",
+          "required": ["methods_by_state", "n_obs_by_state", "coverage", "label"],
+          "properties": {
+            "methods_by_state": {
+              "type": "array",
+              "minItems": 25,
+              "maxItems": 25,
+              "items": { "enum": ["data-driven", "data-driven-trimmed", "interpolated", "borrowed", "seed"] }
+            },
+            "n_obs_by_state": {
+              "type": "array",
+              "minItems": 25,
+              "maxItems": 25,
+              "items": { "type": "integer", "minimum": 0 }
+            },
+            "coverage": { "enum": ["full", "partial", "borrowed", "seed"] },
+            "label": { "const": "model-derived" },
+            "mu_unit_internal": { "type": "string" },
+            "weighting_note": { "enum": ["pi_s", "uniform_fallback"] },
+            "n_obs_total": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    }
+  }
+}

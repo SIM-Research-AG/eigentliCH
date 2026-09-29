@@ -1,0 +1,46 @@
+[
+ {
+  "h": 5.0,
+  "age": 50.0,
+  "outcome": "undetermined",
+  "success": false,
+  "p_goal": 0.1125,
+  "meets_confidence": false,
+  "shortfall": null,
+  "binding": "drawable wealth",
+  "seconds": 1069.4
+ },
+ {
+  "h": 7.0,
+  "age": 52.0,
+  "outcome": "undetermined",
+  "success": false,
+  "p_goal": 0.79,
+  "meets_confidence": false,
+  "shortfall": null,
+  "binding": "drawable wealth",
+  "seconds": 2856.5
+ },
+ {
+  "h": 8.0,
+  "age": 53.0,
+  "outcome": "undetermined",
+  "success": false,
+  "p_goal": 0.325,
+  "meets_confidence": false,
+  "shortfall": null,
+  "binding": "drawable wealth",
+  "seconds": 3439.5
+ },
+ {
+  "h": 20.0,
+  "age": 65.0,
+  "outcome": "undetermined",
+  "success": false,
+  "p_goal": 0.835,
+  "meets_confidence": false,
+  "shortfall": null,
+  "binding": "drawable wealth",
+  "seconds": 4116.9
+ }
+]

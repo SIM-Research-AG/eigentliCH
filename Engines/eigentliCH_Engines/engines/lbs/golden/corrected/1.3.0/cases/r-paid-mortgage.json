@@ -1,0 +1,76 @@
+{
+ "client_ref": "r-paid-mortgage",
+ "as_of": "2026-09-29",
+ "household": {
+  "composition_as_of": "2026-09-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 52
+   }
+  ]
+ },
+ "positions": [
+  {
+   "position_id": "cash",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 90000,
+   "unit": "chf",
+   "owner": "p1",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "funds_goals": [
+    "boat"
+   ]
+  },
+  {
+   "position_id": "flat",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 800000,
+   "unit": "chf",
+   "owner": "p1",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "real_asset"
+  },
+  {
+   "position_id": "sal",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 150000,
+   "unit": "chf_per_year",
+   "owner": "p1"
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "boat",
+   "kind": "other",
+   "target_amount": 160000,
+   "target_date": "2031-06-30"
+  }
+ ],
+ "facts": {
+  "civil_status": "verheiratet",
+  "has_no_liabilities": true
+ },
+ "risk": {
+  "stated_loss": 0.5,
+  "crisis_behaviour": "nichts, ich blieb investiert",
+  "employment": "angestellt",
+  "liquidity_reserve_months": null,
+  "spend_now_per_year": 60000,
+  "gross_income_per_year": 150000,
+  "mortgage": 0,
+  "mortgage_rate_pct": 1.5,
+  "amortisation_per_year": 0
+ },
+ "mandate": {
+  "goal_id": "boat",
+  "annual_contribution": 12000
+ }
+}
