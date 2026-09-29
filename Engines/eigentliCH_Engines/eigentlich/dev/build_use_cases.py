@@ -3030,7 +3030,8 @@ def cmd_reports(args):
 
 def _report_has_outlook(cid):
     """Whether one of the client's reports drew on lbsim's findings of the newest sheet (the report engine_run's
-    sources, as the app sent them)."""
+    sources, as the app sent them), and on lbsim's newest paths when there are any: a new lbsim calibration makes
+    new paths for the same sheet, and the report then rests on the old ones."""
     sheet = _latest_sheet(cid)
     if sheet is None:
         return True
@@ -3039,10 +3040,15 @@ def _report_has_outlook(cid):
             "SELECT e.request FROM engine_run e JOIN report r ON r.report_artefact_id = e.artefact_id AND r.client_id = e.client_id "
             "WHERE e.client_id = %s AND e.engine = 'report' AND e.status = 'succeeded' ORDER BY e.finished_at DESC",
             (cid,)).fetchall()
+        newest = conn.execute(
+            "SELECT artefact_id FROM engine_run WHERE client_id = %s AND engine = 'lbsim' AND status = 'succeeded' "
+            "AND artefact_id LIKE 'LSP-%%' ORDER BY finished_at DESC LIMIT 1", (cid,)).fetchone()
+    paths = newest["artefact_id"] if newest else None
     for row in found:
         sources = (row["request"] or {}).get("sources") or []
         if any(s.get("engine") == "lbs" and s.get("artefact_id") == sheet["artefact_id"] for s in sources) and \
-                any(s.get("engine") == "lbsim" for s in sources):
+                any(s.get("engine") == "lbsim" for s in sources) and \
+                (paths is None or any(s.get("artefact_id") == paths for s in sources)):
             return True
     return False
 
@@ -3337,6 +3343,15 @@ def check_lbsim(wait_plans=False, timeout_s=9 * 3600, step_s=300):
                "lbsim_sheet": sheet["artefact_id"] if sheet else None}
         row["lbsim_ok"] = (row["lbsim_findings"] and row["lbsim_paths"] and row["plan_run"] in ("queued", "running", "succeeded")
                            and len(charts) == len(CHARTS) and not ids)
+        if not row["lbsim_ok"] and row["lbsim_findings"] and not row["lbsim_paths"] and not ids:
+            # lbsim v1 simulates CHF allocations only (LBSIM-14): a client whose allocation is in another currency
+            # gets findings and no paths, plan or fan, and that is the expected state, not a gap.
+            with the_store().session() as conn:
+                pcp = conn.execute("SELECT artefact_id FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
+                                   "AND status = 'succeeded' ORDER BY finished_at DESC LIMIT 1", (cid,)).fetchone()
+            currency = call("GET", f"{PCP}/allocation/{pcp['artefact_id']}").get("currency") if pcp else None
+            row["lbsim_not_chf"] = currency not in (None, "CHF")
+            row["lbsim_ok"] = row["lbsim_not_chf"] and set(charts) >= set(CHARTS) - {"outlook"}
         return row
 
     t0 = time.time()
