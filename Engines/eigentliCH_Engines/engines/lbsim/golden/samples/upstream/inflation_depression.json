@@ -1,0 +1,228 @@
+{
+ "currency": "CHF",
+ "index": "scenario:depression",
+ "method": "scenario: the policy's own inflation path of Scenario_SAA.m, the average annual inflation over months 49 to 60 (provenance.scenario.inflation_final_12m), applied to every state (decision 2)",
+ "states": [
+  {
+   "state": 1,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 2,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 3,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 4,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 5,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 6,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 7,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 8,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 9,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 10,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 11,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 12,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 13,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 14,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 15,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 16,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 17,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 18,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 19,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 20,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 21,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 22,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 23,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 24,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  },
+  {
+   "state": 25,
+   "inflation": -0.039967730084567374,
+   "log_inflation": -0.040788380589967296,
+   "label": "measured",
+   "n_obs": 0,
+   "estimate": "scenario"
+  }
+ ],
+ "phases": [],
+ "as_of": null,
+ "source": "aggregation:RGM-1af6968e287768c9",
+ "today": null,
+ "scenario": "depression",
+ "regime_id": "RGM-1af6968e287768c9",
+ "regime_kind": "scenario",
+ "calibration_id": "CAL-69d9d1ee5245ac71",
+ "state_map_id": "MAP-eb4b581619a03147",
+ "unit": "annual inflation (simple) and ln(1 + inflation)",
+ "ceiling": {
+  "floor": -0.2,
+  "measured_low": -0.1,
+  "measured_high": 0.2,
+  "ceiling": 1.0
+ },
+ "real_view": {
+  "status": "computable",
+  "currency": "CHF",
+  "hard_currency_fallback": null
+ }
+}

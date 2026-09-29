@@ -1,0 +1,3082 @@
+{
+ "manifest": {
+  "built_by": "dev/build_golden_earning.py",
+  "interpreter": "C:\\Users\\nicol\\Desktop\\SIM_NAS\\Projects\\eigentliCH\\Prototype\\.venv\\Scripts\\python.exe",
+  "prototype": "C:\\Users\\nicol\\Desktop\\SIM_NAS\\Projects\\eigentliCH\\Prototype",
+  "human_capital_py_sha256": "8a7271e3bc486cc94135261ccad267e6d7e5928abb4bd2fd19378e5d77a04974",
+  "record": "C:\\Users\\nicol\\Desktop\\SIM_NAS\\Projects\\Engines\\eigentliCH_Engines\\engines\\lbs\\src\\lbs\\seed_records\\human-capital.json",
+  "record_sha256": "8d242c19e416a3dc6f315216185f9c1ef9aad96876f713bd3c96d1bfe047ce1e",
+  "earning_power_at_unit": 0.7207,
+  "rows": 192
+ },
+ "rows": [
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": null,
+   "sector": null,
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 122653.49503515671,
+    "annual_at_forty_hours": 49061.39801406269,
+    "monthly_standardised": 4088.449834505224,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "no management function was stated, so none was assumed — the BFS table shows that is worth more than the qualification"
+    ]
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 122653.49503515671,
+    "annual_at_forty_hours": 49061.39801406269,
+    "monthly_standardised": 4088.449834505224,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1.0,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 122653.49503515671,
+    "annual_at_forty_hours": 49061.39801406269,
+    "monthly_standardised": 4088.449834505224,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1.0,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 204463.37622360623,
+    "annual_at_forty_hours": 81785.3504894425,
+    "monthly_standardised": 6815.445874120208,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.667,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 204463.37622360623,
+    "annual_at_forty_hours": 81785.3504894425,
+    "monthly_standardised": 6815.445874120208,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.667,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 204463.37622360623,
+    "annual_at_forty_hours": 81785.3504894425,
+    "monthly_standardised": 6815.445874120208,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.667,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "topmanagement",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 340510.632916602,
+    "annual_at_forty_hours": 136204.25316664082,
+    "monthly_standardised": 11350.3544305534,
+    "responsibility": "topmanagement",
+    "multiplier": 2.7762,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "no sector was given, so the whole-economy figure was used — and it is not a middle value: it sits next to Maschinenbau and far below banking, pharma and insurance"
+    ]
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 841795.4671252875,
+    "annual_at_forty_hours": 336718.186850115,
+    "monthly_standardised": 28059.84890417625,
+    "responsibility": "topmanagement",
+    "multiplier": 6.8632,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 141309.09163000403,
+    "annual_at_forty_hours": 56523.636652001616,
+    "monthly_standardised": 4710.303054333467,
+    "responsibility": "topmanagement",
+    "multiplier": 1.1521,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 426490.7329362469,
+    "annual_at_forty_hours": 170596.29317449877,
+    "monthly_standardised": 14216.357764541563,
+    "responsibility": "topmanagement",
+    "multiplier": 3.4772,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 340510.632916602,
+    "annual_at_forty_hours": 136204.25316664082,
+    "monthly_standardised": 11350.3544305534,
+    "responsibility": "topmanagement",
+    "multiplier": 2.7762,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "'Landwirtschaft' has no published figure, so the whole-economy figure was used — and it is not a middle value: it sits next to Maschinenbau and far below banking, pharma and insurance"
+    ]
+   }
+  },
+  {
+   "case": "db-01",
+   "person_id": "p1",
+   "age": 62,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.31,
+   "H": 0.95,
+   "earning_power": {
+    "at_full_productive_week": 122653.49503515671,
+    "annual_at_forty_hours": 49061.39801406269,
+    "monthly_standardised": 4088.449834505224,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1,
+    "before_responsibility": 122653.49503515671,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.31,
+     "age": 62.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "'Abteilungsleitung' is not a published tier; no uplift was applied"
+    ]
+   }
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-02",
+   "person_id": "p1",
+   "age": 24,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": 0.78,
+   "H": 1.0,
+   "earning_power": null
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": null,
+   "sector": null,
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 100207.35414575101,
+    "annual_at_forty_hours": 40082.941658300406,
+    "monthly_standardised": 3340.2451381917003,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "no management function was stated, so none was assumed — the BFS table shows that is worth more than the qualification"
+    ]
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 100207.35414575101,
+    "annual_at_forty_hours": 40082.941658300406,
+    "monthly_standardised": 3340.2451381917003,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1.0,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 100207.35414575101,
+    "annual_at_forty_hours": 40082.941658300406,
+    "monthly_standardised": 3340.2451381917003,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1.0,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 140590.9178664887,
+    "annual_at_forty_hours": 56236.367146595476,
+    "monthly_standardised": 4686.363928882956,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.403,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 140590.9178664887,
+    "annual_at_forty_hours": 56236.367146595476,
+    "monthly_standardised": 4686.363928882956,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.403,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 140590.9178664887,
+    "annual_at_forty_hours": 56236.367146595476,
+    "monthly_standardised": 4686.363928882956,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.403,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "topmanagement",
+   "sector": null,
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 278195.65657943394,
+    "annual_at_forty_hours": 111278.26263177358,
+    "monthly_standardised": 9273.188552647798,
+    "responsibility": "topmanagement",
+    "multiplier": 2.7762,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "no sector was given, so the whole-economy figure was used — and it is not a middle value: it sits next to Maschinenbau and far below banking, pharma and insurance"
+    ]
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 687743.1129731183,
+    "annual_at_forty_hours": 275097.24518924736,
+    "monthly_standardised": 22924.77043243728,
+    "responsibility": "topmanagement",
+    "multiplier": 6.8632,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "For any qualification OTHER than «Universitäre Hochschule» this is an extrapolation. The BFS publishes top management by sector and not by education, so scaling it down the education ladder assumes the two act proportionally, which the source neither states nor contradicts."
+    ]
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 115448.89271131973,
+    "annual_at_forty_hours": 46179.55708452789,
+    "monthly_standardised": 3848.2964237106576,
+    "responsibility": "topmanagement",
+    "multiplier": 1.1521,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "For any qualification OTHER than «Universitäre Hochschule» this is an extrapolation. The BFS publishes top management by sector and not by education, so scaling it down the education ladder assumes the two act proportionally, which the source neither states nor contradicts."
+    ]
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 348441.01183560543,
+    "annual_at_forty_hours": 139376.40473424218,
+    "monthly_standardised": 11614.700394520181,
+    "responsibility": "topmanagement",
+    "multiplier": 3.4772,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "For any qualification OTHER than «Universitäre Hochschule» this is an extrapolation. The BFS publishes top management by sector and not by education, so scaling it down the education ladder assumes the two act proportionally, which the source neither states nor contradicts."
+    ]
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 278195.65657943394,
+    "annual_at_forty_hours": 111278.26263177358,
+    "monthly_standardised": 9273.188552647798,
+    "responsibility": "topmanagement",
+    "multiplier": 2.7762,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "'Landwirtschaft' has no published figure, so the whole-economy figure was used — and it is not a middle value: it sits next to Maschinenbau and far below banking, pharma and insurance"
+    ]
+   }
+  },
+  {
+   "case": "db-03",
+   "person_id": "p1",
+   "age": 55,
+   "qualification_highest": "Fachhochschule FH",
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": 0.9571,
+   "N": 0.12,
+   "H": 0.7,
+   "earning_power": {
+    "at_full_productive_week": 100207.35414575101,
+    "annual_at_forty_hours": 40082.941658300406,
+    "monthly_standardised": 3340.2451381917003,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1,
+    "before_responsibility": 100207.35414575101,
+    "inputs": {
+     "E": 0.9571,
+     "N": 0.12,
+     "age": 55.0,
+     "qualification_highest": "Fachhochschule FH",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "'Abteilungsleitung' is not a published tier; no uplift was applied"
+    ]
+   }
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-04",
+   "person_id": "p1",
+   "age": 67,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": 0.68,
+   "H": 0.75,
+   "earning_power": null
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": null,
+   "sector": null,
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 202113.06601868384,
+    "annual_at_forty_hours": 80845.22640747354,
+    "monthly_standardised": 6737.102200622795,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "no management function was stated, so none was assumed — the BFS table shows that is worth more than the qualification"
+    ]
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 202113.06601868384,
+    "annual_at_forty_hours": 80845.22640747354,
+    "monthly_standardised": 6737.102200622795,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1.0,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 202113.06601868384,
+    "annual_at_forty_hours": 80845.22640747354,
+    "monthly_standardised": 6737.102200622795,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1.0,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 336922.48105314595,
+    "annual_at_forty_hours": 134768.9924212584,
+    "monthly_standardised": 11230.749368438199,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.667,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 336922.48105314595,
+    "annual_at_forty_hours": 134768.9924212584,
+    "monthly_standardised": 11230.749368438199,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.667,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 336922.48105314595,
+    "annual_at_forty_hours": 134768.9924212584,
+    "monthly_standardised": 11230.749368438199,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.667,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "topmanagement",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 561106.29388107,
+    "annual_at_forty_hours": 224442.517552428,
+    "monthly_standardised": 18703.543129368998,
+    "responsibility": "topmanagement",
+    "multiplier": 2.7762,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "no sector was given, so the whole-economy figure was used — and it is not a middle value: it sits next to Maschinenbau and far below banking, pharma and insurance"
+    ]
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 1387142.3946994308,
+    "annual_at_forty_hours": 554856.9578797723,
+    "monthly_standardised": 46238.07982331436,
+    "responsibility": "topmanagement",
+    "multiplier": 6.8632,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 232854.46336012564,
+    "annual_at_forty_hours": 93141.78534405027,
+    "monthly_standardised": 7761.815445337521,
+    "responsibility": "topmanagement",
+    "multiplier": 1.1521,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 702787.5531601674,
+    "annual_at_forty_hours": 281115.021264067,
+    "monthly_standardised": 23426.25177200558,
+    "responsibility": "topmanagement",
+    "multiplier": 3.4772,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 561106.29388107,
+    "annual_at_forty_hours": 224442.517552428,
+    "monthly_standardised": 18703.543129368998,
+    "responsibility": "topmanagement",
+    "multiplier": 2.7762,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "'Landwirtschaft' has no published figure, so the whole-economy figure was used — and it is not a middle value: it sits next to Maschinenbau and far below banking, pharma and insurance"
+    ]
+   }
+  },
+  {
+   "case": "db-05",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": "Universitäre Hochschule",
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": 1.0,
+   "N": 0.65,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 202113.06601868384,
+    "annual_at_forty_hours": 80845.22640747354,
+    "monthly_standardised": 6737.102200622795,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1,
+    "before_responsibility": 202113.06601868384,
+    "inputs": {
+     "E": 1.0,
+     "N": 0.65,
+     "age": 39.0,
+     "qualification_highest": "Universitäre Hochschule",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "'Abteilungsleitung' is not a published tier; no uplift was applied"
+    ]
+   }
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-06",
+   "person_id": "p1",
+   "age": 39,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": 0.91,
+   "H": 0.8,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-07",
+   "person_id": "p1",
+   "age": 38,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": 0.98,
+   "H": 0.9,
+   "earning_power": null
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": null,
+   "sector": null,
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 132931.90675904753,
+    "annual_at_forty_hours": 53172.76270361902,
+    "monthly_standardised": 4431.063558634918,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "no management function was stated, so none was assumed — the BFS table shows that is worth more than the qualification"
+    ]
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 132931.90675904753,
+    "annual_at_forty_hours": 53172.76270361902,
+    "monthly_standardised": 4431.063558634918,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1.0,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 132931.90675904753,
+    "annual_at_forty_hours": 53172.76270361902,
+    "monthly_standardised": 4431.063558634918,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1.0,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 177597.0274300875,
+    "annual_at_forty_hours": 71038.810972035,
+    "monthly_standardised": 5919.90091433625,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.336,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 177597.0274300875,
+    "annual_at_forty_hours": 71038.810972035,
+    "monthly_standardised": 5919.90091433625,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.336,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 177597.0274300875,
+    "annual_at_forty_hours": 71038.810972035,
+    "monthly_standardised": 5919.90091433625,
+    "responsibility": "oberes und mittleres Kader",
+    "multiplier": 1.336,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": []
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "topmanagement",
+   "sector": null,
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 369045.5595444677,
+    "annual_at_forty_hours": 147618.2238177871,
+    "monthly_standardised": 12301.518651482258,
+    "responsibility": "topmanagement",
+    "multiplier": 2.7762,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "no sector was given, so the whole-economy figure was used — and it is not a middle value: it sits next to Maschinenbau and far below banking, pharma and insurance"
+    ]
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 912338.2624686951,
+    "annual_at_forty_hours": 364935.30498747807,
+    "monthly_standardised": 30411.275415623168,
+    "responsibility": "topmanagement",
+    "multiplier": 6.8632,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "For any qualification OTHER than «Universitäre Hochschule» this is an extrapolation. The BFS publishes top management by sector and not by education, so scaling it down the education ladder assumes the two act proportionally, which the source neither states nor contradicts."
+    ]
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 153150.84977709866,
+    "annual_at_forty_hours": 61260.339910839466,
+    "monthly_standardised": 5105.0283259032885,
+    "responsibility": "topmanagement",
+    "multiplier": 1.1521,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "For any qualification OTHER than «Universitäre Hochschule» this is an extrapolation. The BFS publishes top management by sector and not by education, so scaling it down the education ladder assumes the two act proportionally, which the source neither states nor contradicts."
+    ]
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 462230.82618256006,
+    "annual_at_forty_hours": 184892.33047302405,
+    "monthly_standardised": 15407.694206085336,
+    "responsibility": "topmanagement",
+    "multiplier": 3.4772,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "For any qualification OTHER than «Universitäre Hochschule» this is an extrapolation. The BFS publishes top management by sector and not by education, so scaling it down the education ladder assumes the two act proportionally, which the source neither states nor contradicts."
+    ]
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 369045.5595444677,
+    "annual_at_forty_hours": 147618.2238177871,
+    "monthly_standardised": 12301.518651482258,
+    "responsibility": "topmanagement",
+    "multiplier": 2.7762,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "'Landwirtschaft' has no published figure, so the whole-economy figure was used — and it is not a middle value: it sits next to Maschinenbau and far below banking, pharma and insurance"
+    ]
+   }
+  },
+  {
+   "case": "db-08",
+   "person_id": "p1",
+   "age": 53,
+   "qualification_highest": "Höhere Berufsausbildung",
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": 0.8861,
+   "N": 0.31,
+   "H": 1.0,
+   "earning_power": {
+    "at_full_productive_week": 132931.90675904753,
+    "annual_at_forty_hours": 53172.76270361902,
+    "monthly_standardised": 4431.063558634918,
+    "responsibility": "ohne Kaderfunktion",
+    "multiplier": 1,
+    "before_responsibility": 132931.90675904753,
+    "inputs": {
+     "E": 0.8861,
+     "N": 0.31,
+     "age": 53.0,
+     "qualification_highest": "Höhere Berufsausbildung",
+     "earning_power_at_unit": 0.7207
+    },
+    "caveats": [
+     "'Abteilungsleitung' is not a published tier; no uplift was applied"
+    ]
+   }
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p1",
+   "age": 52,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-couple",
+   "person_id": "p2",
+   "age": 49,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-liquidity",
+   "person_id": "p1",
+   "age": 44,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-1",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-2",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-3",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-4",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": null,
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "ohne Kaderfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Keine Führungsfunktion",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "oberes und mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberes oder mittleres Kader",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Upper or middle management",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Banken",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Oberste Führung",
+   "sector": "Gastronomie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Top management",
+   "sector": "Informationstechnologie",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "topmanagement",
+   "sector": "Landwirtschaft",
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  },
+  {
+   "case": "syn-property-5",
+   "person_id": "p1",
+   "age": 35,
+   "qualification_highest": null,
+   "kader": "Abteilungsleitung",
+   "sector": null,
+   "E": null,
+   "N": null,
+   "H": null,
+   "earning_power": null
+  }
+ ]
+}

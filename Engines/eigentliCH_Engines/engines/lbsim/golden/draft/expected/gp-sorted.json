@@ -1,0 +1,1983 @@
+{
+ "assemble": {
+  "schema": "gp@0.1.0",
+  "submission_schema": "onb@0.1.3",
+  "collected": "2026-08-20",
+  "canton": "Zug",
+  "age": 45.0,
+  "birth_year": 1981.0,
+  "main_question": null,
+  "goals_text": null,
+  "goals_deferred": [],
+  "stop_work_age": null,
+  "pending_fields": [],
+  "balance": {
+   "liquid": 10000.0,
+   "property_total": 4000000.0,
+   "residence": 4000000.0,
+   "holiday": 0.0,
+   "let": 0.0,
+   "debt": 2000000.0,
+   "ltv": 0.5,
+   "pillar2": 500000.0,
+   "pillar3a": 0.0,
+   "net_worth": 2010000.0,
+   "total_wealth": 2510000.0,
+   "drawable": 10000.0,
+   "drawable_share": 0.00398406374501992,
+   "outside_model": [],
+   "outside_total": 0,
+   "inside_liquid": [],
+   "kinds_declared": [],
+   "asset_scope": null,
+   "why_walled": "h_res = q_inv = q_hol = 0: die selbst bewohnte Liegenschaft ist vollständig abgeschottet, die vermietete erreicht den Haushalt nur über den Ertrag. Entnahmefähig ist deshalb in der Regel nur das liquide Vermögen."
+  },
+  "income_65": {
+   "reference_age": 65.0,
+   "years_to_reference": 20.0,
+   "ahv_own": 32170.77176164188,
+   "ahv_household": 32170.77176164188,
+   "ahv_max_single": 32760.0,
+   "ahv_income_for_max": 90720.0,
+   "ahv_record_share": 1.0,
+   "ahv_couple_cap": 49140.0,
+   "ahv_is_regressive": true,
+   "ahv_partner_gated": false,
+   "pillar2_today": 500000.0,
+   "pillar2_credited_total": 212057.9999999999,
+   "pillar2_entry_threshold": 22680.0,
+   "pillar2_coordination_deduction": 26460.0,
+   "pillar2_min_coordinated": 3780.0,
+   "pillar2_savings_start_age": 25.0,
+   "pillar2_coordinated_now": 64260.0,
+   "pillar2_rate_now": 0.15,
+   "pillar2_below_entry": false,
+   "pillar2_not_yet_accruing": false,
+   "pillar2_table_as_of": "2026-01-01",
+   "pillar2_table_source": "Bundesamt für Sozialversicherungen (BSV), «Beträge gültig ab dem 1. Januar 2026», publiziert 06.11.2025 (https://www.bsv.admin.ch/dam/de/sd-web/sAgdISSXenMT/d_Betr%C3%A4ge%202026.pdf). Die Altersgutschriftensätze aus BSV/MAS, «Technische Aspekte der obligatorischen beruflichen Vorsorge», Abschnitt 2.1 (Art. 16 BVG); sie sind seit dem 1.1.2005 für Frauen und Männer gleich.",
+   "pillar2_capital": 878902.5024035573,
+   "pillar2_annuity": 46142.38137618676,
+   "pillar2_years_contributing": 20.0,
+   "pillar2_interest": 0.0125,
+   "pillar2_contribution_rate": 0.15,
+   "conversion_rate": 0.0525,
+   "rent_net": 0.0,
+   "rent_yield": 0.02,
+   "holiday_yield_net": -0.0,
+   "total": 78313.15313782863,
+   "gate_note": "Die Altersschwelle ist im Modell weich. Bei genau 65 zahlt der Anspruch rund 98 %, kurz danach 100 %. Die 2 % sind eine Eigenschaft der Glättung und keine wirtschaftliche Aussage."
+  },
+  "gap": {
+   "target_spend": 90000.0,
+   "flows": 78313.15313782863,
+   "gap": 11686.84686217137,
+   "model_rate": 0.03,
+   "capital": {
+    "0.030": 389561.562072379,
+    "0.035": 333909.9103477534,
+    "0.040": 292171.1715542842
+   },
+   "annuity_beats_withdrawal": true,
+   "annuity_note": "Der Vergleich folgt aus diesen Sätzen und ist keine allgemeine Regel: 5,25 % Umwandlung gegen höchstens 4,0 % Entnahme."
+  },
+  "cash_flow": {
+   "gross": 200000.0,
+   "partner_income": null,
+   "rent_net": 0.0,
+   "company_income": null,
+   "other_income": null,
+   "income_tax": 16090.107971026617,
+   "income_tax_joint_base": 16090.107971026617,
+   "income_tax_separate": 16090.107971026617,
+   "tax_overstatement": null,
+   "unmarried_correction_applied": false,
+   "wealth_tax": 3015.0,
+   "wealth_tax_rate": 0.0015,
+   "taxable": 160000.0,
+   "split_factor": 1.0,
+   "marginal_rate": 0.1474872229910754,
+   "mortgage_interest": 40000.0,
+   "mortgage_rate": 0.02,
+   "mortgage_rate_is_stated": true,
+   "spending": 90000.0,
+   "amortisation_direct": 60000.0,
+   "amortisation_indirect": null,
+   "pillar3a_contribution": null,
+   "pillar3a_cap": 7258.0,
+   "alimony_paid": null,
+   "alimony_received": null,
+   "free": 50894.89202897338,
+   "free_subject_alone": null,
+   "committed": 60000.0,
+   "committed_amortisation": 60000.0,
+   "committed_pillar3a": null,
+   "stated_saving": 62000.0,
+   "undirected": -9105.10797102662,
+   "stated_vs_free": 11105.10797102662
+  },
+  "health": {
+   "hours": 70.0,
+   "hours_is_fulltime": null,
+   "threshold_hours": 50.0,
+   "eta": 0.3,
+   "delta_H0": 0.02,
+   "c": 1.0,
+   "H0": 0.9,
+   "decay_own": 0.07999999999999999,
+   "decay_at_threshold": 0.02,
+   "multiple": 3.999999999999999,
+   "horizon_years": 20.0,
+   "path_own": [
+    0.9,
+    0.8280000000000001,
+    0.7617600000000001,
+    0.7008192000000001,
+    0.6447536640000001,
+    0.5931733708800001,
+    0.5457195012096001,
+    0.5020619411128321,
+    0.4618969858238055,
+    0.42494522695790105,
+    0.39094960880126894,
+    0.35967364009716746,
+    0.33089974888939405,
+    0.30442776897824253,
+    0.28007354745998314,
+    0.2576676636631845,
+    0.23705425057012974,
+    0.21808991052451937,
+    0.20064271768255781,
+    0.1845913002679532,
+    0.16982399624651695
+   ],
+   "path_at_threshold": [
+    0.9,
+    0.882,
+    0.86436,
+    0.8470728000000001,
+    0.8301313440000001,
+    0.8135287171200001,
+    0.7972581427776001,
+    0.7813129799220481,
+    0.7656867203236071,
+    0.750372985917135,
+    0.7353655261987923,
+    0.7206582156748164,
+    0.70624505136132,
+    0.6921201503340936,
+    0.6782777473274118,
+    0.6647121923808635,
+    0.6514179485332463,
+    0.6383895895625814,
+    0.6256217977713298,
+    0.6131093618159031,
+    0.600847174579585
+   ],
+   "endpoint_own": 0.16982399624651695,
+   "endpoint_at_threshold": 0.600847174579585,
+   "earning_power_ratio": 0.28264091674450065,
+   "ladder": [
+    {
+     "hours": 40.0,
+     "decay": 0.02,
+     "multiple": 1.0
+    },
+    {
+     "hours": 50.0,
+     "decay": 0.02,
+     "multiple": 1.0
+    },
+    {
+     "hours": 55.0,
+     "decay": 0.03500000000000002,
+     "multiple": 1.7500000000000009
+    },
+    {
+     "hours": 60.0,
+     "decay": 0.04999999999999999,
+     "multiple": 2.4999999999999996
+    },
+    {
+     "hours": 70.0,
+     "decay": 0.07999999999999999,
+     "multiple": 3.999999999999999
+    },
+    {
+     "hours": 75.0,
+     "decay": 0.095,
+     "multiple": 4.75
+    }
+   ]
+  },
+  "children": null,
+  "bridge": null,
+  "required_return": {
+   "target": 389561.562072379,
+   "years": 20.0,
+   "liquid_today": 10000.0,
+   "stated_saving": 50894.89202897338,
+   "rungs": [
+    {
+     "saving": 50894.89202897338,
+     "multiple": 1.0,
+     "rate": -0.12096993680341017,
+     "outcome": "ok"
+    },
+    {
+     "saving": 76342.33804346007,
+     "multiple": 1.5,
+     "rate": -0.19337269341507146,
+     "outcome": "ok"
+    },
+    {
+     "saving": 101789.78405794676,
+     "multiple": 2.0,
+     "rate": null,
+     "outcome": "covered"
+    }
+   ],
+   "expected_return": 0.05,
+   "loss_tolerance": 0.2,
+   "crisis_behaviour": null,
+   "exceeds_expectation": false,
+   "unreachable_at_stated": false,
+   "covered_without_return": false,
+   "floor": -0.2,
+   "solved_by_saving": {
+    "saving": 76342.33804346007,
+    "multiple": 1.5,
+    "rate": -0.19337269341507146,
+    "outcome": "ok"
+   },
+   "saving_stated": 62000.0,
+   "saving_computed": 50894.89202897338,
+   "saving_basis": "computed",
+   "target_source": "Kapitalbedarf aus der Lücke von 11 687 pro Jahr bei 3,0 % Entnahme, bis 2046",
+   "goals_deferred": []
+  },
+  "plan": null,
+  "plausibility": {
+   "schema": "plausibility@0.1.0",
+   "checks": [],
+   "unchecked": [],
+   "impossible": 0,
+   "unlikely": 0
+  },
+  "paths": {
+   "schema": "paths@0.1.0",
+   "return_assumed": 0.0,
+   "rates": [
+    {
+     "rate": "0.0000",
+     "label": "ohne Rendite",
+     "whose": "Grundlinie dieses Berichts"
+    },
+    {
+     "rate": "0.0500",
+     "label": "5.0% pro Jahr",
+     "whose": "Ihre eigene Renditeerwartung"
+    }
+   ],
+   "paths": [
+    {
+     "code": "today",
+     "name": "Ohne Weiterbildung, Pensum bleibt",
+     "note": "Keine zusätzliche Ausbildung, keine Änderung am Pensum. Das Einkommen steigt hier trotzdem: Erfahrung wächst im Modell von selbst weiter, auch wenn niemand etwas dafür tut. Im späten Erwerbsleben fällt es wieder. Das ist die Vergleichslinie, nicht «das Einkommen bleibt, wie es ist».",
+     "basis": "modelled",
+     "anchor": null,
+     "pensum_now": 1.5,
+     "pensum_after": 1.5,
+     "education_end_age": null,
+     "income_now": 200000.0,
+     "income_at_45": 200000.0,
+     "free_now": 87846.5704646995,
+     "flows_from_65": {
+      "ahv": 32170.77176164188,
+      "own_lifetime_income": 266390.7077214256,
+      "pillar2_capital": 878902.5024035573,
+      "pillar2_annuity": 46142.38137618676,
+      "total": 78313.15313782863
+     },
+     "goals": [
+      {
+       "kind": "retirement",
+       "description": "Ausgaben ab 65 gedeckt",
+       "target_year": 2046,
+       "years": 20.0,
+       "age_at_goal": 65.0,
+       "target": 389561.562072379,
+       "basis": "Ausgaben 90 000 abzüglich 78 313 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+       "kind_unresolved": false,
+       "required_saving": 18978.07810361895,
+       "required_by_rate": {
+        "0.0000": 18978.07810361895,
+        "0.0500": 10978.923635208905
+       },
+       "reachable_by_rate": {
+        "0.0000": true,
+        "0.0500": true
+       },
+       "available_saving": 143970.53442389224,
+       "shortfall_per_year": -124992.45632027328,
+       "reachable": true
+      }
+     ],
+     "years": [
+      {
+       "age": 45.0,
+       "gross": 200000.0,
+       "free": 87846.5704646995
+      },
+      {
+       "age": 46.0,
+       "gross": 213855.69481294107,
+       "free": 99566.00930434451
+      },
+      {
+       "age": 47.0,
+       "gross": 229782.66017957137,
+       "free": 113027.66529300832
+      },
+      {
+       "age": 48.0,
+       "gross": 248182.81175930254,
+       "free": 128575.38327220088
+      },
+      {
+       "age": 49.0,
+       "gross": 269555.12834446854,
+       "free": 146638.88283674145
+      },
+      {
+       "age": 50.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 51.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 52.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 53.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 54.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 55.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 56.0,
+       "gross": 288633.20327945286,
+       "free": 162774.3509613744
+      },
+      {
+       "age": 57.0,
+       "gross": 282860.5392138637,
+       "free": 157890.64701818835
+      },
+      {
+       "age": 58.0,
+       "gross": 277203.32842958655,
+       "free": 153105.86109323706
+      },
+      {
+       "age": 59.0,
+       "gross": 271659.26186099474,
+       "free": 148417.8579394513
+      },
+      {
+       "age": 60.0,
+       "gross": 266226.0766237749,
+       "free": 143824.5452865358
+      },
+      {
+       "age": 61.0,
+       "gross": 260901.5550912994,
+       "free": 139323.873413391
+      },
+      {
+       "age": 62.0,
+       "gross": 255683.52398947335,
+       "free": 134913.834711192
+      },
+      {
+       "age": 63.0,
+       "gross": 250569.85350968386,
+       "free": 130592.46323608188
+      },
+      {
+       "age": 64.0,
+       "gross": 245558.45643949023,
+       "free": 126357.83425064135
+      }
+     ]
+    },
+    {
+     "code": "full_pensum",
+     "name": "Weiterbildung und volles Pensum",
+     "note": "Nach Abschluss volles Pensum. Für einen Haushalt, dessen Einkommen heute wegen der Ausbildung tief ist, ist das meist der grösste einzelne Schritt — und keiner, den ein Portfolio ersetzen kann.",
+     "basis": "modelled",
+     "anchor": null,
+     "pensum_now": 1.5,
+     "pensum_after": 1.0,
+     "education_end_age": null,
+     "income_now": 200000.0,
+     "income_at_45": 200000.0,
+     "free_now": 87846.5704646995,
+     "flows_from_65": {
+      "ahv": 32170.77176164188,
+      "own_lifetime_income": 266390.7077214256,
+      "pillar2_capital": 878902.5024035573,
+      "pillar2_annuity": 46142.38137618676,
+      "total": 78313.15313782863
+     },
+     "goals": [
+      {
+       "kind": "retirement",
+       "description": "Ausgaben ab 65 gedeckt",
+       "target_year": 2046,
+       "years": 20.0,
+       "age_at_goal": 65.0,
+       "target": 389561.562072379,
+       "basis": "Ausgaben 90 000 abzüglich 78 313 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+       "kind_unresolved": false,
+       "required_saving": 18978.07810361895,
+       "required_by_rate": {
+        "0.0000": 18978.07810361895,
+        "0.0500": 10978.923635208905
+       },
+       "reachable_by_rate": {
+        "0.0000": true,
+        "0.0500": true
+       },
+       "available_saving": 143970.53442389224,
+       "shortfall_per_year": -124992.45632027328,
+       "reachable": true
+      }
+     ],
+     "years": [
+      {
+       "age": 45.0,
+       "gross": 200000.0,
+       "free": 87846.5704646995
+      },
+      {
+       "age": 46.0,
+       "gross": 213855.69481294107,
+       "free": 99566.00930434451
+      },
+      {
+       "age": 47.0,
+       "gross": 229782.66017957137,
+       "free": 113027.66529300832
+      },
+      {
+       "age": 48.0,
+       "gross": 248182.81175930254,
+       "free": 128575.38327220088
+      },
+      {
+       "age": 49.0,
+       "gross": 269555.12834446854,
+       "free": 146638.88283674145
+      },
+      {
+       "age": 50.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 51.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 52.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 53.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 54.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 55.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 56.0,
+       "gross": 288633.20327945286,
+       "free": 162774.3509613744
+      },
+      {
+       "age": 57.0,
+       "gross": 282860.5392138637,
+       "free": 157890.64701818835
+      },
+      {
+       "age": 58.0,
+       "gross": 277203.32842958655,
+       "free": 153105.86109323706
+      },
+      {
+       "age": 59.0,
+       "gross": 271659.26186099474,
+       "free": 148417.8579394513
+      },
+      {
+       "age": 60.0,
+       "gross": 266226.0766237749,
+       "free": 143824.5452865358
+      },
+      {
+       "age": 61.0,
+       "gross": 260901.5550912994,
+       "free": 139323.873413391
+      },
+      {
+       "age": 62.0,
+       "gross": 255683.52398947335,
+       "free": 134913.834711192
+      },
+      {
+       "age": 63.0,
+       "gross": 250569.85350968386,
+       "free": 130592.46323608188
+      },
+      {
+       "age": 64.0,
+       "gross": 245558.45643949023,
+       "free": 126357.83425064135
+      }
+     ]
+    },
+    {
+     "code": "network",
+     "name": "Weiterbildung, volles Pensum und Netzwerk",
+     "note": "Zusätzlich 10 Stunden pro Woche für Sichtbarkeit und Kontakte — der Knick der Modellkurve. Mehr bringt nach diesem Modell fast nichts.",
+     "basis": "modelled",
+     "anchor": null,
+     "pensum_now": 1.5,
+     "pensum_after": 1.0,
+     "education_end_age": null,
+     "income_now": 200000.0,
+     "income_at_45": 200000.0,
+     "free_now": 87846.5704646995,
+     "flows_from_65": {
+      "ahv": 32170.77176164188,
+      "own_lifetime_income": 266390.7077214256,
+      "pillar2_capital": 878902.5024035573,
+      "pillar2_annuity": 46142.38137618676,
+      "total": 78313.15313782863
+     },
+     "goals": [
+      {
+       "kind": "retirement",
+       "description": "Ausgaben ab 65 gedeckt",
+       "target_year": 2046,
+       "years": 20.0,
+       "age_at_goal": 65.0,
+       "target": 389561.562072379,
+       "basis": "Ausgaben 90 000 abzüglich 78 313 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+       "kind_unresolved": false,
+       "required_saving": 18978.07810361895,
+       "required_by_rate": {
+        "0.0000": 18978.07810361895,
+        "0.0500": 10978.923635208905
+       },
+       "reachable_by_rate": {
+        "0.0000": true,
+        "0.0500": true
+       },
+       "available_saving": 143970.53442389224,
+       "shortfall_per_year": -124992.45632027328,
+       "reachable": true
+      }
+     ],
+     "years": [
+      {
+       "age": 45.0,
+       "gross": 200000.0,
+       "free": 87846.5704646995
+      },
+      {
+       "age": 46.0,
+       "gross": 213855.69481294107,
+       "free": 99566.00930434451
+      },
+      {
+       "age": 47.0,
+       "gross": 229782.66017957137,
+       "free": 113027.66529300832
+      },
+      {
+       "age": 48.0,
+       "gross": 248182.81175930254,
+       "free": 128575.38327220088
+      },
+      {
+       "age": 49.0,
+       "gross": 269555.12834446854,
+       "free": 146638.88283674145
+      },
+      {
+       "age": 50.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 51.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 52.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 53.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 54.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 55.0,
+       "gross": 294523.67681576824,
+       "free": 167759.15156612618
+      },
+      {
+       "age": 56.0,
+       "gross": 288633.20327945286,
+       "free": 162774.3509613744
+      },
+      {
+       "age": 57.0,
+       "gross": 282860.5392138637,
+       "free": 157890.64701818835
+      },
+      {
+       "age": 58.0,
+       "gross": 277203.32842958655,
+       "free": 153105.86109323706
+      },
+      {
+       "age": 59.0,
+       "gross": 271659.26186099474,
+       "free": 148417.8579394513
+      },
+      {
+       "age": 60.0,
+       "gross": 266226.0766237749,
+       "free": 143824.5452865358
+      },
+      {
+       "age": 61.0,
+       "gross": 260901.5550912994,
+       "free": 139323.873413391
+      },
+      {
+       "age": 62.0,
+       "gross": 255683.52398947335,
+       "free": 134913.834711192
+      },
+      {
+       "age": 63.0,
+       "gross": 250569.85350968386,
+       "free": 130592.46323608188
+      },
+      {
+       "age": 64.0,
+       "gross": 245558.45643949023,
+       "free": 126357.83425064135
+      }
+     ]
+    }
+   ],
+   "anchored": false,
+   "assumptions": [
+    "Die erste Spalte rechnet ohne Rendite. Das ist ein Überblick und keine Prognose: sie zeigt, was ein Ziel an reinem Sparen kostet, und diese Zahl hängt an Arbeitszeit, Ausbildung und Ausgaben statt am Markt. Die weiteren Spalten rechnen dann mit Rendite und beantworten die Frage, die der Überblick offenlässt: ob die Ziele damit erreicht werden. Was schon ohne Rendite trägt, braucht den Markt nicht; was auch mit Rendite nicht trägt, ist keine Anlagefrage.",
+    "Zum erwarteten Einkommen bei vollem Pensum liegt keine Angabe vor. Das Niveau stammt deshalb aus dem Modell selbst und ist eine Modellaussage, keine Ihrer Angaben.",
+    "Die Ausgaben bleiben auf dem heutigen Stand. Ein Haushalt, der jede Erhöhung mitausgibt, spart von keinem dieser Wege etwas.",
+    "AHV und Pensionskasse werden für jeden Weg neu gerechnet: ein höheres Einkommen hebt beide und senkt damit das Kapital, das für den Ruhestand aufzubauen ist.",
+    "Kein Weg enthält Teuerung. Alle Beträge sind in heutigen Franken, und die Ziele ebenso.",
+    "Wissen und Netzwerk werden 5 Jahre lang fortgeschrieben und danach festgehalten; nur das Altersprofil bewegt sich weiter. Das Modell lässt Erfahrung mit 15 % pro Jahr wachsen und die Ertragskraft ist nach oben begrenzt, sodass nach etwa sieben Jahren jeder Weg an dieser Grenze liegt und die Wege ununterscheidbar würden. Der Verlauf ist damit eher zu vorsichtig als zu günstig: eine lange Karriere baut mehr auf, als hier gerechnet ist."
+   ]
+  },
+  "search": {
+   "error": "TypeError: unsupported format string passed to NoneType.__format__"
+  },
+  "levers": [
+   {
+    "kind": "spending",
+    "name": "Lebenskosten um 10 % senken",
+    "amount": 9000.0,
+    "unit": "chf_per_year",
+    "unit_label": "CHF pro Jahr, wiederkehrend",
+    "note": "Von 90 000 auf 81 000. Ein nicht ausgegebener Franken ist steuerfrei frei — um denselben Betrag zu verdienen, bräuchte es bei einem Grenzsatz von 14,7 % deutlich mehr Bruttoeinkommen."
+   },
+   {
+    "kind": "pillar3a",
+    "name": "Säule 3a ausschöpfen",
+    "amount": 1070.4622644692251,
+    "unit": "chf_per_year",
+    "unit_label": "CHF pro Jahr, wiederkehrend",
+    "note": "Einzahlungsraum 7 258 bei einem Grenzsteuersatz von 14,7 %. Der Betrag ist die Steuerwirkung pro Jahr, nicht die Einzahlung."
+   },
+   {
+    "kind": "hours",
+    "name": "Stunden auf die Schwelle zurück",
+    "amount": 143471.81665109986,
+    "unit": "chf_at_horizon",
+    "unit_label": "CHF Ertragskraft am Horizont (20 Jahre), bewertet auf dem heutigen Bruttoeinkommen",
+    "note": "70 h gegen 50 h: am Ende des Horizonts 28 % der Ertragskraft gegenüber dem Verlauf an der Schwelle, bewertet auf dem heutigen Bruttoeinkommen."
+   },
+   {
+    "kind": "rest",
+    "name": "Erholungszeit verdoppeln",
+    "amount": 22571.120422795677,
+    "unit": "chf_at_horizon",
+    "unit_label": "CHF Ertragskraft am Horizont (20 Jahre)",
+    "note": "Von 20 auf 35 Wochenstunden Erholung: Gesundheit am Horizont 0,63 statt 0,56, also 11,3 % mehr Ertragskraft. Die Gesundheit erholt sich mit abnehmendem Ertrag — viermal so viel Ruhe bringt doppelt so viel Erholung, nicht viermal."
+   },
+   {
+    "kind": "amortisation",
+    "name": "Hypothek amortisieren",
+    "amount": null,
+    "unit": "rate",
+    "unit_label": "Rendite nach Steuern",
+    "rate": 0.017050255540178492,
+    "note": "Zins 2,0 %, nach Steuern 1,71 %: der Zins war abzugsfähig, und wer ihn tilgt, verliert den Abzug mit."
+   }
+  ],
+  "findings": [
+   {
+    "code": "hours_above_threshold",
+    "title": "Die Arbeitszeit liegt über der Schwelle des Modells",
+    "severity": "high",
+    "trigger": "70 Wochenstunden gegen eine Schwelle von 50: Gesundheitsabbau 0,0800 pro Jahr statt 0,0200, also 4,00-fach",
+    "figures": {
+     "hours": 70.0,
+     "threshold_hours": 50.0,
+     "decay_own": 0.07999999999999999,
+     "decay_at_threshold": 0.02,
+     "multiple": 3.999999999999999,
+     "horizon_years": 20.0,
+     "endpoint_own": 0.16982399624651695,
+     "endpoint_at_threshold": 0.600847174579585,
+     "earning_power_ratio": 0.28264091674450065
+    },
+    "why": "Die Ertragskraft skaliert im Modell mit der Gesundheit, und der Exponent ist 1. Ein Gesundheitsverhältnis ist deshalb ein Verhältnis der Ertragskraft: der Plan finanziert sich, indem er verbraucht, was ihn finanziert.",
+    "action": "Die Stunden als Finanzgrösse behandeln und die Reduktion mit denselben Franken bewerten wie eine Anlageentscheidung. Der Betrag steht in der Hebelliste.",
+    "urgency": "now",
+    "answers": [
+     "hours_per_week"
+    ]
+   },
+   {
+    "code": "thin_liquidity",
+    "title": "Dünne Liquidität gegen grosse Schulden",
+    "severity": "high",
+    "trigger": "liquide Mittel 10 000 gegen Schulden 2 000 000, also 0,50 % — die Schwelle des Befundes liegt bei 2 %",
+    "figures": {
+     "liquid": 10000.0,
+     "debt": 2000000.0,
+     "share": 0.005,
+     "threshold": 0.02,
+     "cost_of_two_points": 40000.0,
+     "free": 50894.89202897338,
+     "months_covered": 3.0
+    },
+    "why": "Eine Zinsbewegung erzwingt dann den Verkauf des illiquiden Vermögenswerts, und zwar zu dem Zeitpunkt, den der Markt wählt, nicht der Haushalt.",
+    "action": "Eine Reserve festlegen und in Franken benennen, bevor über Anlage oder Amortisation entschieden wird. Die Grössenordnung ergibt sich aus dem Zinsanstieg, den der Haushalt tragen können will.",
+    "urgency": "now",
+    "answers": [
+     "cash"
+    ]
+   },
+   {
+    "code": "empty_pillar3a",
+    "title": "Die Säule 3a ist leer, und sie ist leer geblieben",
+    "severity": "medium",
+    "trigger": "Guthaben 0 und Beitrag 0 bei einem Bruttoeinkommen von 200 000 und einem Grenzsteuersatz von 14,7 %",
+    "figures": {
+     "cap": 7258.0,
+     "marginal_rate": 0.1474872229910754,
+     "annual_effect": 1070.4622644692251,
+     "gross": 200000.0,
+     "interest": 0.015,
+     "available_from": 60.0
+    },
+    "why": "Ein wiederkehrender Abzug bleibt ungenutzt, und er ist in einer Zeile bezifferbar. Anders als die meisten Befunde kostet dieser jedes Jahr erneut, in dem er offen bleibt.",
+    "action": "Den Einzahlungsraum von 7 258 pro Jahr klären. Das Guthaben ist ab 60 verfügbar und kann damit eine Frühpensionierung mittragen.",
+    "urgency": "now",
+    "answers": [
+     "pillar3a_contribution",
+     "pillar3a"
+    ]
+   },
+   {
+    "code": "no_legal_documents",
+    "title": "Keine rechtlichen Instrumente",
+    "severity": "medium",
+    "trigger": "erfasste Instrumente: nichts; Zivilstand verheiratet, Haushalt mit Partnerin und Kindern, Liegenschaften 4 000 000",
+    "figures": {
+     "documents": [
+      "nichts"
+     ],
+     "civil_status": "verheiratet",
+     "household": "mit Partnerin und Kindern",
+     "property_total": 4000000.0
+    },
+    "why": "Ohne Testament folgt der Nachlass der gesetzlichen Erbfolge, und bei erheblichem Liegenschaftsvermögen entscheidet das über die Liegenschaft mit. Ebenso offen ist, wer handeln darf, wenn die Urteilsfähigkeit fehlt: das regelt ein Vorsorgeauftrag und sonst niemand. Beides kostet nichts und steht damit über jedem finanziellen Posten dieses Berichts.",
+    "action": "Testament oder Erbvertrag, Vorsorgeauftrag und Patientenverfügung als eigenen Termin führen, getrennt von jeder Anlagefrage.",
+    "urgency": "now",
+    "answers": [
+     "legal_docs"
+    ]
+   },
+   {
+    "code": "drawable_thin",
+    "title": "Vermögen, das nicht arbeiten kann",
+    "severity": "high",
+    "trigger": "entnahmefähig 10 000 von 2 510 000 Gesamtvermögen, also 0,4 % — die Schwelle des Befundes liegt bei 20 %",
+    "figures": {
+     "drawable": 10000.0,
+     "total_wealth": 2510000.0,
+     "drawable_share": 0.00398406374501992,
+     "threshold": 0.2
+    },
+    "why": "Das Gespräch über die Anlage betrifft eine kleine Scheibe der Bilanz. Über die Belehnungsspanne von null bis 65 % schwankt das Nettovermögen um die ganze Hypothek, und das entnahmefähige Vermögen bewegt sich dabei nicht.",
+    "action": "Vor jeder Anlageentscheidung festhalten, worauf sie sich bezieht: auf das entnahmefähige Vermögen, nicht auf das Gesamtvermögen.",
+    "urgency": "months",
+    "answers": []
+   }
+  ],
+  "findings_unchecked": [],
+  "schedule": [
+   {
+    "when": "now",
+    "label": "Jetzt, vor jeder Anlageentscheidung",
+    "items": [
+     {
+      "code": "hours_above_threshold",
+      "title": "Die Arbeitszeit liegt über der Schwelle des Modells",
+      "action": "Die Stunden als Finanzgrösse behandeln und die Reduktion mit denselben Franken bewerten wie eine Anlageentscheidung. Der Betrag steht in der Hebelliste.",
+      "severity": "high"
+     },
+     {
+      "code": "thin_liquidity",
+      "title": "Dünne Liquidität gegen grosse Schulden",
+      "action": "Eine Reserve festlegen und in Franken benennen, bevor über Anlage oder Amortisation entschieden wird. Die Grössenordnung ergibt sich aus dem Zinsanstieg, den der Haushalt tragen können will.",
+      "severity": "high"
+     },
+     {
+      "code": "empty_pillar3a",
+      "title": "Die Säule 3a ist leer, und sie ist leer geblieben",
+      "action": "Den Einzahlungsraum von 7 258 pro Jahr klären. Das Guthaben ist ab 60 verfügbar und kann damit eine Frühpensionierung mittragen.",
+      "severity": "medium"
+     },
+     {
+      "code": "no_legal_documents",
+      "title": "Keine rechtlichen Instrumente",
+      "action": "Testament oder Erbvertrag, Vorsorgeauftrag und Patientenverfügung als eigenen Termin führen, getrennt von jeder Anlagefrage.",
+      "severity": "medium"
+     }
+    ]
+   },
+   {
+    "when": "months",
+    "label": "In den nächsten Monaten",
+    "items": [
+     {
+      "code": "drawable_thin",
+      "title": "Vermögen, das nicht arbeiten kann",
+      "action": "Vor jeder Anlageentscheidung festhalten, worauf sie sich bezieht: auf das entnahmefähige Vermögen, nicht auf das Gesamtvermögen.",
+      "severity": "high"
+     }
+    ]
+   }
+  ],
+  "gate": {
+   "stage": "report",
+   "blocking": [],
+   "optional": [],
+   "open_count": 0,
+   "optional_count": 0
+  },
+  "assumptions": [
+   {
+    "what": "Umwandlungssatz Pensionskasse",
+    "field": null,
+    "value": "5,25 %",
+    "source": "erklärte Annahme, kein Modellparameter",
+    "replaced_by": "ein Pensionskassenausweis"
+   },
+   {
+    "what": "Verzinsung Pensionskassenguthaben",
+    "field": null,
+    "value": "1,25 %",
+    "source": "Modellparameter pension_interest",
+    "replaced_by": "der Ausweis der Kasse"
+   },
+   {
+    "what": "Nettoertrag vermietete Liegenschaften",
+    "field": null,
+    "value": "2,0 %",
+    "source": "Modellparameter y_R",
+    "replaced_by": "die tatsächliche Nettorendite"
+   },
+   {
+    "what": "Entnahmesatz",
+    "field": null,
+    "value": "3,0 %",
+    "source": "Modellparameter swr; daneben stehen 3,0 % und 3,5 % und 4,0 %",
+    "replaced_by": "eine Entscheidung über die verlangte Sicherheit"
+   },
+   {
+    "what": "Vermögenssteuersatz",
+    "field": null,
+    "value": "0,15 %",
+    "source": "auf Zug kalibriert, Faktor 0.75 auf den nationalen Näherungssatz (gemessene Belastung im Hauptort, Stand 2023)",
+    "replaced_by": "die effektive Veranlagung Ihrer Gemeinde"
+   },
+   {
+    "what": "Einkommenssteuer",
+    "field": null,
+    "value": "Höchstsatz 14 %, Skala 120 000",
+    "source": "auf Zug kalibriert, Faktor 0.68 auf den nationalen Näherungssatz (gemessene Belastung im Hauptort, Stand 2023)",
+    "replaced_by": "die effektive Veranlagung Ihrer Gemeinde; der Faktor gilt für den Hauptort"
+   }
+  ],
+  "limits": [
+   "Die Optimierung ist nicht gelaufen. Damit fehlt genau eine Aussage: ob das gestellte Ziel bei der verlangten Sicherheit hält, und welche Handlung dieser Periode dazu gehört. Jede andere Zahl dieses Berichts ist Arithmetik auf den Angaben und davon unabhängig.",
+   "Die Rentendauer ist im Fragebogen an 65 gebunden: years_in_retirement wird als plan_until_age minus 65 gerechnet, auch wenn früher aufgehört werden soll. Für einen Ausstieg vor 65 ist die Spanne im Modell zu kurz.",
+   "Nichts in diesem Bericht ist eine Empfehlung. Ein Befund ist Bildung; eine Empfehlung verlangt einen benannten Kurator und einen Entscheidungsnachweis."
+  ],
+  "asks_ranked": [
+   {
+    "code": "stop_work_age",
+    "question": "Ab welchem Alter möchten Sie nicht mehr auf Erwerbseinkommen angewiesen sein?",
+    "why": "Die Jahre zwischen dem Ausstieg und der Referenzaltersgrenze sind die teuersten des ganzen Plans: AHV und Pensionskasse setzen erst mit 65 ein, die Säule 3a ab 60. Ohne diese Zahl ist die Brücke nicht berechenbar.",
+    "how": "Ein Zieljahr oder ein Alter.",
+    "field": "stop_work_age",
+    "kind": "num",
+    "options": [],
+    "unit": "Jahre",
+    "measured": true,
+    "impact": 1170000.0,
+    "impact_of": "Brückenbedarf",
+    "probe_low": 55.0,
+    "probe_high": 64.0
+   },
+   {
+    "code": "residence_share",
+    "question": "Welcher Teil Ihrer Liegenschaften ist selbst bewohnt, und welcher vermietet?",
+    "why": "Die Miete ist der einzige Kanal, über den eine Liegenschaft den Cashflow erreicht. Ein selbst bewohntes Objekt ist im Modell vollständig abgeschottet, ein vermietetes wirft Ertrag ab. Das ist in einem Vermögensblock meist die grösste einzelne Unklarheit.",
+    "how": "Der Anteil in Prozent, oder die Werte der beiden Teile.",
+    "field": "own_use_pct",
+    "kind": "num",
+    "options": [],
+    "unit": "%",
+    "measured": true,
+    "impact": 389561.562072379,
+    "impact_of": "Kapitalbedarf",
+    "probe_low": 0.0,
+    "probe_high": 4000000.0
+   },
+   {
+    "code": "ahv_record",
+    "question": "Fehlen Ihnen AHV-Beitragsjahre — etwa durch Studium, Auslandsaufenthalt oder Selbständigkeit?",
+    "why": "Ein fehlendes Jahr kostet dauerhaft rund ein Vierundvierzigstel der Rente. Höchstens die letzten fünf Jahre sind nachzahlbar, und das ist eine Frage an die Ausgleichskasse.",
+    "how": "Der IK-Auszug der Ausgleichskasse listet jedes Beitragsjahr.",
+    "field": "ahv_years_missing",
+    "kind": "num",
+    "options": [],
+    "unit": "Jahre",
+    "measured": true,
+    "impact": 214471.8117442787,
+    "impact_of": "Kapitalbedarf",
+    "probe_low": 0.8,
+    "probe_high": 1.0
+   }
+  ],
+  "asks_summary": {
+   "open": 3,
+   "measured": 3,
+   "unmeasured": 0,
+   "by_headline": {
+    "Brückenbedarf": 1170000.0,
+    "Kapitalbedarf": 389561.562072379
+   },
+   "largest": {
+    "amount": 1170000.0,
+    "of": "Brückenbedarf"
+   }
+  }
+ },
+ "ledger": {
+  "schema": "paths@0.1.0",
+  "return_assumed": 0.0,
+  "rates": [
+   {
+    "rate": "0.0000",
+    "label": "ohne Rendite",
+    "whose": "Grundlinie dieses Berichts"
+   },
+   {
+    "rate": "0.0500",
+    "label": "5.0% pro Jahr",
+    "whose": "Ihre eigene Renditeerwartung"
+   }
+  ],
+  "paths": [
+   {
+    "code": "today",
+    "name": "Ohne Weiterbildung, Pensum bleibt",
+    "note": "Keine zusätzliche Ausbildung, keine Änderung am Pensum. Das Einkommen steigt hier trotzdem: Erfahrung wächst im Modell von selbst weiter, auch wenn niemand etwas dafür tut. Im späten Erwerbsleben fällt es wieder. Das ist die Vergleichslinie, nicht «das Einkommen bleibt, wie es ist».",
+    "basis": "modelled",
+    "anchor": null,
+    "pensum_now": 1.5,
+    "pensum_after": 1.5,
+    "education_end_age": null,
+    "income_now": 200000.0,
+    "income_at_45": 200000.0,
+    "free_now": 87846.5704646995,
+    "flows_from_65": {
+     "ahv": 32170.77176164188,
+     "own_lifetime_income": 266390.7077214256,
+     "pillar2_capital": 878902.5024035573,
+     "pillar2_annuity": 46142.38137618676,
+     "total": 78313.15313782863
+    },
+    "goals": [
+     {
+      "kind": "retirement",
+      "description": "Ausgaben ab 65 gedeckt",
+      "target_year": 2046,
+      "years": 20.0,
+      "age_at_goal": 65.0,
+      "target": 389561.562072379,
+      "basis": "Ausgaben 90 000 abzüglich 78 313 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+      "kind_unresolved": false,
+      "required_saving": 18978.07810361895,
+      "required_by_rate": {
+       "0.0000": 18978.07810361895,
+       "0.0500": 10978.923635208905
+      },
+      "reachable_by_rate": {
+       "0.0000": true,
+       "0.0500": true
+      },
+      "available_saving": 143970.53442389224,
+      "shortfall_per_year": -124992.45632027328,
+      "reachable": true
+     }
+    ],
+    "years": [
+     {
+      "age": 45.0,
+      "gross": 200000.0,
+      "free": 87846.5704646995
+     },
+     {
+      "age": 46.0,
+      "gross": 213855.69481294107,
+      "free": 99566.00930434451
+     },
+     {
+      "age": 47.0,
+      "gross": 229782.66017957137,
+      "free": 113027.66529300832
+     },
+     {
+      "age": 48.0,
+      "gross": 248182.81175930254,
+      "free": 128575.38327220088
+     },
+     {
+      "age": 49.0,
+      "gross": 269555.12834446854,
+      "free": 146638.88283674145
+     },
+     {
+      "age": 50.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 51.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 52.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 53.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 54.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 55.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 56.0,
+      "gross": 288633.20327945286,
+      "free": 162774.3509613744
+     },
+     {
+      "age": 57.0,
+      "gross": 282860.5392138637,
+      "free": 157890.64701818835
+     },
+     {
+      "age": 58.0,
+      "gross": 277203.32842958655,
+      "free": 153105.86109323706
+     },
+     {
+      "age": 59.0,
+      "gross": 271659.26186099474,
+      "free": 148417.8579394513
+     },
+     {
+      "age": 60.0,
+      "gross": 266226.0766237749,
+      "free": 143824.5452865358
+     },
+     {
+      "age": 61.0,
+      "gross": 260901.5550912994,
+      "free": 139323.873413391
+     },
+     {
+      "age": 62.0,
+      "gross": 255683.52398947335,
+      "free": 134913.834711192
+     },
+     {
+      "age": 63.0,
+      "gross": 250569.85350968386,
+      "free": 130592.46323608188
+     },
+     {
+      "age": 64.0,
+      "gross": 245558.45643949023,
+      "free": 126357.83425064135
+     }
+    ]
+   },
+   {
+    "code": "full_pensum",
+    "name": "Weiterbildung und volles Pensum",
+    "note": "Nach Abschluss volles Pensum. Für einen Haushalt, dessen Einkommen heute wegen der Ausbildung tief ist, ist das meist der grösste einzelne Schritt — und keiner, den ein Portfolio ersetzen kann.",
+    "basis": "modelled",
+    "anchor": null,
+    "pensum_now": 1.5,
+    "pensum_after": 1.0,
+    "education_end_age": null,
+    "income_now": 200000.0,
+    "income_at_45": 200000.0,
+    "free_now": 87846.5704646995,
+    "flows_from_65": {
+     "ahv": 32170.77176164188,
+     "own_lifetime_income": 266390.7077214256,
+     "pillar2_capital": 878902.5024035573,
+     "pillar2_annuity": 46142.38137618676,
+     "total": 78313.15313782863
+    },
+    "goals": [
+     {
+      "kind": "retirement",
+      "description": "Ausgaben ab 65 gedeckt",
+      "target_year": 2046,
+      "years": 20.0,
+      "age_at_goal": 65.0,
+      "target": 389561.562072379,
+      "basis": "Ausgaben 90 000 abzüglich 78 313 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+      "kind_unresolved": false,
+      "required_saving": 18978.07810361895,
+      "required_by_rate": {
+       "0.0000": 18978.07810361895,
+       "0.0500": 10978.923635208905
+      },
+      "reachable_by_rate": {
+       "0.0000": true,
+       "0.0500": true
+      },
+      "available_saving": 143970.53442389224,
+      "shortfall_per_year": -124992.45632027328,
+      "reachable": true
+     }
+    ],
+    "years": [
+     {
+      "age": 45.0,
+      "gross": 200000.0,
+      "free": 87846.5704646995
+     },
+     {
+      "age": 46.0,
+      "gross": 213855.69481294107,
+      "free": 99566.00930434451
+     },
+     {
+      "age": 47.0,
+      "gross": 229782.66017957137,
+      "free": 113027.66529300832
+     },
+     {
+      "age": 48.0,
+      "gross": 248182.81175930254,
+      "free": 128575.38327220088
+     },
+     {
+      "age": 49.0,
+      "gross": 269555.12834446854,
+      "free": 146638.88283674145
+     },
+     {
+      "age": 50.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 51.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 52.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 53.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 54.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 55.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 56.0,
+      "gross": 288633.20327945286,
+      "free": 162774.3509613744
+     },
+     {
+      "age": 57.0,
+      "gross": 282860.5392138637,
+      "free": 157890.64701818835
+     },
+     {
+      "age": 58.0,
+      "gross": 277203.32842958655,
+      "free": 153105.86109323706
+     },
+     {
+      "age": 59.0,
+      "gross": 271659.26186099474,
+      "free": 148417.8579394513
+     },
+     {
+      "age": 60.0,
+      "gross": 266226.0766237749,
+      "free": 143824.5452865358
+     },
+     {
+      "age": 61.0,
+      "gross": 260901.5550912994,
+      "free": 139323.873413391
+     },
+     {
+      "age": 62.0,
+      "gross": 255683.52398947335,
+      "free": 134913.834711192
+     },
+     {
+      "age": 63.0,
+      "gross": 250569.85350968386,
+      "free": 130592.46323608188
+     },
+     {
+      "age": 64.0,
+      "gross": 245558.45643949023,
+      "free": 126357.83425064135
+     }
+    ]
+   },
+   {
+    "code": "network",
+    "name": "Weiterbildung, volles Pensum und Netzwerk",
+    "note": "Zusätzlich 10 Stunden pro Woche für Sichtbarkeit und Kontakte — der Knick der Modellkurve. Mehr bringt nach diesem Modell fast nichts.",
+    "basis": "modelled",
+    "anchor": null,
+    "pensum_now": 1.5,
+    "pensum_after": 1.0,
+    "education_end_age": null,
+    "income_now": 200000.0,
+    "income_at_45": 200000.0,
+    "free_now": 87846.5704646995,
+    "flows_from_65": {
+     "ahv": 32170.77176164188,
+     "own_lifetime_income": 266390.7077214256,
+     "pillar2_capital": 878902.5024035573,
+     "pillar2_annuity": 46142.38137618676,
+     "total": 78313.15313782863
+    },
+    "goals": [
+     {
+      "kind": "retirement",
+      "description": "Ausgaben ab 65 gedeckt",
+      "target_year": 2046,
+      "years": 20.0,
+      "age_at_goal": 65.0,
+      "target": 389561.562072379,
+      "basis": "Ausgaben 90 000 abzüglich 78 313 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+      "kind_unresolved": false,
+      "required_saving": 18978.07810361895,
+      "required_by_rate": {
+       "0.0000": 18978.07810361895,
+       "0.0500": 10978.923635208905
+      },
+      "reachable_by_rate": {
+       "0.0000": true,
+       "0.0500": true
+      },
+      "available_saving": 143970.53442389224,
+      "shortfall_per_year": -124992.45632027328,
+      "reachable": true
+     }
+    ],
+    "years": [
+     {
+      "age": 45.0,
+      "gross": 200000.0,
+      "free": 87846.5704646995
+     },
+     {
+      "age": 46.0,
+      "gross": 213855.69481294107,
+      "free": 99566.00930434451
+     },
+     {
+      "age": 47.0,
+      "gross": 229782.66017957137,
+      "free": 113027.66529300832
+     },
+     {
+      "age": 48.0,
+      "gross": 248182.81175930254,
+      "free": 128575.38327220088
+     },
+     {
+      "age": 49.0,
+      "gross": 269555.12834446854,
+      "free": 146638.88283674145
+     },
+     {
+      "age": 50.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 51.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 52.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 53.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 54.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 55.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 56.0,
+      "gross": 288633.20327945286,
+      "free": 162774.3509613744
+     },
+     {
+      "age": 57.0,
+      "gross": 282860.5392138637,
+      "free": 157890.64701818835
+     },
+     {
+      "age": 58.0,
+      "gross": 277203.32842958655,
+      "free": 153105.86109323706
+     },
+     {
+      "age": 59.0,
+      "gross": 271659.26186099474,
+      "free": 148417.8579394513
+     },
+     {
+      "age": 60.0,
+      "gross": 266226.0766237749,
+      "free": 143824.5452865358
+     },
+     {
+      "age": 61.0,
+      "gross": 260901.5550912994,
+      "free": 139323.873413391
+     },
+     {
+      "age": 62.0,
+      "gross": 255683.52398947335,
+      "free": 134913.834711192
+     },
+     {
+      "age": 63.0,
+      "gross": 250569.85350968386,
+      "free": 130592.46323608188
+     },
+     {
+      "age": 64.0,
+      "gross": 245558.45643949023,
+      "free": 126357.83425064135
+     }
+    ]
+   }
+  ],
+  "anchored": false,
+  "assumptions": [
+   "Die erste Spalte rechnet ohne Rendite. Das ist ein Überblick und keine Prognose: sie zeigt, was ein Ziel an reinem Sparen kostet, und diese Zahl hängt an Arbeitszeit, Ausbildung und Ausgaben statt am Markt. Die weiteren Spalten rechnen dann mit Rendite und beantworten die Frage, die der Überblick offenlässt: ob die Ziele damit erreicht werden. Was schon ohne Rendite trägt, braucht den Markt nicht; was auch mit Rendite nicht trägt, ist keine Anlagefrage.",
+   "Zum erwarteten Einkommen bei vollem Pensum liegt keine Angabe vor. Das Niveau stammt deshalb aus dem Modell selbst und ist eine Modellaussage, keine Ihrer Angaben.",
+   "Die Ausgaben bleiben auf dem heutigen Stand. Ein Haushalt, der jede Erhöhung mitausgibt, spart von keinem dieser Wege etwas.",
+   "AHV und Pensionskasse werden für jeden Weg neu gerechnet: ein höheres Einkommen hebt beide und senkt damit das Kapital, das für den Ruhestand aufzubauen ist.",
+   "Kein Weg enthält Teuerung. Alle Beträge sind in heutigen Franken, und die Ziele ebenso.",
+   "Wissen und Netzwerk werden 5 Jahre lang fortgeschrieben und danach festgehalten; nur das Altersprofil bewegt sich weiter. Das Modell lässt Erfahrung mit 15 % pro Jahr wachsen und die Ertragskraft ist nach oben begrenzt, sodass nach etwa sieben Jahren jeder Weg an dieser Grenze liegt und die Wege ununterscheidbar würden. Der Verlauf ist damit eher zu vorsichtig als zu günstig: eine lange Karriere baut mehr auf, als hier gerechnet ist."
+  ]
+ },
+ "ledger_stop_60_extra_035": {
+  "schema": "paths@0.1.0",
+  "return_assumed": 0.0,
+  "rates": [
+   {
+    "rate": "0.0000",
+    "label": "ohne Rendite",
+    "whose": "Grundlinie dieses Berichts"
+   },
+   {
+    "rate": "0.0500",
+    "label": "5.0% pro Jahr",
+    "whose": "Ihre eigene Renditeerwartung"
+   },
+   {
+    "rate": "0.0350",
+    "label": "3.5% pro Jahr",
+    "whose": "aus dem abgeleiteten Mandat"
+   }
+  ],
+  "paths": [
+   {
+    "code": "today",
+    "name": "Ohne Weiterbildung, Pensum bleibt",
+    "note": "Keine zusätzliche Ausbildung, keine Änderung am Pensum. Das Einkommen steigt hier trotzdem: Erfahrung wächst im Modell von selbst weiter, auch wenn niemand etwas dafür tut. Im späten Erwerbsleben fällt es wieder. Das ist die Vergleichslinie, nicht «das Einkommen bleibt, wie es ist».",
+    "basis": "modelled",
+    "anchor": null,
+    "pensum_now": 1.5,
+    "pensum_after": 1.5,
+    "education_end_age": null,
+    "income_now": 200000.0,
+    "income_at_45": 200000.0,
+    "free_now": 87846.5704646995,
+    "flows_from_65": {
+     "ahv": 32170.77176164188,
+     "own_lifetime_income": 269924.9792516527,
+     "pillar2_capital": 819604.4660391331,
+     "pillar2_annuity": 43029.23446705449,
+     "total": 75200.00622869638
+    },
+    "goals": [
+     {
+      "kind": "retirement",
+      "description": "Ausgaben ab 65 gedeckt",
+      "target_year": 2046,
+      "years": 20.0,
+      "age_at_goal": 65.0,
+      "target": 493333.12571012066,
+      "basis": "Ausgaben 90 000 abzüglich 75 200 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+      "kind_unresolved": false,
+      "required_saving": 24166.656285506033,
+      "required_by_rate": {
+       "0.0000": 24166.656285506033,
+       "0.0500": 14117.244196437678,
+       "0.0350": 16741.17977001568
+      },
+      "reachable_by_rate": {
+       "0.0000": true,
+       "0.0500": true,
+       "0.0350": true
+      },
+      "available_saving": 143970.53442389224,
+      "shortfall_per_year": -119803.87813838621,
+      "reachable": true
+     }
+    ],
+    "years": [
+     {
+      "age": 45.0,
+      "gross": 200000.0,
+      "free": 87846.5704646995
+     },
+     {
+      "age": 46.0,
+      "gross": 213855.69481294107,
+      "free": 99566.00930434451
+     },
+     {
+      "age": 47.0,
+      "gross": 229782.66017957137,
+      "free": 113027.66529300832
+     },
+     {
+      "age": 48.0,
+      "gross": 248182.81175930254,
+      "free": 128575.38327220088
+     },
+     {
+      "age": 49.0,
+      "gross": 269555.12834446854,
+      "free": 146638.88283674145
+     },
+     {
+      "age": 50.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 51.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 52.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 53.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 54.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 55.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 56.0,
+      "gross": 288633.20327945286,
+      "free": 162774.3509613744
+     },
+     {
+      "age": 57.0,
+      "gross": 282860.5392138637,
+      "free": 157890.64701818835
+     },
+     {
+      "age": 58.0,
+      "gross": 277203.32842958655,
+      "free": 153105.86109323706
+     },
+     {
+      "age": 59.0,
+      "gross": 271659.26186099474,
+      "free": 148417.8579394513
+     },
+     {
+      "age": 60.0,
+      "gross": 266226.0766237749,
+      "free": 143824.5452865358
+     },
+     {
+      "age": 61.0,
+      "gross": 260901.5550912994,
+      "free": 139323.873413391
+     },
+     {
+      "age": 62.0,
+      "gross": 255683.52398947335,
+      "free": 134913.834711192
+     },
+     {
+      "age": 63.0,
+      "gross": 250569.85350968386,
+      "free": 130592.46323608188
+     },
+     {
+      "age": 64.0,
+      "gross": 245558.45643949023,
+      "free": 126357.83425064135
+     }
+    ]
+   },
+   {
+    "code": "full_pensum",
+    "name": "Weiterbildung und volles Pensum",
+    "note": "Nach Abschluss volles Pensum. Für einen Haushalt, dessen Einkommen heute wegen der Ausbildung tief ist, ist das meist der grösste einzelne Schritt — und keiner, den ein Portfolio ersetzen kann.",
+    "basis": "modelled",
+    "anchor": null,
+    "pensum_now": 1.5,
+    "pensum_after": 1.0,
+    "education_end_age": null,
+    "income_now": 200000.0,
+    "income_at_45": 200000.0,
+    "free_now": 87846.5704646995,
+    "flows_from_65": {
+     "ahv": 32170.77176164188,
+     "own_lifetime_income": 269924.9792516527,
+     "pillar2_capital": 819604.4660391331,
+     "pillar2_annuity": 43029.23446705449,
+     "total": 75200.00622869638
+    },
+    "goals": [
+     {
+      "kind": "retirement",
+      "description": "Ausgaben ab 65 gedeckt",
+      "target_year": 2046,
+      "years": 20.0,
+      "age_at_goal": 65.0,
+      "target": 493333.12571012066,
+      "basis": "Ausgaben 90 000 abzüglich 75 200 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+      "kind_unresolved": false,
+      "required_saving": 24166.656285506033,
+      "required_by_rate": {
+       "0.0000": 24166.656285506033,
+       "0.0500": 14117.244196437678,
+       "0.0350": 16741.17977001568
+      },
+      "reachable_by_rate": {
+       "0.0000": true,
+       "0.0500": true,
+       "0.0350": true
+      },
+      "available_saving": 143970.53442389224,
+      "shortfall_per_year": -119803.87813838621,
+      "reachable": true
+     }
+    ],
+    "years": [
+     {
+      "age": 45.0,
+      "gross": 200000.0,
+      "free": 87846.5704646995
+     },
+     {
+      "age": 46.0,
+      "gross": 213855.69481294107,
+      "free": 99566.00930434451
+     },
+     {
+      "age": 47.0,
+      "gross": 229782.66017957137,
+      "free": 113027.66529300832
+     },
+     {
+      "age": 48.0,
+      "gross": 248182.81175930254,
+      "free": 128575.38327220088
+     },
+     {
+      "age": 49.0,
+      "gross": 269555.12834446854,
+      "free": 146638.88283674145
+     },
+     {
+      "age": 50.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 51.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 52.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 53.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 54.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 55.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 56.0,
+      "gross": 288633.20327945286,
+      "free": 162774.3509613744
+     },
+     {
+      "age": 57.0,
+      "gross": 282860.5392138637,
+      "free": 157890.64701818835
+     },
+     {
+      "age": 58.0,
+      "gross": 277203.32842958655,
+      "free": 153105.86109323706
+     },
+     {
+      "age": 59.0,
+      "gross": 271659.26186099474,
+      "free": 148417.8579394513
+     },
+     {
+      "age": 60.0,
+      "gross": 266226.0766237749,
+      "free": 143824.5452865358
+     },
+     {
+      "age": 61.0,
+      "gross": 260901.5550912994,
+      "free": 139323.873413391
+     },
+     {
+      "age": 62.0,
+      "gross": 255683.52398947335,
+      "free": 134913.834711192
+     },
+     {
+      "age": 63.0,
+      "gross": 250569.85350968386,
+      "free": 130592.46323608188
+     },
+     {
+      "age": 64.0,
+      "gross": 245558.45643949023,
+      "free": 126357.83425064135
+     }
+    ]
+   },
+   {
+    "code": "network",
+    "name": "Weiterbildung, volles Pensum und Netzwerk",
+    "note": "Zusätzlich 10 Stunden pro Woche für Sichtbarkeit und Kontakte — der Knick der Modellkurve. Mehr bringt nach diesem Modell fast nichts.",
+    "basis": "modelled",
+    "anchor": null,
+    "pensum_now": 1.5,
+    "pensum_after": 1.0,
+    "education_end_age": null,
+    "income_now": 200000.0,
+    "income_at_45": 200000.0,
+    "free_now": 87846.5704646995,
+    "flows_from_65": {
+     "ahv": 32170.77176164188,
+     "own_lifetime_income": 269924.9792516527,
+     "pillar2_capital": 819604.4660391331,
+     "pillar2_annuity": 43029.23446705449,
+     "total": 75200.00622869638
+    },
+    "goals": [
+     {
+      "kind": "retirement",
+      "description": "Ausgaben ab 65 gedeckt",
+      "target_year": 2046,
+      "years": 20.0,
+      "age_at_goal": 65.0,
+      "target": 493333.12571012066,
+      "basis": "Ausgaben 90 000 abzüglich 75 200 aus AHV und Pensionskasse  bei 3.0% Entnahme",
+      "kind_unresolved": false,
+      "required_saving": 24166.656285506033,
+      "required_by_rate": {
+       "0.0000": 24166.656285506033,
+       "0.0500": 14117.244196437678,
+       "0.0350": 16741.17977001568
+      },
+      "reachable_by_rate": {
+       "0.0000": true,
+       "0.0500": true,
+       "0.0350": true
+      },
+      "available_saving": 143970.53442389224,
+      "shortfall_per_year": -119803.87813838621,
+      "reachable": true
+     }
+    ],
+    "years": [
+     {
+      "age": 45.0,
+      "gross": 200000.0,
+      "free": 87846.5704646995
+     },
+     {
+      "age": 46.0,
+      "gross": 213855.69481294107,
+      "free": 99566.00930434451
+     },
+     {
+      "age": 47.0,
+      "gross": 229782.66017957137,
+      "free": 113027.66529300832
+     },
+     {
+      "age": 48.0,
+      "gross": 248182.81175930254,
+      "free": 128575.38327220088
+     },
+     {
+      "age": 49.0,
+      "gross": 269555.12834446854,
+      "free": 146638.88283674145
+     },
+     {
+      "age": 50.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 51.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 52.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 53.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 54.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 55.0,
+      "gross": 294523.67681576824,
+      "free": 167759.15156612618
+     },
+     {
+      "age": 56.0,
+      "gross": 288633.20327945286,
+      "free": 162774.3509613744
+     },
+     {
+      "age": 57.0,
+      "gross": 282860.5392138637,
+      "free": 157890.64701818835
+     },
+     {
+      "age": 58.0,
+      "gross": 277203.32842958655,
+      "free": 153105.86109323706
+     },
+     {
+      "age": 59.0,
+      "gross": 271659.26186099474,
+      "free": 148417.8579394513
+     },
+     {
+      "age": 60.0,
+      "gross": 266226.0766237749,
+      "free": 143824.5452865358
+     },
+     {
+      "age": 61.0,
+      "gross": 260901.5550912994,
+      "free": 139323.873413391
+     },
+     {
+      "age": 62.0,
+      "gross": 255683.52398947335,
+      "free": 134913.834711192
+     },
+     {
+      "age": 63.0,
+      "gross": 250569.85350968386,
+      "free": 130592.46323608188
+     },
+     {
+      "age": 64.0,
+      "gross": 245558.45643949023,
+      "free": 126357.83425064135
+     }
+    ]
+   }
+  ],
+  "anchored": false,
+  "assumptions": [
+   "Die erste Spalte rechnet ohne Rendite. Das ist ein Überblick und keine Prognose: sie zeigt, was ein Ziel an reinem Sparen kostet, und diese Zahl hängt an Arbeitszeit, Ausbildung und Ausgaben statt am Markt. Die weiteren Spalten rechnen dann mit Rendite und beantworten die Frage, die der Überblick offenlässt: ob die Ziele damit erreicht werden. Was schon ohne Rendite trägt, braucht den Markt nicht; was auch mit Rendite nicht trägt, ist keine Anlagefrage.",
+   "Zum erwarteten Einkommen bei vollem Pensum liegt keine Angabe vor. Das Niveau stammt deshalb aus dem Modell selbst und ist eine Modellaussage, keine Ihrer Angaben.",
+   "Die Ausgaben bleiben auf dem heutigen Stand. Ein Haushalt, der jede Erhöhung mitausgibt, spart von keinem dieser Wege etwas.",
+   "AHV und Pensionskasse werden für jeden Weg neu gerechnet: ein höheres Einkommen hebt beide und senkt damit das Kapital, das für den Ruhestand aufzubauen ist.",
+   "Kein Weg enthält Teuerung. Alle Beträge sind in heutigen Franken, und die Ziele ebenso.",
+   "Wissen und Netzwerk werden 5 Jahre lang fortgeschrieben und danach festgehalten; nur das Altersprofil bewegt sich weiter. Das Modell lässt Erfahrung mit 15 % pro Jahr wachsen und die Ertragskraft ist nach oben begrenzt, sodass nach etwa sieben Jahren jeder Weg an dieser Grenze liegt und die Wege ununterscheidbar würden. Der Verlauf ist damit eher zu vorsichtig als zu günstig: eine lange Karriere baut mehr auf, als hier gerechnet ist."
+  ]
+ }
+}

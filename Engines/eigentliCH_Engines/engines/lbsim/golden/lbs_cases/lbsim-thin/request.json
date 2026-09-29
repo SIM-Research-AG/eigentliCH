@@ -1,0 +1,137 @@
+{
+ "contract_version": "lbs-request@1.0.0",
+ "client_ref": "lbsim-thin",
+ "as_of": "2026-09-28",
+ "calibration_version": null,
+ "household": {
+  "composition_as_of": "2026-09-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 45,
+    "stated_gross_income": 150000.0,
+    "human_capital": {
+     "qualification_highest": "Berufsausbildung (EFZ)",
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": null,
+     "network_people": 4.0,
+     "mandates": 0.0,
+     "network_reach": null,
+     "health": "0.7",
+     "health_withheld": false,
+     "hours_per_week": 48.0,
+     "rest_hours": null,
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": null
+    },
+    "earning_power": null
+   }
+  ],
+  "principal": "p1"
+ },
+ "positions": [
+  {
+   "position_id": "a1",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 20000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a2",
+   "role": "income",
+   "capital_type": "financial",
+   "magnitude": 2400000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "real_asset",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a3",
+   "role": "gain",
+   "capital_type": "financial",
+   "magnitude": 80000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "d1",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 1900000.0,
+   "unit": "chf",
+   "stock_kind": "liability",
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g-cap",
+   "kind": "other",
+   "target_amount": 150000.0,
+   "target_date": "2031-12-31",
+   "occupancy": null,
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  }
+ ],
+ "facts": {
+  "canton": "Genf",
+  "civil_status": "ledig, mit Partner",
+  "has_no_liabilities": false,
+  "stop_work_age": null,
+  "legal_documents": [],
+  "mortgage_fixed_until": null,
+  "amortisation_mode": null,
+  "own_use_share": 0.4,
+  "pillar3a_contribution_per_year": null
+ },
+ "risk": {
+  "stated_loss": null,
+  "crisis_behaviour": null,
+  "esg_exclusions": [],
+  "esg_level": null,
+  "employment": null,
+  "liquidity_reserve_months": null,
+  "spend_now_per_year": 95000.0,
+  "variable_income_per_year": null,
+  "gross_income_per_year": null,
+  "mandates": null,
+  "plan_until_age": null,
+  "mortgage": 1900000.0,
+  "mortgage_rate_pct": null,
+  "amortisation_per_year": null
+ },
+ "mandate": {
+  "goal_id": "g-cap",
+  "annual_contribution": 10000.0,
+  "name": null,
+  "contribution_indexed": null
+ }
+}

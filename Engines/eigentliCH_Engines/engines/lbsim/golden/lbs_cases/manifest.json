@@ -1,0 +1,29 @@
+{
+ "built_by": "dev/build_lbs_cases.py",
+ "lbs_engine_version": "lbs@1.4.0",
+ "lbs_calibration": "1.5.0",
+ "cases": [
+  "db-01",
+  "db-02",
+  "db-03",
+  "db-04",
+  "db-05",
+  "db-06",
+  "db-07",
+  "db-08",
+  "syn-couple",
+  "syn-liquidity",
+  "syn-property-1",
+  "syn-property-2",
+  "syn-property-3",
+  "syn-property-4",
+  "syn-property-5",
+  "lbsim-couple",
+  "lbsim-young",
+  "lbsim-early",
+  "lbsim-family",
+  "lbsim-thin",
+  "lbsim-sample"
+ ],
+ "records_sha256": "63e2c7cb69cd35841416aed2e2fc605382b82f29b0ea2f11205b48c57345ba26"
+}

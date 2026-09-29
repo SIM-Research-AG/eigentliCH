@@ -1,0 +1,172 @@
+{
+ "contract_version": "lbs-request@1.0.0",
+ "client_ref": "lbsim-early",
+ "as_of": "2026-09-28",
+ "calibration_version": null,
+ "household": {
+  "composition_as_of": "2026-09-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 54,
+    "stated_gross_income": 240000.0,
+    "human_capital": {
+     "qualification_highest": "Universitäre Hochschule",
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": "nein",
+     "network_people": 20.0,
+     "mandates": 2.0,
+     "network_reach": null,
+     "health": "0.85",
+     "health_withheld": false,
+     "hours_per_week": 55.0,
+     "rest_hours": "5–10",
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": null
+    },
+    "earning_power": {
+     "expected_full_pensum_income": null,
+     "responsibility": "topmanagement",
+     "sector": "Banken",
+     "education_status": null,
+     "education_end_year": null,
+     "education_hours": null,
+     "education_budget_per_year": null,
+     "health_work_capacity": 0.8
+    }
+   }
+  ],
+  "principal": "p1"
+ },
+ "positions": [
+  {
+   "position_id": "a1",
+   "role": "gain",
+   "capital_type": "financial",
+   "magnitude": 900000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a2",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 850000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a3",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 160000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_3a",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a4",
+   "role": "income",
+   "capital_type": "financial",
+   "magnitude": 1400000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "real_asset",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "d1",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 400000.0,
+   "unit": "chf",
+   "stock_kind": "liability",
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g-ret",
+   "kind": "retirement",
+   "target_amount": 110000.0,
+   "target_date": "2030-12-31",
+   "occupancy": null,
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  },
+  {
+   "goal_id": "g-gift",
+   "kind": "other",
+   "target_amount": 200000.0,
+   "target_date": "2029-06-30",
+   "occupancy": null,
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  }
+ ],
+ "facts": {
+  "canton": "Luzern",
+  "civil_status": "verwitwet",
+  "has_no_liabilities": false,
+  "stop_work_age": 58.0,
+  "legal_documents": [
+   "Testament",
+   "Vorsorgeauftrag"
+  ],
+  "mortgage_fixed_until": "2027-03-31",
+  "amortisation_mode": "direct",
+  "own_use_share": 1.0,
+  "pillar3a_contribution_per_year": 7258.0
+ },
+ "risk": {
+  "stated_loss": 0.15,
+  "crisis_behaviour": null,
+  "esg_exclusions": [],
+  "esg_level": null,
+  "employment": null,
+  "liquidity_reserve_months": null,
+  "spend_now_per_year": 115000.0,
+  "variable_income_per_year": null,
+  "gross_income_per_year": 240000.0,
+  "mandates": null,
+  "plan_until_age": 90.0,
+  "mortgage": 400000.0,
+  "mortgage_rate_pct": 1.6,
+  "amortisation_per_year": 10000.0
+ },
+ "mandate": {
+  "goal_id": "g-ret",
+  "annual_contribution": 80000.0,
+  "name": null,
+  "contribution_indexed": null
+ }
+}

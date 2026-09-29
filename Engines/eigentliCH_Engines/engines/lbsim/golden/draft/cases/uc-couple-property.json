@@ -1,0 +1,73 @@
+{
+ "schema_version": "onb@0.1.3",
+ "meta": {
+  "collected": "2026-08-20",
+  "source": "test"
+ },
+ "state": {
+  "age": 36,
+  "W_L": 180000.0,
+  "W_R": 0.0,
+  "W_res": 0.0,
+  "W_hol": 0.0,
+  "D": 0.0,
+  "W_P": 140000.0,
+  "W_3a": 45000.0,
+  "H": 0.9,
+  "N": 0.6,
+  "E": 0.85
+ },
+ "params": {
+  "G": 85000.0,
+  "ahv_record_share": 1.0,
+  "epsilon": 0.1,
+  "pillar3a_contribution": 7258.0,
+  "p_A": null,
+  "has_partner": true,
+  "partner_income": 95000.0,
+  "partner_age_offset": -2.0,
+  "tax_split_factor": 1.0
+ },
+ "goals": [
+  {
+   "kind": "home",
+   "description": "Eigentumswohnung",
+   "target_year": 2031,
+   "amount_chf": 240000.0,
+   "confidence": 0.9,
+   "is_consumption": false
+  },
+  {
+   "kind": "retirement",
+   "description": "Ruhestand",
+   "target_year": 2055,
+   "amount_chf": 85000.0,
+   "confidence": 0.9,
+   "is_consumption": false
+  }
+ ],
+ "asks": [],
+ "derived_notes": [],
+ "raw": {
+  "birth_year": 1990,
+  "canton": "Zürich",
+  "income_gross": 125000.0,
+  "spend_now": 95000.0,
+  "spend_later": 85000.0,
+  "savings": 30000.0,
+  "hours_per_week": 42,
+  "work_years_current": 12,
+  "pillar2": 140000.0,
+  "pillar3a": 45000.0,
+  "mortgage": null,
+  "mortgage_rate": null,
+  "property_total": 0.0,
+  "civil_status": "ledig, mit Partner",
+  "household": "mit Partner",
+  "legal_docs": [],
+  "other_kinds": [],
+  "amortisation_mode": null,
+  "expected_return_pct": "4 %",
+  "max_loss_pct": "20 %"
+ }
+}

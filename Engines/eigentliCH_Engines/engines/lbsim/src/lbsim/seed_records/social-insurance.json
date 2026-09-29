@@ -1,0 +1,67 @@
+{
+ "_about": {
+  "what": "The AHV and BVG figures the draft's model/bvg.py reads (BSV, valid from 1 January 2026).",
+  "record": "social-insurance",
+  "copied_from": "Projects/andersCH-prototype_old/andersCH-prototype_old/data/social_insurance.json",
+  "copied_on": "2026-09-29",
+  "source_sha256": "d8dd2ddda3f9c50e2b660a5ce935a359e5898ee9f548ea42c9ffcbe2160f1b6b",
+  "why_here": "The draft reads this table from Projects/eigentliCH/data, which does not exist; this is the only copy found. Every key below `_about` is the source file's, unchanged (a test pins it).",
+  "provisional": true,
+  "published_by": null,
+  "note": "Not approved by a named person in lbsim. The draft reads it without an approval gate, and lbsim reports it as read without a gate (provenance.records)."
+ },
+ "source": "Bundesamt für Sozialversicherungen (BSV), «Beträge gültig ab dem 1. Januar 2026», publiziert 06.11.2025 (https://www.bsv.admin.ch/dam/de/sd-web/sAgdISSXenMT/d_Betr%C3%A4ge%202026.pdf). Die Altersgutschriftensätze aus BSV/MAS, «Technische Aspekte der obligatorischen beruflichen Vorsorge», Abschnitt 2.1 (Art. 16 BVG); sie sind seit dem 1.1.2005 für Frauen und Männer gleich.",
+ "as_of": "2026-01-01",
+ "note": "Jede Zahl hier steht wörtlich in der Quelle. Nichts ist abgeleitet, gerundet oder aus dem Gedächtnis ergänzt. Wer diese Datei aktualisiert, ersetzt sie aus der Publikation des BSV und schreibt das Datum nach; ein einzelner Wert von Hand geändert ist eine Tabelle, der niemand mehr trauen kann.",
+ "ahv": {
+  "min_pension_monthly": 1260,
+  "max_pension_monthly": 2520,
+  "max_couple_sum_monthly": 3780,
+  "payments_per_year": 13,
+  "payments_note": "Seit Einführung der 13. AHV-Altersrente werden Altersrenten dreizehnmal ausbezahlt. Die Quelle führt die Beträge pro Monat mit dem Vermerk «13 Auszahlungen»; die Fussnote hält fest, dass die 13. Altersrente einem Zwölftel der jährlich ausbezahlten Summe entspricht. IV-Renten werden weiterhin zwölfmal ausbezahlt.",
+  "iv_payments_per_year": 12,
+  "min_contribution_yearly": 530,
+  "min_contribution_note": "Mindestbeitrag AHV/IV/EO pro Jahr (AHV 435, IV 70, EO 25). Freiwillige AHV/IV: 1010.",
+  "voluntary_min_contribution_yearly": 1010,
+  "declining_scale_lower_bound": 10100,
+  "declining_scale_upper_bound": 60500,
+  "minor_income_threshold": 2500
+ },
+ "bvg": {
+  "entry_threshold_yearly": 22680,
+  "entry_threshold_label": "Mindestjahreslohn",
+  "coordination_deduction_yearly": 26460,
+  "min_coordinated_salary_yearly": 3780,
+  "upper_limit_yearly": 90720,
+  "upper_limit_label": "obere Limite des Jahreslohns",
+  "savings_start_age": 25,
+  "savings_start_note": "Altersgutschriften laufen ab dem Kalenderjahr, in dem die versicherte Person 25 wird, bis zum Referenzalter. Die Altersklasse ist «laufendes Jahr minus Geburtsjahr». Vorher besteht Versicherung nur für die Risiken Tod und Invalidität, ohne Aufbau von Altersguthaben.",
+  "savings_rates": [
+   {
+    "from_age": 25,
+    "to_age": 34,
+    "rate": 0.07
+   },
+   {
+    "from_age": 35,
+    "to_age": 44,
+    "rate": 0.1
+   },
+   {
+    "from_age": 45,
+    "to_age": 54,
+    "rate": 0.15
+   },
+   {
+    "from_age": 55,
+    "to_age": 65,
+    "rate": 0.18
+   }
+  ],
+  "rates_note": "In Prozent des koordinierten Lohnes. Das sind die gesetzlichen Mindestsätze; viele Kassen schreiben mehr gut, und der Vorsorgeausweis der Kasse ersetzt diese Tabelle."
+ },
+ "pillar3a": {
+  "max_with_pension_fund": 7258,
+  "max_without_pension_fund": 36288
+ }
+}

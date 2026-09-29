@@ -1,0 +1,548 @@
+{
+ "calibration_version": "1.5.0",
+ "records": {
+  "human-capital": {
+   "_about": {
+    "what": "How a member's own answers become the three person-scoped capitals the Life Balance Sheet carries — E (expertise), N (network), H (health) — and the time budget those capitals are built with.",
+    "boundary": "This record holds the MAPPING from what a member said to what the engine takes. It does not hold the dynamics. `alpha_E`, `alpha_N`, `alpha_H`, the decay, the income equation and the saturation constants live in engines/Life_Balance_Sheet/personal_alm/model/params.py and belong to the engine. Two copies of one constant is a divergence waiting to happen, and this file deliberately holds neither copy.",
+    "provisional": false,
+    "published_by": "Nicolas Bürkler",
+    "why_provisional": null,
+    "sources": [
+     {
+      "document": "Bundesamt für Statistik, «Schweizerische Lohnstrukturerhebung — Löhne 2024», BFS-Pressekonferenz, Bern, 25. November 2025. Wiedergegeben in knowledge/BFS_Lohnstrukturerhebung.md.",
+      "read_on": "2026-09-06",
+      "authoritative_for": "the expertise ladder, the responsibility tiers, the conversion between the BFS working-time convention and the model's, and earning_power_at_unit",
+      "note": "Every figure in the expertise, responsibility and earning_power sections below is quoted from this source or derived from it by arithmetic that is shown. None is chosen."
+     },
+     {
+      "document": "architecture/CALIBRATION_life_balance_sheet.md, section 0A — the time-budget group",
+      "decided": "2026-08-03",
+      "authoritative_for": "productive_week_hours, max_tau_Y, the time floors, and the three returns-to-time forms",
+      "note": "Quoted rather than re-derived. The register's own decisions, including the reasons two wrong functional families were rejected before the saturating exponential was chosen."
+     },
+     {
+      "document": "engines/Life_Balance_Sheet/personal_alm/model/dynamics.py",
+      "read_on": "2026-09-06",
+      "authoritative_for": "the shape the engine expects — E as an aggregate over components, N and H as scalars in [0, 1]",
+      "note": "`income = earning_power(E, N, age) · tau_Y · phi(H)`. E and N enter through a Cobb-Douglas skill term, H through a power-law efficiency multiplier."
+     },
+     {
+      "document": "the ten members' state blocks, as loaded in August 2026",
+      "read_on": "2026-09-06",
+      "authoritative_for": "nothing — this is the evidence the network mapping was RECOVERED from, not a source of truth",
+      "note": "H matched the stated health answer on all ten. N fitted a saturating exponential at scale 8 on four of five. E fitted nothing, which is why the expertise section says what it says."
+     }
+    ],
+    "_for_review": [
+     "Recalibrate the two accepted assumptions once there are enough cases to fit them against. Deferred to a later phase on 6 September 2026, deliberately and not by omission.",
+     "The top-management tier extrapolates down the education ladder: the BFS publishes it by sector and not by education, so only «Universitäre Hochschule» lands on a published figure exactly.",
+     "The LSE is biennial. Every figure here carries 2024 and will need the next edition.",
+     "Two expertise scores now exist — `identities.expertise_scale` for commitment to learning, this record for qualification level. They measure different things and only this one reaches the engine, but a reader meeting both deserves to be told which is which; see `expertise.two_scores_and_why`."
+    ],
+    "published_on": "2026-09-06",
+    "sign_off": "Signed on 6 September 2026. The owner's words: «Till we have more use cases we treat the four as signed off. Recalibration is then for a later project phase.»\n\n**Two of those four turned out not to need signing.** The network scale of 8 and the treatment of mandates were presented to the owner as judgements of this house recovered by fitting six values. They are neither: `services/identities.net_scale` has computed them all along over `intake-scales.json`, which states its own reasoning and gives mandates a different and better treatment than the fit had reconstructed. Both are gone from this record and the computation is handed back — see `network.correction`.\n\nSo what the signature actually covers is two figures, listed below. Each still carries its own warning in place; signing them did not make them measured, and nothing here pretends it did.",
+    "accepted_as_working_assumptions": [
+     "network.reach.multipliers — no source. The direction is evidenced (a count under-reads a senior specialist, and three real members could not be reached because of it); the four sizes are a judgement of this house.",
+     "health.levels «eingeschränkt» = 0.35 — the only health option that is a word rather than a number."
+    ],
+    "not_ours_after_all": [
+     "network scale of 8 — published in intake-scales.json: «chosen so the questionnaire's own working range separates: 1 contact -> 0.12, 3 -> 0.31, 6 -> 0.53, 15 -> 0.84».",
+     "mandates — published in intake-scales.json at 0.06 each to a ceiling of 0.18, «because a board seat is a real visibility signal and three of them are not three times one». The fit had put them inside the exponent at 0.63 of a person each, which matched the one member who has any."
+    ]
+   },
+   "provisional": true,
+   "expertise": {
+    "_about": "E — what a person can do, as the engine's aggregate over expertise components.",
+    "derivable_from_intake": true,
+    "source": "Bundesamt für Statistik, «Schweizerische Lohnstrukturerhebung — Löhne 2024», BFS-Pressekonferenz, Bern, 25. November 2025. Wiedergegeben in knowledge/BFS_Lohnstrukturerhebung.md.",
+    "from": [
+     "qualification_highest"
+    ],
+    "history": "Until 6 September 2026 this section said E could not be derived, and it was right: the intake asked education as free text, six members had been scored by hand and four had not, and fitting the six against their own text produced no rule. What changed is not the method but the source. The rungs below are BFS medians, so the ladder is quoted rather than judged.",
+    "anchors": {
+     "_about": "**Derived, not chosen.** Each rung is the E that makes the engine reproduce the BFS median for that qualification without a management function, at the highest network the application can produce (0.98). The rungs themselves are ratios of skills and do not depend on that anchor; only `earning_power.calibration.at_unit` does.",
+     "by_qualification": {
+      "Universitäre Hochschule": 1.0,
+      "Fachhochschule FH": 0.9571,
+      "Höhere Berufsausbildung": 0.8861,
+      "Berufsausbildung (EFZ)": 0.6309,
+      "Unternehmensinterne Ausbildung": 0.519
+     },
+     "bfs_monthly_median_ohne_kader": {
+      "Universitäre Hochschule": 8645,
+      "Fachhochschule FH": 8342,
+      "Höhere Berufsausbildung": 7849,
+      "Berufsausbildung (EFZ)": 6162,
+      "Unternehmensinterne Ausbildung": 5456
+     },
+     "categories_are_the_bfs_ones": "The five rungs are the BFS categories verbatim and deliberately. A sixth rung of our own would have no median behind it, and the intake question therefore offers exactly these five.",
+     "no_rung_for": "Obligatorische Schule ohne Abschluss, Maturität and Doktorat have no separate median in the published table. A member answering one of those is ABSENT rather than placed on a neighbouring rung — the earlier draft of this record invented seven rungs including those three, and that is exactly the guessing this source removed.",
+     "recency": {
+      "_about": "A qualification decays as an asset if nothing is added. **A judgement of this house — the BFS table has no time dimension.** Kept small for that reason. Note that `services/identities.expertise_scale` measures a DIFFERENT thing over published credits — see `expertise.two_scores_and_why`.",
+      "full_value_within_years": 5,
+      "penalty_per_year_after": 0.005,
+      "maximum_penalty": 0.15,
+      "cleared_by": "any entry in «Weiterbildung, laufend oder geplant» — training under way resets recency to zero, which is the whole reason that question is asked"
+     },
+     "experience": {
+      "_about": "Years in the field add and saturate. **Also a judgement of this house.** Same family and the same argument as the network scale.",
+      "form": "saturating_exponential",
+      "scale_years": 10,
+      "maximum_addition": 0.15
+     },
+     "ceiling": 1.0,
+     "floor": 0.2
+    },
+    "absent_means": "The component is dropped along with its weight, exactly as `risk_profile.capacity` drops a missing input. It is never scored zero (A110).",
+    "intake_question": {
+     "key": "qualification_highest",
+     "label": {
+      "de": "Höchster Abschluss",
+      "en": "Highest qualification"
+     },
+     "type": "choice",
+     "options": [
+      "Universitäre Hochschule",
+      "Fachhochschule FH",
+      "Höhere Berufsausbildung",
+      "Berufsausbildung (EFZ)",
+      "Unternehmensinterne Ausbildung"
+     ],
+     "why": {
+      "de": "Das Ausbildungsniveau bestimmt die allgemeine Lohnpyramide — so das BFS. Die fünf Antworten sind seine Kategorien, damit hinter jeder ein Medianlohn steht.",
+      "en": "Education level sets the wage pyramid, in the BFS's own words. The five answers are its categories, so that every one has a published median behind it."
+     },
+     "companions": [
+      "qualification_year",
+      "years_in_field"
+     ],
+     "the_free_text_stays": "«Ausbildung und Stärken» is not replaced. It remains the evidence a curator reads, and the place a person says the thing no rung has a name for."
+    },
+    "two_scores_and_why": "**There are two expertise numbers in this build and they measure different things.**\n\n`services/identities.expertise_scale` scores COMMITMENT TO LEARNING — a neutral floor of 0.5 plus credits for recent education, planned education, hours invested and a training budget. It is a faithful port of the original prototype, frozen and tested against that prototype's own reference cases, and it is what produced the E values stored for five of the ten members.\n\n`expertise` here scores QUALIFICATION LEVEL against published median wages. It is the one anchored to francs, which is why it is what feeds `earning_power`.\n\nNeither replaces the other and neither may be changed into the other: `identities` is frozen because its job is fidelity to the original, and this one is anchored because its job is to produce a wage. What must never happen is both silently feeding the same engine slot, so `services/human_capital` is the only path to `earning_power` and says so."
+   },
+   "network": {
+    "_about": "N — the people who would put a person's name forward, as a stock in [0, 1]. **Computed by `services/identities.net_scale`, not here.**",
+    "derivable_from_intake": true,
+    "from": [
+     "network_people",
+     "mandates",
+     "network_reach"
+    ],
+    "form": "saturating_exponential",
+    "formula": "N = net_scale(network_people * reach_multiplier, mandates)",
+    "knee": {
+     "_about": "What the scale means in words, for the report and for the member.",
+     "at_8_people": 0.63,
+     "at_16_people": 0.86,
+     "at_24_people": 0.95,
+     "reading": {
+      "de": "Die ersten acht Menschen bringen zwei Drittel des Nutzens. Die nächsten acht bringen ein Viertel. Danach ist es fast egal.",
+      "en": "The first eight people bring two thirds of the benefit. The next eight bring a quarter. After that it barely moves."
+     }
+    },
+    "absent_means": "Dropped with its weight, never zero. Two of the ten stated no number at all.",
+    "reach": {
+     "_about": "**Why a count alone reads a senior specialist as a weak network.** Ueli answered three people and earns 280'000. Three names from someone who runs a company is not the same network as three names from someone starting out, and the count cannot tell them apart. Adding reach was the owner's decision of 6 September 2026, and it is the ONE thing this record adds to `net_scale`: the convention underneath stays the published one.",
+     "no_source": "**These four multipliers have no source and are a guess.** The direction is evidenced — a count under-reads a senior specialist, and three real members could not be reached because of it — but the four sizes are a judgement of this house. Accepted as a working assumption on 6 September 2026 and listed in `_about.accepted_as_working_assumptions`; signing it did not make it measured.",
+     "multipliers": {
+      "im eigenen Team": 1.0,
+      "im eigenen Unternehmen": 1.5,
+      "in der Branche": 2.5,
+      "über die Branche hinaus": 4.0
+     },
+     "default_when_unanswered": 1.0,
+     "default_why": "The count alone, which is exactly what `net_scale` has always received. So a member who does not answer the new question keeps precisely the N the application already gave them, and a test asserts that against all six stored values.",
+     "intake_question": {
+      "key": "network_reach",
+      "label": {
+       "de": "Wie weit reichen diese Kontakte?",
+       "en": "How far do these contacts reach?"
+      },
+      "type": "choice",
+      "options": [
+       "im eigenen Team",
+       "im eigenen Unternehmen",
+       "in der Branche",
+       "über die Branche hinaus"
+      ],
+      "why": {
+       "de": "Drei Namen aus der Geschäftsleitung sind ein anderes Netzwerk als drei Namen aus dem eigenen Team. Die Anzahl allein kann das nicht unterscheiden.",
+       "en": "Three names from the executive floor are a different network from three names in your own team, and a count cannot tell them apart."
+      }
+     },
+     "applies_to": "the people count, before net_scale sees it"
+    },
+    "owned_by": "services/identities.net_scale, over client/content/intake-scales.json",
+    "correction": "**This section claimed until 6 September 2026 that the mapping had been RECOVERED by fitting six values set by hand in August. That was wrong.** The mapping was never lost: `services/identities.net_scale` has computed it all along, over a published record that states its own reasoning — a scale of 8 «chosen so the questionnaire's own working range separates: 1 contact -> 0.12, 3 -> 0.31, 6 -> 0.53, 15 -> 0.84», and mandates worth 0.06 each to a ceiling of 0.18 «because a board seat is a real visibility signal and three of them are not three times one». The six values were its output.\n\nThe fit reproduced the scale of 8 correctly and got the mandates wrong: it put them inside the exponent at 0.63 of a person each, which matched the one member carrying mandates and would have diverged from the real convention for everyone else. A second implementation of a published convention is the divergence this build's records exist to prevent, so this one is gone."
+   },
+   "health": {
+    "_about": "H — how much of a person's earning power is actually available, as a multiplier in [0, 1].",
+    "derivable_from_intake": true,
+    "from": [
+     "health"
+    ],
+    "formula": "H = the value the member chose, read directly",
+    "levels": {
+     "1": 1.0,
+     "1 — sehr gut": 1.0,
+     "0.85": 0.85,
+     "0.7": 0.7,
+     "0.5": 0.5,
+     "eingeschränkt": 0.35
+    },
+    "verified": "This mapping was checked against all ten members on 6 September 2026 and matched every one. H was never a derived quantity — the intake question already asks for the number the engine wants, which is why the option labels are numbers.",
+    "eingeschraenkt_why": "«eingeschränkt» is the only option that is a word rather than a number, so it is the only one this record has to decide. 0.35 is a guess of this house, accepted as a working assumption on 6 September 2026 and listed in `_about.accepted_as_working_assumptions`.",
+    "k3": {
+     "_about": "**`health` is class K3 — what a member thinks and how they are — and it now drives a financial number.** That was decided deliberately on 6 September 2026 rather than allowed to happen.",
+     "may_enter_a_computation": true,
+     "condition": "Every consumer must survive H's removal. A member who erases K3, or a caller reading under a K3 filter, gets H = None — and the computation must then drop the health term and say so, exactly as capacity drops a missing input. A mandate that silently changes when someone exercises erasure would be the worst possible way to learn this rule was never enforced.",
+     "consequence_named": "Without H the income equation loses its efficiency multiplier, so earning power is reported at full health. That OVERSTATES income, which is the direction that shows up as an unmet goal rather than as a false reassurance."
+    }
+   },
+   "time": {
+    "_about": "The budget the three capitals are built out of. Every figure here is quoted from the calibration register's decisions of 3 August 2026.",
+    "productive_week_hours": 100,
+    "productive_week_why": "Waking hours less commuting, chores, admin and non-discretionary family duties. The register supersedes an earlier 50 explicitly: at 50 the overwork threshold would land at 25 hours a week, which is absurd; at 100 it lands on 50, which is the intended reading.",
+    "productive_week_open": "The register notes that «less fixed obligations» is person-specific and that this should become a per-household input. It is a global here because it is a global there.",
+    "shares": [
+     {
+      "key": "tau_Y",
+      "label": {
+       "de": "Erwerbsarbeit",
+       "en": "Earning"
+      }
+     },
+     {
+      "key": "tau_E",
+      "label": {
+       "de": "Lernen",
+       "en": "Learning"
+      }
+     },
+     {
+      "key": "tau_N",
+      "label": {
+       "de": "Netzwerk",
+       "en": "Networking"
+      }
+     },
+     {
+      "key": "tau_H",
+      "label": {
+       "de": "Erholung",
+       "en": "Recovery"
+      }
+     },
+     {
+      "key": "leisure",
+      "label": {
+       "de": "Freie Zeit",
+       "en": "Leisure"
+      },
+      "residual": true
+     }
+    ],
+    "bounds": {
+     "max_tau_Y": 0.7,
+     "max_tau_Y_why": "A hard ceiling at 70 hours a week, where none existed — the model previously permitted a 100-hour week with an hour of leisure. Set above the 0.50 soft threshold on purpose, so the health penalty does the work across a real 50–70 hour range and the bound only forbids the physically absurd.",
+     "min_tau_H": 0.05,
+     "min_leisure": 0.05,
+     "floors_why": "Five hours a week each, as solver constraints. Without them the model could propose seventy hours of work, twenty-nine of learning and networking, zero rest and one hour of leisure, indefinitely."
+    },
+    "overwork_threshold": 0.5,
+    "overwork_why": "Fifty hours a week. Above it the health decay accelerates, which drags income — the balancing loop that makes this a model rather than an accumulation.",
+    "returns": {
+     "_about": "Three different shapes, deliberately. The register records that forcing one family on all three would have misrepresented at least two of them.",
+     "tau_N": {
+      "form": "saturating_exponential",
+      "scale": 0.1,
+      "claim": "A knee at ten hours a week: 63 % of the benefit by 10, 86 % by 20, 95 % by 30. Anything more is close to useless.",
+      "why_not_a_power_law": "A power law has constant elasticity everywhere, so at nu = 0.5 tripling networking from 10 to 30 hours still buys 1.73×, which contradicts «useless». Dropping to nu = 0.2 fixes the tail and breaks the head, making one hour already 63 % as effective as ten. Only the saturating exponential has a knee. Recorded because the wrong family was proposed twice."
+     },
+     "tau_E": {
+      "form": "saturating_exponential",
+      "scale": 0.2,
+      "claim": "A knee at twice the networking scale — deep work absorbs sustained hours before it stops paying.",
+      "why_twice": "At nineteen the author recorded thirty hours a week of learning during full-time education. Under a ten-hour scale that period would be 95 % saturated, which would claim the last twenty of those thirty hours bought almost nothing during a degree."
+     },
+     "tau_H": {
+      "form": "power",
+      "nu": 0.5,
+      "claim": "Smooth diminishing returns and no knee — long rest keeps helping, just less per hour. Doubling rest buys 1.41× the recovery, quadrupling buys 2×.",
+      "implementation_condition": "**Not optional.** Since tau_H < 1, raising it to a power increases it, so the exponent changes the level of recovery as well as its shape. `alpha_H` must be re-normalised so recovery at a reference 20 hours a week is unchanged: alpha_H_new = alpha_H / sqrt(0.20). Without that this ships a health improvement disguised as a shape correction, and every household's health path would improve for a reason nobody chose."
+     }
+    },
+    "from_intake": {
+     "_about": "What the intake can fill in today, and what it cannot.",
+     "tau_Y": "hours_per_week / productive_week_hours — asked, and answered by all ten",
+     "tau_H": "rest_hours, as a band — asked, answered by eight of ten, and a band rather than a number",
+     "tau_E": "NOT ASKED. There is no question about hours spent learning.",
+     "tau_N": "NOT ASKED. `network_people` counts people, not hours.",
+     "consequence": "Two of the four shares have no question behind them, so a time budget computed today would have to treat learning and networking as the residual or as absent. Both are wrong in different directions, and that is the gap the proposed questions below close."
+    },
+    "proposed_questions": [
+     {
+      "key": "hours_learning",
+      "label": {
+       "de": "Stunden pro Woche für Lernen und Weiterbildung",
+       "en": "Hours a week spent learning"
+      },
+      "type": "number",
+      "why": {
+       "de": "Der Knick liegt bei 20 Stunden — darunter zahlt jede zusätzliche Stunde noch deutlich.",
+       "en": "The knee is at 20 hours; below it every added hour still pays clearly."
+      }
+     },
+     {
+      "key": "hours_network",
+      "label": {
+       "de": "Stunden pro Woche für berufliche Kontakte",
+       "en": "Hours a week spent on professional contacts"
+      },
+      "type": "number",
+      "why": {
+       "de": "Der Knick liegt bei 10 Stunden. Mehr als 30 bringt fast nichts.",
+       "en": "The knee is at 10 hours. More than 30 brings almost nothing."
+      }
+     }
+    ]
+   },
+   "rest_hours_bands": {
+    "_about": "The intake asks recovery as a band. Converted to hours at the band's midpoint, and the open bands at their edge plus half a step, because a midpoint of an unbounded band does not exist.",
+    "unter 10": 5,
+    "kaum welche": 3,
+    "5–10": 7.5,
+    "10–20": 15,
+    "20–30": 25,
+    "über 30": 35,
+    "mehr als 30": 35,
+    "midpoint_warning": "A band is not a number and this record does not pretend otherwise. Every value here carries the band it came from, so a reader can see that «10–20» became 15 by convention rather than by measurement."
+   },
+   "earning_power": {
+    "_about": "How the model's earning power is anchored to published Swiss wages.",
+    "source": "Bundesamt für Statistik, «Schweizerische Lohnstrukturerhebung — Löhne 2024», BFS-Pressekonferenz, Bern, 25. November 2025. Wiedergegeben in knowledge/BFS_Lohnstrukturerhebung.md.",
+    "working_time": {
+     "_about": "**The single most important conversion in this record, and the easiest to get wrong.**",
+     "bfs_full_time_hours_per_week": 40,
+     "bfs_definition": "Die LSE rechnet jeden Lohn auf 4 1/3 Wochen zu 40 Arbeitsstunden um. Eine «100 %-Stelle» ist in dieser Statistik eine 40-Stunden-Woche.",
+     "model_productive_week_hours": 100,
+     "model_definition": "The engine's tau_Y = 1.0 means the whole productive week, which the calibration register set at 100 hours on 3 August 2026. So earning_power is income at a 100-hour week, which nobody works.",
+     "months_per_year": 12,
+     "months_why": "Twelve and not thirteen. The BFS monthly figure already contains 1/12 of the 13th month and 1/12 of annual special payments, so multiplying by 13 counts it twice. This is the most common error in reading this statistic.",
+     "factor": 30,
+     "factor_derivation": "monthly x 12 months / (40/100) = monthly x 30. A BFS monthly median becomes the model's earning_power by multiplying by 30."
+    },
+    "calibration": {
+     "_about": "One engine constant, derived rather than chosen. The engine is NOT edited: `Params` is a plain dataclass and this value is passed in.",
+     "earning_power_at_unit": 0.7207,
+     "derivation": "The engine computes skill = at_unit * E^a * N^b and interpolates geometrically between earning_power_min and earning_power_max. The BFS median for «Universitäre Hochschule, ohne Kaderfunktion» is 8'645 a month, so 259'350 at the model's convention, and that is where E at the top of the ladder must land. log(259350/50000)/log(500000/50000) = 0.7149 is the skill that reaches it; at_unit = 0.7149 / 0.98^0.4 = 0.7207.",
+     "what_it_replaces": "0.75, the engine's shipped value",
+     "the_finding": "**The engine was already calibrated to the non-Kader population and nobody knew it.** Its shipped 0.75 puts E = N = 1 at 9'372 a month; the BFS median for a university graduate without a management function is 8'645. The gap is 0.035 on one constant. What was missing was never the level — it was the responsibility dimension, which the BFS table shows is worth more than the qualification.",
+     "unchanged": {
+      "earning_power_min": 50000,
+      "earning_power_max": 500000,
+      "a": 0.5,
+      "b": 0.4
+     },
+     "unchanged_why": "The BFS ladder's top, «Universitäre Hochschule ohne Kaderfunktion» at 259'350, sits inside the existing range, so min and max need no change to carry it. The exponents a and b are the engine's and are not touched here.",
+     "anchor_network": 0.98,
+     "anchor_network_why": "**0.98 and not 1.** `identities.net_scale` ceilings at 0.98, so N = 1 is a network no member of this application can have. Anchoring the ladder there would have put every published median permanently out of reach — by 1.3 %, which is small enough to have gone unnoticed and wrong in the direction that matters. Found on 6 September 2026 when the network computation was handed back to `identities` and the calibration tests stopped passing, which is the tests doing their job."
+    },
+    "targets": {
+     "_about": "What the calibrated model must reproduce, in the model's own units. A test asserts these rather than trusting the arithmetic above.",
+     "median_gesamtwirtschaft": 210720,
+     "p10": 139050,
+     "p90": 375780,
+     "topmanager_gesamtwirtschaft": 720000,
+     "tieflohn_threshold": 140490
+    }
+   },
+   "responsibility": {
+    "_about": "**The dimension the model was missing, and the reason three real members could not be reached at any E and N.** The BFS publishes wages as a two-by-five table, not a ladder: at the same education, the function in the company moves the wage more than the qualification does.",
+    "source": "Bundesamt für Statistik, «Schweizerische Lohnstrukturerhebung — Löhne 2024», BFS-Pressekonferenz, Bern, 25. November 2025. Wiedergegeben in knowledge/BFS_Lohnstrukturerhebung.md.",
+    "derivable_from_intake": false,
+    "why_not": "The intake asks nothing about the function a person holds. This is the question to add.",
+    "the_evidence": "At «Universitäre Hochschule» the step from no management function to upper or middle Kader is 5'764 francs a month. The step from «Berufsausbildung EFZ» to «Universitäre Hochschule» without a management function is 2'483. The function is worth more than twice the qualification.",
+    "tiers": {
+     "ohne Kaderfunktion": {
+      "multiplier": 1.0,
+      "label": {
+       "de": "Keine Führungsfunktion",
+       "en": "No management function"
+      }
+     },
+     "oberes und mittleres Kader": {
+      "multiplier_by_qualification": {
+       "Universitäre Hochschule": 1.667,
+       "Fachhochschule FH": 1.403,
+       "Höhere Berufsausbildung": 1.336,
+       "Berufsausbildung (EFZ)": 1.339,
+       "Unternehmensinterne Ausbildung": 1.281
+      },
+      "label": {
+       "de": "Oberes oder mittleres Kader",
+       "en": "Upper or middle management"
+      },
+      "note": "One multiplier per qualification rather than an average, because the published table gives one per qualification and the spread is real: 1.28 to 1.67, rising with education."
+     },
+     "topmanagement": {
+      "multiplier": 2.7762,
+      "label": {
+       "de": "Oberste Führung",
+       "en": "Top management"
+      },
+      "derivation": "Each multiplier is the sector's published Topmanager wage divided by 8'645 — the university median without a management function, which is the anchor every multiplier in this record is measured against. A university graduate in that sector therefore lands exactly on the published figure.",
+      "warning": "**Not a median.** The BFS defines this as the 10 per cent of the upper Kader who earn most — a P90 within a group. Between Gastronomie and Banken lies a factor of six, which is why the sector is asked rather than assumed. Added 6 September 2026 on the owner's instruction, replacing a single whole-economy figure that was close to meaningless.",
+      "multiplier_by_sector": {
+       "Banken": 6.8632,
+       "Pharmaindustrie": 5.9654,
+       "Versicherungen": 4.1448,
+       "Informationstechnologie": 3.4772,
+       "Maschinenbau": 2.7917,
+       "Beherbergung": 1.3287,
+       "Gastronomie": 1.1521
+      },
+      "bfs_monthly_by_sector": {
+       "Banken": 59332,
+       "Pharmaindustrie": 51571,
+       "Versicherungen": 35832,
+       "Informationstechnologie": 30060,
+       "Maschinenbau": 24134,
+       "Beherbergung": 11487,
+       "Gastronomie": 9960
+      },
+      "multiplier_is_the_fallback": "The whole-economy figure of 24'000, used when no sector is given. It is not a middle value: it sits next to Maschinenbau and far below all three of the finance and pharma branches.",
+      "extrapolation_named": "For any qualification OTHER than «Universitäre Hochschule» this is an extrapolation. The BFS publishes top management by sector and not by education, so scaling it down the education ladder assumes the two act proportionally, which the source neither states nor contradicts."
+     }
+    },
+    "intake_question": {
+     "key": "kader",
+     "label": {
+      "de": "Führungsfunktion",
+      "en": "Management function"
+     },
+     "type": "choice",
+     "options": [
+      "Keine Führungsfunktion",
+      "Oberes oder mittleres Kader",
+      "Oberste Führung"
+     ],
+     "why": {
+      "de": "Bei gleicher Ausbildung entscheidet die Funktion im Unternehmen stärker über den Lohn als der Abschluss.",
+      "en": "At the same education, the function in the company decides the wage more than the qualification does."
+     }
+    },
+    "sector_question": {
+     "key": "sector",
+     "label": {
+      "de": "Branche",
+      "en": "Sector"
+     },
+     "type": "choice",
+     "asked_when": "the member states top management — it changes nothing at the other two tiers",
+     "options": [
+      "Banken",
+      "Pharmaindustrie",
+      "Versicherungen",
+      "Informationstechnologie",
+      "Maschinenbau",
+      "Beherbergung",
+      "Gastronomie",
+      "andere Branche"
+     ],
+     "why": {
+      "de": "An der Spitze liegt zwischen Gastronomie und Banken der Faktor sechs. Ohne die Branche ist eine Aussage über die oberste Führung fast leer.",
+      "en": "At the top the gap between hospitality and banking is a factor of six. Without the sector, a statement about top management says almost nothing."
+     },
+     "andere_branche_means": "the whole-economy figure of 24'000 a month"
+    },
+    "why_sector_only_at_the_top": "The BFS also publishes a median per Wirtschaftsabteilung — 10'723 for Banken against 6'616 for Baugewerbe — and it is tempting to apply that to everyone. **It would double-count.** A sector's median already contains that sector's education mix: part of the reason banking sits above construction is that more of its people hold a university degree, which the education ladder has already charged for. Multiplying the two tables counts the same effect twice. So the sector is used in exactly the one place the education table is silent, which is the top tier."
+   }
+  },
+  "property-funding": {
+   "_about": {
+    "requirement": "Four of the eleven goals across the six real submissions are property purchases, and they carry the largest figures any member wrote down. A property goal is not answered by asking whether the member can save the price: property is bought with a mortgage, against an equity floor and an affordability ceiling that bind independently, plus an occupancy rule that is not a matter of degree at all.",
+    "why_a_content_record": "Every figure here is a banking self-regulation floor or a lender test convention. None is an engine output and none is a market forecast, so services/assumptions.py has no business composing them — it reads market_signal and return_estimation and refuses to invent any value of its own. They are also emphatically not values for application code to carry: a bare 0.05 in services/ is the defect C-02 exists to prevent, and the imputed rate is the most tempting one to inline because it looks like a market rate and is not. Published here, the same way the validity horizons are.",
+    "what_a_reader_should_know": "These are the conventions lenders commonly apply, and they vary at the margin between lenders. Nothing here is a lending decision or a promise that any particular bank would lend. A finding built on this record says what the standard tests produce, and says which record it read.",
+    "published_by": "Nicolas Bürkler",
+    "decided_on": "2026-09-04",
+    "effective_from": "2026-09-04",
+    "provisional": false,
+    "_approval": "Approved as drafted by the owner on 4 September 2026, after the six real submissions were run against it. The 20 % and 10 % are self-regulation; the 30 % for a second or holiday home and the 25 % for a let property are market practice and were approved knowing they vary more widely between lenders than anything else here. services/property.py refuses to compute anything from this record if `provisional` returns to true or `published_by` is emptied.",
+    "sources": [
+     "Swiss Bankers Association self-regulation on mortgage financing (minimum equity, and the exclusion of pillar 2 assets from the hard-equity portion)",
+     "BVG/OPA and BVV3 on early withdrawal for residential property — Wohneigentumsförderung, restricted to a property the member occupies themselves",
+     "Common lender practice for the affordability test: an imputed rate well above the market rate, plus maintenance, plus amortisation of the portion above the first mortgage"
+    ]
+   },
+   "occupancy": {
+    "_about": "The three ways a member can hold a property, and the only thing that decides whether pension capital may fund it. NOT derivable from the goal's name: the six submissions wrote «Wohneigentum», «Eigenheim», «Eigentum kaufen» and «Ferienhaus kaufen», and only the last is unambiguous. One member's goal says Wohneigentum while their own question describes letting it out, so even a single member has to be asked.",
+    "owner_occupied_primary": {
+     "label": {
+      "de": "Ich wohne selbst darin",
+      "en": "I live in it myself",
+      "en_draft": true
+     },
+     "equity_min": 0.2,
+     "hard_equity_min": 0.1,
+     "pillar2_may_fund": true,
+     "pillar3a_may_fund": true,
+     "why": "The only case in which pillar 2 and pillar 3a may be drawn or pledged at all. Pillar 3a counts toward the hard-equity portion; pillar 2 does not, so the occupational pension can cover at most half the deposit."
+    },
+    "second_or_holiday_home": {
+     "label": {
+      "de": "Ein Zweit- oder Ferienobjekt",
+      "en": "A second home or holiday property",
+      "en_draft": true
+     },
+     "equity_min": 0.3,
+     "hard_equity_min": 0.3,
+     "pillar2_may_fund": false,
+     "pillar3a_may_fund": false,
+     "why": "Not a primary residence, so no Vorsorge capital may be used — the whole deposit is hard equity. Lenders also require more of it than for a home the member lives in, and the 30 % here is the common floor rather than a rule with a statute behind it.",
+     "_provisional_note": "The 20 % and 10 % above are self-regulation. This 30 % is market practice and varies more widely between lenders than anything else in this record."
+    },
+    "let_to_someone_else": {
+     "label": {
+      "de": "Ich vermiete es",
+      "en": "I let it out",
+      "en_draft": true
+     },
+     "equity_min": 0.25,
+     "hard_equity_min": 0.25,
+     "pillar2_may_fund": false,
+     "pillar3a_may_fund": false,
+     "affordability_is_determinable": false,
+     "affordability_undeterminable_why": "The income that carries a let property is substantially its rent, and rental income is in `not_modelled`. An affordability test computed without it does not understate the member's position slightly -- it omits the whole point of the purchase, and would report `does_not_meet` on a calculation the lender would not recognise. Machine-readable form of what `_provisional_note` below has said since this record was approved.",
+     "why": "An investment property, not a residence, so again no Vorsorge capital. Lenders commonly want a quarter down and assess the rent conservatively rather than counting it in full.",
+     "_provisional_note": "Rental income is deliberately NOT modelled here. Counting it would change the affordability test's shape rather than its numbers, and how conservatively a lender haircuts a rent is a per-lender judgement nobody has published. A finding for this occupancy reports the equity test and says the affordability test could not be determined, rather than guessing."
+    }
+   },
+   "affordability": {
+    "_about": "The Tragbarkeit test. Its whole purpose is that it is computed at a rate the member is NOT paying: a mortgage stays affordable at a rate well above today's. Reporting it against an actual rate would defeat the test.",
+    "imputed_rate": 0.05,
+    "imputed_rate_why": "A test convention, not a forecast and not a market rate. It is deliberately higher than any rate on offer, so that a loan taken today survives a rate it may meet later. This figure is the one most often inlined by mistake, which is why C-02's argument is repeated here.",
+    "maintenance_and_ancillary": 0.01,
+    "maintenance_why": "Upkeep, ancillary charges and the reserve a lender assumes, as a fraction of the purchase price per year.",
+    "max_share_of_gross_income": 0.3333333333333333,
+    "max_share_why": "One third of gross household income. A household figure, not a member figure — which is why this test needs the household model and cannot be computed from one member's income where a couple is buying together.",
+    "first_mortgage_max": 0.6666666666666666,
+    "amortisation_years": 15,
+    "amortisation_why": "The portion of the loan above the first mortgage must be repaid within this many years, and that repayment counts in the affordability test rather than sitting outside it."
+   },
+   "not_modelled": {
+    "_about": "Named rather than approximated. Each of these would change a figure this record produces, and inventing any of them would put a number in front of a member that no source stands behind.",
+    "items": [
+     "Rental income on a let property, and the haircut a lender applies to it.",
+     "The reduction in pension benefit and in death or disability cover that follows a pillar 2 withdrawal — real, member-specific, and not derivable from a balance alone.",
+     "The pillar 2 withdrawal limits that apply from age 50, which cap the amount at the higher of the balance at 50 or half the current balance.",
+     "The minimum withdrawal of CHF 20'000 and the five-year interval between withdrawals.",
+     "Tax on a pillar 2 or 3a withdrawal, and the deduction lost on a 3a no longer held.",
+     "Cantonal and lender variation in every figure above.",
+     "Imputed rental value (Eigenmietwert) and the tax treatment of mortgage interest, which change the true cost of holding a property and are not part of the lender's test."
+    ]
+   }
+  }
+ }
+}

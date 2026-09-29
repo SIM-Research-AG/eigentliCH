@@ -1,0 +1,223 @@
+{
+ "contract_version": "lbs-request@1.0.0",
+ "client_ref": "lbsim-sample",
+ "as_of": "2026-09-28",
+ "calibration_version": null,
+ "household": {
+  "composition_as_of": "2026-09-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 38,
+    "stated_gross_income": 128000.0,
+    "human_capital": {
+     "qualification_highest": "Fachhochschule FH",
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": "nein",
+     "network_people": 10.0,
+     "mandates": 0.0,
+     "network_reach": null,
+     "health": "0.85",
+     "health_withheld": false,
+     "hours_per_week": 42.0,
+     "rest_hours": "10–20",
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": null
+    },
+    "earning_power": {
+     "expected_full_pensum_income": 135000.0,
+     "responsibility": "Oberes oder mittleres Kader",
+     "sector": "Informationstechnologie",
+     "education_status": "none",
+     "education_end_year": null,
+     "education_hours": null,
+     "education_budget_per_year": null,
+     "health_work_capacity": null
+    }
+   },
+   {
+    "person_id": "p2",
+    "kind": "adult",
+    "age": 36,
+    "stated_gross_income": 92000.0,
+    "human_capital": {
+     "qualification_highest": "Universitäre Hochschule",
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": null,
+     "network_people": 6.0,
+     "mandates": 0.0,
+     "network_reach": null,
+     "health": "1",
+     "health_withheld": false,
+     "hours_per_week": 34.0,
+     "rest_hours": null,
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": null
+    },
+    "earning_power": null
+   },
+   {
+    "person_id": "c1",
+    "kind": "dependant",
+    "age": 4,
+    "stated_gross_income": null,
+    "human_capital": {
+     "qualification_highest": null,
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": null,
+     "network_people": null,
+     "mandates": null,
+     "network_reach": null,
+     "health": null,
+     "health_withheld": false,
+     "hours_per_week": null,
+     "rest_hours": null,
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": null
+    },
+    "earning_power": null
+   }
+  ],
+  "principal": "p1"
+ },
+ "positions": [
+  {
+   "position_id": "a1",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 40000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a2",
+   "role": "gain",
+   "capital_type": "financial",
+   "magnitude": 60000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a3",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 95000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a4",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 22000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_3a",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a5",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 40000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p2",
+   "active": true,
+   "funds_goals": []
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g-home",
+   "kind": "property",
+   "target_amount": 1350000.0,
+   "target_date": "2029-12-31",
+   "occupancy": "owner_occupied_primary",
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  },
+  {
+   "goal_id": "g-ret",
+   "kind": "retirement",
+   "target_amount": 120000.0,
+   "target_date": "2053-12-31",
+   "occupancy": null,
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  }
+ ],
+ "facts": {
+  "canton": "Zürich",
+  "civil_status": "verheiratet",
+  "has_no_liabilities": true,
+  "stop_work_age": null,
+  "legal_documents": [
+   "Vorsorgeauftrag"
+  ],
+  "mortgage_fixed_until": null,
+  "amortisation_mode": null,
+  "own_use_share": null,
+  "pillar3a_contribution_per_year": 7258.0
+ },
+ "risk": {
+  "stated_loss": 0.2,
+  "crisis_behaviour": null,
+  "esg_exclusions": [],
+  "esg_level": null,
+  "employment": null,
+  "liquidity_reserve_months": null,
+  "spend_now_per_year": 118000.0,
+  "variable_income_per_year": null,
+  "gross_income_per_year": 220000.0,
+  "mandates": null,
+  "plan_until_age": 90.0,
+  "mortgage": 0.0,
+  "mortgage_rate_pct": null,
+  "amortisation_per_year": null
+ },
+ "mandate": {
+  "goal_id": "g-home",
+  "annual_contribution": 30000.0,
+  "name": null,
+  "contribution_indexed": null
+ }
+}

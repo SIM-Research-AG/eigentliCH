@@ -1,0 +1,953 @@
+{
+ "contract_version": "pcp-allocation@1.0.0",
+ "artefact_id": "PCP-5304eca69cc0e867",
+ "regime_id": "RGM-e2658e8e9bbbc81e",
+ "return_set_id": "RS-c472e411e39645f5",
+ "currency": "CHF",
+ "mandate_id": "MAN-10bec68e01d3ea03",
+ "client": "bench",
+ "mandate_name": "balanced",
+ "date": "2026-01-31",
+ "speed_mode": "exact",
+ "calibration_version": "1.1.0",
+ "release_state": "unreleased",
+ "instruments": [
+  {
+   "instrument_id": "INS-aktien-europe-aktiv",
+   "name": "Aktien Europe aktiv",
+   "role": "Gain",
+   "weight": 1.5483492195525981e-16,
+   "raw_weight": 1.5483492195526008e-16,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-apac-equities",
+   "name": "APAC Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-asean-equities",
+   "name": "ASEAN Equities",
+   "role": "Gain",
+   "weight": 7.870387196642079e-17,
+   "raw_weight": 7.870387196642093e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-asia-ex-japan-tr",
+   "name": "Asia ex Japan TR",
+   "role": "Gain",
+   "weight": 0.14999999999999972,
+   "raw_weight": 0.15,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-asia-long-short-equities",
+   "name": "Asia Long Short Equities",
+   "role": "Stabilisation",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-asia-multi-strategy-hf",
+   "name": "Asia Multi Strategy HF",
+   "role": "Stabilisation",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-asia-pacific-arbitrage",
+   "name": "Asia Pacific Arbitrage",
+   "role": "Stabilisation",
+   "weight": 1.4064189697504325e-16,
+   "raw_weight": 1.406418969750435e-16,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-asian-jaci-bond-index",
+   "name": "Asian JACI Bond Index",
+   "role": "Income",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-au-nz-equities",
+   "name": "AU NZ Equities",
+   "role": "Gain",
+   "weight": 2.2150269085067756e-16,
+   "raw_weight": 2.2150269085067795e-16,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-bloomberg-hedge-fund",
+   "name": "Bloomberg Hedge Fund",
+   "role": "Stabilisation",
+   "weight": 3.7609608097354296e-19,
+   "raw_weight": 3.7609608097354363e-19,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-bloomberg-market-neutral-hf",
+   "name": "Bloomberg Market Neutral HF",
+   "role": "Stabilisation",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-bloomberg-multiverse-h-chf",
+   "name": "Bloomberg Multiverse (H-CHF)",
+   "role": "Protection",
+   "weight": 1.1046984283585318e-16,
+   "raw_weight": 1.1046984283585338e-16,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-ch-equities",
+   "name": "CH Equities",
+   "role": "Gain",
+   "weight": 3.727344017827645e-17,
+   "raw_weight": 3.7273440178276515e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-chf-cash",
+   "name": "CHF Cash",
+   "role": "Protection",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-chf-corporate-loans-ig",
+   "name": "CHF Corporate Loans IG",
+   "role": "Income",
+   "weight": 1.3400173347761266e-16,
+   "raw_weight": 1.340017334776129e-16,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-china-a-shares",
+   "name": "China A Shares",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-china-equities",
+   "name": "China Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-commodities",
+   "name": "Commodities",
+   "role": "Stabilisation",
+   "weight": 6.43490113285676e-17,
+   "raw_weight": 6.434901132856772e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-digital-assets",
+   "name": "Digital Assets",
+   "role": "Gain",
+   "weight": 0.14999999999999958,
+   "raw_weight": 0.14999999999999986,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-em-equities",
+   "name": "EM Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-em-government-bonds-lc",
+   "name": "EM Government Bonds LC",
+   "role": "Income",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-eu-equities",
+   "name": "EU Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-eur-cash",
+   "name": "EUR Cash",
+   "role": "Protection",
+   "weight": 0.10000000000000042,
+   "raw_weight": 0.1000000000000006,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-eur-corporate-loans-ig",
+   "name": "EUR  Corporate Loans IG",
+   "role": "Income",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-fixed-holding",
+   "name": "Fixed Holding",
+   "role": "Gain",
+   "weight": 8.590014720577719e-17,
+   "raw_weight": 8.590014720577734e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-fundo-world-equity",
+   "name": "Fundo World Equity",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-global-bonds",
+   "name": "Global Bonds",
+   "role": "Income",
+   "weight": 1.2191862710617796e-17,
+   "raw_weight": 1.2191862710617817e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-global-equities",
+   "name": "Global Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-global-governmental-bonds",
+   "name": "Global Governmental Bonds",
+   "role": "Protection",
+   "weight": 4.5265743664145404e-17,
+   "raw_weight": 4.5265743664145484e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-global-high-yields",
+   "name": "Global High Yields",
+   "role": "Income",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-global-macro",
+   "name": "Global Macro",
+   "role": "Stabilisation",
+   "weight": 2.2030227814357919e-16,
+   "raw_weight": 2.2030227814357958e-16,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-global-real-estate-indirect",
+   "name": "Global Real Estate indirect",
+   "role": "Income",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-hang-seng-index",
+   "name": "Hang Seng Index",
+   "role": "Gain",
+   "weight": 3.361993068640853e-17,
+   "raw_weight": 3.361993068640859e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-india-equities",
+   "name": "India Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-infrastructure",
+   "name": "Infrastructure",
+   "role": "Income",
+   "weight": 4.580594296374665e-18,
+   "raw_weight": 4.580594296374674e-18,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-japan-equities",
+   "name": "Japan Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-long-volatility-index",
+   "name": "Long Volatility Index",
+   "role": "Protection",
+   "weight": 0.14999999999999972,
+   "raw_weight": 0.15,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-mining-equities",
+   "name": "Mining Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-msci-ac-world-imi",
+   "name": "MSCI AC World IMI",
+   "role": "Gain",
+   "weight": 0.1499999999999996,
+   "raw_weight": 0.14999999999999988,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-precious-metals",
+   "name": "Precious Metals",
+   "role": "Protection",
+   "weight": 0.14999999999999972,
+   "raw_weight": 0.15,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-private-debt",
+   "name": "Private Debt",
+   "role": "Income",
+   "weight": 3.361993068640854e-17,
+   "raw_weight": 3.3619930686408604e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-private-equity",
+   "name": "Private Equity",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-real-estate-direct",
+   "name": "Real Estate direct",
+   "role": "Income",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-structured-products",
+   "name": "Structured Products",
+   "role": "Income",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-swiss-dividend-equity",
+   "name": "Swiss Dividend Equity",
+   "role": "Gain",
+   "weight": 3.361993068640854e-17,
+   "raw_weight": 3.3619930686408604e-17,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-swiss-performance-index",
+   "name": "Swiss Performance Index",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-sxi-real-estate",
+   "name": "SXI Real Estate",
+   "role": "Income",
+   "weight": 1.9742142878594092e-17,
+   "raw_weight": 1.9742142878594126e-17,
+   "coverage": "seed"
+  },
+  {
+   "instrument_id": "INS-trend-following",
+   "name": "Trend Following",
+   "role": "Stabilisation",
+   "weight": 3.361993068640853e-17,
+   "raw_weight": 3.361993068640859e-17,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-uk-equities",
+   "name": "UK Equities",
+   "role": "Gain",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-us-equities",
+   "name": "US Equities",
+   "role": "Gain",
+   "weight": 0.1499999999999997,
+   "raw_weight": 0.14999999999999997,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-us-treasury-tr-index",
+   "name": "US Treasury TR Index",
+   "role": "Protection",
+   "weight": 1.030088697254807e-16,
+   "raw_weight": 1.0300886972548088e-16,
+   "coverage": "shape-scaled"
+  },
+  {
+   "instrument_id": "INS-usd-cash",
+   "name": "USD Cash",
+   "role": "Protection",
+   "weight": 0.0,
+   "raw_weight": 0.0,
+   "coverage": "shape-scaled"
+  }
+ ],
+ "raw_weight_sum": 1.0000000000000018,
+ "budget_met": true,
+ "weights_by_role": {
+  "Gain": 0.5999999999999992,
+  "Income": 2.0413626404960775e-16,
+  "Stabilisation": 4.592892132145721e-16,
+  "Protection": 0.40000000000000013
+ },
+ "portfolio_map": {
+  "roles": [
+   "Gain",
+   "Income",
+   "Stabilisation",
+   "Protection"
+  ],
+  "scenarios": [
+   "Crisis",
+   "Contraction",
+   "Stagnation",
+   "Expansion",
+   "Boom"
+  ],
+  "grid": [
+   [
+    0.0,
+    0.14999999999999958,
+    1.1952007789218573e-16,
+    0.4499999999999995,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    2.4322737174968757e-17,
+    1.7981352687463899e-16,
+    0.0
+   ],
+   [
+    1.7426182766145179e-16,
+    6.472510740954115e-17,
+    0.0,
+    2.2030227814357919e-16,
+    0.0
+   ],
+   [
+    0.29999999999999943,
+    0.10000000000000052,
+    1.557355864999986e-16,
+    0.0,
+    0.0
+   ]
+  ]
+ },
+ "curves": {
+  "target": [
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02,
+   0.02
+  ],
+  "achieved": [
+   -0.015767181361260287,
+   -0.004838034819744172,
+   0.009850706956873666,
+   0.02474407534131866,
+   0.038727716034612336,
+   0.0519330640620464,
+   0.06454993601406578,
+   0.0769315623878524,
+   0.08949901534644085,
+   0.1015327581869657,
+   0.1118628048665539,
+   0.11914180697699,
+   0.12305154896484069,
+   0.12440601181485506,
+   0.12562893954179927,
+   0.12754887670393805,
+   0.13037418756421665,
+   0.1351166185425233,
+   0.1443677404537643,
+   0.15940296041097168,
+   0.18003173268374079,
+   0.2047703391379815,
+   0.23182749183083762,
+   0.25779110476231704,
+   0.27493959728281997
+  ],
+  "shortfall_by_state": [
+   1.0411325803110936,
+   1.0403852786151147,
+   1.0395105333386299,
+   1.0389728490158567,
+   1.0385382524628237,
+   1.0400000000000005,
+   1.0400000000000005,
+   1.0383229367470719,
+   1.0369175860759765,
+   1.0364843039296208,
+   1.0362413873704457,
+   1.035651970995756,
+   1.0348179005618894,
+   1.0342471324015636,
+   1.033904502571945,
+   1.0335475503440972,
+   1.0323872552754145,
+   1.0309202001838795,
+   1.0306684912410102,
+   1.0320631910389928,
+   1.0340682254627453,
+   1.0356966840279969,
+   1.036283464571405,
+   1.0362335672218221,
+   1.0272044209841664
+  ],
+  "regime": [
+   0.07183150146771085,
+   0.0796353539131044,
+   0.04968848058453857,
+   0.04151098677057496,
+   0.0377442226613716,
+   0.0,
+   0.0,
+   0.0217994175715994,
+   0.03444075794680133,
+   0.03462622441424931,
+   0.03360020012048279,
+   0.03649456991267797,
+   0.042113240196525625,
+   0.04624268163984254,
+   0.04851985100158661,
+   0.05058805551757734,
+   0.058391502695549186,
+   0.06719972653299736,
+   0.06463707702053356,
+   0.04979085043681262,
+   0.03294849440612565,
+   0.021015328636555586,
+   0.016031469776274412,
+   0.014610406288653864,
+   0.0465396004878544
+  ]
+ },
+ "diagnostics": {
+  "objective": 26.82067375508583,
+  "objective_floor": 27.040000000000028,
+  "weight_leverage": 0.008111177696530915,
+  "solver_method": "SLSQP",
+  "solver_status": "Optimization terminated successfully",
+  "iterations": 13,
+  "success": true,
+  "constraint_rows": 75,
+  "binding": [
+   {
+    "row": 1,
+    "dimension": "currency",
+    "category": "CHF",
+    "side": "floor",
+    "bound": 0.3,
+    "realised": 0.30000000000000004
+   },
+   {
+    "row": 7,
+    "dimension": "currency",
+    "category": "RMB",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": -0.0
+   },
+   {
+    "row": 9,
+    "dimension": "currency",
+    "category": "GBP",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": -0.0
+   },
+   {
+    "row": 11,
+    "dimension": "currency",
+    "category": "JPY",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": -0.0
+   },
+   {
+    "row": 13,
+    "dimension": "currency",
+    "category": "HKD",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 3.361993068640853e-17
+   },
+   {
+    "row": 15,
+    "dimension": "currency",
+    "category": "AUD",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 2.2150269085067756e-16
+   },
+   {
+    "row": 17,
+    "dimension": "currency",
+    "category": "INR",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": -0.0
+   },
+   {
+    "row": 19,
+    "dimension": "currency",
+    "category": "Others",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": -0.0
+   },
+   {
+    "row": 21,
+    "dimension": "region",
+    "category": "Switzerland",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 2.246372472208918e-16
+   },
+   {
+    "row": 27,
+    "dimension": "region",
+    "category": "South Asia",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": -0.0
+   },
+   {
+    "row": 31,
+    "dimension": "region",
+    "category": "South Pacific",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 2.2150269085067756e-16
+   },
+   {
+    "row": 36,
+    "dimension": "role",
+    "category": "Gain",
+    "side": "ceiling",
+    "bound": 0.6,
+    "realised": 0.5999999999999993
+   },
+   {
+    "row": 37,
+    "dimension": "role",
+    "category": "Income",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 2.0413626404960775e-16
+   },
+   {
+    "row": 39,
+    "dimension": "role",
+    "category": "Stabilisation",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 4.592892132145721e-16
+   },
+   {
+    "row": 42,
+    "dimension": "role",
+    "category": "Protection",
+    "side": "ceiling",
+    "bound": 0.4,
+    "realised": 0.40000000000000013
+   },
+   {
+    "row": 44,
+    "dimension": "capital_type",
+    "category": "Financial",
+    "side": "ceiling",
+    "bound": 1.0,
+    "realised": 1.0
+   },
+   {
+    "row": 45,
+    "dimension": "capital_type",
+    "category": "Real",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 1.1022288438074594e-16
+   },
+   {
+    "row": 47,
+    "dimension": "capital_type",
+    "category": "Others",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": -0.0
+   },
+   {
+    "row": 53,
+    "dimension": "liquidity",
+    "category": "Yearly",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 5.79426678613773e-17
+   },
+   {
+    "row": 55,
+    "dimension": "liquidity",
+    "category": "Decade",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 8.590014720577719e-17
+   },
+   {
+    "row": 62,
+    "dimension": "phase",
+    "category": "Optimisation",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 1.4064189697504325e-16
+   },
+   {
+    "row": 68,
+    "dimension": "asset_class",
+    "category": "Fixed Income",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 4.385579831001183e-16
+   },
+   {
+    "row": 72,
+    "dimension": "asset_class",
+    "category": "Real Assets",
+    "side": "floor",
+    "bound": 0.0,
+    "realised": 1.9742142878594092e-17
+   }
+  ],
+  "exposures": {
+   "currency": {
+    "CHF": 0.30000000000000004,
+    "USD": 0.599999999999999,
+    "EUR": 0.1000000000000007,
+    "RMB": 0.0,
+    "GBP": 0.0,
+    "JPY": 0.0,
+    "HKD": 3.361993068640853e-17,
+    "AUD": 2.2150269085067756e-16,
+    "INR": 0.0,
+    "Others": 0.0
+   },
+   "region": {
+    "Switzerland": 2.246372472208918e-16,
+    "Europe": 0.10000000000000057,
+    "East Asia": 0.14999999999999997,
+    "South Asia": 0.0,
+    "North America": 0.2999999999999995,
+    "South Pacific": 2.2150269085067756e-16,
+    "Others": 0.44999999999999946
+   },
+   "role": {
+    "Gain": 0.5999999999999993,
+    "Income": 2.0413626404960775e-16,
+    "Stabilisation": 4.592892132145721e-16,
+    "Protection": 0.40000000000000013
+   },
+   "capital_type": {
+    "Financial": 1.0,
+    "Real": 1.1022288438074594e-16,
+    "Others": 0.0
+   },
+   "liquidity": {
+    "Daily": 0.8499999999999998,
+    "Quarterly": 0.15000000000000008,
+    "Yearly": 5.79426678613773e-17,
+    "Decade": 8.590014720577719e-17
+   },
+   "phase": {
+    "Foundation": 0.1499999999999996,
+    "Build-up": 0.2999999999999994,
+    "Optimisation": 1.4064189697504325e-16,
+    "Saturation": 0.5500000000000008
+   },
+   "asset_class": {
+    "Cash": 0.10000000000000042,
+    "Fixed Income": 4.385579831001183e-16,
+    "Equity": 0.4499999999999997,
+    "Real Assets": 1.9742142878594092e-17,
+    "Alternative": 0.44999999999999946
+   }
+  },
+  "esg": 1.0,
+  "notes": [
+   "the weights control 0.81% of the objective (objective 26.8207 against a floor of 27.04 with nothing allocated): the allocation is driven mainly by the constraints, the curve fit acting as a tie-breaker (per-instrument objective, D28)"
+  ]
+ },
+ "coverage": {
+  "profile_methods": {
+   "INS-aktien-europe-aktiv": "seed",
+   "INS-apac-equities": "shape-scaled",
+   "INS-asean-equities": "shape-scaled",
+   "INS-asia-ex-japan-tr": "shape-scaled",
+   "INS-asia-long-short-equities": "seed",
+   "INS-asia-multi-strategy-hf": "seed",
+   "INS-asia-pacific-arbitrage": "seed",
+   "INS-asian-jaci-bond-index": "seed",
+   "INS-au-nz-equities": "shape-scaled",
+   "INS-bloomberg-hedge-fund": "shape-scaled",
+   "INS-bloomberg-market-neutral-hf": "shape-scaled",
+   "INS-bloomberg-multiverse-h-chf": "shape-scaled",
+   "INS-ch-equities": "shape-scaled",
+   "INS-chf-cash": "shape-scaled",
+   "INS-chf-corporate-loans-ig": "seed",
+   "INS-china-a-shares": "shape-scaled",
+   "INS-china-equities": "shape-scaled",
+   "INS-commodities": "shape-scaled",
+   "INS-digital-assets": "shape-scaled",
+   "INS-em-equities": "shape-scaled",
+   "INS-em-government-bonds-lc": "shape-scaled",
+   "INS-eu-equities": "shape-scaled",
+   "INS-eur-cash": "seed",
+   "INS-eur-corporate-loans-ig": "seed",
+   "INS-fixed-holding": "shape-scaled",
+   "INS-fundo-world-equity": "shape-scaled",
+   "INS-global-bonds": "shape-scaled",
+   "INS-global-equities": "shape-scaled",
+   "INS-global-governmental-bonds": "shape-scaled",
+   "INS-global-high-yields": "shape-scaled",
+   "INS-global-macro": "shape-scaled",
+   "INS-global-real-estate-indirect": "shape-scaled",
+   "INS-hang-seng-index": "shape-scaled",
+   "INS-india-equities": "shape-scaled",
+   "INS-infrastructure": "shape-scaled",
+   "INS-japan-equities": "shape-scaled",
+   "INS-long-volatility-index": "shape-scaled",
+   "INS-mining-equities": "shape-scaled",
+   "INS-msci-ac-world-imi": "shape-scaled",
+   "INS-precious-metals": "shape-scaled",
+   "INS-private-debt": "shape-scaled",
+   "INS-private-equity": "shape-scaled",
+   "INS-real-estate-direct": "seed",
+   "INS-structured-products": "seed",
+   "INS-swiss-dividend-equity": "seed",
+   "INS-swiss-performance-index": "shape-scaled",
+   "INS-sxi-real-estate": "seed",
+   "INS-trend-following": "shape-scaled",
+   "INS-uk-equities": "shape-scaled",
+   "INS-us-equities": "shape-scaled",
+   "INS-us-treasury-tr-index": "shape-scaled",
+   "INS-usd-cash": "shape-scaled"
+  },
+  "weight_on_weak_profiles": 0.1000000000000009,
+  "warnings": [
+   "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)",
+   "the weights control 0.81% of the objective (objective 26.8207 against a floor of 27.04 with nothing allocated): the allocation is driven mainly by the constraints, the curve fit acting as a tie-breaker (per-instrument objective, D28)",
+   "10.0% of the weight is on instruments whose profiles rest on borrowed or seeded values (PCP-07)"
+  ]
+ },
+ "provenance": {
+  "regime_id": "RGM-e2658e8e9bbbc81e",
+  "return_set_id": "RS-c472e411e39645f5",
+  "currency": "CHF",
+  "snapshot_id": "bloomberg-2026-01-05",
+  "as_of": "2026-01-31",
+  "date": "2026-01-31",
+  "upstream": {
+   "aggregation:artefact": "AGG-19e06ace80bd6cfb",
+   "aggregation:calibration": "1.2.0",
+   "aggregation:optimism": "default",
+   "aggregation:sha256": "263c80c07c5175c0fe19f01910c9ada1b6dba38251c9c1b3254f14cdd3d10f20",
+   "fmre:return_set": "RS-c472e411e39645f5",
+   "fmre:calibration": "CAL-69d9d1ee5245ac71",
+   "fmre:engine": "fm@1.0.0",
+   "fmre:currency": "CHF",
+   "fmre:sha256": "41b30aa53fd3084e3f80a2fbdf2ae66232deddabe5062c8c4551994bbec59918"
+  },
+  "regime_weights": {
+   "CH": 0.5,
+   "EU": 0.3,
+   "US": 0.2
+  },
+  "regime_market": null,
+  "mandate_id": "MAN-10bec68e01d3ea03",
+  "engine_version": "pcp@1.2.0",
+  "contract_versions": {
+   "Mandate": "pcp-mandate@1.0.0",
+   "PCPRunRequest": "pcp-run@1.0.0",
+   "Allocation": "pcp-allocation@1.0.0",
+   "ValidationReport": "pcp-validation@1.0.0",
+   "Calibration": "pcp-calibration@1.0.0",
+   "Regime(aggregation)": "aggregation-regime@1.0.0",
+   "ReturnSet(fmre)": "rs@1.0.0",
+   "InstrumentOut(fmre)": "fmre-register (unversioned)"
+  },
+  "calibration_version": "1.1.0",
+  "calibration_hash": "CAL-b0f853aa18c99ad1",
+  "idempotency_key": "IDK-8dcc184cec2da2c6",
+  "speed_mode": "exact",
+  "label": "model-derived"
+ },
+ "notice": "Model-derived research output. Not investment advice."
+}

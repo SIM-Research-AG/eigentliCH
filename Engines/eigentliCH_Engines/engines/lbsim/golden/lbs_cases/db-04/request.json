@@ -1,0 +1,160 @@
+{
+ "contract_version": "lbs-request@1.0.0",
+ "client_ref": "db-04",
+ "as_of": "2026-09-28",
+ "calibration_version": null,
+ "household": {
+  "composition_as_of": "2026-09-21",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 67,
+    "stated_gross_income": 38000.0,
+    "human_capital": {
+     "qualification_highest": null,
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": "nein",
+     "network_people": 9.0,
+     "mandates": 0.0,
+     "network_reach": null,
+     "health": "0.75",
+     "health_withheld": false,
+     "hours_per_week": 20.0,
+     "rest_hours": "mehr als 30",
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": 4
+    },
+    "earning_power": null
+   }
+  ],
+  "principal": "p1"
+ },
+ "positions": [
+  {
+   "position_id": "a1",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 38000.0,
+   "unit": "chf_per_year",
+   "stock_kind": null,
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a2",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 110000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a3",
+   "role": "gain",
+   "capital_type": "financial",
+   "magnitude": 85000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a4",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 340000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a5",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 125000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_3a",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g1",
+   "kind": "other",
+   "target_amount": 62000.0,
+   "target_date": "2031-12-31",
+   "occupancy": null,
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  },
+  {
+   "goal_id": "g2",
+   "kind": "other",
+   "target_amount": null,
+   "target_date": "2027-12-31",
+   "occupancy": null,
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  }
+ ],
+ "facts": {
+  "canton": "Zürich",
+  "civil_status": "verwitwet",
+  "has_no_liabilities": false,
+  "stop_work_age": null,
+  "legal_documents": null,
+  "mortgage_fixed_until": null,
+  "amortisation_mode": null,
+  "own_use_share": null,
+  "pillar3a_contribution_per_year": null
+ },
+ "risk": {
+  "stated_loss": 0.05,
+  "crisis_behaviour": "alles verkauft",
+  "esg_exclusions": [],
+  "esg_level": null,
+  "employment": "angestellt",
+  "liquidity_reserve_months": null,
+  "spend_now_per_year": 64000.0,
+  "variable_income_per_year": 0.0,
+  "gross_income_per_year": 38000.0,
+  "mandates": 0,
+  "plan_until_age": 95.0,
+  "mortgage": null,
+  "mortgage_rate_pct": null,
+  "amortisation_per_year": null
+ },
+ "mandate": {
+  "goal_id": "g1",
+  "annual_contribution": 0.0,
+  "name": null,
+  "contribution_indexed": null
+ }
+}

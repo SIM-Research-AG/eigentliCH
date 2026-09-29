@@ -1,0 +1,63 @@
+{
+ "schema_version": "onb@0.1.3",
+ "meta": {
+  "collected": "2026-08-20",
+  "source": "test"
+ },
+ "state": {
+  "age": 48,
+  "W_L": 35000.0,
+  "W_R": 0.0,
+  "W_res": 0.0,
+  "W_hol": 0.0,
+  "D": 0.0,
+  "W_P": 60000.0,
+  "W_3a": 0.0,
+  "H": 0.9,
+  "N": 0.5,
+  "E": 0.5
+ },
+ "params": {
+  "G": 80000.0,
+  "ahv_record_share": 1.0,
+  "epsilon": 0.1,
+  "pillar3a_contribution": 0.0,
+  "p_A": null
+ },
+ "goals": [
+  {
+   "kind": "retirement",
+   "description": "Ausgaben ab 65 gedeckt",
+   "target_year": 2046,
+   "amount_chf": 90000.0,
+   "confidence": 0.9,
+   "is_consumption": false
+  }
+ ],
+ "asks": [],
+ "derived_notes": [],
+ "raw": {
+  "birth_year": 1978,
+  "canton": "Genf",
+  "income_gross": 130000.0,
+  "spend_now": 82000.0,
+  "spend_later": 80000.0,
+  "savings": 62000.0,
+  "hours_per_week": 60,
+  "work_years_current": 24,
+  "pillar2": 500000.0,
+  "pillar3a": 0.0,
+  "mortgage": 300000.0,
+  "mortgage_rate": 2.0,
+  "property_total": 1000000.0,
+  "civil_status": "geschieden",
+  "household": "mit Partnerin und Kindern",
+  "legal_docs": null,
+  "other_kinds": [],
+  "amortisation_mode": "direkt",
+  "expected_return_pct": "5 %",
+  "max_loss_pct": "20 %",
+  "company_value": 450000.0,
+  "loans_given": 30000.0
+ }
+}

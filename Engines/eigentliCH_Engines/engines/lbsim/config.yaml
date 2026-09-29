@@ -1,0 +1,98 @@
+# LifeBalance Simulator (lbsim, Engine 14): configuration.
+#
+# Committed, so it never holds a password. Keep the local container's password in config.local.yaml
+# (git-ignored) or set LBSIM_DB_PASSWORD. Precedence, lowest to highest:
+#
+#   this file  <  config.local.yaml  <  LBSIM_DATABASE_URL / DATABASE_URL  <  LBSIM_*
+#
+# What lives where. This file holds how the engine runs: its port, its store, its upstream engines and the
+# figures a request resolves to when it leaves them open (they are recorded in every artefact and keyed).
+# The model's own parameters (the draft's Params, the withdrawal rate, the plan confidence, the market
+# adapter, the property model, the optimiser's solver settings, the findings texts, the AHV/BVG and canton
+# tables) are NOT here: they are versioned calibrations, seeded from src/lbsim/calibration.py and
+# src/lbsim/seed_records/, and they move an artefact's key through the calibration hash. Two copies of one
+# figure is how they drift apart, so each lives in one place; the comments below say where.
+
+service:
+  host: 127.0.0.1
+  port: 8014                    # Engine Building Guide section 4. Override with LBSIM_PORT.
+  cors_origins: ["*"]           # narrow before deployment, e.g. LBSIM_CORS_ORIGINS=https://cockpit.example
+
+database:
+  host: 127.0.0.1
+  port: 5432
+  # One database for the whole system, one schema and one role per engine (Guide section 8, LBSIM-01).
+  dbname: simtech
+  schema: lbsim
+  user: lbsim
+  sslmode: prefer
+  connect_timeout: 10
+  maintenance_dbname: postgres
+
+calibration:
+  # The calibration a run uses when the request does not name one. 1.0.0 reproduces the draft (golden
+  # layer A); 1.1.0 is lbsim's behaviour (LBSIM-13). Changing this is a deliberate act.
+  active: "1.1.0"
+  # For reference only, read from the active calibration (never from here):
+  #   retirement.withdrawal_rate  0.03   (owner, 29.09.2026; capital needed = yearly need / 0.03)
+  #   optimiser.confidence        0.90   (owner, 29.09.2026; epsilon = 0.10)
+  #   market.reversion_years      5      market.state_persistence 0
+  #   property: ln(1.03) + 0.8 * (log_infl_s - ln 1.01), sigma_R 0.08, rho 0.30
+
+simulation:
+  n_paths: 2000                 # a request's n_paths when it leaves it open (200..20000)
+  default_seed: 20260929        # a request's seed when it leaves it open; the resolved seed is keyed
+  max_horizon_years: 60         # LBSIM-18 cap
+  reference_age: 65             # LBSIM-18: the principal's reference age when no goal is dated
+  steps_per_year: 12            # monthly steps
+  paths_budget_s: 20            # section 5: 2000 paths x 40 years x 5 Regimes
+  findings_budget_s: 5
+  run_budget_s: 30              # POST /run computes findings and paths synchronously within this
+  seed_streams: ["state_uniforms", "property_noise", "spare"]   # SeedSequence(seed).spawn(3), in this order
+
+optimiser:
+  workers: 3                    # IPOPT/MUMPS one core each (python -m lbsim serve)
+  budget_minutes: 120           # hard wall clock, enforced per IPOPT call and between calls
+  max_solve_horizon_years: 20   # beyond it the goal is a terminal requirement (zero_return_terminal)
+  heartbeat_s: 30
+  max_attempts: 2               # a stale run is requeued at start-up at most this often
+  stale_after_s: 120            # a running run without a heartbeat this long is stale
+  # In-sample, redraw and out-of-sample seeds (section 3.9): seed, seed + 1000 * k, seed + 500 000.
+  redraw_seed_step: 1000
+  out_of_sample_seed_offset: 500000
+
+upstream:
+  lbs:
+    url: http://127.0.0.1:8013
+    contracts:
+      sheet: "lbs-balance-sheet@1.0.0"
+      request: "lbs-request@1.0.0"
+      calibration: "lbs-calibration@1.3.0"
+  pcp:
+    url: http://127.0.0.1:8007
+    contracts:
+      allocation: "pcp-allocation@1.0.0"
+  aggregation:
+    url: http://127.0.0.1:8004
+    contracts:
+      regime: "aggregation-regime@1.0.0"
+      scenario: "aggregation-scenario@1.0.0"
+  fmre:
+    url: http://127.0.0.1:8006
+    contracts:
+      return_set: "rs@1.0.0"
+    # The inflation pass-through a scenario ReturnSet must carry (LBSIM-07, section 3.8). The base
+    # (nominal) ReturnSet carries none: fmre applies the pass-through to scenario Regimes only.
+    accept_ipt: ["ipt@1.1.0"]
+  timeouts:
+    connect_s: 5
+    read_s: 30
+  # Live ids on 29.09.2026, for the test bench and the samples only; lbsim never pins a Regime.
+  known_ids:
+    default_regime: RGM-e2658e8e9bbbc81e
+    depression: RGM-1af6968e287768c9
+    hyperinflation: RGM-59eebfaf7744d8ec
+    stagflation: RGM-6bb531998bfefc4d
+    deferral: RGM-c0ed086f1916984e
+    fmre_chf_default_set: RS-c472e411e39645f5
+    ipt: IPT-585c7da4656ead2b

@@ -1,0 +1,22 @@
+[
+ {
+  "policy": "depression",
+  "label_en": "Depression",
+  "label_de": "Depression"
+ },
+ {
+  "policy": "hyperinflation",
+  "label_en": "Hyperinflation",
+  "label_de": "Hyperinflation"
+ },
+ {
+  "policy": "stagflation",
+  "label_en": "Stagflation",
+  "label_de": "Stagflation"
+ },
+ {
+  "policy": "deferral",
+  "label_en": "Deferral",
+  "label_de": "Aufschub"
+ }
+]

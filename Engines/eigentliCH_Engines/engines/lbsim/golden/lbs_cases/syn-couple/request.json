@@ -1,0 +1,246 @@
+{
+ "contract_version": "lbs-request@1.0.0",
+ "client_ref": "syn-couple",
+ "as_of": "2026-09-28",
+ "calibration_version": null,
+ "household": {
+  "composition_as_of": "2026-03-15",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 52,
+    "stated_gross_income": null,
+    "human_capital": {
+     "qualification_highest": null,
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": null,
+     "network_people": null,
+     "mandates": null,
+     "network_reach": null,
+     "health": null,
+     "health_withheld": false,
+     "hours_per_week": null,
+     "rest_hours": null,
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": 2
+    },
+    "earning_power": null
+   },
+   {
+    "person_id": "p2",
+    "kind": "adult",
+    "age": 49,
+    "stated_gross_income": null,
+    "human_capital": {
+     "qualification_highest": null,
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": null,
+     "network_people": null,
+     "mandates": null,
+     "network_reach": null,
+     "health": null,
+     "health_withheld": false,
+     "hours_per_week": null,
+     "rest_hours": null,
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": 5
+    },
+    "earning_power": null
+   },
+   {
+    "person_id": "p3",
+    "kind": "dependant",
+    "age": 12,
+    "stated_gross_income": null,
+    "human_capital": {
+     "qualification_highest": null,
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": null,
+     "network_people": null,
+     "mandates": null,
+     "network_reach": null,
+     "health": null,
+     "health_withheld": false,
+     "hours_per_week": null,
+     "rest_hours": null,
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": null
+    },
+    "earning_power": null
+   }
+  ],
+  "principal": null
+ },
+ "positions": [
+  {
+   "position_id": "i-p1",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 110000.0,
+   "unit": "chf_per_year",
+   "stock_kind": null,
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "pk-p1",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 310000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "i-p2",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 64000.0,
+   "unit": "chf_per_year",
+   "stock_kind": null,
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p2",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "pk-p2",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 120000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p2",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "home",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 1250000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "real_asset",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "mortgage",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 780000.0,
+   "unit": "chf",
+   "stock_kind": "liability",
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "cash",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 95000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": [
+    "g1"
+   ]
+  },
+  {
+   "position_id": "skills",
+   "role": "gain",
+   "capital_type": "human",
+   "magnitude": 40000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p2",
+   "active": true,
+   "funds_goals": []
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g1",
+   "kind": "other",
+   "target_amount": 180000.0,
+   "target_date": "2031-06-30",
+   "occupancy": null,
+   "owners": [
+    "p1",
+    "p2"
+   ],
+   "contribution_share": null,
+   "amount_basis": null
+  }
+ ],
+ "facts": {
+  "canton": null,
+  "civil_status": "verheiratet",
+  "has_no_liabilities": false,
+  "stop_work_age": null,
+  "legal_documents": null,
+  "mortgage_fixed_until": null,
+  "amortisation_mode": null,
+  "own_use_share": null,
+  "pillar3a_contribution_per_year": null
+ },
+ "risk": {
+  "stated_loss": null,
+  "crisis_behaviour": null,
+  "esg_exclusions": [],
+  "esg_level": null,
+  "employment": null,
+  "liquidity_reserve_months": null,
+  "spend_now_per_year": null,
+  "variable_income_per_year": null,
+  "gross_income_per_year": null,
+  "mandates": null,
+  "plan_until_age": null,
+  "mortgage": null,
+  "mortgage_rate_pct": null,
+  "amortisation_per_year": null
+ },
+ "mandate": {
+  "goal_id": "g1",
+  "annual_contribution": 15000.0,
+  "name": null,
+  "contribution_indexed": null
+ }
+}

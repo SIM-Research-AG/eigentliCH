@@ -1,0 +1,262 @@
+{
+ "_about": {
+  "what": "The cantonal income and wealth tax factors the draft's model/canton.py reads (BFS, 2023).",
+  "record": "canton-tax",
+  "copied_from": "Projects/andersCH-prototype_old/andersCH-prototype_old/data/canton_tax.json",
+  "copied_on": "2026-09-29",
+  "source_sha256": "c0e65551598d066eda0cd986b0b9ff239e172b5680cc3583e1eb80ce98c65b0e",
+  "why_here": "The draft reads this table from Projects/eigentliCH/data, which does not exist; this is the only copy found. Every key below `_about` is the source file's, unchanged (a test pins it).",
+  "provisional": true,
+  "published_by": null,
+  "note": "Not approved by a named person in lbsim. The draft reads it without an approval gate, and lbsim reports it as read without a gate (provenance.records)."
+ },
+ "source": "Bundesamt für Statistik (BFS), «Statistik der Schweizer Städte», Tabelle ts-b-ssv-11-2024, Variablen rev_cel_* (Steuerbelastung einer alleinstehenden Person in Prozent des Bruttolohns) und for_* (Vermögenssteuerbelastung), bezogen über opendata.swiss. Erhebungsjahr 2023.",
+ "as_of": "2023-12-31",
+ "note": "Die Faktoren skalieren den nationalen Näherungssatz des Modells auf die gemessene Belastung im jeweiligen KANTONSHAUPTORT. Eine güns­tigere Gemeinde desselben Kantons zahlt weniger. Der Einkommensfaktor ist über fünf Einkommensstufen (50/70/100/150/200 Tausend) kleinste-Quadrate angepasst; ein einzelner Skalar kann einen Tarif nicht exakt abbilden, der grösste Restfehler steht je Kanton in `diagnostics`.",
+ "method": {
+  "income": "factor = argmin_f sum_i (f * model_rate(Y_i) - measured_i)^2, Y in 50 000, 70 000, 100 000, 150 000, 200 000",
+  "wealth": "factor = measured_wealth_burden(1000 000) / wealth_tax_rate",
+  "model_rate": "tax_rate_max * (1 - exp(-Y / tax_income_scale))",
+  "reference_household": "alleinstehend, ohne Kinder, Kantonshauptort"
+ },
+ "income_factors": {
+  "Zürich": 1.206,
+  "Bern": 1.5584,
+  "Luzern": 1.2205,
+  "Uri": 1.0663,
+  "Schwyz": 0.926,
+  "Obwalden": 1.0609,
+  "Nidwalden": 1.0663,
+  "Glarus": 1.2125,
+  "Zug": 0.6828,
+  "Freiburg": 1.5271,
+  "Solothurn": 1.5387,
+  "Basel-Stadt": 1.3948,
+  "Basel-Landschaft": 1.5692,
+  "Schaffhausen": 1.2451,
+  "Appenzell Ausserrhoden": 1.3995,
+  "Appenzell Innerrhoden": 0.9958,
+  "St. Gallen": 1.5043,
+  "Graubünden": 1.2554,
+  "Aargau": 1.2682,
+  "Thurgau": 1.2461,
+  "Tessin": 1.3495,
+  "Waadt": 1.5612,
+  "Wallis": 1.4441,
+  "Neuchâtel": 1.6473,
+  "Genf": 1.5516,
+  "Jura": 1.4333
+ },
+ "wealth_factors": {
+  "Zürich": 1.0,
+  "Bern": 2.1,
+  "Luzern": 1.4,
+  "Uri": 0.9,
+  "Schwyz": 0.8,
+  "Obwalden": 0.75,
+  "Nidwalden": 0.6,
+  "Glarus": 1.55,
+  "Zug": 0.75,
+  "Freiburg": 2.8,
+  "Solothurn": 1.1,
+  "Basel-Stadt": 2.35,
+  "Basel-Landschaft": 2.1,
+  "Schaffhausen": 1.5,
+  "Appenzell Ausserrhoden": 1.8,
+  "Appenzell Innerrhoden": 1.1,
+  "St. Gallen": 1.95,
+  "Graubünden": 1.45,
+  "Aargau": 1.35,
+  "Thurgau": 1.2,
+  "Tessin": 2.05,
+  "Waadt": 3.2,
+  "Wallis": 2.5,
+  "Neuchâtel": 3.4,
+  "Genf": 2.45,
+  "Jura": 1.9
+ },
+ "diagnostics": {
+  "Zürich": {
+   "capital": "Zürich",
+   "income_factor": 1.206,
+   "worst_absolute_error_pp": 1.37,
+   "measured_burden_at_100k_pct": 12.98,
+   "measured_wealth_burden_at_1m_pct": 0.2
+  },
+  "Bern": {
+   "capital": "Bern",
+   "income_factor": 1.5584,
+   "worst_absolute_error_pp": 1.5,
+   "measured_burden_at_100k_pct": 17.4,
+   "measured_wealth_burden_at_1m_pct": 0.42
+  },
+  "Luzern": {
+   "capital": "Luzern",
+   "income_factor": 1.2205,
+   "worst_absolute_error_pp": 0.92,
+   "measured_burden_at_100k_pct": 13.94,
+   "measured_wealth_burden_at_1m_pct": 0.28
+  },
+  "Uri": {
+   "capital": "Altdorf (UR)",
+   "income_factor": 1.0663,
+   "worst_absolute_error_pp": 1.16,
+   "measured_burden_at_100k_pct": 12.19,
+   "measured_wealth_burden_at_1m_pct": 0.18
+  },
+  "Schwyz": {
+   "capital": "Schwyz",
+   "income_factor": 0.926,
+   "worst_absolute_error_pp": 0.49,
+   "measured_burden_at_100k_pct": 10.29,
+   "measured_wealth_burden_at_1m_pct": 0.16
+  },
+  "Obwalden": {
+   "capital": "Sarnen",
+   "income_factor": 1.0609,
+   "worst_absolute_error_pp": 1.68,
+   "measured_burden_at_100k_pct": 12.18,
+   "measured_wealth_burden_at_1m_pct": 0.15
+  },
+  "Nidwalden": {
+   "capital": "Stans",
+   "income_factor": 1.0663,
+   "worst_absolute_error_pp": 0.5,
+   "measured_burden_at_100k_pct": 11.98,
+   "measured_wealth_burden_at_1m_pct": 0.12
+  },
+  "Glarus": {
+   "capital": "Glarus",
+   "income_factor": 1.2125,
+   "worst_absolute_error_pp": 0.36,
+   "measured_burden_at_100k_pct": 13.63,
+   "measured_wealth_burden_at_1m_pct": 0.31
+  },
+  "Zug": {
+   "capital": "Zug",
+   "income_factor": 0.6828,
+   "worst_absolute_error_pp": 2.42,
+   "measured_burden_at_100k_pct": 6.12,
+   "measured_wealth_burden_at_1m_pct": 0.15
+  },
+  "Freiburg": {
+   "capital": "Fribourg",
+   "income_factor": 1.5271,
+   "worst_absolute_error_pp": 0.48,
+   "measured_burden_at_100k_pct": 17.14,
+   "measured_wealth_burden_at_1m_pct": 0.56
+  },
+  "Solothurn": {
+   "capital": "Solothurn",
+   "income_factor": 1.5387,
+   "worst_absolute_error_pp": 0.81,
+   "measured_burden_at_100k_pct": 17.55,
+   "measured_wealth_burden_at_1m_pct": 0.22
+  },
+  "Basel-Stadt": {
+   "capital": "Basel",
+   "income_factor": 1.3948,
+   "worst_absolute_error_pp": 0.55,
+   "measured_burden_at_100k_pct": 16.13,
+   "measured_wealth_burden_at_1m_pct": 0.47
+  },
+  "Basel-Landschaft": {
+   "capital": "Liestal",
+   "income_factor": 1.5692,
+   "worst_absolute_error_pp": 1.12,
+   "measured_burden_at_100k_pct": 17.57,
+   "measured_wealth_burden_at_1m_pct": 0.42
+  },
+  "Schaffhausen": {
+   "capital": "Schaffhausen",
+   "income_factor": 1.2451,
+   "worst_absolute_error_pp": 0.7,
+   "measured_burden_at_100k_pct": 13.87,
+   "measured_wealth_burden_at_1m_pct": 0.3
+  },
+  "Appenzell Ausserrhoden": {
+   "capital": "Herisau",
+   "income_factor": 1.3995,
+   "worst_absolute_error_pp": 0.68,
+   "measured_burden_at_100k_pct": 15.86,
+   "measured_wealth_burden_at_1m_pct": 0.36
+  },
+  "Appenzell Innerrhoden": {
+   "capital": "Appenzell",
+   "income_factor": 0.9958,
+   "worst_absolute_error_pp": 0.22,
+   "measured_burden_at_100k_pct": 11.09,
+   "measured_wealth_burden_at_1m_pct": 0.22
+  },
+  "St. Gallen": {
+   "capital": "St. Gallen",
+   "income_factor": 1.5043,
+   "worst_absolute_error_pp": 0.22,
+   "measured_burden_at_100k_pct": 17.23,
+   "measured_wealth_burden_at_1m_pct": 0.39
+  },
+  "Graubünden": {
+   "capital": "Chur",
+   "income_factor": 1.2554,
+   "worst_absolute_error_pp": 1.66,
+   "measured_burden_at_100k_pct": 14.14,
+   "measured_wealth_burden_at_1m_pct": 0.29
+  },
+  "Aargau": {
+   "capital": "Aarau",
+   "income_factor": 1.2682,
+   "worst_absolute_error_pp": 0.78,
+   "measured_burden_at_100k_pct": 14.17,
+   "measured_wealth_burden_at_1m_pct": 0.27
+  },
+  "Thurgau": {
+   "capital": "Frauenfeld",
+   "income_factor": 1.2461,
+   "worst_absolute_error_pp": 0.45,
+   "measured_burden_at_100k_pct": 14.06,
+   "measured_wealth_burden_at_1m_pct": 0.24
+  },
+  "Tessin": {
+   "capital": "Bellinzona",
+   "income_factor": 1.3495,
+   "worst_absolute_error_pp": 1.62,
+   "measured_burden_at_100k_pct": 15.03,
+   "measured_wealth_burden_at_1m_pct": 0.41
+  },
+  "Waadt": {
+   "capital": "Lausanne",
+   "income_factor": 1.5612,
+   "worst_absolute_error_pp": 1.83,
+   "measured_burden_at_100k_pct": 17.52,
+   "measured_wealth_burden_at_1m_pct": 0.64
+  },
+  "Wallis": {
+   "capital": "Sion",
+   "income_factor": 1.4441,
+   "worst_absolute_error_pp": 1.66,
+   "measured_burden_at_100k_pct": 15.3,
+   "measured_wealth_burden_at_1m_pct": 0.5
+  },
+  "Neuchâtel": {
+   "capital": "Neuchâtel",
+   "income_factor": 1.6473,
+   "worst_absolute_error_pp": 0.93,
+   "measured_burden_at_100k_pct": 18.65,
+   "measured_wealth_burden_at_1m_pct": 0.68
+  },
+  "Genf": {
+   "capital": "Genève",
+   "income_factor": 1.5516,
+   "worst_absolute_error_pp": 1.54,
+   "measured_burden_at_100k_pct": 17.74,
+   "measured_wealth_burden_at_1m_pct": 0.49
+  },
+  "Jura": {
+   "capital": "Delémont",
+   "income_factor": 1.4333,
+   "worst_absolute_error_pp": 0.75,
+   "measured_burden_at_100k_pct": 15.92,
+   "measured_wealth_burden_at_1m_pct": 0.38
+  }
+ }
+}
