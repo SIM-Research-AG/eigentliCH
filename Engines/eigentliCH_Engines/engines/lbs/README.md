@@ -221,10 +221,10 @@ keeps its `lbs-calibration@1.0.0` payload, 1.1.0 and 1.2.0 their `lbs-calibratio
 * Client data is personal data: retention, access and erasure rules for `run.request_json` and the artefacts are
   not defined yet (the scaffold's open point; LBS-03 keeps names and e-mails out).
 * `intake-scales` and `roles` stay provisional and read ungated, as in the prototype.
-* The consumer app does not ask the share per goal yet: until it sends `goals[].contribution_share`, a
-  multi-goal household's required return under 1.3.0 is a lower bound with a gap (LBS-29).
-* The consumer app does not ask the basis of an amount or the contribution's indexation yet: until it sends them,
-  every amount is read in today's francs and every contribution as fixed (the owner's defaults).
+* The consumer app asks each goal's share of the yearly saving (EIG-59), the basis of a goal's amount (EIG-60)
+  and whether the contribution rises with prices (EIG-61), and sends each only when the client has stated it.
+  Where one is not stated, lbs applies the owner's defaults: the amount in today's francs, the contribution fixed,
+  and a multi-goal household without shares gets a required return that is a lower bound with a gap (LBS-29).
 * The mandate proposal for the curator to finalise: which derived dimensions pcp should accept from lbs, and a
   withdrawal rate if retirement goals are to carry a curve.
 

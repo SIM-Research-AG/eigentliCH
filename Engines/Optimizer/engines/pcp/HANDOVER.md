@@ -44,9 +44,10 @@ the resume point. Model-derived research output; not investment advice.
   the strict `regime_id` rule (PCP-11).
 - **Runs live**: pcp asks fmre for the ReturnSet stamped against the requested Regime in the mandate's currency
   (`/v1/return-set?regime_id=...&currency=CHF`); fmre confirms the Regime with aggregation, stamps it and converts
-  the instrument series (29.09.2026: `RS-dced0b32e07034f9` CHF, `RS-9f2eab022c08c81a` EUR for the Default Regime).
-  Checked in process against live fmre: both validate and solve (CHF `balanced_global` at 2024-12-31, objective
-  26.864). Layer C (28.985) no longer reproduces live: it is the frozen source-currency set, read as CHF (PCP-20).
+  the instrument series. fmre's pinned sets for the Default Regime `RGM-e2658e8e9bbbc81e` (FMRE-23): CHF
+  `RS-c472e411e39645f5`, EUR `RS-dd496e3d3e72affe`, USD `RS-76d1a29edc752997`; pcp names whatever id fmre serves.
+  The in-process check against live fmre (CHF `balanced_global` at 2024-12-31, objective 26.864) was made on the
+  set fmre served before its forward estimator became the default (FMRE-22) and has not been repeated on these. Layer C (28.985) no longer reproduces live: it is the frozen source-currency set, read as CHF (PCP-20).
 
 ## Resume
 
@@ -69,9 +70,10 @@ then `python dev/build_golden_production.py`, and check the layer C diff before 
 2. **Real view live** (PCP-22, PCP-23): once fmre serves `basis=real`, validate a real `balanced_global` against
    it in process, and, where fmre falls back, check that live fmre's fallback set validates with its own
    `return_set_id` and that `report` and the cockpit show the hard currency and the warning.
-3. **fmre to publish `provenance.currency`** on the ReturnSet (`CHF`, `EUR`, `USD`, or null for the source
-   default). Until then pcp reads fmre's opt-in note `... in currency=CHF; ...` (PCP-19); the field replaces it
-   with no change here. Then refreeze (`dev/freeze_inputs.py`, now CHF), rebuild layer C and update PCP-20.
+3. **Refreeze on the currency sets.** fmre publishes `provenance.currency` on the ReturnSet (FMRE-21: `CHF`,
+   `EUR`, `USD`, or null on the source default); pcp reads the field first and the opt-in note
+   `... in currency=CHF; ...` only where the field is null (PCP-19, `service.served_currency`). Refreeze
+   (`dev/freeze_inputs.py`, now CHF), rebuild layer C and update PCP-20.
 4. **Weights barely move the objective** on 54 instruments (about 0.6%, PCP-03): decide whether that is
    accepted, or whether `profile_scale` (MATLAB's effective 100) or a smaller universe is the answer. Each is a
    new calibration.

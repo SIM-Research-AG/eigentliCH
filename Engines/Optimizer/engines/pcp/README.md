@@ -106,7 +106,7 @@ use), the `target_curve` is in it by definition (annualised log returns in that 
 Allocation are in it. The Allocation says so in `currency` and `provenance.currency`; the served currency is also
 in `provenance.upstream["fmre:currency"]`. It is not an exposure bound: the `currency` dimension of `bounds`
 limits what the portfolio holds, whatever it is reported in. pcp reads the served currency from fmre's
-`provenance.currency` when fmre publishes one, and from fmre's opt-in note (`... in currency=CHF; ...`) until then
+`provenance.currency` (FMRE-21), and from fmre's opt-in note (`... in currency=CHF; ...`) where the field is null
 (PCP-19). The contract versions are unchanged: every CHF mandate written before still validates with the same
 `mandate_id`, and `currency` on the Allocation is an additional optional field (`None` only on Allocations
 published before 1.1.0).

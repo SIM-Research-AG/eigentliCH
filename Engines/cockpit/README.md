@@ -123,8 +123,10 @@ Every curator write carries `curator_id`, the acting curator; the database refus
 ## Configuration
 
 `config.yaml` < `config.local.yaml` (git-ignored) < `COCKPIT_*` (`HOST`, `PORT`, `MODE`,
-`DATA_DIR`, `CURATOR_DB_PASSWORD`). The roster lists all sixteen engines of the Guide (section 4)
-with their URL, status, test bench, start command and, where it differs, interpreter (C-17);
+`DATA_DIR`, `CURATOR_DB_PASSWORD`). The roster lists twelve engines: 01 datafeed, 02 honi, 03 macrofield,
+04 aggregation, 05 mrs, 06 fmre, 07 pcp, 12 cycle, 13 lbs, 14 lbsim, 15 report and 16 chatbot
+(08 `mvopt` and 10 `review` are dropped, C-27; 09 `scenario` is merged into aggregation, C-28;
+the cockpit is Engine 11 itself), each with its URL, status, test bench, start command and, where it differs, interpreter (C-17);
 engine NN listens on 80NN. The consumer app is an entry of `kind: app` on 8017, with no engine
 number (C-18). `curator_db` names the curator's connection (host, port, `simtech`, schema
 `eigentlich`, user `curator`); its password is never in `config.yaml`. Nothing is hard coded.
@@ -163,8 +165,7 @@ cockpit/
   the shift, not matched to lbs. The Excel exports stay nominal.
 - Inflation pass-through (C-32): Instrument selection shows the base ReturnSet, which carries no pass-through, so the
   beta a scenario used is seen on Parameters (the scenario sets) until the page offers a scenario view. The override
-  history is read from `GET /v1/inflation-beta/{id}/history`, which fmre does not serve yet: until it does, the page
-  shows the version in force only.
+  history is read from fmre's `GET /v1/inflation-beta/{id}/history` (C-33).
 
 - report and chatbot start from the roster (status built); neither has a test bench file in the
   roster yet (each serves its own at `/`).

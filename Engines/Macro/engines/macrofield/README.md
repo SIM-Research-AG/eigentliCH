@@ -12,7 +12,7 @@ defines. Built to the Engine Building Guide; same shape and conventions as `honi
 |---|---|
 | Module | `macrofield` |
 | Default port | 8003 (Guide §4 roster; configurable) |
-| Status | v0.6.0. Calibration 1.0.0 reproduces the eigentliCH prototype (Macro_Model) exactly; 1.3.0 covers and projects all 16 HoNI economies; 1.4.0 (active) bounds the projection with a soft saturation ceiling, the four Phase IV resolution policies and a reset, to 2080 (R-005); 1.5.0 (stored, not active) bounds the investment share so every fit and every projection integrates (TB-08, TB-27) |
+| Status | v0.6.0. Calibration 1.0.0 reproduces the eigentliCH prototype (Macro_Model) exactly; 1.3.0 covers and projects all 16 HoNI economies; 1.4.0 (stored) bounds the projection with a soft saturation ceiling, the four Phase IV resolution policies and a reset, to 2080 (R-005); 1.5.0 (active, TB-28) adds a bounded investment share so every fit and every projection integrates (TB-08, TB-27) |
 | Consumes | A static data snapshot (106 frozen raw files: World Bank, BIS, PWT, Bundesbank, JST, IMF; loaded into PostgreSQL). Later: `Snapshot` from `datafeed` |
 | Produces | `MacroState` |
 | Downstream | `aggregation` (Engine 04, port 8004), which combines `mrs`, `cycle` and `macrofield` into the Regime |
@@ -223,7 +223,7 @@ and both stylised Phase IV resolutions (debt deflation, hyperinflation) are show
 ends above the band. An economy whose fit does not integrate is projected from its observed end
 state and flagged as weak evidence (1.3.0, TB-18).
 
-### Calibration 1.4.0 (active): soft ceiling, crisis and reset (review R-005)
+### Calibration 1.4.0 (stored): soft ceiling, crisis and reset (review R-005)
 
 R-005 (decided by Nicolas, 28.09.2026): projected saturation ran far above its limit (CH:
 observed 3.2 to 4.2, projected 9.2 by 2031 and 9.7 by 2039, TH and CN above 25). From 1.4.0:
@@ -314,7 +314,7 @@ DE (+9); earlier in BR (-19) and VN (-50); JP, ID and BD have no turn by 2080.
 Unchanged: 1.3.0 (and 1.0.0 to 1.2.0) project exactly as before, byte for byte, and the stored
 artefacts read back unchanged.
 
-### Calibration 1.5.0 (stored, not active): an integrable model (TB-08, TB-27)
+### Calibration 1.5.0 (active): an integrable model (TB-08, TB-27)
 
 Owner decision of 29.09.2026: fix the non-integrating fits and the exploding projections at the
 model level rather than label the tail. 1.5.0 is 1.4.0 plus two changes; the soft ceiling, the
@@ -391,8 +391,8 @@ lowers saturation by 24 to 41 per cent in the first projected year in CH, TH, US
 sixteen economies (six gain a simulated path, the other ten are refitted because their simulated path
 already ran above K_R = Y in the window, where the bounded share differs). What aggregation
 and cycle read is identical to 1.4.0 in all sixteen economies (years, inputs, diagnostics and
-phases, current state, phase history, observed Y, projection years to 2080), so activating 1.5.0
-would not change the Regime for the observed years; it changes the fit report, the simulated
+phases, current state, phase history, observed Y, projection years to 2080), so 1.5.0 does not
+change the Regime for the observed years; it changes the fit report, the simulated
 path and the projection (phases, transitions, turns and scenarios), which neither reads.
 
 
@@ -465,13 +465,13 @@ the model is annual.
 | TB-12 | Raw files for the 8 old economies are the old cache (World Bank vintage of July 2026); the rest were fetched on 2026-09-27. Mixed vintages are recorded per file | Taken; a refreeze is a new snapshot |
 | TB-20 | R-005 soft ceiling: centre 5.0, band 4.5 to 5.5, growth damped from 3.5 on a sine arc in logs (dx/dt = g sqrt(1 - u^2)), so the path bends and meets its turn level with zero slope; no clamp. Turn position per policy: depression 0.2 (4.7), stagflation 0.4 (4.9), hyperinflation 0.6 (5.1), deferral 0.9 (5.4) | Ceiling decided by Nicolas 28.09.2026; onset 3.5 and turn levels 4.7, 4.9, 5.1, 5.4 confirmed by the owner 29.09.2026 as calibration 1.4.0's values (carried unchanged into 1.5.0) |
 | TB-21 | The four Phase IV policies are `Scenario_SAA.m` v0.1 exactly (target mix, inflation, defaults, valuations), frozen in `golden/scenario_saa/` with the file's SHA-256; Engine 09 `scenario` is to use the same ids and values. In the model: nominal output at the policy's price level (real output flat), K_I x defaults x valuations. The target mix is carried, not used here | Taken (R-005) |
-| TB-22 | Default policy `stagflation`, the template's selected case (`s=3`) | Open: the owner to confirm |
+| TB-22 | Default policy `stagflation`, the template's selected case (`s=3`) | Taken: confirmed by Nicolas 28.09.2026 (R-005) |
 | TB-23 | Crisis 60 months, then a 35-year reset (30 to 40 allowed) to the Foundation level, 0.95 x the Foundation ceiling (strictly inside Phase 1, so the latch releases when the reset ends); per-economy overrides need a reason (none set). Over the reset output grows at its observed rate and K_R/Y returns to its early-phase level (held at the turn it stays above 1 in CH, CN, GB, ES, where r < 0 and nothing integrates). Phase 4 through crisis and reset, then classified afresh. Re-integration with the mean fitted parameters of the window's Phase 1 and 2 years | Taken (R-005); the reset shape (half cosine) and the K_R/Y return are this build's choice |
 | TB-24 | The model computes to 2080, views show 2039; years after 2039 carry `lower_confidence`. cycle projects its anchored cycles to macrofield's last projected year (C-22), so it sees 2080 on its first run after a 1.4.0 macrofield run | Taken (R-005); cycle informed through the report |
 | TB-25 | 1.4.0 made active: its observed-period outputs (inputs, diagnostics, current state, phase history, fit, simulated path) are identical to 1.3.0 and to the stored artefact `MFS-6183873b127fcd58` in all 16 economies. Every calibration's idempotency key changed (engine 0.5.0, contract versions), so the next `POST /run` of any version makes a new artefact id | Taken 28.09.2026 |
 | TB-26 | After the reset, VN and ES (and CH, CN, GB before the K_R/Y return) turn a second time around 2075 to 2079: the re-integrated early-phase model still grows fast. BR, and ES under three policies, turn in the extrapolated tail; JP and BD never turn and run into the tail for 50 and 32 years | Re-examined under 1.5.0 (29.09.2026): no tail turns and no second turns by 2080; CH, ID, MY, PH, US, JP and BD do not turn by 2080 under any policy, IN, DE and CN under some, because of the fitted p_b against p_p (TB-08's identity half). Open with TB-08 |
 | TB-27 | Calibration 1.5.0: investment share bounded at zero, r = max(0, 1 - K_R/Y), in fit and projection (identical where K_R <= Y; no finite-time singularity for any parameters), and parameters carried forward or re-integrated after the reset held inside `parameter_ranges`. New optional fields `investment_share` and `projection.parameters_within_ranges`, omitted while unset; Calibration contract 1.5.0, engine 0.6.0; `macrofield-state@1.2.0` unchanged | Taken 29.09.2026 (owner chose the fix over labelling TB-26) |
-| TB-28 | 1.5.0 not activated: its fits differ from 1.4.0 in all sixteen economies. What aggregation and cycle read is identical, so activation would leave the Regime's observed years unchanged and change only the fit report, simulated path and projection | Taken: activated by the owner on 29.09.2026 (`active: "1.5.0"`); 1.4.0 stays stored |
+| TB-28 | 1.5.0 is the active calibration. Its fits differ from 1.4.0 in all sixteen economies; what aggregation and cycle read is identical, so the Regime's observed years are unchanged and only the fit report, simulated path and projection change | Taken: activated by the owner on 29.09.2026 (`active: "1.5.0"`); 1.4.0 stays stored |
 | TB-29 | Under 1.5.0 the first projected year drops saturation by 24 to 41 per cent in CH, TH, US and JP: the projection starts from the observed end state, where r K_I moves 17 to 50 per cent of K_I into K_R a year | Open: with TB-08 |
 
 British spelling. No em dashes. Not investment advice.

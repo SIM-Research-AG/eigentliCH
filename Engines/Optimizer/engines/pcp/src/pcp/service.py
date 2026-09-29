@@ -99,8 +99,8 @@ def mandate_id(mandate: Mandate) -> str:
 def served_currency(rs: ReturnSet) -> Optional[str]:
     """The currency a ReturnSet states its instrument profiles are measured in, or ``None``.
 
-    fmre's structured ``provenance.currency`` wins when it is there. fmre does not publish one yet: until it
-    does, pcp reads the opt-in note fmre writes on every converted set (``... in currency=CHF; ...``, PCP-19).
+    fmre's structured ``provenance.currency`` wins when it is there. fmre publishes it (FMRE-21); when it is
+    null, pcp reads the opt-in note fmre writes on every converted set (``... in currency=CHF; ...``, PCP-19).
     A set whose field and notes disagree, or whose notes name more than one currency, states none.
     """
     field, noted = rs.provenance.currency, rs.provenance.noted_currencies()

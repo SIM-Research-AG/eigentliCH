@@ -426,3 +426,10 @@ no beta, duration 31, no set_by, an extra field); in cio mode the proxy PUT refu
 naming no inflation-beta path, a revoked curator refused before fmre, fmre down, and `cio` reserved; the page's panel, its
 PUT with `set_by: actingCurator()`, the revert, and the pass-through table on both pages. `tests/test_curator.py`: against
 the throwaway schema, a revoked and an unknown curator never reach fmre, one in service is forwarded as `set_by`.
+
+**C-33 fmre serves the override history (29.09.2026).** This corrects C-32, which says fmre serves no history
+endpoint. fmre serves `GET /v1/inflation-beta/{instrument_id}/history` (`Instruments/api/main.py`): every override
+version of one instrument, newest first (`version`, `beta`, `duration`, `reason`, `set_by`, `set_at`; a revert has
+`beta: null`), `[]` for an instrument never overridden and 404 for an unknown one. "History" on Instrument selection
+reads it through the proxy and lists every version; only when the call fails does the page fall back to the version
+in force from the list, saying that the earlier versions were not served.

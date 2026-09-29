@@ -1,4 +1,4 @@
-# Macro Field (macrofield): handover (updated 29.09.2026, TB-27)
+# Macro Field (macrofield): handover (updated 29.09.2026, TB-28)
 
 Where the build stands, how to pick it up, and what is still open. The README is the reference
 documentation; this file is the resume point.
@@ -26,13 +26,13 @@ documentation; this file is the resume point.
     no clamp), the four Phase IV policies of `Scenario_SAA.m` (frozen in `golden/scenario_saa/`;
     run parameter `resolution_policy`, default stagflation), 60-month crisis, 35-year reset to the
     Foundation level, re-integration with early-phase parameters, model horizon 2080 (display 2039).
-    Observed-period outputs identical to 1.3.0 in all 16 economies, hence active. TB-20 seeds
+    Observed-period outputs identical to 1.3.0 in all 16 economies; now stored. TB-20 seeds
     (onset 3.5, turn levels 4.7, 4.9, 5.1, 5.4) confirmed by the owner on 29.09.2026.
   - **1.5.0** TB-08 integrability fixed (TB-27): investment share bounded at zero,
     r = max(0, 1 - K_R/Y), in fit and projection; parameters carried forward and after the reset
     held inside `parameter_ranges`. All 16 fits integrate at reporting tolerance, all 16
-    projections to 2080 with no tail; no tail turns, no second turns. Not active (TB-28): the fits
-    differ from 1.4.0, although everything aggregation and cycle read is identical. Hash
+    projections to 2080 with no tail; no tail turns, no second turns. Active by the owner's decision (TB-28): the
+    fits differ from 1.4.0, while everything aggregation and cycle read is identical. Hash
     `CAL-b00a9412c2aa6213`, seeded in the store on 29.09.2026.
 - Contracts: `MacroState` deliberately stays `macrofield-state@1.2.0` (cycle and aggregation pin
   the literal); the new fields are optional and omitted while unset, so stored artefacts and the
@@ -69,16 +69,13 @@ installed editable there, alongside honi).
 | TB-15 | Only Germany is on the bank balance-sheet axis; move all economies (needs ECB BSI, Fed, SNB and national sources)? |
 | TB-16 | JST (German GDP before 1990) is CC BY-NC-SA, non-commercial: licence check |
 | -- | "Germany above 3.5 in the book": not reproducible; peak 3.19 (2010) on current GDP, 3.4 in Genreith 2014 on pre-revision GDP. Needs the book page to check |
-| TB-22 | Default policy stagflation (TB-20 confirmed 29.09.2026) |
 | TB-26 | Under 1.5.0: no tail turns, no second turns; CH, ID, MY, PH, US, JP, BD do not turn by 2080 (fitted p_b above p_p), IN, DE, CN under some policies |
-| TB-28 | Activate 1.5.0? Regime inputs unchanged; fit report, simulated path and projection change |
 | TB-29 | First projected year drops saturation 24 to 41 % in CH, TH, US, JP (large r K_I at the observed end state) |
 
 ## Next steps, in order
 
-1. Owner: activate 1.5.0 or not (TB-28). Then run all economies (`POST /run`) on the active
-   calibration when cycle and aggregation are ready to move with it; tell cycle its horizon
-   becomes 2080. Confirm TB-22.
+1. Run all economies (`POST /run`) on the active calibration 1.5.0 when cycle and aggregation
+   are ready to move with it; tell cycle its horizon becomes 2080.
 2. Review TB-06 settings and TB-07 latch with the author; each change is a new calibration.
 3. Source the two remaining series (`data_need.csv`, 2 missing rows): OECD consolidated financial
    assets (the book's K_I) and credit to the financial sector (would replace the 1.4 uplift).

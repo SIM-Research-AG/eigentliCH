@@ -27,7 +27,7 @@ resume point. Model-derived research output; not investment advice.
 - Both extractors are complete: pcp (`pcp-allocation@1.0.0`) and lbs (`lbs-balance-sheet@1.0.0`, final).
 - Store: database `simtech`, schema `report`, role `report`; password in `config.local.yaml` (git-ignored).
 - spark7 token in `eigentliCH_Engines/.env` (git-ignored).
-- Golden: seven frozen reports over frozen artefacts (`golden/inputs`, `golden/reports`; open the `.html` files to
+- Golden: ten frozen reports over frozen artefacts (`golden/inputs`, `golden/reports`; open the `.html` files to
   see them).
 
 ## Resume
