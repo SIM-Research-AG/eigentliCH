@@ -159,6 +159,11 @@ def sheets(xlsx: bytes) -> tuple[list[str], dict[str, str]]:
 
 # ---- configuration ----------------------------------------------------------------------
 
+#: Benches the roster declares before their engine ships the file (C-34): the page shows the placeholder
+#: until it exists. Every other declared bench must be there.
+ANNOUNCED_BENCHES = {"lbsim"}
+
+
 def test_the_committed_config_loads_and_names_every_engine_once():
     s = load()
     keys = [e.key for e in s.engines]
@@ -170,7 +175,7 @@ def test_the_committed_config_loads_and_names_every_engine_once():
         else:  # C-18: an app has no engine number and must not take an engine's port
             assert e.number is None, f"{e.key}: an app carries no engine number"
             assert not any(x.kind == "engine" and x.url == e.url for x in s.engines), f"{e.key}: on an engine's port"
-        assert e.bench is None or e.bench.is_file(), f"{e.key}: bench {e.bench} is missing"
+        assert e.bench is None or e.bench.is_file() or e.key in ANNOUNCED_BENCHES, f"{e.key}: bench {e.bench} is missing"
         assert e.python is None or e.python.is_file(), f"{e.key}: python {e.python} is missing"
     app = s.engine("eigentlich")
     assert app.kind == "app" and app.url.endswith(":8017") and app.autostart
@@ -726,12 +731,13 @@ def test_the_basis_is_nominal_by_default_and_real_passes_through_to_the_mandate(
 
 
 def test_the_switch_is_on_the_parameters_page_and_the_instrument_views_only():
-    """The Parameters page and Instrument selection carry the nominal / real switch; every other page, the
+    """The Parameters page, Instrument selection and the Client page's outlook (lbsim's own real view, C-34)
+    carry the nominal / real switch; every other page, the
     macro views (macrofield, cycle, aggregation: Regime and signals, the Models pages) above all, has none
     and stays nominal (owner, 29.09.2026)."""
     blocks = _page_blocks()
     with_switch = {pid for pid, code in blocks.items() if re.search(r'basisSwitch\("', code)}
-    assert with_switch == {"curator/parameters", "cio/instruments"}, with_switch
+    assert with_switch == {"curator/parameters", "cio/instruments", "curator/client"}, with_switch
     for macro in ("cio/regime", "cio/country", "cio/bounds", "cio/overview", "cio/optimiser"):
         assert "basis=real" not in blocks[macro] and 'basis: "real"' not in blocks[macro], macro
     html = STATIC_PAGE.read_text(encoding="utf-8")
@@ -916,3 +922,157 @@ def test_the_instrument_page_carries_the_pass_through_panel_and_shows_the_beta_a
     assert "passThroughView(view.rs" in instruments and "passThroughView(rs)" in params
     assert "inflation_pass_through" in html
     assert [pid for pid, code in blocks.items() if "inflationBetaPanel(" in code] == ["cio/instruments"]
+
+
+# ---- lbsim: the roster entry, the outlook panel and the Parameters call (C-34, C-35) ----------------
+
+LBSIM_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "lbsim"
+
+
+def lbsim_outlook(plan_state: str = "ready") -> dict:
+    """lbsim's GET /outlook built from B1's frozen samples (one sheet: findings, paths and the plan)."""
+    rd = lambda n: json.loads((LBSIM_FIXTURES / f"{n}.sample.json").read_text(encoding="utf-8"))  # noqa: E731
+    findings, paths, plan = rd("findings"), rd("paths"), rd("plan")
+    state = {"ready": {"state": "ready", "artefact": plan},
+             "calculating": {"state": "calculating", "elapsed_s": 754.0, "budget_s": 7200.0}}[plan_state]
+    return {"client_ref": findings["client_ref"], "life_balance_sheet_id": findings["life_balance_sheet_id"],
+            "findings": findings, "paths": paths, "plan": state}
+
+
+def test_lbsim_is_in_the_roster_as_built_and_starts_from_its_own_venv():
+    """Section 8 of LBSIM_INTERFACES: status built, the three artefacts, what it reads, its bench, the serve
+    command in eigentliCH_Engines/.venv, autostart, port 8014 (Engine 14)."""
+    from cockpit.settings import ROOT
+    s = load()
+    e = s.engine("lbsim")
+    assert e.status == "built" and e.number == 14 and e.url == "http://127.0.0.1:8014"
+    assert e.produces == "LifeBalanceFindings, LifeBalancePaths, LifeBalancePlan"
+    assert e.consumes == ("lbs", "pcp", "aggregation", "fmre")
+    engines = (ROOT.parent / "eigentliCH_Engines").resolve()
+    assert e.bench == engines / "engines" / "lbsim" / "testbench" / "index.html", "the convention lbs follows"
+    assert e.start_cwd == engines / "engines" / "lbsim"
+    assert e.start_args == ("-X", "utf8", "-m", "lbsim", "serve")
+    assert e.python == engines / ".venv" / "Scripts" / "python.exe" and e.autostart
+    assert e.public()["bench"] == e.bench.is_file(), "a bench not delivered yet is reported as none (placeholder)"
+    order = [x.key for x in s.engines]
+    assert all(order.index(u) < order.index("lbsim") for u in e.consumes), "autostart in roster order: upstream first"
+
+
+class StandInLbsim(httpx.AsyncBaseTransport):
+    """lbsim on 8014 answering GET /outlook with the sample outlook for its sheet, 404 for another."""
+
+    def __init__(self):
+        self.calls: list[str] = []
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        self.calls.append(str(request.url))
+        if request.url.port == 8014 and request.url.path == "/outlook":
+            o = lbsim_outlook()
+            if request.url.params.get("life_balance_sheet_id") not in (None, o["life_balance_sheet_id"]):
+                return httpx.Response(404, json={"detail": "lbsim holds no outlook for this Life Balance Sheet."})
+            return httpx.Response(200, json=o)
+        raise httpx.ConnectError("refused", request=request)
+
+
+def test_the_outlook_is_read_through_the_proxy_unchanged(tmp_path):
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text(f"""data_dir: {tmp_path.as_posix()}/data
+engines:
+  - {{key: lbsim, number: 14, name: lbsim, url: "http://127.0.0.1:8014", status: built}}
+""", encoding="utf-8")
+    fake = StandInLbsim()
+    for mode in ("development", "cio"):
+        with TestClient(create_app(load(cfg, env={"COCKPIT_MODE": mode}), transport=fake)) as client:
+            r = client.get("/api/lbsim/outlook", params={"client_ref": "lbsim-sample", "life_balance_sheet_id": "LBS-1a68c6aa5d613766"})
+            assert r.status_code == 200 and r.json() == lbsim_outlook(), mode
+            assert fake.calls[-1] == ("http://127.0.0.1:8014/outlook?client_ref=lbsim-sample"
+                                      "&life_balance_sheet_id=LBS-1a68c6aa5d613766")
+            other = client.get("/api/lbsim/outlook", params={"client_ref": "c", "life_balance_sheet_id": "LBS-0000000000000000"})
+            assert other.status_code == 404 and "no outlook" in other.json()["detail"]
+
+
+def test_the_samples_carry_what_the_panel_draws():
+    """The panel reads these fields; the fixtures are B1's frozen samples, so a changed shape shows here."""
+    o = lbsim_outlook()
+    f, p, plan = o["findings"], o["paths"], o["plan"]["artefact"]
+    assert {e["level_basis"] for e in f["earning_power"]} == {"stated", "modelled"}
+    assert all(x["saving_need"] and x["views"]["real"]["saving_need"] for x in f["income_paths"])
+    for x in f["findings"]:
+        placeholders = set(re.findall(r"\{(\w+)\}", " ".join(x["text"]["en"].values())))
+        assert placeholders <= set(x["figures"]), "every placeholder has its figure"
+    base = p["regimes"][0]
+    assert base["key"] == "base" and len(base["bands"]["net_worth"]["real"]["p50"]) == p["horizon_years"] + 1
+    for g in base["goals"]:
+        assert g["measure"] in base["bands"] and g["chance_basis"] in ("nominal", "real")
+    av = p["allocation_view"]
+    assert len(av["curves"]["nominal"]["target"]) == len(av["curves"]["real"]["achieved"]) == 25
+    assert set(av["by_role"]) == {"Gain", "Income", "Stabilisation", "Protection"}
+    assert set(plan["action_now"]) >= {"work_share", "saving_chf_per_year"} and plan["framing"]["en"]
+
+
+def test_the_client_page_carries_the_outlook_panel():
+    """The Client page's Outlook panel: read through the proxy for the newest sheet, the same content as the
+    app (earning power, income paths with the zero-return saving need, findings filled from their figures,
+    the schedule, charts 1 to 3 through plot() with the nominal / real switch, the Regime selector with the
+    chances), the plan block under the framing heading, the solver details, and the restart through the app."""
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    client = _page_blocks()["curator/client"]
+    assert "outlookPanel(oc, id, d" in client
+    assert ("api(`/lbsim/outlook?${new URLSearchParams({ client_ref: clientId, life_balance_sheet_id: "
+            "sheetRun.artefact_id })}`)") in client
+    assert 'd.engine_runs.find(r => r.engine === "lbs" && r.status === "succeeded" && r.artefact_id)' in client, "the newest sheet"
+    # the restart goes through the app (C-20 pattern), never to lbsim directly
+    assert 'cpost(`/clients/${encodeURIComponent(clientId)}/outlook`, { optimise: "now" })' in client
+    assert "/lbsim/run" not in html and "/lbsim/optimise" not in html, "lbsim requests are built only in the app"
+    # the words: German and English side by side, the page reads one language (English, as the page is)
+    assert 'const OUTLOOK_LANG = "en";' in html and '<html lang="en-GB">' in html
+    for de, en in (("Aussichten", "Outlook"), ("Was die Rechnung annimmt", "What the calculation assumes"),
+                   ("Planrechnung neu starten", "Restart the plan calculation"), ("Ihre Angabe", "Stated by the client"),
+                   ("Modellwert", "Model value"), ("umgerechnet", "converted"), ("Krise", "Crisis")):
+        assert f'"{de}"' in client and f'"{en}"' in client, de
+    assert "Die Planrechnung läuft noch (seit ${n} Minuten, höchstens ${h} Stunden)." in client
+    for role in ("Wertsteigerung", "Einkommen", "Stabilisierung", "Absicherung"):
+        assert role in client
+    # the content
+    assert "e.modelled.full_time_chf_per_year" in client and "e.stated.expected_full_pensum_income_chf_per_year" in client
+    assert "x.views && x.views.real && x.views.real.saving_need" in client and "zero_return_saving_chf_per_year" in client
+    assert "fillTemplate(t.action, x.figures)" in client and "f.schedule" in client
+    assert 'case "chf": case "chf_per_year"' in client, "figures formatted by unit"
+    assert 'basisSwitch("oBasis", view.basis)' in client and 'wireBasis("oBasis"' in client
+    assert "lw(r.label)" in client and "pct(g.chance, 0)" in client, "Regimes by their labels, chances as numbers"
+    assert "weightsChart(w1, av.instruments, av.by_role)" in client
+    assert "stateCurveChart(chartIn(w2, 280), curves.target, curves.achieved, view.basis)" in client
+    assert "(av.curves || {})[view.basis]" in client
+    assert "fanChart(chartIn(fanHost, 340), p, reg, view.series, view.basis, goals)" in client
+    assert "((regime.bands || {})[series] || {})[basis]" in client
+    assert 'dash: other ? "dash" : "solid"' in client and 'g.chance_basis || "nominal"' in client
+    assert "plot(el, traces" in client and "Plotly.react" not in client, "charts through the page's plot() helper"
+    # the plan block: every state, and the framing
+    for state in ('plan.state === "calculating"', 'plan.state !== "ready"', "lw(plan.reason)", "lw(a.framing)", 'ow("assumes")'):
+        assert state in client, state
+    for part in ("s.return_status", "ch.in_sample", "ch.out_of_sample", "hz.solved_years", "ex.winner", "s.casadi_version"):
+        assert part in client, part
+
+
+def test_the_parameters_page_asks_for_the_outlook_after_a_base_regime_run_only():
+    """After a succeeded pcp run on a base Regime (the run's context names no scenario policy) the page asks the
+    app for the outlook through the cockpit route; after a scenario Regime's run, or a run that did not succeed,
+    it asks nothing. The Allocation shows chart 1 (weights) and chart 2 (target and reached per state)."""
+    params = _page_blocks()["curator/parameters"]
+    call = 'if (run.status === "succeeded" && !(run.context && run.context.regime_policy)) outlookAfterPcp(id);'
+    run_handler = params[params.index('$("pRun").onclick'):params.index("// ---- history and the allocation")]
+    assert call in run_handler and params.count("outlookAfterPcp(id)") == 1, "the only call, inside the run handler"
+    assert "cpost(`/clients/${encodeURIComponent(cid)}/outlook`)" in params, "no optimise: the app decides as after a new sheet"
+    assert 'weightsChart($("allocWeights"), a.instruments, a.weights_by_role)' in params
+    assert 'stateCurveChart($("allocCurve"), a.curves.target, a.curves.achieved, abasis)' in params
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    chart2 = html[html.index("function stateCurveChart("):html.index("function fanChart(")]
+    assert 'tickvals: [1, 25], ticktext: [ow("crisis"), ow("boom")]' in chart2 and "zeroline: true" in chart2
+
+
+def test_an_lbsim_run_status_names_its_artefact_by_kind():
+    """lbsim's RunStatus lists artefact_ids; the engine_run keeps the plan, else the paths, else the findings."""
+    from cockpit.api import _main_artefact
+    assert _main_artefact(["LSF-1", "LSP-2"]) == "LSP-2"
+    assert _main_artefact(["LSO-3"]) == "LSO-3" and _main_artefact(["LSF-1"]) == "LSF-1"
+    assert _main_artefact(["ALC-9"]) == "ALC-9" and _main_artefact([]) is None and _main_artefact(None) is None

@@ -32,12 +32,28 @@ CONTRACT_VERSIONS: dict[str, str] = {
     "Calibration": "report-calibration@1.0.0",
     "Allocation(pcp)": "pcp-allocation@1.0.0",
     "LifeBalanceSheet(lbs)": "lbs-balance-sheet@1.0.0",
+    "LifeBalanceFindings(lbsim)": "lbsim-findings@1.0.0",
+    "LifeBalancePaths(lbsim)": "lbsim-paths@1.0.0",
+    "LifeBalancePlan(lbsim)": "lbsim-plan@1.0.0",
 }
 
 NOTICE = "Model-derived research output. Not investment advice."
 
 Language = Literal["de", "en"]
-EngineName = Literal["pcp", "lbs"]
+EngineName = Literal["pcp", "lbs", "lbsim"]
+#: lbsim's three artefact kinds, by the prefix of their id (REP-32): at most one source per engine and kind.
+LBSIM_KINDS: dict[str, str] = {"LSF": "findings", "LSP": "paths", "LSO": "plan"}
+
+
+def source_kind(engine: str, artefact_id: str) -> str:
+    """The kind of a source: the engine, or for lbsim the engine and the artefact kind its id's prefix names."""
+    if engine != "lbsim":
+        return engine
+    kind = LBSIM_KINDS.get(artefact_id.split("-", 1)[0])
+    if kind is None:
+        raise ValueError(f"an lbsim source is a findings (LSF-), paths (LSP-) or plan (LSO-) artefact, not "
+                         f"{artefact_id!r}")
+    return f"lbsim.{kind}"
 #: The basis of return and goal figures (REP-27): ``nominal`` (the default everywhere) or ``real``, in today's
 #: francs, with ``real = nominal - ln(1 + inflation)`` for log returns.
 Basis = Literal["nominal", "real"]
@@ -97,6 +113,14 @@ class AllocationProvenance(_Upstream):
     calibration_version: str
 
 
+class AllocationCurves(_Upstream):
+    """The Mandate's target return per state and what the weights reach, 25 states from crisis to boom, on the
+    Allocation's basis (chart 2, REP-34)."""
+
+    target: tuple[float, ...]
+    achieved: tuple[float, ...]
+
+
 class Allocation(_Upstream):
     """``pcp-allocation@1.0.0``, as ``report`` reads it."""
 
@@ -120,6 +144,8 @@ class Allocation(_Upstream):
     #: Since pcp's real view (REP-28): the basis of the Mandate's target curve and of the ReturnSet it was solved
     #: on. An Allocation without it counts as ``nominal``.
     basis: Optional[Basis] = None
+    #: Chart 2 (REP-34); an Allocation without curves gets no chart.
+    curves: Optional[AllocationCurves] = None
 
 
 # ---------------------------------------------------------------------------
@@ -377,6 +403,248 @@ class LifeBalanceSheet(_Upstream):
 
 
 # ---------------------------------------------------------------------------
+# Upstream mirrors: lbsim (REP-32), ``GET /artefacts/{id}`` on 8014, typed by the id's prefix. Mirrored from
+# lbsim's contracts.py of 29.09.2026 (B1); pinned to lbsim-findings@1.0.0, lbsim-paths@1.0.0, lbsim-plan@1.0.0.
+# ---------------------------------------------------------------------------
+
+class LsWords(_Upstream):
+    """A sentence for people in both languages; a page prints the one of its language."""
+
+    de: str
+    en: str
+
+
+class LsResponsibility(_Upstream):
+    label: LsWords
+    stated: bool
+
+
+class LsModelledEarning(_Upstream):
+    full_time_chf_per_year: float
+    responsibility: LsResponsibility
+
+
+class LsStatedEarning(_Upstream):
+    expected_full_pensum_income_chf_per_year: Optional[float] = None
+
+
+class LsCurrentEarning(_Upstream):
+    gross_income_chf_per_year: Optional[float] = None
+    pensum: Optional[float] = None
+
+
+class LsEarningPower(_Upstream):
+    person_id: str
+    status: Literal["available", "not_available"]
+    reason: Optional[LsWords] = None
+    modelled: Optional[LsModelledEarning] = None
+    stated: LsStatedEarning
+    level_basis: Literal["stated", "modelled"]
+    current: LsCurrentEarning
+    caveats: tuple[LsWords, ...] = ()
+
+
+class LsSavingNeed(_Upstream):
+    goal_id: str
+    target_chf: float
+    target_date: Optional[str] = None
+    zero_return_saving_chf_per_year: float
+    free_cash_chf_per_year: float
+    holds: bool = False
+
+
+class LsRealSavingView(_Upstream):
+    derived: Literal[True]
+    saving_need: tuple[LsSavingNeed, ...]
+
+
+class LsIncomePathViews(_Upstream):
+    real: LsRealSavingView
+
+
+class LsIncomePath(_Upstream):
+    code: str
+    person_id: str
+    name: LsWords
+    note: LsWords
+    saving_need: tuple[LsSavingNeed, ...]
+    views: LsIncomePathViews
+
+
+class LsZeroReturn(_Upstream):
+    note: LsWords
+
+
+class LsFigure(_Upstream):
+    value: Optional[float]
+    unit: Literal["chf", "chf_per_year", "share", "years", "hours_per_week", "count"]
+    basis: Optional[Basis] = None
+
+
+class LsFindingWords(_Upstream):
+    title: str
+    trigger: str
+    why: str
+    action: str
+
+
+class LsFindingText(_Upstream):
+    de: LsFindingWords
+    en: LsFindingWords
+
+
+class LsFinding(_Upstream):
+    code: str
+    severity: Literal["blocking", "high", "medium", "note"]
+    urgency: Literal["now", "months", "year", "watch"]
+    action_kind: Literal["ask", "quantify", "decide_between"]
+    figures: dict[str, LsFigure]
+    text: LsFindingText
+
+
+class LsScheduleEntry(_Upstream):
+    when: str
+    label: LsWords
+    codes: tuple[str, ...]
+
+
+class LsUnchecked(_Upstream):
+    code: str
+    reason: LsWords
+    #: ``plan`` for the rule only the plan calculation decides; left out of a report that carries the plan.
+    answered_by: Optional[str] = None
+
+
+class LsNextQuestion(_Upstream):
+    question_key: str
+    question: LsWords
+
+
+class LifeBalanceFindings(_Upstream):
+    """``lbsim-findings@1.0.0``, as ``report`` reads it."""
+
+    contract_version: Literal["lbsim-findings@1.0.0"]
+    artefact_id: str
+    client_ref: str
+    life_balance_sheet_id: str
+    as_of: str
+    principal: str
+    earning_power: tuple[LsEarningPower, ...]
+    income_paths: tuple[LsIncomePath, ...]
+    zero_return: LsZeroReturn
+    findings: tuple[LsFinding, ...]
+    schedule: tuple[LsScheduleEntry, ...]
+    unchecked: tuple[LsUnchecked, ...] = ()
+    next_questions: tuple[LsNextQuestion, ...] = ()
+
+
+class LsQuantiles(_Upstream):
+    p05: tuple[float, ...]
+    p10: tuple[float, ...]
+    p25: tuple[float, ...]
+    p50: tuple[float, ...]
+    p75: tuple[float, ...]
+    p90: tuple[float, ...]
+    p95: tuple[float, ...]
+
+
+class LsBandSet(_Upstream):
+    nominal: LsQuantiles
+    real: LsQuantiles
+
+
+class LsGoalTarget(_Upstream):
+    nominal_chf: float
+    real_chf: float
+    amount_basis: Literal["today", "future"]
+    date: str
+
+
+class LsGoalChance(_Upstream):
+    goal_id: str
+    kind: Literal["home", "retirement", "capital"]
+    measure: Literal["drawable", "deposit_eligible", "retirement_capital"]
+    target: LsGoalTarget
+    chance: float
+    chance_basis: Basis
+    n_reached: int
+
+
+class LsRegimePaths(_Upstream):
+    key: str
+    label: LsWords
+    kind: Literal["base", "scenario"]
+    bands: dict[str, LsBandSet]
+    goals: tuple[LsGoalChance, ...]
+
+
+class LifeBalancePaths(_Upstream):
+    """``lbsim-paths@1.0.0``, as ``report`` reads it."""
+
+    contract_version: Literal["lbsim-paths@1.0.0"]
+    artefact_id: str
+    client_ref: str
+    life_balance_sheet_id: str
+    findings_artefact_id: str
+    allocation_id: str
+    as_of: str
+    start_year: int
+    horizon_years: int
+    n_paths: int
+    regimes: tuple[LsRegimePaths, ...]
+
+
+class LsPlanGoal(_Upstream):
+    goal_id: str
+    kind: str
+    confidence: float
+
+
+class LsActionNow(_Upstream):
+    work_share: float
+    learning_hours_per_week: float
+    network_hours_per_week: float
+    rest_hours_per_week: float
+    consumption_chf_per_year: float
+    saving_chf_per_year: float
+    education_spend_chf_per_year: float
+    network_spend_chf_per_year: float
+    amortisation_chf_per_year: float
+
+
+class LsPlanChance(_Upstream):
+    out_of_sample: float
+
+
+class LsReachable(_Upstream):
+    amount_chf: float
+    at_confidence: float
+
+
+class LsPlanHorizon(_Upstream):
+    solved_years: float
+    total_years: float
+    beyond_cap_rule: Optional[str] = None
+
+
+class LifeBalancePlan(_Upstream):
+    """``lbsim-plan@1.0.0``, as ``report`` reads it. Only a finished solve is ever an artefact."""
+
+    contract_version: Literal["lbsim-plan@1.0.0"]
+    artefact_id: str
+    client_ref: str
+    life_balance_sheet_id: str
+    paths_artefact_id: str
+    outcome: Literal["solved", "goal_not_fundable", "undetermined"]
+    goal: LsPlanGoal
+    action_now: LsActionNow
+    framing: LsWords
+    chance: LsPlanChance
+    reachable: Optional[LsReachable] = None
+    horizon: LsPlanHorizon
+
+
+# ---------------------------------------------------------------------------
 # In
 # ---------------------------------------------------------------------------
 
@@ -443,9 +711,9 @@ class ReportRequest(_Frozen):
 
     @model_validator(mode="after")
     def _consistent(self) -> "ReportRequest":
-        engines = [s.engine for s in self.sources]
-        if len(set(engines)) != len(engines):
-            raise ValueError("at most one source artefact per engine")
+        kinds = [source_kind(s.engine, s.artefact_id) for s in self.sources]
+        if len(set(kinds)) != len(kinds):
+            raise ValueError("at most one source artefact per engine and artefact kind")
         if (self.kind == "update") != (self.previous_report_id is not None):
             raise ValueError("an update names previous_report_id, and only an update does")
         keys = [f.key for f in self.display_facts]

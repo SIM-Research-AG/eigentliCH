@@ -35,7 +35,7 @@ def transports() -> dict[str, httpx.BaseTransport]:
             return httpx.Response(200, content=(gc.INPUTS / name).read_bytes()) if name else httpx.Response(404)
         return httpx.MockTransport(handler)
 
-    return {"pcp": make("pcp"), "lbs": make("lbs")}
+    return {"pcp": make("pcp"), "lbs": make("lbs"), "lbsim": make("lbsim")}
 
 
 def build(live: bool) -> None:

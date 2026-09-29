@@ -44,7 +44,7 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if reason is None and settings.model.model in served else 3
         store = Store(settings.database)
         print(f"store: {settings.database.redacted_url()}")
-        upstream = engine_clients({"pcp": settings.pcp_url, "lbs": settings.lbs_url}, settings.upstream_timeout_s)
+        upstream = engine_clients({"pcp": settings.pcp_url, "lbs": settings.lbs_url, "lbsim": settings.lbsim_url}, settings.upstream_timeout_s)
         try:
             Service(settings, store, upstream, model).startup(warmup=False)
         except Exception as exc:  # noqa: BLE001 - a CLI reports the reason, not a traceback

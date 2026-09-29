@@ -5,9 +5,16 @@ resume point. Model-derived research output; not investment advice.
 
 ## State (29.09.2026)
 
-- **Engine 15, v1.3.0**, calibration 1.0.0, prompt `report-prompt@1.1.0`. 335 tests pass (`python -m pytest`,
-  about 30 s, needs the PostgreSQL container); the prose case re-frozen live under the new prompt, seven prose
-  sections verified on the first draft (model `google/gemma-4-31B-it-qat-w4a16-ct`).
+- **Engine 15, v1.4.0**, calibration 1.0.0, prompt `report-prompt@1.1.0`. 418 tests pass (`python -m pytest`,
+  about 60 s, needs the PostgreSQL container); the prose case re-frozen live on 29.09.2026, seven prose sections
+  verified on the first draft (model `google/gemma-4-31B-it-qat-w4a16-ct`). The running server on 8015 needs a
+  restart to serve 1.4.0 (the coordinator restarts it; this build did not).
+- **29.09.2026, lbsim and the charts** (REP-32 to REP-37): lbsim as a source (one per engine and artefact kind:
+  findings, paths, plan), the refusals of a mix of sheets, Allocations, findings or paths, the five sections
+  (earning power, income paths, outlook, plan, findings), lbsim's templates in the report's language, "wird
+  berechnet" while the plan runs, and the three inline SVG charts (`charts.py`) with every printed value a fact.
+  Built on B1's frozen samples; lbsim itself (B2, C) and the app's outlook routes (E) were built in parallel.
+  Golden page with all three charts: `golden/reports/de_outlook.html` (and `en_outlook.html`).
 - **29.09.2026, the nominal and real view** (REP-27 to REP-30): optional `basis: nominal|real` in
   `report-request@1.0.0` (default nominal, in the key only when real, so every earlier request keeps its id);
   the basis in the lede and next to every return and goal figure; real takes lbs's own real figures
@@ -27,7 +34,7 @@ resume point. Model-derived research output; not investment advice.
 - Both extractors are complete: pcp (`pcp-allocation@1.0.0`) and lbs (`lbs-balance-sheet@1.0.0`, final).
 - Store: database `simtech`, schema `report`, role `report`; password in `config.local.yaml` (git-ignored).
 - spark7 token in `eigentliCH_Engines/.env` (git-ignored).
-- Golden: ten frozen reports over frozen artefacts (`golden/inputs`, `golden/reports`; open the `.html` files to
+- Golden: sixteen frozen reports over frozen artefacts (`golden/inputs`, `golden/reports`; open the `.html` files to
   see them).
 
 ## Resume
@@ -36,6 +43,7 @@ resume point. Model-derived research output; not investment advice.
 cd Projects\PostgreSQL && docker compose up -d
 cd Projects\Engines\Optimizer\engines\pcp && start.cmd                    :: 8007
 cd Projects\Engines\eigentliCH_Engines\engines\lbs && start.cmd           :: 8013
+:: lbsim on 8014 is started by the cockpit (autostart)
 cd Projects\Engines\eigentliCH_Engines\engines\report && start.cmd        :: 8015, test bench at /
 ..\..\.venv\Scripts\python -m pytest
 ```
@@ -71,3 +79,19 @@ PCP-...` from the running pcp, or `--pcp-offline` with the Optimizer venv), then
    and an lbs sheet under calibration 1.4.0; otherwise the report answers 422 with the reason.
 10. lbs's plausibility reason and levers (LBS-34) and a goal's `amount_basis` are not printed yet; only the
    judgement is. The pensions' AHV figures carry no basis mark (lbs states none for them).
+11. **lbsim's samples are hand-built** (B1, `made_by: sample`): once B2's engine publishes real artefacts, freeze
+   one outlook from the running lbsim (findings, paths, plan of one sheet, with its lbs sheet and pcp Allocation)
+   into `golden/inputs` and rebuild the goldens; the mirrors read only the fields named in REP-32, so an additive
+   change upstream does not break them.
+12. **The fan's last year** (REP-35): the sample's `deposit_eligible` band records the goal year after the deposit
+   is paid, so the home goal's fan and its end figures dip at the goal date. The report reads index
+   `goal year - start_year`; lbsim (B2) should state whether that year-end value is before or after a goal's
+   payment, and if after, give the value at the goal date (the report then reads that instead).
+13. **The consumer app** (E) sends the lbsim sources: findings and paths while the plan runs (the page says "wird
+   berechnet"), then an update with the plan once `GET /outlook` says `ready`. A plan run that fails leaves the
+   report saying "wird berechnet" until a report without the paths, or with a later plan, is asked; the report
+   does not read lbsim's run state (REP-33). Its mirror of `report-request@1.0.0` must admit `lbsim` as a source
+   engine and more than one source of that engine (one per kind).
+14. A real report with lbsim draws on lbs and lbsim alone while lbsim's Allocations are nominal (REP-36); once pcp
+   serves real CHF Allocations and lbsim simulates on them, a real report can carry charts 1 and 2 again.
+15. The five lbsim sections have no prose slot; adding slots is a new calibration version.

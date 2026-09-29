@@ -322,8 +322,8 @@ const latestDecision = kind => (S.decisions || []).find(d => d.kind === kind);
 // Nominal and real (C-31). Default nominal, the basis always shown next to the figures. The
 // switch only names the basis to the engines (fmre basis=real, the Mandate's basis); the real
 // figures and the inflation behind them are fmre's, the cockpit converts nothing (C-07). Only
-// the Parameters page and the instrument views carry a switch: the macro views (macrofield,
-// cycle, aggregation) stay nominal (owner, 29.09.2026).
+// the Parameters page, the instrument views and the Client page's outlook (lbsim's own real view,
+// C-34) carry a switch: the macro views (macrofield, cycle, aggregation) stay nominal (owner, 29.09.2026).
 // ---------------------------------------------------------------------------------------
 const BASES = [["nominal", "Nominal"], ["real", "Real"]];
 const DEFAULT_BASIS = "nominal";
@@ -1381,6 +1381,13 @@ page("curator/client", "curator", "Client", async () => {
     const fresh = await api(`/curator/clients/${encodeURIComponent(id)}`).catch(() => null);
     if (fresh) { $("cRuns").innerHTML = runsTable(fresh.engine_runs); wireRuns($("cRuns"), reload); }
   }, null).catch(() => {});
+
+  // the lbsim outlook (C-34): read through the proxy for the newest sheet; new runs only through the app
+  const oc = card(esc(ow("title")), esc(ow("intro")), "The plan's figures are what the calculation assumes, shown to the client in the same words, never as a recommendation.");
+  outlookPanel(oc, id, d, async () => {
+    const fresh = await api(`/curator/clients/${encodeURIComponent(id)}`).catch(() => null);
+    if (fresh) { $("cRuns").innerHTML = runsTable(fresh.engine_runs); wireRuns($("cRuns"), reload); }
+  }).catch(e => { oc.innerHTML = `<p class="bad">${esc(e.message)}</p>`; });
 });
 function lbsOutcome(r, id) {   // what the app recorded and returned for an on-demand lbs run
   const run = r.engine_run, bs = r.balance_sheet, aid = (run && run.artefact_id) || (bs && bs.artefact_id);
@@ -1404,6 +1411,268 @@ function wireRuns(host, done) {
   host.querySelectorAll("[data-refresh]").forEach(b => b.onclick = () => act(b, () => post(`/curator/runs/${b.dataset.refresh}/refresh`, {}), "Asked the engine again.").then(r => r && done()));
   host.querySelectorAll("[data-alloc]").forEach(b => b.onclick = () => { location.hash = `#/curator/parameters?c=${encodeURIComponent(store.get("curator:client") || "")}&alloc=${encodeURIComponent(b.dataset.alloc)}`; });
   host.querySelectorAll("[data-lbs]").forEach(b => b.onclick = () => { location.hash = `#/curator/parameters?c=${encodeURIComponent(store.get("curator:client") || "")}&lbs=${encodeURIComponent(b.dataset.lbs)}`; });
+}
+
+// ---- lbsim: the outlook (C-34, C-35) ----------------------------------------------------------
+// The same content as the consumer app's "Aussichten" surface, drawn from lbsim's GET /outlook through
+// the proxy, plus the plan's solver details for the curator. lbsim is asked for nothing here: a new
+// outlook or a plan run goes through the app (POST /api/curator/clients/{id}/outlook, the C-20 pattern).
+// The page computes no figure (C-07): it fills lbsim's templates with lbsim's figures and lays out its
+// bands, curves and weights; the real view is lbsim's own (views.real, bands.real, curves.real).
+// One language per page: the cockpit's pages are English (html lang en-GB), so every {de, en} pair
+// lbsim sends is read in English, and the panel's own words are the English side of OW (C-35).
+const OUTLOOK_LANG = "en";
+const OW = {
+  de: { title: "Aussichten", intro: "Was lbsim für den neuesten Life Balance Sheet des Kunden berechnet hat.",
+    earning: "Erwerbskraft", stated: "Ihre Angabe", modelled: "Modellwert", principal: "Hauptperson", partner: "Partner/in",
+    paths: "Einkommenspfade und Sparbedarf", findings: "Befunde und nächste Schritte", schedule: "Zeitplan", unchecked: "Nicht geprüft",
+    outlook: "Die Aussichten", weights: "Gewichte nach Rolle und nach Anlage", fit: "Ziel und Erreichtes je Zustand", fan: "Die simulierten Verläufe",
+    assumes: "Was die Rechnung annimmt", plan: "Was die Planrechnung ergibt", restart: "Planrechnung neu starten", compute: "Aussichten berechnen",
+    running: (n, h) => `Die Planrechnung läuft noch (seit ${n} Minuten, höchstens ${h} Stunden).`, converted: "umgerechnet",
+    crisis: "Krise", boom: "Boom", target: "Ziel", reached: "erreicht", solver: "Details der Planrechnung (für Kuratoren)" },
+  en: { title: "Outlook", intro: "What lbsim computed for the client's newest Life Balance Sheet: earning power, income paths, findings, the simulated paths and the plan calculation.",
+    earning: "Earning power", stated: "Stated by the client", modelled: "Model value", principal: "Principal", partner: "Partner",
+    paths: "Income paths and the saving they need", findings: "Findings and next steps", schedule: "Schedule", unchecked: "Not checked",
+    outlook: "The outlook", weights: "Weights by role and by instrument", fit: "Target and reached per state", fan: "The simulated paths",
+    assumes: "What the calculation assumes", plan: "What the plan calculation shows", restart: "Restart the plan calculation", compute: "Compute the outlook",
+    running: (n, h) => `The plan calculation is still running (for ${n} minutes, at most ${h} hours).`, converted: "converted",
+    crisis: "Crisis", boom: "Boom", target: "target", reached: "reached", solver: "Plan calculation details (curators)" } };
+const ow = k => OW[OUTLOOK_LANG][k];
+const lw = t => t && typeof t === "object" && !Array.isArray(t) ? (t[OUTLOOK_LANG] ?? t.en ?? t.de ?? "") : (t ?? "");   // one side of a {de, en} pair
+const HOUSE_ROLE = { gain: { de: "Wertsteigerung", en: "Gain" }, income: { de: "Einkommen", en: "Income" },
+  stabilisation: { de: "Stabilisierung", en: "Stabilisation" }, protection: { de: "Absicherung", en: "Protection" } };
+const roleWord = r => lw(HOUSE_ROLE[String(r || "").toLowerCase()]) || label(r);
+const GOAL_KIND = { home: { de: "Wohneigentum", en: "Home ownership" }, retirement: { de: "Ruhestand", en: "Retirement" }, capital: { de: "Kapitalbetrag", en: "Lump sum" } };
+const SERIES_WORD = { net_worth: { de: "Reinvermögen", en: "Net worth" }, drawable: { de: "Verfügbares Vermögen", en: "Drawable wealth" },
+  deposit_eligible: { de: "Als Eigenmittel anrechenbar", en: "Wealth that counts as a deposit" }, retirement_capital: { de: "Alterskapital", en: "Retirement capital" } };
+const SEVERITY = { blocking: { de: "blockierend", en: "blocking" }, high: { de: "hoch", en: "high" }, medium: { de: "mittel", en: "medium" }, note: { de: "Hinweis", en: "note" } };
+const URGENCY = { now: { de: "jetzt", en: "now" }, months: { de: "in den nächsten Monaten", en: "within months" }, year: { de: "innerhalb eines Jahres", en: "within a year" }, watch: { de: "beobachten", en: "to watch" } };
+const ACTION_NOW = [   // the plan's "this period" figures, in plain units
+  ["work_share", { de: "Arbeit (Anteil der produktiven Woche von 100 Stunden)", en: "Work (share of a 100-hour productive week)" }, "share"],
+  ["learning_hours_per_week", { de: "Lernen", en: "Learning" }, "hours_per_week"], ["network_hours_per_week", { de: "Netzwerk", en: "Networking" }, "hours_per_week"],
+  ["rest_hours_per_week", { de: "Erholung", en: "Rest" }, "hours_per_week"], ["consumption_chf_per_year", { de: "Konsum", en: "Consumption" }, "chf_per_year"],
+  ["saving_chf_per_year", { de: "Sparen", en: "Saving" }, "chf_per_year"], ["education_spend_chf_per_year", { de: "Ausgaben für Ausbildung", en: "Spending on education" }, "chf_per_year"],
+  ["network_spend_chf_per_year", { de: "Ausgaben für das Netzwerk", en: "Spending on the network" }, "chf_per_year"], ["amortisation_chf_per_year", { de: "Amortisation", en: "Amortisation" }, "chf_per_year"]];
+const CONTROL_WORD = { tau_Y: "working time", tau_E: "learning time", tau_N: "networking time", tau_H: "rest", C: "consumption", m_E: "education spend", m_N: "network spend", p_A: "amortisation" };
+const chfW = v => v === null || v === undefined ? `<span class="muted">n/a</span>` : `CHF ${Math.round(Number(v)).toLocaleString("de-CH")}`;
+const perYear = OUTLOOK_LANG === "de" ? " pro Jahr" : " a year", perWeek = OUTLOOK_LANG === "de" ? " Std. pro Woche" : " hours a week";
+function figureText(f) {   // one of lbsim's figures, formatted by its unit (the template carries the words around it)
+  if (!f || f.value === null || f.value === undefined) return "n/a";
+  const v = Number(f.value);
+  switch (f.unit) {
+    case "chf": case "chf_per_year": return `CHF ${Math.round(v).toLocaleString("de-CH")}`;
+    case "share": return `${(v * 100).toFixed(0)} %`;
+    case "years": return v.toLocaleString("de-CH", { maximumFractionDigits: 1 });
+    case "hours_per_week": return v.toLocaleString("de-CH", { maximumFractionDigits: 1 });
+    case "count": return Math.round(v).toLocaleString("de-CH");
+    default: return v.toLocaleString("de-CH", { maximumFractionDigits: 2 });
+  }
+}
+const fillTemplate = (tpl, figures) => esc(String(tpl || "")).replace(/\{(\w+)\}/g, (m, k) => figures && figures[k] ? `<b>${esc(figureText(figures[k]))}</b>` : m);
+function unitValue(v, unit) {
+  if (v === null || v === undefined) return `<span class="muted">n/a</span>`;
+  return unit === "share" ? `${(Number(v) * 100).toFixed(0)} %` : unit === "hours_per_week" ? `${fmt(v, 1)}${perWeek}` : `${chfW(v)}${perYear}`;
+}
+const hexA = (hex, a) => { const h = String(hex).replace("#", ""); return h.length === 6 ? `rgba(${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)},${a})` : hex; };
+function outlookGoals(o) {   // goal_id -> {kind, date, name}, from the paths (the base Regime lists every goal)
+  const out = {};
+  for (const r of ((o.paths && o.paths.regimes) || [])) for (const g of r.goals || []) out[g.goal_id] ||= g;
+  return out;
+}
+function goalWord(goalId, goals, date) {
+  const g = goals[goalId], d = (g && g.target && g.target.date) || date || "";
+  const year = d ? String(d).slice(0, 4) : "";
+  if (g && GOAL_KIND[g.kind]) return `${lw(GOAL_KIND[g.kind])}${year ? ` ${year}` : ""}`;
+  return OUTLOOK_LANG === "de" ? `Ziel${year ? ` bis ${year}` : ""}` : `Goal${year ? ` due ${year}` : ""}`;
+}
+// Chart 1: the Allocation's weights by role (house names) and by instrument (by name). Used by the outlook
+// panel (lbsim's allocation_view) and by the Parameters page (pcp's Allocation).
+function weightsChart(host, instruments, byRole) {
+  const roles = ["gain", "income", "stabilisation", "protection"];
+  const roleVals = roles.map(r => { const k = Object.keys(byRole || {}).find(x => x.toLowerCase() === r); return k ? byRole[k] : 0; });
+  const held = (instruments || []).filter(i => i.weight > 0).sort((p, q) => p.weight - q.weight);
+  const grid = document.createElement("div"); grid.className = "grid2"; host.append(grid);
+  const a = chartIn(grid, 200), b = chartIn(grid, Math.max(200, 26 * held.length + 60));
+  const bar = { tickformat: ".0%", rangemode: "tozero", title: { text: OUTLOOK_LANG === "de" ? "Gewicht" : "weight" } };
+  plot(a, [{ type: "bar", orientation: "h", y: roles.map(roleWord), x: roleVals, marker: { color: [css("--s1"), css("--s3"), css("--s2"), css("--s4")] },
+             text: roleVals.map(v => `${(v * 100).toFixed(0)} %`), textposition: "auto", hovertemplate: "%{y}: %{x:.1%}<extra></extra>" }],
+    { showlegend: false, margin: { l: 110, r: 16, t: 8, b: 40 }, xaxis: bar, yaxis: { autorange: "reversed" } });
+  plot(b, [{ type: "bar", orientation: "h", y: held.map(i => i.name), x: held.map(i => i.weight), marker: { color: held.map(i => ({ gain: css("--s1"), income: css("--s3"), stabilisation: css("--s2"), protection: css("--s4") })[String(i.role).toLowerCase()] || css("--rest")) },
+             customdata: held.map(i => roleWord(i.role)), text: held.map(i => `${(i.weight * 100).toFixed(1)} %`), textposition: "auto", hovertemplate: "%{y} (%{customdata}): %{x:.1%}<extra></extra>" }],
+    { showlegend: false, margin: { l: 170, r: 16, t: 8, b: 40 }, xaxis: bar });
+}
+// Chart 2: the mandate's target curve and the portfolio's reached curve per state, 1 (crisis) to 25 (boom),
+// in the basis given, with the 0 % line.
+function stateCurveChart(el, target, achieved, basis) {
+  const st = Array.from({ length: (target || achieved || []).length }, (_, i) => i + 1);
+  plot(el, [{ x: st, y: target, name: OUTLOOK_LANG === "de" ? "Ziel (Mandatskurve)" : "target (the mandate's curve)", mode: "lines+markers", line: { color: css("--s2"), dash: "dot" } },
+            { x: st, y: achieved, name: OUTLOOK_LANG === "de" ? "erreicht (Portfolio)" : "reached (the portfolio)", mode: "lines+markers", line: { color: css("--s1") } }],
+    { margin: { l: 56, r: 12, t: 8, b: 44 }, legend: { orientation: "h", y: -0.25 },
+      xaxis: { tickvals: [1, 25], ticktext: [ow("crisis"), ow("boom")], range: [0.5, 25.5], title: { text: OUTLOOK_LANG === "de" ? "Zustand der Wirtschaft" : "state of the economy" } },
+      yaxis: { tickformat: ".1%", zeroline: true, zerolinecolor: css("--ink-2"), zerolinewidth: 1.5, title: { text: `${basis || "nominal"}, annualised log return` } } });
+}
+// Chart 3: the fan (5 to 95 and 25 to 75 of 100 paths, the median) of one series in one basis, with the goal
+// lines of the goals measured on that series: solid in the goal's own basis, dashed and labelled converted
+// in the other (LBSIM-09).
+function fanChart(el, paths, regime, series, basis, goals) {
+  const set = ((regime.bands || {})[series] || {})[basis];
+  if (!set) { el.innerHTML = `<p class="muted">lbsim sent no ${esc(basis)} band for this series.</p>`; return; }
+  const years = set.p50.map((_, k) => paths.start_year + k), c = css("--s1");
+  const line = (y, name, extra = {}) => ({ x: years, y, name, mode: "lines", hoverinfo: "skip", ...extra });
+  const traces = [
+    line(set.p95, "p95", { line: { width: 0 }, showlegend: false }),
+    line(set.p05, OUTLOOK_LANG === "de" ? "90 von 100 Verläufen" : "90 of 100 paths", { line: { width: 0 }, fill: "tonexty", fillcolor: hexA(c, 0.14) }),
+    line(set.p75, "p75", { line: { width: 0 }, showlegend: false }),
+    line(set.p25, OUTLOOK_LANG === "de" ? "50 von 100 Verläufen" : "50 of 100 paths", { line: { width: 0 }, fill: "tonexty", fillcolor: hexA(c, 0.28) }),
+    { x: years, y: set.p50, name: OUTLOOK_LANG === "de" ? "Median" : "median", mode: "lines", line: { color: c, width: 2.2 }, hovertemplate: "%{x}: CHF %{y:,.0f}<extra></extra>" }];
+  for (const g of (regime.goals || []).filter(x => x.measure === series)) {
+    const own = g.chance_basis || "nominal", other = basis !== own;
+    const val = basis === "real" ? g.target.real_chf : g.target.nominal_chf, gy = Number(String(g.target.date || "").slice(0, 4)) || years[years.length - 1];
+    traces.push({ x: [years[0], gy], y: [val, val], mode: "lines+markers", marker: { size: [0, 8], color: css("--s2") },
+      name: `${goalWord(g.goal_id, goals)}${other ? ` (${ow("converted")})` : ""}`, line: { color: css("--s2"), dash: other ? "dash" : "solid", width: 1.8 },
+      hovertemplate: `${esc(goalWord(g.goal_id, goals))}: CHF %{y:,.0f}${other ? ` (${ow("converted")})` : ""}<extra></extra>` });
+  }
+  plot(el, traces, { separators: ".'", margin: { l: 80, r: 16, t: 8, b: 44 }, legend: { orientation: "h", y: -0.2 },
+    xaxis: { title: { text: OUTLOOK_LANG === "de" ? "Jahresende" : "year end" } }, yaxis: { tickformat: ",.0f", tickprefix: "CHF ", rangemode: "tozero", title: { text: basis } } });
+}
+function planBlock(plan) {   // the plan's state, as lbsim states it; ready: the figures under the framing heading
+  if (!plan) return `<p class="muted">lbsim sent no plan state.</p>`;
+  if (plan.state === "calculating") {
+    const n = Math.max(0, Math.floor((plan.elapsed_s || 0) / 60)), h = plan.budget_s ? Math.round(plan.budget_s / 3600 * 10) / 10 : 2;
+    return `<p class="warn">${esc(ow("running")(n, h))}</p>`;
+  }
+  if (plan.state !== "ready" || !plan.artefact) return `<p class="ink2">${esc(lw(plan.reason) || label(plan.state))}</p>`;
+  const a = plan.artefact, rows = ACTION_NOW.filter(([k]) => a.action_now && a.action_now[k] !== undefined);
+  return `<h3 class="chart-t">${esc(ow("assumes"))}</h3><p class="ink2" style="margin-top:0">${esc(lw(a.framing))}</p>
+    ${table(rows, [["", ([, w]) => esc(lw(w))], ["", ([k, , unit]) => unitValue(a.action_now[k], unit), false]])}`;
+}
+function solverDetails(plan, goals = {}) {   // the curator's view of the plan: the solver record, the chances, horizon and exchange rate
+  const a = plan && plan.artefact;
+  if (!a) return "";
+  const s = a.solver || {}, ch = a.chance || {}, hz = a.horizon || {}, ex = a.exchange_rate || {};
+  const outcome = { solved: "solved: the goal is reached at the confidence required", goal_not_fundable: "the goal cannot be funded at the confidence required", undetermined: "undetermined" }[a.outcome] || label(a.outcome);
+  const rows = [["Outcome", esc(outcome) + (a.reachable ? `; reachable ${chfW(a.reachable.amount_chf)} at ${pct(a.reachable.at_confidence, 0)} confidence` : "")],
+    ["Goal", `${esc(a.goal && goals[a.goal.goal_id] ? goalWord(a.goal.goal_id, goals) : a.goal && GOAL_KIND[a.goal.kind] ? lw(GOAL_KIND[a.goal.kind]) : goalWord(null, {}))}, confidence ${pct(a.goal && a.goal.confidence, 0)}`],
+    ["Chance in sample", pct(ch.in_sample, 1)], ["Chance out of sample", `${pct(ch.out_of_sample, 1)} over ${ch.n_out_of_sample ?? "n/a"} paths (seed ${esc(ch.seed_out ?? "n/a")})`],
+    ["Shortfall (CVaR)", chfW(a.shortfall_cvar_chf)],
+    ["Horizon", `${fmt(hz.solved_years, 0)} of ${fmt(hz.total_years, 0)} years solved${hz.beyond_cap_rule === "zero_return_terminal" ? "; beyond them the wealth needed at zero return is required at the end of the solved years" : hz.beyond_cap_rule ? `; ${esc(label(hz.beyond_cap_rule))}` : ""}`],
+    ["Exchange rate", ex.winner ? `${esc(label(ex.winner))} wins, ratio ${fmt(ex.ratio, 2)}${ex.dominant ? `, dominated by ${esc(CONTROL_WORD[ex.dominant] || label(ex.dominant))}` : ""}` : `<span class="muted">n/a</span>`],
+    ["Solver", `${esc(s.return_status || "n/a")}, ${s.iterations ?? "n/a"} iterations, ${s.wall_clock_s !== undefined && s.wall_clock_s !== null ? `${fmt(s.wall_clock_s / 60, 1)} minutes` : "n/a"}`],
+    ["Seed", `${esc(s.seed ?? "n/a")}, attempt ${esc(s.seed_attempt ?? "n/a")}; M_opt ${esc(s.M_opt ?? "n/a")}; ${(s.grid || []).length} grid steps`],
+    ["Versions", `CasADi ${esc(s.casadi_version || "n/a")}, IPOPT ${esc(s.ipopt_version || "n/a")}`]];
+  return `<details style="margin-top:8px"><summary class="muted" style="cursor:pointer">${esc(ow("solver"))}</summary>
+    <div class="scroll"><table><tbody>${rows.map(([k, v]) => `<tr><td class="l ink2" style="width:190px">${k}</td><td class="l">${v}</td></tr>`).join("")}</tbody></table></div></details>`;
+}
+function drawOutlook(host, o, view) {   // view: {basis, regime, series}, kept across redraws
+  const f = o.findings, p = o.paths, goals = outlookGoals(o), person = pid => pid === (f && f.principal) ? ow("principal") : ow("partner");
+  host.innerHTML = "";
+  const sec = (title, sub) => { const d = document.createElement("div"); d.innerHTML = `<h3 class="chart-t">${esc(title)}</h3>${sub ? `<p class="note" style="margin-top:0">${sub}</p>` : ""}`; host.append(d); return d; };
+  const bar = document.createElement("div"); bar.className = "filters"; host.append(bar);
+  bar.innerHTML = `<div class="fld">Basis ${basisSwitch("oBasis", view.basis)}</div>
+    ${p ? `<label>Regime <select id="oRegime">${p.regimes.map(r => `<option value="${esc(r.key)}"${r.key === view.regime ? " selected" : ""}>${esc(lw(r.label))}</option>`).join("")}</select></label>` : ""}
+    <span class="spacer"></span><span class="ink2" style="font-size:12px">sheet ${idChip(o.life_balance_sheet_id, 12)}${f ? ` · findings ${idChip(f.artefact_id, 12)}` : ""}${p ? ` · paths ${idChip(p.artefact_id, 12)}` : ""}${o.plan && o.plan.artefact ? ` · plan ${idChip(o.plan.artefact.artefact_id, 12)}` : ""}</span>`;
+  wireBasis("oBasis", b => { view.basis = b; drawOutlook(host, o, view); });
+  if ($("oRegime")) $("oRegime").onchange = () => { view.regime = $("oRegime").value; drawOutlook(host, o, view); };
+
+  // earning power per adult: the level used, the stated and the modelled figure
+  if (f) {
+    const ep = sec(ow("earning"), `Today's francs a year. "${esc(ow("stated"))}" when the client gave an expectation, "${esc(ow("modelled"))}" when the model supplies the level.`);
+    ep.insertAdjacentHTML("beforeend", table(f.earning_power || [], [["Person", e => esc(person(e.person_id))],
+      ["Level used", e => e.status !== "available" && !e.stated.expected_full_pensum_income_chf_per_year ? `<span class="muted">${esc(lw(e.reason) || "not available")}</span>` : `<b>${esc(e.level_basis === "stated" ? ow("stated") : ow("modelled"))}</b>`],
+      ["Stated (full pensum)", e => e.stated && e.stated.expected_full_pensum_income_chf_per_year ? `${chfW(e.stated.expected_full_pensum_income_chf_per_year)}${e.stated.from_age ? ` <span class="muted">from age ${fmt(e.stated.from_age, 0)}</span>` : ""}` : `<span class="muted">none</span>`, false],
+      ["Model (full time)", e => e.modelled ? chfW(e.modelled.full_time_chf_per_year) : `<span class="muted">${esc(lw(e.reason) || "n/a")}</span>`, false],
+      ["Today", e => e.current ? `${chfW(e.current.gross_income_chf_per_year)} <span class="muted">at ${pct(e.current.pensum, 0)}</span>` : "", false],
+      ["Responsibility", e => e.modelled && e.modelled.responsibility ? `${esc(lw(e.modelled.responsibility.label))}${e.modelled.responsibility.stated ? "" : ` <span class="muted">(not stated)</span>`}` : ""],
+      ["Notes", e => `<span class="ink2" style="font-size:11.5px">${(e.caveats || []).map(c => esc(lw(c))).join(" ")}</span>`]], "lbsim names no adult."));
+
+    // income paths and the saving each goal needs at zero return, nominal or real (views.real, derived)
+    const ip = sec(ow("paths"), `${esc(lw(f.zero_return && f.zero_return.note))} ${view.basis === "real" ? `Real: in today's francs at the sheet's inflation (${pct(f.inflation && f.inflation.annual_rate, 1)} a year), as lbsim derives it.` : "Nominal: in the francs of each year."}`);
+    const goalIds = [...new Set((f.income_paths || []).flatMap(x => (x.saving_need || []).map(s => s.goal_id)))];
+    const need = (x, gid) => { const nom = (x.saving_need || []).find(s => s.goal_id === gid); const real = ((x.views && x.views.real && x.views.real.saving_need) || []).find(s => s.goal_id === gid);
+      return { nom, row: view.basis === "real" ? real : nom }; };
+    ip.insertAdjacentHTML("beforeend", table(f.income_paths || [], [
+      ["Path", x => `<b>${esc(lw(x.name))}</b><div class="muted" style="font-size:11.5px;max-width:360px">${esc(lw(x.note))}</div>`],
+      ["Person", x => esc(person(x.person_id))], ["Level", x => esc(x.level_basis === "stated" ? ow("stated") : ow("modelled"))],
+      ["Pensum", x => `${pct(x.pensum_now, 0)}${x.pensum_after !== x.pensum_now ? ` to ${pct(x.pensum_after, 0)}` : ""}`, false],
+      ...goalIds.map(gid => [`${esc(goalWord(gid, goals, ((f.income_paths[0].saving_need || []).find(s => s.goal_id === gid) || {}).target_date))}: saving needed a year / free`, x => {
+        const { nom, row } = need(x, gid);
+        if (!row) return `<span class="muted">n/a</span>`;
+        return `${chfW(row.zero_return_saving_chf_per_year)} / ${chfW(row.free_cash_chf_per_year)} ${nom && nom.holds ? `<span class="ok">holds</span>` : `<span class="warn">short</span>`}<div class="muted" style="font-size:11.5px">goal ${chfW(row.target_chf)}</div>`; }, false])],
+      "lbsim computed no income path."));
+
+    // findings with their actions, and the schedule
+    const fd = sec(ow("findings"), "lbsim's own words, with its figures. Each finding asks, quantifies or sets out a choice; none is a recommendation to buy or sell.");
+    const byCode = Object.fromEntries((f.findings || []).map(x => [x.code, x]));
+    fd.insertAdjacentHTML("beforeend", (f.findings || []).length ? (f.findings || []).map(x => { const t = lw(x.text) || {};
+      return `<div class="msg" style="border-left-color:var(${x.severity === "blocking" || x.severity === "high" ? "--serious" : "--s1"})"><div class="who">${esc(lw(SEVERITY[x.severity]) || x.severity)} · ${esc(lw(URGENCY[x.urgency]) || x.urgency)}${Object.values(x.figures || {}).some(v => v.basis) ? ` · ${basisChip(Object.values(x.figures).find(v => v.basis).basis)}` : ""}</div>
+        <div class="body"><b>${fillTemplate(t.title, x.figures)}</b><div>${fillTemplate(t.trigger, x.figures)}</div><div class="ink2">${fillTemplate(t.why, x.figures)}</div><div style="margin-top:4px"><b>&rarr;</b> ${fillTemplate(t.action, x.figures)}</div></div></div>`; }).join("")
+      : `<p class="muted">No finding.</p>`);
+    if ((f.schedule || []).length) fd.insertAdjacentHTML("beforeend", `<h3 class="chart-t">${esc(ow("schedule"))}</h3>${table(f.schedule, [["When", s => `<b>${esc(lw(s.label))}</b>`],
+      ["Findings", s => (s.codes || []).map(c => byCode[c] ? esc(fillTemplate((lw(byCode[c].text) || {}).title, byCode[c].figures).replace(/<[^>]+>/g, "")) : "").filter(Boolean).join("; ")]])}`);
+    if ((f.unchecked || []).length) fd.insertAdjacentHTML("beforeend", `<h3 class="chart-t">${esc(ow("unchecked"))}</h3><ul class="notes">${f.unchecked.map(u => `<li>${esc(lw(u.reason))}${(u.missing || []).length ? ` <span class="muted">(${u.missing.length} question${u.missing.length > 1 ? "s" : ""} unanswered)</span>` : ""}</li>`).join("")}</ul>`);
+  } else host.insertAdjacentHTML("beforeend", `<p class="muted">lbsim holds no findings for this sheet yet.</p>`);
+
+  // charts 1 to 3, and the chances per goal under the chosen Regime
+  const ch = sec(ow("outlook"), p ? `${p.n_paths} simulated paths over ${p.horizon_years} years, monthly steps, under the plan as stated. ${esc(lw(p.market_model && p.market_model.rule))}` : "");
+  if (!p) { ch.insertAdjacentHTML("beforeend", `<p class="muted">No simulated paths: ${esc(lw(o.plan && o.plan.reason) || "lbsim computed none for this sheet (paths need a pcp Allocation on the base Regime)")}.</p>`); }
+  else {
+    const reg = p.regimes.find(r => r.key === view.regime) || p.regimes[0], av = p.allocation_view;
+    view.regime = reg.key;
+    ch.insertAdjacentHTML("beforeend", table(reg.goals || [], [["Goal", g => `<b>${esc(goalWord(g.goal_id, goals))}</b>`],
+      ["Target", g => `${chfW(g.chance_basis === "real" ? g.target.real_chf : g.target.nominal_chf)} ${basisChip(g.chance_basis)}`, false],
+      ["Chance", g => `<b>${pct(g.chance, 0)}</b> <span class="muted">(${g.n_reached} of ${p.n_paths} paths)</span>`, false],
+      ["Median shortfall", g => g.median_shortfall_chf ? chfW(g.median_shortfall_chf) : `<span class="muted">none</span>`, false]], "No goal is measured."));
+    if (p.regimes.length > 1) ch.insertAdjacentHTML("beforeend", `<p class="note">${p.regimes.map(r => `${esc(lw(r.label))}: ${(r.goals || []).map(g => `${esc(goalWord(g.goal_id, goals))} ${pct(g.chance, 0)}`).join(", ")}`).join(" · ")}. Each chance is judged in the goal's own basis, the same on both views.</p>`);
+    const seriesKeys = Object.keys(reg.bands || {});
+    if (!seriesKeys.includes(view.series)) view.series = seriesKeys.find(k => (reg.goals || []).some(g => g.measure === k)) || seriesKeys[0];
+    const fanHost = document.createElement("div"); ch.append(fanHost);
+    fanHost.innerHTML = `<h3 class="chart-t">${esc(ow("fan"))} <select id="oSeries" style="font-weight:400">${seriesKeys.map(k => `<option value="${esc(k)}"${k === view.series ? " selected" : ""}>${esc(lw(SERIES_WORD[k]) || label(k))}</option>`).join("")}</select></h3>`;
+    fanChart(chartIn(fanHost, 340), p, reg, view.series, view.basis, goals);
+    $("oSeries").onchange = () => { view.series = $("oSeries").value; drawOutlook(host, o, view); };
+    fanHost.insertAdjacentHTML("beforeend", `<p class="note">The goal line is solid in the goal's own basis and dashed, labelled ${esc(ow("converted"))}, in the other basis (converted at the median path's inflation).${(reg.bands[view.series] || {}).real && view.basis === "real" ? " Real bands are lbsim's, computed from the same draws." : ""}</p>`);
+    if (av) {
+      const w1 = document.createElement("div"); ch.append(w1);
+      w1.innerHTML = `<h3 class="chart-t">${esc(ow("weights"))} <span class="muted" style="font-weight:400">${esc(av.mandate_name || "")} · ${esc(av.currency || "")} · ${basisChip(av.allocation_basis)}</span></h3>`;
+      weightsChart(w1, av.instruments, av.by_role);
+      const curves = (av.curves || {})[view.basis];
+      const w2 = document.createElement("div"); ch.append(w2);
+      w2.innerHTML = `<h3 class="chart-t">${esc(ow("fit"))} ${basisChip(view.basis)}</h3>`;
+      if (curves) stateCurveChart(chartIn(w2, 280), curves.target, curves.achieved, view.basis);
+      w2.insertAdjacentHTML("beforeend", `<p class="note">${curves && curves.derived ? `The ${esc(view.basis)} curves are derived by lbsim from the Allocation's ${esc(av.allocation_basis)} curves with the inflation of each state.` : `On the Allocation's own basis (${esc(av.allocation_basis)}).`}</p>`);
+    }
+  }
+
+  // the plan: the same block the client sees, plus the solver details
+  const pb = sec(ow("plan"));
+  pb.insertAdjacentHTML("beforeend", planBlock(o.plan) + solverDetails(o.plan, goals));
+}
+async function outlookPanel(host, clientId, d, runsChanged) {   // the client's newest sheet, read through the proxy
+  const sheetRun = d.engine_runs.find(r => r.engine === "lbs" && r.status === "succeeded" && r.artefact_id);
+  host.innerHTML = `<div class="row" style="margin-bottom:6px"><button type="button" class="primary" id="oRestart" title="A priority plan run for the client's newest sheet, asked for through the consumer app, which records it as the acting curator's">${esc(ow("restart"))}</button>
+      <button type="button" id="oCompute" title="Findings and simulated paths for the newest sheet, asked for through the consumer app">${esc(ow("compute"))}</button><span id="oMsg" class="ink2"></span></div><div id="oBody"></div>`;
+  const body = $("oBody"), view = { basis: DEFAULT_BASIS, regime: "base", series: null };
+  const read = async () => {
+    if (!sheetRun) { body.innerHTML = `<p class="muted">No balance sheet yet: compute it first (Parameter sets and engine runs, below). The outlook is computed for the newest sheet.</p>`; return; }
+    body.innerHTML = `<p class="muted">Reading the outlook from lbsim…</p>`;
+    let o;
+    try { o = await api(`/lbsim/outlook?${new URLSearchParams({ client_ref: clientId, life_balance_sheet_id: sheetRun.artefact_id })}`); }
+    catch (e) { body.innerHTML = `<p class="warn">lbsim has no outlook to show for the newest balance sheet: ${esc(e.message)}</p>`; return; }
+    drawOutlook(body, o, view);
+  };
+  // Through the app only (C-20 pattern): the app builds the lbsim request and records the engine_run rows.
+  const ask = (btn, optimise) => act(btn, async () => {
+    $("oMsg").textContent = optimise ? "Asking the app for a new plan calculation…" : "Asking the app for the outlook…";
+    let r;
+    try { r = optimise ? await cpost(`/clients/${encodeURIComponent(clientId)}/outlook`, { optimise: "now" }) : await cpost(`/clients/${encodeURIComponent(clientId)}/outlook`); }
+    catch (e) { $("oMsg").innerHTML = `<span class="bad">${esc(e.message)}</span>`; throw e; }
+    const runs = r.engine_runs || [];
+    $("oMsg").innerHTML = `${r.error ? `<span class="bad">${esc(r.error)}</span> ` : ""}${runs.length ? `Recorded by the app: ${runs.map(x => `${esc(x.status)} ${idChip(x.id)}`).join(", ")}.` : "The app recorded no new run (the outlook was already there)."}`;
+    await read();
+    if (runsChanged) runsChanged();
+  }, null).catch(() => {});
+  $("oRestart").onclick = () => ask($("oRestart"), true);
+  $("oCompute").onclick = () => ask($("oCompute"), false);
+  await read();
 }
 
 // ---- Parameters: the pcp mandate --------------------------------------------------------
@@ -1884,6 +2153,13 @@ page("curator/parameters", "curator", "Parameters", async () => {
     <details style="margin-top:6px"><summary class="muted" style="cursor:pointer">The mandate as pcp receives it (JSON)</summary><pre id="pJson" class="muted">Validate or finalise to see it.</pre></details>
     <div id="pOut" style="margin-top:10px"></div>`;
   const out = html => { $("pOut").innerHTML = html; };
+  const outlookAfterPcp = cid => {   // through the app, which builds the lbsim request and records the engine_run rows
+    $("pOut").insertAdjacentHTML("beforeend", `<p class="muted" id="pOutlook">Asking the consumer app for the client's outlook (lbsim) on this Allocation…</p>`);
+    cpost(`/clients/${encodeURIComponent(cid)}/outlook`).then(r => {
+      const runs = r.engine_runs || [];
+      $("pOutlook").outerHTML = `<p class="${r.error ? "bad" : "ok"}">Outlook (lbsim): ${r.error ? esc(r.error) : runs.length ? `recorded by the app, ${runs.map(x => `${esc(x.status)} ${idChip(x.id)}`).join(", ")}` : "the app recorded no new run"}. The Client page shows it.</p>`;
+    }).catch(e => { const el = $("pOutlook"); if (el) el.outerHTML = `<p class="warn">Outlook (lbsim) not asked for: ${esc(e.message)}</p>`; });
+  };
   const ids = () => ({ regime_id: $("pReg").value.trim(), return_set_id: $("pRs").value.trim(), ...($("pSpeed").value ? { speed_mode: $("pSpeed").value } : {}), ...($("pDate").value.trim() ? { date: $("pDate").value.trim() } : {}) });
   const curveNote = () => P.curve.base ? `curve ${P.curve.label || "custom"}${P.curve.shift ? ` ${pp(P.curve.shift)}` : ""}${P.curve.tilt ? `, tilt ${pp(P.curve.tilt)}` : ""}` : "";
   $("pVal").onclick = () => act($("pVal"), async () => {
@@ -1914,6 +2190,9 @@ page("curator/parameters", "curator", "Parameters", async () => {
       ...(memo.optimism ? { optimism: memo.optimism } : {}), ...(memo.policy ? { regime_policy: memo.policy, base_regime_id: memo.base_regime_id || null } : {}) });
     out(`<p class="${run.status === "succeeded" ? "ok" : run.status === "failed" ? "bad" : "warn"}">pcp run ${esc(run.status)}${run.error ? `: ${esc(run.error.slice(0, 600))}` : ""}. ${run.context ? `${regimeText({ optimism: run.context.optimism, policy: run.context.regime_policy })} ${idChip(run.context.regime_id)}. ` : ""}${run.context && run.context.basis ? `Basis ${basisChip(run.context.basis)}. ` : ""}Recorded with the client ${idChip(run.id)}.</p>`);
     if (run.artefact_id) await showAllocation(run.artefact_id, run.context);
+    // A succeeded run on a base Regime (no scenario policy) gives lbsim a new Allocation: ask the app for the
+    // client's outlook (C-34). A scenario Regime's Allocation is never lbsim's base (LBSIM-14): no call.
+    if (run.status === "succeeded" && !(run.context && run.context.regime_policy)) outlookAfterPcp(id);
   });
 
   // ---- history and the allocation --------------------------------------------------------------
@@ -1940,12 +2219,12 @@ page("curator/parameters", "curator", "Parameters", async () => {
           <div class="tile"><div class="v">${a.budget_met ? "met" : "not met"}</div><div class="k">budget (raw weight sum ${fmt(a.raw_weight_sum, 4)})</div></div>
           <div class="tile"><div class="v">${held.length}</div><div class="k">instruments held · ${esc(a.release_state)}</div></div></div>
         <div class="grid2"><div>${table(held, [["Instrument", i => `${esc(i.name)} ${idChip(i.instrument_id, 14)}`], ["Role", i => esc(ROLE_LABEL[i.role] || i.role)], ["Weight", i => pct(i.weight, 2), false], ["Profile coverage", i => esc(i.coverage)]])}</div>
-          <div>${table(Object.entries(a.weights_by_role || {}), [["Role", r => esc(ROLE_LABEL[r[0]] || r[0])], ["Weight", r => pct(r[1], 1), false]])}<div id="allocCurve" class="chart" style="height:260px"></div></div></div>
+          <div>${table(Object.entries(a.weights_by_role || {}), [["Role", r => esc(ROLE_LABEL[r[0]] || r[0])], ["Weight", r => pct(r[1], 1), false]])}</div></div>
+        <h3 class="chart-t">Weights by role and by instrument</h3><div id="allocWeights"></div>
+        <h3 class="chart-t">Target and reached per state ${abasis ? basisChip(abasis) : ""}</h3><div id="allocCurve" class="chart" style="height:280px"></div>
         ${(a.coverage.warnings || []).map(w => `<p class="note warn">${esc(w)}</p>`).join("")}<p class="note">${esc(a.notice)} Curves in pcp's unit (annualised log return)${abasis ? `, ${esc(abasis)}` : ""}.</p>`;
-      const st = Array.from({ length: a.curves.target.length }, (_, i) => i + 1);
-      plot($("allocCurve"), [{ x: st, y: a.curves.target, name: "mandate curve", mode: "lines+markers", line: { color: css("--s2"), dash: "dot" } },
-                             { x: st, y: a.curves.achieved, name: "portfolio", mode: "lines+markers", line: { color: css("--s1") } }],
-        { margin: { l: 52, r: 12, t: 8, b: 36 }, xaxis: { dtick: 2, title: { text: "state (1 crisis to 25 boom)" } }, legend: { orientation: "h", y: -0.3 } });
+      weightsChart($("allocWeights"), a.instruments, a.weights_by_role);   // chart 1 (C-34)
+      stateCurveChart($("allocCurve"), a.curves.target, a.curves.achieved, abasis);   // chart 2, on the Allocation's own basis
       allocHost.parentElement.scrollIntoView({ behavior: "smooth" });
     } catch (e) { allocHost.innerHTML = `<p class="bad">pcp: ${esc(e.message)}</p>`; }
   }

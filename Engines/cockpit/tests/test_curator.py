@@ -152,6 +152,7 @@ class FakePcp(httpx.AsyncBaseTransport):
     def __init__(self):
         self.calls: list[tuple[str, str, dict]] = []
         self.app = None
+        self.lbsim = None
         self.fmre_queries: list[dict[str, str]] = []
         self.fmre_serves_real = True   # False: an fmre from before the real view, which ignores basis=
 
@@ -160,6 +161,8 @@ class FakePcp(httpx.AsyncBaseTransport):
         self.calls.append((request.method, request.url.path, body))
         if request.url.port == 8017 and self.app is not None:
             return self.app(request)
+        if request.url.port == 8014 and self.lbsim is not None:   # lbsim, when a test stands one in (C-34)
+            return self.lbsim(request)
         if request.url.port == 8004:  # aggregation, when the roster names it (C-30)
             return aggregation_answer(request, body)
         if request.url.port == 8006 and request.url.path == "/v1/return-set":  # fmre, stamped for the Regime asked
@@ -625,3 +628,140 @@ def test_a_real_mandate_is_run_on_fmres_real_return_set_and_nominal_stays_as_it_
         r = client.post(url, json={"curator_id": w["curator"]})
         assert r.status_code == 409 and "basis=real" in r.json()["detail"], "fmre served a nominal set"
         assert not [c for c in fake.calls[n:] if c[1] == "/run"], "pcp is not asked"
+
+
+# ---- the lbsim outlook, through the consumer app (C-34) -------------------------------------------
+
+PLAN_ID = "LSO-e3686adce7660289"
+
+
+def stand_in_outlook_app(schema: str, refuse: int | None = None):
+    """The consumer app's POST /api/clients/{id}/outlook as the interfaces describe it (section 5): it builds
+    the lbsim request itself, records the fast run as an engine_run (succeeded, the paths artefact) and the plan
+    as a second engine_run under the plan's run id (running until refreshed), both as the acting curator's when
+    one is named, and answers with lbsim's RunAccepted. ``refuse`` answers that status and records nothing
+    (no sheet yet, say). Each call numbers its plan run, so a test can tell them apart."""
+    seen = {"n": 0}
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        parts = request.url.path.strip("/").split("/")
+        if request.method != "POST" or parts[:2] != ["api", "clients"] or parts[3:] != ["outlook"]:
+            return httpx.Response(404, json={"detail": "Not Found"})
+        if refuse:
+            return httpx.Response(refuse, json={"detail": "the client has no Life Balance Sheet yet: compute it first"})
+        cid, body = parts[2], json.loads(request.content or b"{}")
+        seen["n"] += 1
+        plan_run = f"RUN-plan{seen['n']}"
+        who = ("curator", body["curator_id"]) if body.get("curator_id") else ("client", cid)
+        with owner_conn(schema) as c:
+            c.execute("""INSERT INTO engine_run (client_id, engine, request, requested_by_kind, requested_by_ref, run_id,
+                                                 artefact_id, status, started_at, finished_at)
+                         VALUES (%s, 'lbsim', %s, %s, %s, %s, 'LSP-0dc88c253ae1d27b', 'succeeded', now(), now())""",
+                      (cid, Jsonb({"built": "by the app", "optimise": body.get("optimise")}), *who, f"RUN-fast{seen['n']}"))
+            c.execute("""INSERT INTO engine_run (client_id, engine, request, requested_by_kind, requested_by_ref, run_id,
+                                                 status, started_at)
+                         VALUES (%s, 'lbsim', %s, %s, %s, %s, 'running', now())""",
+                      (cid, Jsonb({"built": "by the app", "plan_of": f"RUN-fast{seen['n']}"}), *who, plan_run))
+        return httpx.Response(200, json={"run_id": f"RUN-fast{seen['n']}", "kind": "outlook", "status": "succeeded",
+                                         "findings_artefact_id": "LSF-fec0163acbfafcd6",
+                                         "paths_artefact_id": "LSP-0dc88c253ae1d27b", "plan_run_id": plan_run,
+                                         "cached": False, "not_made": []})
+    return handle
+
+
+def stand_in_lbsim(outcome: str = "succeeded"):
+    """lbsim's GET /runs/{run_id} (RunStatus): the plan run finished (artefact_ids, no artefact_id) or failed
+    with a failure_kind and no artefact."""
+    def handle(request: httpx.Request) -> httpx.Response:
+        run_id = request.url.path.rsplit("/", 1)[-1]
+        status = {"run_id": run_id, "kind": "plan", "idempotency_key": "IDK-0000000000000000",
+                  "requested_by": {"kind": "curator", "ref": "x"}, "queued_at": "2026-09-29T10:00:00Z",
+                  "request": {"paths_artefact_id": "LSP-0dc88c253ae1d27b"}}
+        if outcome == "succeeded":
+            return httpx.Response(200, json={**status, "status": "succeeded", "failure_kind": None, "artefact_ids": [PLAN_ID]})
+        return httpx.Response(200, json={**status, "status": "failed", "failure_kind": "timed_out", "artefact_ids": [],
+                                         "error": "the plan calculation took longer than 120 minutes"})
+    return handle
+
+
+LBSIM_ENTRY = '  - {key: lbsim, number: 14, name: lbsim, url: "http://127.0.0.1:8014", status: built}\n'
+
+
+def test_restarting_the_plan_goes_through_the_app_and_its_runs_are_recorded_and_refreshed(tmp_path, schema, world):
+    """The button: the cockpit route sends {"curator_id", "optimise": "now"} to the app, which records the lbsim
+    engine_run rows; the answer lists them, and the plan run is refreshed from lbsim's RunStatus by the existing
+    refresh route (succeeded with the plan's artefact, or failed naming the failure kind)."""
+    client, fake = make_client(tmp_path, schema, extra=LBSIM_ENTRY)
+    w = world
+    fake.app = stand_in_outlook_app(schema)
+    url = f"/api/curator/clients/{w['client']}/outlook"
+    with client:
+        n = len(fake.calls)
+        assert client.post(url, json={"curator_id": w["revoked"], "optimise": "now"}).status_code == 403
+        assert client.post("/api/curator/clients/nosuch/outlook", json={"curator_id": w["curator"]}).status_code == 404
+        assert client.post(url, json={"curator_id": w["curator"], "optimise": "later"}).status_code == 422
+        assert len(fake.calls) == n, "a revoked curator, an unknown client or a bad body never reaches the app"
+        r = client.post(url, json={"curator_id": w["curator"], "optimise": "now"})
+        assert r.status_code == 201
+        out = r.json()
+        assert fake.calls[-1][:2] == ("POST", f"/api/clients/{w['client']}/outlook")
+        assert fake.calls[-1][2] == {"curator_id": w["curator"], "optimise": "now"}, "only the curator and the priority: the app builds the lbsim request"
+        runs = out["engine_runs"]
+        assert out["error"] is None and out["outlook"]["plan_run_id"] == "RUN-plan1"
+        assert {x["engine"] for x in runs} == {"lbsim"} and len(runs) == 2
+        assert all(x["requested_by_kind"] == "curator" and x["requested_by_ref"] == w["curator"] for x in runs)
+        fast = next(x for x in runs if x["status"] == "succeeded")
+        plan = next(x for x in runs if x["status"] == "running")
+        assert fast["artefact_id"] == "LSP-0dc88c253ae1d27b" and plan["run_id"] == "RUN-plan1"
+        shown = client.get(f"/api/curator/clients/{w['client']}").json()["engine_runs"]
+        assert {plan["id"], fast["id"]} <= {x["id"] for x in shown}, "the Client page's runs table shows both"
+        # the plan run refreshed from lbsim: RunStatus names artefact_ids, the row keeps the plan
+        fake.lbsim = stand_in_lbsim("succeeded")
+        done = client.post(f"/api/curator/runs/{plan['id']}/refresh", json={}).json()
+        assert done["status"] == "succeeded" and done["artefact_id"] == PLAN_ID and done["finished_at"] is not None
+        assert fake.calls[-1][:2] == ("GET", "/runs/RUN-plan1")
+        # a second restart: a new pair of rows; its plan times out and is recorded as failed, with the reason
+        again = client.post(url, json={"curator_id": w["curator"], "optimise": "now"}).json()
+        assert {x["id"] for x in again["engine_runs"]}.isdisjoint({plan["id"], fast["id"]}), "only the rows of this call"
+        plan2 = next(x for x in again["engine_runs"] if x["status"] == "running")
+        fake.lbsim = stand_in_lbsim("failed")
+        failed = client.post(f"/api/curator/runs/{plan2['id']}/refresh", json={}).json()
+        assert failed["status"] == "failed" and failed["artefact_id"] is None
+        assert failed["error"].startswith("timed_out: ") and "120 minutes" in failed["error"]
+
+
+def test_the_outlook_after_a_pcp_run_names_only_the_curator_and_the_app_down_records_nothing(tmp_path, schema, world):
+    """The Parameters page's call after a succeeded base-Regime run: no optimise, so the app decides as after a
+    new sheet. The app refusing before any lbsim call is passed on; the app down is said plainly, nothing recorded."""
+    client, fake = make_client(tmp_path, schema, extra=LBSIM_ENTRY)
+    w = world
+    url = f"/api/curator/clients/{w['client']}/outlook"
+    with client:
+        fake.app = stand_in_outlook_app(schema)
+        r = client.post(url, json={"curator_id": w["curator"]})
+        assert r.status_code == 201 and fake.calls[-1][2] == {"curator_id": w["curator"]}
+        assert len(r.json()["engine_runs"]) == 2
+        fake.app = stand_in_outlook_app(schema, refuse=409)
+        r = client.post(url, json={"curator_id": w["curator"]})
+        assert r.status_code == 409 and "no Life Balance Sheet" in r.json()["detail"]
+        fake.app = None   # port 8017 refuses every connection
+        with owner_conn(schema) as c:
+            before = c.execute("SELECT count(*) AS n FROM engine_run").fetchone()["n"]
+        r = client.post(url, json={"curator_id": w["curator"], "optimise": "now"})
+        assert r.status_code == 503
+        assert "consumer app" in r.json()["detail"] and "not running" in r.json()["detail"]
+        with owner_conn(schema) as c:
+            assert c.execute("SELECT count(*) AS n FROM engine_run").fetchone()["n"] == before
+
+
+def test_the_outlook_route_works_in_cio_mode_and_the_proxy_stays_closed(tmp_path, schema, world):
+    client, fake = make_client(tmp_path, schema, mode="cio", extra=LBSIM_ENTRY)
+    w = world
+    fake.app = stand_in_outlook_app(schema)
+    with client:
+        n = len(fake.calls)
+        assert client.post(f"/api/eigentlich/api/clients/{w['client']}/outlook", json={}).status_code == 403
+        assert client.post("/api/lbsim/optimise", json={}).status_code == 403
+        assert len(fake.calls) == n, "no write reaches the app or lbsim through the proxy in cio mode"
+        r = client.post(f"/api/curator/clients/{w['client']}/outlook", json={"curator_id": w["curator"], "optimise": "now"})
+        assert r.status_code == 201 and len(r.json()["engine_runs"]) == 2

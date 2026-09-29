@@ -372,11 +372,12 @@ for `GET /v1/return-set?basis=real&currency=` (role and instrument profiles, def
 hard-currency note. If fmre cannot serve the real set, or serves it on a nominal basis, the page says so and
 shows nominal figures labelled nominal. A shortlist saved from a real view records `profiles_basis` and the
 currency with the ReturnSet id. The Excel export stays nominal.
+*The Client page.* Its outlook panel carries the same switch over lbsim's own real views (C-34).
 *No switch.* Regime and signals (cycle, aggregation), the Models pages (macrofield and the rest), Country
 dossier, Boundary conditions, Overview and Optimiser hand-over stay nominal (owner: macrofield always nominal).
 *Tests.* `tests/test_api.py`: the form's basis is nominal by default, is left out of a nominal Mandate and
-written for a real one, with the curve's numbers unchanged; the switch appears on exactly the Parameters and
-Instrument selection pages (no macro page, no Models page); nominal is the default and basis= reaches fmre and
+written for a real one, with the curve's numbers unchanged; the switch appears on exactly the Parameters,
+Instrument selection and Client pages (the last for the outlook, C-34; no macro page, no Models page); nominal is the default and basis= reaches fmre and
 the run. `tests/test_curator.py`: a real mandate's run asks fmre for basis=real and answers the basis; a nominal
 run asks what it asked before; the page-basis mismatch and a nominal set served for a real mandate are refused
 before pcp. All four fail with the behaviour reverted (checked once).
@@ -433,3 +434,70 @@ version of one instrument, newest first (`version`, `beta`, `duration`, `reason`
 `beta: null`), `[]` for an instrument never overridden and 404 for an unknown one. "History" on Instrument selection
 reads it through the proxy and lists every version; only when the call fails does the page fall back to the version
 in force from the list, saying that the earlier versions were not served.
+
+**C-34 lbsim in the cockpit: read through the proxy, run through the app (LBSIM_INTERFACES section 8, owner's
+decisions of 29.09.2026).** lbsim (Engine 14, 8014) is in the roster as `built`: it produces LifeBalanceFindings,
+LifeBalancePaths and LifeBalancePlan, reads lbs, pcp, aggregation and fmre, and starts with `python -m lbsim serve`
+(the API and the optimiser workers) in `eigentliCH_Engines/engines/lbsim` with the `eigentliCH_Engines/.venv`
+interpreter (C-17), `autostart` after its four upstream engines in roster order. report and the consumer app list
+lbsim among what they read.
+*Bench.* The roster declares `engines/lbsim/testbench/index.html`, the convention lbs follows. lbsim ships no bench
+file yet, so its page is the placeholder until the file exists (`public()` reports the bench only when it is there);
+the committed-config test accepts a declared bench that is missing only for an engine named in `ANNOUNCED_BENCHES`
+(lbsim alone).
+*Client page: Outlook.* A card shows what the consumer app's "Aussichten" surface shows, drawn from lbsim's
+`GET /outlook?client_ref=&life_balance_sheet_id=` through the proxy for the client's newest sheet (the artefact of
+the newest succeeded lbs `engine_run`; `client_ref` is the client id, as the app sends it to lbs). It lists the
+earning power per adult (the level used: "stated by the client" or "model value", the stated full-pensum income
+and the modelled full-time figure, today's income and pensum, the responsibility tier and lbsim's caveats); the
+income paths with the zero-return saving need and the free cash per goal (nominal from `saving_need`, real from
+`views.real.saving_need`); the findings, each template of `text` filled from its `figures` formatted by unit, with
+severity and urgency in words, the schedule and the rules not checked; the chances per goal under the Regime chosen
+by its house label, with every Regime's chances in one line; chart 1 (weights by role, house names, and by
+instrument, by name, from `allocation_view`), chart 2 (target and reached per state from
+`allocation_view.curves[basis]`, "Crisis" and "Boom" at the ends, the 0 % line) and chart 3 (the fan: 5 to 95 and
+25 to 75 of 100 paths and the median from `bands[series][basis]`, the series chosen among net worth and each goal
+measure, the goal line solid in the goal's own basis and dashed, labelled converted, in the other). The charts are
+Plotly through the page's `plot()` helper, and the panel carries a nominal / real switch as C-31's pages do (default
+nominal); the real figures are lbsim's own derived views, the page converts nothing (C-07). The plan block follows
+`plan.state`: ready shows `action_now` in plain units under "What the calculation assumes" with the plan's own
+framing sentence (the owner's decision 3: the same figures the client sees, never a recommendation); calculating
+says "The plan calculation is still running (for N minutes, at most 2 hours)" from `elapsed_s` and `budget_s`;
+waiting for an allocation, not possible and not requested show lbsim's reason. Collapsed below: the solver details
+for the curator (outcome, goal and confidence, chance in and out of sample, shortfall, horizon solved and total with
+the rule beyond the cap, the exchange rate, the solver record and versions). Artefact ids appear only as id chips, as
+elsewhere on the curator pages; findings, instruments, roles and Regimes are shown by their words.
+*Runs through the app.* lbsim requests are built only in the app (the C-20 pattern). **Restart the plan calculation**
+calls the cockpit route `POST /api/curator/clients/{id}/outlook` with `{"curator_id", "optimise": "now"}`, which
+checks the client and the acting curator (a revoked one never reaches the app), sends the same body to the app's
+`POST /api/clients/{id}/outlook` and answers with the lbsim `engine_run` rows the app recorded during the call (the
+fast run, succeeded with the paths artefact, and the plan run under its own run id) and what the app returned; the
+cockpit writes nothing. **Compute the outlook** sends `{"curator_id"}` alone. An app that refuses before recording
+anything is passed on (404, 409, 422, else 502); an app that is down gives 503 and nothing is recorded. The proxy
+stays read-only for lbsim and the app in cio mode: `cio.writable` is unchanged.
+*Refresh.* A plan run is refreshed by the existing `POST /api/curator/runs/{id}/refresh`. lbsim's `RunStatus` lists
+`artefact_ids` instead of naming one artefact, so the row keeps the plan (`LSO-`), else the paths (`LSP-`), else the
+findings (`LSF-`); a failed run's error is prefixed with its `failure_kind` (for example `timed_out:`), and a run
+that failed has no artefact.
+*Parameters.* After a pcp run that succeeded on a base Regime (the run's context names no scenario policy) the page
+calls the same cockpit route with `{"curator_id"}` and shows what the app recorded; after a scenario Regime's run it
+asks nothing (lbsim refuses a scenario Allocation as its base, LBSIM-14). The Allocation shows chart 1 and chart 2
+beside its tables, on the Allocation's own basis.
+*Tests.* `tests/test_api.py`: the roster entry; the outlook read through the proxy unchanged in both modes against a
+stand-in lbsim serving B1's frozen samples (copied to `tests/fixtures/lbsim/`); the samples carry every field the
+panel reads; the page's panel pieces, the restart's body and that the page never posts to lbsim; the Parameters
+call only inside the run handler and only for a succeeded run without a scenario policy; the charts' crisis and boom
+ends and the 0 % line; the artefact chosen from `artefact_ids`. `tests/test_curator.py`, against the throwaway
+schema and a stand-in app that records the two lbsim rows as the interfaces describe: the restart's body, the rows
+answered, a revoked curator, an unknown client and a bad `optimise` never reaching the app; the plan run refreshed to
+succeeded with the plan's artefact and to failed with `timed_out`; the call without `optimise`; the app refusing and
+the app down; cio mode.
+
+**C-35 The outlook panel reads one language: English (29.09.2026).** The cockpit's pages are English (`<html
+lang="en-GB">`, every heading and button), so the panel reads the English side of every `{de, en}` pair lbsim sends
+(`lw()`, with `OUTLOOK_LANG = "en"`) and its own words from the English side of `OW`, which holds both: "Aussichten"
+is "Outlook", "Was die Rechnung annimmt" is "What the calculation assumes", "Planrechnung neu starten" is "Restart
+the plan calculation", "Ihre Angabe" and "Modellwert" are "Stated by the client" and "Model value", "umgerechnet" is
+"converted", the house roles are Gain, Income, Stabilisation and Protection. This keeps one language per page; the
+German words are the app's and the report's. Changing `OUTLOOK_LANG` to `de` switches the whole panel and the chart
+labels at once, for a German curator page if one is wanted.

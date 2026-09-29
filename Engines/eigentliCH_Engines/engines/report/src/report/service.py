@@ -35,7 +35,7 @@ from urllib.parse import urlparse
 from pydantic import ValidationError
 
 from . import ENGINE, ENGINE_VERSION, calibration as seeds
-from . import engine, render
+from . import charts, engine, render
 from . import vocabulary as voc
 from . import store as st
 from .clients import EngineClient, NotFoundUpstream, UpstreamError
@@ -306,6 +306,7 @@ class Service:
             if request.basis not in bases:
                 raise Refused(_mix_reason(ref.engine, ref.artefact_id, bases, request.basis))
             fetched.append(got)
+        _lbsim_consistent(fetched)
         return fetched
 
     def _previous(self, request: ReportRequest) -> Optional[Report]:
@@ -344,23 +345,36 @@ class Service:
 
         facts: list[Fact] = []
         for got in fetched:
-            facts.extend(got.extractor.extract(got.artefact, cal, lang, request.basis))
-        dated = [(got.extractor.as_of(got.artefact), got.engine, got.artefact.artefact_id,
-                  got.extractor.contract_version) for got in fetched]
+            if got.extractor.extract is not None:
+                facts.extend(got.extractor.extract(got.artefact, cal, lang, request.basis))
+        by_kind = {got.kind: got.artefact for got in fetched}
+        sheet = by_kind.get("lbs")
+        allocation = by_kind.get("pcp")
+        findings, paths, plan = (by_kind.get(f"lbsim.{k}") for k in ("findings", "paths", "plan"))
+
+        # Subjects named for readers (REP-20): generic names from the lbs sheet (and lbsim's, numbered after them),
+        # the caller's names on the page.
+        subject_names: dict[str, str] = engine.lbs_subjects(sheet, lang) if sheet is not None else {}
+        if findings is not None or paths is not None or plan is not None:
+            subject_names = engine.lbsim_subjects(findings, paths, plan, subject_names, lang)
+            if findings is not None:
+                # lbs states earning power as another engine's (LBS-10); with lbsim's section here, that note goes.
+                facts = [f for f in facts if not _earning_power_elsewhere(f)]
+            facts.extend(engine.extract_lbsim(findings, paths, plan, sheet, subject_names, lang, request.basis))
+        dated = [(got.extractor.as_of(got.artefact), got.kind, got.artefact.artefact_id,
+                  got.extractor.contract_version) for got in fetched if got.extractor.as_of(got.artefact)]
+        undated = [(got.artefact.paths_artefact_id, got.kind, got.artefact.artefact_id,
+                    got.extractor.contract_version) for got in fetched if not got.extractor.as_of(got.artefact)]
         facts.append(engine.as_of_fact(dated, lang))
         if previous is not None:
             facts = engine.change_facts(previous, facts, lang) + facts
-        facts.extend(engine.source_date_facts(dated, previous, lang))
+        facts.extend(engine.source_date_facts(dated, previous, lang, undated))
         facts.extend(engine.caller_facts(request.display_facts, request_id, lang))
         facts.extend(engine.revision_facts(request.revision_note, request_id, lang))
 
-        # Subjects named for readers (REP-20): generic names from the lbs sheet, the caller's names on the page.
-        subject_names: dict[str, str] = {}
-        for got in fetched:
-            if got.engine == "lbs":
-                subject_names.update(engine.lbs_subjects(got.artefact, lang))
         facts = [_resolve_mandate(f, subject_names) for f in facts]
         names = voc.display_names(request.display_facts, subject_names)
+        figures = build_charts(facts, allocation, paths, plan, sheet, lang, request.basis)
 
         warnings: list[str] = []
         notes: list[str] = []
@@ -405,7 +419,8 @@ class Service:
         title = render.plain_title(lang, request.kind, client_name)
         html = render.render(lang=lang, kind=request.kind, title=title, facts=facts, sections=sections,
                              warnings=notes, provenance=provenance, calibration_version=cal.version,
-                             engine_version=ENGINE_VERSION, assistant=assistant, names=names, basis=request.basis)
+                             engine_version=ENGINE_VERSION, assistant=assistant, names=names, basis=request.basis,
+                             charts=figures)
         body = dict(client_ref=request.client_ref, kind=request.kind, language=lang, title=title,
                     previous_report_id=request.previous_report_id, revision_of=request.revision_of,
                     revision_note=request.revision_note, basis=request.basis, as_of=as_of, facts=tuple(facts),
@@ -490,6 +505,99 @@ def _mix_reason(engine_name: str, artefact_id: str, bases: frozenset[str], asked
                 f"nominal and real figures: ask pcp for an Allocation with basis={asked}, or ask the report in {have}")
     return (f"lbs sheet {artefact_id} carries {have} figures only and the report is asked in {asked}; a report "
             f"never mixes nominal and real figures: ask lbs for a sheet with its real view, or ask the report in {have}")
+
+
+def _lbsim_consistent(fetched: list[Any]) -> None:
+    """lbsim's artefacts must belong together and to the other sources (REP-32): one balance sheet throughout,
+    the paths on the pcp source's Allocation and on the findings given, the plan on the paths given. A mix is
+    refused, with the reason, before anything is extracted."""
+    by = {got.kind: got.artefact for got in fetched}
+    lbsim = {k: a for k, a in by.items() if k.startswith("lbsim.")}
+    if not lbsim:
+        return
+    sheet = by.get("lbs")
+    sheets = {a.life_balance_sheet_id for a in lbsim.values()}
+    if sheet is not None:
+        for kind, a in lbsim.items():
+            if a.life_balance_sheet_id != sheet.artefact_id:
+                raise Refused(f"the lbsim {kind.split('.')[1]} {a.artefact_id} rest on balance sheet "
+                              f"{a.life_balance_sheet_id}, and the lbs source is sheet {sheet.artefact_id}; a report "
+                              "never mixes two balance sheets: ask lbsim for the outlook of the lbs source's sheet, "
+                              "or report on the sheet the lbsim artefacts name")
+    elif len(sheets) > 1:
+        raise Refused(f"the lbsim sources rest on different balance sheets ({', '.join(sorted(sheets))}); a report "
+                      "never mixes two balance sheets: take findings, paths and plan of one sheet")
+    paths = lbsim.get("lbsim.paths")
+    allocation = by.get("pcp")
+    if paths is not None and allocation is not None and paths.allocation_id != allocation.artefact_id:
+        raise Refused(f"the lbsim paths {paths.artefact_id} were simulated on allocation {paths.allocation_id}, and "
+                      f"the pcp source is allocation {allocation.artefact_id}; a report never mixes two allocations: "
+                      "take the allocation the paths name, or ask lbsim for paths on this one")
+    findings = lbsim.get("lbsim.findings")
+    if paths is not None and findings is not None and paths.findings_artefact_id != findings.artefact_id:
+        raise Refused(f"the lbsim paths {paths.artefact_id} rest on findings {paths.findings_artefact_id}, not on the "
+                      f"findings source {findings.artefact_id}; take the findings the paths name")
+    plan = lbsim.get("lbsim.plan")
+    if plan is not None:
+        if paths is None:
+            raise Refused(f"the lbsim plan {plan.artefact_id} is reported with the paths it was calculated on: add "
+                          f"the paths {plan.paths_artefact_id} as a source")
+        if plan.paths_artefact_id != paths.artefact_id:
+            raise Refused(f"the lbsim plan {plan.artefact_id} was calculated on paths {plan.paths_artefact_id}, and "
+                          f"the paths source is {paths.artefact_id}; a report never shows a plan on other paths: take "
+                          "the plan of these paths, or the paths the plan names")
+
+
+def _earning_power_elsewhere(fact: Fact) -> bool:
+    """lbs's statement that earning power is another engine's: its not-available fact and its gap."""
+    if fact.fact_id.startswith("lbs.human.") and fact.fact_id.endswith(".earning_power"):
+        return True
+    return (fact.fact_id.startswith("lbs.gap.") and isinstance(fact.value, str)
+            and fact.value.startswith("earning_power:"))
+
+
+def build_charts(facts: list[Fact], allocation: Any, paths: Any, plan: Any, sheet: Any, lang: str,
+                 basis: str) -> dict[str, str]:
+    """The three charts (REP-34), per section: the weights (roles, positions) and target against reached (fit)
+    from the pcp Allocation, the fan (outlook) from the lbsim paths. Every printed value is one of ``facts``."""
+    cw = {k: v[lang] for k, v in voc.CHART_WORDS.items()}
+    by = {f.fact_id: f for f in facts}
+    out: dict[str, str] = {}
+    roles = [(f.label, f) for f in facts if f.fact_id.startswith("pcp.role.")]
+    if roles:
+        out["roles"] = charts.weights("roles", roles, cw["roles_title"], cw["roles_desc"])
+    held = [(f.label, f) for f in facts if f.fact_id.startswith("pcp.position.")]
+    if held:
+        out["positions"] = charts.weights("positions", held, cw["positions_title"], cw["positions_desc"])
+    if allocation is not None and allocation.curves is not None:
+        on = engine.allocation_basis(allocation)
+        out["fit"] = charts.target_vs_reached(allocation.curves.target, allocation.curves.achieved, cw,
+                                              cw["fit_title"], cw["fit_desc"],
+                                              f"{cw['fit_title']}, {cw['basis_' + on]}.")
+    if paths is not None and paths.regimes:
+        goal_id = engine.designated_goal(paths, plan, sheet)
+        series, last, j = engine.fan_window(paths, goal_id)
+        base = paths.regimes[0]
+        q = getattr(base.bands[series], basis) if series in base.bands else None
+        if q is not None:
+            bands = {k: list(getattr(q, k))[: last + 1] for k in ("p05", "p25", "p50", "p75", "p95")}
+            ends = {k: by[f"lbsim.fan.{base.key}.{k}.end"] for k in ("p10", "p50", "p90")
+                    if f"lbsim.fan.{base.key}.{k}.end" in by}
+            goal_value = goal_fact = chance_fact = date_fact = None
+            dashed = False
+            if j is not None:
+                g = base.goals[j]
+                goal_value = g.target.real_chf if basis == "real" else g.target.nominal_chf
+                goal_fact = by.get(f"lbsim.goal.{g.goal_id}.target")
+                chance_fact = by.get(f"lbsim.chance.{base.key}.{g.goal_id}")
+                date_fact = by.get(f"lbsim.goal.{g.goal_id}.date")
+                dashed = g.chance_basis != basis
+            caption = f"{cw['fan_title']}, {cw['basis_' + basis]}."
+            if dashed:
+                caption += " " + cw["fan_dashed"]
+            out["outlook"] = charts.fan(bands, ends, goal_value, goal_fact, chance_fact, date_fact, dashed, cw,
+                                        cw["fan_title"], cw["fan_desc"], caption)
+    return {k: v for k, v in out.items() if v}
 
 
 def _resolve_mandate(fact: Fact, subject_names: dict[str, str]) -> Fact:

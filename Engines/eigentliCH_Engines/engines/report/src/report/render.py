@@ -15,6 +15,7 @@ the page to this: outside those elements it carries no number of two or more dig
 from __future__ import annotations
 
 import html
+import re
 from typing import Any, Mapping, Optional, Sequence
 
 from . import vocabulary as voc
@@ -65,6 +66,10 @@ CSS = """
   .foot{margin-top:40px;padding-top:15px;border-top:1px solid var(--line);
         font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft)}
   code{font:11.5px ui-monospace,Consolas,monospace}
+  .chart{margin:14px 0 8px}
+  .chart svg{display:block;width:100%;height:auto}
+  .chart figcaption{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft);margin-top:4px}
+  .box h3{margin:2px 0 6px}
   ul{margin:6px 0 12px;padding-left:22px}
   li{margin-bottom:6px}
   @media print{body{font-size:11pt}.w{padding:0}h2{page-break-after:avoid}.box{page-break-inside:avoid}}
@@ -212,16 +217,172 @@ def _allocation(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
     return lead + _default(rest, w)
 
 
-BODY = {"positions": _positions, "grid": _grid, "changes": _changes, "limits": _limits, "allocation": _allocation}
+# -- lbsim's sections (REP-33) -------------------------------------------------------------------------------
+
+_FINDING_PARTS = ("title", "trigger", "why", "action", "urgency", "severity", "action_kind")
+
+
+def _template(f: Fact, by: Mapping[str, Fact], prefix: str, lang: str) -> str:
+    """A finding sentence from lbsim's template in the page's language: the words as lbsim wrote them, each
+    ``{figure}`` the figure's fact element (so every number on the page stays a fact)."""
+    out, pos = [], 0
+    text = str(f.value)
+    for m in re.finditer(r"\{([a-z0-9_]+)\}", text):
+        out.append(e(text[pos:m.start()]))
+        fig = by.get(prefix + m.group(1))
+        out.append(v(fig, lang=lang) if fig is not None else "–")
+        pos = m.end()
+    out.append(e(text[pos:]))
+    return f'<span data-fact="{e(f.fact_id)}">{"".join(out)}</span>'
+
+
+def _findings(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
+    lang, lw = w["lang"], {k: t[w["lang"]] for k, t in voc.LBSIM_WORDS.items()}
+    by = {f.fact_id: f for f in facts}
+    codes = [f.fact_id.removeprefix("lbsim.finding.").removesuffix(".title") for f in facts
+             if f.fact_id.startswith("lbsim.finding.") and f.fact_id.endswith(".title")]
+    out = []
+    for code in codes:
+        base = f"lbsim.finding.{code}."
+        tags = " · ".join(v(by[base + k]) for k in ("urgency", "severity") if base + k in by)
+        rows = []
+        for part in ("trigger", "why", "action"):
+            if base + part in by:
+                head = lw[part] + (f" ({v(by[base + 'action_kind'])})" if part == "action" and base + "action_kind" in by
+                                   else "")
+                rows.append(f"<p><small>{head}:</small> {_template(by[base + part], by, base, lang)}</p>")
+        out.append(f'<div class="box" data-finding><span class="tag n">{tags}</span>'
+                   f"<h3>{v(by[base + 'title'])}</h3>{''.join(rows)}</div>")
+    entries = [f for f in facts if re.fullmatch(r"lbsim\.schedule\.\d+", f.fact_id)]
+    if entries:
+        items = []
+        for f in entries:
+            titles = [v(g) for g in facts if g.fact_id.startswith(f.fact_id + ".")]
+            items.append(f"<li>{v(f)}{': ' + ', '.join(titles) if titles else ''}</li>")
+        out.append(f"<h3>{e(lw['schedule'])}</h3><ul>{''.join(items)}</ul>")
+    for prefix, head in (("lbsim.unchecked.", lw["unchecked"]), ("lbsim.question.", lw["question"])):
+        items = [f"<li>{v(f)}</li>" for f in facts if f.fact_id.startswith(prefix)]
+        if items:
+            out.append(f"<h3>{e(head)}</h3><ul>{''.join(items)}</ul>")
+    rest = [f for f in facts if not f.fact_id.startswith(("lbsim.finding.", "lbsim.schedule.", "lbsim.unchecked.",
+                                                            "lbsim.question."))]
+    if rest:
+        out.append(_default(rest, w))
+    return "".join(out)
+
+
+def _earning_power(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
+    """Per adult: the model's level and the person's own statement, which one the calculation uses; the caveats
+    as notes under the table."""
+    notes = [f for f in facts if ".caveat." in f.fact_id]
+    table = _default([f for f in facts if ".caveat." not in f.fact_id], w)
+    return table + "".join(f"<p><small>{e(f.label)}: {v(f)}</small></p>" for f in notes)
+
+
+def _income_paths(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
+    lang, lw = w["lang"], {k: t[w["lang"]] for k, t in voc.LBSIM_WORDS.items()}
+    by = {f.fact_id: f for f in facts}
+    out = []
+    if "lbsim.zero_return.note" in by:
+        out.append(f'<p>{v(by["lbsim.zero_return.note"])}</p>')
+    codes = [f.fact_id.removeprefix("lbsim.path.").removesuffix(".name") for f in facts
+             if f.fact_id.startswith("lbsim.path.") and f.fact_id.endswith(".name")]
+    for code in codes:
+        base = f"lbsim.path.{code}."
+        out.append(f"<h3>{v(by[base + 'name'])}</h3>")
+        if base + "note" in by:
+            out.append(f"<p><small>{v(by[base + 'note'])}</small></p>")
+        goals = [f.fact_id.removeprefix(base + "saving_need.") for f in facts
+                 if f.fact_id.startswith(base + "saving_need.")]
+        rows = []
+        for gid in goals:
+            need = by[base + "saving_need." + gid]
+            name = need.label.rsplit(", ", 1)[0].split(": ", 1)[-1]
+            rows.append((e(name), v(need, lang=lang),
+                         v(by[base + "free_cash." + gid], lang=lang) if base + "free_cash." + gid in by else "–",
+                         v(by[base + "holds." + gid]) if base + "holds." + gid in by else "–"))
+        if rows:
+            out.append(_table([(lw["goal"], False), (lw["saving_need"], True), (lw["free_cash"], True),
+                               (lw["holds"], True)], rows))
+    return "".join(out)
+
+
+def _outlook(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
+    lang, lw = w["lang"], {k: t[w["lang"]] for k, t in voc.LBSIM_WORDS.items()}
+    by = {f.fact_id: f for f in facts}
+    out = []
+    head = [by[k] for k in ("lbsim.fan.series", "lbsim.paths.n", "lbsim.paths.horizon") if k in by]
+    if head:
+        out.append(_default(head, w))
+    goals = [f.fact_id.removeprefix("lbsim.goal.").removesuffix(".name") for f in facts
+             if f.fact_id.startswith("lbsim.goal.") and f.fact_id.endswith(".name")]
+    if goals:
+        rows = []
+        for gid in goals:
+            g = f"lbsim.goal.{gid}."
+            rows.append((v(by[g + "name"]), v(by[g + "target"], lang=lang) if g + "target" in by else "–",
+                         v(by[g + "date"]) if g + "date" in by else "–", v(by[g + "judged"]) if g + "judged" in by else "–"))
+        out.append(_table([(lw["goal"], False), (lw["target"], True), (lw["target_date"], True),
+                           (lw["judged"], False)], rows))
+    regimes = [f for f in facts if f.fact_id.startswith("lbsim.regime.")]
+    if regimes:
+        # The chance per Regime and goal, as numbers; then the fan's ends per Regime.
+        headers = [(lw["regime"], False)] + [(by[f"lbsim.goal.{gid}.name"].display, True) for gid in goals]
+        rows = []
+        for r in regimes:
+            key = r.fact_id.removeprefix("lbsim.regime.")
+            rows.append([v(r)] + [v(by[f"lbsim.chance.{key}.{gid}"]) if f"lbsim.chance.{key}.{gid}" in by else "–"
+                                  for gid in goals])
+        out.append(f"<h3>{e(lw['chance'])}</h3>" + _table(headers, rows))
+        cw = {k: t[lang] for k, t in voc.CHART_WORDS.items()}
+        ends = [r for r in regimes if f"lbsim.fan.{r.fact_id.removeprefix('lbsim.regime.')}.p50.end" in by]
+        if ends:
+            rows = []
+            for r in ends:
+                key = r.fact_id.removeprefix("lbsim.regime.")
+                rows.append([v(r)] + [v(by[f"lbsim.fan.{key}.{q}.end"], lang=lang) if f"lbsim.fan.{key}.{q}.end" in by
+                                      else "–" for q in ("p10", "p50", "p90")])
+            head = by.get("lbsim.fan.series")
+            out.append(f"<h3>{e(lw['fan_end'])}</h3>" + _table(
+                [(lw["regime"], False), (cw["low"], True), (cw["mid"], True), (cw["high"], True)], rows))
+    if "lbsim.fan.explained" in by:
+        out.append(f'<p><small>{v(by["lbsim.fan.explained"])}</small></p>')
+    return "".join(out)
+
+
+def _plan(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
+    lang, lw = w["lang"], {k: t[w["lang"]] for k, t in voc.LBSIM_WORDS.items()}
+    by = {f.fact_id: f for f in facts}
+    out = []
+    if "lbsim.plan.state" in by:
+        out.append(f'<div class="box draft" data-plan="calculating"><span class="tag n">{e(lw["plan"])}</span>'
+                   f'<p>{v(by["lbsim.plan.state"])}. {e(lw["plan_calculating_text"])}</p></div>')
+    # What the calculation assumes for this period (owner, 29.09.2026): shown at once, never a recommendation.
+    now = [f for f in facts if f.fact_id.startswith("lbsim.plan.action_now.")]
+    if now:
+        framing = by.get("lbsim.plan.framing")
+        out.append(f'<div class="box" data-plan="assumes"><span class="tag n">{e(lw["plan_period"])}</span>'
+                   + (f"<p>{v(framing)}</p>" if framing else "") + _default(now, w) + "</div>")
+    rest = [f for f in facts if f.fact_id not in ("lbsim.plan.state", "lbsim.plan.framing")
+            and not f.fact_id.startswith("lbsim.plan.action_now.")]
+    if rest:
+        out.append(_default(rest, w))
+    return "".join(out)
+
+
+BODY = {"positions": _positions, "grid": _grid, "changes": _changes, "limits": _limits, "allocation": _allocation,
+        "findings": _findings, "income_paths": _income_paths, "earning_power": _earning_power, "outlook": _outlook, "plan": _plan}
 
 
 def render(*, lang: str, kind: str, title: str, facts: Sequence[Fact], sections: Sequence[Section],
            warnings: Sequence[str], provenance: ReportProvenance, calibration_version: str, engine_version: str,
-           assistant: str = "MiniMind", names: Optional[Mapping[str, str]] = None, basis: str = "nominal") -> str:
+           assistant: str = "MiniMind", names: Optional[Mapping[str, str]] = None, basis: str = "nominal",
+           charts: Optional[Mapping[str, str]] = None) -> str:
     """The page. ``warnings`` are the page's notes, already in the reader's language (the artefact's own
     ``warnings`` are the engine's, in English). ``names`` maps a generic subject name ("Person 1", "Ihr
     Wohneigentumsziel") to the name the caller sent for it (REP-20); it is applied to labels, text values and
-    prose on the page only, never to what the model saw."""
+    prose on the page only, never to what the model saw. ``charts`` holds a section's inline SVG (REP-34), printed
+    under its prose and above its table."""
     w = WORDS[lang]
     names = dict(names or {})
     if names:
@@ -238,6 +399,8 @@ def render(*, lang: str, kind: str, title: str, facts: Sequence[Fact], sections:
             parts.append(f'<p class="prose" data-prose="{e(s.key)}">{e(voc.apply_names(s.prose, names))}</p>')
         elif s.prose_status == "flagged":
             parts.append(f"<p><small>{e(w['withheld'])}</small></p>")
+        if charts and s.key in charts:
+            parts.append(voc.apply_names(charts[s.key], names))
         if s.key == "sources":
             parts.append(_sources([f for f in sf if not f.fact_id.startswith("caller.")], w))
         else:

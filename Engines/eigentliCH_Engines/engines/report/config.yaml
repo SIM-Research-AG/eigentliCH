@@ -18,9 +18,10 @@ service:
 
 upstream:
   # The engines a report draws on, read over HTTP through their published contracts.
-  # Override with REPORT_PCP_URL, REPORT_LBS_URL.
+  # Override with REPORT_PCP_URL, REPORT_LBS_URL, REPORT_LBSIM_URL.
   pcp_url: http://127.0.0.1:8007      # GET /allocation/{id}  -> pcp-allocation@1.0.0
   lbs_url: http://127.0.0.1:8013      # GET /artefacts/{id}   -> lbs-balance-sheet@1.0.0
+  lbsim_url: http://127.0.0.1:8014    # GET /artefacts/{id}   -> lbsim-findings, -paths, -plan@1.0.0 (by prefix)
   timeout_s: 60
 
 model:

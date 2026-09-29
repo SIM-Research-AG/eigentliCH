@@ -576,3 +576,170 @@ JUDGEMENT: dict[str, Texts] = {
     "not_realistic": {"de": "nicht realistisch", "en": "not realistic"},
     "could_not_be_determined": {"de": "nicht bestimmbar", "en": "could not be determined"},
 }
+
+
+# ---------------------------------------------------------------------------
+# lbsim (REP-32 to REP-36): the report's own words around lbsim's figures. lbsim writes its sentences (finding
+# texts, income path names, Regime labels, the plan's framing) in both languages itself; the page prints them in
+# its own language. No label here carries a digit: labels are printed outside the fact elements.
+# ---------------------------------------------------------------------------
+
+LBSIM_WORDS: dict[str, Texts] = {
+    "ep_modelled": {"de": "Modellwert bei vollem Pensum", "en": "Model value at a full pensum"},
+    "ep_stated": {"de": "Ihre Angabe bei vollem Pensum", "en": "Your statement at a full pensum"},
+    "ep_level": {"de": "Die Rechnung verwendet", "en": "The calculation uses"},
+    "ep_level_stated": {"de": "Ihre Angabe", "en": "Your statement"},
+    "ep_level_modelled": {"de": "Modellwert", "en": "Model value"},
+    "ep_current": {"de": "Bruttoeinkommen heute", "en": "Gross income today"},
+    "ep_pensum": {"de": "Pensum heute", "en": "Pensum today"},
+    "ep_responsibility": {"de": "Führungsfunktion", "en": "Management function"},
+    "ep_not_stated": {"de": "nicht angegeben, keine angenommen", "en": "not stated, none assumed"},
+    "ep_caveat": {"de": "Hinweis", "en": "Note"},
+    "ep_na": {"de": "Erwerbskraft", "en": "Earning power"},
+    "path": {"de": "Einkommenspfad", "en": "Income path"},
+    "path_note": {"de": "Was der Pfad annimmt", "en": "What the path assumes"},
+    "saving_need": {"de": "Sparbedarf ohne Rendite", "en": "Saving needed at zero return"},
+    "free_cash": {"de": "frei verfügbar", "en": "free cash"},
+    "holds": {"de": "trägt ohne Rendite", "en": "holds at zero return"},
+    "zero_return": {"de": "Ohne Rendite gerechnet", "en": "Computed at zero return"},
+    "goal": {"de": "Ziel", "en": "Goal"},
+    "finding": {"de": "Befund", "en": "Finding"},
+    "trigger": {"de": "Was auffällt", "en": "What stands out"},
+    "why": {"de": "Warum es zählt", "en": "Why it matters"},
+    "action": {"de": "Nächster Schritt", "en": "Next step"},
+    "urgency": {"de": "Wann", "en": "When"},
+    "severity": {"de": "Gewicht", "en": "Weight"},
+    "action_kind": {"de": "Art des Schritts", "en": "Kind of step"},
+    "schedule": {"de": "Der Fahrplan", "en": "The schedule"},
+    "unchecked": {"de": "Nicht geprüft", "en": "Not checked"},
+    "question": {"de": "Nächste Frage", "en": "Next question"},
+    "n_paths": {"de": "Simulierte Verläufe", "en": "Simulated paths"},
+    "regime": {"de": "Marktlage", "en": "Market regime"},
+    "horizon": {"de": "Gerechnete Jahre", "en": "Years computed"},
+    "target": {"de": "Zielbetrag", "en": "Target amount"},
+    "target_date": {"de": "Zieldatum", "en": "Target date"},
+    "judged": {"de": "Chance beurteilt", "en": "Chance judged"},
+    "judged_real": {"de": "in heutigen Franken", "en": "in today’s francs"},
+    "judged_nominal": {"de": "in Franken des Zieldatums", "en": "in francs of the target date"},
+    "chance": {"de": "Chance", "en": "Chance"},
+    "p10": {"de": "ungünstiger Verlauf", "en": "unfavourable path"},
+    "p50": {"de": "mittlerer Verlauf", "en": "median path"},
+    "p90": {"de": "günstiger Verlauf", "en": "favourable path"},
+    "fan_series": {"de": "Gezeigt", "en": "Shown"},
+    "fan_explained": {"de": "Wie die Verläufe zu lesen sind", "en": "How to read the paths"},
+    "fan_explained_text": {"de": "Unter dem ungünstigen Verlauf liegt jeder zehnte simulierte Verlauf, über dem "
+                                 "günstigen ebenfalls jeder zehnte; der mittlere teilt sie in zwei Hälften.",
+                           "en": "One simulated path in ten lies below the unfavourable path and one in ten above "
+                                 "the favourable one; the median path splits them in two halves."},
+    "at_date": {"de": "zum Zieldatum", "en": "at the target date"},
+    "plan": {"de": "Planrechnung", "en": "Plan calculation"},
+    "plan_calculating": {"de": "wird berechnet", "en": "being calculated"},
+    "plan_calculating_text": {"de": "Die Planrechnung läuft noch; ein späteres Update zum Bericht enthält sie.",
+                              "en": "The plan calculation is still running; a later update to the report "
+                                    "includes it."},
+    "plan_framing": {"de": "Was die Rechnung annimmt", "en": "What the calculation assumes"},
+    "plan_period": {"de": "Planrechnung, diese Periode", "en": "Plan calculation, this period"},
+    "fan_end": {"de": "Die Verläufe zum Zieldatum", "en": "The paths at the target date"},
+    "plan_outcome": {"de": "Ergebnis", "en": "Result"},
+    "plan_goal": {"de": "Gerechnet für", "en": "Calculated for"},
+    "plan_confidence": {"de": "Verlangte Sicherheit", "en": "Confidence asked"},
+    "plan_chance": {"de": "Chance mit den angenommenen Zahlen", "en": "Chance with the assumed figures"},
+    "plan_reachable": {"de": "Mit der verlangten Sicherheit erreichbar", "en": "Reachable at the confidence asked"},
+    "plan_solved_years": {"de": "Genau gerechnete Jahre", "en": "Years solved in detail"},
+    "plan_total_years": {"de": "Jahre bis zum Ziel", "en": "Years to the goal"},
+    "plan_beyond": {"de": "Nach den genau gerechneten Jahren", "en": "After the years solved in detail"},
+    "plan_beyond_rule": {"de": "wird das Vermögen verlangt, das die übrigen Jahre ohne Rendite trägt",
+                         "en": "the wealth that carries the remaining years at zero return is required"},
+    "hours_a_week": {"de": "Stunden pro Woche", "en": "hours a week"},
+}
+
+#: The sources table's words for lbsim's three artefacts (REP-23).
+LBSIM_SOURCE_WORDS: dict[str, Texts] = {
+    "findings": {"de": "Ihre Befunde und Einkommenspfade", "en": "Your findings and income paths"},
+    "paths": {"de": "Ihre simulierten Verläufe", "en": "Your simulated paths"},
+    "plan": {"de": "Ihre Planrechnung", "en": "Your plan calculation"},
+    "plan_dated": {"de": "zu den simulierten Verläufen", "en": "on the simulated paths"},
+}
+
+LBSIM_URGENCY: dict[str, Texts] = {
+    "now": {"de": "jetzt", "en": "now"},
+    "months": {"de": "in den nächsten Monaten", "en": "in the coming months"},
+    "year": {"de": "in diesem Jahr", "en": "this year"},
+    "watch": {"de": "im Auge behalten", "en": "to keep an eye on"},
+}
+LBSIM_SEVERITY: dict[str, Texts] = {
+    "blocking": {"de": "blockiert die Rechnung", "en": "blocks the calculation"},
+    "high": {"de": "hoch", "en": "high"},
+    "medium": {"de": "mittel", "en": "medium"},
+    "note": {"de": "Hinweis", "en": "note"},
+}
+LBSIM_ACTION_KIND: dict[str, Texts] = {
+    "ask": {"de": "eine Frage klären", "en": "a question to settle"},
+    "quantify": {"de": "einen Betrag bestimmen", "en": "an amount to settle"},
+    "decide_between": {"de": "zwischen Möglichkeiten entscheiden", "en": "a choice to make"},
+}
+LBSIM_OUTCOME: dict[str, Texts] = {
+    "solved": {"de": "Die Rechnung hat einen Plan gefunden, der das Ziel mit der verlangten Sicherheit erreicht.",
+               "en": "The calculation found a plan that reaches the goal at the confidence asked."},
+    "goal_not_fundable": {"de": "Das Ziel ist mit der verlangten Sicherheit nicht erreichbar.",
+                          "en": "The goal cannot be reached at the confidence asked."},
+    "undetermined": {"de": "Die Rechnung kam zu keinem eindeutigen Ergebnis.",
+                     "en": "The calculation reached no clear result."},
+}
+LBSIM_MEASURE: dict[str, Texts] = {
+    "deposit_eligible": {"de": "für die Anzahlung anrechenbares Vermögen",
+                         "en": "wealth that counts towards the deposit"},
+    "retirement_capital": {"de": "Alterskapital", "en": "retirement capital"},
+    "drawable": {"de": "entnahmefähiges Vermögen", "en": "drawable wealth"},
+    "net_worth": {"de": "Reinvermögen", "en": "net worth"},
+}
+#: The plan's "this period" figures (``action_now``; owner, 29.09.2026): what the calculation assumes.
+LBSIM_ACTION_NOW: dict[str, Texts] = {
+    "work_share": {"de": "Anteil der produktiven Wochenzeit für Erwerbsarbeit",
+                   "en": "Share of the productive week in paid work"},
+    "learning_hours_per_week": {"de": "Lernen", "en": "Learning"},
+    "network_hours_per_week": {"de": "Netzwerk", "en": "Networking"},
+    "rest_hours_per_week": {"de": "Erholung", "en": "Rest"},
+    "consumption_chf_per_year": {"de": "Konsum", "en": "Consumption"},
+    "saving_chf_per_year": {"de": "Sparen", "en": "Saving"},
+    "education_spend_chf_per_year": {"de": "Ausgaben für Weiterbildung", "en": "Spending on education"},
+    "network_spend_chf_per_year": {"de": "Ausgaben für das Netzwerk", "en": "Spending on networking"},
+    "amortisation_chf_per_year": {"de": "Amortisation", "en": "Amortisation"},
+}
+#: The words of the three charts (REP-34): titles and descriptions for readers and screen readers.
+CHART_WORDS: dict[str, Texts] = {
+    "roles_title": {"de": "Gewicht nach Rolle", "en": "Weight by role"},
+    "roles_desc": {"de": "Waagrechte Balken: das Gewicht jeder Rolle in der Allokation, der Wert steht am Balken.",
+                   "en": "Horizontal bars: the weight of each role in the allocation, the value beside the bar."},
+    "positions_title": {"de": "Gewicht nach Baustein", "en": "Weight by building block"},
+    "positions_desc": {"de": "Waagrechte Balken: das Gewicht jedes Bausteins mit Gewicht, der Wert steht am Balken.",
+                       "en": "Horizontal bars: the weight of each building block held, the value beside the bar."},
+    "fit_title": {"de": "Ziel und erreichte Rendite je Marktlage", "en": "Target and reached return per market state"},
+    "fit_desc": {"de": "Zwei Linien über die Marktlagen von Krise bis Boom: die Rendite, die das Mandat verlangt, und "
+                       "die, welche die Gewichte erreichen; dazu die Linie der Rendite null.",
+                 "en": "Two lines across the market states from crisis to boom: the return the mandate asks for and "
+                       "the one the weights reach; with the line of zero return."},
+    "target": {"de": "Ziel", "en": "Target"},
+    "achieved": {"de": "erreicht", "en": "reached"},
+    "zero": {"de": "Rendite null", "en": "zero return"},
+    "crisis": {"de": "Krise", "en": "Crisis"},
+    "boom": {"de": "Boom", "en": "Boom"},
+    "fan_title": {"de": "Die simulierten Verläufe", "en": "The simulated paths"},
+    "fan_desc": {"de": "Ein Fächer über die Jahre bis zum Zieldatum: das breite Band umfasst neun von zehn Verläufen, "
+                       "das schmale die mittlere Hälfte, die Linie den mittleren Verlauf; die waagrechte Linie ist das "
+                       "Ziel.",
+                 "en": "A fan over the years to the target date: the wide band holds nine paths in ten, the narrow "
+                       "one the middle half, the line the median path; the horizontal line is the goal."},
+    "fan_dashed": {"de": "Gestrichelt: das Ziel ist in der anderen Grundlage gesetzt und mit der Teuerung des "
+                         "mittleren Verlaufs umgerechnet.",
+                   "en": "Dashed: the goal is set in the other basis and converted at the median path’s inflation."},
+    "converted": {"de": "umgerechnet", "en": "converted"},
+    "goal": {"de": "Ziel", "en": "Goal"},
+    "chance": {"de": "Chance", "en": "chance"},
+    "low": {"de": "ungünstig", "en": "low"},
+    "mid": {"de": "Mitte", "en": "median"},
+    "high": {"de": "günstig", "en": "high"},
+    "today": {"de": "heute", "en": "today"},
+    "basis_nominal": {"de": "nominal", "en": "nominal"},
+    "basis_real": {"de": "real, in heutigen Franken", "en": "real, in today’s francs"},
+}

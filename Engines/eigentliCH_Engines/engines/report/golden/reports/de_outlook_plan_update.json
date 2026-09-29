@@ -1,0 +1,4594 @@
+{
+ "_note": "Golden report (dev/build_golden.py).",
+ "case": "de_outlook_plan_update",
+ "report": {
+  "contract_version": "report@1.0.0",
+  "artefact_id": "REP-778535f5c84ee15c",
+  "client_ref": "lbsim-sample",
+  "kind": "update",
+  "language": "de",
+  "title": "Update zum Bericht · Muster",
+  "previous_report_id": "REP-43ef825127d95a40",
+  "revision_of": null,
+  "revision_note": null,
+  "basis": "nominal",
+  "as_of": "2026-09-28",
+  "facts": [
+   {
+    "fact_id": "changes.unchanged",
+    "section": "changes",
+    "label": "Unveränderte Zahlen",
+    "value": 110.0,
+    "unit": "count",
+    "display": "110",
+    "sources": [
+     {
+      "engine": "report",
+      "artefact_id": "REP-43ef825127d95a40",
+      "contract_version": "report@1.0.0",
+      "path": "/facts"
+     }
+    ],
+    "derivation": "count of figures equal in this report and in REP-43ef825127d95a40",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "changes.added",
+    "section": "changes",
+    "label": "Neu im Bericht",
+    "value": "Verlangte Sicherheit; Chance mit den angenommenen Zahlen; Anteil der produktiven Wochenzeit für Erwerbsarbeit; Lernen; Netzwerk; Erholung; Konsum; Sparen; Ausgaben für Weiterbildung; Ausgaben für das Netzwerk; Amortisation; Genau gerechnete Jahre; Jahre bis zum Ziel",
+    "unit": "text",
+    "display": "Verlangte Sicherheit; Chance mit den angenommenen Zahlen; Anteil der produktiven Wochenzeit für Erwerbsarbeit; Lernen; Netzwerk; Erholung; Konsum; Sparen; Ausgaben für Weiterbildung; Ausgaben für das Netzwerk; Amortisation; Genau gerechnete Jahre; Jahre bis zum Ziel",
+    "sources": [
+     {
+      "engine": "report",
+      "artefact_id": "REP-43ef825127d95a40",
+      "contract_version": "report@1.0.0",
+      "path": "/facts"
+     }
+    ],
+    "derivation": "labels of figures in only one of the two reports",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.mandate_name",
+    "section": "allocation",
+    "label": "Mandat",
+    "value": "balanced",
+    "unit": "text",
+    "display": "balanced",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/mandate_name"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.date",
+    "section": "allocation",
+    "label": "Stichtag der Allokation",
+    "value": "2026-01-31",
+    "unit": "date",
+    "display": "31.01.2026",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/date"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.release_state",
+    "section": "allocation",
+    "label": "Status",
+    "value": "unreleased",
+    "unit": "text",
+    "display": "nicht freigegeben",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/release_state"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.budget_met",
+    "section": "allocation",
+    "label": "Budget eingehalten (Summe der Gewichte)",
+    "value": true,
+    "unit": "flag",
+    "display": "ja",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/budget_met"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.positions_held",
+    "section": "allocation",
+    "label": "Bausteine mit Gewicht",
+    "value": 7.0,
+    "unit": "count",
+    "display": "7",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments"
+     }
+    ],
+    "derivation": "count of instruments with weight >= 0.0005",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.universe_size",
+    "section": "allocation",
+    "label": "Bausteine im Universum",
+    "value": 52.0,
+    "unit": "count",
+    "display": "52",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments"
+     }
+    ],
+    "derivation": "count of instruments in the allocation",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.role.Gain",
+    "section": "roles",
+    "label": "Wertsteigerung",
+    "value": 0.5999999999999992,
+    "unit": "share",
+    "display": "60,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/weights_by_role/Gain"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.role.Income",
+    "section": "roles",
+    "label": "Einkommen",
+    "value": 2.0413626404960775e-16,
+    "unit": "share",
+    "display": "0,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/weights_by_role/Income"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.role.Stabilisation",
+    "section": "roles",
+    "label": "Stabilisierung",
+    "value": 4.592892132145721e-16,
+    "unit": "share",
+    "display": "0,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/weights_by_role/Stabilisation"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.role.Protection",
+    "section": "roles",
+    "label": "Absicherung",
+    "value": 0.40000000000000013,
+    "unit": "share",
+    "display": "40,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/weights_by_role/Protection"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position.INS-asia-ex-japan-tr",
+    "section": "positions",
+    "label": "Asia ex Japan TR",
+    "value": 0.14999999999999972,
+    "unit": "share",
+    "display": "15,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/3/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-asia-ex-japan-tr",
+    "section": "positions",
+    "label": "Asia ex Japan TR",
+    "value": "Gain",
+    "unit": "text",
+    "display": "Wertsteigerung",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/3/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position.INS-digital-assets",
+    "section": "positions",
+    "label": "Digital Assets",
+    "value": 0.14999999999999958,
+    "unit": "share",
+    "display": "15,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/18/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-digital-assets",
+    "section": "positions",
+    "label": "Digital Assets",
+    "value": "Gain",
+    "unit": "text",
+    "display": "Wertsteigerung",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/18/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position.INS-long-volatility-index",
+    "section": "positions",
+    "label": "Long Volatility Index",
+    "value": 0.14999999999999972,
+    "unit": "share",
+    "display": "15,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/36/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-long-volatility-index",
+    "section": "positions",
+    "label": "Long Volatility Index",
+    "value": "Protection",
+    "unit": "text",
+    "display": "Absicherung",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/36/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position.INS-msci-ac-world-imi",
+    "section": "positions",
+    "label": "MSCI AC World IMI",
+    "value": 0.1499999999999996,
+    "unit": "share",
+    "display": "15,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/38/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-msci-ac-world-imi",
+    "section": "positions",
+    "label": "MSCI AC World IMI",
+    "value": "Gain",
+    "unit": "text",
+    "display": "Wertsteigerung",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/38/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position.INS-precious-metals",
+    "section": "positions",
+    "label": "Precious Metals",
+    "value": 0.14999999999999972,
+    "unit": "share",
+    "display": "15,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/39/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-precious-metals",
+    "section": "positions",
+    "label": "Precious Metals",
+    "value": "Protection",
+    "unit": "text",
+    "display": "Absicherung",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/39/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position.INS-us-equities",
+    "section": "positions",
+    "label": "US Equities",
+    "value": 0.1499999999999997,
+    "unit": "share",
+    "display": "15,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/49/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-us-equities",
+    "section": "positions",
+    "label": "US Equities",
+    "value": "Gain",
+    "unit": "text",
+    "display": "Wertsteigerung",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/49/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position.INS-eur-cash",
+    "section": "positions",
+    "label": "EUR Cash",
+    "value": 0.10000000000000042,
+    "unit": "share",
+    "display": "10,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/22/weight"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.position_role.INS-eur-cash",
+    "section": "positions",
+    "label": "EUR Cash",
+    "value": "Protection",
+    "unit": "text",
+    "display": "Absicherung",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/instruments/22/role"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.objective",
+    "section": "fit",
+    "label": "Zielfunktion",
+    "value": 26.82067375508583,
+    "unit": "number",
+    "display": "26,82",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/objective"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.objective_floor",
+    "section": "fit",
+    "label": "Zielfunktion ohne Allokation",
+    "value": 27.040000000000028,
+    "unit": "number",
+    "display": "27,04",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/objective_floor"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.weight_leverage",
+    "section": "fit",
+    "label": "Anteil, den die Gewichte bewegen",
+    "value": 0.008111177696530915,
+    "unit": "share",
+    "display": "0,81 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/weight_leverage"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.solver_method",
+    "section": "fit",
+    "label": "Verfahren",
+    "value": "SLSQP",
+    "unit": "text",
+    "display": "SLSQP",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/solver_method"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.solver_converged",
+    "section": "fit",
+    "label": "Lösung konvergiert",
+    "value": true,
+    "unit": "flag",
+    "display": "ja",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/success"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.constraint_rows",
+    "section": "fit",
+    "label": "Nebenbedingungen",
+    "value": 75.0,
+    "unit": "count",
+    "display": "75",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/constraint_rows"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.binding_rows",
+    "section": "fit",
+    "label": "davon bindend",
+    "value": 23.0,
+    "unit": "count",
+    "display": "23",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/diagnostics/binding"
+     }
+    ],
+    "derivation": "count of binding constraint rows",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.weak_share",
+    "section": "fit",
+    "label": "Gewicht auf geliehenen oder gesetzten Profilen",
+    "value": 0.1000000000000009,
+    "unit": "share",
+    "display": "10,0 %",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/coverage/weight_on_weak_profiles"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.warning.0",
+    "section": "limits",
+    "label": "Allokation",
+    "value": "every instrument carries the same ESG score (1.0), so the ESG row cannot discriminate (PCP-06)",
+    "unit": "text",
+    "display": "Alle Bausteine haben dieselbe ESG-Bewertung, deshalb unterscheidet die ESG-Vorgabe nicht zwischen ihnen.",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/coverage/warnings/0"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.warning.1",
+    "section": "limits",
+    "label": "Allokation",
+    "value": "the weights control 0.81% of the objective (objective 26.8207 against a floor of 27.04 with nothing allocated): the allocation is driven mainly by the constraints, the curve fit acting as a tie-breaker (per-instrument objective, D28)",
+    "unit": "text",
+    "display": "Die Gewichte bestimmen nur einen kleinen Teil der Zielfunktion: die Allokation folgt vor allem den Vorgaben des Mandats.",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/coverage/warnings/1"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "pcp.warning.2",
+    "section": "limits",
+    "label": "Allokation",
+    "value": "10.0% of the weight is on instruments whose profiles rest on borrowed or seeded values (PCP-07)",
+    "unit": "text",
+    "display": "Ein Teil des Gewichts liegt auf Bausteinen, deren Profile auf geliehenen oder gesetzten Werten beruhen.",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/coverage/warnings/2"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.household.adults",
+    "section": "household",
+    "label": "Erwachsene",
+    "value": 2.0,
+    "unit": "count",
+    "display": "2",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/household/adults"
+     }
+    ],
+    "derivation": "count of adults",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.household.dependants",
+    "section": "household",
+    "label": "Abhängige",
+    "value": 1.0,
+    "unit": "count",
+    "display": "1",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/household/dependants"
+     }
+    ],
+    "derivation": "count of dependants",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.household.composition_as_of",
+    "section": "household",
+    "label": "Zusammensetzung erfasst am",
+    "value": "2026-09-01",
+    "unit": "date",
+    "display": "01.09.2026",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/household/composition_as_of"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.totals.total_assets",
+    "section": "balance_sheet",
+    "label": "Vermögen gesamt",
+    "value": 257000.0,
+    "unit": "chf",
+    "display": "CHF 257 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/total_assets"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.totals.financial_assets",
+    "section": "balance_sheet",
+    "label": "Finanzvermögen",
+    "value": 257000.0,
+    "unit": "chf",
+    "display": "CHF 257 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/financial_assets"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.totals.liabilities",
+    "section": "balance_sheet",
+    "label": "Verbindlichkeiten",
+    "value": 0.0,
+    "unit": "chf",
+    "display": "CHF 0",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/liabilities"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.totals.net_worth",
+    "section": "balance_sheet",
+    "label": "Reinvermögen",
+    "value": 257000.0,
+    "unit": "chf",
+    "display": "CHF 257 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/net_worth"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.totals.drawable",
+    "section": "balance_sheet",
+    "label": "Entnahmefähig",
+    "value": 100000.0,
+    "unit": "chf",
+    "display": "CHF 100 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/drawable"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.totals.identity_holds",
+    "section": "balance_sheet",
+    "label": "Bilanzgleichung erfüllt",
+    "value": true,
+    "unit": "flag",
+    "display": "ja",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/identity_holds"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.vessel.free",
+    "section": "balance_sheet",
+    "label": "frei verfügbar",
+    "value": 100000.0,
+    "unit": "chf",
+    "display": "CHF 100 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/by_vessel/free"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.vessel.pillar_2",
+    "section": "balance_sheet",
+    "label": "2. Säule",
+    "value": 135000.0,
+    "unit": "chf",
+    "display": "CHF 135 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/by_vessel/pillar_2"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.vessel.pillar_3a",
+    "section": "balance_sheet",
+    "label": "Säule 3a",
+    "value": 22000.0,
+    "unit": "chf",
+    "display": "CHF 22 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/by_vessel/pillar_3a"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.cell.gain.financial.assets",
+    "section": "grid",
+    "label": "Wertsteigerung, Finanzkapital",
+    "value": 60000.0,
+    "unit": "chf",
+    "display": "CHF 60 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/grid/1/assets_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.cell.stabilisation.financial.assets",
+    "section": "grid",
+    "label": "Stabilisierung, Finanzkapital",
+    "value": 40000.0,
+    "unit": "chf",
+    "display": "CHF 40 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/grid/5/assets_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.cell.protection.financial.assets",
+    "section": "grid",
+    "label": "Absicherung, Finanzkapital",
+    "value": 157000.0,
+    "unit": "chf",
+    "display": "CHF 157 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/grid/7/assets_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.human.p1.E",
+    "section": "human_capital",
+    "label": "Person 1: Expertise (E)",
+    "value": 0.9571,
+    "unit": "number",
+    "display": "0,96",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/0/E/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.human.p1.N",
+    "section": "human_capital",
+    "label": "Person 1: Netzwerk (N)",
+    "value": 0.71,
+    "unit": "number",
+    "display": "0,71",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/0/N/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.human.p1.H",
+    "section": "human_capital",
+    "label": "Person 1: Gesundheit (H)",
+    "value": 0.85,
+    "unit": "number",
+    "display": "0,85",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/0/H/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.human.p2.E",
+    "section": "human_capital",
+    "label": "Person 2: Expertise (E)",
+    "value": 1.0,
+    "unit": "number",
+    "display": "1,00",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/1/E/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.human.p2.N",
+    "section": "human_capital",
+    "label": "Person 2: Netzwerk (N)",
+    "value": 0.53,
+    "unit": "number",
+    "display": "0,53",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/1/N/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.human.p2.H",
+    "section": "human_capital",
+    "label": "Person 2: Gesundheit (H)",
+    "value": 1.0,
+    "unit": "number",
+    "display": "1,00",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/human_capital/1/H/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.ahv.yearly",
+    "section": "pensions",
+    "label": "Person 1: AHV-Rente pro Jahr",
+    "value": 32760.0,
+    "unit": "chf_per_year",
+    "display": "CHF 32 760 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/ahv/yearly"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.opening",
+    "section": "pensions",
+    "label": "Person 1: Pensionskassenguthaben heute",
+    "value": 95000.0,
+    "unit": "chf",
+    "display": "CHF 95 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/opening_balance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.to_age",
+    "section": "pensions",
+    "label": "Person 1: Rentenalter der Projektion",
+    "value": 65.0,
+    "unit": "count",
+    "display": "65",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/to_age"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.closing",
+    "section": "pensions",
+    "label": "Person 1: Pensionskassenguthaben im Rentenalter",
+    "value": 430619.21589315555,
+    "unit": "chf",
+    "display": "CHF 430 619",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/closing_balance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.conversion",
+    "section": "pensions",
+    "label": "Person 1: Umwandlungssatz",
+    "value": 0.068,
+    "unit": "share",
+    "display": "6,80 %",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/conversion_rate"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p1.bvg.yearly",
+    "section": "pensions",
+    "label": "Person 1: BVG-Rente pro Jahr",
+    "value": 29282.106680734578,
+    "unit": "chf_per_year",
+    "display": "CHF 29 282 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/0/bvg/yearly_pension"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.pension.p2.ahv.yearly",
+    "section": "pensions",
+    "label": "Person 2: AHV-Rente pro Jahr",
+    "value": 32760.0,
+    "unit": "chf_per_year",
+    "display": "CHF 32 760 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/ahv/yearly"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.opening",
+    "section": "pensions",
+    "label": "Person 2: Pensionskassenguthaben heute",
+    "value": 40000.0,
+    "unit": "chf",
+    "display": "CHF 40 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/opening_balance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.to_age",
+    "section": "pensions",
+    "label": "Person 2: Rentenalter der Projektion",
+    "value": 65.0,
+    "unit": "count",
+    "display": "65",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/to_age"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.closing",
+    "section": "pensions",
+    "label": "Person 2: Pensionskassenguthaben im Rentenalter",
+    "value": 373194.3647567228,
+    "unit": "chf",
+    "display": "CHF 373 194",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/closing_balance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.conversion",
+    "section": "pensions",
+    "label": "Person 2: Umwandlungssatz",
+    "value": 0.068,
+    "unit": "share",
+    "display": "6,80 %",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/conversion_rate"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.pension.p2.bvg.yearly",
+    "section": "pensions",
+    "label": "Person 2: BVG-Rente pro Jahr",
+    "value": 25377.21680345716,
+    "unit": "chf_per_year",
+    "display": "CHF 25 377 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/pensions/1/bvg/yearly_pension"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.couple_cap.yearly",
+    "section": "pensions",
+    "label": "AHV-Renten des Paares pro Jahr, plafoniert",
+    "value": 49140.0,
+    "unit": "chf_per_year",
+    "display": "CHF 49 140 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/couple_cap/yearly"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.couple_cap.binds",
+    "section": "pensions",
+    "label": "Plafonierung greift",
+    "value": true,
+    "unit": "flag",
+    "display": "ja",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/couple_cap/cap_binds"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.retirement.g-ret.verdict",
+    "section": "retirement",
+    "label": "Ihr Ruhestandsziel: Befund",
+    "value": "could_not_be_determined",
+    "unit": "text",
+    "display": "nicht bestimmbar",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/retirement/0/verdict"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.retirement.g-ret.needs",
+    "section": "retirement",
+    "label": "Ihr Ruhestandsziel: Bedarf",
+    "value": 157376.06482903412,
+    "unit": "chf_per_year",
+    "display": "CHF 157 376 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/retirement/0/views/nominal/needs_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.property.g-home.verdict",
+    "section": "property",
+    "label": "Ihr Wohneigentumsziel: Befund",
+    "value": "could_not_be_determined",
+    "unit": "text",
+    "display": "nicht bestimmbar",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/property/0/verdict"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.property.g-home.price",
+    "section": "property",
+    "label": "Ihr Wohneigentumsziel: Kaufpreis",
+    "value": 1394370.651674103,
+    "unit": "chf",
+    "display": "CHF 1 394 371",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/real_view/goals/0/nominal/amount"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.property.g-home.target_date",
+    "section": "property",
+    "label": "Ihr Wohneigentumsziel: Zieldatum",
+    "value": "2029-12-31",
+    "unit": "date",
+    "display": "31.12.2029",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/property/0/target_date"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.risk.value",
+    "section": "risk",
+    "label": "Risikoprofil (Wert)",
+    "value": 0.4285714285714286,
+    "unit": "number",
+    "display": "0,43",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/risk_profile/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.risk.binds_on",
+    "section": "risk",
+    "label": "bindend durch",
+    "value": "willingness",
+    "unit": "text",
+    "display": "Risikobereitschaft",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/risk_profile/binds_on"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.mandate.name",
+    "section": "mandate",
+    "label": "Mandatsvorschlag",
+    "value": "lbs-g-home",
+    "unit": "text",
+    "display": "Ihr Wohneigentumsziel",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/name"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.mandate.target",
+    "section": "mandate",
+    "label": "Zielbetrag",
+    "value": 278874.1303348206,
+    "unit": "chf",
+    "display": "CHF 278 874",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/target_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.mandate.horizon",
+    "section": "mandate",
+    "label": "Horizont in Jahren",
+    "value": 3.258109338316324,
+    "unit": "number",
+    "display": "3,26",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/goal_horizon_years"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.mandate.drawable",
+    "section": "mandate",
+    "label": "Entnahmefähig",
+    "value": 100000.0,
+    "unit": "chf",
+    "display": "CHF 100 000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/drawable_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.mandate.contribution",
+    "section": "mandate",
+    "label": "Beitrag pro Jahr",
+    "value": 30000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 30 000 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/annual_contribution"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.mandate.required_return",
+    "section": "mandate",
+    "label": "Nötige Rendite pro Jahr",
+    "value": 0.1478938956570346,
+    "unit": "share",
+    "display": "14,79 %",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/required_return"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.mandate.plausibility",
+    "section": "mandate",
+    "label": "Nötige Rendite, gemessen am Risikoprofil",
+    "value": "not_realistic",
+    "unit": "text",
+    "display": "nicht realistisch",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/plausibility/judgement"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.mandate.feasible",
+    "section": "mandate",
+    "label": "Erreichbar",
+    "value": true,
+    "unit": "flag",
+    "display": "ja",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/feasible"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.mandate.complete",
+    "section": "mandate",
+    "label": "Vollständig",
+    "value": false,
+    "unit": "flag",
+    "display": "nein",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/complete"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.mandate.release_state",
+    "section": "mandate",
+    "label": "Status",
+    "value": "unreleased",
+    "unit": "text",
+    "display": "nicht freigegeben",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/mandate_proposal/release_state"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.gap.1",
+    "section": "limits",
+    "label": "Mandatsvorschlag",
+    "value": "contribution_share: the request has 2 goals and does not state this goal's share of the yearly saving (goals[g-home].contribution_share); the most it can receive, 100.0% of it, is used, so the required return is a lower bound",
+    "unit": "text",
+    "display": "Der Anteil des jährlichen Sparbetrags für dieses Ziel ist nicht angegeben; die erforderliche Rendite ist deshalb eine Untergrenze.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/1/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.gap.2",
+    "section": "limits",
+    "label": "Ihr Wohneigentumsziel",
+    "value": "no_income_is_recorded_for_the_household: the property finding could not be determined: no income is recorded for the household",
+    "unit": "text",
+    "display": "Für den Haushalt ist kein Einkommen erfasst.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/2/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.gap.3",
+    "section": "limits",
+    "label": "Ihr Wohneigentumsziel",
+    "value": "no_position_is_linked_to_this_goal: the property finding could not be determined: no position is linked to this goal",
+    "unit": "text",
+    "display": "Mit diesem Ziel ist keine Vermögensposition verknüpft.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/3/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.gap.4",
+    "section": "limits",
+    "label": "Ihr Ruhestandsziel",
+    "value": "no_income_is_recorded_for_the_household: the retirement finding: no income is recorded for the household",
+    "unit": "text",
+    "display": "Für den Haushalt ist kein Einkommen erfasst.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/4/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.gap.5",
+    "section": "limits",
+    "label": "Bilanz",
+    "value": "household_income: the household has 2 adults and p1, p2 own no income position, so the household's income is not known; one earner's figure would answer the affordability test for a household that does not exist",
+    "unit": "text",
+    "display": "Das Haushaltseinkommen ist nicht bekannt: nicht für jede erwachsene Person ist ein Einkommen erfasst.",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/gaps/5/reason"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p1.modelled",
+    "section": "earning_power",
+    "label": "Person 1: Modellwert bei vollem Pensum",
+    "value": 115582.32690975441,
+    "unit": "chf_per_year",
+    "display": "CHF 115 582 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/0/modelled/full_time_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p1.responsibility",
+    "section": "earning_power",
+    "label": "Person 1: Führungsfunktion",
+    "value": "Oberes oder mittleres Kader",
+    "unit": "text",
+    "display": "Oberes oder mittleres Kader",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/0/modelled/responsibility/label/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p1.stated",
+    "section": "earning_power",
+    "label": "Person 1: Ihre Angabe bei vollem Pensum",
+    "value": 135000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 135 000 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/0/stated/expected_full_pensum_income_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p1.level_basis",
+    "section": "earning_power",
+    "label": "Person 1: Die Rechnung verwendet",
+    "value": "stated",
+    "unit": "text",
+    "display": "Ihre Angabe",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/0/level_basis"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p1.current",
+    "section": "earning_power",
+    "label": "Person 1: Bruttoeinkommen heute",
+    "value": 128000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 128 000 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/0/current/gross_income_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p1.pensum",
+    "section": "earning_power",
+    "label": "Person 1: Pensum heute",
+    "value": 1.0,
+    "unit": "share",
+    "display": "100 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/0/current/pensum"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p2.modelled",
+    "section": "earning_power",
+    "label": "Person 2: Modellwert bei vollem Pensum",
+    "value": 72459.99476884729,
+    "unit": "chf_per_year",
+    "display": "CHF 72 460 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/1/modelled/full_time_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p2.responsibility",
+    "section": "earning_power",
+    "label": "Person 2: Führungsfunktion",
+    "value": "Keine Führungsfunktion",
+    "unit": "text",
+    "display": "Keine Führungsfunktion (nicht angegeben, keine angenommen)",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/1/modelled/responsibility/label/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p2.level_basis",
+    "section": "earning_power",
+    "label": "Person 2: Die Rechnung verwendet",
+    "value": "modelled",
+    "unit": "text",
+    "display": "Modellwert",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/1/level_basis"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p2.current",
+    "section": "earning_power",
+    "label": "Person 2: Bruttoeinkommen heute",
+    "value": 92000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 92 000 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/1/current/gross_income_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p2.pensum",
+    "section": "earning_power",
+    "label": "Person 2: Pensum heute",
+    "value": 0.8095238095238095,
+    "unit": "share",
+    "display": "81 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/1/current/pensum"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.earning_power.p2.caveat.0",
+    "section": "earning_power",
+    "label": "Person 2: Hinweis",
+    "value": "Keine Führungsfunktion angegeben, also keine angenommen; nach der BFS-Tabelle ist sie mehr wert als die Ausbildung.",
+    "unit": "text",
+    "display": "Keine Führungsfunktion angegeben, also keine angenommen; nach der BFS-Tabelle ist sie mehr wert als die Ausbildung.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/earning_power/1/caveats/0/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.zero_return.note",
+    "section": "income_paths",
+    "label": "Ohne Rendite gerechnet",
+    "value": "Die Sparrechnung rechnet ohne Rendite. Das ist ein Überblick und keine Prognose: sie zeigt, was ein Ziel an reinem Sparen kostet. Was schon ohne Rendite trägt, braucht den Markt nicht.",
+    "unit": "text",
+    "display": "Die Sparrechnung rechnet ohne Rendite. Das ist ein Überblick und keine Prognose: sie zeigt, was ein Ziel an reinem Sparen kostet. Was schon ohne Rendite trägt, braucht den Markt nicht.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/zero_return/note/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.today.name",
+    "section": "income_paths",
+    "label": "Einkommenspfad",
+    "value": "Ohne Weiterbildung, Pensum bleibt",
+    "unit": "text",
+    "display": "Ohne Weiterbildung, Pensum bleibt",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/0/name/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.today.note",
+    "section": "income_paths",
+    "label": "Ohne Weiterbildung, Pensum bleibt: Was der Pfad annimmt",
+    "value": "Keine zusätzliche Ausbildung, keine Änderung am Pensum. Das Einkommen bewegt sich trotzdem: Erfahrung wächst im Modell von selbst, und im späten Erwerbsleben fällt es wieder. Das ist die Vergleichslinie.",
+    "unit": "text",
+    "display": "Keine zusätzliche Ausbildung, keine Änderung am Pensum. Das Einkommen bewegt sich trotzdem: Erfahrung wächst im Modell von selbst, und im späten Erwerbsleben fällt es wieder. Das ist die Vergleichslinie.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/0/note/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.today.saving_need.g-home",
+    "section": "income_paths",
+    "label": "Ohne Weiterbildung, Pensum bleibt: Ihr Wohneigentumsziel, Sparbedarf ohne Rendite",
+    "value": 59624.710111606866,
+    "unit": "chf_per_year",
+    "display": "CHF 59 625 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/0/saving_need/0/zero_return_saving_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.today.free_cash.g-home",
+    "section": "income_paths",
+    "label": "Ohne Weiterbildung, Pensum bleibt: Ihr Wohneigentumsziel, frei verfügbar",
+    "value": 9890.796937280318,
+    "unit": "chf_per_year",
+    "display": "CHF 9 891 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/0/saving_need/0/free_cash_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.today.holds.g-home",
+    "section": "income_paths",
+    "label": "Ohne Weiterbildung, Pensum bleibt: Ihr Wohneigentumsziel, trägt ohne Rendite",
+    "value": false,
+    "unit": "flag",
+    "display": "nein",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/0/saving_need/0/holds"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.today.saving_need.g-ret",
+    "section": "income_paths",
+    "label": "Ohne Weiterbildung, Pensum bleibt: Ihr Ruhestandsziel, Sparbedarf ohne Rendite",
+    "value": 103483.39046233632,
+    "unit": "chf_per_year",
+    "display": "CHF 103 483 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/0/saving_need/1/zero_return_saving_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.today.free_cash.g-ret",
+    "section": "income_paths",
+    "label": "Ohne Weiterbildung, Pensum bleibt: Ihr Ruhestandsziel, frei verfügbar",
+    "value": 77248.58616053134,
+    "unit": "chf_per_year",
+    "display": "CHF 77 249 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/0/saving_need/1/free_cash_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.today.holds.g-ret",
+    "section": "income_paths",
+    "label": "Ohne Weiterbildung, Pensum bleibt: Ihr Ruhestandsziel, trägt ohne Rendite",
+    "value": false,
+    "unit": "flag",
+    "display": "nein",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/0/saving_need/1/holds"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.full_pensum.name",
+    "section": "income_paths",
+    "label": "Einkommenspfad",
+    "value": "Weiterbildung und volles Pensum",
+    "unit": "text",
+    "display": "Weiterbildung und volles Pensum",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/1/name/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.full_pensum.note",
+    "section": "income_paths",
+    "label": "Weiterbildung und volles Pensum: Was der Pfad annimmt",
+    "value": "Nach Abschluss ein volles Pensum. Für einen Haushalt, dessen Einkommen heute wegen der Ausbildung tief ist, ist das meist der grösste einzelne Schritt.",
+    "unit": "text",
+    "display": "Nach Abschluss ein volles Pensum. Für einen Haushalt, dessen Einkommen heute wegen der Ausbildung tief ist, ist das meist der grösste einzelne Schritt.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/1/note/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.full_pensum.saving_need.g-home",
+    "section": "income_paths",
+    "label": "Weiterbildung und volles Pensum: Ihr Wohneigentumsziel, Sparbedarf ohne Rendite",
+    "value": 59624.710111606866,
+    "unit": "chf_per_year",
+    "display": "CHF 59 625 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/1/saving_need/0/zero_return_saving_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.full_pensum.free_cash.g-home",
+    "section": "income_paths",
+    "label": "Weiterbildung und volles Pensum: Ihr Wohneigentumsziel, frei verfügbar",
+    "value": 9890.796937280318,
+    "unit": "chf_per_year",
+    "display": "CHF 9 891 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/1/saving_need/0/free_cash_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.full_pensum.holds.g-home",
+    "section": "income_paths",
+    "label": "Weiterbildung und volles Pensum: Ihr Wohneigentumsziel, trägt ohne Rendite",
+    "value": false,
+    "unit": "flag",
+    "display": "nein",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/1/saving_need/0/holds"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.full_pensum.saving_need.g-ret",
+    "section": "income_paths",
+    "label": "Weiterbildung und volles Pensum: Ihr Ruhestandsziel, Sparbedarf ohne Rendite",
+    "value": 103483.39046233632,
+    "unit": "chf_per_year",
+    "display": "CHF 103 483 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/1/saving_need/1/zero_return_saving_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.full_pensum.free_cash.g-ret",
+    "section": "income_paths",
+    "label": "Weiterbildung und volles Pensum: Ihr Ruhestandsziel, frei verfügbar",
+    "value": 77248.58616053134,
+    "unit": "chf_per_year",
+    "display": "CHF 77 249 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/1/saving_need/1/free_cash_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.full_pensum.holds.g-ret",
+    "section": "income_paths",
+    "label": "Weiterbildung und volles Pensum: Ihr Ruhestandsziel, trägt ohne Rendite",
+    "value": false,
+    "unit": "flag",
+    "display": "nein",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/1/saving_need/1/holds"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.network.name",
+    "section": "income_paths",
+    "label": "Einkommenspfad",
+    "value": "Weiterbildung, volles Pensum und Netzwerk",
+    "unit": "text",
+    "display": "Weiterbildung, volles Pensum und Netzwerk",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/2/name/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.network.note",
+    "section": "income_paths",
+    "label": "Weiterbildung, volles Pensum und Netzwerk: Was der Pfad annimmt",
+    "value": "Zusätzlich Zeit für Kontakte und Sichtbarkeit, bis zum Knick der Modellkurve. Mehr bringt nach diesem Modell fast nichts.",
+    "unit": "text",
+    "display": "Zusätzlich Zeit für Kontakte und Sichtbarkeit, bis zum Knick der Modellkurve. Mehr bringt nach diesem Modell fast nichts.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/2/note/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.network.saving_need.g-home",
+    "section": "income_paths",
+    "label": "Weiterbildung, volles Pensum und Netzwerk: Ihr Wohneigentumsziel, Sparbedarf ohne Rendite",
+    "value": 59624.710111606866,
+    "unit": "chf_per_year",
+    "display": "CHF 59 625 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/2/saving_need/0/zero_return_saving_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.network.free_cash.g-home",
+    "section": "income_paths",
+    "label": "Weiterbildung, volles Pensum und Netzwerk: Ihr Wohneigentumsziel, frei verfügbar",
+    "value": 9890.796937280318,
+    "unit": "chf_per_year",
+    "display": "CHF 9 891 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/2/saving_need/0/free_cash_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.network.holds.g-home",
+    "section": "income_paths",
+    "label": "Weiterbildung, volles Pensum und Netzwerk: Ihr Wohneigentumsziel, trägt ohne Rendite",
+    "value": false,
+    "unit": "flag",
+    "display": "nein",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/2/saving_need/0/holds"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.path.network.saving_need.g-ret",
+    "section": "income_paths",
+    "label": "Weiterbildung, volles Pensum und Netzwerk: Ihr Ruhestandsziel, Sparbedarf ohne Rendite",
+    "value": 103483.39046233632,
+    "unit": "chf_per_year",
+    "display": "CHF 103 483 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/2/saving_need/1/zero_return_saving_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.network.free_cash.g-ret",
+    "section": "income_paths",
+    "label": "Weiterbildung, volles Pensum und Netzwerk: Ihr Ruhestandsziel, frei verfügbar",
+    "value": 77248.58616053134,
+    "unit": "chf_per_year",
+    "display": "CHF 77 249 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/2/saving_need/1/free_cash_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.path.network.holds.g-ret",
+    "section": "income_paths",
+    "label": "Weiterbildung, volles Pensum und Netzwerk: Ihr Ruhestandsziel, trägt ohne Rendite",
+    "value": false,
+    "unit": "flag",
+    "display": "nein",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/income_paths/2/saving_need/1/holds"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.free",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung · 1",
+    "value": 71634.22803340646,
+    "unit": "chf_per_year",
+    "display": "CHF 71 634",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/figures/free/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.committed",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung · 2",
+    "value": 7258.0,
+    "unit": "chf_per_year",
+    "display": "CHF 7 258",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/figures/committed/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.undirected",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung · 3",
+    "value": 64376.228033406456,
+    "unit": "chf_per_year",
+    "display": "CHF 64 376",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/figures/undirected/value"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.title",
+    "section": "findings",
+    "label": "Befund",
+    "value": "Ein Überschuss ohne Verwendung",
+    "unit": "text",
+    "display": "Ein Überschuss ohne Verwendung",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/text/de/title"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.trigger",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung",
+    "value": "Frei verfügbar sind {free} pro Jahr, davon fest verplant {committed}: {undirected} pro Jahr haben keine Verwendung.",
+    "unit": "text",
+    "display": "Frei verfügbar sind {free} pro Jahr, davon fest verplant {committed}: {undirected} pro Jahr haben keine Verwendung.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/text/de/trigger"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.why",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung",
+    "value": "Der Haushalt erzeugt mehr, als er lenkt. Die Frage ist dann nicht die Rendite, sondern die Verwendung des Überschusses.",
+    "unit": "text",
+    "display": "Der Haushalt erzeugt mehr, als er lenkt. Die Frage ist dann nicht die Rendite, sondern die Verwendung des Überschusses.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/text/de/why"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.action",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung",
+    "value": "Den Betrag benennen und ihm eine Verwendung geben. Solange er nicht zugeordnet ist, wird er verbraucht.",
+    "unit": "text",
+    "display": "Den Betrag benennen und ihm eine Verwendung geben. Solange er nicht zugeordnet ist, wird er verbraucht.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/text/de/action"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.urgency",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung: Wann",
+    "value": "now",
+    "unit": "text",
+    "display": "jetzt",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/urgency"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.severity",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung: Gewicht",
+    "value": "high",
+    "unit": "text",
+    "display": "hoch",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/severity"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.finding.undirected_surplus.action_kind",
+    "section": "findings",
+    "label": "Ein Überschuss ohne Verwendung: Art des Schritts",
+    "value": "quantify",
+    "unit": "text",
+    "display": "einen Betrag bestimmen",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/findings/0/action_kind"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.schedule.0",
+    "section": "findings",
+    "label": "Der Fahrplan",
+    "value": "Jetzt, vor jeder Anlageentscheidung",
+    "unit": "text",
+    "display": "Jetzt, vor jeder Anlageentscheidung",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/schedule/0/label/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.schedule.0.undirected_surplus",
+    "section": "findings",
+    "label": "Jetzt, vor jeder Anlageentscheidung",
+    "value": "undirected_surplus",
+    "unit": "text",
+    "display": "Ein Überschuss ohne Verwendung",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/schedule/0/codes/0"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.unchecked.1",
+    "section": "findings",
+    "label": "Nicht geprüft",
+    "value": "Ob die Angaben den Haushalt oder den eigenen Anteil beschreiben, ist nicht erfasst.",
+    "unit": "text",
+    "display": "Ob die Angaben den Haushalt oder den eigenen Anteil beschreiben, ist nicht erfasst.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/unchecked/1/reason/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.question.0",
+    "section": "findings",
+    "label": "Nächste Frage",
+    "value": "Ab welchem Alter möchten Sie nicht mehr auf Erwerbseinkommen angewiesen sein?",
+    "unit": "text",
+    "display": "Ab welchem Alter möchten Sie nicht mehr auf Erwerbseinkommen angewiesen sein?",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/next_questions/0/question/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.question.1",
+    "section": "findings",
+    "label": "Nächste Frage",
+    "value": "Fehlen Ihnen AHV-Beitragsjahre, etwa durch Studium, Ausland oder Selbständigkeit?",
+    "unit": "text",
+    "display": "Fehlen Ihnen AHV-Beitragsjahre, etwa durch Studium, Ausland oder Selbständigkeit?",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/next_questions/1/question/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.paths.n",
+    "section": "outlook",
+    "label": "Simulierte Verläufe",
+    "value": 2000.0,
+    "unit": "count",
+    "display": "2000",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/n_paths"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.paths.horizon",
+    "section": "outlook",
+    "label": "Gerechnete Jahre",
+    "value": 27.0,
+    "unit": "count",
+    "display": "27",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/horizon_years"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.goal.g-home.name",
+    "section": "outlook",
+    "label": "Ziel",
+    "value": "g-home",
+    "unit": "text",
+    "display": "Ihr Wohneigentumsziel",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/0/goal_id"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.goal.g-home.target",
+    "section": "outlook",
+    "label": "Ihr Wohneigentumsziel: Zielbetrag",
+    "value": 278874.1303348206,
+    "unit": "chf",
+    "display": "CHF 278 874",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/0/target/nominal_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.goal.g-home.date",
+    "section": "outlook",
+    "label": "Ihr Wohneigentumsziel: Zieldatum",
+    "value": "2029-12-31",
+    "unit": "date",
+    "display": "31.12.2029",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/0/target/date"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.goal.g-home.judged",
+    "section": "outlook",
+    "label": "Ihr Wohneigentumsziel: Chance beurteilt",
+    "value": "real",
+    "unit": "text",
+    "display": "in heutigen Franken",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/0/chance_basis"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.goal.g-ret.name",
+    "section": "outlook",
+    "label": "Ziel",
+    "value": "g-ret",
+    "unit": "text",
+    "display": "Ihr Ruhestandsziel",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/1/goal_id"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.goal.g-ret.target",
+    "section": "outlook",
+    "label": "Ihr Ruhestandsziel: Zielbetrag",
+    "value": 2894051.5424830806,
+    "unit": "chf",
+    "display": "CHF 2 894 052",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/1/target/nominal_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.goal.g-ret.date",
+    "section": "outlook",
+    "label": "Ihr Ruhestandsziel: Zieldatum",
+    "value": "2053-12-31",
+    "unit": "date",
+    "display": "31.12.2053",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/1/target/date"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.goal.g-ret.judged",
+    "section": "outlook",
+    "label": "Ihr Ruhestandsziel: Chance beurteilt",
+    "value": "real",
+    "unit": "text",
+    "display": "in heutigen Franken",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/1/chance_basis"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.fan.series",
+    "section": "outlook",
+    "label": "Gezeigt",
+    "value": "deposit_eligible",
+    "unit": "text",
+    "display": "für die Anzahlung anrechenbares Vermögen (Ihr Wohneigentumsziel)",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/bands"
+     }
+    ],
+    "derivation": "the band series of the designated goal's measure (its date bounds the fan)",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.regime.base",
+    "section": "outlook",
+    "label": "Marktlage",
+    "value": "Heutige Einschätzung",
+    "unit": "text",
+    "display": "Heutige Einschätzung",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/label/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.base.g-home",
+    "section": "outlook",
+    "label": "Heutige Einschätzung: Ihr Wohneigentumsziel, Chance",
+    "value": 0.9195,
+    "unit": "share",
+    "display": "92 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/0/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.base.g-ret",
+    "section": "outlook",
+    "label": "Heutige Einschätzung: Ihr Ruhestandsziel, Chance",
+    "value": 1.0,
+    "unit": "share",
+    "display": "100 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/goals/1/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.fan.base.p10.end",
+    "section": "outlook",
+    "label": "Heutige Einschätzung: ungünstiger Verlauf zum Zieldatum",
+    "value": 89123.9483381338,
+    "unit": "chf",
+    "display": "CHF 89 124",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/bands/deposit_eligible/nominal/p10/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.base.p50.end",
+    "section": "outlook",
+    "label": "Heutige Einschätzung: mittlerer Verlauf zum Zieldatum",
+    "value": 89191.86116855309,
+    "unit": "chf",
+    "display": "CHF 89 192",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/bands/deposit_eligible/nominal/p50/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.base.p90.end",
+    "section": "outlook",
+    "label": "Heutige Einschätzung: günstiger Verlauf zum Zieldatum",
+    "value": 105670.77888219325,
+    "unit": "chf",
+    "display": "CHF 105 671",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/bands/deposit_eligible/nominal/p90/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.regime.depression",
+    "section": "outlook",
+    "label": "Marktlage",
+    "value": "Depression",
+    "unit": "text",
+    "display": "Depression",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/1/label/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.depression.g-home",
+    "section": "outlook",
+    "label": "Depression: Ihr Wohneigentumsziel, Chance",
+    "value": 1.0,
+    "unit": "share",
+    "display": "100 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/1/goals/0/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.depression.g-ret",
+    "section": "outlook",
+    "label": "Depression: Ihr Ruhestandsziel, Chance",
+    "value": 1.0,
+    "unit": "share",
+    "display": "100 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/1/goals/1/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.fan.depression.p10.end",
+    "section": "outlook",
+    "label": "Depression: ungünstiger Verlauf zum Zieldatum",
+    "value": 88382.78858845201,
+    "unit": "chf",
+    "display": "CHF 88 383",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/1/bands/deposit_eligible/nominal/p10/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.depression.p50.end",
+    "section": "outlook",
+    "label": "Depression: mittlerer Verlauf zum Zieldatum",
+    "value": 88382.78858845201,
+    "unit": "chf",
+    "display": "CHF 88 383",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/1/bands/deposit_eligible/nominal/p50/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.depression.p90.end",
+    "section": "outlook",
+    "label": "Depression: günstiger Verlauf zum Zieldatum",
+    "value": 88382.78858845201,
+    "unit": "chf",
+    "display": "CHF 88 383",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/1/bands/deposit_eligible/nominal/p90/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.regime.hyperinflation",
+    "section": "outlook",
+    "label": "Marktlage",
+    "value": "Hyperinflation",
+    "unit": "text",
+    "display": "Hyperinflation",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/2/label/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.hyperinflation.g-home",
+    "section": "outlook",
+    "label": "Hyperinflation: Ihr Wohneigentumsziel, Chance",
+    "value": 0.0,
+    "unit": "share",
+    "display": "0 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/2/goals/0/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.hyperinflation.g-ret",
+    "section": "outlook",
+    "label": "Hyperinflation: Ihr Ruhestandsziel, Chance",
+    "value": 1.0,
+    "unit": "share",
+    "display": "100 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/2/goals/1/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.fan.hyperinflation.p10.end",
+    "section": "outlook",
+    "label": "Hyperinflation: ungünstiger Verlauf zum Zieldatum",
+    "value": 571784.086000249,
+    "unit": "chf",
+    "display": "CHF 571 784",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/2/bands/deposit_eligible/nominal/p10/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.hyperinflation.p50.end",
+    "section": "outlook",
+    "label": "Hyperinflation: mittlerer Verlauf zum Zieldatum",
+    "value": 652214.4122631476,
+    "unit": "chf",
+    "display": "CHF 652 214",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/2/bands/deposit_eligible/nominal/p50/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.hyperinflation.p90.end",
+    "section": "outlook",
+    "label": "Hyperinflation: günstiger Verlauf zum Zieldatum",
+    "value": 731455.2884041121,
+    "unit": "chf",
+    "display": "CHF 731 455",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/2/bands/deposit_eligible/nominal/p90/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.regime.stagflation",
+    "section": "outlook",
+    "label": "Marktlage",
+    "value": "Stagflation",
+    "unit": "text",
+    "display": "Stagflation",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/3/label/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.stagflation.g-home",
+    "section": "outlook",
+    "label": "Stagflation: Ihr Wohneigentumsziel, Chance",
+    "value": 0.359,
+    "unit": "share",
+    "display": "36 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/3/goals/0/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.stagflation.g-ret",
+    "section": "outlook",
+    "label": "Stagflation: Ihr Ruhestandsziel, Chance",
+    "value": 1.0,
+    "unit": "share",
+    "display": "100 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/3/goals/1/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.fan.stagflation.p10.end",
+    "section": "outlook",
+    "label": "Stagflation: ungünstiger Verlauf zum Zieldatum",
+    "value": 113681.03554896753,
+    "unit": "chf",
+    "display": "CHF 113 681",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/3/bands/deposit_eligible/nominal/p10/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.stagflation.p50.end",
+    "section": "outlook",
+    "label": "Stagflation: mittlerer Verlauf zum Zieldatum",
+    "value": 323867.0007836148,
+    "unit": "chf",
+    "display": "CHF 323 867",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/3/bands/deposit_eligible/nominal/p50/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.stagflation.p90.end",
+    "section": "outlook",
+    "label": "Stagflation: günstiger Verlauf zum Zieldatum",
+    "value": 353631.32746419957,
+    "unit": "chf",
+    "display": "CHF 353 631",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/3/bands/deposit_eligible/nominal/p90/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.regime.deferral",
+    "section": "outlook",
+    "label": "Marktlage",
+    "value": "Aufschub",
+    "unit": "text",
+    "display": "Aufschub",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/4/label/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.deferral.g-home",
+    "section": "outlook",
+    "label": "Aufschub: Ihr Wohneigentumsziel, Chance",
+    "value": 0.802,
+    "unit": "share",
+    "display": "80 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/4/goals/0/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.chance.deferral.g-ret",
+    "section": "outlook",
+    "label": "Aufschub: Ihr Ruhestandsziel, Chance",
+    "value": 1.0,
+    "unit": "share",
+    "display": "100 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/4/goals/1/chance"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.fan.deferral.p10.end",
+    "section": "outlook",
+    "label": "Aufschub: ungünstiger Verlauf zum Zieldatum",
+    "value": 89537.094912736,
+    "unit": "chf",
+    "display": "CHF 89 537",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/4/bands/deposit_eligible/nominal/p10/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.deferral.p50.end",
+    "section": "outlook",
+    "label": "Aufschub: mittlerer Verlauf zum Zieldatum",
+    "value": 91133.20958733404,
+    "unit": "chf",
+    "display": "CHF 91 133",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/4/bands/deposit_eligible/nominal/p50/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.deferral.p90.end",
+    "section": "outlook",
+    "label": "Aufschub: günstiger Verlauf zum Zieldatum",
+    "value": 281636.55610921397,
+    "unit": "chf",
+    "display": "CHF 281 637",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/4/bands/deposit_eligible/nominal/p90/3"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbsim.fan.explained",
+    "section": "outlook",
+    "label": "Wie die Verläufe zu lesen sind",
+    "value": "Unter dem ungünstigen Verlauf liegt jeder zehnte simulierte Verlauf, über dem günstigen ebenfalls jeder zehnte; der mittlere teilt sie in zwei Hälften.",
+    "unit": "text",
+    "display": "Unter dem ungünstigen Verlauf liegt jeder zehnte simulierte Verlauf, über dem günstigen ebenfalls jeder zehnte; der mittlere teilt sie in zwei Hälften.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/regimes/0/bands"
+     }
+    ],
+    "derivation": "the report's reading of the p10, p50 and p90 bands",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.framing",
+    "section": "plan",
+    "label": "Was die Rechnung annimmt",
+    "value": "Was die Rechnung annimmt: diese Zahlen beschreiben die Annahmen der Planrechnung für diese Periode, keine Empfehlung.",
+    "unit": "text",
+    "display": "Was die Rechnung annimmt: diese Zahlen beschreiben die Annahmen der Planrechnung für diese Periode, keine Empfehlung.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/framing/de"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.outcome",
+    "section": "plan",
+    "label": "Ergebnis",
+    "value": "solved",
+    "unit": "text",
+    "display": "Die Rechnung hat einen Plan gefunden, der das Ziel mit der verlangten Sicherheit erreicht.",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/outcome"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.goal",
+    "section": "plan",
+    "label": "Gerechnet für",
+    "value": "g-home",
+    "unit": "text",
+    "display": "Ihr Wohneigentumsziel",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/goal/goal_id"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.confidence",
+    "section": "plan",
+    "label": "Verlangte Sicherheit",
+    "value": 0.9,
+    "unit": "share",
+    "display": "90 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/goal/confidence"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.chance",
+    "section": "plan",
+    "label": "Chance mit den angenommenen Zahlen",
+    "value": 0.9195,
+    "unit": "share",
+    "display": "92 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/chance/out_of_sample"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.work_share",
+    "section": "plan",
+    "label": "Anteil der produktiven Wochenzeit für Erwerbsarbeit",
+    "value": 0.42,
+    "unit": "share",
+    "display": "42 %",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/work_share"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.learning_hours_per_week",
+    "section": "plan",
+    "label": "Lernen",
+    "value": 2.0,
+    "unit": "number",
+    "display": "2 Stunden pro Woche",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/learning_hours_per_week"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.network_hours_per_week",
+    "section": "plan",
+    "label": "Netzwerk",
+    "value": 3.0,
+    "unit": "number",
+    "display": "3 Stunden pro Woche",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/network_hours_per_week"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.rest_hours_per_week",
+    "section": "plan",
+    "label": "Erholung",
+    "value": 20.0,
+    "unit": "number",
+    "display": "20 Stunden pro Woche",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/rest_hours_per_week"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.consumption_chf_per_year",
+    "section": "plan",
+    "label": "Konsum",
+    "value": 118000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 118 000 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/consumption_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.saving_chf_per_year",
+    "section": "plan",
+    "label": "Sparen",
+    "value": 33000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 33 000 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/saving_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.education_spend_chf_per_year",
+    "section": "plan",
+    "label": "Ausgaben für Weiterbildung",
+    "value": 2000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 2 000 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/education_spend_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.network_spend_chf_per_year",
+    "section": "plan",
+    "label": "Ausgaben für das Netzwerk",
+    "value": 1000.0,
+    "unit": "chf_per_year",
+    "display": "CHF 1 000 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/network_spend_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.action_now.amortisation_chf_per_year",
+    "section": "plan",
+    "label": "Amortisation",
+    "value": 0.0,
+    "unit": "chf_per_year",
+    "display": "CHF 0 pro Jahr",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/action_now/amortisation_chf_per_year"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.horizon.solved",
+    "section": "plan",
+    "label": "Genau gerechnete Jahre",
+    "value": 20.0,
+    "unit": "count",
+    "display": "20",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/horizon/solved_years"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.horizon.total",
+    "section": "plan",
+    "label": "Jahre bis zum Ziel",
+    "value": 27.0,
+    "unit": "count",
+    "display": "27",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/horizon/total_years"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbsim.plan.horizon.beyond",
+    "section": "plan",
+    "label": "Nach den genau gerechneten Jahren",
+    "value": "zero_return_terminal",
+    "unit": "text",
+    "display": "wird das Vermögen verlangt, das die übrigen Jahre ohne Rendite trägt",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/horizon/beyond_cap_rule"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "sources.as_of",
+    "section": "sources",
+    "label": "Stand",
+    "value": "2026-09-28",
+    "unit": "date",
+    "display": "28.09.2026",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/as_of"
+     }
+    ],
+    "derivation": "the newest as-of date among the sources",
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "sources.date.pcp",
+    "section": "sources",
+    "label": "Ihre Portfolio-Allokation",
+    "value": "2026-01-31",
+    "unit": "date",
+    "display": "31.01.2026",
+    "sources": [
+     {
+      "engine": "pcp",
+      "artefact_id": "PCP-5304eca69cc0e867",
+      "contract_version": "pcp-allocation@1.0.0",
+      "path": "/date"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "sources.date.lbs",
+    "section": "sources",
+    "label": "Ihre Bilanz",
+    "value": "2026-09-28",
+    "unit": "date",
+    "display": "28.09.2026",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-1a68c6aa5d613766",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/as_of"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "sources.date.lbsim.findings",
+    "section": "sources",
+    "label": "Ihre Befunde und Einkommenspfade",
+    "value": "2026-09-28",
+    "unit": "date",
+    "display": "28.09.2026",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSF-fec0163acbfafcd6",
+      "contract_version": "lbsim-findings@1.0.0",
+      "path": "/as_of"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "sources.date.lbsim.paths",
+    "section": "sources",
+    "label": "Ihre simulierten Verläufe",
+    "value": "2026-09-28",
+    "unit": "date",
+    "display": "28.09.2026",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSP-0dc88c253ae1d27b",
+      "contract_version": "lbsim-paths@1.0.0",
+      "path": "/as_of"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "sources.date.lbsim.plan",
+    "section": "sources",
+    "label": "Ihre Planrechnung",
+    "value": "LSP-0dc88c253ae1d27b",
+    "unit": "text",
+    "display": "zu den simulierten Verläufen",
+    "sources": [
+     {
+      "engine": "lbsim",
+      "artefact_id": "LSO-e3686adce7660289",
+      "contract_version": "lbsim-plan@1.0.0",
+      "path": "/paths_artefact_id"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "sources.date.report",
+    "section": "sources",
+    "label": "Ihr vorheriger Bericht",
+    "value": "2026-09-28",
+    "unit": "date",
+    "display": "28.09.2026",
+    "sources": [
+     {
+      "engine": "report",
+      "artefact_id": "REP-43ef825127d95a40",
+      "contract_version": "report@1.0.0",
+      "path": "/as_of"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "caller.name",
+    "section": "sources",
+    "label": "Kundin",
+    "value": "Muster",
+    "unit": "text",
+    "display": "Muster",
+    "sources": [
+     {
+      "engine": "caller",
+      "artefact_id": "RRQ-a976866ef0b11b80",
+      "contract_version": "report-request@1.0.0",
+      "path": "/display_facts/0/value"
+     }
+    ],
+    "derivation": "supplied by the caller (golden)",
+    "previous": null,
+    "basis": null
+   }
+  ],
+  "sections": [
+   {
+    "key": "changes",
+    "title": "Was sich verändert hat",
+    "fact_ids": [
+     "changes.unchanged",
+     "changes.added"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "household",
+    "title": "Der Haushalt",
+    "fact_ids": [
+     "lbs.household.adults",
+     "lbs.household.dependants",
+     "lbs.household.composition_as_of"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "balance_sheet",
+    "title": "Die Bilanz",
+    "fact_ids": [
+     "lbs.totals.total_assets",
+     "lbs.totals.financial_assets",
+     "lbs.totals.liabilities",
+     "lbs.totals.net_worth",
+     "lbs.totals.drawable",
+     "lbs.totals.identity_holds",
+     "lbs.vessel.free",
+     "lbs.vessel.pillar_2",
+     "lbs.vessel.pillar_3a"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "grid",
+    "title": "Die Rollen der Bilanz",
+    "fact_ids": [
+     "lbs.cell.gain.financial.assets",
+     "lbs.cell.stabilisation.financial.assets",
+     "lbs.cell.protection.financial.assets"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "human_capital",
+    "title": "Das Humankapital",
+    "fact_ids": [
+     "lbs.human.p1.E",
+     "lbs.human.p1.N",
+     "lbs.human.p1.H",
+     "lbs.human.p2.E",
+     "lbs.human.p2.N",
+     "lbs.human.p2.H"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "earning_power",
+    "title": "Die Erwerbskraft",
+    "fact_ids": [
+     "lbsim.earning_power.p1.modelled",
+     "lbsim.earning_power.p1.responsibility",
+     "lbsim.earning_power.p1.stated",
+     "lbsim.earning_power.p1.level_basis",
+     "lbsim.earning_power.p1.current",
+     "lbsim.earning_power.p1.pensum",
+     "lbsim.earning_power.p2.modelled",
+     "lbsim.earning_power.p2.responsibility",
+     "lbsim.earning_power.p2.level_basis",
+     "lbsim.earning_power.p2.current",
+     "lbsim.earning_power.p2.pensum",
+     "lbsim.earning_power.p2.caveat.0"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "income_paths",
+    "title": "Einkommenspfade und Sparbedarf",
+    "fact_ids": [
+     "lbsim.zero_return.note",
+     "lbsim.path.today.name",
+     "lbsim.path.today.note",
+     "lbsim.path.today.saving_need.g-home",
+     "lbsim.path.today.free_cash.g-home",
+     "lbsim.path.today.holds.g-home",
+     "lbsim.path.today.saving_need.g-ret",
+     "lbsim.path.today.free_cash.g-ret",
+     "lbsim.path.today.holds.g-ret",
+     "lbsim.path.full_pensum.name",
+     "lbsim.path.full_pensum.note",
+     "lbsim.path.full_pensum.saving_need.g-home",
+     "lbsim.path.full_pensum.free_cash.g-home",
+     "lbsim.path.full_pensum.holds.g-home",
+     "lbsim.path.full_pensum.saving_need.g-ret",
+     "lbsim.path.full_pensum.free_cash.g-ret",
+     "lbsim.path.full_pensum.holds.g-ret",
+     "lbsim.path.network.name",
+     "lbsim.path.network.note",
+     "lbsim.path.network.saving_need.g-home",
+     "lbsim.path.network.free_cash.g-home",
+     "lbsim.path.network.holds.g-home",
+     "lbsim.path.network.saving_need.g-ret",
+     "lbsim.path.network.free_cash.g-ret",
+     "lbsim.path.network.holds.g-ret"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "pensions",
+    "title": "Die Renten",
+    "fact_ids": [
+     "lbs.pension.p1.ahv.yearly",
+     "lbs.pension.p1.bvg.opening",
+     "lbs.pension.p1.bvg.to_age",
+     "lbs.pension.p1.bvg.closing",
+     "lbs.pension.p1.bvg.conversion",
+     "lbs.pension.p1.bvg.yearly",
+     "lbs.pension.p2.ahv.yearly",
+     "lbs.pension.p2.bvg.opening",
+     "lbs.pension.p2.bvg.to_age",
+     "lbs.pension.p2.bvg.closing",
+     "lbs.pension.p2.bvg.conversion",
+     "lbs.pension.p2.bvg.yearly",
+     "lbs.couple_cap.yearly",
+     "lbs.couple_cap.binds"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "retirement",
+    "title": "Der Ruhestand",
+    "fact_ids": [
+     "lbs.retirement.g-ret.verdict",
+     "lbs.retirement.g-ret.needs"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "property",
+    "title": "Wohneigentum",
+    "fact_ids": [
+     "lbs.property.g-home.verdict",
+     "lbs.property.g-home.price",
+     "lbs.property.g-home.target_date"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "risk",
+    "title": "Das Risikoprofil",
+    "fact_ids": [
+     "lbs.risk.value",
+     "lbs.risk.binds_on"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "mandate",
+    "title": "Der Mandatsvorschlag",
+    "fact_ids": [
+     "lbs.mandate.name",
+     "lbs.mandate.target",
+     "lbs.mandate.horizon",
+     "lbs.mandate.drawable",
+     "lbs.mandate.contribution",
+     "lbs.mandate.required_return",
+     "lbs.mandate.plausibility",
+     "lbs.mandate.feasible",
+     "lbs.mandate.complete",
+     "lbs.mandate.release_state"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "allocation",
+    "title": "Die Allokation",
+    "fact_ids": [
+     "pcp.mandate_name",
+     "pcp.date",
+     "pcp.release_state",
+     "pcp.budget_met",
+     "pcp.positions_held",
+     "pcp.universe_size"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "roles",
+    "title": "Gewicht nach Rolle",
+    "fact_ids": [
+     "pcp.role.Gain",
+     "pcp.role.Income",
+     "pcp.role.Stabilisation",
+     "pcp.role.Protection"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "positions",
+    "title": "Die Bausteine",
+    "fact_ids": [
+     "pcp.position.INS-asia-ex-japan-tr",
+     "pcp.position_role.INS-asia-ex-japan-tr",
+     "pcp.position.INS-digital-assets",
+     "pcp.position_role.INS-digital-assets",
+     "pcp.position.INS-long-volatility-index",
+     "pcp.position_role.INS-long-volatility-index",
+     "pcp.position.INS-msci-ac-world-imi",
+     "pcp.position_role.INS-msci-ac-world-imi",
+     "pcp.position.INS-precious-metals",
+     "pcp.position_role.INS-precious-metals",
+     "pcp.position.INS-us-equities",
+     "pcp.position_role.INS-us-equities",
+     "pcp.position.INS-eur-cash",
+     "pcp.position_role.INS-eur-cash"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "fit",
+    "title": "Wie die Allokation zustande kam",
+    "fact_ids": [
+     "pcp.objective",
+     "pcp.objective_floor",
+     "pcp.weight_leverage",
+     "pcp.solver_method",
+     "pcp.solver_converged",
+     "pcp.constraint_rows",
+     "pcp.binding_rows",
+     "pcp.weak_share"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "outlook",
+    "title": "Die Aussichten",
+    "fact_ids": [
+     "lbsim.paths.n",
+     "lbsim.paths.horizon",
+     "lbsim.goal.g-home.name",
+     "lbsim.goal.g-home.target",
+     "lbsim.goal.g-home.date",
+     "lbsim.goal.g-home.judged",
+     "lbsim.goal.g-ret.name",
+     "lbsim.goal.g-ret.target",
+     "lbsim.goal.g-ret.date",
+     "lbsim.goal.g-ret.judged",
+     "lbsim.fan.series",
+     "lbsim.regime.base",
+     "lbsim.chance.base.g-home",
+     "lbsim.chance.base.g-ret",
+     "lbsim.fan.base.p10.end",
+     "lbsim.fan.base.p50.end",
+     "lbsim.fan.base.p90.end",
+     "lbsim.regime.depression",
+     "lbsim.chance.depression.g-home",
+     "lbsim.chance.depression.g-ret",
+     "lbsim.fan.depression.p10.end",
+     "lbsim.fan.depression.p50.end",
+     "lbsim.fan.depression.p90.end",
+     "lbsim.regime.hyperinflation",
+     "lbsim.chance.hyperinflation.g-home",
+     "lbsim.chance.hyperinflation.g-ret",
+     "lbsim.fan.hyperinflation.p10.end",
+     "lbsim.fan.hyperinflation.p50.end",
+     "lbsim.fan.hyperinflation.p90.end",
+     "lbsim.regime.stagflation",
+     "lbsim.chance.stagflation.g-home",
+     "lbsim.chance.stagflation.g-ret",
+     "lbsim.fan.stagflation.p10.end",
+     "lbsim.fan.stagflation.p50.end",
+     "lbsim.fan.stagflation.p90.end",
+     "lbsim.regime.deferral",
+     "lbsim.chance.deferral.g-home",
+     "lbsim.chance.deferral.g-ret",
+     "lbsim.fan.deferral.p10.end",
+     "lbsim.fan.deferral.p50.end",
+     "lbsim.fan.deferral.p90.end",
+     "lbsim.fan.explained"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "plan",
+    "title": "Was die Planrechnung ergibt",
+    "fact_ids": [
+     "lbsim.plan.framing",
+     "lbsim.plan.outcome",
+     "lbsim.plan.goal",
+     "lbsim.plan.confidence",
+     "lbsim.plan.chance",
+     "lbsim.plan.action_now.work_share",
+     "lbsim.plan.action_now.learning_hours_per_week",
+     "lbsim.plan.action_now.network_hours_per_week",
+     "lbsim.plan.action_now.rest_hours_per_week",
+     "lbsim.plan.action_now.consumption_chf_per_year",
+     "lbsim.plan.action_now.saving_chf_per_year",
+     "lbsim.plan.action_now.education_spend_chf_per_year",
+     "lbsim.plan.action_now.network_spend_chf_per_year",
+     "lbsim.plan.action_now.amortisation_chf_per_year",
+     "lbsim.plan.horizon.solved",
+     "lbsim.plan.horizon.total",
+     "lbsim.plan.horizon.beyond"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "findings",
+    "title": "Befunde und nächste Schritte",
+    "fact_ids": [
+     "lbsim.finding.undirected_surplus.free",
+     "lbsim.finding.undirected_surplus.committed",
+     "lbsim.finding.undirected_surplus.undirected",
+     "lbsim.finding.undirected_surplus.title",
+     "lbsim.finding.undirected_surplus.trigger",
+     "lbsim.finding.undirected_surplus.why",
+     "lbsim.finding.undirected_surplus.action",
+     "lbsim.finding.undirected_surplus.urgency",
+     "lbsim.finding.undirected_surplus.severity",
+     "lbsim.finding.undirected_surplus.action_kind",
+     "lbsim.schedule.0",
+     "lbsim.schedule.0.undirected_surplus",
+     "lbsim.unchecked.1",
+     "lbsim.question.0",
+     "lbsim.question.1"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "limits",
+    "title": "Was dieser Bericht nicht sagen kann",
+    "fact_ids": [
+     "pcp.warning.0",
+     "pcp.warning.1",
+     "pcp.warning.2",
+     "lbs.gap.1",
+     "lbs.gap.2",
+     "lbs.gap.3",
+     "lbs.gap.4",
+     "lbs.gap.5"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
+    "key": "sources",
+    "title": "Die Quellen",
+    "fact_ids": [
+     "sources.as_of",
+     "sources.date.pcp",
+     "sources.date.lbs",
+     "sources.date.lbsim.findings",
+     "sources.date.lbsim.paths",
+     "sources.date.lbsim.plan",
+     "sources.date.report",
+     "caller.name"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   }
+  ],
+  "complete": true,
+  "warnings": [],
+  "html": "<!doctype html>\n<html lang=\"de\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>Update zum Bericht · Muster</title>\n<style>\n  :root{--ink:#1A1740;--soft:#5d4591;--line:#ECE8F4;--tint:#F6F4FB;--acc:#A059C1;\n        --warn:#C1445A;--ok:#2E7D64;--g1:#8890e7;--g2:#A059C1;--g3:#FEA479;--g4:#FFE8A1}\n  *{box-sizing:border-box}\n  body{margin:0;background:#fff;color:var(--ink);font:16px/1.62 \"Iowan Old Style\",\"Palatino Linotype\",Georgia,serif}\n  .w{max-width:860px;margin:0 auto;padding:44px 28px 90px}\n  .ey{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;letter-spacing:.14em;\n      text-transform:uppercase;color:var(--soft);font-weight:600}\n  h1{font-size:31px;line-height:1.2;margin:10px 0 4px;font-weight:600}\n  .lede{font-size:18px;color:#3b3363;margin:0}\n  .rule{height:3px;border-radius:3px;margin:24px 0 30px;\n        background:linear-gradient(110deg,var(--g1),var(--g2) 40%,var(--g3) 80%,var(--g4))}\n  h2{font-family:ui-sans-serif,system-ui,sans-serif;font-size:15px;margin:38px 0 10px;\n     padding-top:16px;border-top:1px solid var(--line);font-weight:700}\n  h2 .ix{display:inline-block;min-width:2.1em;color:var(--acc);font-variant-numeric:tabular-nums}\n  h3{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.5px;margin:20px 0 5px}\n  p{margin:0 0 12px}\n  .box{background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:15px 19px;margin:18px 0}\n  .box.warn{background:#FDF3F5;border-color:#F0D3DA}\n  .box.ok{background:#F1F8F5;border-color:#CFE6DC}\n  .box.draft{background:#FCFBFE;border-style:dashed;border-color:#D8CEE8}\n  .banner{border:1px solid var(--line);border-radius:12px;padding:13px 17px;margin:14px 0 0;\n          background:var(--tint)}\n  .chips{display:flex;gap:8px;flex-wrap:wrap;font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px}\n  .chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--soft)}\n  .chip b{color:var(--ink);font-variant-numeric:tabular-nums}\n  .box p{font-size:14.6px;margin:0 0 8px}\n  .box p:last-child{margin:0}\n  .tag{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10.5px;font-weight:700;\n       letter-spacing:.09em;text-transform:uppercase;display:block;margin-bottom:5px}\n  .tag.w{color:var(--warn)} .tag.o{color:var(--ok)} .tag.n{color:var(--acc)}\n  table{width:100%;border-collapse:collapse;margin:10px 0 6px;\n        font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.4px}\n  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}\n  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}\n  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}\n  .neg{color:var(--warn)} .pos{color:var(--ok)}\n  tr.tot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:700}\n  small{font-size:12.4px;color:var(--soft);font-family:ui-sans-serif,system-ui,sans-serif}\n  small.basis{font-size:11px;letter-spacing:.04em}\n  .foot{margin-top:40px;padding-top:15px;border-top:1px solid var(--line);\n        font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft)}\n  code{font:11.5px ui-monospace,Consolas,monospace}\n  .chart{margin:14px 0 8px}\n  .chart svg{display:block;width:100%;height:auto}\n  .chart figcaption{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft);margin-top:4px}\n  .box h3{margin:2px 0 6px}\n  ul{margin:6px 0 12px;padding-left:22px}\n  li{margin-bottom:6px}\n  @media print{body{font-size:11pt}.w{padding:0}h2{page-break-after:avoid}.box{page-break-inside:avoid}}\n</style>\n</head>\n<body>\n<div class=\"w\">\n<div class=\"ey\">eigentliCH · Update</div>\n<h1>Update zum Bericht</h1>\n<p class=\"lede\">Stand <span data-fact=\"sources.as_of\">28.09.2026</span>. <span data-basis=\"nominal\">Alle Beträge nominal.</span> Jede Zahl in diesem Bericht stammt aus einem veröffentlichten Artefakt; woher, steht im letzten Abschnitt. Der erste Abschnitt nennt, was sich seit dem vorigen Bericht verändert hat.</p>\n<div class=\"banner\"><div class=\"chips\"><span class=\"chip\">Kundin <b data-fact=\"caller.name\">Muster</b></span></div></div>\n\n<div class=\"rule\"></div>\n<section id=\"sec-changes\" data-section=\"changes\"><h2><span class=\"ix\">01</span>Was sich verändert hat</h2><p>Keine Zahl hat sich verändert.</p><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Unveränderte Zahlen</td><td class=\"n\"><span data-fact=\"changes.unchanged\">110</span></td></tr><tr><td>Neu im Bericht</td><td class=\"n\"><span data-fact=\"changes.added\">Verlangte Sicherheit; Chance mit den angenommenen Zahlen; Anteil der produktiven Wochenzeit für Erwerbsarbeit; Lernen; Netzwerk; Erholung; Konsum; Sparen; Ausgaben für Weiterbildung; Ausgaben für das Netzwerk; Amortisation; Genau gerechnete Jahre; Jahre bis zum Ziel</span></td></tr></table></section><section id=\"sec-household\" data-section=\"household\"><h2><span class=\"ix\">02</span>Der Haushalt</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Erwachsene</td><td class=\"n\"><span data-fact=\"lbs.household.adults\">2</span></td></tr><tr><td>Abhängige</td><td class=\"n\"><span data-fact=\"lbs.household.dependants\">1</span></td></tr><tr><td>Zusammensetzung erfasst am</td><td class=\"n\"><span data-fact=\"lbs.household.composition_as_of\">01.09.2026</span></td></tr></table></section><section id=\"sec-balance_sheet\" data-section=\"balance_sheet\"><h2><span class=\"ix\">03</span>Die Bilanz</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Vermögen gesamt</td><td class=\"n\"><span data-fact=\"lbs.totals.total_assets\">CHF 257 000</span></td></tr><tr><td>Finanzvermögen</td><td class=\"n\"><span data-fact=\"lbs.totals.financial_assets\">CHF 257 000</span></td></tr><tr><td>Verbindlichkeiten</td><td class=\"n\"><span data-fact=\"lbs.totals.liabilities\">CHF 0</span></td></tr><tr><td>Reinvermögen</td><td class=\"n\"><span data-fact=\"lbs.totals.net_worth\">CHF 257 000</span></td></tr><tr><td>Entnahmefähig</td><td class=\"n\"><span data-fact=\"lbs.totals.drawable\">CHF 100 000</span></td></tr><tr><td>Bilanzgleichung erfüllt</td><td class=\"n\"><span data-fact=\"lbs.totals.identity_holds\">ja</span></td></tr><tr><td>frei verfügbar</td><td class=\"n\"><span data-fact=\"lbs.vessel.free\">CHF 100 000</span></td></tr><tr><td>2. Säule</td><td class=\"n\"><span data-fact=\"lbs.vessel.pillar_2\">CHF 135 000</span></td></tr><tr><td>Säule 3a</td><td class=\"n\"><span data-fact=\"lbs.vessel.pillar_3a\">CHF 22 000</span></td></tr></table></section><section id=\"sec-grid\" data-section=\"grid\"><h2><span class=\"ix\">04</span>Die Rollen der Bilanz</h2><table><tr><th>Rolle und Kapitalart</th><th class=\"n\">Vermögen</th><th class=\"n\">Verbindlichkeiten</th></tr><tr><td>Wertsteigerung, Finanzkapital</td><td class=\"n\"><span data-fact=\"lbs.cell.gain.financial.assets\">CHF 60 000</span></td><td class=\"n\">–</td></tr><tr><td>Stabilisierung, Finanzkapital</td><td class=\"n\"><span data-fact=\"lbs.cell.stabilisation.financial.assets\">CHF 40 000</span></td><td class=\"n\">–</td></tr><tr><td>Absicherung, Finanzkapital</td><td class=\"n\"><span data-fact=\"lbs.cell.protection.financial.assets\">CHF 157 000</span></td><td class=\"n\">–</td></tr></table></section><section id=\"sec-human_capital\" data-section=\"human_capital\"><h2><span class=\"ix\">05</span>Das Humankapital</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Person 1: Expertise (E)</td><td class=\"n\"><span data-fact=\"lbs.human.p1.E\">0,96</span></td></tr><tr><td>Person 1: Netzwerk (N)</td><td class=\"n\"><span data-fact=\"lbs.human.p1.N\">0,71</span></td></tr><tr><td>Person 1: Gesundheit (H)</td><td class=\"n\"><span data-fact=\"lbs.human.p1.H\">0,85</span></td></tr><tr><td>Person 2: Expertise (E)</td><td class=\"n\"><span data-fact=\"lbs.human.p2.E\">1,00</span></td></tr><tr><td>Person 2: Netzwerk (N)</td><td class=\"n\"><span data-fact=\"lbs.human.p2.N\">0,53</span></td></tr><tr><td>Person 2: Gesundheit (H)</td><td class=\"n\"><span data-fact=\"lbs.human.p2.H\">1,00</span></td></tr></table></section><section id=\"sec-earning_power\" data-section=\"earning_power\"><h2><span class=\"ix\">06</span>Die Erwerbskraft</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Person 1: Modellwert bei vollem Pensum</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p1.modelled\">CHF 115 582 pro Jahr</span></td></tr><tr><td>Person 1: Führungsfunktion</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p1.responsibility\">Oberes oder mittleres Kader</span></td></tr><tr><td>Person 1: Ihre Angabe bei vollem Pensum</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p1.stated\">CHF 135 000 pro Jahr</span></td></tr><tr><td>Person 1: Die Rechnung verwendet</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p1.level_basis\">Ihre Angabe</span></td></tr><tr><td>Person 1: Bruttoeinkommen heute</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p1.current\">CHF 128 000 pro Jahr</span></td></tr><tr><td>Person 1: Pensum heute</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p1.pensum\">100 %</span></td></tr><tr><td>Person 2: Modellwert bei vollem Pensum</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p2.modelled\">CHF 72 460 pro Jahr</span></td></tr><tr><td>Person 2: Führungsfunktion</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p2.responsibility\">Keine Führungsfunktion (nicht angegeben, keine angenommen)</span></td></tr><tr><td>Person 2: Die Rechnung verwendet</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p2.level_basis\">Modellwert</span></td></tr><tr><td>Person 2: Bruttoeinkommen heute</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p2.current\">CHF 92 000 pro Jahr</span></td></tr><tr><td>Person 2: Pensum heute</td><td class=\"n\"><span data-fact=\"lbsim.earning_power.p2.pensum\">81 %</span></td></tr></table><p><small>Person 2: Hinweis: <span data-fact=\"lbsim.earning_power.p2.caveat.0\">Keine Führungsfunktion angegeben, also keine angenommen; nach der BFS-Tabelle ist sie mehr wert als die Ausbildung.</span></small></p></section><section id=\"sec-income_paths\" data-section=\"income_paths\"><h2><span class=\"ix\">07</span>Einkommenspfade und Sparbedarf</h2><p><span data-fact=\"lbsim.zero_return.note\">Die Sparrechnung rechnet ohne Rendite. Das ist ein Überblick und keine Prognose: sie zeigt, was ein Ziel an reinem Sparen kostet. Was schon ohne Rendite trägt, braucht den Markt nicht.</span></p><h3><span data-fact=\"lbsim.path.today.name\">Ohne Weiterbildung, Pensum bleibt</span></h3><p><small><span data-fact=\"lbsim.path.today.note\">Keine zusätzliche Ausbildung, keine Änderung am Pensum. Das Einkommen bewegt sich trotzdem: Erfahrung wächst im Modell von selbst, und im späten Erwerbsleben fällt es wieder. Das ist die Vergleichslinie.</span></small></p><table><tr><th>Ziel</th><th class=\"n\">Sparbedarf ohne Rendite</th><th class=\"n\">frei verfügbar</th><th class=\"n\">trägt ohne Rendite</th></tr><tr><td>Ihr Wohneigentumsziel</td><td class=\"n\"><span data-fact=\"lbsim.path.today.saving_need.g-home\">CHF 59 625 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.today.free_cash.g-home\">CHF 9 891 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.today.holds.g-home\">nein</span></td></tr><tr><td>Ihr Ruhestandsziel</td><td class=\"n\"><span data-fact=\"lbsim.path.today.saving_need.g-ret\">CHF 103 483 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.today.free_cash.g-ret\">CHF 77 249 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.today.holds.g-ret\">nein</span></td></tr></table><h3><span data-fact=\"lbsim.path.full_pensum.name\">Weiterbildung und volles Pensum</span></h3><p><small><span data-fact=\"lbsim.path.full_pensum.note\">Nach Abschluss ein volles Pensum. Für einen Haushalt, dessen Einkommen heute wegen der Ausbildung tief ist, ist das meist der grösste einzelne Schritt.</span></small></p><table><tr><th>Ziel</th><th class=\"n\">Sparbedarf ohne Rendite</th><th class=\"n\">frei verfügbar</th><th class=\"n\">trägt ohne Rendite</th></tr><tr><td>Ihr Wohneigentumsziel</td><td class=\"n\"><span data-fact=\"lbsim.path.full_pensum.saving_need.g-home\">CHF 59 625 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.full_pensum.free_cash.g-home\">CHF 9 891 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.full_pensum.holds.g-home\">nein</span></td></tr><tr><td>Ihr Ruhestandsziel</td><td class=\"n\"><span data-fact=\"lbsim.path.full_pensum.saving_need.g-ret\">CHF 103 483 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.full_pensum.free_cash.g-ret\">CHF 77 249 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.full_pensum.holds.g-ret\">nein</span></td></tr></table><h3><span data-fact=\"lbsim.path.network.name\">Weiterbildung, volles Pensum und Netzwerk</span></h3><p><small><span data-fact=\"lbsim.path.network.note\">Zusätzlich Zeit für Kontakte und Sichtbarkeit, bis zum Knick der Modellkurve. Mehr bringt nach diesem Modell fast nichts.</span></small></p><table><tr><th>Ziel</th><th class=\"n\">Sparbedarf ohne Rendite</th><th class=\"n\">frei verfügbar</th><th class=\"n\">trägt ohne Rendite</th></tr><tr><td>Ihr Wohneigentumsziel</td><td class=\"n\"><span data-fact=\"lbsim.path.network.saving_need.g-home\">CHF 59 625 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.network.free_cash.g-home\">CHF 9 891 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.network.holds.g-home\">nein</span></td></tr><tr><td>Ihr Ruhestandsziel</td><td class=\"n\"><span data-fact=\"lbsim.path.network.saving_need.g-ret\">CHF 103 483 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.network.free_cash.g-ret\">CHF 77 249 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.path.network.holds.g-ret\">nein</span></td></tr></table></section><section id=\"sec-pensions\" data-section=\"pensions\"><h2><span class=\"ix\">08</span>Die Renten</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Person 1: AHV-Rente pro Jahr</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.ahv.yearly\">CHF 32 760 pro Jahr</span></td></tr><tr><td>Person 1: Pensionskassenguthaben heute</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.opening\">CHF 95 000</span></td></tr><tr><td>Person 1: Rentenalter der Projektion</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.to_age\">65</span></td></tr><tr><td>Person 1: Pensionskassenguthaben im Rentenalter</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.closing\">CHF 430 619</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Person 1: Umwandlungssatz</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.conversion\">6,80 %</span></td></tr><tr><td>Person 1: BVG-Rente pro Jahr</td><td class=\"n\"><span data-fact=\"lbs.pension.p1.bvg.yearly\">CHF 29 282 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Person 2: AHV-Rente pro Jahr</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.ahv.yearly\">CHF 32 760 pro Jahr</span></td></tr><tr><td>Person 2: Pensionskassenguthaben heute</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.opening\">CHF 40 000</span></td></tr><tr><td>Person 2: Rentenalter der Projektion</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.to_age\">65</span></td></tr><tr><td>Person 2: Pensionskassenguthaben im Rentenalter</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.closing\">CHF 373 194</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Person 2: Umwandlungssatz</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.conversion\">6,80 %</span></td></tr><tr><td>Person 2: BVG-Rente pro Jahr</td><td class=\"n\"><span data-fact=\"lbs.pension.p2.bvg.yearly\">CHF 25 377 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>AHV-Renten des Paares pro Jahr, plafoniert</td><td class=\"n\"><span data-fact=\"lbs.couple_cap.yearly\">CHF 49 140 pro Jahr</span></td></tr><tr><td>Plafonierung greift</td><td class=\"n\"><span data-fact=\"lbs.couple_cap.binds\">ja</span></td></tr></table></section><section id=\"sec-retirement\" data-section=\"retirement\"><h2><span class=\"ix\">09</span>Der Ruhestand</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Ihr Ruhestandsziel: Befund</td><td class=\"n\"><span data-fact=\"lbs.retirement.g-ret.verdict\">nicht bestimmbar</span></td></tr><tr><td>Ihr Ruhestandsziel: Bedarf</td><td class=\"n\"><span data-fact=\"lbs.retirement.g-ret.needs\">CHF 157 376 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr></table></section><section id=\"sec-property\" data-section=\"property\"><h2><span class=\"ix\">10</span>Wohneigentum</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Ihr Wohneigentumsziel: Befund</td><td class=\"n\"><span data-fact=\"lbs.property.g-home.verdict\">nicht bestimmbar</span></td></tr><tr><td>Ihr Wohneigentumsziel: Kaufpreis</td><td class=\"n\"><span data-fact=\"lbs.property.g-home.price\">CHF 1 394 371</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Ihr Wohneigentumsziel: Zieldatum</td><td class=\"n\"><span data-fact=\"lbs.property.g-home.target_date\">31.12.2029</span></td></tr></table></section><section id=\"sec-risk\" data-section=\"risk\"><h2><span class=\"ix\">11</span>Das Risikoprofil</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Risikoprofil (Wert)</td><td class=\"n\"><span data-fact=\"lbs.risk.value\">0,43</span></td></tr><tr><td>bindend durch</td><td class=\"n\"><span data-fact=\"lbs.risk.binds_on\">Risikobereitschaft</span></td></tr></table></section><section id=\"sec-mandate\" data-section=\"mandate\"><h2><span class=\"ix\">12</span>Der Mandatsvorschlag</h2><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Mandatsvorschlag</td><td class=\"n\"><span data-fact=\"lbs.mandate.name\">Ihr Wohneigentumsziel</span></td></tr><tr><td>Zielbetrag</td><td class=\"n\"><span data-fact=\"lbs.mandate.target\">CHF 278 874</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Horizont in Jahren</td><td class=\"n\"><span data-fact=\"lbs.mandate.horizon\">3,26</span></td></tr><tr><td>Entnahmefähig</td><td class=\"n\"><span data-fact=\"lbs.mandate.drawable\">CHF 100 000</span></td></tr><tr><td>Beitrag pro Jahr</td><td class=\"n\"><span data-fact=\"lbs.mandate.contribution\">CHF 30 000 pro Jahr</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Nötige Rendite pro Jahr</td><td class=\"n\"><span data-fact=\"lbs.mandate.required_return\">14,79 %</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Nötige Rendite, gemessen am Risikoprofil</td><td class=\"n\"><span data-fact=\"lbs.mandate.plausibility\">nicht realistisch</span></td></tr><tr><td>Erreichbar</td><td class=\"n\"><span data-fact=\"lbs.mandate.feasible\">ja</span></td></tr><tr><td>Vollständig</td><td class=\"n\"><span data-fact=\"lbs.mandate.complete\">nein</span></td></tr><tr><td>Status</td><td class=\"n\"><span data-fact=\"lbs.mandate.release_state\">nicht freigegeben</span></td></tr></table></section><section id=\"sec-allocation\" data-section=\"allocation\"><h2><span class=\"ix\">13</span>Die Allokation</h2><p>Die Gewichte sind die Lösung eines Modells für das Mandat <span data-fact=\"pcp.mandate_name\">balanced</span> zum <span data-fact=\"pcp.date\">31.01.2026</span>. Sie sind <span data-fact=\"pcp.release_state\">nicht freigegeben</span>: eine Freigabe ist der Entscheid einer Person ausserhalb dieses Berichts.</p><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Budget eingehalten (Summe der Gewichte)</td><td class=\"n\"><span data-fact=\"pcp.budget_met\">ja</span></td></tr><tr><td>Bausteine mit Gewicht</td><td class=\"n\"><span data-fact=\"pcp.positions_held\">7</span></td></tr><tr><td>Bausteine im Universum</td><td class=\"n\"><span data-fact=\"pcp.universe_size\">52</span></td></tr></table></section><section id=\"sec-roles\" data-section=\"roles\"><h2><span class=\"ix\">14</span>Gewicht nach Rolle</h2><figure class=\"chart\" data-chart=\"roles\"><svg viewBox=\"0 0 640 112\" role=\"img\" aria-label=\"Gewicht nach Rolle\" font-family=\"ui-sans-serif,system-ui,sans-serif\" font-size=\"12\"><title>Gewicht nach Rolle</title><desc>Waagrechte Balken: das Gewicht jeder Rolle in der Allokation, der Wert steht am Balken.</desc><line x1=\"210\" y1=\"8\" x2=\"210\" y2=\"104\" stroke=\"#BDB5D6\"/><text x=\"202\" y=\"23\" text-anchor=\"end\" fill=\"#1A1740\">Wertsteigerung</text><rect x=\"210\" y=\"13\" width=\"330\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"546\" y=\"23\" fill=\"#1A1740\"><tspan data-fact=\"pcp.role.Gain\">60,0 %</tspan></text><text x=\"202\" y=\"47\" text-anchor=\"end\" fill=\"#1A1740\">Einkommen</text><rect x=\"210\" y=\"37\" width=\"2\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"216\" y=\"47\" fill=\"#1A1740\"><tspan data-fact=\"pcp.role.Income\">0,0 %</tspan></text><text x=\"202\" y=\"71\" text-anchor=\"end\" fill=\"#1A1740\">Stabilisierung</text><rect x=\"210\" y=\"61\" width=\"2\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"216\" y=\"71\" fill=\"#1A1740\"><tspan data-fact=\"pcp.role.Stabilisation\">0,0 %</tspan></text><text x=\"202\" y=\"95\" text-anchor=\"end\" fill=\"#1A1740\">Absicherung</text><rect x=\"210\" y=\"85\" width=\"220\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"436\" y=\"95\" fill=\"#1A1740\"><tspan data-fact=\"pcp.role.Protection\">40,0 %</tspan></text></svg></figure><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Wertsteigerung</td><td class=\"n\"><span data-fact=\"pcp.role.Gain\">60,0 %</span></td></tr><tr><td>Einkommen</td><td class=\"n\"><span data-fact=\"pcp.role.Income\">0,0 %</span></td></tr><tr><td>Stabilisierung</td><td class=\"n\"><span data-fact=\"pcp.role.Stabilisation\">0,0 %</span></td></tr><tr><td>Absicherung</td><td class=\"n\"><span data-fact=\"pcp.role.Protection\">40,0 %</span></td></tr></table></section><section id=\"sec-positions\" data-section=\"positions\"><h2><span class=\"ix\">15</span>Die Bausteine</h2><figure class=\"chart\" data-chart=\"positions\"><svg viewBox=\"0 0 640 184\" role=\"img\" aria-label=\"Gewicht nach Baustein\" font-family=\"ui-sans-serif,system-ui,sans-serif\" font-size=\"12\"><title>Gewicht nach Baustein</title><desc>Waagrechte Balken: das Gewicht jedes Bausteins mit Gewicht, der Wert steht am Balken.</desc><line x1=\"210\" y1=\"8\" x2=\"210\" y2=\"176\" stroke=\"#BDB5D6\"/><text x=\"202\" y=\"23\" text-anchor=\"end\" fill=\"#1A1740\">Asia ex Japan TR</text><rect x=\"210\" y=\"13\" width=\"330\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"546\" y=\"23\" fill=\"#1A1740\"><tspan data-fact=\"pcp.position.INS-asia-ex-japan-tr\">15,0 %</tspan></text><text x=\"202\" y=\"47\" text-anchor=\"end\" fill=\"#1A1740\">Digital Assets</text><rect x=\"210\" y=\"37\" width=\"330\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"546\" y=\"47\" fill=\"#1A1740\"><tspan data-fact=\"pcp.position.INS-digital-assets\">15,0 %</tspan></text><text x=\"202\" y=\"71\" text-anchor=\"end\" fill=\"#1A1740\">Long Volatility Index</text><rect x=\"210\" y=\"61\" width=\"330\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"546\" y=\"71\" fill=\"#1A1740\"><tspan data-fact=\"pcp.position.INS-long-volatility-index\">15,0 %</tspan></text><text x=\"202\" y=\"95\" text-anchor=\"end\" fill=\"#1A1740\">MSCI AC World IMI</text><rect x=\"210\" y=\"85\" width=\"330\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"546\" y=\"95\" fill=\"#1A1740\"><tspan data-fact=\"pcp.position.INS-msci-ac-world-imi\">15,0 %</tspan></text><text x=\"202\" y=\"119\" text-anchor=\"end\" fill=\"#1A1740\">Precious Metals</text><rect x=\"210\" y=\"109\" width=\"330\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"546\" y=\"119\" fill=\"#1A1740\"><tspan data-fact=\"pcp.position.INS-precious-metals\">15,0 %</tspan></text><text x=\"202\" y=\"143\" text-anchor=\"end\" fill=\"#1A1740\">US Equities</text><rect x=\"210\" y=\"133\" width=\"330\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"546\" y=\"143\" fill=\"#1A1740\"><tspan data-fact=\"pcp.position.INS-us-equities\">15,0 %</tspan></text><text x=\"202\" y=\"167\" text-anchor=\"end\" fill=\"#1A1740\">EUR Cash</text><rect x=\"210\" y=\"157\" width=\"220\" height=\"14\" rx=\"3\" fill=\"#A059C1\"/><text x=\"436\" y=\"167\" fill=\"#1A1740\"><tspan data-fact=\"pcp.position.INS-eur-cash\">10,0 %</tspan></text></svg></figure><table><tr><th>Baustein</th><th>Rolle</th><th class=\"n\">Gewicht</th></tr><tr><td>Asia ex Japan TR</td><td><span data-fact=\"pcp.position_role.INS-asia-ex-japan-tr\">Wertsteigerung</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-asia-ex-japan-tr\">15,0 %</span></td></tr><tr><td>Digital Assets</td><td><span data-fact=\"pcp.position_role.INS-digital-assets\">Wertsteigerung</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-digital-assets\">15,0 %</span></td></tr><tr><td>Long Volatility Index</td><td><span data-fact=\"pcp.position_role.INS-long-volatility-index\">Absicherung</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-long-volatility-index\">15,0 %</span></td></tr><tr><td>MSCI AC World IMI</td><td><span data-fact=\"pcp.position_role.INS-msci-ac-world-imi\">Wertsteigerung</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-msci-ac-world-imi\">15,0 %</span></td></tr><tr><td>Precious Metals</td><td><span data-fact=\"pcp.position_role.INS-precious-metals\">Absicherung</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-precious-metals\">15,0 %</span></td></tr><tr><td>US Equities</td><td><span data-fact=\"pcp.position_role.INS-us-equities\">Wertsteigerung</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-us-equities\">15,0 %</span></td></tr><tr><td>EUR Cash</td><td><span data-fact=\"pcp.position_role.INS-eur-cash\">Absicherung</span></td><td class=\"n\"><span data-fact=\"pcp.position.INS-eur-cash\">10,0 %</span></td></tr></table></section><section id=\"sec-fit\" data-section=\"fit\"><h2><span class=\"ix\">16</span>Wie die Allokation zustande kam</h2><figure class=\"chart\" data-chart=\"fit\"><svg viewBox=\"0 0 640 230\" role=\"img\" aria-label=\"Ziel und erreichte Rendite je Marktlage\" font-family=\"ui-sans-serif,system-ui,sans-serif\" font-size=\"12\"><title>Ziel und erreichte Rendite je Marktlage</title><desc>Zwei Linien über die Marktlagen von Krise bis Boom: die Rendite, die das Mandat verlangt, und die, welche die Gewichte erreichen; dazu die Linie der Rendite null.</desc><line x1=\"90\" y1=\"177.4\" x2=\"520\" y2=\"177.4\" stroke=\"#BDB5D6\" stroke-dasharray=\"3 3\"/><text x=\"82\" y=\"181.4\" text-anchor=\"end\" fill=\"#5d4591\">Rendite null</text><polyline points=\"90,166.3 107.9,166.3 125.8,166.3 143.8,166.3 161.7,166.3 179.6,166.3 197.5,166.3 215.4,166.3 233.3,166.3 251.2,166.3 269.2,166.3 287.1,166.3 305,166.3 322.9,166.3 340.8,166.3 358.8,166.3 376.7,166.3 394.6,166.3 412.5,166.3 430.4,166.3 448.3,166.3 466.2,166.3 484.2,166.3 502.1,166.3 520,166.3\" fill=\"none\" stroke=\"#C8662E\" stroke-width=\"2\"/><polyline points=\"90,186.2 107.9,180.1 125.8,171.9 143.8,163.6 161.7,155.8 179.6,148.4 197.5,141.4 215.4,134.4 233.3,127.4 251.2,120.7 269.2,114.9 287.1,110.8 305,108.7 322.9,107.9 340.8,107.2 358.8,106.1 376.7,104.6 394.6,101.9 412.5,96.7 430.4,88.3 448.3,76.8 466.2,63 484.2,47.8 502.1,33.3 520,23.8\" fill=\"none\" stroke=\"#5d4591\" stroke-width=\"2\"/><circle cx=\"90\" cy=\"186.2\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"107.9\" cy=\"180.1\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"125.8\" cy=\"171.9\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"143.8\" cy=\"163.6\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"161.7\" cy=\"155.8\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"179.6\" cy=\"148.4\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"197.5\" cy=\"141.4\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"215.4\" cy=\"134.4\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"233.3\" cy=\"127.4\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"251.2\" cy=\"120.7\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"269.2\" cy=\"114.9\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"287.1\" cy=\"110.8\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"305\" cy=\"108.7\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"322.9\" cy=\"107.9\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"340.8\" cy=\"107.2\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"358.8\" cy=\"106.1\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"376.7\" cy=\"104.6\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"394.6\" cy=\"101.9\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"412.5\" cy=\"96.7\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"430.4\" cy=\"88.3\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"448.3\" cy=\"76.8\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"466.2\" cy=\"63\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"484.2\" cy=\"47.8\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"502.1\" cy=\"33.3\" r=\"2.5\" fill=\"#5d4591\"/><circle cx=\"520\" cy=\"23.8\" r=\"2.5\" fill=\"#5d4591\"/><text x=\"528\" y=\"170.3\" fill=\"#1A1740\">Ziel</text><text x=\"528\" y=\"27.8\" fill=\"#1A1740\">erreicht</text><text x=\"90\" y=\"218\" fill=\"#5d4591\">Krise</text><text x=\"520\" y=\"218\" text-anchor=\"end\" fill=\"#5d4591\">Boom</text></svg><figcaption>Ziel und erreichte Rendite je Marktlage, nominal.</figcaption></figure><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Zielfunktion</td><td class=\"n\"><span data-fact=\"pcp.objective\">26,82</span></td></tr><tr><td>Zielfunktion ohne Allokation</td><td class=\"n\"><span data-fact=\"pcp.objective_floor\">27,04</span></td></tr><tr><td>Anteil, den die Gewichte bewegen</td><td class=\"n\"><span data-fact=\"pcp.weight_leverage\">0,81 %</span></td></tr><tr><td>Verfahren</td><td class=\"n\"><span data-fact=\"pcp.solver_method\">SLSQP</span></td></tr><tr><td>Lösung konvergiert</td><td class=\"n\"><span data-fact=\"pcp.solver_converged\">ja</span></td></tr><tr><td>Nebenbedingungen</td><td class=\"n\"><span data-fact=\"pcp.constraint_rows\">75</span></td></tr><tr><td>davon bindend</td><td class=\"n\"><span data-fact=\"pcp.binding_rows\">23</span></td></tr><tr><td>Gewicht auf geliehenen oder gesetzten Profilen</td><td class=\"n\"><span data-fact=\"pcp.weak_share\">10,0 %</span></td></tr></table></section><section id=\"sec-outlook\" data-section=\"outlook\"><h2><span class=\"ix\">17</span>Die Aussichten</h2><figure class=\"chart\" data-chart=\"outlook\"><svg viewBox=\"0 0 640 290\" role=\"img\" aria-label=\"Die simulierten Verläufe\" font-family=\"ui-sans-serif,system-ui,sans-serif\" font-size=\"12\"><title>Die simulierten Verläufe</title><desc>Ein Fächer über die Jahre bis zum Zieldatum: das breite Band umfasst neun von zehn Verläufen, das schmale die mittlere Hälfte, die Linie den mittleren Verlauf; die waagrechte Linie ist das Ziel.</desc><line x1=\"16\" y1=\"260\" x2=\"450\" y2=\"260\" stroke=\"#BDB5D6\"/><polygon points=\"16,118 160.7,76.2 305.3,43 450,55.4 450,193.2 305.3,79.4 160.7,100.9 16,118\" fill=\"#A059C1\" fill-opacity=\"0.16\"/><polygon points=\"16,118 160.7,88.3 305.3,56.4 450,193 450,193.2 305.3,70.5 160.7,96.9 16,118\" fill=\"#A059C1\" fill-opacity=\"0.34\"/><polyline points=\"16,118 160.7,89.9 305.3,61.4 450,193.2\" fill=\"none\" stroke=\"#1A1740\" stroke-width=\"2\"/><line x1=\"16\" y1=\"51.1\" x2=\"450\" y2=\"51.1\" stroke=\"#C8662E\" stroke-width=\"2\" stroke-dasharray=\"6 4\"/><text x=\"20\" y=\"44.1\" fill=\"#1A1740\">Ziel <tspan data-fact=\"lbsim.goal.g-home.target\">CHF 278 874</tspan> (umgerechnet) · Chance <tspan data-fact=\"lbsim.chance.base.g-home\">92 %</tspan></text><line x1=\"450\" y1=\"180.8\" x2=\"456\" y2=\"180.8\" stroke=\"#BDB5D6\"/><text x=\"459\" y=\"184.8\" fill=\"#1A1740\">günstig <tspan data-fact=\"lbsim.fan.base.p90.end\">CHF 105 671</tspan></text><line x1=\"450\" y1=\"193.2\" x2=\"456\" y2=\"195.8\" stroke=\"#BDB5D6\"/><text x=\"459\" y=\"199.8\" fill=\"#1A1740\">Mitte <tspan data-fact=\"lbsim.fan.base.p50.end\">CHF 89 192</tspan></text><line x1=\"450\" y1=\"193.2\" x2=\"456\" y2=\"210.8\" stroke=\"#BDB5D6\"/><text x=\"459\" y=\"214.8\" fill=\"#1A1740\">ungünstig <tspan data-fact=\"lbsim.fan.base.p10.end\">CHF 89 124</tspan></text><text x=\"16\" y=\"280\" fill=\"#5d4591\">heute</text><text x=\"450\" y=\"280\" text-anchor=\"end\" fill=\"#5d4591\"><tspan data-fact=\"lbsim.goal.g-home.date\">31.12.2029</tspan></text></svg><figcaption>Die simulierten Verläufe, nominal. Gestrichelt: das Ziel ist in der anderen Grundlage gesetzt und mit der Teuerung des mittleren Verlaufs umgerechnet.</figcaption></figure><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Gezeigt</td><td class=\"n\"><span data-fact=\"lbsim.fan.series\">für die Anzahlung anrechenbares Vermögen (Ihr Wohneigentumsziel)</span></td></tr><tr><td>Simulierte Verläufe</td><td class=\"n\"><span data-fact=\"lbsim.paths.n\">2000</span></td></tr><tr><td>Gerechnete Jahre</td><td class=\"n\"><span data-fact=\"lbsim.paths.horizon\">27</span></td></tr></table><table><tr><th>Ziel</th><th class=\"n\">Zielbetrag</th><th class=\"n\">Zieldatum</th><th>Chance beurteilt</th></tr><tr><td><span data-fact=\"lbsim.goal.g-home.name\">Ihr Wohneigentumsziel</span></td><td class=\"n\"><span data-fact=\"lbsim.goal.g-home.target\">CHF 278 874</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.goal.g-home.date\">31.12.2029</span></td><td><span data-fact=\"lbsim.goal.g-home.judged\">in heutigen Franken</span></td></tr><tr><td><span data-fact=\"lbsim.goal.g-ret.name\">Ihr Ruhestandsziel</span></td><td class=\"n\"><span data-fact=\"lbsim.goal.g-ret.target\">CHF 2 894 052</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.goal.g-ret.date\">31.12.2053</span></td><td><span data-fact=\"lbsim.goal.g-ret.judged\">in heutigen Franken</span></td></tr></table><h3>Chance</h3><table><tr><th>Marktlage</th><th class=\"n\">Ihr Wohneigentumsziel</th><th class=\"n\">Ihr Ruhestandsziel</th></tr><tr><td><span data-fact=\"lbsim.regime.base\">Heutige Einschätzung</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.base.g-home\">92 %</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.base.g-ret\">100 %</span></td></tr><tr><td><span data-fact=\"lbsim.regime.depression\">Depression</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.depression.g-home\">100 %</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.depression.g-ret\">100 %</span></td></tr><tr><td><span data-fact=\"lbsim.regime.hyperinflation\">Hyperinflation</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.hyperinflation.g-home\">0 %</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.hyperinflation.g-ret\">100 %</span></td></tr><tr><td><span data-fact=\"lbsim.regime.stagflation\">Stagflation</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.stagflation.g-home\">36 %</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.stagflation.g-ret\">100 %</span></td></tr><tr><td><span data-fact=\"lbsim.regime.deferral\">Aufschub</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.deferral.g-home\">80 %</span></td><td class=\"n\"><span data-fact=\"lbsim.chance.deferral.g-ret\">100 %</span></td></tr></table><h3>Die Verläufe zum Zieldatum</h3><table><tr><th>Marktlage</th><th class=\"n\">ungünstig</th><th class=\"n\">Mitte</th><th class=\"n\">günstig</th></tr><tr><td><span data-fact=\"lbsim.regime.base\">Heutige Einschätzung</span></td><td class=\"n\"><span data-fact=\"lbsim.fan.base.p10.end\">CHF 89 124</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.base.p50.end\">CHF 89 192</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.base.p90.end\">CHF 105 671</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td><span data-fact=\"lbsim.regime.depression\">Depression</span></td><td class=\"n\"><span data-fact=\"lbsim.fan.depression.p10.end\">CHF 88 383</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.depression.p50.end\">CHF 88 383</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.depression.p90.end\">CHF 88 383</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td><span data-fact=\"lbsim.regime.hyperinflation\">Hyperinflation</span></td><td class=\"n\"><span data-fact=\"lbsim.fan.hyperinflation.p10.end\">CHF 571 784</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.hyperinflation.p50.end\">CHF 652 214</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.hyperinflation.p90.end\">CHF 731 455</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td><span data-fact=\"lbsim.regime.stagflation\">Stagflation</span></td><td class=\"n\"><span data-fact=\"lbsim.fan.stagflation.p10.end\">CHF 113 681</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.stagflation.p50.end\">CHF 323 867</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.stagflation.p90.end\">CHF 353 631</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td><span data-fact=\"lbsim.regime.deferral\">Aufschub</span></td><td class=\"n\"><span data-fact=\"lbsim.fan.deferral.p10.end\">CHF 89 537</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.deferral.p50.end\">CHF 91 133</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td><td class=\"n\"><span data-fact=\"lbsim.fan.deferral.p90.end\">CHF 281 637</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr></table><p><small><span data-fact=\"lbsim.fan.explained\">Unter dem ungünstigen Verlauf liegt jeder zehnte simulierte Verlauf, über dem günstigen ebenfalls jeder zehnte; der mittlere teilt sie in zwei Hälften.</span></small></p></section><section id=\"sec-plan\" data-section=\"plan\"><h2><span class=\"ix\">18</span>Was die Planrechnung ergibt</h2><div class=\"box\" data-plan=\"assumes\"><span class=\"tag n\">Planrechnung, diese Periode</span><p><span data-fact=\"lbsim.plan.framing\">Was die Rechnung annimmt: diese Zahlen beschreiben die Annahmen der Planrechnung für diese Periode, keine Empfehlung.</span></p><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Anteil der produktiven Wochenzeit für Erwerbsarbeit</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.work_share\">42 %</span></td></tr><tr><td>Lernen</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.learning_hours_per_week\">2 Stunden pro Woche</span></td></tr><tr><td>Netzwerk</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.network_hours_per_week\">3 Stunden pro Woche</span></td></tr><tr><td>Erholung</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.rest_hours_per_week\">20 Stunden pro Woche</span></td></tr><tr><td>Konsum</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.consumption_chf_per_year\">CHF 118 000 pro Jahr</span></td></tr><tr><td>Sparen</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.saving_chf_per_year\">CHF 33 000 pro Jahr</span></td></tr><tr><td>Ausgaben für Weiterbildung</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.education_spend_chf_per_year\">CHF 2 000 pro Jahr</span></td></tr><tr><td>Ausgaben für das Netzwerk</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.network_spend_chf_per_year\">CHF 1 000 pro Jahr</span></td></tr><tr><td>Amortisation</td><td class=\"n\"><span data-fact=\"lbsim.plan.action_now.amortisation_chf_per_year\">CHF 0 pro Jahr</span></td></tr></table></div><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Ergebnis</td><td class=\"n\"><span data-fact=\"lbsim.plan.outcome\">Die Rechnung hat einen Plan gefunden, der das Ziel mit der verlangten Sicherheit erreicht.</span></td></tr><tr><td>Gerechnet für</td><td class=\"n\"><span data-fact=\"lbsim.plan.goal\">Ihr Wohneigentumsziel</span></td></tr><tr><td>Verlangte Sicherheit</td><td class=\"n\"><span data-fact=\"lbsim.plan.confidence\">90 %</span></td></tr><tr><td>Chance mit den angenommenen Zahlen</td><td class=\"n\"><span data-fact=\"lbsim.plan.chance\">92 %</span></td></tr><tr><td>Genau gerechnete Jahre</td><td class=\"n\"><span data-fact=\"lbsim.plan.horizon.solved\">20</span></td></tr><tr><td>Jahre bis zum Ziel</td><td class=\"n\"><span data-fact=\"lbsim.plan.horizon.total\">27</span></td></tr><tr><td>Nach den genau gerechneten Jahren</td><td class=\"n\"><span data-fact=\"lbsim.plan.horizon.beyond\">wird das Vermögen verlangt, das die übrigen Jahre ohne Rendite trägt</span></td></tr></table></section><section id=\"sec-findings\" data-section=\"findings\"><h2><span class=\"ix\">19</span>Befunde und nächste Schritte</h2><div class=\"box\" data-finding><span class=\"tag n\"><span data-fact=\"lbsim.finding.undirected_surplus.urgency\">jetzt</span> · <span data-fact=\"lbsim.finding.undirected_surplus.severity\">hoch</span></span><h3><span data-fact=\"lbsim.finding.undirected_surplus.title\">Ein Überschuss ohne Verwendung</span></h3><p><small>Was auffällt:</small> <span data-fact=\"lbsim.finding.undirected_surplus.trigger\">Frei verfügbar sind <span data-fact=\"lbsim.finding.undirected_surplus.free\">CHF 71 634</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small> pro Jahr, davon fest verplant <span data-fact=\"lbsim.finding.undirected_surplus.committed\">CHF 7 258</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small>: <span data-fact=\"lbsim.finding.undirected_surplus.undirected\">CHF 64 376</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small> pro Jahr haben keine Verwendung.</span></p><p><small>Warum es zählt:</small> <span data-fact=\"lbsim.finding.undirected_surplus.why\">Der Haushalt erzeugt mehr, als er lenkt. Die Frage ist dann nicht die Rendite, sondern die Verwendung des Überschusses.</span></p><p><small>Nächster Schritt (<span data-fact=\"lbsim.finding.undirected_surplus.action_kind\">einen Betrag bestimmen</span>):</small> <span data-fact=\"lbsim.finding.undirected_surplus.action\">Den Betrag benennen und ihm eine Verwendung geben. Solange er nicht zugeordnet ist, wird er verbraucht.</span></p></div><h3>Der Fahrplan</h3><ul><li><span data-fact=\"lbsim.schedule.0\">Jetzt, vor jeder Anlageentscheidung</span>: <span data-fact=\"lbsim.schedule.0.undirected_surplus\">Ein Überschuss ohne Verwendung</span></li></ul><h3>Nicht geprüft</h3><ul><li><span data-fact=\"lbsim.unchecked.1\">Ob die Angaben den Haushalt oder den eigenen Anteil beschreiben, ist nicht erfasst.</span></li></ul><h3>Nächste Frage</h3><ul><li><span data-fact=\"lbsim.question.0\">Ab welchem Alter möchten Sie nicht mehr auf Erwerbseinkommen angewiesen sein?</span></li><li><span data-fact=\"lbsim.question.1\">Fehlen Ihnen AHV-Beitragsjahre, etwa durch Studium, Ausland oder Selbständigkeit?</span></li></ul></section><section id=\"sec-limits\" data-section=\"limits\"><h2><span class=\"ix\">20</span>Was dieser Bericht nicht sagen kann</h2><div class=\"box\"><ul><li><small>Allokation:</small> <span data-fact=\"pcp.warning.0\">Alle Bausteine haben dieselbe ESG-Bewertung, deshalb unterscheidet die ESG-Vorgabe nicht zwischen ihnen.</span></li><li><small>Allokation:</small> <span data-fact=\"pcp.warning.1\">Die Gewichte bestimmen nur einen kleinen Teil der Zielfunktion: die Allokation folgt vor allem den Vorgaben des Mandats.</span></li><li><small>Allokation:</small> <span data-fact=\"pcp.warning.2\">Ein Teil des Gewichts liegt auf Bausteinen, deren Profile auf geliehenen oder gesetzten Werten beruhen.</span></li><li><small>Mandatsvorschlag:</small> <span data-fact=\"lbs.gap.1\">Der Anteil des jährlichen Sparbetrags für dieses Ziel ist nicht angegeben; die erforderliche Rendite ist deshalb eine Untergrenze.</span></li><li><small>Ihr Wohneigentumsziel:</small> <span data-fact=\"lbs.gap.2\">Für den Haushalt ist kein Einkommen erfasst.</span></li><li><small>Ihr Wohneigentumsziel:</small> <span data-fact=\"lbs.gap.3\">Mit diesem Ziel ist keine Vermögensposition verknüpft.</span></li><li><small>Ihr Ruhestandsziel:</small> <span data-fact=\"lbs.gap.4\">Für den Haushalt ist kein Einkommen erfasst.</span></li><li><small>Bilanz:</small> <span data-fact=\"lbs.gap.5\">Das Haushaltseinkommen ist nicht bekannt: nicht für jede erwachsene Person ist ein Einkommen erfasst.</span></li></ul></div></section><section id=\"sec-sources\" data-section=\"sources\"><h2><span class=\"ix\">21</span>Die Quellen</h2><table><tr><th>Quelle</th><th>Stand</th></tr><tr><td>Ihre Portfolio-Allokation</td><td><span data-fact=\"sources.date.pcp\">31.01.2026</span></td></tr><tr><td>Ihre Bilanz</td><td><span data-fact=\"sources.date.lbs\">28.09.2026</span></td></tr><tr><td>Ihre Befunde und Einkommenspfade</td><td><span data-fact=\"sources.date.lbsim.findings\">28.09.2026</span></td></tr><tr><td>Ihre simulierten Verläufe</td><td><span data-fact=\"sources.date.lbsim.paths\">28.09.2026</span></td></tr><tr><td>Ihre Planrechnung</td><td><span data-fact=\"sources.date.lbsim.plan\">zu den simulierten Verläufen</span></td></tr><tr><td>Ihr vorheriger Bericht</td><td><span data-fact=\"sources.date.report\">28.09.2026</span></td></tr></table><table><tr><th>Grösse</th><th class=\"n\">Wert</th></tr><tr><td>Stand</td><td class=\"n\"><span data-fact=\"sources.as_of\">28.09.2026</span></td></tr></table></section>\n<div class=\"foot\">Kalibrierung <code>1.0.0</code> · <code>report@1.4.0</code>. Dieser Bericht ist eine Standortbestimmung und keine Empfehlung. Modellbasierte Auswertung. Keine Anlageberatung.</div>\n</div>\n</body>\n</html>\n",
+  "provenance": {
+   "engine_version": "report@1.4.0",
+   "contract_versions": {
+    "ReportRequest": "report-request@1.0.0",
+    "Report": "report@1.0.0",
+    "Calibration": "report-calibration@1.0.0",
+    "Allocation(pcp)": "pcp-allocation@1.0.0",
+    "LifeBalanceSheet(lbs)": "lbs-balance-sheet@1.0.0",
+    "LifeBalanceFindings(lbsim)": "lbsim-findings@1.0.0",
+    "LifeBalancePaths(lbsim)": "lbsim-paths@1.0.0",
+    "LifeBalancePlan(lbsim)": "lbsim-plan@1.0.0"
+   },
+   "calibration_version": "1.0.0",
+   "calibration_hash": "CAL-a41add0042ff3a9d",
+   "idempotency_key": "IDK-6f690950f851561b",
+   "request_id": "RRQ-a976866ef0b11b80",
+   "sources": [
+    {
+     "engine": "pcp",
+     "artefact_id": "PCP-5304eca69cc0e867",
+     "contract_version": "pcp-allocation@1.0.0",
+     "sha256": "2f96287a04830a8bbe4b44fbea93aaa9b72b2f69fce32d8f542f21a14230e89a",
+     "url": "http://127.0.0.1:8007/allocation/PCP-5304eca69cc0e867"
+    },
+    {
+     "engine": "lbs",
+     "artefact_id": "LBS-1a68c6aa5d613766",
+     "contract_version": "lbs-balance-sheet@1.0.0",
+     "sha256": "c9f8f2fa37ce454120867e3891b5737b1ad84630fcb59d7367036eb22124f769",
+     "url": "http://127.0.0.1:8013/artefacts/LBS-1a68c6aa5d613766"
+    },
+    {
+     "engine": "lbsim",
+     "artefact_id": "LSF-fec0163acbfafcd6",
+     "contract_version": "lbsim-findings@1.0.0",
+     "sha256": "1502aef810b6f11eef2eb279b03348b7fbc1bf936522d9a774b6b462ba6acf83",
+     "url": "http://127.0.0.1:8014/artefacts/LSF-fec0163acbfafcd6"
+    },
+    {
+     "engine": "lbsim",
+     "artefact_id": "LSP-0dc88c253ae1d27b",
+     "contract_version": "lbsim-paths@1.0.0",
+     "sha256": "b8faab515ae0c1bc2be6387bb2a8c78971397637edefa2863f4c428146c76cfa",
+     "url": "http://127.0.0.1:8014/artefacts/LSP-0dc88c253ae1d27b"
+    },
+    {
+     "engine": "lbsim",
+     "artefact_id": "LSO-e3686adce7660289",
+     "contract_version": "lbsim-plan@1.0.0",
+     "sha256": "47ab4931334926a085e4a4d89769e912491c86f5b5189fc15f6ac584ca20b753",
+     "url": "http://127.0.0.1:8014/artefacts/LSO-e3686adce7660289"
+    }
+   ],
+   "previous_report_id": "REP-43ef825127d95a40",
+   "model": null,
+   "label": "model-derived"
+  },
+  "notice": "Model-derived research output. Not investment advice."
+ }
+}

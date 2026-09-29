@@ -39,6 +39,9 @@ from .contracts import (
     LbsCoupleCap,
     LbsMandateProposal,
     LbsRiskProfile,
+    LifeBalanceFindings,
+    LifeBalancePaths,
+    LifeBalancePlan,
     LifeBalanceSheet,
     Report,
 )
@@ -195,6 +198,8 @@ SECTIONS: tuple[tuple[str, dict[str, str]], ...] = (
     ("grid", {"de": "Die Rollen der Bilanz", "en": "The roles of the balance sheet"}),
     ("income", {"de": "Das Einkommen", "en": "Income"}),
     ("human_capital", {"de": "Das Humankapital", "en": "Human capital"}),
+    ("earning_power", {"de": "Die Erwerbskraft", "en": "Earning power"}),
+    ("income_paths", {"de": "Einkommenspfade und Sparbedarf", "en": "Income paths and the saving they need"}),
     ("pensions", {"de": "Die Renten", "en": "Pensions"}),
     ("retirement", {"de": "Der Ruhestand", "en": "Retirement"}),
     ("property", {"de": "Wohneigentum", "en": "Home ownership"}),
@@ -205,6 +210,9 @@ SECTIONS: tuple[tuple[str, dict[str, str]], ...] = (
     ("roles", {"de": "Gewicht nach Rolle", "en": "Weight by role"}),
     ("positions", {"de": "Die Bausteine", "en": "The building blocks"}),
     ("fit", {"de": "Wie die Allokation zustande kam", "en": "How the allocation came about"}),
+    ("outlook", {"de": "Die Aussichten", "en": "The outlook"}),
+    ("plan", {"de": "Was die Planrechnung ergibt", "en": "What the plan calculation shows"}),
+    ("findings", {"de": "Befunde und nächste Schritte", "en": "Findings and next steps"}),
     ("limits", {"de": "Was dieser Bericht nicht sagen kann", "en": "What this report cannot say"}),
     ("sources", {"de": "Die Quellen", "en": "Sources"}),
 )
@@ -611,6 +619,278 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "
     return m.facts
 
 
+# ---------------------------------------------------------------------------
+# lbsim (REP-32 to REP-36): findings, paths and plan, read together
+# ---------------------------------------------------------------------------
+
+_LS_MEASURE_KIND = {"home": "property", "retirement": "retirement", "capital": "goal"}
+
+
+def lbsim_subjects(findings: Optional[LifeBalanceFindings], paths: Optional[LifeBalancePaths],
+                   plan: Optional[LifeBalancePlan], known: dict[str, str], lang: str) -> dict[str, str]:
+    """The generic names of lbsim's persons and goals (REP-20): the lbs sheet's names where the sheet names them
+    (``known``), numbered after them otherwise."""
+    out = dict(known)
+    persons = [e.person_id for e in findings.earning_power] if findings else []
+    persons += [p.person_id for p in findings.income_paths] if findings else []
+    new_persons = [p for p in dict.fromkeys(persons) if f"person:{p}" not in out]
+    n0 = sum(1 for k in out if k.startswith("person:"))
+    for n, pid in enumerate(new_persons, start=n0 + 1):
+        out[f"person:{pid}"] = voc.PERSON[lang].format(n=n)
+    goals: list[tuple[str, str]] = []
+    for r in (paths.regimes if paths else ()):
+        goals += [(g.goal_id, _LS_MEASURE_KIND.get(g.kind, "goal")) for g in r.goals]
+    if plan is not None:
+        goals.append((plan.goal.goal_id, _LS_MEASURE_KIND.get(plan.goal.kind, "goal")))
+    for p in (findings.income_paths if findings else ()):
+        goals += [(s.goal_id, "goal") for s in p.saving_need]
+    missing = [(g, k) for g, k in dict(goals).items() if f"goal:{g}" not in out]
+    if missing:
+        out.update(voc.subjects([], missing, lang))
+    return out
+
+
+def designated_goal(paths: Optional[LifeBalancePaths], plan: Optional[LifeBalancePlan],
+                    sheet: Optional[LifeBalanceSheet]) -> Optional[str]:
+    """The goal the outlook's fan is drawn for: the plan's goal, else the lbs mandate proposal's, else the first."""
+    if paths is None or not paths.regimes:
+        return None
+    ids = [g.goal_id for g in paths.regimes[0].goals]
+    if plan is not None and plan.goal.goal_id in ids:
+        return plan.goal.goal_id
+    if sheet is not None and isinstance(sheet.mandate_proposal, LbsMandateProposal) \
+            and sheet.mandate_proposal.goal_id in ids:
+        return sheet.mandate_proposal.goal_id
+    return ids[0] if ids else None
+
+
+def fan_window(paths: LifeBalancePaths, goal_id: Optional[str]) -> tuple[str, int, Optional[int]]:
+    """``(series, last index, goal index in the base Regime)``: the goal's measure up to its date, or net worth
+    over the whole horizon when there is no goal. Index k is the end of year ``start_year + k``; 0 is today."""
+    base = paths.regimes[0]
+    for j, g in enumerate(base.goals):
+        if g.goal_id == goal_id and g.measure in base.bands:
+            year = int(g.target.date[:4])
+            return g.measure, max(1, min(paths.horizon_years, year - paths.start_year)), j
+    return "net_worth", paths.horizon_years, None
+
+
+def _ls_figure(value: float, unit: str, lang: str) -> tuple[str, str]:
+    """``(fact unit, display)`` of a finding figure. The template carries the unit words ("pro Jahr"), so an
+    amount a year prints as the amount."""
+    if unit in ("chf", "chf_per_year"):
+        return unit, _money(value, lang)
+    if unit == "share":
+        return "share", _share(value, lang)
+    if unit == "count":
+        return "count", str(int(round(value)))
+    digits = 0 if float(value).is_integer() else 1
+    return "number", _number(value, lang, digits)
+
+
+def fill_template(template: str, figures: dict[str, str]) -> str:
+    """A finding template with each ``{name}`` replaced (used for a title in a label, where no markup goes)."""
+    return re.sub(r"\{([a-z0-9_]+)\}", lambda mm: figures.get(mm.group(1), mm.group(0)), template)
+
+
+def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeBalancePaths],
+                  plan: Optional[LifeBalancePlan], sheet: Optional[LifeBalanceSheet], names: dict[str, str],
+                  lang: str, basis: str = "nominal") -> list[Fact]:
+    """lbsim's figures (REP-33). The service has refused inconsistent sources before this is called: every
+    artefact on one sheet, the paths on the pcp source's Allocation, the plan on the paths (REP-32)."""
+    W = voc.LBSIM_WORDS
+    w = {k: v[lang] for k, v in W.items()}
+    facts: list[Fact] = []
+
+    def who(pid: str) -> str:
+        return names.get(f"person:{pid}", voc.PERSON[lang].format(n="?"))
+
+    def goal(gid: str) -> str:
+        return names.get(f"goal:{gid}", voc.GOAL["goal"][lang])
+
+    if findings is not None:
+        m = _Maker("lbsim", findings.artefact_id, findings.contract_version, lang)
+        for j, ep in enumerate(findings.earning_power):
+            base, p = f"lbsim.earning_power.{ep.person_id}", who(ep.person_id)
+            if ep.status == "not_available" or ep.modelled is None:
+                reason = ep.reason.de if (ep.reason and lang == "de") else ep.reason.en if ep.reason else None
+                m.add(f"{base}.status", "earning_power", reason or voc.FALLBACK_REASON[lang], "text",
+                      ["earning_power", j, "reason", lang] if ep.reason else ["earning_power", j, "status"],
+                      text=f"{p}: {w['ep_na']}")
+            else:
+                m.add(f"{base}.modelled", "earning_power", float(ep.modelled.full_time_chf_per_year), "chf_per_year",
+                      ["earning_power", j, "modelled", "full_time_chf_per_year"], text=f"{p}: {w['ep_modelled']}")
+                resp = ep.modelled.responsibility
+                label_ = getattr(resp.label, lang)
+                m.add(f"{base}.responsibility", "earning_power", label_, "text",
+                      ["earning_power", j, "modelled", "responsibility", "label", lang],
+                      text=f"{p}: {w['ep_responsibility']}",
+                      display=label_ if resp.stated else f"{label_} ({w['ep_not_stated']})")
+            m.add(f"{base}.stated", "earning_power", ep.stated.expected_full_pensum_income_chf_per_year,
+                  "chf_per_year", ["earning_power", j, "stated", "expected_full_pensum_income_chf_per_year"],
+                  text=f"{p}: {w['ep_stated']}")
+            m.add(f"{base}.level_basis", "earning_power", ep.level_basis, "text", ["earning_power", j, "level_basis"],
+                  text=f"{p}: {w['ep_level']}", display=w[f"ep_level_{ep.level_basis}"])
+            m.add(f"{base}.current", "earning_power", ep.current.gross_income_chf_per_year, "chf_per_year",
+                  ["earning_power", j, "current", "gross_income_chf_per_year"], text=f"{p}: {w['ep_current']}")
+            if ep.current.pensum is not None:
+                m.add(f"{base}.pensum", "earning_power", float(ep.current.pensum), "share",
+                      ["earning_power", j, "current", "pensum"], text=f"{p}: {w['ep_pensum']}",
+                      display=_share(float(ep.current.pensum), lang, 0))
+            for n, c in enumerate(ep.caveats):
+                m.add(f"{base}.caveat.{n}", "earning_power", getattr(c, lang), "text",
+                      ["earning_power", j, "caveats", n, lang], text=f"{p}: {w['ep_caveat']}")
+
+        m.add("lbsim.zero_return.note", "income_paths", getattr(findings.zero_return.note, lang), "text",
+              ["zero_return", "note", lang], text=w["zero_return"])
+        for i, path in enumerate(findings.income_paths):
+            base, pname = f"lbsim.path.{path.code}", getattr(path.name, lang)
+            m.add(f"{base}.name", "income_paths", pname, "text", ["income_paths", i, "name", lang], text=w["path"])
+            m.add(f"{base}.note", "income_paths", getattr(path.note, lang), "text", ["income_paths", i, "note", lang],
+                  text=f"{pname}: {w['path_note']}")
+            real = {s.goal_id: (k, s) for k, s in enumerate(path.views.real.saving_need)}
+            for k, need in enumerate(path.saving_need):
+                g = goal(need.goal_id)
+                if basis == "real" and need.goal_id in real:
+                    rk, rs = real[need.goal_id]
+                    at = ["income_paths", i, "views", "real", "saving_need", rk]
+                    save, free, b = rs.zero_return_saving_chf_per_year, rs.free_cash_chf_per_year, "real"
+                else:
+                    at = ["income_paths", i, "saving_need", k]
+                    save, free, b = need.zero_return_saving_chf_per_year, need.free_cash_chf_per_year, "nominal"
+                m.add(f"{base}.saving_need.{need.goal_id}", "income_paths", float(save), "chf_per_year",
+                      at + ["zero_return_saving_chf_per_year"], text=f"{pname}: {g}, {w['saving_need']}", basis=b)
+                m.add(f"{base}.free_cash.{need.goal_id}", "income_paths", float(free), "chf_per_year",
+                      at + ["free_cash_chf_per_year"], text=f"{pname}: {g}, {w['free_cash']}", basis=b)
+                m.add(f"{base}.holds.{need.goal_id}", "income_paths", bool(need.holds), "flag",
+                      ["income_paths", i, "saving_need", k, "holds"], text=f"{pname}: {g}, {w['holds']}")
+
+        titles: dict[str, str] = {}
+        for i, f in enumerate(findings.findings):
+            base = f"lbsim.finding.{f.code}"
+            shown = {name: _ls_figure(float(fig.value), fig.unit, lang) for name, fig in f.figures.items()
+                     if fig.value is not None}
+            words = getattr(f.text, lang)
+            title = fill_template(words.title, {k: d for k, (_, d) in shown.items()})
+            titles[f.code] = title
+            # A figure is labelled by its finding and its place, never by its key (REP-19).
+            for k, (name, (unit, display)) in enumerate(shown.items(), start=1):
+                fig = f.figures[name]
+                m.add(f"{base}.{name}", "findings", float(fig.value), unit, ["findings", i, "figures", name, "value"],
+                      text=f"{title} · {k}", display=display, basis=fig.basis)
+            shown = {k: d for k, (_, d) in shown.items()}
+            for part in ("title", "trigger", "why", "action"):
+                m.add(f"{base}.{part}", "findings", getattr(words, part), "text", ["findings", i, "text", lang, part],
+                      text=title if part != "title" else w["finding"], display=fill_template(getattr(words, part), shown)
+                      if part == "title" else getattr(words, part))
+            m.add(f"{base}.urgency", "findings", f.urgency, "text", ["findings", i, "urgency"],
+                  text=f"{title}: {w['urgency']}", display=voc.LBSIM_URGENCY[f.urgency][lang])
+            m.add(f"{base}.severity", "findings", f.severity, "text", ["findings", i, "severity"],
+                  text=f"{title}: {w['severity']}", display=voc.LBSIM_SEVERITY[f.severity][lang])
+            m.add(f"{base}.action_kind", "findings", f.action_kind, "text", ["findings", i, "action_kind"],
+                  text=f"{title}: {w['action_kind']}", display=voc.LBSIM_ACTION_KIND[f.action_kind][lang])
+        for n, entry in enumerate(findings.schedule):
+            m.add(f"lbsim.schedule.{n}", "findings", getattr(entry.label, lang), "text",
+                  ["schedule", n, "label", lang], text=w["schedule"])
+            for k, code in enumerate(entry.codes):
+                if code in titles:
+                    m.add(f"lbsim.schedule.{n}.{code}", "findings", code, "text", ["schedule", n, "codes", k],
+                          text=getattr(entry.label, lang), display=titles[code])
+        for n, u in enumerate(findings.unchecked):
+            if u.answered_by == "plan" and plan is not None:
+                continue
+            m.add(f"lbsim.unchecked.{n}", "findings", getattr(u.reason, lang), "text", ["unchecked", n, "reason", lang],
+                  text=w["unchecked"])
+        for n, q in enumerate(findings.next_questions):
+            m.add(f"lbsim.question.{n}", "findings", getattr(q.question, lang), "text",
+                  ["next_questions", n, "question", lang], text=w["question"])
+        facts.extend(m.facts)
+
+    if paths is not None and paths.regimes:
+        m = _Maker("lbsim", paths.artefact_id, paths.contract_version, lang)
+        m.add("lbsim.paths.n", "outlook", float(paths.n_paths), "count", ["n_paths"], text=w["n_paths"])
+        m.add("lbsim.paths.horizon", "outlook", float(paths.horizon_years), "count", ["horizon_years"],
+              text=w["horizon"])
+        base = paths.regimes[0]
+        for j, g in enumerate(base.goals):
+            name = goal(g.goal_id)
+            m.add(f"lbsim.goal.{g.goal_id}.name", "outlook", g.goal_id, "text", ["regimes", 0, "goals", j, "goal_id"],
+                  text=w["goal"], display=name)
+            field = "real_chf" if basis == "real" else "nominal_chf"
+            m.add(f"lbsim.goal.{g.goal_id}.target", "outlook", float(getattr(g.target, field)), "chf",
+                  ["regimes", 0, "goals", j, "target", field], text=f"{name}: {w['target']}", basis=basis)
+            m.add(f"lbsim.goal.{g.goal_id}.date", "outlook", g.target.date, "date",
+                  ["regimes", 0, "goals", j, "target", "date"], text=f"{name}: {w['target_date']}")
+            m.add(f"lbsim.goal.{g.goal_id}.judged", "outlook", g.chance_basis, "text",
+                  ["regimes", 0, "goals", j, "chance_basis"], text=f"{name}: {w['judged']}",
+                  display=w[f"judged_{g.chance_basis}"])
+        target_id = designated_goal(paths, plan, sheet)
+        series, last, _ = fan_window(paths, target_id)
+        what = voc.LBSIM_MEASURE.get(series, voc.LBSIM_MEASURE["net_worth"])[lang]
+        m.add("lbsim.fan.series", "outlook", series, "text", ["regimes", 0, "bands"], text=w["fan_series"],
+              display=f"{what} ({goal(target_id)})" if target_id else what,
+              derivation="the band series of the designated goal's measure (its date bounds the fan)")
+        for r, reg in enumerate(paths.regimes):
+            label_ = getattr(reg.label, lang)
+            m.add(f"lbsim.regime.{reg.key}", "outlook", label_, "text", ["regimes", r, "label", lang],
+                  text=w["regime"])
+            for j, g in enumerate(reg.goals):
+                m.add(f"lbsim.chance.{reg.key}.{g.goal_id}", "outlook", float(g.chance), "share",
+                      ["regimes", r, "goals", j, "chance"], text=f"{label_}: {goal(g.goal_id)}, {w['chance']}",
+                      display=_share(float(g.chance), lang, 0))
+            band = reg.bands.get(series)
+            if band is None:
+                continue
+            q = getattr(band, basis)
+            for key in ("p10", "p50", "p90"):
+                m.add(f"lbsim.fan.{reg.key}.{key}.end", "outlook", float(getattr(q, key)[last]), "chf",
+                      ["regimes", r, "bands", series, basis, key, last],
+                      text=f"{label_}: {w[key]} {w['at_date']}", basis=basis)
+        m.add("lbsim.fan.explained", "outlook", w["fan_explained_text"], "text", ["regimes", 0, "bands"],
+              text=w["fan_explained"], derivation="the report's reading of the p10, p50 and p90 bands")
+        if plan is None:
+            m.add("lbsim.plan.state", "plan", "calculating", "text", ["artefact_id"], text=w["plan"],
+                  display=w["plan_calculating"],
+                  derivation="no plan artefact among the sources: the plan calculation for these paths is still running")
+        facts.extend(m.facts)
+
+    if plan is not None:
+        m = _Maker("lbsim", plan.artefact_id, plan.contract_version, lang)
+        m.add("lbsim.plan.framing", "plan", getattr(plan.framing, lang), "text", ["framing", lang],
+              text=w["plan_framing"])
+        m.add("lbsim.plan.outcome", "plan", plan.outcome, "text", ["outcome"], text=w["plan_outcome"],
+              display=voc.LBSIM_OUTCOME[plan.outcome][lang])
+        m.add("lbsim.plan.goal", "plan", plan.goal.goal_id, "text", ["goal", "goal_id"], text=w["plan_goal"],
+              display=goal(plan.goal.goal_id))
+        m.add("lbsim.plan.confidence", "plan", float(plan.goal.confidence), "share", ["goal", "confidence"],
+              text=w["plan_confidence"], display=_share(float(plan.goal.confidence), lang, 0))
+        m.add("lbsim.plan.chance", "plan", float(plan.chance.out_of_sample), "share", ["chance", "out_of_sample"],
+              text=w["plan_chance"], display=_share(float(plan.chance.out_of_sample), lang, 0))
+        if plan.reachable is not None:
+            m.add("lbsim.plan.reachable", "plan", float(plan.reachable.amount_chf), "chf", ["reachable", "amount_chf"],
+                  text=w["plan_reachable"], basis="nominal")
+        a = plan.action_now
+        for field, words in voc.LBSIM_ACTION_NOW.items():
+            value = float(getattr(a, field))
+            if field == "work_share":
+                unit, display = "share", _share(value, lang, 0)
+            elif field.endswith("_hours_per_week"):
+                unit, display = "number", f"{_number(value, lang, 0 if value.is_integer() else 1)} {w['hours_a_week']}"
+            else:
+                unit, display = "chf_per_year", None
+            m.add(f"lbsim.plan.action_now.{field}", "plan", value, unit, ["action_now", field], text=words[lang],
+                  display=display)
+        m.add("lbsim.plan.horizon.solved", "plan", float(plan.horizon.solved_years), "count",
+              ["horizon", "solved_years"], text=w["plan_solved_years"])
+        m.add("lbsim.plan.horizon.total", "plan", float(plan.horizon.total_years), "count",
+              ["horizon", "total_years"], text=w["plan_total_years"])
+        if plan.horizon.beyond_cap_rule and plan.horizon.solved_years < plan.horizon.total_years:
+            m.add("lbsim.plan.horizon.beyond", "plan", plan.horizon.beyond_cap_rule, "text",
+                  ["horizon", "beyond_cap_rule"], text=w["plan_beyond"], display=w["plan_beyond_rule"])
+        facts.extend(m.facts)
+    return facts
+
+
 @dataclass(frozen=True)
 class Extractor:
     """How one engine's artefacts become facts. One entry per engine the report can draw on."""
@@ -620,14 +900,22 @@ class Extractor:
     mirror: type[BaseModel]
     #: The upstream path an artefact is read from.
     path: Callable[[str], str]
-    #: ``(artefact, calibration, language, basis)`` to facts (the basis since REP-27).
-    extract: Callable[[Any, Calibration, str, str], list[Fact]]
+    #: ``(artefact, calibration, language, basis)`` to facts (the basis since REP-27). ``None`` for lbsim's
+    #: artefacts, which are read together (:func:`extract_lbsim`, REP-33).
+    extract: Optional[Callable[[Any, Calibration, str, str], list[Fact]]]
     #: The client the artefact is about, when it says; checked against the request's client_ref.
     client_ref: Callable[[Any], Optional[str]]
-    as_of: Callable[[Any], str]
+    #: The artefact's own date, ``None`` for one that carries none (an lbsim plan).
+    as_of: Callable[[Any], Optional[str]]
     #: The bases the artefact's figures can be read in: an Allocation has one (REP-28), an lbs sheet both when
     #: it carries a real view (REP-27).
     bases: Callable[[Any], frozenset[str]] = lambda a: frozenset({"nominal"})
+    #: The source kind: the engine, or ``lbsim.findings``, ``lbsim.paths``, ``lbsim.plan`` (REP-32).
+    kind: str = ""
+
+    @property
+    def source_kind(self) -> str:
+        return self.kind or self.engine
 
 
 EXTRACTORS: dict[str, Extractor] = {
@@ -641,6 +929,32 @@ EXTRACTORS: dict[str, Extractor] = {
                      client_ref=lambda s: s.client_ref, as_of=lambda s: s.as_of,
                      bases=lambda s: frozenset({"nominal", "real"} if s.real_view is not None else {"nominal"})),
 }
+
+_BOTH = frozenset({"nominal", "real"})
+#: lbsim's three artefacts, by the prefix of their id (REP-32), all from ``GET /artefacts/{id}`` on 8014. They
+#: carry both bases: nominal figures with real views (the saving need, the bands, the targets), and the plan's
+#: figures for this period, which are the same amount in either.
+LBSIM_EXTRACTORS: dict[str, Extractor] = {
+    "LSF": Extractor(engine="lbsim", kind="lbsim.findings", contract_version="lbsim-findings@1.0.0",
+                     mirror=LifeBalanceFindings, path=lambda aid: f"/artefacts/{aid}", extract=None,
+                     client_ref=lambda a: a.client_ref, as_of=lambda a: a.as_of, bases=lambda a: _BOTH),
+    "LSP": Extractor(engine="lbsim", kind="lbsim.paths", contract_version="lbsim-paths@1.0.0",
+                     mirror=LifeBalancePaths, path=lambda aid: f"/artefacts/{aid}", extract=None,
+                     client_ref=lambda a: a.client_ref, as_of=lambda a: a.as_of, bases=lambda a: _BOTH),
+    "LSO": Extractor(engine="lbsim", kind="lbsim.plan", contract_version="lbsim-plan@1.0.0",
+                     mirror=LifeBalancePlan, path=lambda aid: f"/artefacts/{aid}", extract=None,
+                     client_ref=lambda a: a.client_ref, as_of=lambda a: None, bases=lambda a: _BOTH),
+}
+
+
+def extractor_for(engine_name: str, artefact_id: str) -> Extractor:
+    """The extractor of one source: by engine, and for lbsim by the prefix of the id."""
+    if engine_name == "lbsim":
+        found = LBSIM_EXTRACTORS.get(artefact_id.split("-", 1)[0])
+        if found is None:
+            raise EngineError(f"lbsim has no artefact kind for {artefact_id!r} (LSF-, LSP- or LSO-)")
+        return found
+    return EXTRACTORS[engine_name]
 
 
 def caller_facts(display: Sequence[DisplayFact], request_id: str, lang: str) -> list[Fact]:
@@ -678,16 +992,30 @@ SOURCE_WORDS = {
 }
 
 
-def source_date_facts(dated: Sequence[tuple[str, str, str, str]], previous: Optional[Report], lang: str) -> list[Fact]:
-    """One dated fact per source, named in words (REP-23): the sources table prints these, never an id."""
+def _date_field(kind: str) -> str:
+    return "date" if kind == "pcp" else "as_of"
+
+
+def source_date_facts(dated: Sequence[tuple[str, str, str, str]], previous: Optional[Report], lang: str,
+                      undated: Sequence[tuple[str, str, str, str]] = ()) -> list[Fact]:
+    """One dated fact per source, named in words (REP-23): the sources table prints these, never an id. ``dated``
+    and ``undated`` hold ``(date or value, kind, artefact_id, contract)``; the kind is the engine, or
+    ``lbsim.<kind>`` for lbsim's artefacts (REP-32). An lbsim plan carries no date of its own: it is named with the
+    paths it was calculated on."""
     out = []
-    for as_of, engine, aid, contract in dated:
-        field = "date" if engine == "pcp" else "as_of"
-        out.append(Fact(fact_id=f"sources.date.{engine}", section="sources",
-                        label=SOURCE_WORDS[lang].get(engine, engine), value=as_of, unit="date",
+    for as_of, kind, aid, contract in dated:
+        engine_name, _, sub = kind.partition(".")
+        words = voc.LBSIM_SOURCE_WORDS[sub][lang] if sub else SOURCE_WORDS[lang].get(kind, kind)
+        out.append(Fact(fact_id=f"sources.date.{kind}", section="sources", label=words, value=as_of, unit="date",
                         display=fmt(as_of, "date", lang),
-                        sources=(FactSource(engine=engine, artefact_id=aid, contract_version=contract,
-                                            path=_pointer(field)),)))
+                        sources=(FactSource(engine=engine_name, artefact_id=aid, contract_version=contract,
+                                            path=_pointer(_date_field(kind))),)))
+    for value, kind, aid, contract in undated:
+        engine_name, _, sub = kind.partition(".")
+        out.append(Fact(fact_id=f"sources.date.{kind}", section="sources", label=voc.LBSIM_SOURCE_WORDS[sub][lang],
+                        value=value, unit="text", display=voc.LBSIM_SOURCE_WORDS["plan_dated"][lang],
+                        sources=(FactSource(engine=engine_name, artefact_id=aid, contract_version=contract,
+                                            path=_pointer("paths_artefact_id")),)))
     if previous is not None and previous.as_of:
         out.append(Fact(fact_id="sources.date.report", section="sources", label=SOURCE_WORDS[lang]["report"],
                         value=previous.as_of, unit="date", display=fmt(previous.as_of, "date", lang),
@@ -697,12 +1025,12 @@ def source_date_facts(dated: Sequence[tuple[str, str, str, str]], previous: Opti
 
 
 def as_of_fact(dated: Sequence[tuple[str, str, str, str]], lang: str) -> Fact:
-    """``dated`` is (as_of, engine, artefact_id, contract) per source. The report speaks for the newest."""
-    as_of, engine, aid, contract = max(dated)
-    field = "date" if engine == "pcp" else "as_of"
+    """``dated`` is (as_of, kind, artefact_id, contract) per source. The report speaks for the newest."""
+    as_of, kind, aid, contract = max(dated)
     return Fact(fact_id="sources.as_of", section="sources", label=label("sources.as_of", lang), value=as_of,
                 unit="date", display=fmt(as_of, "date", lang),
-                sources=(FactSource(engine=engine, artefact_id=aid, contract_version=contract, path=_pointer(field)),),
+                sources=(FactSource(engine=kind.partition(".")[0], artefact_id=aid, contract_version=contract,
+                                    path=_pointer(_date_field(kind))),),
                 derivation="the newest as-of date among the sources")
 
 

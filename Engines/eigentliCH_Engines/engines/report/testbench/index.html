@@ -58,6 +58,7 @@
       </div>
       <label>pcp Allocation id (empty: none) <input id="pcp" placeholder="PCP-..."></label>
       <label>lbs LifeBalanceSheet id (empty: none) <input id="lbs" placeholder="LBS-..."></label>
+      <label>lbsim findings, paths, plan ids (comma-separated, empty: none) <input id="lbsim" placeholder="LSF-..., LSP-..., LSO-..."></label>
       <label>Previous report id (update only) <input id="prev" placeholder="REP-..."></label>
       <label>Revision of report id (empty: not a revision) <input id="revof" placeholder="REP-..."></label>
       <label>Revision note (the curator's remark, printed on the page) <textarea id="revnote"></textarea></label>
@@ -127,6 +128,7 @@
     const sources = [];
     if ($("pcp").value.trim()) sources.push({engine: "pcp", artefact_id: $("pcp").value.trim()});
     if ($("lbs").value.trim()) sources.push({engine: "lbs", artefact_id: $("lbs").value.trim()});
+    $("lbsim").value.split(",").map(x => x.trim()).filter(Boolean).forEach(id => sources.push({engine: "lbsim", artefact_id: id}));
     let body;
     try {
       body = {client_ref: $("client").value.trim(), kind: $("kind").value, language: $("lang").value, sources,

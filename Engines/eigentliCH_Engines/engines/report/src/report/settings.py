@@ -103,6 +103,8 @@ class Settings:
     #: over the family ``.env``. ``repr=False``: this mapping holds the token.
     env: Mapping[str, str] = field(default_factory=dict, repr=False)
     sources: tuple[str, ...] = field(default=())
+    #: lbsim (Engine 14, REP-32): findings, paths and plan, ``GET /artefacts/{id}``.
+    lbsim_url: str = "http://127.0.0.1:8014"
 
 
 def _deep_merge(base: dict[str, Any], top: Mapping[str, Any]) -> dict[str, Any]:
@@ -214,7 +216,7 @@ def load(path: Optional[Path] = None, overrides: Optional[Mapping[str, Any]] = N
     tree["service"] = service
 
     upstream = dict(tree.get("upstream") or {})
-    for key in ("pcp_url", "lbs_url"):
+    for key in ("pcp_url", "lbs_url", "lbsim_url"):
         var = f"{PREFIX}{key.upper()}"
         if var in os.environ:
             upstream[key] = os.environ[var]
@@ -315,4 +317,5 @@ def _build(tree: Mapping[str, Any], folder: Path, sources: tuple[str, ...]) -> S
         database=database,
         env=env,
         sources=sources,
+        lbsim_url=str(upstream.get("lbsim_url") or "http://127.0.0.1:8014").rstrip("/"),
     )

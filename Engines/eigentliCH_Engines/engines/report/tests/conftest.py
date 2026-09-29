@@ -51,15 +51,15 @@ def pytest_configure(config):
 
 
 class Upstream:
-    """pcp and lbs as test doubles serving the frozen artefacts; ``extra`` adds more by path."""
+    """pcp, lbs and lbsim as test doubles serving the frozen artefacts; ``extra`` adds more by path."""
 
     def __init__(self) -> None:
-        self.extra: dict[str, dict[str, bytes]] = {"pcp": {}, "lbs": {}}
+        self.extra: dict[str, dict[str, bytes]] = {"pcp": {}, "lbs": {}, "lbsim": {}}
         self.down: set[str] = set()
         self.calls: list[str] = []
 
     def transport(self, engine: str) -> httpx.MockTransport:
-        base = {"pcp": {f"/allocation/{PCP_ID}": PCP}, "lbs": {f"/artefacts/{LBS_ID}": LBS}}[engine]
+        base = {"pcp": {f"/allocation/{PCP_ID}": PCP}, "lbs": {f"/artefacts/{LBS_ID}": LBS}, "lbsim": {}}[engine]
 
         def handler(request: httpx.Request) -> httpx.Response:
             self.calls.append(f"{engine}{request.url.path}")
@@ -71,7 +71,7 @@ class Upstream:
         return httpx.MockTransport(handler)
 
     def transports(self) -> dict[str, httpx.BaseTransport]:
-        return {"pcp": self.transport("pcp"), "lbs": self.transport("lbs")}
+        return {"pcp": self.transport("pcp"), "lbs": self.transport("lbs"), "lbsim": self.transport("lbsim")}
 
 
 def settings_for(url: str, **model_over) -> Settings:

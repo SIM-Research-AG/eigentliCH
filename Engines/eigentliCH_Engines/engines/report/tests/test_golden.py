@@ -7,6 +7,7 @@ through the stand-in; the engine must reach the same checked report from them.
 
 from __future__ import annotations
 
+import html as htmllib
 import json
 import re
 
@@ -32,7 +33,7 @@ def _transports() -> dict[str, httpx.BaseTransport]:
             return httpx.Response(200, content=(gc.INPUTS / f).read_bytes()) if f else httpx.Response(404)
         return httpx.MockTransport(handler)
 
-    return {"pcp": make("pcp"), "lbs": make("lbs")}
+    return {"pcp": make("pcp"), "lbs": make("lbs"), "lbsim": make("lbsim")}
 
 
 @pytest.fixture(scope="module")
@@ -113,7 +114,7 @@ def test_every_figure_traces_to_an_artefact_id(name):
         assert fact["sources"], fact["fact_id"]
         for src in fact["sources"]:
             aid = src["artefact_id"]
-            if src["engine"] in ("pcp", "lbs"):
+            if src["engine"] in ("pcp", "lbs", "lbsim"):
                 assert aid in upstream and upstream[aid]["engine"] == src["engine"], fact["fact_id"]
                 node = _resolve(files[aid], src["path"])
                 v = fact["value"]
@@ -145,7 +146,8 @@ _EXEMPT = [
     re.compile(r"<style>.*?</style>", re.S),
     re.compile(r"<head>.*?</head>", re.S),
     re.compile(r"<code>[^<]*</code>"),
-    re.compile(r'<(span|b) data-fact="[^"]*">[^<]*</\1>'),
+    # A fact's value, in the text or in a chart (REP-34: every printed value in an SVG is a <tspan data-fact>).
+    re.compile(r'<(span|b|tspan) data-fact="[^"]*">[^<]*</\1>'),
     re.compile(r'<span class="ix">\d+</span>'),
     re.compile(r'<div class="box warn" data-meta="warnings">.*?</div>', re.S),
 ]
@@ -164,7 +166,7 @@ def test_the_page_prints_no_figure_that_is_not_a_fact(name):
     stripped = re.sub(r'<p class="prose" data-prose="[^"]+">[^<]*</p>', " ", page)
     for pattern in _EXEMPT:
         stripped = pattern.sub(" ", stripped)
-    text = re.sub(r"<[^>]+>", " ", stripped)
+    text = htmllib.unescape(re.sub(r"<[^>]+>", " ", stripped))
     stray = [t.text for t in engine.tokens(text) if t.digits >= 2]
     assert stray == [], stray
     facts = {f["fact_id"] for f in report["facts"]}

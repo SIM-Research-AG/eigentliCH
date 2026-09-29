@@ -1,8 +1,9 @@
 # Engine 15: eigentliCH Report Engine (`report`)
 
 Renders reports in which every figure traces back to an artefact id. The code owns every figure: each one is a
-fact read from a published artefact (pcp's Allocation, lbs's Life Balance Sheet) with the engine, the artefact
-id and the JSON path it was read from. MiniMind, the house's AI (served by spark7), writes the connecting
+fact read from a published artefact (pcp's Allocation, lbs's Life Balance Sheet, lbsim's findings, paths and
+plan) with the engine, the artefact id and the JSON path it was read from. Three charts are inline SVG in which
+every printed value is a fact as well (REP-34). MiniMind, the house's AI (served by spark7), writes the connecting
 sentences, one section at a time, and every number in them is checked against that section's facts. Readers
 see no internal id and no upstream key: every lbs and pcp reason is a plain sentence in the report's language,
 and persons and goals are named, not identified (REP-19, REP-20). If spark7 cannot be reached the report is
@@ -17,8 +18,8 @@ https://app.notion.com/p/3e80ba72543f81279459c05a6644539a
 | Family | Communication |
 | Module | `report` |
 | Default port | 8015 (configurable) |
-| Status | v1.3.0 (29.09.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; 335 tests and one opt-in live test |
-| Consumes | `pcp-allocation@1.0.0` from `pcp` (8007, `GET /allocation/{id}`), `lbs-balance-sheet@1.0.0` from `lbs` (8013, `GET /artefacts/{id}`), a `ReportRequest` from the caller |
+| Status | v1.4.0 (29.09.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; 418 tests and one opt-in live test |
+| Consumes | `pcp-allocation@1.0.0` from `pcp` (8007, `GET /allocation/{id}`), `lbs-balance-sheet@1.0.0` from `lbs` (8013, `GET /artefacts/{id}`), `lbsim-findings@1.0.0`, `lbsim-paths@1.0.0` and `lbsim-plan@1.0.0` from `lbsim` (8014, `GET /artefacts/{id}`, typed by the id's prefix), a `ReportRequest` from the caller |
 | Produces | `Report` (`report@1.0.0`), with the rendered HTML |
 | Model | MiniMind (display name), served by spark7 (`https://spark7.minimind.ch`, vLLM), `google/gemma-4-31B-it-qat-w4a16-ct` |
 
@@ -33,10 +34,10 @@ start.cmd                                    :: engine on 8015, test bench at ht
 First time: `..\..\.venv\Scripts\pip install --no-deps -e .`, the role and schema `report` (provisioned by
 `python -m store.provision` in `Projects\Engines\Instruments`), the database password in `config.local.yaml`
 (git-ignored) and the spark7 token in the family `.env` (`eigentliCH_Engines\.env`, git-ignored). A report needs
-the engines it draws on running (`pcp` on 8007, `lbs` on 8013). `python -m report probe` checks the model service.
+the engines it draws on running (`pcp` on 8007, `lbs` on 8013, `lbsim` on 8014). `python -m report probe` checks the model service.
 
 ```bash
-python -m pytest              # 335 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
+python -m pytest              # 418 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
 python -m pytest -m live -s   # one report with prose against the real spark7
 ```
 
@@ -54,6 +55,9 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    a revision whose revised report is missing or another client's, and a mix of bases (REP-28): a pcp
    Allocation of another basis than the request's (one without `basis` is nominal), a real request on an lbs
    sheet without its real view, an lbs figure whose stated basis is not the one asked, an update across bases.
+   And for lbsim (REP-32): lbsim artefacts on another balance sheet than the lbs source (or on two sheets among
+   themselves), paths on another Allocation than the pcp source, paths on other findings than the findings source,
+   a plan on other paths or without its paths. Each refusal is one plain sentence naming what to ask instead.
 3. **The facts.** One extractor per engine (`engine.EXTRACTORS`: mirror, path, extraction) turns the artefact
    into facts. A section lbs could not compute (`not_available`) becomes a stated fact, "not available:
    <reason>", never a number (REP-09); the reason is printed as a plain sentence in the report's language
@@ -63,11 +67,20 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    `goal.<goal_id>` name a person or a goal on the page instead of "Person 1" or "Ihr Wohneigentumsziel"
    (REP-20). The four roles carry the house's names from the content record `reference/roles`:
    Wertsteigerung (Wachstum on the human side), Einkommen, Stabilisierung, Absicherung; Gain (Growth), Income,
-   Stabilisation, Protection (REP-24).
+   Stabilisation, Protection (REP-24). lbsim's three artefacts are read together (`engine.extract_lbsim`,
+   REP-33): earning power per adult (the model's level, the person's own statement, and which one the calculation
+   uses), the income paths with their saving need at zero return, the findings with lbsim's own templates in the
+   report's language (each figure a fact inside the sentence), the schedule, the rules not checked and the next
+   questions, the chance per goal and Regime, the fan's ends, and the plan's figures for this period. While the
+   plan runs (paths without a plan among the sources), the fact `lbsim.plan.state` says "wird berechnet" / "being
+   calculated"; an update with the plan among its sources then carries it. With lbsim's findings present, lbs's
+   note that earning power is another engine's is left out.
 4. **The sections**, in a fixed order, left out when empty and numbered at render time (after `dossier.py`):
    changes (an update only), household, balance sheet, the roles of the balance sheet, income, human capital,
-   pensions, retirement, home ownership, liquidity, risk profile, mandate proposal, the allocation, weight by
-   role, the building blocks, how the allocation came about, what the report cannot say, sources.
+   earning power, income paths and the saving they need, pensions, retirement, home ownership, liquidity, risk
+   profile, mandate proposal, the allocation, weight by role, the building blocks, how the allocation came about,
+   the outlook, what the plan calculation shows, findings and next steps, what the report cannot say, sources.
+   The five lbsim sections have no prose slot in this build.
 5. **The prose** (REP-05). For each section with a slot in the calibration (balance sheet, income, pensions,
    retirement, home ownership, mandate proposal, allocation, roles, fit, changes) the model is given that
    section's facts, labels and printed values only, and asked for two or three sentences. A draft that
@@ -84,17 +97,32 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    In real, the figures are lbs's own real ones (`mandate_proposal.views.real`, the retirement and property
    figures lbs 1.4.0 states real, `real_view.goals[].real`), never deflated here; what lbs gives only in
    nominal (a liquidity gap, a fixed contribution, the BVG projection) is shown so and marked nominal. A real
-   report also states lbs's inflation assumption and whether the contribution rises with prices.
+   report also states lbs's inflation assumption and whether the contribution rises with prices. lbsim's real
+   views are read likewise (the saving need's `views.real`, the real bands, a goal's `real_chf`); a chance is one
+   per goal and Regime in either view; a finding's figure lbsim states nominal stays nominal and is marked so; the
+   plan's figures for this period are the same amount in both views and carry no mark.
 8. **The page** (REP-13): self-contained HTML in the house style of the dossiers (the stylesheet of
    `dossier.py` verbatim), every value printed as `<span data-fact="{fact_id}">`, the notice in the footer; no id of any kind:
    the sources are named in words with their dates (REP-23), the ids stay in the artefact. The tests hold every page to this: outside fact elements, identifiers, the section
    index and the engine's notes it carries no number of two or more digits. A revision prints the curator's
    remark under the lede, as written, in the report's language (REP-25).
+9. **The charts** (`report/charts.py`, REP-34): pure functions returning inline SVG, with `role="img"`, a
+   `<title>` and a `<desc>` in words, a `viewBox`, the house colours, no `<script>`, no external reference, no web
+   font, no `xmlns`. (1) The weights as horizontal bars, by role (section `roles`, the house's role names) and by
+   building block (`positions`); (2) the Mandate's target against the reached return per state (`fit`), the 25
+   states with "Krise" and "Boom" as words at the ends, the line of zero return, on the Allocation's basis; (3) the
+   fan (`outlook`): the p05 to p95 and p25 to p75 bands and the median of the designated goal's measure (the plan's
+   goal, else the mandate proposal's, else the first) from today to the goal's date, and the goal line, dashed and
+   marked "umgerechnet" when the goal is set in the other basis (LBSIM-09). No tick labels: every printed value is
+   a `<tspan data-fact>`, labelled directly, so the page's figure rule holds inside a chart. The plan's figures
+   stand in a box headed with lbsim's framing, "Was die Rechnung annimmt: ..., keine Empfehlung" (owner,
+   29.09.2026).
 
 ## Contracts
 
 `ReportRequest` (`report-request@1.0.0`): `client_ref` (opaque), `kind` (`report` or `update`), `language`
-(`de` or `en`), `sources` [{`engine` pcp or lbs, `artefact_id`}] (at most one per engine),
+(`de` or `en`), `sources` [{`engine` pcp, lbs or lbsim, `artefact_id`}] (at most one per engine and artefact
+kind: an lbsim source is a findings `LSF-`, paths `LSP-` or plan `LSO-` artefact, REP-32),
 `previous_report_id` (for an update, and only for one), `display_facts` [{`key`, `label`, `value`, `source`}]
 (`name` titles the page; `person.<id>` and `goal.<id>` name a subject),
 `prose` (default true), `calibration_version`, and since 1.2.0, optional (REP-25): `revision_of` (the `REP-...` id
@@ -143,9 +171,11 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
 
 ## Model quality
 
-* **Golden** (`golden/inputs`, `golden/reports`): ten reports over frozen artefacts (German and English, a
+* **Golden** (`golden/inputs`, `golden/reports`): sixteen reports over frozen artefacts (German and English, a
   property case, a liquidity case, an update, a revision, three in the real view's inputs: real in German and
-  English and nominal on a sheet with both views, and one with spark7's real prose), reproduced exactly; the
+  English and nominal on a sheet with both views, one with spark7's real prose, and six on lbsim's frozen samples
+  of 29.09.2026: the outlook with all three charts in German and English, real in German and English on lbs and
+  lbsim alone, the plan still running, and the update that includes it), reproduced exactly; the
   prose-free ones byte for byte on a fresh store. On every frozen report, **every figure is traced to an artefact
   id**: each fact's path is resolved in the frozen artefact it cites and must give the value the report states;
   a change must resolve in the previous report; a display fact in the request.
@@ -156,6 +186,11 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
   constructed one that fills what they leave empty; no label carries a figure; a not-available section is
   stated and never a number.
 * **Property tests**: the printed display of any figure verifies against it.
+* **lbsim and the charts** (`tests/test_lbsim.py`): the request rule per engine and kind, the id of a request
+  without lbsim sources, every refusal of REP-32 with its sentence, all three charts on the outlook pages, every
+  `data-fact` inside an SVG a fact printing its display, no digit outside those, no `<script>` and no `http` inside
+  an SVG, the goal line dashed in the other basis only, lbsim's real views read in real, the finding templates in
+  the page's language, the plan's framing, "wird berechnet" and the update that carries the plan.
 * **Boundary**: the role cannot write outside its schema and cannot read another engine's tables, owns its
   schema, no `REAL` column, every table commented, append-only triggers, one complete report per key enforced by
   the store; a concurrent burst of six identical requests against a real socket writes one report and asks for
@@ -174,10 +209,12 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
 config.yaml            port, upstream URLs, the model service, store, active calibration
 src/report/
   api.py               routing only
-  contracts.py         ReportRequest, Report, Calibration; mirrors of pcp-allocation and lbs-balance-sheet
+  contracts.py         ReportRequest, Report, Calibration; mirrors of pcp-allocation, lbs-balance-sheet and
+                       lbsim-findings, -paths, -plan
   engine.py            extractors, formatting, sections, changes, prose prompt and checks (pure)
   vocabulary.py        lbs and pcp keys and reasons as plain sentences (de, en), subjects, page notes (pure)
   render.py            the HTML page (pure)
+  charts.py            the three inline SVG charts (pure)
   spark7.py            the model client and the warm-up tick
   clients.py           the upstream engines
   calibration.py       seed calibration 1.0.0

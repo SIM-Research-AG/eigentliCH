@@ -27,10 +27,11 @@ def _client(name: str) -> str:
 def upstream_files() -> dict[str, dict[str, str]]:
     """engine -> upstream path -> frozen file."""
     return {"pcp": {f"/allocation/{_id(n)}": n for n in ("pcp_allocation.json", "pcp_allocation_2.json",
-                                                          "pcp_allocation_real.json")},
+                                                          "pcp_allocation_real.json", "pcp_allocation_lbsim.json")},
             "lbs": {f"/artefacts/{_id(n)}": n for n in ("lbs_sheet.json", "lbs_sheet_property.json",
                                                          "lbs_sheet_liquidity.json", "lbs_sheet_real.json",
-                                                         "lbs_sheet_property_real.json")}}
+                                                         "lbs_sheet_property_real.json", "lbs_sheet_lbsim.json")},
+            "lbsim": {f"/artefacts/{_id(n)}": n for n in ("lbsim_findings.json", "lbsim_paths.json", "lbsim_plan.json")}}
 
 
 NAME = [{"key": "name", "label": "Kundin", "value": "Muster", "source": "golden"}]
@@ -42,6 +43,12 @@ def cases() -> list[dict[str, Any]]:
     """Ordered: an update names the report of an earlier case by its case name (``previous``), a revision the
     report it revises (``revision_of``)."""
     couple = _client("lbs_sheet.json")
+    sim = _client("lbs_sheet_lbsim.json")
+    outlook = [{"engine": "pcp", "artefact_id": _id("pcp_allocation_lbsim.json")},
+               {"engine": "lbs", "artefact_id": _id("lbs_sheet_lbsim.json")},
+               {"engine": "lbsim", "artefact_id": _id("lbsim_findings.json")},
+               {"engine": "lbsim", "artefact_id": _id("lbsim_paths.json")},
+               {"engine": "lbsim", "artefact_id": _id("lbsim_plan.json")}]
     both = [{"engine": "pcp", "artefact_id": _id("pcp_allocation.json")},
             {"engine": "lbs", "artefact_id": _id("lbs_sheet.json")}]
     return [
@@ -77,6 +84,22 @@ def cases() -> list[dict[str, Any]]:
         {"name": "en_property_nominal_views", "request": {
             "client_ref": _client("lbs_sheet_property_real.json"), "kind": "report", "language": "en",
             "prose": False, "sources": [{"engine": "lbs", "artefact_id": _id("lbs_sheet_property_real.json")}]}},
+        # lbsim (REP-32 to REP-36): the outlook with all three charts in both languages; the real view on lbs and
+        # lbsim alone (a real report takes no nominal Allocation, REP-28); the plan still running, then the update
+        # that includes it.
+        {"name": "de_outlook", "request": {"client_ref": sim, "kind": "report", "language": "de", "prose": False,
+                                           "display_facts": NAME, "sources": outlook}},
+        {"name": "en_outlook", "request": {"client_ref": sim, "kind": "report", "language": "en", "prose": False,
+                                           "display_facts": [{**NAME[0], "label": "Client"}], "sources": outlook}},
+        {"name": "de_outlook_real", "request": {"client_ref": sim, "kind": "report", "language": "de", "prose": False,
+                                                "basis": "real", "display_facts": NAME, "sources": outlook[1:]}},
+        {"name": "en_outlook_real", "request": {"client_ref": sim, "kind": "report", "language": "en", "prose": False,
+                                                "basis": "real", "sources": outlook[1:]}},
+        {"name": "de_outlook_calculating", "request": {"client_ref": sim, "kind": "report", "language": "de",
+                                                       "prose": False, "display_facts": NAME, "sources": outlook[:4]}},
+        {"name": "de_outlook_plan_update", "previous": "de_outlook_calculating",
+         "request": {"client_ref": sim, "kind": "update", "language": "de", "prose": False, "display_facts": NAME,
+                     "sources": outlook}},
         {"name": "de_full_prose", "live": True,
          "request": {"client_ref": couple, "kind": "report", "language": "de", "sources": both,
                      "display_facts": NAME, "prose": True}},

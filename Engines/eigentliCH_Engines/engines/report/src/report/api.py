@@ -38,7 +38,7 @@ def create_app(settings: Optional[Settings] = None,
                upstream_transports: Optional[dict[str, httpx.BaseTransport]] = None,
                model_transport: Optional[httpx.BaseTransport] = None) -> FastAPI:
     settings = settings or load()
-    upstream = engine_clients({"pcp": settings.pcp_url, "lbs": settings.lbs_url}, settings.upstream_timeout_s,
+    upstream = engine_clients({"pcp": settings.pcp_url, "lbs": settings.lbs_url, "lbsim": settings.lbsim_url}, settings.upstream_timeout_s,
                               upstream_transports)
     model = Spark7Client(settings.model, settings.env, model_transport)
     service = Service(settings, Store(settings.database), upstream, model)
@@ -87,9 +87,12 @@ def create_app(settings: Optional[Settings] = None,
     @app.get("/contracts", tags=["standard"])
     def contracts() -> dict[str, Any]:
         models = {"Allocation(pcp)": c.Allocation, "LifeBalanceSheet(lbs)": c.LifeBalanceSheet,
+                  "LifeBalanceFindings(lbsim)": c.LifeBalanceFindings, "LifeBalancePaths(lbsim)": c.LifeBalancePaths,
+                  "LifeBalancePlan(lbsim)": c.LifeBalancePlan,
                   "ReportRequest": c.ReportRequest, "Report": c.Report, "RunAccepted": c.RunAccepted,
                   "RunStatus": c.RunStatus, "Calibration": c.Calibration}
-        inbound = {"Allocation(pcp)", "LifeBalanceSheet(lbs)", "ReportRequest"}
+        inbound = {"Allocation(pcp)", "LifeBalanceSheet(lbs)", "LifeBalanceFindings(lbsim)", "LifeBalancePaths(lbsim)",
+                   "LifeBalancePlan(lbsim)", "ReportRequest"}
         return {name: {"version": c.CONTRACT_VERSIONS.get(name), "direction": "in" if name in inbound else "out",
                        "schema": model.model_json_schema()} for name, model in models.items()}
 

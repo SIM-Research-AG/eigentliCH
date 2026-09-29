@@ -167,9 +167,15 @@ engines:
     name: LifeBalance Simulator
     family: Client
     url: http://127.0.0.1:8014
-    status: scaffold
-    produces: LifeBalancePaths
-    consumes: [lbs]
+    status: built
+    produces: LifeBalanceFindings, LifeBalancePaths, LifeBalancePlan
+    consumes: [lbs, pcp, aggregation, fmre]
+    # announced, not delivered yet: until the file exists the page shows the placeholder (C-34)
+    bench: ../eigentliCH_Engines/engines/lbsim/testbench/index.html
+    # serve starts the API and the optimiser workers (INTERFACES section 5)
+    start: {cwd: ../eigentliCH_Engines/engines/lbsim, args: ["-X", "utf8", "-m", "lbsim", "serve"]}
+    python: ../eigentliCH_Engines/.venv/Scripts/python.exe
+    autostart: true
     notion: https://app.notion.com/p/3e80ba72543f819abe14c30ca61942f5
   - key: report
     number: 15
@@ -178,7 +184,7 @@ engines:
     url: http://127.0.0.1:8015
     status: built
     produces: Report
-    consumes: [lbs, pcp]
+    consumes: [lbs, pcp, lbsim]
     start: {cwd: ../eigentliCH_Engines/engines/report, args: ["-X", "utf8", "-m", "report", "serve"]}
     python: ../eigentliCH_Engines/.venv/Scripts/python.exe
     autostart: true
@@ -205,7 +211,7 @@ engines:
     url: http://127.0.0.1:8017
     status: built
     produces: The client's web app
-    consumes: [lbs, report, chatbot]
+    consumes: [lbs, lbsim, report, chatbot]
     start: {cwd: ../eigentliCH_Engines/eigentlich, args: ["-X", "utf8", "-m", "eigentlich", "serve"]}
     python: ../eigentliCH_Engines/.venv/Scripts/python.exe
     autostart: true

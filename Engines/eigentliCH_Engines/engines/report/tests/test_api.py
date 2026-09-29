@@ -26,11 +26,11 @@ def more_artefacts(upstream):
 
 def test_standard_endpoints(client, spark):
     health = client.get("/health").json()
-    assert health["status"] == "ok" and health["engine_version"] == "report@1.3.0"
+    assert health["status"] == "ok" and health["engine_version"] == "report@1.4.0"
     meta = client.get("/meta").json()
     assert meta["contract_versions"] == CONTRACT_VERSIONS and meta["allowlist"]["ok"]
     assert meta["prompt_version"] == "report-prompt@1.1.0" and meta["sections"][0] == "changes"
-    assert set(meta["upstream"]) == {"pcp", "lbs"}
+    assert set(meta["upstream"]) == {"pcp", "lbs", "lbsim"}
     contracts = client.get("/contracts").json()
     assert contracts["Report"]["version"] == "report@1.0.0" and contracts["Allocation(pcp)"]["direction"] == "in"
     assert contracts["LifeBalanceSheet(lbs)"]["version"] == "lbs-balance-sheet@1.0.0"

@@ -65,6 +65,13 @@ class Acting(_Body):
     pass
 
 
+class OutlookIn(_Body):
+    """The lbsim outlook through the consumer app (C-34). ``optimise: "now"`` asks for a priority plan
+    run recorded as the acting curator's ("Planrechnung neu starten"); left out, the app decides as it
+    does after a new sheet (the plan runs in the background)."""
+    optimise: Optional[Literal["now"]] = None
+
+
 class ApprovalNote(_Body):
     note: Optional[str] = None
 
@@ -133,6 +140,20 @@ class InflationBetaIn(BaseModel):
         if not v.strip():
             raise ValueError("must not be blank")
         return v.strip()
+
+
+#: lbsim's RunStatus lists its artefacts (``artefact_ids``) rather than naming one. The engine_run keeps
+#: the one a page opens: the plan, else the paths, else the findings (INTERFACES section 5).
+_ARTEFACT_ORDER = ("LSO-", "LSP-", "LSF-")
+
+
+def _main_artefact(ids: Any) -> Optional[str]:
+    ids = [i for i in (ids or ()) if isinstance(i, str) and i]
+    for prefix in _ARTEFACT_ORDER:
+        hit = next((i for i in ids if i.startswith(prefix)), None)
+        if hit:
+            return hit
+    return ids[-1] if ids else None
 
 
 def create_app(settings: Optional[Settings] = None,
@@ -378,11 +399,13 @@ def create_app(settings: Optional[Settings] = None,
         """Record what the engine answered: succeeded with its artefact, failed with its error, or
         still running under its run id (refreshed later)."""
         status, run_id = accepted.get("status"), accepted.get("run_id")
-        if status == "succeeded" and accepted.get("artefact_id"):
-            return await run_in_threadpool(db, curator.advance_run, row["id"], "succeeded", run_id,
-                                           accepted["artefact_id"])
+        artefact_id = accepted.get("artefact_id") or _main_artefact(accepted.get("artefact_ids"))
+        if status == "succeeded" and artefact_id:
+            return await run_in_threadpool(db, curator.advance_run, row["id"], "succeeded", run_id, artefact_id)
         if status == "failed":
             error = accepted.get("error")
+            if accepted.get("failure_kind"):   # lbsim's RunStatus names why (timed_out, superseded, ...)
+                error = f"{accepted['failure_kind']}: {error}" if error else str(accepted["failure_kind"])
             if not error and run_id:
                 try:
                     error = (await engines.get_json(engine_or_404(engine_key), f"/runs/{run_id}")).get("error")
@@ -559,6 +582,45 @@ def create_app(settings: Optional[Settings] = None,
                 raise HTTPException(r.status_code if r.status_code in (404, 409, 422) else 502, message)
             return {"engine_run": run, "balance_sheet": None, "error": message}
         return {"engine_run": run, "balance_sheet": answer, "error": None}
+
+    @app.post("/api/curator/clients/{client_id}/outlook", tags=["curator"], status_code=201)
+    async def curator_outlook(client_id: str, body: OutlookIn) -> dict[str, Any]:
+        """Ask for the client's lbsim outlook through the consumer app (C-34, the C-20 pattern).
+
+        lbsim requests are built only in the app: it takes the client's newest sheet and the base-Regime
+        Allocation of the current parameter set, calls lbsim and records every call as an ``engine_run``
+        (engine ``lbsim``: the fast run, and the plan run under its own run id, refreshed later through
+        ``/api/curator/runs/{id}/refresh``). The cockpit checks the client and the acting curator first,
+        sends ``{"curator_id"}`` (and ``"optimise": "now"`` for a priority plan run) to the app's
+        ``POST /api/clients/{id}/outlook``, and answers with the lbsim runs the app recorded during the
+        call and what it returned. The app not there: 503, nothing recorded."""
+        await run_in_threadpool(db, curator.acting, client_id, body.curator_id)
+        app_entry = next((e for e in settings.engines if e.kind == "app"), None)
+        if app_entry is None:
+            raise HTTPException(503, "the roster names no consumer app (kind: app): lbsim runs through it (C-34)")
+        before = {r["id"] for r in await run_in_threadpool(db, curator.recent_runs, client_id, "lbsim")}
+        payload = {"curator_id": body.curator_id, **({"optimise": body.optimise} if body.optimise else {})}
+        try:
+            r = await engines.forward(app_entry, "POST", f"api/clients/{client_id}/outlook", "",
+                                      json.dumps(payload).encode("utf-8"), "application/json")
+        except httpx.HTTPError as exc:
+            raise HTTPException(503, f"The consumer app ({app_entry.key}) is {_describe(exc)} at {app_entry.url}, so no "
+                                     "outlook was asked for and nothing was recorded. lbsim runs through the app: "
+                                     "start it on the Consumer app page, then try again.") from exc
+        try:
+            answer = r.json()
+        except ValueError:
+            answer = {"detail": r.text[:2000]}
+        runs = [x for x in await run_in_threadpool(db, curator.recent_runs, client_id, "lbsim") if x["id"] not in before]
+        if r.status_code >= 400:
+            detail = answer.get("detail", answer) if isinstance(answer, dict) else answer
+            if isinstance(detail, dict) and "error" in detail:
+                detail = f"{detail.get('engine', 'an engine')}: {detail['error']}"
+            message = f"the consumer app answered {r.status_code}: {detail if isinstance(detail, str) else json.dumps(detail)[:2000]}"
+            if not runs:   # refused before any lbsim call was recorded (no sheet, no such client, store down)
+                raise HTTPException(r.status_code if r.status_code in (404, 409, 422) else 502, message)
+            return {"engine_runs": runs, "outlook": None, "error": message}
+        return {"engine_runs": runs, "outlook": answer, "error": None}
 
     # ---- the Parameters form (C-21, C-22): unit conversion only, plain Python, no store ---------
 

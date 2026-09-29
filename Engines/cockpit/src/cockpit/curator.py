@@ -229,6 +229,14 @@ class CuratorStore:
                               FROM engine_run WHERE client_id = %s AND engine = %s
                              ORDER BY created_at DESC, id DESC LIMIT 1""", (client_id, engine))
 
+    def recent_runs(self, client_id: str, engine: str, limit: int = 20) -> list[dict[str, Any]]:
+        """The client's newest ``engine_run`` rows for this engine, newest first (an lbsim call records
+        two: the fast run and the plan run, C-34)."""
+        return self._all("""SELECT id, engine, parameter_set_id, requested_by_kind, requested_by_ref, run_id, artefact_id,
+                                   status, error, created_at, started_at, finished_at, request
+                              FROM engine_run WHERE client_id = %s AND engine = %s
+                             ORDER BY created_at DESC, id DESC LIMIT %s""", (client_id, engine, limit))
+
     def open_session(self, client_id: str, curator_id: str, opened_from: str = "cockpit") -> dict[str, Any]:
         """C-10 audit: a curator opened this client's material. Append-only, both rows."""
         with self.session() as conn:

@@ -16,12 +16,18 @@ Notion pass done (all 12 pages), docs aligned, pushed as aa8237e.
 **lbsim build (Engine 14), started 29.09.2026 ~16:30.** Spec: `Engines/review/LBSIM_INTERFACES.md` (binding,
 with the owner's answers in section 10). casadi 3.7.2 installed in `eigentliCH_Engines/.venv` (IPOPT solve
 checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
-- Running: agent A (lbs 1.4.0: earning-power answers, new facts, `GET /artefacts/{id}/request`; lbsim
-  provisioning) and agent B1 (lbsim contracts, numpy model port, fast half, adapter, calibrations, golden layer
-  A, sample artefacts in `engines/lbsim/golden/samples/`).
-- Next: when both report, restart lbs 8013; start B2 (Monte Carlo, clients, store, service, API, workers), C
-  (optimiser in `src/lbsim/optim`), D (report charts and lbsim sections; cockpit Aussichten panel and roster)
-  in parallel; then E (app questions content v4, outlook page and charts, desktop.cmd 8014, use-case
+- Done: agent A (lbs 1.4.0 live on 8013, 473 tests; lbsim schema and role provisioned; pushed 7a58780).
+  A's choices: responsibility accepts tier key or de/en label; health_work_capacity with health_withheld is
+  refused (the app's K3 filter must drop it with health).
+- Done: B1 (lbsim core, 457 tests, golden layer A 48 cases exact, earning power 192 rows exact, samples in
+  `engines/lbsim/golden/samples/`; pushed 40e05a4).
+- Running (started ~evening 29.09.2026): B2 (Monte Carlo, clients, store, service, API, workers), C (optimiser in
+  `src/lbsim/optim`), D (report charts and lbsim sections; cockpit Aussichten panel and roster). Handshake B2/C:
+  C writes `optim/types.py` (PlanProblem, ControlPath, PlanOutcome) and
+  `solve(problem, *, simulate, deadline, should_cancel, progress)`; B2 injects its Monte Carlo as `simulate`.
+- After them: restart report 8015 and the cockpit; start lbsim 8014 (`python -m lbsim serve` in the family
+  venv); then E (app).
+- Then E (app questions content v4, outlook page and charts, desktop.cmd 8014, use-case
   `earning` and `outlook`, then mandates/reports refresh and check; the 20 plans take about 6 hours).
 
 Open: two hung pytest processes from the pcp agent (pids 4564 and 24748, started 15:25); the agent was
