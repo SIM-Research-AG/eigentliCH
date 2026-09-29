@@ -32,9 +32,10 @@ database:
 calibration:
   # The calibration a run uses when the request does not name one. 1.0.0 reproduces the draft (golden
   # layer A); 1.1.0 is lbsim's behaviour (LBSIM-13); 1.2.0 corrects the draft's income paths (DECISIONS P-9); 1.3.0 sets the
-  # plan's 500 iterations and 10-year solve horizon (DECISIONS O-18).
+  # plan's 500 iterations and 10-year solve horizon (DECISIONS O-18); 1.4.0 lets the paths' household retire as
+  # the findings assume (pillar-2 annuity, 3a paid out, the stated stop age; DECISIONS P-21 to P-24).
   # Changing this is a deliberate act.
-  active: "1.3.0"
+  active: "1.4.0"
   # For reference only, read from the active calibration (never from here):
   #   retirement.withdrawal_rate  0.03   (owner, 29.09.2026; capital needed = yearly need / 0.03)
   #   optimiser.confidence        0.90   (owner, 29.09.2026; epsilon = 0.10)

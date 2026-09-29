@@ -9,7 +9,7 @@ page is Notion `3e80ba72543f819abe14c30ca61942f5`; the binding interfaces are `E
 | Family | Client |
 | Module | `lbsim`, installed editable in `eigentliCH_Engines/.venv` (`pip install --no-deps -e .`) |
 | Port | 8014 (`config.yaml`) |
-| Status | Built: contracts, model port, fast half, adapter, calibrations (B1); Monte Carlo, upstream clients, store, service, API, worker harness, test bench (B2); optimiser `lbsim.optim` (C). |
+| Status | Built: contracts, model port, fast half, adapter, calibrations (B1); Monte Carlo, upstream clients, store, service, API, worker harness, test bench (B2); optimiser `lbsim.optim` (C). Active calibration 1.4.0. |
 | Consumes | lbs 8013 (sheet, its request, calibration); pcp 8007 (Allocation); aggregation 8004 (Regimes); fmre 8006 (ReturnSets, inflation) |
 | Produces | `LifeBalanceFindings` (`LSF-`), `LifeBalancePaths` (`LSP-`), `LifeBalancePlan` (`LSO-`) |
 | Downstream | report 8015, the consumer app 8017, the cockpit 8000 |
@@ -71,7 +71,12 @@ draft and makes findings only (`not_made: draft_market`).
   pillar 3a, pillar 2 excluded because the target already nets its annuity), capital (measure `drawable`). A goal
   in today's francs is judged per path on deflated wealth, one in future francs nominally. A reached home goal
   buys the home (deposit from free wealth, then 3a, then the permitted half of pillar 2, the rest a mortgage at the
-  sheet's rate); a reached capital goal pays its lump sum.
+  sheet's rate). Under 1.4.0 a capital goal is judged, not paid out (an lbs `other` does not say whether its amount
+  is spent or a level to hold), so every goal is judged on the same wealth, as the findings and the plan judge it.
+- **Retirement (1.4.0).** The stated stop age as stated, above 65 too. From the later of the stop age and the
+  reference age, pillar 2 is an annuity at the findings' 5.25 % (nominal income) and pillar 3a is paid out into free
+  wealth. A stated salary pays the employee's half of the pillar-2 contribution. Up to 1.3.0 the draft's model
+  household: both pillars only accrue, and the cash flow pays the whole contribution (DECISIONS P-21 to P-24).
 - **Bands (LBSIM-10).** Year-end quantiles p05..p95 of `net_worth` and each goal measure, in both bases; the real
   bands are quantiles of each path's own deflated values. Recorded before any goal of that date is carried out,
   so the band at a goal's date is the value its chance is judged on.

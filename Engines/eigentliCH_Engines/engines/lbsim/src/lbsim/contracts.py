@@ -977,6 +977,13 @@ class Behaviour(_Frozen):
     #: from today when no education is planned. ``None`` (1.0.0, 1.1.0): the draft's paths. Left out of the
     #: canonical form while ``None``, so 1.0.0 and 1.1.0 keep their bytes and hashes.
     income_paths: Optional[Literal["corrected"]] = None
+    #: DECISIONS P-21 to P-24 (calibration 1.4.0): ``pensions`` makes the paths' stated household retire as the
+    #: findings assume. The stated stop age is read as stated (above the reference age too); from the later of the
+    #: stop age and the reference age, pillar 2 is an annuity at the findings' conversion rate and pillar 3a is paid
+    #: out; a stated gross salary pays the employee's half of the pillar-2 contribution; a capital goal is judged,
+    #: not paid out. ``None`` (1.0.0 to 1.3.0): the draft's model household. Moves the paths only, never the
+    #: findings; left out of the canonical form while ``None``, so earlier versions keep their bytes and hashes.
+    paths_household: Optional[Literal["pensions"]] = None
 
 
 class Retirement(_Frozen):

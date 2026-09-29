@@ -131,6 +131,12 @@ def stated_plan(sheet: LbsSheet, request: LbsRequest, lbs_records: dict[str, dic
         runs = {r["code"]: r for r in FP.income_paths(sub, p)}
         stop = G._stop_age(sub, p)
         stop_age = float(stop) if stop is not None else float(p.ahv_age)
+        pensions = calibration.behaviour.paths_household == "pensions"
+        stated_stop = sub["params"].get("stop_work_age")
+        if pensions and stated_stop is not None:
+            # The draft reads a stop age only as an early exit and drops one above the reference age; the paths
+            # read it as stated (DECISIONS P-21).
+            stop_age = float(stated_stop)
         codes = [ip.code for ip in findings.income_paths]
         code = income_path or default_income_path(request, adapted.principal, codes)
         if code not in runs or code not in codes:
@@ -226,8 +232,14 @@ def stated_plan(sheet: LbsSheet, request: LbsRequest, lbs_records: dict[str, dic
                               date=n.target_date, amount_basis=amounts.get("basis") or "today",
                               target_real=float(reals[n.goal_id].target_chf), target_nominal=float(n.target_chf),
                               deposit_share=share, free_cash_real=float(reals[n.goal_id].free_cash_chf_per_year)))
-    household = Household(x0=x0, p=p, income=income, ahv_income=ahv_income,
-                          events=tuple(g.event() for g in goals))
+    if pensions:
+        household = Household(x0=x0, p=p, income=income, ahv_income=ahv_income,
+                              events=tuple(g.event(execute=g.kind == "home") for g in goals), p2_cash_share=0.5,
+                              pension_at_age=max(stop_age, float(p.pension_age)),
+                              annuity_rate=G.PILLAR2_CONVERSION_RATE)
+    else:
+        household = Household(x0=x0, p=p, income=income, ahv_income=ahv_income,
+                              events=tuple(g.event() for g in goals))
     policy = Policy(spending_chf_per_year=C0, pensum=float(path["pensum_now"]), saving_source=saving_source,
                     fallback=fallback)
     return StatedPlan(household=household, controls=ctl, policy=policy, goals=tuple(goals), income_path=code,

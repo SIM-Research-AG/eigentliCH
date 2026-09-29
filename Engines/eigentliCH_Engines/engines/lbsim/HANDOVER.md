@@ -39,6 +39,15 @@ francs). The store `lbsim` keeps those artefacts and three outlook runs (one wit
 - A request with `optimise: "background"` supersedes the client's older plans on another key; a repeated identical
   request returns the same artefacts (`cached: true`) and the same plan run.
 
+## Calibration 1.4.0 (29.09.2026, after the live use-case refresh)
+
+The refresh under 1.3.0 gave several designated goals a chance of exactly 0.0. Four were defects of the paths'
+household (DECISIONS P-21 to P-24): a stated stop age above 65 dropped, no pillar-2 annuity and no 3a payout in
+retirement, the employer's half of the pillar-2 contribution charged to a stated salary, capital goals paid out.
+1.4.0 fixes them in the Monte Carlo only (findings unchanged, layer B `step_1_4_0` empty) and is active in
+`config.yaml`. lbsim must be restarted to serve it; stored 1.3.0 artefacts stay, and a new `POST /run` makes 1.4.0
+paths under a new key. The samples were rebuilt under 1.4.0 (their bytes changed again).
+
 ## To watch
 
 - **The retirement measure (P-11).** lbsim's `retirement_capital` is free wealth plus pillar 3a; C's

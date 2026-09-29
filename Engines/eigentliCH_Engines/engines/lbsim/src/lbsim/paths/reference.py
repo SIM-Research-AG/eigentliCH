@@ -7,7 +7,7 @@ Two things live here, both scalar, both slow, both for tests and for nothing els
   interpreter (``dev/build_golden_mc.py``). It keeps the draft's two gaps exactly: its ``step`` integrates only
   ``W_L, W_R, D, E, N, H, age`` (``dW_res``, ``dW_hol``, ``dW_P``, ``dW_3a`` and ``dKappa`` are computed by
   ``drift`` and dropped), and ``HouseholdWealth.copy`` resets ``W_P`` and ``W_3a`` to zero after the first step
-  (port note P-9).
+  (port note P-9a).
 * :func:`simulate_path` is the step lbsim runs: the same Euler step of ``dynamics.drift`` with every derivative
   integrated, and the three switches of LBSIM-07 (market, prices, income) described in ``lbsim.paths.engine``.
   It is written on the draft's scalar functions (``earning_power``, ``ahv_pension``, ``pillar3a_flow``,
@@ -110,7 +110,8 @@ class PathInputs:
 
 
 def derivatives(x: dict[str, float], u: dict[str, float], p: Params, *, P: float, income: Optional[float],
-                ahv_income: Optional[float]) -> dict[str, float]:
+                ahv_income: Optional[float], p2_cash_share: float = 1.0, annuity: float = 0.0,
+                pensioned: bool = False) -> dict[str, float]:
     """The derivative of every state at ``x`` (nominal money, real capitals), without the market terms.
 
     At ``P = 1``, ``income=None`` and with the draft's market terms added back, this is ``dynamics.drift``.
@@ -126,13 +127,14 @@ def derivatives(x: dict[str, float], u: dict[str, float], p: Params, *, P: float
     W_inv = max(0.0, x["W_R"] - x["W_res"] - x["W_hol"])
     asset_yield = p.y_R * W_inv + p.y_hol * x["W_hol"]
     interest = p.i * x["D"]
-    contrib_3a = pillar3a_flow(Y, age, p)
-    contrib_p2 = p.pension_contribution_rate * Y * pension_working_gate(age, p)
+    contrib_3a = 0.0 if pensioned else pillar3a_flow(Y, age, p)
+    gate_p2 = 0.0 if pensioned else pension_working_gate(age, p)
+    contrib_p2 = p.pension_contribution_rate * Y * gate_p2
     Yp = (p.partner_income if p.has_partner else 0.0) * P
     kids = child_costs(age, p) * P
-    raw = (Y + Yp + ahv + asset_yield - u["C"] * P - u["m_E"] * P - u["m_N"] * P - interest - u["p_A"]
-           - contrib_3a - contrib_p2 - kids)
-    taxable = max(0.0, Y + Yp + ahv + asset_yield - interest - contrib_3a)
+    raw = (Y + Yp + ahv + annuity + asset_yield - u["C"] * P - u["m_E"] * P - u["m_N"] * P - interest - u["p_A"]
+           - contrib_3a - p2_cash_share * contrib_p2 - kids)
+    taxable = max(0.0, Y + Yp + ahv + annuity + asset_yield - interest - contrib_3a)
     taxes = income_tax(taxable / P, p) * P + wealth_tax(x["W_L"] + x["W_R"] - x["D"], p)
     net = raw - taxes
     growth_E = p.alpha_E * learning_effect(u["tau_E"], p) + p.kappa_E * u["m_E"] + p.beta_E * x["E"]
@@ -147,7 +149,7 @@ def derivatives(x: dict[str, float], u: dict[str, float], p: Params, *, P: float
         "N": growth_N * (1.0 - x["N"] / K_N) - p.delta_N * x["N"],
         "H": p.alpha_H * rest_effect(u["tau_H"], p) * (1.0 - x["H"] / p.K_H) - delta_H(u["tau_Y"], p) * x["H"],
         "kappa": p.alpha_kappa * (u["C"] - x["kappa"]),
-        "W_P": p.pension_contribution_rate * Y * pension_working_gate(age, p) + p.pension_interest * x["W_P"],
+        "W_P": p.pension_contribution_rate * Y * gate_p2 + p.pension_interest * x["W_P"],
         "W_3a": contrib_3a + p.pillar3a_interest * x["W_3a"],
     }
 
@@ -155,7 +157,8 @@ def derivatives(x: dict[str, float], u: dict[str, float], p: Params, *, P: float
 def simulate_path(x0: dict[str, float], controls: np.ndarray, p: Params, *, market: str,
                   path: PathInputs = PathInputs(), income: Optional[np.ndarray] = None,
                   ahv_income: Optional[float] = None, events: tuple[GoalEvent, ...] = (),
-                  steps_per_year: int = 12, dt: Optional[float] = None, theta: float = 1.0
+                  steps_per_year: int = 12, dt: Optional[float] = None, theta: float = 1.0,
+                  p2_cash_share: float = 1.0, pension_at_age: Optional[float] = None, annuity_rate: float = 0.0
                   ) -> dict[str, list[float]]:
     """One path of :func:`lbsim.paths.engine.simulate`, scalar. Returns the year-end values of every state and
     ``P``, and for each goal its value in basis and whether it was reached (``goal:<id>``)."""
@@ -175,11 +178,20 @@ def simulate_path(x0: dict[str, float], controls: np.ndarray, p: Params, *, mark
             out[key].append(x[key])
         out["P"].append(P)
 
+    annuity = 0.0
+    retired = pension_at_age is None
     for m in range(len(controls)):
+        if not retired and x["age"] >= pension_at_age - 1e-9:
+            retired = True
+            annuity = annuity_rate * x["W_P"]
+            x["W_L"] = x["W_L"] + x["W_3a"]
+            x["W_P"] = 0.0
+            x["W_3a"] = 0.0
         u = dict(zip(names, (float(v) for v in controls[m])))
         k = m // steps_per_year
         d = derivatives(x, u, p, P=P, income=None if income is None else float(income[m]),
-                        ahv_income=ahv_income)
+                        ahv_income=ahv_income, p2_cash_share=p2_cash_share, annuity=annuity,
+                        pensioned=pension_at_age is not None and retired)
         if market == "allocation":
             W_L = x["W_L"] + d["net"] * dt + x["W_L"] * (math.exp(path.log_return[k] * dt) - 1.0)
             grow = math.exp(path.property_growth[k] * dt) - 1.0

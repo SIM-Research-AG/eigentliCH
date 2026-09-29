@@ -1,10 +1,10 @@
 {
  "contract_version": "lbsim-findings@1.0.0",
- "artefact_id": "LSF-11a3e8916675c033",
+ "artefact_id": "LSF-1e6bb1f317ffbfc1",
  "client_ref": "lbsim-sample",
  "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
  "as_of": "2026-09-28",
- "calibration_version": "1.3.0",
+ "calibration_version": "1.4.0",
  "inflation": {
   "currency": "CHF",
   "annual_rate": 0.01,
@@ -834,9 +834,9 @@
    "ValidationReport": "lbsim-validation@1.0.0",
    "Calibration": "lbsim-calibration@1.0.0"
   },
-  "calibration_version": "1.3.0",
-  "calibration_hash": "CAL-5f544bab06ed5f76",
-  "idempotency_key": "IDK-41e1a41cc529ba61",
+  "calibration_version": "1.4.0",
+  "calibration_hash": "CAL-95bbbd2c2f4e7576",
+  "idempotency_key": "IDK-9ff4cd1f7084a9d3",
   "upstream": {
    "lbs": {
     "artefact_id": "LBS-1a68c6aa5d613766",
@@ -867,7 +867,7 @@
    {
     "record": "social-insurance",
     "source": "lbsim",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true
@@ -875,7 +875,7 @@
    {
     "record": "canton-tax",
     "source": "lbsim",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true
@@ -883,7 +883,7 @@
    {
     "record": "findings-text",
     "source": "lbsim",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true

@@ -97,7 +97,7 @@ SEED_1_2 = Calibration.model_validate(SEED_1_2.model_dump())
 #: 1.2.0 with the owner's plan settings of 29.09.2026 (DECISIONS O-18): at most 500 IPOPT iterations and a solve
 #: horizon of 10 years (0.5-year steps throughout; a goal beyond year 10 is the zero-return terminal requirement at
 #: the cap). Only the optimiser block differs, so the findings are 1.2.0's. Active.
-ACTIVE_SEED = SEED_1_2.model_copy(update={
+SEED_1_3 = SEED_1_2.model_copy(update={
     "version": "1.3.0", "parent_version": "1.2.0",
     "note": ("1.2.0 with the owner's plan settings (DECISIONS O-18): at most 500 IPOPT iterations per solve and a "
              "solve horizon of 10 years on 0.5-year steps; a goal beyond year 10 is read as the zero-return terminal "
@@ -105,16 +105,31 @@ ACTIVE_SEED = SEED_1_2.model_copy(update={
     "optimiser": SEED_1_2.optimiser.model_copy(update={"max_iter": 500, "max_solve_horizon_years": 10.0,
                                                        "grid": ((10.0, 0.5),)}),
 })
+SEED_1_3 = Calibration.model_validate(SEED_1_3.model_dump())
+
+#: 1.3.0 with the paths' household retiring as the findings assume (DECISIONS P-21 to P-24, 29.09.2026): the stated
+#: stop age as stated, pillar 2 an annuity and pillar 3a paid out when work stops (not before the reference age),
+#: the employee's half of the pillar-2 contribution from a stated salary, capital goals judged and not paid out.
+#: Only the paths move; the findings and the plan settings are 1.3.0's. Active.
+ACTIVE_SEED = SEED_1_3.model_copy(update={
+    "version": "1.4.0", "parent_version": "1.3.0",
+    "note": ("1.3.0 with the paths' household retiring as the findings assume (DECISIONS P-21 to P-24): the stated "
+             "stop age as stated; from the later of the stop age and the reference age pillar 2 is an annuity at the "
+             "findings' conversion rate and pillar 3a is paid out; a stated salary pays the employee's half of the "
+             "pillar-2 contribution; a capital goal is judged, not paid out. The findings are 1.3.0's."),
+    "behaviour": SEED_1_3.behaviour.model_copy(update={"paths_household": "pensions"}),
+})
 ACTIVE_SEED = Calibration.model_validate(ACTIVE_SEED.model_dump())
 
-SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, SEED_1_2, ACTIVE_SEED)
+SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, SEED_1_2, SEED_1_3, ACTIVE_SEED)
 
 
 def canonical_json(calibration: Calibration) -> str:
     """The byte-stable form a calibration is hashed and stored in."""
     payload = calibration.model_dump(mode="json")
-    if payload["behaviour"].get("income_paths") is None:
-        payload["behaviour"].pop("income_paths", None)
+    for key in ("income_paths", "paths_household"):
+        if payload["behaviour"].get(key) is None:
+            payload["behaviour"].pop(key, None)
     if payload["optimiser"].get("max_solve_horizon_years") is None:
         payload["optimiser"].pop("max_solve_horizon_years", None)
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)

@@ -22126,5 +22126,41 @@
    "lbsim-thin": {},
    "lbsim-sample": {}
   }
+ },
+ "step_1_4_0": {
+  "about": "Every leaf calibration 1.4.0 changes against 1.3.0: the paths' household (DECISIONS P-21 to P-24, one switch that only the Monte Carlo reads).",
+  "from": {
+   "version": "1.3.0",
+   "hash": "CAL-5f544bab06ed5f76"
+  },
+  "to": {
+   "version": "1.4.0",
+   "hash": "CAL-95bbbd2c2f4e7576"
+  },
+  "summary": {},
+  "cases": {
+   "db-01": {},
+   "db-02": {},
+   "db-03": {},
+   "db-04": {},
+   "db-05": {},
+   "db-06": {},
+   "db-07": {},
+   "db-08": {},
+   "syn-couple": {},
+   "syn-liquidity": {},
+   "syn-property-1": {},
+   "syn-property-2": {},
+   "syn-property-3": {},
+   "syn-property-4": {},
+   "syn-property-5": {},
+   "lbsim-reduced-pensum": {},
+   "lbsim-couple": {},
+   "lbsim-young": {},
+   "lbsim-early": {},
+   "lbsim-family": {},
+   "lbsim-thin": {},
+   "lbsim-sample": {}
+  }
  }
 }

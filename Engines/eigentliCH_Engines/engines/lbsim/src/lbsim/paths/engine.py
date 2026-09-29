@@ -74,6 +74,14 @@ class Household:
     #: The stated plan: the averaged own income the AHV is computed on, today's francs.
     ahv_income: Optional[float] = None
     events: tuple[GoalEvent, ...] = ()
+    #: The share of the pillar-2 contribution that leaves the household's cash. 1.0 is the draft's reading (its
+    #: model income is the whole cost of employment); a stated gross salary pays the employee's half (DECISIONS
+    #: P-22). The pension fund is credited with the whole contribution either way.
+    p2_cash_share: float = 1.0
+    #: The age at which pillar 2 becomes an annuity of ``annuity_rate`` times the capital (nominal, paid as income)
+    #: and pillar 3a is paid out into free wealth. ``None``: never (the draft's model, where both only accrue).
+    pension_at_age: Optional[float] = None
+    annuity_rate: float = 0.0
 
     def __post_init__(self) -> None:
         missing = [k for k in STATE_NAMES if k not in self.x0]
@@ -196,8 +204,18 @@ def simulate(h: Household, controls: np.ndarray, *, n_paths: int, market: Market
     mu_P = p.r_f + theta * (p.mu_M - p.r_f)        # dynamics.mu_P and sigma_P (only the draft market reads them)
     sig_P = theta * p.sigma_M
     ahv_path = h.ahv_income
+    annuity = np.zeros(n_paths)
+    retired = h.pension_at_age is None
 
     for m in range(n_steps):
+        if not retired and age >= h.pension_at_age - 1e-9:
+            # Retirement: the pillar-2 capital becomes an annuity, pillar 3a is paid out (DECISIONS P-23).
+            retired = True
+            annuity = h.annuity_rate * x["W_P"]
+            x["W_L"] = x["W_L"] + x["W_3a"]
+            x["W_P"] = np.zeros(n_paths)
+            x["W_3a"] = np.zeros(n_paths)
+        pensioned = h.pension_at_age is not None and retired
         tau_Y, tau_E, tau_N, tau_H, C, m_E, m_N, p_A = (float(v) for v in controls[m])
         k = m // steps_per_year
         W_L, W_R, D, E, N, H = x["W_L"], x["W_R"], x["D"], x["E"], x["N"], x["H"]
@@ -215,14 +233,16 @@ def simulate(h: Household, controls: np.ndarray, *, n_paths: int, market: Market
         asset_yield = p.y_R * W_inv + p.y_hol * W_hol
         interest = p.i * D
         gate_3a = 0.5 * (1.0 - math.tanh((age - p.pillar3a_age) / _PENSION_GATE_SCALE))
-        contrib_3a = np.minimum(intended_3a, np.maximum(0.0, Y)) * gate_3a
+        contrib_3a = np.minimum(intended_3a, np.maximum(0.0, Y)) * (0.0 if pensioned else gate_3a)
         gate_p2 = 0.5 * (1.0 - math.tanh((age - p.pension_age) / _PENSION_GATE_SCALE))
+        if pensioned:
+            gate_p2 = 0.0
         contrib_p2 = rate_p2 * Y * gate_p2
         Yp = Yp_real * P
         kids = child_costs(age, p) * P
-        raw = (Y + Yp + ahv + asset_yield - C * P - m_E * P - m_N * P - interest - p_A - contrib_3a
-               - contrib_p2 - kids)
-        taxable = np.maximum(0.0, Y + Yp + ahv + asset_yield - interest - contrib_3a)
+        raw = (Y + Yp + ahv + annuity + asset_yield - C * P - m_E * P - m_N * P - interest - p_A - contrib_3a
+               - h.p2_cash_share * contrib_p2 - kids)
+        taxable = np.maximum(0.0, Y + Yp + ahv + annuity + asset_yield - interest - contrib_3a)
         t_real = taxable / P / f_tax
         income_tax = P * (f_tax * (p.tax_rate_max * t_real * (1.0 - np.exp(-t_real / p.tax_income_scale))))
         wealth_tax = p.wealth_tax_rate * np.maximum(0.0, W_L + W_R - D)

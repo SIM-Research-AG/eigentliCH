@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from optim_helpers import ACTIVE_SEED, SEED, SEED_1_2, sample_market
+from lbsim.calibration import SEED_1_3
 from lbsim.optim.grid import build
 from lbsim.optim.market import sample_allocation
 from lbsim.optim.types import ControlPath, ControlStep, PlanOutcome
@@ -23,8 +24,8 @@ def _variable(h: float, cap: float = 20.0):
 
 def test_1_3_0_solves_10_years_on_half_year_steps():
     """DECISIONS O-18 (owner, 29.09.2026): 500 iterations, a 10-year solve horizon."""
-    o = ACTIVE_SEED.optimiser
-    assert (ACTIVE_SEED.version, o.max_iter, o.max_solve_horizon_years) == ("1.3.0", 500, 10.0)
+    o = SEED_1_3.optimiser
+    assert (SEED_1_3.version, o.max_iter, o.max_solve_horizon_years) == ("1.3.0", 500, 10.0)
     g = build(27.0, o.grid, o.grid_rule, cap=o.max_solve_horizon_years)
     assert g.dts == (0.5,) * 20 and g.times[-1] == 10.0 and g.capped
     assert g.goal_node(27.0) == 20 and g.beyond(27.0) == 17.0 and g.beyond(3.0) == 0.0

@@ -22,7 +22,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .calibration import ACTIVE_SEED, SEED, SEED_1_1, SEED_1_2
+from .calibration import ACTIVE_SEED, SEED, SEED_1_1, SEED_1_2, SEED_1_3
 from .contracts import Calibration, LbsRequest, LbsSheet
 from .fast.build import build_findings
 from .ids import sha256
@@ -125,8 +125,21 @@ def attribute_1_3(folder: Path, records: dict[str, Any]) -> dict[str, list[str]]
     """Every leaf 1.3.0 changes against 1.2.0. 1.3.0 differs from 1.2.0 in the optimiser block only (DECISIONS
     O-18: ``max_iter`` 500, ``max_solve_horizon_years`` 10, the grid to 10 years), which the findings never read,
     so the expected answer is no leaf at all; any leaf that moved would be O-18's and is attributed to it."""
-    assert SEED_1_2.model_copy(update={"version": ACTIVE_SEED.version, "parent_version": ACTIVE_SEED.parent_version,
-                                       "note": ACTIVE_SEED.note, "optimiser": ACTIVE_SEED.optimiser}) == ACTIVE_SEED
+    assert SEED_1_2.model_copy(update={"version": SEED_1_3.version, "parent_version": SEED_1_3.parent_version,
+                                       "note": SEED_1_3.note, "optimiser": SEED_1_3.optimiser}) == SEED_1_3
     before = flatten(findings(folder, records, SEED_1_2))
-    after = flatten(findings(folder, records, ACTIVE_SEED))
+    after = flatten(findings(folder, records, SEED_1_3))
     return {leaf: ["O-18"] for leaf in changed(before, after)}
+
+
+def attribute_1_4(folder: Path, records: dict[str, Any]) -> dict[str, list[str]]:
+    """Every leaf 1.4.0 changes against 1.3.0. 1.4.0 differs from 1.3.0 by the one switch
+    ``behaviour.paths_household`` (DECISIONS P-21 to P-24), which only the Monte Carlo reads, so the expected answer
+    is no leaf at all; any leaf that moved would be that switch's and is attributed to it."""
+    assert SEED_1_3.model_copy(update={"version": ACTIVE_SEED.version, "parent_version": ACTIVE_SEED.parent_version,
+                                       "note": ACTIVE_SEED.note,
+                                       "behaviour": SEED_1_3.behaviour.model_copy(
+                                           update={"paths_household": "pensions"})}) == ACTIVE_SEED
+    before = flatten(findings(folder, records, SEED_1_3))
+    after = flatten(findings(folder, records, ACTIVE_SEED))
+    return {leaf: ["P-21..P-24"] for leaf in changed(before, after)}

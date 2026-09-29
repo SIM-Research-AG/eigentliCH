@@ -98,7 +98,7 @@ against the draft or the spec.
 
 ## Port notes (B2, 29.09.2026)
 
-- **P-9 the draft's step integrates seven states.** `sim.montecarlo.step` adds only `dW_L, dW_R, dD, dE, dN, dH,
+- **P-9a the draft's step integrates seven states.** `sim.montecarlo.step` adds only `dW_L, dW_R, dD, dE, dN, dH,
   dAge` and drops the other derivatives `drift` returns (`dW_res`, `dW_hol`, `dW_P`, `dW_3a`, `dKappa`), and
   `HouseholdWealth.copy` resets `W_P` and `W_3a` to zero after the first step. lbsim integrates all twelve states of
   the symbolic model. `reference.draft_simulate` keeps the draft's step verbatim and reproduces its frozen output
@@ -118,7 +118,8 @@ against the draft or the spec.
   network ceiling on real net worth, the habit in today's francs. At `P = 1` each is the draft's expression.
 - **P-13 goals are carried out.** A reached home goal buys the home at its date (the deposit from free wealth, then
   pillar 3a, then up to half of pillar 2; the rest a mortgage at the sheet's rate, amortised only as stated); a
-  reached capital goal pays its lump sum; a retirement goal is only judged. The year end is recorded before a goal
+  reached capital goal pays its lump sum (up to 1.3.0; from 1.4.0 a capital goal is judged only, P-24); a
+  retirement goal is only judged. The year end is recorded before a goal
   of that date is carried out, so the band at the goal's date is the value its chance is judged on (agent D found
   the sample's band dropping below the target at the home goal's date).
 - **P-14 the reversion.** Year `k` of the base Regime is `latest + (long_run - latest) min((k - 1) / 5, 1)`: year 1
@@ -165,6 +166,39 @@ against the draft or the spec.
 
 
 ---
+
+## Calibration 1.4.0: the paths' household retires (B2, 29.09.2026)
+
+Found on the live use-case refresh, where several designated goals had a chance of exactly 0.0 (Kurt W., Esther W.,
+Reto S., Regula A.; Corinne B. stays at 0.0 and is right, see below). Each is a switch in `behaviour.paths_household`
+(`pensions`), read by the Monte Carlo of the paths only: the findings are 1.3.0's leaf for leaf (layer B
+`step_1_4_0`), the optimiser's `plan.simulate` keeps the model household the NLP optimises, and 1.0.0 to 1.3.0 keep
+their bytes and hashes. 1.4.0 is `CAL-95bbbd2c2f4e7576`, active.
+
+- **P-21 the stated stop age as stated.** The draft's `_stop_age` keeps a stop age only below the reference age (it
+  prices an early exit) and drops 68 as "no early stop", so a 67-year-old who works 20 hours until 68 had no
+  income in the paths from the first month. The paths read `facts.stop_work_age` as stated.
+- **P-22 the employee's half of the pillar-2 contribution.** The draft's model income is the whole cost of
+  employment, so its cash flow pays the whole contribution (15 %). A stated gross salary excludes the employer's
+  half; the paths' household pays the employee's half from cash, and the fund is credited with the whole.
+- **P-23 retirement.** From the later of the stop age and the reference age, pillar 2 is an annuity at the findings'
+  conversion rate (5.25 %, `gameplan.PILLAR2_CONVERSION_RATE`), paid as nominal, taxable income, and pillar 3a is
+  paid out into free wealth; contributions to both stop. The findings' retirement target already assumes that
+  annuity (P-3); without it a retired household lived from free wealth alone and ran it to zero. Net worth drops by
+  the pillar-2 capital at that date: the annuity is income, not a stock. `retirement_capital` (free wealth plus
+  3a) does not move with the payout.
+- **P-24 a capital goal is judged, not paid out.** An lbs goal of kind `other` (LBSIM-19) does not say whether its
+  amount is spent (an education) or a level to reach or hold ("Freies Vermögen bis 2034 auf 900 000 aufbauen", "...
+  real erhalten"). Paying it out removed a level goal's whole amount on reaching it, and two goals of one date were
+  judged on what the first left (Peter's two 2030 goals had chances 0.632 and 0.368, summing to one). Each goal is
+  now judged on the same wealth, as the findings' ledger and the optimiser judge it; a home goal is still carried out.
+
+Per client (base Regime, designated goal): Kurt W. "Freies Vermögen bis 2035 real erhalten" 0.0 to 0.997 (P-23);
+Esther W. (the goal "Ab 2027 vom Vermögen leben" is an lbs `other` of CHF 200 000 at 2031-12-31) 0.0 to 0.993 (P-21,
+P-23); Reto S. 0.0 to 0.803 and Regula A. 0.0 to 0.251 (P-22); Michele 0.287 to 1.0 and Peter 0.632 to 1.0 (P-22,
+P-24). Corinne B. stays 0.0: the goal is an lbs `other` of CHF 90 000 in free wealth by 2028-08-31 (today CHF 94 000)
+while the findings' own cash flow is CHF -6 800 a year before the stated 3a payment of CHF 7 258; free wealth is CHF
+53 000 to 64 000 at the date on every path.
 
 ## The optimiser (agent C, 29.09.2026)
 
