@@ -1,9 +1,9 @@
 {
  "contract_version": "lbsim-plan@1.0.0",
- "artefact_id": "LSO-e3686adce7660289",
+ "artefact_id": "LSO-87f0406ea4a87f63",
  "client_ref": "lbsim-sample",
  "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
- "paths_artefact_id": "LSP-0dc88c253ae1d27b",
+ "paths_artefact_id": "LSP-06674d0e37079ec7",
  "calibration_version": "1.1.0",
  "outcome": "solved",
  "goal": {
@@ -30,8 +30,8 @@
   "en": "What the calculation assumes: these figures describe the plan calculation's assumptions for this period, not a recommendation."
  },
  "chance": {
-  "in_sample": 0.9395,
-  "out_of_sample": 0.9195,
+  "in_sample": 1.0,
+  "out_of_sample": 1.0,
   "n_out_of_sample": 2000,
   "seed_out": 20760929
  },
@@ -531,9 +531,9 @@
   },
   "calibration_version": "1.1.0",
   "calibration_hash": "CAL-c276230b32143099",
-  "idempotency_key": "IDK-e917cdc9adcf4e0c",
+  "idempotency_key": "IDK-0a68ae153d84f929",
   "upstream": {
-   "paths": "LSP-0dc88c253ae1d27b"
+   "paths": "LSP-06674d0e37079ec7"
   },
   "records": [],
   "label": "model-derived",

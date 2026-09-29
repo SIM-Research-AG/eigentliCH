@@ -1,0 +1,270 @@
+<!doctype html>
+<!--
+  LifeBalance Simulator (lbsim) test bench. Development only: not part of the system and not in the deploy
+  folder. A client of the engine's HTTP surface, nothing more: every figure is read from lbsim's endpoints.
+  Served by the engine at "/", or opened off disk, when it calls http://127.0.0.1:8014. One language
+  (English). Plotly from CDN, no build step (Engine Building Guide section 3). Colour: the house palette of the other benches.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lbsim test bench</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --rest: #c3c2b7;
+    --critical: #d03b3b; --good: #0ca30c; --band: rgba(208,59,59,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --rest: #4a4a47;
+      --band: rgba(230,103,103,0.12);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --rest: #4a4a47;
+    --band: rgba(230,103,103,0.12);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; }
+  #sub { color: var(--ink-2); font-size: 12px; }
+  #themeBtn { margin-left: auto; }
+  main { padding: 8px 24px 48px; max-width: 1320px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 16px; }
+  label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  input, select, button, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  button { cursor: pointer; } button:disabled { opacity: .55; cursor: default; }
+  button.primary { background: var(--s1); color: #fff; border-color: var(--s1); }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; margin-bottom: 16px; min-width: 0; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; }
+  .q { color: var(--ink-2); margin: 0 0 10px; font-size: 13px; }
+  .note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 10px 12px; }
+  .tile .v { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tile .k { color: var(--ink-2); font-size: 12px; }
+  .chart { width: 100%; height: 360px; }
+  .side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .side { grid-template-columns: 1fr; } main, header { padding-left: 16px; padding-right: 16px; } }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; vertical-align: top; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  .warn::before { content: "\26A0  "; color: var(--critical); }
+  .ok::before { content: "\2713  "; color: var(--good); font-weight: 700; }
+  .na { color: var(--muted); font-style: italic; }
+  textarea { width: 100%; font: 12px ui-monospace, Consolas, monospace; }
+</style>
+</head>
+<body>
+<header>
+  <h1>LifeBalance Simulator · test bench</h1>
+  <span id="sub">connecting…</span>
+  <button id="themeBtn" type="button">Theme</button>
+</header>
+<main>
+  <div class="filters">
+    <label>Engine <input id="api" size="26"></label>
+    <label>Calibration <select id="cal"></select></label>
+    <button id="validateBtn" type="button">Validate</button>
+    <button id="runBtn" class="primary" type="button">Run</button>
+    <button id="outlookBtn" type="button">Outlook</button>
+    <button id="resetBtn" type="button">Example request</button>
+  </div>
+  <div class="card">
+    <h2>Request</h2>
+    <p class="q">lbsim-request@1.0.0: the client's opaque reference, the Life Balance Sheet lbs built for them and, for
+      the simulated paths, a pcp allocation on the current assessment. No names, no e-mail addresses.</p>
+    <textarea id="req" rows="12"></textarea>
+    <p class="note" id="status"></p>
+  </div>
+  <div id="panel"></div>
+  <p class="note">Model-derived research output. Not investment advice.</p>
+</main>
+<script>
+"use strict";
+const DEFAULT_API = "http://127.0.0.1:8014";
+const params = new URLSearchParams(location.search);
+const store = { get(k) { try { return localStorage.getItem("lbsim." + k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem("lbsim." + k, v); } catch {} } };
+const $ = id => document.getElementById(id);
+$("api").value = params.get("api") || store.get("api") || (location.protocol === "file:" ? DEFAULT_API : location.origin);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const chf = v => v === null || v === undefined ? "–" : Math.round(Number(v)).toLocaleString("de-CH");
+const pct = (v, d = 0) => v === null || v === undefined ? "–" : (100 * Number(v)).toFixed(d) + "%";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const base = () => $("api").value.replace(/\/$/, "");
+async function call(path, init) {
+  let r;
+  try { r = await fetch(base() + path, init); } catch { throw new Error(`cannot reach ${base()}. Is the engine running?`); }
+  const text = await r.text();
+  if (!r.ok) { let d = text; try { d = JSON.parse(text).detail; } catch {} throw new Error(`${r.status}: ${d}`); }
+  return text ? JSON.parse(text) : null;
+}
+const post = (path, body) => call(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+
+const EXAMPLE = { client_ref: "", life_balance_sheet_id: "LBS-", allocation_id: "PCP-", scenarios: null,
+                  horizon_years: null, income_path: null, n_paths: 2000, seed: null, optimise: "no" };
+$("req").value = store.get("req") || JSON.stringify(EXAMPLE, null, 1);
+
+function layout(extra = {}) {
+  const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false, tickfont: { color: css("--muted") }, title: { font: { color: css("--ink-2") } } };
+  const merged = Object.assign({
+    paper_bgcolor: css("--surface"), plot_bgcolor: css("--surface"),
+    font: { family: "system-ui, -apple-system, Segoe UI, sans-serif", color: css("--ink"), size: 12 },
+    margin: { l: 72, r: 24, t: 16, b: 48 }, hovermode: "x unified", showlegend: true,
+    legend: { orientation: "h", y: -0.22, font: { color: css("--ink-2") } },
+    hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--axis"), font: { color: css("--ink") } },
+  }, extra);
+  merged.xaxis = Object.assign({}, axis, extra.xaxis || {}); merged.yaxis = Object.assign({}, axis, extra.yaxis || {});
+  return merged;
+}
+function body() {
+  const b = JSON.parse($("req").value);
+  if ($("cal").value) b.calibration_version = $("cal").value; else delete b.calibration_version;
+  for (const k of Object.keys(b)) if (b[k] === null) delete b[k];
+  store.set("req", $("req").value);
+  return b;
+}
+function fill(template, figures) {
+  return esc(template).replace(/\{([a-z0-9_]+)\}/g, (_, name) => {
+    const f = figures[name]; if (!f || f.value === null) return "–";
+    if (f.unit === "share") return pct(f.value, 1);
+    if (f.unit === "years" || f.unit === "count" || f.unit === "hours_per_week") return Math.round(f.value).toString();
+    return "CHF " + chf(f.value);
+  });
+}
+
+async function doValidate() {
+  try {
+    $("status").textContent = "validating…";
+    const v = await post("/validate", body());
+    const lines = [];
+    lines.push(v.ok ? `<p class="ok">The request can be computed.</p>` : `<p class="warn">It cannot be computed as it stands.</p>`);
+    for (const p of v.problems) lines.push(`<p class="warn">${esc(p.en)}</p>`);
+    for (const n of v.not_made) lines.push(`<p class="na">${esc(n.text.en)}</p>`);
+    const un = v.unchecked.map(u => `<tr><td>${esc(u.reason.en)}</td><td>${u.missing.length ? u.missing.length + " answers missing" : "answered by the plan calculation"}</td></tr>`).join("");
+    const as = v.assumptions.map(a => `<tr><td>${esc(a.text.en)}</td><td>${esc(a.replaced_by.en)}</td></tr>`).join("");
+    $("panel").innerHTML = `<div class="card"><h2>Validation</h2>${lines.join("")}
+      <div class="side"><div><h2>Rules that cannot run yet</h2><div class="scroll"><table><tr><th>Why</th><th>Status</th></tr>${un}</table></div></div>
+      <div><h2>What was assumed</h2><div class="scroll"><table><tr><th>Assumption</th><th>What would replace it</th></tr>${as}</table></div></div></div></div>`;
+    $("status").textContent = "validated, nothing stored";
+  } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+}
+
+async function doRun() {
+  try {
+    $("status").textContent = "computing the findings and the paths…";
+    const t0 = performance.now();
+    const acc = await post("/run", body());
+    $("status").textContent = `done in ${((performance.now() - t0) / 1000).toFixed(1)} s` + (acc.cached ? " (already computed)" : "");
+    await showOutlook(JSON.parse($("req").value).client_ref);
+  } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+}
+
+async function doOutlook() {
+  try { await showOutlook(JSON.parse($("req").value).client_ref); }
+  catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+}
+
+let current = null;
+async function showOutlook(client) {
+  const o = await call(`/outlook?client_ref=${encodeURIComponent(client)}`);
+  current = o;
+  const f = o.findings, p = o.paths;
+  let html = "";
+  if (f) {
+    const ep = f.earning_power.map(e => `<div class="tile"><div class="v">${e.modelled ? "CHF " + chf(e.modelled.full_time_chf_per_year) : "–"}</div>
+      <div class="k">Earning power at a full-time week (${e.level_basis === "stated" ? "own statement" : "model value"})</div></div>`).join("");
+    const paths = f.income_paths.map(ip => `<tr><td>${esc(ip.name.en)}</td>` + ip.saving_need.map(n =>
+      `<td>CHF ${chf(n.zero_return_saving_chf_per_year)} needed, CHF ${chf(n.free_cash_chf_per_year)} free</td>`).join("") + `</tr>`).join("");
+    const heads = f.income_paths.length ? f.income_paths[0].saving_need.map((n, i) => `<th>Goal ${i + 1} (${n.target_date ? n.target_date.slice(0, 4) : "–"})</th>`).join("") : "";
+    const finds = f.findings.map(x => `<tr><td>${fill(x.text.en.title, x.figures)}</td><td>${fill(x.text.en.action, x.figures)}</td><td>${esc(x.urgency)}</td></tr>`).join("");
+    html += `<div class="tiles">${ep}</div>
+      <div class="card"><h2>Income paths and the saving they need, at a return of zero</h2><div class="scroll"><table><tr><th>Path</th>${heads}</tr>${paths}</table></div></div>
+      <div class="card"><h2>Findings</h2><div class="scroll"><table><tr><th>Finding</th><th>What to do</th><th>When</th></tr>${finds || "<tr><td class='na'>none</td></tr>"}</table></div></div>`;
+  }
+  if (p) {
+    const kinds = { home: "Home", retirement: "Retirement", capital: "Capital" };
+    const rows = p.regimes.map(r => `<tr><td>${esc(r.label.en)}</td>` + r.goals.map(g => `<td>${pct(g.chance)} (${g.chance_basis === "real" ? "in today's francs" : "in francs of the date"})</td>`).join("") + `</tr>`).join("");
+    const heads = p.regimes[0].goals.map(g => `<th>${esc(kinds[g.kind] || g.kind)} goal, ${g.target.date.slice(0, 4)}</th>`).join("");
+    const opts = p.regimes.map(r => `<option value="${esc(r.key)}">${esc(r.label.en)}</option>`).join("");
+    const names = { net_worth: "net worth", drawable: "free wealth", deposit_eligible: "what may fund a deposit", retirement_capital: "capital for retirement" };
+    const series = Object.keys(p.regimes[0].bands).map(s => `<option value="${s}">${names[s] || s}</option>`).join("");
+    html += `<div class="card"><h2>The chance of each goal, per market Regime</h2><div class="scroll"><table><tr><th>Regime</th>${heads}</tr>${rows}</table></div>
+      <p class="note">${esc(p.market_model.rule.en)}</p></div>
+      <div class="card"><h2>The wealth fan</h2><div class="filters"><label>Regime <select id="fanRegime">${opts}</select></label>
+      <label>Basis <select id="fanBasis"><option value="nominal">nominal</option><option value="real">in today's francs</option></select></label>
+      <label>Series <select id="fanSeries"><option value="goal_measure">the first goal's measure</option>${series}</select></label></div>
+      <div id="fan" class="chart"></div></div>`;
+  }
+  const plan = o.plan;
+  const planText = { ready: "The plan calculation is ready.",
+                     calculating: `The plan calculation is running (for ${Math.round((plan.elapsed_s || 0) / 60)} minutes, at most ${Math.round((plan.budget_s || 7200) / 3600)} hours).`,
+                     waiting_for_allocation: "The plan calculation waits for an allocation.",
+                     not_possible: "The plan calculation is not possible.",
+                     not_requested: "No plan calculation was asked for." }[plan.state];
+  let planBody = `<p>${esc(planText)}</p>` + (plan.reason ? `<p class="note">${esc(plan.reason.en)}</p>` : "");
+  if (plan.artefact) {
+    const a = plan.artefact.action_now;
+    planBody += `<p class="note">${esc(plan.artefact.framing.en)}</p><div class="tiles">
+      <div class="tile"><div class="v">${pct(plan.artefact.chance.out_of_sample)}</div><div class="k">chance of the goal on fresh paths</div></div>
+      <div class="tile"><div class="v">${pct(a.work_share)}</div><div class="k">working time assumed</div></div>
+      <div class="tile"><div class="v">CHF ${chf(a.consumption_chf_per_year)}</div><div class="k">spending assumed a year</div></div>
+      <div class="tile"><div class="v">CHF ${chf(a.saving_chf_per_year)}</div><div class="k">saving assumed a year</div></div></div>`;
+  }
+  html += `<div class="card"><h2>The plan calculation</h2>${planBody}</div>`;
+  $("panel").innerHTML = html;
+  if (p) { for (const id of ["fanRegime", "fanBasis", "fanSeries"]) $(id).addEventListener("change", drawFan); await drawFan(); }
+}
+
+async function drawFan() {
+  const p = current.paths;
+  const q = `regime=${$("fanRegime").value}&basis=${$("fanBasis").value}&series=${$("fanSeries").value}`;
+  const f = await call(`/paths/${p.artefact_id}/fan?${q}`);
+  const x = f.years, b = f.bands;
+  const band = (lo, hi, name, alpha) => [
+    { x, y: b[lo], mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false },
+    { x, y: b[hi], mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: `rgba(42,120,214,${alpha})`, name }];
+  const traces = [...band("p05", "p95", "90 of 100 paths", 0.15), ...band("p25", "p75", "50 of 100 paths", 0.30),
+                  { x, y: b.p50, mode: "lines", line: { color: css("--s1"), width: 2 }, name: "median path" }];
+  if (f.goal) traces.push({ x: [x[0], Number(f.goal.date.slice(0, 4))], y: [f.goal.target_chf, f.goal.target_chf], mode: "lines",
+    line: { color: css("--s2"), dash: f.goal.line === "dashed" ? "dash" : "solid" },
+    name: `goal, chance ${pct(f.goal.chance)}` + (f.goal.converted ? " (converted at the median path's prices)" : "") });
+  Plotly.newPlot("fan", traces, layout({ yaxis: { title: { text: f.basis === "real" ? "CHF, today's francs" : "CHF" } } }), { displayModeBar: false, responsive: true });
+}
+
+async function boot() {
+  try {
+    const [health, versions] = await Promise.all([call("/health"), call("/calibration/versions")]);
+    $("sub").textContent = `${health.engine_version} at ${base()}`;
+    $("cal").innerHTML = `<option value="">active</option>` + versions.map(v => `<option>${esc(v.version)}</option>`).join("");
+  } catch (e) { $("sub").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+}
+$("api").addEventListener("change", () => { store.set("api", $("api").value); boot(); });
+$("validateBtn").addEventListener("click", doValidate);
+$("runBtn").addEventListener("click", doRun);
+$("outlookBtn").addEventListener("click", doOutlook);
+$("resetBtn").addEventListener("click", () => { $("req").value = JSON.stringify(EXAMPLE, null, 1); });
+$("themeBtn").addEventListener("click", () => {
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("theme", document.documentElement.dataset.theme);
+});
+if (store.get("theme")) document.documentElement.dataset.theme = store.get("theme");
+boot();
+</script>
+</body>
+</html>

@@ -42,10 +42,19 @@ def test_the_findings_sample_is_the_engines_own():
     assert again.artefact_id == f.artefact_id
 
 
-def test_the_hand_built_samples_say_so():
-    _, p, plan = _load()
-    for a in (p, plan):
-        assert a.provenance.made_by == "sample" and a.provenance.sample_note
+def test_the_hand_built_plan_says_so_and_the_paths_are_the_engines_own():
+    """Since B2 (29.09.2026) the paths sample is the engine's Monte Carlo on the snapshot ``golden/upstream``, and
+    a rebuild gives the same bytes; the plan sample stays hand-built until the optimiser runs (agent C)."""
+    import sys  # noqa: PLC0415
+
+    f, p, plan = _load()
+    assert plan.provenance.made_by == "sample" and plan.provenance.sample_note
+    assert p.provenance.made_by == "engine" and "bench" in p.provenance.sample_note
+    sys.path.insert(0, str(GOLDEN.parent / "dev"))
+    import build_samples  # noqa: PLC0415
+
+    again = build_samples.paths_sample(f)
+    assert again.model_dump(mode="json") == p.model_dump(mode="json")
 
 
 def test_the_paths_sample_has_the_base_and_four_scenarios_and_ordered_bands():

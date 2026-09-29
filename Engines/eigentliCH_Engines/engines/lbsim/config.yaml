@@ -57,6 +57,7 @@ optimiser:
   heartbeat_s: 30
   max_attempts: 2               # a stale run is requeued at start-up at most this often
   stale_after_s: 120            # a running run without a heartbeat this long is stale
+  poll_s: 2                     # how often an idle worker looks at the queue
   # In-sample, redraw and out-of-sample seeds (section 3.9): seed, seed + 1000 * k, seed + 500 000.
   redraw_seed_step: 1000
   out_of_sample_seed_offset: 500000

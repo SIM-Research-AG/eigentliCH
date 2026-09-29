@@ -1,0 +1,264 @@
+{
+ "currency": "CHF",
+ "index": "Swiss CPI (LIK), year on year (SZCPIYOY Index, datafeed inflation.cpi_yoy CH)",
+ "method": "forward_12m: each signal month t tagged with its calibration state; value log(1 + cpi_yoy(t+12)), the log price change over t+1..t+12 (D-02); per phase with the floor of six effective years (FMRE-02); read onto the 25 states by pchip (FMRE-03); a phase below the floor takes today's year-on-year inflation, labelled fallback; not smoothed",
+ "states": [
+  {
+   "state": 1,
+   "inflation": 0.014479376532879493,
+   "log_inflation": 0.014375551376144904,
+   "label": "measured",
+   "n_obs": 10,
+   "estimate": "extrapolated"
+  },
+  {
+   "state": 2,
+   "inflation": 0.011263248521342277,
+   "log_inflation": 0.011200290438334688,
+   "label": "measured",
+   "n_obs": 10,
+   "estimate": "extrapolated"
+  },
+  {
+   "state": 3,
+   "inflation": 0.00864652152096495,
+   "log_inflation": 0.00860935444404817,
+   "label": "measured",
+   "n_obs": 10,
+   "estimate": "data-driven"
+  },
+  {
+   "state": 4,
+   "inflation": 0.006589432565259801,
+   "log_inflation": 0.006567817158046441,
+   "label": "measured",
+   "n_obs": 10,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 5,
+   "inflation": 0.005053478311021936,
+   "log_inflation": 0.005040752345090603,
+   "label": "measured",
+   "n_obs": 10,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 6,
+   "inflation": 0.004001217351143924,
+   "log_inflation": 0.003993233769941741,
+   "label": "measured",
+   "n_obs": 6,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 7,
+   "inflation": 0.003396088884207699,
+   "log_inflation": 0.0033903351973609552,
+   "label": "measured",
+   "n_obs": 6,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 8,
+   "inflation": 0.0032022466644917274,
+   "log_inflation": 0.00319713039210934,
+   "label": "measured",
+   "n_obs": 6,
+   "estimate": "data-driven"
+  },
+  {
+   "state": 9,
+   "inflation": 0.003919008020074456,
+   "log_inflation": 0.003911348712879571,
+   "label": "measured",
+   "n_obs": 6,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 10,
+   "inflation": 0.0056302754663244995,
+   "log_inflation": 0.0056144847085624235,
+   "label": "measured",
+   "n_obs": 6,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 11,
+   "inflation": 0.007676574900184308,
+   "log_inflation": 0.0076472599292161545,
+   "label": "measured",
+   "n_obs": 14,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 12,
+   "inflation": 0.009394247446674187,
+   "log_inflation": 0.00935039592489901,
+   "label": "measured",
+   "n_obs": 14,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 13,
+   "inflation": 0.0101154328223278,
+   "log_inflation": 0.010064614245669238,
+   "label": "measured",
+   "n_obs": 14,
+   "estimate": "data-driven"
+  },
+  {
+   "state": 14,
+   "inflation": 0.009106897314507768,
+   "log_inflation": 0.009065679579948364,
+   "label": "measured",
+   "n_obs": 14,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 15,
+   "inflation": 0.00670598973644903,
+   "log_inflation": 0.006683604607844737,
+   "label": "measured",
+   "n_obs": 14,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 16,
+   "inflation": 0.0038478669710882768,
+   "log_inflation": 0.0038404828669468703,
+   "label": "measured",
+   "n_obs": 15,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 17,
+   "inflation": 0.0014594718888199885,
+   "log_inflation": 0.0014584078948432482,
+   "label": "measured",
+   "n_obs": 15,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 18,
+   "inflation": 0.0004595788031153734,
+   "log_inflation": 0.00045947322912237793,
+   "label": "measured",
+   "n_obs": 15,
+   "estimate": "data-driven"
+  },
+  {
+   "state": 19,
+   "inflation": 0.00046390101476358235,
+   "log_inflation": 0.0004637934459540672,
+   "label": "measured",
+   "n_obs": 15,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 20,
+   "inflation": 0.0004941570191476547,
+   "log_inflation": 0.000494034963775892,
+   "label": "measured",
+   "n_obs": 15,
+   "estimate": "interpolated"
+  },
+  {
+   "state": 21,
+   "inflation": 0.000576285072052064,
+   "log_inflation": 0.0005761190835779872,
+   "label": "fallback",
+   "n_obs": 0,
+   "estimate": "fallback"
+  },
+  {
+   "state": 22,
+   "inflation": 0.000736237996592664,
+   "log_inflation": 0.0007359671063504892,
+   "label": "fallback",
+   "n_obs": 0,
+   "estimate": "fallback"
+  },
+  {
+   "state": 23,
+   "inflation": 0.0009999999999999998,
+   "log_inflation": 0.0009995003330835331,
+   "label": "fallback",
+   "n_obs": 0,
+   "estimate": "fallback"
+  },
+  {
+   "state": 24,
+   "inflation": 0.0013936102382574712,
+   "log_inflation": 0.0013926400647672546,
+   "label": "fallback",
+   "n_obs": 0,
+   "estimate": "fallback"
+  },
+  {
+   "state": 25,
+   "inflation": 0.0019431931599469972,
+   "log_inflation": 0.001941307602391789,
+   "label": "fallback",
+   "n_obs": 0,
+   "estimate": "fallback"
+  }
+ ],
+ "phases": [
+  {
+   "phase": 0,
+   "windows": 32,
+   "n_eff": 10,
+   "log_inflation": 0.00860935444404817,
+   "method": "data-driven"
+  },
+  {
+   "phase": 1,
+   "windows": 11,
+   "n_eff": 6,
+   "log_inflation": 0.00319713039210934,
+   "method": "data-driven"
+  },
+  {
+   "phase": 2,
+   "windows": 63,
+   "n_eff": 14,
+   "log_inflation": 0.010064614245669238,
+   "method": "data-driven"
+  },
+  {
+   "phase": 3,
+   "windows": 99,
+   "n_eff": 15,
+   "log_inflation": 0.00045947322912237793,
+   "method": "data-driven"
+  },
+  {
+   "phase": 4,
+   "windows": 14,
+   "n_eff": 5,
+   "log_inflation": 0.0009995003330835331,
+   "method": "fallback"
+  }
+ ],
+ "as_of": "2025-10",
+ "source": "datafeed:inflation.cpi_yoy@bloomberg-2026-01-05",
+ "today": 0.001,
+ "scenario": null,
+ "regime_id": "RGM-e2658e8e9bbbc81e",
+ "regime_kind": "base",
+ "calibration_id": "CAL-69d9d1ee5245ac71",
+ "state_map_id": "MAP-eb4b581619a03147",
+ "unit": "annual inflation (simple) and ln(1 + inflation)",
+ "ceiling": {
+  "floor": -0.2,
+  "measured_low": -0.1,
+  "measured_high": 0.2,
+  "ceiling": 1.0
+ },
+ "real_view": {
+  "status": "computable",
+  "currency": "CHF",
+  "hard_currency_fallback": null
+ }
+}

@@ -6,15 +6,14 @@ Run with the family interpreter::
 
 * ``findings.sample.json``: a real ``LifeBalanceFindings`` from the engine (``lbsim.fast.build``) on the frozen
   lbs case ``lbsim-sample`` (a CHF couple with a property goal and a retirement goal) under calibration 1.1.0.
-* ``paths.sample.json``: a ``LifeBalancePaths`` HAND-BUILT here, because the vectorised Monte Carlo is B2's. It
-  follows the market rule of LBSIM-07 on the real upstream figures frozen in ``samples/upstream`` (a pcp
-  Allocation on the Default Regime, fmre's ReturnSets and inflation for the base and the four scenarios, and
-  aggregation's blended state distributions), with yearly steps and a simplified household. Its shape is the
-  contract's exactly; its numbers are realistic, not the engine's.
+* ``paths.sample.json``: the engine's own ``LifeBalancePaths`` (B2's Monte Carlo, since 29.09.2026) on the
+  upstream snapshot ``golden/upstream`` (pcp's bench Allocation served under the sample's client, aggregation's
+  Regimes, fmre's ReturnSets and inflation), 2000 paths, the default seed. Until B2 it was hand-built here.
 * ``plan.sample.json``: a ``LifeBalancePlan`` HAND-BUILT from the draft model's controls, because the optimiser is
   C's. Costates, solver record and control path are illustrative.
 
-``provenance.made_by`` is ``sample`` on the two hand-built ones and ``provenance.sample_note`` says what is real.
+``provenance.made_by`` is ``sample`` on the hand-built plan and ``provenance.sample_note`` says what is real; the
+paths sample is ``engine`` with a note on the Allocation's client.
 ``--refresh-upstream`` re-reads the upstream snapshot from the scratch copies fetched read only on 29.09.2026
 (``curl`` GETs to pcp 8007, aggregation 8004 and fmre 8006); without it the frozen snapshot is used.
 """
@@ -120,209 +119,28 @@ def _quant(x: np.ndarray) -> dict[str, list[float]]:
 
 
 def paths_sample(f: LifeBalanceFindings) -> LifeBalancePaths:
-    alloc = rd("allocation.json")
-    blends = rd("aggregation_blends.json")["blends"]
-    request = json.loads((CASES / CASE / "request.json").read_text(encoding="utf-8"))
-    sheet = json.loads((CASES / CASE / "sheet.json").read_text(encoding="utf-8"))
-    vessel = {k: float(v or 0.0) for k, v in sheet["totals"]["by_vessel"].items()}
-    weights = {i["instrument_id"]: i["raw_weight"] for i in alloc["instruments"]}
-    total = sum(weights.values())
-    weights = {k: v / total for k, v in weights.items()}
+    """The engine's own paths (B2's Monte Carlo) on the frozen upstream snapshot ``golden/upstream``.
 
-    def profile(rs: dict) -> np.ndarray:
-        prof = {p["key"]: np.array([s["value"] for s in p["states"]]) for p in rs["instrument_profiles"]}
-        return sum(w * prof[k] for k, w in weights.items())
+    The Allocation is pcp's bench Allocation (client ``bench``), served under the sample household's client, as the
+    test stand-in does; a real run refuses that mismatch (409). The sample note says so."""
+    sys.path.insert(0, str(HERE / "tests"))
+    from stub import Stub, bundle  # noqa: PLC0415
+    from lbsim.paths.build import build_paths  # noqa: PLC0415
+    from lbsim.paths.household import stated_plan  # noqa: PLC0415
 
-    rs = {k: rd(f"return_set_{k}.json") for k in ["base", *SCEN]}
-    infl = {k: rd(f"inflation_{k}.json") for k in ["base", *SCEN]}
-    r_state = {k: profile(v) for k, v in rs.items()}
-    raw_ach = sum(i["raw_weight"] * np.array([s["value"] for s in next(
-        p for p in rs["base"]["instrument_profiles"] if p["key"] == i["instrument_id"])["states"]])
-        for i in alloc["instruments"])
-    max_diff = float(np.max(np.abs(raw_ach - np.array(alloc["curves"]["achieved"]))))
-    li = {k: np.array([s["log_inflation"] for s in v["states"]]) for k, v in infl.items()}
-
-    as_of = f.as_of
-    goal_dates = {g["goal_id"]: date.fromisoformat(g["target_date"]) for g in request["goals"]}
-    horizon = max(d.year for d in goal_dates.values()) - as_of.year
-    years = np.arange(horizon + 1)
-    ss = np.random.SeedSequence(SEED).spawn(3)
-    u = np.random.default_rng(ss[0]).random((N_PATHS, horizon))
-    z_prop = np.random.default_rng(ss[1]).standard_normal((N_PATHS, horizon))
-
-    p0 = np.array(blends["base"]["latest"])
-    plr = np.array(blends["base"]["long_run"])
-    path = next(p for p in f.income_paths if p.code == "today")
-    income = np.array([y.gross_chf_per_year for y in path.income] + [0.0] * (horizon + 1))[:horizon]
-    free_nom = []
-    ledger_free = {n.goal_id: n.free_cash_chf_per_year for n in path.saving_need}
-    saving0 = ledger_free["g-home"]
-    pi = f.inflation.annual_rate
-    partner_income = 92_000.0
-    deposit_nom = next(n for n in path.saving_need if n.goal_id == "g-home").target_chf
-    ret_target_nom = next(n for n in path.saving_need if n.goal_id == "g-ret").target_chf
-    price = float(next(g for g in request["goals"] if g["goal_id"] == "g-home")["target_amount"])
-    home_year = goal_dates["g-home"].year - as_of.year
-    regimes = []
-    mm_prop = ACTIVE_SEED.property
-    for key in ["base", *SCEN]:
-        W_L = np.full(N_PATHS, vessel.get("free", 0.0))
-        W_P = np.full(N_PATHS, vessel.get("pillar_2", 0.0))
-        W_3a = np.full(N_PATHS, vessel.get("pillar_3a", 0.0))
-        prop = np.zeros(N_PATHS)
-        debt = np.zeros(N_PATHS)
-        level = np.ones(N_PATHS)
-        owns = np.zeros(N_PATHS, dtype=bool)
-        series = {"net_worth": [], "deposit_eligible": [], "retirement_capital": []}
-        levels = [level.copy()]
-        dep_at = None
-
-        def record():
-            series["net_worth"].append(W_L + W_P + W_3a + prop - debt)
-            series["deposit_eligible"].append(W_L + W_3a + 0.5 * W_P)
-            series["retirement_capital"].append(W_L + W_P + W_3a)
-
-        record()
-        labels_summary: dict[str, int] = {}
-        for s in infl[key]["states"]:
-            labels_summary[s["label"]] = labels_summary.get(s["label"], 0) + 1
-        for k in range(1, horizon + 1):
-            if key != "base" and k <= 5:
-                dist = np.array(blends[key]["projected"][12 * k - 1])
-                r_s, l_s = r_state[key], li[key]
-            else:
-                dist = p0 + (plr - p0) * min(k / 5.0, 1.0)
-                r_s, l_s = r_state["base"], li["base"]
-            cdf = np.cumsum(dist / dist.sum())
-            state = np.minimum(np.searchsorted(cdf, u[:, k - 1], side="right"), 24)
-            r = r_s[state]
-            linf = l_s[state]
-            level = level * np.exp(linf)
-            # Property: nominal log growth ln(1.03) + 0.8 (log_infl - ln 1.01) plus noise correlated with the state.
-            q_state = (cdf[state] - dist[state] / dist.sum() / 2.0)
-            z_mkt = np.sqrt(2.0) * _erfinv(2.0 * np.clip(q_state, 1e-6, 1 - 1e-6) - 1.0)
-            z = mm_prop.rho_with_market * z_mkt + math.sqrt(1 - mm_prop.rho_with_market ** 2) * z_prop[:, k - 1]
-            g_prop = mm_prop.nominal_log_growth + mm_prop.inflation_beta * (linf - mm_prop.inflation_anchor_log) \
-                + mm_prop.sigma * z - 0.5 * mm_prop.sigma ** 2
-            prop = prop * np.exp(g_prop)
-            wage_index = level / (1.0 + pi) ** k
-            saving = (saving0 if k <= home_year else ledger_free["g-ret"]) * wage_index + 0.0 * partner_income
-            W_L = W_L * np.exp(r) + saving
-            W_P = W_P * 1.0125 + 0.12 * 100_000.0 * wage_index
-            W_3a = W_3a * 1.015 + 7_258.0
-            if k == home_year:
-                reach = (W_L + W_3a + 0.5 * W_P) / level >= deposit_nom / (1 + pi) ** home_year
-                dep_at = reach
-                pay = np.where(reach, deposit_nom, 0.0)
-                from_l = np.minimum(pay, W_L)
-                W_L = W_L - from_l
-                W_P = W_P - np.minimum(pay - from_l, 0.5 * W_P)
-                prop = np.where(reach, price * level, 0.0)
-                debt = np.where(reach, price * level - deposit_nom, 0.0)
-                owns = reach
-            debt = np.where(owns, debt * 0.99, 0.0)
-            levels.append(level.copy())
-            record()
-        lv = np.array(levels).T
-        bands = {}
-        for name, vals in series.items():
-            nom = np.array(vals).T
-            bands[name] = {"nominal": _quant(nom),
-                           "real": {**_quant(nom / lv), "derived": True,
-                                    "deflator": "each path's own cumulative inflation from fmre's per-state figures"}}
-        ret_real = (np.array(series["retirement_capital"][-1]) / lv[:, -1])
-        ret_target_real = ret_target_nom / (1 + pi) ** horizon
-        goals = []
-        for gid, measure, reached, tgt_nom, tgt_real, gdate, kind, basis_real in (
-                ("g-home", "deposit_eligible", dep_at, deposit_nom, deposit_nom / (1 + pi) ** home_year,
-                 goal_dates["g-home"], "home", True),
-                ("g-ret", "retirement_capital", ret_real >= ret_target_real, ret_target_nom, ret_target_real,
-                 goal_dates["g-ret"], "retirement", True)):
-            meas = (np.array(series[measure][home_year if kind == "home" else -1])
-                    / lv[:, home_year if kind == "home" else -1])
-            short = np.maximum(0.0, tgt_real - meas)
-            goals.append({"goal_id": gid, "kind": kind, "measure": measure,
-                          "target": {"nominal_chf": float(tgt_nom), "real_chf": float(tgt_real),
-                                     "amount_basis": "today", "date": gdate.isoformat()},
-                          "chance": float(np.mean(reached)), "chance_basis": "real" if basis_real else "nominal",
-                          "n_reached": int(np.sum(reached)), "median_shortfall_chf": float(np.median(short))})
-        label = ({"de": "Heutige Einschätzung", "en": "Current assessment"} if key == "base" else
-                 {p["policy"]: {"de": p["label_de"], "en": p["label_en"]}
-                  for p in rd("scenario_policies.json")}[key])
-        regimes.append({
-            "key": key, "label": label, "regime_id": BASE if key == "base" else SCEN[key],
-            "kind": "base" if key == "base" else "scenario", "scenario_years": None if key == "base" else 5,
-            "return_set_id": rs[key]["return_set_id"],
-            "inflation_pass_through": None if key == "base" else
-            rs[key]["provenance"]["inflation_pass_through"]["calibration_version"],
-            "inflation": {"source": infl[key].get("source") or f"fmre /v1/inflation?currency=CHF ({key})",
-                          "labels_summary": labels_summary},
-            "bands": bands, "goals": goals})
-
-    log_infl_base = li["base"]
-    target = np.array(alloc["curves"]["target"])
-    achieved = np.array(alloc["curves"]["achieved"])
-    allocation_view = {
-        "allocation_id": alloc["artefact_id"], "mandate_name": alloc["mandate_name"], "currency": "CHF",
-        "allocation_basis": alloc.get("basis", "nominal"), "date": alloc["date"], "regime_id": alloc["regime_id"],
-        "instruments": [{"instrument_id": i["instrument_id"], "name": i["name"], "role": i["role"],
-                         "weight": i["weight"]} for i in alloc["instruments"] if i["weight"] > 1e-9],
-        "by_role": {k: (v if abs(v) > 1e-12 else 0.0) for k, v in alloc["weights_by_role"].items()},
-        "state_probability": alloc["curves"]["regime"],
-        "curves": {"nominal": {"target": list(target), "achieved": list(achieved), "derived": False},
-                   "real": {"target": list(target - log_infl_base), "achieved": list(achieved - log_infl_base),
-                            "derived": True},
-                   "log_inflation": list(log_infl_base),
-                   "inflation_labels": [s["label"] for s in infl["base"]["states"]]}}
-    market_model = {
-        "rule": {"de": "Jedes Jahr wird ein Zustand von 1 bis 25 aus der Verteilung des Regimes gezogen; das erste Jahr "
-                       "ist die heutige Einschätzung, danach kehrt sie in fünf Jahren linear zum langjährigen Mittel "
-                       "zurück. Die Rendite ist die Summe der Gewichte mal der Rendite jedes Instruments im gezogenen "
-                       "Zustand. Ein Szenario bestimmt die ersten fünf Jahre, danach gilt die heutige Einschätzung.",
-                 "en": "Each year a state from 1 to 25 is drawn from the Regime's distribution; the first year is the "
-                       "current assessment, which then reverts linearly to the long-run mean over five years. The "
-                       "return is the sum of the weights times each instrument's return in the drawn state. A "
-                       "scenario drives the first five years, then the current assessment applies."},
-        "reversion_years": 5.0, "state_persistence": 0.0, "weights": "renormalised",
-        "check": {"achieved_reproduced": max_diff <= 1e-9, "max_abs_diff": max_diff},
-        "property": {"nominal_log_growth": mm_prop.nominal_log_growth, "inflation_beta": mm_prop.inflation_beta,
-                     "inflation_anchor_log": mm_prop.inflation_anchor_log, "sigma": mm_prop.sigma,
-                     "rho_with_market": mm_prop.rho_with_market},
-        "pass_through": {"wages": 1.0, "spending": 1.0, "debt": "nominal", "bvg_credits": "nominal",
-                         "fixed_contribution": "nominal"}}
-    key = content_id("IDK", {"kind": "paths", "findings": f.provenance.idempotency_key, "allocation_id":
-                             alloc["artefact_id"], "seed": SEED, "n_paths": N_PATHS, "horizon_years": horizon,
-                             "income_path": "today", "numpy": ".".join(np.__version__.split(".")[:2])})
-    body = {
-        "findings_artefact_id": f.artefact_id, "client_ref": f.client_ref,
-        "life_balance_sheet_id": f.life_balance_sheet_id, "allocation_id": alloc["artefact_id"],
-        "as_of": f.as_of.isoformat(), "calibration_version": ACTIVE_SEED.version, "start_year": f.as_of.year,
-        "horizon_years": int(horizon), "n_paths": N_PATHS, "seed": SEED, "income_path": "today",
-        "policy": {"kind": "stated_plan", "spending_chf_per_year": float(request["risk"]["spend_now_per_year"]), "spending_indexed": True,
-                   "pensum": 1.0, "saving_source": "cash_flow"},
-        "regimes": regimes, "allocation_view": allocation_view, "market_model": market_model,
-        "provenance": {
-            "engine_version": ENGINE_VERSION, "contract_versions": CONTRACT_VERSIONS,
-            "calibration_version": ACTIVE_SEED.version, "calibration_hash": calibration_hash(ACTIVE_SEED),
-            "idempotency_key": key, "made_by": "sample",
-            "sample_note": ("Hand-built by dev/build_samples.py, not by the engine's Monte Carlo (B2's): yearly "
-                            "steps, a simplified household (one saving figure from the findings' income path, a "
-                            "flat BVG credit, the deposit paid from free wealth first, the mortgage amortised at "
-                            "1 % a year), the market rule of LBSIM-07 on real upstream figures. The Allocation is "
-                            "pcp's bench Allocation on the Default Regime (client 'bench'), reused for a sample "
-                            "household; a real run would refuse the client mismatch (409)."),
-            "seeds": {"state_uniforms": SEED, "property_noise": SEED, "spare": SEED},
-            "numpy_version": np.__version__,
-            "upstream": {"lbs": f.provenance.upstream["lbs"],
-                         "pcp": {"artefact_id": alloc["artefact_id"], "contract": "pcp-allocation@1.0.0",
-                                 "sha256": sha256(alloc)},
-                         "aggregation": {BASE: "see golden/samples/upstream/aggregation_blends.json",
-                                         **{rid: "see golden/samples/upstream/aggregation_blends.json"
-                                            for rid in SCEN.values()}},
-                         "fmre": {"return_set_ids": {k: v["return_set_id"] for k, v in rs.items()},
-                                  "inflation_sha256": {k: sha256(v) for k, v in infl.items()},
-                                  "ipt": rs["depression"]["provenance"]["inflation_pass_through"]["calibration_id"]}}},
-    }
+    records = json.loads((CASES / "records.json").read_text(encoding="utf-8"))["records"]
+    sheet = LbsSheet.model_validate(json.loads((CASES / CASE / "sheet.json").read_text(encoding="utf-8")))
+    request = LbsRequest.model_validate(json.loads((CASES / CASE / "request.json").read_text(encoding="utf-8")))
+    plan = stated_plan(sheet, request, records, ACTIVE_SEED, f, income_path=None, horizon_years=None,
+                       max_horizon_years=60, reference_age=65.0)
+    b = bundle(Stub((CASE,)), sheet)
+    p = build_paths(f, plan, b, ACTIVE_SEED, n_paths=N_PATHS, seed=SEED)
+    note = ("Made by the engine (lbsim.paths.build) on the upstream snapshot golden/upstream "
+            "(dev/build_upstream_snapshot.py). The Allocation is pcp's bench Allocation on the Default Regime "
+            "(client 'bench'), served under this sample household's client for the sample; a real run would "
+            "refuse the client mismatch (409).")
+    body = p.model_dump(mode="json", exclude={"artefact_id"})
+    body["provenance"]["sample_note"] = note
     return LifeBalancePaths(artefact_id=content_id("LSP", body), **body)
 
 

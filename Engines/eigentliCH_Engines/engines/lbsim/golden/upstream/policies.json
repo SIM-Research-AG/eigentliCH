@@ -1,0 +1,58 @@
+[
+ {
+  "policy": "depression",
+  "case": 1,
+  "label_en": "Depression",
+  "label_de": "Depression",
+  "description_en": "Deflationary bust: inflation falls from +2 % to -4 %, 40 % of claims default, valuations halve; target 75 % Bust, 25 % Contraction.",
+  "description_de": "Deflationärer Einbruch: Inflation fällt von +2 % auf -4 %, 40 % der Forderungen fallen aus, Bewertungen halbieren sich; Ziel 75 % Bust, 25 % Contraction.",
+  "target_mix": {
+   "boom": 0.0,
+   "recovery": 0.0,
+   "contraction": 0.25,
+   "bust": 0.75
+  }
+ },
+ {
+  "policy": "hyperinflation",
+  "case": 2,
+  "label_en": "Hyperinflation",
+  "label_de": "Hyperinflation",
+  "description_en": "Inflation rises from 20 % to 100 % a year while claims are honoured nominally; target 100 % Boom (nominal boom, real destruction of financial claims).",
+  "description_de": "Inflation steigt von 20 % auf 100 % pro Jahr, Forderungen werden nominal bedient; Ziel 100 % Boom (nominaler Boom, reale Entwertung der Forderungen).",
+  "target_mix": {
+   "boom": 1.0,
+   "recovery": 0.0,
+   "contraction": 0.0,
+   "bust": 0.0
+  }
+ },
+ {
+  "policy": "stagflation",
+  "case": 3,
+  "label_en": "Stagflation",
+  "label_de": "Stagflation",
+  "description_en": "Inflation rises from 2 % to 10 %, 20 % of claims default, valuations fall 30 %; target 50 % Boom, 25 % Recovery, 25 % Contraction.",
+  "description_de": "Inflation steigt von 2 % auf 10 %, 20 % der Forderungen fallen aus, Bewertungen fallen um 30 %; Ziel 50 % Boom, 25 % Recovery, 25 % Contraction.",
+  "target_mix": {
+   "boom": 0.5,
+   "recovery": 0.25,
+   "contraction": 0.25,
+   "bust": 0.0
+  }
+ },
+ {
+  "policy": "deferral",
+  "case": 4,
+  "label_en": "Deferral",
+  "label_de": "Aufschub",
+  "description_en": "The correction is deferred: inflation humps from 2 % to 6 % and back, 10 % of claims default; target split 50 % Boom, 50 % Bust.",
+  "description_de": "Die Korrektur wird aufgeschoben: Inflation steigt von 2 % auf 6 % und zurück, 10 % der Forderungen fallen aus; Ziel geteilt 50 % Boom, 50 % Bust.",
+  "target_mix": {
+   "boom": 0.5,
+   "recovery": 0.0,
+   "contraction": 0.0,
+   "bust": 0.5
+  }
+ }
+]

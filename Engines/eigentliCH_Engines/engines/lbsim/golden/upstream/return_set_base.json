@@ -1,0 +1,9067 @@
+{
+ "return_set_id": "RS-c472e411e39645f5",
+ "contract_version": "rs@1.0.0",
+ "engine_version": "fm@1.0.0",
+ "as_of": "2020-12-31",
+ "state_grid": 25,
+ "role_profiles": [
+  {
+   "key": "gain",
+   "kind": "role",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "extrapolated",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.18722034260080506,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.1557486901632164,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.12530021840753505,
+     "method": "data-driven",
+     "n_obs": 24
+    },
+    {
+     "state": 4,
+     "value": -0.09644546751197859,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": -0.06975497765476478,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": -0.04579928901411118,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": -0.025148941768235497,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": -0.008374476095355451,
+     "method": "data-driven",
+     "n_obs": 16
+    },
+    {
+     "state": 9,
+     "value": 0.004837049076218359,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.01581689416232708,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.025521998000980962,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03490929943019016,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.04493573728796488,
+     "method": "data-driven",
+     "n_obs": 25
+    },
+    {
+     "state": 14,
+     "value": 0.055948610244063855,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.0673099593981762,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.07849883723320752,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.0889942962320635,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.09827538887764972,
+     "method": "data-driven",
+     "n_obs": 74
+    },
+    {
+     "state": 19,
+     "value": 0.1065471172104212,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.1143032096040039,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.12145580804105993,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.1279170545042515,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.1335990909762408,
+     "method": "data-driven",
+     "n_obs": 11
+    },
+    {
+     "state": 24,
+     "value": 0.1384140594396899,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.14227410187726103,
+     "method": "extrapolated",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "stabilisation",
+   "kind": "role",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "extrapolated",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.031306968366166504,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.0043538494907499545,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": 0.018129512665882308,
+     "method": "data-driven",
+     "n_obs": 21
+    },
+    {
+     "state": 4,
+     "value": 0.03626089192410496,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.050158062104292606,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.059938797026819944,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.0657208705120616,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.06762205638039223,
+     "method": "data-driven",
+     "n_obs": 11
+    },
+    {
+     "state": 9,
+     "value": 0.061964478612459704,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.048473331627389885,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.03237099490327424,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.018879847918204393,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.0132222701502719,
+     "method": "data-driven",
+     "n_obs": 17
+    },
+    {
+     "state": 14,
+     "value": 0.015421976358811783,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.020667429625329966,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.02692813191117423,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.03217358517769241,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.03437329138623228,
+     "method": "data-driven",
+     "n_obs": 53
+    },
+    {
+     "state": 19,
+     "value": 0.03418666129461103,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.03343836794608523,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.03184580673016182,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.029126373036347714,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.02499746225414984,
+     "method": "data-driven",
+     "n_obs": 8
+    },
+    {
+     "state": 24,
+     "value": 0.019176469773075137,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.01138079098263053,
+     "method": "extrapolated",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "protection",
+   "kind": "role",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "extrapolated",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.09221461823986876,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": 0.07634710394025815,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": 0.0608595624513385,
+     "method": "data-driven",
+     "n_obs": 23
+    },
+    {
+     "state": 4,
+     "value": 0.0465032661673221,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.03402948748242131,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.024189498790848342,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.01773457248681555,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.015415980964535225,
+     "method": "data-driven",
+     "n_obs": 16
+    },
+    {
+     "state": 9,
+     "value": 0.01652092623395812,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.019296439375255534,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.02293353638797059,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.026623233271646396,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.02955654602582605,
+     "method": "data-driven",
+     "n_obs": 22
+    },
+    {
+     "state": 14,
+     "value": 0.03201635424582636,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.03457692493261297,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.03686635519420219,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.03851274213861041,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.03914418287385396,
+     "method": "data-driven",
+     "n_obs": 73
+    },
+    {
+     "state": 19,
+     "value": 0.03906554259931452,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.03874251743301574,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.03804445086093689,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.03684068636905724,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.035000567443356084,
+     "method": "data-driven",
+     "n_obs": 11
+    },
+    {
+     "state": 24,
+     "value": 0.03239343756981269,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.02888864023440634,
+     "method": "extrapolated",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "income",
+   "kind": "role",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "extrapolated",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.06966222530827665,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.051544400213202085,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.03210456954719942,
+     "method": "data-driven",
+     "n_obs": 23
+    },
+    {
+     "state": 4,
+     "value": -0.012840538617153143,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.0047498872700521555,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.019168902807532036,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.02891870268840195,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.03250148160577736,
+     "method": "data-driven",
+     "n_obs": 14
+    },
+    {
+     "state": 9,
+     "value": 0.03227294194903402,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.03172796276756913,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.031077503744530395,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03053252456306551,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.03030398490632217,
+     "method": "data-driven",
+     "n_obs": 20
+    },
+    {
+     "state": 14,
+     "value": 0.032409212497079065,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.037485486930178245,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.04367369569686243,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.049114726288374405,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.05194946619595689,
+     "method": "data-driven",
+     "n_obs": 63
+    },
+    {
+     "state": 19,
+     "value": 0.05279807783282574,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.05350295639417441,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.0540383385442121,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.054378460947147975,
+     "method": "interpolated",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.05449756026719123,
+     "method": "data-driven",
+     "n_obs": 10
+    },
+    {
+     "state": 24,
+     "value": 0.05436987316855104,
+     "method": "extrapolated",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.05396963631543658,
+     "method": "extrapolated",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  }
+ ],
+ "instrument_profiles": [
+  {
+   "key": "INS-aktien-europe-aktiv",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.18722034260080506,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.1557486901632164,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.12530021840753505,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": -0.09644546751197859,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": -0.06975497765476478,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": -0.04579928901411118,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": -0.025148941768235497,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": -0.008374476095355451,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.004837049076218359,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.01581689416232708,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.025521998000980962,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03490929943019016,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.04493573728796488,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.055948610244063855,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.0673099593981762,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.07849883723320752,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.0889942962320635,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.09827538887764972,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.1065471172104212,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.1143032096040039,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.12145580804105993,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.1279170545042515,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.1335990909762408,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.1384140594396899,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.14227410187726103,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-apac-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.03156497846298788,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.027338425735640416,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.021155185511347936,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.014882111954125182,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.00907510206943818,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.0038506403822989753,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": -0.0007099393842134458,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": -0.004655023522196775,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": -0.00815977796691403,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.01131230311318384,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.013948762998270709,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.01544323102506848,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.014140520273818555,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.0076913302014084296,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.004920171963709853,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.02209884544810632,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.04082074015428329,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.058746993858649316,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.07535074558128632,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.09131231445408519,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.10723533977598876,
+     "method": "shape-scaled",
+     "n_obs": 257
+    },
+    {
+     "state": 22,
+     "value": 0.12326978344324363,
+     "method": "shape-scaled",
+     "n_obs": 257
+    },
+    {
+     "state": 23,
+     "value": 0.13941446362292825,
+     "method": "shape-scaled",
+     "n_obs": 257
+    },
+    {
+     "state": 24,
+     "value": 0.15463889287987703,
+     "method": "shape-scaled",
+     "n_obs": 257
+    },
+    {
+     "state": 25,
+     "value": 0.1648247408367496,
+     "method": "shape-scaled",
+     "n_obs": 257
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-asean-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.08712010878818746,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 2,
+     "value": 0.07818481335075109,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 3,
+     "value": 0.06608291311118254,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 4,
+     "value": 0.05539558676503341,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 5,
+     "value": 0.047209024813980975,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 6,
+     "value": 0.0414460299718726,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 7,
+     "value": 0.03817116925097689,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 8,
+     "value": 0.037890385326774634,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 9,
+     "value": 0.041252875479725344,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 10,
+     "value": 0.04790238474650633,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 11,
+     "value": 0.055894065958379285,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": 0.06227730041818943,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": 0.06398559312020838,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": 0.059153435119657795,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": 0.048598579298454486,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.035794981353439656,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 17,
+     "value": 0.025529945508560588,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 18,
+     "value": 0.022749650901983755,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 19,
+     "value": 0.031297229757240946,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 20,
+     "value": 0.0525175409488017,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 21,
+     "value": 0.08526722232649322,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 22,
+     "value": 0.12722427375887418,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 23,
+     "value": 0.1758501066613442,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 24,
+     "value": 0.2251892611932132,
+     "method": "shape-scaled",
+     "n_obs": 186
+    },
+    {
+     "state": 25,
+     "value": 0.2591943255320595,
+     "method": "shape-scaled",
+     "n_obs": 186
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-asia-ex-japan-tr",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.21947174925888985,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 2,
+     "value": 0.20120502169520066,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 3,
+     "value": 0.17441463323649847,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 4,
+     "value": 0.1472337201685712,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 5,
+     "value": 0.12228826172684772,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 6,
+     "value": 0.10035239037040661,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 7,
+     "value": 0.0820298386313352,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 8,
+     "value": 0.06725186166510601,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 9,
+     "value": 0.05513876548330984,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 10,
+     "value": 0.04488383474833595,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 11,
+     "value": 0.03659621007697805,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 12,
+     "value": 0.03098953230463955,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 13,
+     "value": 0.02848588636984107,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 14,
+     "value": 0.02876609504239039,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 15,
+     "value": 0.03112177264464465,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 16,
+     "value": 0.03502630852446359,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 17,
+     "value": 0.040695367931495495,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 18,
+     "value": 0.050182210440773416,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 19,
+     "value": 0.06733391502454272,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 20,
+     "value": 0.09500556726373732,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 21,
+     "value": 0.1328324428420687,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 22,
+     "value": 0.17819636737764655,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 23,
+     "value": 0.22794680376565868,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 24,
+     "value": 0.2760843387844898,
+     "method": "shape-scaled",
+     "n_obs": 216
+    },
+    {
+     "state": 25,
+     "value": 0.3082598394311666,
+     "method": "shape-scaled",
+     "n_obs": 216
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-asia-long-short-equities",
+   "kind": "instrument",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.031306968366166504,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.0043538494907499545,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": 0.018129512665882308,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": 0.03626089192410496,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.050158062104292606,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.059938797026819944,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.0657208705120616,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.06762205638039223,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.061964478612459704,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.048473331627389885,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.03237099490327424,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.018879847918204393,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.0132222701502719,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.015421976358811783,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.020667429625329966,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.02692813191117423,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.03217358517769241,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.03437329138623228,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.03418666129461103,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.03343836794608523,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.03184580673016182,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.029126373036347714,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.02499746225414984,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.019176469773075137,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.01138079098263053,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-asia-multi-strategy-hf",
+   "kind": "instrument",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.031306968366166504,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.0043538494907499545,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": 0.018129512665882308,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": 0.03626089192410496,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.050158062104292606,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.059938797026819944,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.0657208705120616,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.06762205638039223,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.061964478612459704,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.048473331627389885,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.03237099490327424,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.018879847918204393,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.0132222701502719,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.015421976358811783,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.020667429625329966,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.02692813191117423,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.03217358517769241,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.03437329138623228,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.03418666129461103,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.03343836794608523,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.03184580673016182,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.029126373036347714,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.02499746225414984,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.019176469773075137,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.01138079098263053,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-asian-jaci-bond-index",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.06966222530827665,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.051544400213202085,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.03210456954719942,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": -0.012840538617153143,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.0047498872700521555,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.019168902807532036,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.02891870268840195,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.03250148160577736,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.03227294194903402,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.03172796276756913,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.031077503744530395,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03053252456306551,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.03030398490632217,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.032409212497079065,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.037485486930178245,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.04367369569686243,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.049114726288374405,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.05194946619595689,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.05279807783282574,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.05350295639417441,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.0540383385442121,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.054378460947147975,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.05449756026719123,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.05436987316855104,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.05396963631543658,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-asia-pacific-arbitrage",
+   "kind": "instrument",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.031306968366166504,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.0043538494907499545,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": 0.018129512665882308,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": 0.03626089192410496,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.050158062104292606,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.059938797026819944,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.0657208705120616,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.06762205638039223,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.061964478612459704,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.048473331627389885,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.03237099490327424,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.018879847918204393,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.0132222701502719,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.015421976358811783,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.020667429625329966,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.02692813191117423,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.03217358517769241,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.03437329138623228,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.03418666129461103,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.03343836794608523,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.03184580673016182,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.029126373036347714,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.02499746225414984,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.019176469773075137,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.01138079098263053,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-au-nz-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.11113367294614178,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.09878409573718006,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.0803476274990258,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.061335947919527824,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.04400465572270684,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.029500106894924938,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.018773866403391657,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.011954301994033403,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.0079976771659858,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.005507990261001513,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.0037549627038859644,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": 0.002701399963241872,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": 0.0026510683150535214,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.00406632044217658,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.007282379073410298,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.012293131221726445,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.019262191097362033,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.02980778466835985,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.047117512464726764,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.07360027615010457,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.10897622320577122,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.15106757489868217,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.1972464052817863,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.24213555879897594,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.2722744364386652,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-bloomberg-hedge-fund",
+   "kind": "instrument",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.02053814151398039,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 2,
+     "value": -0.008071274316324364,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 3,
+     "value": 0.00888275834190311,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 4,
+     "value": 0.023961274289341652,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 5,
+     "value": 0.035610491615188936,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 6,
+     "value": 0.04387859138986161,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 7,
+     "value": 0.048631850520773165,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 8,
+     "value": 0.04918079570332408,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 9,
+     "value": 0.044699831797897674,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 10,
+     "value": 0.03573829518487485,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 11,
+     "value": 0.024958108139650288,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 12,
+     "value": 0.015965151504654423,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 13,
+     "value": 0.011219024631708504,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 14,
+     "value": 0.010706138206067676,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 15,
+     "value": 0.012676188883323457,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 16,
+     "value": 0.015355535567992011,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 17,
+     "value": 0.01760533934591281,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 18,
+     "value": 0.01886993137778909,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 19,
+     "value": 0.019202176466603584,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 20,
+     "value": 0.018945307467898666,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 21,
+     "value": 0.018251427670491774,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 22,
+     "value": 0.01702536709273848,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 23,
+     "value": 0.015101063433736411,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 24,
+     "value": 0.012620727864940163,
+     "method": "shape-scaled",
+     "n_obs": 209
+    },
+    {
+     "state": 25,
+     "value": 0.010661770868681617,
+     "method": "shape-scaled",
+     "n_obs": 209
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-bloomberg-market-neutral-hf",
+   "kind": "instrument",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.2410928738990402,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 2,
+     "value": -0.207552141978165,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 3,
+     "value": -0.1570586916626469,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 4,
+     "value": -0.10466839535113737,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 5,
+     "value": -0.05726977890421408,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 6,
+     "value": -0.01894389735654132,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 7,
+     "value": 0.00690124430597739,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 8,
+     "value": 0.01972701104260921,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 9,
+     "value": 0.02315728193199948,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 10,
+     "value": 0.022233294053814526,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 11,
+     "value": 0.019871222494810246,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": 0.01655685666196891,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": 0.011278805558294228,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": 0.0024244912069973455,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": -0.010290154687333528,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": -0.024638280773338093,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 17,
+     "value": -0.037174618870281756,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 18,
+     "value": -0.045703176822795365,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 19,
+     "value": -0.050575782104806156,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 20,
+     "value": -0.05348657938369424,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 21,
+     "value": -0.05551147466313175,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 22,
+     "value": -0.05679552992795234,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 23,
+     "value": -0.057209148745984595,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 24,
+     "value": -0.05680463911626185,
+     "method": "shape-scaled",
+     "n_obs": 179
+    },
+    {
+     "state": 25,
+     "value": -0.05618812210844226,
+     "method": "shape-scaled",
+     "n_obs": 179
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-bloomberg-multiverse-h-chf",
+   "kind": "instrument",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.0655234760209687,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 2,
+     "value": 0.05665620778769333,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 3,
+     "value": 0.04342122537390506,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 4,
+     "value": 0.029847121378198227,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 5,
+     "value": 0.01769170532389403,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 6,
+     "value": 0.007935432882728148,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 7,
+     "value": -0.000621267751868583,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 8,
+     "value": -0.0017806238641616475,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 9,
+     "value": -0.002465380391996941,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 10,
+     "value": -0.001873120121862892,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 11,
+     "value": -0.0007340631773168566,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 12,
+     "value": 0.000862145310797746,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 13,
+     "value": 0.00341413714606008,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 14,
+     "value": 0.007695693770615246,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 15,
+     "value": 0.013771031584847182,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 16,
+     "value": 0.020409217603042217,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 17,
+     "value": 0.02576299672888366,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 18,
+     "value": 0.028640494953145836,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 19,
+     "value": 0.02914601642747394,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 20,
+     "value": 0.028006504169926463,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 21,
+     "value": 0.025547766408160085,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 22,
+     "value": 0.021572345905925716,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 23,
+     "value": 0.015732511596422416,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 24,
+     "value": 0.008514632200268954,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 25,
+     "value": -0.0014775192077588484,
+     "method": "shape-scaled",
+     "n_obs": 158
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-ch-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.02549628914161605,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.02737867661603697,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.029749419331463307,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.031567876665243515,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.03270441249885614,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.03332950720734308,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.03349101440839321,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.032813547138315774,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.030611283662801334,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.0267365338318008,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.02212560641825808,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": 0.018448974321481,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": 0.017549584310105705,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.020799194861479964,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.028359827465290956,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.0391256949827521,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.05150642796774406,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.06441097283106732,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.07774929478734995,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.091997614040633,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.10744512353841137,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.12404736155138366,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.14165875721263024,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.15889385035285578,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.17065661107482025,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-chf-cash",
+   "kind": "instrument",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.0038962469654184144,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 2,
+     "value": 0.003278733495702006,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 3,
+     "value": 0.002676007365974536,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 4,
+     "value": 0.0021173057216446935,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 5,
+     "value": 0.0016318657081211706,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 6,
+     "value": 0.001248924470812656,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 7,
+     "value": 0.000997719155127841,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 8,
+     "value": 0.000907486906475416,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 9,
+     "value": 0.0009504878815673249,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 10,
+     "value": 0.0010585020744499562,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 11,
+     "value": 0.001200046386533669,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 12,
+     "value": 0.0013436377192288206,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 13,
+     "value": 0.0014577929739457692,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 14,
+     "value": 0.0015535209298239378,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 15,
+     "value": 0.0016531702422112296,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 16,
+     "value": 0.0017422676268307226,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 17,
+     "value": 0.0018063397994054946,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 18,
+     "value": 0.0018309134756586234,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 19,
+     "value": 0.0018278530449022138,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 20,
+     "value": 0.0018152819271152409,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 21,
+     "value": 0.0017881153840210884,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 22,
+     "value": 0.0017412686773431402,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 23,
+     "value": 0.0016696570688047798,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 24,
+     "value": 0.001568195820129391,
+     "method": "shape-scaled",
+     "n_obs": 144
+    },
+    {
+     "state": 25,
+     "value": 0.0014318001930403574,
+     "method": "shape-scaled",
+     "n_obs": 144
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-chf-corporate-loans-ig",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.06966222530827665,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.051544400213202085,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.03210456954719942,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": -0.012840538617153143,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.0047498872700521555,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.019168902807532036,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.02891870268840195,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.03250148160577736,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.03227294194903402,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.03172796276756913,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.031077503744530395,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03053252456306551,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.03030398490632217,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.032409212497079065,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.037485486930178245,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.04367369569686243,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.049114726288374405,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.05194946619595689,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.05279807783282574,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.05350295639417441,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.0540383385442121,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.054378460947147975,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.05449756026719123,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.05436987316855104,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.05396963631543658,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-china-a-shares",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.3334774711228487,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 2,
+     "value": -0.3033440686851825,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 3,
+     "value": -0.25915626946260717,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 4,
+     "value": -0.21432780110943006,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 5,
+     "value": -0.17317551102040557,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 6,
+     "value": -0.13695773778319442,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 7,
+     "value": -0.10681873442233161,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 8,
+     "value": -0.08329834340054572,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 9,
+     "value": -0.06569967197307061,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 10,
+     "value": -0.05214128092071124,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 11,
+     "value": -0.04027568067477573,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 12,
+     "value": -0.027703615715814957,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 13,
+     "value": -0.012080655028514417,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 14,
+     "value": 0.008040410892426443,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 15,
+     "value": 0.03194370197584555,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 16,
+     "value": 0.05670111839442968,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 17,
+     "value": 0.07871219929422588,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 18,
+     "value": 0.09589214052735388,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 19,
+     "value": 0.10874518814861212,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 20,
+     "value": 0.1188724715426207,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 21,
+     "value": 0.1268628396779398,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 22,
+     "value": 0.13213883010808952,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 23,
+     "value": 0.1337971249287731,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 24,
+     "value": 0.131819596265778,
+     "method": "shape-scaled",
+     "n_obs": 153
+    },
+    {
+     "state": 25,
+     "value": 0.1289001437041627,
+     "method": "shape-scaled",
+     "n_obs": 153
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-china-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.028943700852195966,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 2,
+     "value": 0.024086003965565025,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 3,
+     "value": 0.017910488976057244,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 4,
+     "value": 0.013078312980790298,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 5,
+     "value": 0.009955959876743819,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 6,
+     "value": 0.008153153252750742,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 7,
+     "value": 0.00744966773129122,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 8,
+     "value": 0.008216738621446878,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 9,
+     "value": 0.011276510884592075,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 10,
+     "value": 0.016741181898201847,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 11,
+     "value": 0.02325148973560321,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": 0.0287058935506794,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": 0.03172173693615774,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": 0.032462223600552384,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": 0.032024036932822075,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.03129987724677784,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 17,
+     "value": 0.03129434461453348,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 18,
+     "value": 0.03499813246188631,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 19,
+     "value": 0.047475440672715676,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 20,
+     "value": 0.07233477292690892,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 21,
+     "value": 0.10901856315303284,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 22,
+     "value": 0.15410949074489527,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 23,
+     "value": 0.2035207869689889,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 24,
+     "value": 0.25067223471140043,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 25,
+     "value": 0.28175869476284243,
+     "method": "shape-scaled",
+     "n_obs": 185
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-commodities",
+   "kind": "instrument",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.007562912188887133,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": -0.05209556535161078,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": -0.09403847223181269,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": -0.126594459256954,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": -0.14735397382195176,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": -0.15911630761482937,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": -0.16348441550153126,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": -0.1578890561134269,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": -0.13628784374906514,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.09804488106543924,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.05254737224186243,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.01458870082818831,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": 0.005300799361743507,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.006194269940942052,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": -0.004700765468758576,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": -0.020530824186216663,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": -0.03689886248050719,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": -0.05136400197028368,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": -0.06322645527283333,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": -0.07354956605779811,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": -0.08296821805818157,
+     "method": "shape-scaled",
+     "n_obs": 241
+    },
+    {
+     "state": 22,
+     "value": -0.09156493741383731,
+     "method": "shape-scaled",
+     "n_obs": 241
+    },
+    {
+     "state": 23,
+     "value": -0.09924472801871168,
+     "method": "shape-scaled",
+     "n_obs": 241
+    },
+    {
+     "state": 24,
+     "value": -0.10563718590617376,
+     "method": "shape-scaled",
+     "n_obs": 241
+    },
+    {
+     "state": 25,
+     "value": -0.10955162078448952,
+     "method": "shape-scaled",
+     "n_obs": 241
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-digital-assets",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.552822479290232,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 2,
+     "value": -0.4798016422791105,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 3,
+     "value": -0.3721630967173259,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 4,
+     "value": -0.2607695011824483,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 5,
+     "value": -0.153581792984976,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 6,
+     "value": -0.050920328260231004,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 7,
+     "value": 0.047654831227489494,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 8,
+     "value": 0.14493124768848792,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 9,
+     "value": 0.2459626075351491,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 10,
+     "value": 0.3470828828244519,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 11,
+     "value": 0.4375553423314614,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 12,
+     "value": 0.5029179280853887,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 13,
+     "value": 0.5343060830973897,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 14,
+     "value": 0.5311108779448468,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 15,
+     "value": 0.5091922004328456,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 16,
+     "value": 0.4814967708671438,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 17,
+     "value": 0.4588943719830652,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 18,
+     "value": 0.45139974336129635,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 19,
+     "value": 0.4697153738621287,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 20,
+     "value": 0.5139612021372045,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 21,
+     "value": 0.5818299001112832,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 22,
+     "value": 0.668504331495664,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 23,
+     "value": 0.7686978831746397,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 24,
+     "value": 0.8695920824701251,
+     "method": "shape-scaled",
+     "n_obs": 143
+    },
+    {
+     "state": 25,
+     "value": 0.9390483621938583,
+     "method": "shape-scaled",
+     "n_obs": 143
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-em-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.10019230604957799,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.08488649218824158,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.061662538289432745,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.03731405654188013,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.015085527969631422,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": -0.0030036802738563303,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": -0.01527065820912997,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": -0.02146256886905159,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": -0.023387960579851215,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.023529336198156114,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.023276622924671614,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.022718782644320028,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.02088690690792846,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.016078482726902238,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": -0.007134540764042747,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.005588939779545074,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.02090466172873064,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.03823837088498839,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.05821093194659366,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.08175462836245889,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.10905428913873641,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.13959556863341352,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.17267959570647876,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.20530321930928527,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.22759412811353064,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-em-government-bonds-lc",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.03216780476158959,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 2,
+     "value": 0.032017826300564885,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 3,
+     "value": 0.03141286672041808,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 4,
+     "value": 0.030159827696603927,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 5,
+     "value": 0.028299516301368368,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 6,
+     "value": 0.025948284081986163,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 7,
+     "value": 0.023167569122254806,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 8,
+     "value": 0.019829829209857704,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 9,
+     "value": 0.015670985825169546,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 10,
+     "value": 0.010672348910925286,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 11,
+     "value": 0.005304510631811518,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 12,
+     "value": -0.0002830534509244073,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 13,
+     "value": -0.0039992676831498795,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 14,
+     "value": -0.007560831884152337,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 15,
+     "value": -0.0106348192644522,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 16,
+     "value": -0.013182918091539441,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 17,
+     "value": -0.014763232846198897,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 18,
+     "value": -0.014349408374757228,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 19,
+     "value": -0.010476991484326917,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 20,
+     "value": -0.002186575906728734,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 21,
+     "value": 0.010317141632734249,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 22,
+     "value": 0.02606232226450331,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 23,
+     "value": 0.04390112429935294,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 24,
+     "value": 0.06157279748847318,
+     "method": "shape-scaled",
+     "n_obs": 193
+    },
+    {
+     "state": 25,
+     "value": 0.07354960600987735,
+     "method": "shape-scaled",
+     "n_obs": 193
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-eu-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.03652595380571045,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.031840094764231545,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.024955388076217774,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.01796226539875113,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.01155977409307395,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.005978365681761691,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.0014016390560326636,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": -0.0021753755208361583,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": -0.004997122403660872,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.007317310767359473,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.00916349334765337,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.010216245958337488,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.009533741130316504,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.005701096884411772,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.0020883038517159986,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.013293642836741186,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.026663659684298326,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.04147335260178529,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.058062980996545256,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.07715709075431937,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.0989673783736005,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.12317036773760373,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.14929678062327462,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.17504511048106658,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.19264649567089745,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-eur-cash",
+   "kind": "instrument",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.09221461823986876,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": 0.07634710394025815,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": 0.0608595624513385,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": 0.0465032661673221,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.03402948748242131,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.024189498790848342,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.01773457248681555,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.015415980964535225,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.01652092623395812,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.019296439375255534,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.02293353638797059,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.026623233271646396,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.02955654602582605,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.03201635424582636,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.03457692493261297,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.03686635519420219,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.03851274213861041,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.03914418287385396,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.03906554259931452,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.03874251743301574,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.03804445086093689,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.03684068636905724,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.035000567443356084,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.03239343756981269,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.02888864023440634,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-eur-corporate-loans-ig",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.06966222530827665,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.051544400213202085,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.03210456954719942,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": -0.012840538617153143,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.0047498872700521555,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.019168902807532036,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.02891870268840195,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.03250148160577736,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.03227294194903402,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.03172796276756913,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.031077503744530395,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03053252456306551,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.03030398490632217,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.032409212497079065,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.037485486930178245,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.04367369569686243,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.049114726288374405,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.05194946619595689,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.05279807783282574,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.05350295639417441,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.0540383385442121,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.054378460947147975,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.05449756026719123,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.05436987316855104,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.05396963631543658,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-fixed-holding",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.11283537958133423,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 2,
+     "value": -0.0976317561533596,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 3,
+     "value": -0.07529296595198938,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 4,
+     "value": -0.05232332782852142,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 5,
+     "value": -0.03043564016914079,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 6,
+     "value": -0.00974316817986954,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 7,
+     "value": 0.009783968699946494,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 8,
+     "value": 0.028628685248911358,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 9,
+     "value": 0.04745165525961288,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 10,
+     "value": 0.06595716173459928,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 11,
+     "value": 0.08229691690175311,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": 0.09401575946491778,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": 0.09990662542606253,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": 0.101075400332367,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": 0.0998567147986685,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.09803857092935189,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 17,
+     "value": 0.09670697696692032,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 18,
+     "value": 0.09715862154867641,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 19,
+     "value": 0.10100180872333436,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 20,
+     "value": 0.10920192688461657,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 21,
+     "value": 0.12148855776078303,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 22,
+     "value": 0.13681158533559634,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 23,
+     "value": 0.15394606027091318,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 24,
+     "value": 0.17067755850002522,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 25,
+     "value": 0.18189979110416343,
+     "method": "shape-scaled",
+     "n_obs": 175
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-fundo-world-equity",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.08573709045572801,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 2,
+     "value": -0.07417542298644385,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 3,
+     "value": -0.05720924533180159,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 4,
+     "value": -0.039811083752393416,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 5,
+     "value": -0.02330597057190714,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 6,
+     "value": -0.007800878209660019,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 7,
+     "value": 0.00670169564636266,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 8,
+     "value": 0.02053496342286263,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 9,
+     "value": 0.03418466155531755,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 10,
+     "value": 0.04747901599407804,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 11,
+     "value": 0.059148557358348695,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": 0.06751825868801,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": 0.07189222165866951,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": 0.0732698868085987,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": 0.07336322796145854,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.07321314667599364,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 17,
+     "value": 0.0732307899109035,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 18,
+     "value": 0.07412455633610994,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 19,
+     "value": 0.0771023674508738,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 20,
+     "value": 0.08302750507648432,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 21,
+     "value": 0.09176830866780755,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 22,
+     "value": 0.10250917168191176,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 23,
+     "value": 0.11427427106635243,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 24,
+     "value": 0.1254958599119972,
+     "method": "shape-scaled",
+     "n_obs": 178
+    },
+    {
+     "state": 25,
+     "value": 0.13289140868042804,
+     "method": "shape-scaled",
+     "n_obs": 178
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-global-bonds",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.06941180212927713,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 2,
+     "value": -0.05922829661852145,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 3,
+     "value": -0.044050622123445224,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 4,
+     "value": -0.028514611196031867,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 5,
+     "value": -0.014626857803239074,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 6,
+     "value": -0.003494478129833317,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 7,
+     "value": 0.003932873936053967,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 8,
+     "value": 0.007408580601356146,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 9,
+     "value": 0.0078026766445426915,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 10,
+     "value": 0.006570692112280199,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 11,
+     "value": 0.004893153927732534,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 12,
+     "value": 0.0036625410556935002,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 13,
+     "value": 0.004001761317772703,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 14,
+     "value": 0.007025435648177755,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 15,
+     "value": 0.01274687049154669,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 16,
+     "value": 0.01960451960116326,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 17,
+     "value": 0.025368482694995413,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 18,
+     "value": 0.028657039774300695,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 19,
+     "value": 0.02972829726446641,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 20,
+     "value": 0.029679156045710517,
+     "method": "forward-12m-smoothed",
+     "n_obs": 11
+    },
+    {
+     "state": 21,
+     "value": 0.029172457602940252,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 22,
+     "value": 0.028251187706994307,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 23,
+     "value": 0.026777155873480802,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 24,
+     "value": 0.02485544444990606,
+     "method": "shape-scaled",
+     "n_obs": 158
+    },
+    {
+     "state": 25,
+     "value": 0.02332959118474559,
+     "method": "shape-scaled",
+     "n_obs": 158
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-global-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.11283536347733844,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 2,
+     "value": -0.09763174149917114,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 3,
+     "value": -0.0752929534347666,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 4,
+     "value": -0.05232331752307681,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 5,
+     "value": -0.030435631993303795,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 6,
+     "value": -0.00974316204638005,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 7,
+     "value": 0.009783972868397026,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 8,
+     "value": 0.028628687473496384,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 9,
+     "value": 0.047451655493078795,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 10,
+     "value": 0.0659571599731115,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 11,
+     "value": 0.08229691335796671,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": 0.0940157546427312,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": 0.09990662001037637,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": 0.10107539494944405,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": 0.09985670983324388,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.09803856650136882,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 17,
+     "value": 0.0967069729702267,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 18,
+     "value": 0.09715861767141513,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 19,
+     "value": 0.10100180449575318,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 20,
+     "value": 0.10920192178300665,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 21,
+     "value": 0.12148855130908107,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 22,
+     "value": 0.13681157715288583,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 23,
+     "value": 0.1539460500800518,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 24,
+     "value": 0.17067754626944598,
+     "method": "shape-scaled",
+     "n_obs": 175
+    },
+    {
+     "state": 25,
+     "value": 0.18189977746679264,
+     "method": "shape-scaled",
+     "n_obs": 175
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-global-governmental-bonds",
+   "kind": "instrument",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.05657020233237038,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 2,
+     "value": -0.03724134072949203,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 3,
+     "value": -0.011619185949090779,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 4,
+     "value": 0.010151003237093906,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 5,
+     "value": 0.026028505081080785,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 6,
+     "value": 0.036660624653829695,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.042259783227149274,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.04159889545227799,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.032626585576853835,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.01569170645679129,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.004582270023997376,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 12,
+     "value": -0.021466408975803902,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 13,
+     "value": -0.030202518172902957,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 14,
+     "value": -0.030588735823888713,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 15,
+     "value": -0.025775272741368274,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 16,
+     "value": -0.019174613671897833,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 17,
+     "value": -0.013140848233838752,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 18,
+     "value": -0.00889973120672346,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 19,
+     "value": -0.006384729638229928,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 20,
+     "value": -0.00482116064429387,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 21,
+     "value": -0.0037086635458259427,
+     "method": "shape-scaled",
+     "n_obs": 226
+    },
+    {
+     "state": 22,
+     "value": -0.002996484155533002,
+     "method": "shape-scaled",
+     "n_obs": 226
+    },
+    {
+     "state": 23,
+     "value": -0.0027683995944378943,
+     "method": "shape-scaled",
+     "n_obs": 226
+    },
+    {
+     "state": 24,
+     "value": -0.0030028761028057117,
+     "method": "shape-scaled",
+     "n_obs": 226
+    },
+    {
+     "state": 25,
+     "value": -0.0033572112085643643,
+     "method": "shape-scaled",
+     "n_obs": 226
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-global-high-yields",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.00781759886229269,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 2,
+     "value": 0.01196187552577045,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 3,
+     "value": 0.038107397625991656,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 4,
+     "value": 0.06020594112303807,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 5,
+     "value": 0.07621025073251111,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 6,
+     "value": 0.08684653222673358,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.09237893509964631,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.09153414714081042,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.08212701008904344,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.06445847295634714,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.043315110010669094,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": 0.025608356765768444,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": 0.015882940410447834,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.013778432984987373,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.01604216711149633,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.020169036396985876,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 17,
+     "value": 0.025279875877614426,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 18,
+     "value": 0.03132624758264938,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 19,
+     "value": 0.038718091124325234,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 20,
+     "value": 0.047898774437305155,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 21,
+     "value": 0.05890134108677646,
+     "method": "shape-scaled",
+     "n_obs": 232
+    },
+    {
+     "state": 22,
+     "value": 0.07141971093755645,
+     "method": "shape-scaled",
+     "n_obs": 232
+    },
+    {
+     "state": 23,
+     "value": 0.08506197829429399,
+     "method": "shape-scaled",
+     "n_obs": 232
+    },
+    {
+     "state": 24,
+     "value": 0.09850758255225175,
+     "method": "shape-scaled",
+     "n_obs": 232
+    },
+    {
+     "state": 25,
+     "value": 0.10767449248449334,
+     "method": "shape-scaled",
+     "n_obs": 232
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-global-macro",
+   "kind": "instrument",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.01083047835713292,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 2,
+     "value": 0.003926129236470184,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 3,
+     "value": 0.023927416341287044,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 4,
+     "value": 0.041613939627466484,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 5,
+     "value": 0.05518351175065126,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 6,
+     "value": 0.06475064502183635,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 7,
+     "value": 0.07019919319315143,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 8,
+     "value": 0.07069717760867293,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 9,
+     "value": 0.06518993504148686,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 10,
+     "value": 0.05427721688394339,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 11,
+     "value": 0.04115968011457545,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 12,
+     "value": 0.030265102795721564,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 13,
+     "value": 0.024797813608313214,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 14,
+     "value": 0.02506029363082475,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 15,
+     "value": 0.02900434939407108,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 16,
+     "value": 0.03410454036906379,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 17,
+     "value": 0.03838106118043909,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 18,
+     "value": 0.040747774264342236,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 19,
+     "value": 0.041254514117566254,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 20,
+     "value": 0.04051761158047396,
+     "method": "forward-12m-smoothed",
+     "n_obs": 7
+    },
+    {
+     "state": 21,
+     "value": 0.038831763926661975,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 22,
+     "value": 0.03605025026465378,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 23,
+     "value": 0.031898292150968,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 24,
+     "value": 0.026712021948864902,
+     "method": "shape-scaled",
+     "n_obs": 145
+    },
+    {
+     "state": 25,
+     "value": 0.022677478094547215,
+     "method": "shape-scaled",
+     "n_obs": 145
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-global-real-estate-indirect",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.1166711071431939,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": -0.09314644056627411,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": -0.06030266045105899,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": -0.029786005028743207,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": -0.00500117650764183,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.013407720425856376,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.024649545755686158,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.02762624195308379,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.021770081967936776,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.008763129198192466,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.007008809667766999,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.019719033208840483,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.023787358680053623,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.016155415873941276,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": -0.0008010697856844981,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.02414808360216157,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.044599742627704525,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.05882927164489076,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.06709910667385738,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.07211668639657519,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.07564478509471903,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.0778958196646311,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.07861821132313809,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.0778883325610143,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.07678213336482508,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-hang-seng-index",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.02786644323269893,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.02900762878736367,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.02973196636838824,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.02895415023958666,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.026684815868213876,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.02329224002331663,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.018942440742712695,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.013117935543648162,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.004854853106773288,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.005806402652507731,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.016935393332236096,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.025366641392996228,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.027767334398360766,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.02188648256925994,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": -0.00783545640199854,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.011960303368625335,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.03423767038954764,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.05667004810610506,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.07883649710225722,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.10151899302589773,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.12532304479070247,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.1503220405271946,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.1764187470743612,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.201712490234088,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.21889834976952083,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-india-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.21715798009396414,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 2,
+     "value": -0.19865103118093955,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 3,
+     "value": -0.17120757397413464,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 4,
+     "value": -0.142496126005359,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 5,
+     "value": -0.11445510547128966,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 6,
+     "value": -0.08711231816944454,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 7,
+     "value": -0.06026816052630668,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 8,
+     "value": -0.033035007980771525,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 9,
+     "value": -0.004385463351044028,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 10,
+     "value": 0.024934938572254935,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 11,
+     "value": 0.05149230066746606,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": 0.07057357344807545,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": 0.07873922101621225,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": 0.07596314799356527,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": 0.06566240117934288,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.052790103733378044,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 17,
+     "value": 0.04226052840714909,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 18,
+     "value": 0.03805893479706149,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 19,
+     "value": 0.04228361906358702,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 20,
+     "value": 0.0549999671625202,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 21,
+     "value": 0.07523802006636574,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 22,
+     "value": 0.10186023857751647,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 23,
+     "value": 0.13375071689973353,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 24,
+     "value": 0.1671961882445216,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 25,
+     "value": 0.1907610469588812,
+     "method": "shape-scaled",
+     "n_obs": 174
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-infrastructure",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.0029585166575318606,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 2,
+     "value": 0.002373102321937783,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 3,
+     "value": 0.0019845796519978804,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 4,
+     "value": 0.002355923947548315,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 5,
+     "value": 0.003517857406513859,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 6,
+     "value": 0.005326678311951794,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.00783982264570526,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.011787200820290913,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.018310068102040052,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.027493068841524602,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.03749062434409774,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 12,
+     "value": 0.045553552646302425,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 13,
+     "value": 0.050000991941812345,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 14,
+     "value": 0.05129851653932354,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 15,
+     "value": 0.05108601722096724,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 16,
+     "value": 0.050545028584415314,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 17,
+     "value": 0.05021789920756445,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 18,
+     "value": 0.050816151555504674,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 19,
+     "value": 0.05340063570482162,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 20,
+     "value": 0.05868299053779291,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 21,
+     "value": 0.06652353623338289,
+     "method": "shape-scaled",
+     "n_obs": 224
+    },
+    {
+     "state": 22,
+     "value": 0.0762150316460553,
+     "method": "shape-scaled",
+     "n_obs": 224
+    },
+    {
+     "state": 23,
+     "value": 0.08691925814897086,
+     "method": "shape-scaled",
+     "n_obs": 224
+    },
+    {
+     "state": 24,
+     "value": 0.09722723353241344,
+     "method": "shape-scaled",
+     "n_obs": 224
+    },
+    {
+     "state": 25,
+     "value": 0.10407007350221403,
+     "method": "shape-scaled",
+     "n_obs": 224
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-japan-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.006556012428301218,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": -0.007679969945276561,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": -0.009324404938111965,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": -0.01099249284304735,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": -0.012535456590123967,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": -0.013921203537358158,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": -0.015127035072170029,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": -0.016165120637270897,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": -0.01708241354193364,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.017904202596840467,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.01858985002938795,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.01873829213214439,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.01682908197619288,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.010444347601621235,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": -0.0007040309371019564,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.017989126449973455,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.03572796239857402,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.052581713544128945,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.06803861010930404,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.082756657093533,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.0973207421424114,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.1118770822160147,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.12642567114126435,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.14005867139956574,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.1491447518215936,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-long-volatility-index",
+   "kind": "instrument",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.011770642812112556,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.0021496479223495762,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.02103581066152016,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.03776461380401083,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.05062578036870003,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.059711432372535386,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.06490035023323582,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.06541209748396992,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.06027320246740359,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.050063389625119796,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.03778813798139758,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": 0.028119969204836705,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": 0.026367542962647893,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.0362993060823871,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.05689019180722954,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.08176467044245792,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.10255117537567324,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.11361867370564427,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.11461349489319386,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.10810668799649831,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.09559622413287525,
+     "method": "shape-scaled",
+     "n_obs": 245
+    },
+    {
+     "state": 22,
+     "value": 0.0767710781978156,
+     "method": "shape-scaled",
+     "n_obs": 245
+    },
+    {
+     "state": 23,
+     "value": 0.05077657854393629,
+     "method": "shape-scaled",
+     "n_obs": 245
+    },
+    {
+     "state": 24,
+     "value": 0.020020756953288327,
+     "method": "shape-scaled",
+     "n_obs": 245
+    },
+    {
+     "state": 25,
+     "value": -0.003246827525813621,
+     "method": "shape-scaled",
+     "n_obs": 245
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-mining-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.24813109623311583,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.17744323648439075,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.07898573766661166,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": -0.013038767318648706,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": -0.08763805934827285,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": -0.14307756215938894,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": -0.1772464545124029,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": -0.18726655029231923,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": -0.16991606462788283,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.13143741592841737,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.08333591119292642,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.039656627141917186,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.009711979893965751,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.005629783961963809,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.013405995151337571,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.01923133106829726,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.026636978663247803,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.03944983187585749,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.062087046155013675,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.09706175518274535,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.14355979984200362,
+     "method": "shape-scaled",
+     "n_obs": 242
+    },
+    {
+     "state": 22,
+     "value": 0.19872399385070622,
+     "method": "shape-scaled",
+     "n_obs": 242
+    },
+    {
+     "state": 23,
+     "value": 0.2592458948157269,
+     "method": "shape-scaled",
+     "n_obs": 242
+    },
+    {
+     "state": 24,
+     "value": 0.3181671485519531,
+     "method": "shape-scaled",
+     "n_obs": 242
+    },
+    {
+     "state": 25,
+     "value": 0.35778644314788377,
+     "method": "shape-scaled",
+     "n_obs": 242
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-msci-ac-world-imi",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.12975235084950032,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 2,
+     "value": 0.11324007285309594,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 3,
+     "value": 0.09041712140976903,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 4,
+     "value": 0.0695555587989711,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 5,
+     "value": 0.05291726321033075,
+     "method": "forward-12m-smoothed",
+     "n_obs": 8
+    },
+    {
+     "state": 6,
+     "value": 0.04075544296354188,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.033472390754829454,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.03186490067674182,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.03656692621037977,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.04659773195843953,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.058818307872358394,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 12,
+     "value": 0.06927833150153126,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 13,
+     "value": 0.07553799499823094,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 14,
+     "value": 0.0780028825338383,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 15,
+     "value": 0.0786656446827412,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 16,
+     "value": 0.07895494795454194,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 17,
+     "value": 0.07970628882013317,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 18,
+     "value": 0.08284213386342701,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 19,
+     "value": 0.09162777387850429,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 20,
+     "value": 0.10839295341889249,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 21,
+     "value": 0.1327797451071549,
+     "method": "shape-scaled",
+     "n_obs": 221
+    },
+    {
+     "state": 22,
+     "value": 0.16258413654926324,
+     "method": "shape-scaled",
+     "n_obs": 221
+    },
+    {
+     "state": 23,
+     "value": 0.1951698299170587,
+     "method": "shape-scaled",
+     "n_obs": 221
+    },
+    {
+     "state": 24,
+     "value": 0.2262486548142585,
+     "method": "shape-scaled",
+     "n_obs": 221
+    },
+    {
+     "state": 25,
+     "value": 0.24674159175446786,
+     "method": "shape-scaled",
+     "n_obs": 221
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-precious-metals",
+   "kind": "instrument",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.05080082558986651,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.06177220587031825,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.07700645734209825,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.09103681257871145,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.1023216494519406,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.11063248760705142,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.11571009479009087,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.11725058312335294,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.1151488891120857,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.10992676504651047,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.1028081865247935,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": 0.0952234428911558,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": 0.08804415528194759,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.08128600942449665,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.07479191494284576,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.06901235122158782,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.06485641387285276,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.06299618739670805,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.06348961919027685,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.06604589570741065,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.07048699664895217,
+     "method": "shape-scaled",
+     "n_obs": 261
+    },
+    {
+     "state": 22,
+     "value": 0.07683848361990031,
+     "method": "shape-scaled",
+     "n_obs": 261
+    },
+    {
+     "state": 23,
+     "value": 0.08518771248077034,
+     "method": "shape-scaled",
+     "n_obs": 261
+    },
+    {
+     "state": 24,
+     "value": 0.09469560710686065,
+     "method": "shape-scaled",
+     "n_obs": 261
+    },
+    {
+     "state": 25,
+     "value": 0.10173833567653691,
+     "method": "shape-scaled",
+     "n_obs": 261
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-private-debt",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.027062541414108077,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 2,
+     "value": 0.029928938061947644,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 3,
+     "value": 0.034094818707909515,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 4,
+     "value": 0.038210420913202675,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 5,
+     "value": 0.04176989750984925,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 6,
+     "value": 0.04455328891152423,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 7,
+     "value": 0.04637472585843862,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 8,
+     "value": 0.04719643498422932,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 9,
+     "value": 0.047203900197980986,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 10,
+     "value": 0.046676482107031535,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 11,
+     "value": 0.04580523179701027,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": 0.0445641691024147,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": 0.042511925880985985,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": 0.03897124993191285,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": 0.03387552812213564,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.02827182503703987,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 17,
+     "value": 0.023869295231531928,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 18,
+     "value": 0.022305524467158167,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 19,
+     "value": 0.024597993623602606,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 20,
+     "value": 0.030931948308048227,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 21,
+     "value": 0.040916400805320066,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 22,
+     "value": 0.05396985320591968,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 23,
+     "value": 0.0694891874040334,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 24,
+     "value": 0.085646295918305,
+     "method": "shape-scaled",
+     "n_obs": 185
+    },
+    {
+     "state": 25,
+     "value": 0.09697579802236395,
+     "method": "shape-scaled",
+     "n_obs": 185
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-private-equity",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.07355570852501922,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": -0.07367696692113065,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": -0.07375427436967301,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": -0.07366201218514659,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": -0.0733802360777047,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": -0.07292391470893522,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": -0.07222251726049893,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": -0.07088758727401391,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": -0.06821149614995954,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.06367919352614312,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.057371632397669736,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.04966041753213603,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.04052685711923093,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.029363333279932406,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": -0.01561358611275429,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": -0.00031397168841847123,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.018799749735306168,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.03868189772938065,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.06055785126665355,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.08486237873597782,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.11167881544349192,
+     "method": "shape-scaled",
+     "n_obs": 238
+    },
+    {
+     "state": 22,
+     "value": 0.14076409325545475,
+     "method": "shape-scaled",
+     "n_obs": 238
+    },
+    {
+     "state": 23,
+     "value": 0.17178919154606792,
+     "method": "shape-scaled",
+     "n_obs": 238
+    },
+    {
+     "state": 24,
+     "value": 0.20223540554674102,
+     "method": "shape-scaled",
+     "n_obs": 238
+    },
+    {
+     "state": 25,
+     "value": 0.22303554184961982,
+     "method": "shape-scaled",
+     "n_obs": 238
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-real-estate-direct",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.06966222530827665,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.051544400213202085,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.03210456954719942,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": -0.012840538617153143,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.0047498872700521555,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.019168902807532036,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.02891870268840195,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.03250148160577736,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.03227294194903402,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.03172796276756913,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.031077503744530395,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03053252456306551,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.03030398490632217,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.032409212497079065,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.037485486930178245,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.04367369569686243,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.049114726288374405,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.05194946619595689,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.05279807783282574,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.05350295639417441,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.0540383385442121,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.054378460947147975,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.05449756026719123,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.05436987316855104,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.05396963631543658,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-structured-products",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.06966222530827665,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.051544400213202085,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.03210456954719942,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": -0.012840538617153143,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.0047498872700521555,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.019168902807532036,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.02891870268840195,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.03250148160577736,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.03227294194903402,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.03172796276756913,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.031077503744530395,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03053252456306551,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.03030398490632217,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.032409212497079065,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.037485486930178245,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.04367369569686243,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.049114726288374405,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.05194946619595689,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.05279807783282574,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.05350295639417441,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.0540383385442121,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.054378460947147975,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.05449756026719123,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.05436987316855104,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.05396963631543658,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-swiss-dividend-equity",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.18722034260080506,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.1557486901632164,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.12530021840753505,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": -0.09644546751197859,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": -0.06975497765476478,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": -0.04579928901411118,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": -0.025148941768235497,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": -0.008374476095355451,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.004837049076218359,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.01581689416232708,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.025521998000980962,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03490929943019016,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.04493573728796488,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.055948610244063855,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.0673099593981762,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.07849883723320752,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.0889942962320635,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.09827538887764972,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.1065471172104212,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.1143032096040039,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.12145580804105993,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.1279170545042515,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.1335990909762408,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.1384140594396899,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.14227410187726103,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-swiss-performance-index",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.02549628914161605,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.02737867661603697,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.029749419331463307,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.031567876665243515,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.03270441249885614,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.03332950720734308,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.03349101440839321,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.032813547138315774,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.030611283662801334,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.0267365338318008,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.02212560641825808,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": 0.018448974321481,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": 0.017549584310105705,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.020799194861479964,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.028359827465290956,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.0391256949827521,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.05150642796774406,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.06441097283106732,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.07774929478734995,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.091997614040633,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.10744512353841137,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.12404736155138366,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.14165875721263024,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.15889385035285578,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.17065661107482025,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-sxi-real-estate",
+   "kind": "instrument",
+   "role": "income",
+   "unit": "annualised_log_return",
+   "coverage": "seed",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.06966222530827665,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 2,
+     "value": -0.051544400213202085,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 3,
+     "value": -0.03210456954719942,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 4,
+     "value": -0.012840538617153143,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 5,
+     "value": 0.0047498872700521555,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 6,
+     "value": 0.019168902807532036,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 7,
+     "value": 0.02891870268840195,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 8,
+     "value": 0.03250148160577736,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 9,
+     "value": 0.03227294194903402,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 10,
+     "value": 0.03172796276756913,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 11,
+     "value": 0.031077503744530395,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 12,
+     "value": 0.03053252456306551,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 13,
+     "value": 0.03030398490632217,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 14,
+     "value": 0.032409212497079065,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 15,
+     "value": 0.037485486930178245,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 16,
+     "value": 0.04367369569686243,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 17,
+     "value": 0.049114726288374405,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 18,
+     "value": 0.05194946619595689,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 19,
+     "value": 0.05279807783282574,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 20,
+     "value": 0.05350295639417441,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 21,
+     "value": 0.0540383385442121,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 22,
+     "value": 0.054378460947147975,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 23,
+     "value": 0.05449756026719123,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 24,
+     "value": 0.05436987316855104,
+     "method": "seed",
+     "n_obs": 0
+    },
+    {
+     "state": 25,
+     "value": 0.05396963631543658,
+     "method": "seed",
+     "n_obs": 0
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-trend-following",
+   "kind": "instrument",
+   "role": "stabilisation",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.050472840163348465,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 2,
+     "value": -0.03274041756253601,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 3,
+     "value": -0.008588816840507262,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 4,
+     "value": 0.01294745997948123,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 5,
+     "value": 0.029637951122350948,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 6,
+     "value": 0.0415194418690627,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 7,
+     "value": 0.0483784580725132,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 8,
+     "value": 0.04924308370120663,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 9,
+     "value": 0.042981786808714346,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 10,
+     "value": 0.03040380207151927,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 11,
+     "value": 0.015267832101472529,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": -0.0013329091559981035,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": -0.0038610337029123818,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": -0.004178947027268257,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": -0.0007111295988604326,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.003885525207136897,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 17,
+     "value": 0.007739979288071072,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 18,
+     "value": 0.009874032552578392,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 19,
+     "value": 0.01033385863496162,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 20,
+     "value": 0.009675856471345974,
+     "method": "forward-12m-smoothed",
+     "n_obs": 13
+    },
+    {
+     "state": 21,
+     "value": 0.008165500143559993,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 22,
+     "value": 0.005669700626902573,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 23,
+     "value": 0.0019397835793582507,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 24,
+     "value": -0.002722926683507809,
+     "method": "shape-scaled",
+     "n_obs": 187
+    },
+    {
+     "state": 25,
+     "value": -0.006351567727012583,
+     "method": "shape-scaled",
+     "n_obs": 187
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-uk-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.005846981986060448,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.006031081187591086,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.00615222703036338,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.006030432671629121,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.005651598010296459,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.005056077801755047,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.0041996377461572774,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.0027554198675078705,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.00022441736523146462,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": -0.003446516202836227,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": -0.0074974541890634825,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": -0.010635086326981427,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.01144783077192904,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.008859719477042822,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": -0.002638806822512184,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.006569184370382442,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.01786915715517,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.031016958408137573,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.04674040404570011,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.06590900304325528,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.0886239791083606,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.11432587749013211,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.14228564591498222,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.16985400766873868,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.1886665784825746,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-usd-cash",
+   "kind": "instrument",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.0838918986678083,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 2,
+     "value": -0.060729764446579695,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 3,
+     "value": -0.028439263050881146,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 4,
+     "value": 0.0014929290248252925,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 5,
+     "value": 0.02574073265707757,
+     "method": "forward-12m-smoothed",
+     "n_obs": 9
+    },
+    {
+     "state": 6,
+     "value": 0.04371063274403532,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.054653489700417536,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.05747693947017142,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.051567226163499194,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.03854478159452873,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.022763074235525968,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": 0.009497581555457917,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": -0.0011640304700588364,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": -0.0006731372108318722,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": -0.00096997030437312,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": -0.0007880142767725749,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 17,
+     "value": -0.000528597939367909,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 18,
+     "value": -0.00011258436105262185,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 19,
+     "value": 0.0006106720379641233,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 20,
+     "value": 0.0017536308123622104,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 21,
+     "value": 0.003302350457040194,
+     "method": "shape-scaled",
+     "n_obs": 231
+    },
+    {
+     "state": 22,
+     "value": 0.005154179077232626,
+     "method": "shape-scaled",
+     "n_obs": 231
+    },
+    {
+     "state": 23,
+     "value": 0.007185480494042772,
+     "method": "shape-scaled",
+     "n_obs": 231
+    },
+    {
+     "state": 24,
+     "value": 0.009154510977153195,
+     "method": "shape-scaled",
+     "n_obs": 231
+    },
+    {
+     "state": 25,
+     "value": 0.010472931403165393,
+     "method": "shape-scaled",
+     "n_obs": 231
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-us-equities",
+   "kind": "instrument",
+   "role": "gain",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": -0.002022758164227402,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 2,
+     "value": 0.018283059179678766,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 3,
+     "value": 0.034387412145705,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 4,
+     "value": 0.04913712066275995,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 5,
+     "value": 0.06092728680295847,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 6,
+     "value": 0.06956266949977315,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 7,
+     "value": 0.0747423527989147,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 8,
+     "value": 0.07588907130500139,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 9,
+     "value": 0.07255576067864,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 10,
+     "value": 0.06546615746007806,
+     "method": "forward-12m-smoothed",
+     "n_obs": 6
+    },
+    {
+     "state": 11,
+     "value": 0.056896823398058155,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 12,
+     "value": 0.05000068701128551,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 13,
+     "value": 0.0478976330383318,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 14,
+     "value": 0.05256400490719197,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 15,
+     "value": 0.06381325581328133,
+     "method": "forward-12m-smoothed",
+     "n_obs": 14
+    },
+    {
+     "state": 16,
+     "value": 0.07949322555325869,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 17,
+     "value": 0.09678247101915234,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 18,
+     "value": 0.11364238626640524,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 19,
+     "value": 0.12962773111024095,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 20,
+     "value": 0.1453457512607258,
+     "method": "forward-12m-smoothed",
+     "n_obs": 16
+    },
+    {
+     "state": 21,
+     "value": 0.1613232751419818,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 22,
+     "value": 0.1776807394335517,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 23,
+     "value": 0.1944040926946195,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 24,
+     "value": 0.21037029990655218,
+     "method": "shape-scaled",
+     "n_obs": 275
+    },
+    {
+     "state": 25,
+     "value": 0.22113025353231625,
+     "method": "shape-scaled",
+     "n_obs": 275
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  },
+  {
+   "key": "INS-us-treasury-tr-index",
+   "kind": "instrument",
+   "role": "protection",
+   "unit": "annualised_log_return",
+   "coverage": "shape-scaled",
+   "states": [
+    {
+     "state": 1,
+     "value": 0.049983695904807286,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 2,
+     "value": 0.041477872044988276,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 3,
+     "value": 0.028773137629069037,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 4,
+     "value": 0.01572997248701619,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 5,
+     "value": 0.004039657653556665,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 6,
+     "value": -0.005349351586757324,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 7,
+     "value": -0.011643490651153568,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 8,
+     "value": -0.014711461913148257,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 9,
+     "value": -0.015388589926415286,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 10,
+     "value": -0.014851832437975516,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 11,
+     "value": -0.013802622730128382,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 12,
+     "value": -0.012317427442911474,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 13,
+     "value": -0.009893026428890216,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 14,
+     "value": -0.005754244493796648,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 15,
+     "value": -0.0002055093793609953,
+     "method": "forward-12m-smoothed",
+     "n_obs": 10
+    },
+    {
+     "state": 16,
+     "value": 0.006670819661299943,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 17,
+     "value": 0.011923159491323321,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 18,
+     "value": 0.014749248994666286,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 19,
+     "value": 0.015247798722824195,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 20,
+     "value": 0.014133097621881462,
+     "method": "forward-12m-smoothed",
+     "n_obs": 12
+    },
+    {
+     "state": 21,
+     "value": 0.011727089739099084,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 22,
+     "value": 0.007837780224437868,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 23,
+     "value": 0.0021254526787026695,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 24,
+     "value": -0.0049339954326435035,
+     "method": "shape-scaled",
+     "n_obs": 174
+    },
+    {
+     "state": 25,
+     "value": -0.010396592775213489,
+     "method": "shape-scaled",
+     "n_obs": 174
+    }
+   ],
+   "borrowed_from": null,
+   "match_score": null
+  }
+ ],
+ "block_profiles": [],
+ "provenance": {
+  "calibration_id": "CAL-69d9d1ee5245ac71",
+  "state_map_id": "MAP-eb4b581619a03147",
+  "regime_id": "RGM-e2658e8e9bbbc81e",
+  "universe_version": "u@1.0.0",
+  "calibration_window": "1871..2020",
+  "signal_window": "2006-08..2026-07",
+  "estimator": "forward_12m_smoothed",
+  "source_sha256": {
+   "ag": "80c4dd2f3af86fee300e3b12aab59dc2ca6a1a6cee774347ea7878c7bbb4be6c",
+   "bill": "25a9f9934081db19f5a37e66d4b16a399f42d9068421b4f5de2b9a199fff6603",
+   "bond": "a9cd3a154c16d5cfe42c68435f6928edcfbd03f2c4432ba269505c030cc50a22",
+   "bondtr": "fa85fcb842ed51d35f1d1fd3089dae9e8814ebc2976973bb590e316da02df06d",
+   "broad": "ad53c33182eedf1afa02212841f4b50bfe9826888ed3fbf92597f152f88094af",
+   "cpi": "aa456c9d2aeeca95967be19b1dd4dd17b845c9d0940e4ae0efd37ddb48434f00",
+   "erng": "96d417c9ba50374441261cd27746af96a98758ed9d5709d6e505777ceb73b4fe",
+   "gdp": "31922483e76fc2e77d90efaba218cc3ea873cd835c0c150051a93f25f343f791",
+   "gold": "211faa6f9e22b7544fac4a0362fe17486f6235cce8609c19f099c905798002af",
+   "gov_debt": "eeb8ca2f8656f63e3e14e22f8435ea5fa7b10e8ad7845dc36ed7e9046ab5e9ee",
+   "house": "abfd9168962ecc215e076aac319e3948a10145e04e1fd4e19d350c50e9c207e5",
+   "loans": "081abb9e6c7643b3ba081f11a34f9f091f77923c2cc4642c70e43eafc7019ebf",
+   "lrate": "2546d234429a308ca77cc515db46b9801e60e6beb3efa78a8e3534fc3af13e39",
+   "narrow": "669d888e2d63f48d8c4430b6303b4cbd5c8c378dc367e9604aaf7d51dc69e301",
+   "oil": "be962ff00ad2ec5a76463115deee0ccfcbc4b88ae7b3600016f720e842bffca5",
+   "spx": "e7ef29e04588732a342d43cd6795bb9a0e975272df9c601806acd4d391803e03",
+   "srate": "3ca76ceed6008a64c3c12fff515937e98248144406c9d55e1e8046a0a6326eed",
+   "ump": "26006f0b461063a8d49e41e21fc9f83dc96a2ba6152e798043a8917c09ad2a25",
+   "wheat": "75433ae60f7d7a641a466b22c323eb8fb6002e5ad6bfedded4aa417aaa2047a3"
+  },
+  "notes": [
+   "Profiles are annual log returns per state. The mandate's horizon governs; the ReturnSet is a property of the world, not of a household.",
+   "Series are nominal and not de-trended. Real is obtained by subtracting current inflation at the point of use.",
+   "Four of the 25 states are extrapolated beyond the hull of the five phase estimates, reproducing the published reference. They are labelled.",
+   "Instrument profiles: profile_method=forward_12m_smoothed in currency=CHF; the default estimator: the 12 month forward return after each month, measured per phase, read onto the 25 states by pchip and lightly smoothed across neighbouring states; computed on request.",
+   "Currency: instrument profiles measured in CHF, converted monthly at the point of use before estimation. Role profiles are the long annual record in USD and are not converted."
+  ],
+  "currency": "CHF"
+ },
+ "run_id": "RUN-6f1b455dffc2ba58"
+}

@@ -612,7 +612,9 @@ class RegimePaths(_Frozen):
     inflation_pass_through: Optional[str] = None
     inflation: RegimeInflation
     #: Keyed by series: ``net_worth`` and each goal measure present (``drawable``, ``deposit_eligible``,
-    #: ``retirement_capital``).
+    #: ``retirement_capital``). Year-end values, recorded BEFORE any goal of that date is carried out: at a goal's
+    #: date the band is the value its chance is judged on; a deposit or a lump sum paid then shows from the next
+    #: year end on.
     bands: dict[str, BandSet]
     goals: tuple[GoalChance, ...]
 

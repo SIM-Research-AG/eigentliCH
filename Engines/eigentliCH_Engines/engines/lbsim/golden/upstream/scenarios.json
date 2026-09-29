@@ -1,0 +1,26 @@
+[
+ {
+  "regime_id": "RGM-1af6968e287768c9",
+  "policy": "depression",
+  "base_regime_id": "RGM-e2658e8e9bbbc81e",
+  "created_at": "2026-09-29T04:52:45+00:00"
+ },
+ {
+  "regime_id": "RGM-59eebfaf7744d8ec",
+  "policy": "hyperinflation",
+  "base_regime_id": "RGM-e2658e8e9bbbc81e",
+  "created_at": "2026-09-29T04:52:46+00:00"
+ },
+ {
+  "regime_id": "RGM-6bb531998bfefc4d",
+  "policy": "stagflation",
+  "base_regime_id": "RGM-e2658e8e9bbbc81e",
+  "created_at": "2026-09-29T04:52:46+00:00"
+ },
+ {
+  "regime_id": "RGM-c0ed086f1916984e",
+  "policy": "deferral",
+  "base_regime_id": "RGM-e2658e8e9bbbc81e",
+  "created_at": "2026-09-29T05:07:44+00:00"
+ }
+]

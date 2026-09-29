@@ -1,0 +1,12 @@
+{
+ "built_by": "dev/build_upstream_snapshot.py",
+ "allocation": "PCP-5304eca69cc0e867",
+ "regimes": {
+  "base": "RGM-e2658e8e9bbbc81e",
+  "depression": "RGM-1af6968e287768c9",
+  "hyperinflation": "RGM-59eebfaf7744d8ec",
+  "stagflation": "RGM-6bb531998bfefc4d",
+  "deferral": "RGM-c0ed086f1916984e"
+ },
+ "reduced": "regime economies to the Allocation's weights CH, EU, US"
+}

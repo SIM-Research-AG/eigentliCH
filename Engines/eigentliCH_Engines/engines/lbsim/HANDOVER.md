@@ -1,53 +1,54 @@
-# lbsim: handover after B1 (29.09.2026)
+# lbsim: handover after B2 (29.09.2026)
 
-B1 built the parts everything else stands on. This note says what is there, what B2 and C take over, and what
-to watch.
+B1 built the core (contracts, model port, fast half, adapter, calibrations, golden layer A and B). B2 built what
+runs it: the Monte Carlo, the upstream clients, the store, the service and API, the plan workers, the test bench.
+C builds `lbsim.optim` in parallel. This note says what is there, what the next agents build on, and what to watch.
 
 ## What is there
 
-- `lbsim.contracts`: every model of spec section 3 and the upstream mirrors. The paths contract keys `bands` by
-  series: `net_worth` and each goal measure present (`drawable`, `deposit_eligible`, `retirement_capital`); the
-  fan route's `series=goal_measure` means the designated goal's measure.
-- `lbsim.engine.build_findings(sheet, request, lbs_records, calibration, sheet_sha256=..., lbs_url=...)`: the
-  findings artefact, pure, about 10 ms a household. `lbs_records` are the lbs calibration's `human-capital` and
-  `property-funding`.
-- `lbsim.calibration`: `SEED` (1.0.0), `ACTIVE_SEED` (1.1.0), `calibration_hash`, `tables(cal)`.
-- `lbsim.model`: the numpy model, the parity target for C's symbolic port.
-- `golden/samples`: `findings.sample.json` (the engine's), `paths.sample.json` and `plan.sample.json`
-  (hand-built, marked `made_by: sample`), and `upstream/` (the bench pcp Allocation `PCP-5304eca69cc0e867` on
-  the Default Regime, fmre's five ReturnSets and inflation tables, aggregation's blended distributions, the
-  scenario labels), read only from the running engines on 29.09.2026.
-- 457 tests.
+- `lbsim.paths`: the vectorised Monte Carlo (`market`, `engine`, `reference`, `household`, `build`). Parity with the
+  draft's own `simulate` path by path to 1e-9 (sigma = 0 and the draft's seeded shocks, `golden/mc`) and with
+  lbsim's per-path step on fixed state paths. 2000 paths x 40 years x 5 Regimes in about 0.7 s.
+- `lbsim.upstream` and `lbsim.clients`: the reads and checks of 3.8, LBSIM-14 and LBSIM-15.
+- `settings`, `store` (`schema.sql`), `service`, `api`: every endpoint of 3.7, the idempotency keys of 3.9, the
+  outlook states, supersede and cancel. `config.local.yaml` holds the role's development password (git-ignored).
+- `lbsim.plan` and `lbsim.worker`: the `PlanProblem` on C's `lbsim.optim.types`, lbsim's Monte Carlo as `simulate`,
+  the queue (`FOR UPDATE SKIP LOCKED`, curator first), heartbeat, stale requeue (two attempts), the 120-minute
+  budget, the plan artefact. `python -m lbsim serve | worker | init-db`.
+- `testbench/index.html`, served at `/`: health, validate and run on a request, the outlook with chart 3.
+- `golden/upstream` (snapshot of pcp, aggregation, fmre for the tests), `golden/mc` (the draft's `simulate`),
+  `golden/samples` (the paths sample is now the engine's own).
+- 668 tests with C's (not slow); B2's own are `test_mc_parity`, `test_mc_paths`, `test_api`, `test_worker`.
 
-## B2 takes over
+## Live check (29.09.2026)
 
-- The vectorised Monte Carlo (`lbsim.paths`, must import without casadi): monthly steps, the market rule of
-  LBSIM-07 with the calibration's `market` and `property` blocks, `SeedSequence(seed).spawn(3)`, common random
-  numbers across Regimes, chances in the goal's basis (LBSIM-09), real bands from the same draws (LBSIM-10), the
-  parity test against the draft's `simulate`, the section 5 budget. `dev/build_samples.py` shows one reading of the
-  rule on real figures; it is a sample, not the engine.
-- Upstream clients on the mirrors in `contracts.py`, with the checks of section 3.8. Found on 29.09.2026: the base
-  (nominal) ReturnSet carries no `provenance.inflation_pass_through`; only scenario sets do (`ipt@1.1.0`,
-  `IPT-585c7da4656ead2b`). The `accept_ipt` check belongs to scenario sets only. An Allocation's `currency` can be
-  absent (before PCP-18) and its fallback sits in `provenance.hard_currency_fallback`.
-- Store and schema, service and API (section 3.7), `settings.py` reading `config.yaml`, the worker harness
-  (queue, heartbeat, supersede, cancel, budget) calling `lbsim.optim.solve(problem) -> PlanOutcome`.
-- Resolving the request: horizon (LBSIM-18), income path, n_paths and seed defaults from `config.yaml`, the
-  idempotency keys of section 3.9 (the findings key is already `build_findings`'s).
-- README and DECISIONS: extend the sections here rather than start new ones.
+lbsim ran on 8014 for the test only, without workers, and was stopped afterwards. `POST /run` with
+`optimise: "no"` for use-case client `3da6b118ace046f0b505cd2004f319c4` (sheet `LBS-12cd3d520300b535`, Allocation
+`PCP-0ec347ff879ad640`, Balanced CHF on the Default Regime) made findings `LSF-65f6e3d0edbae695` and paths
+`LSP-dbe83f54d10ba05a` in 15 s (9 s after the upstream reads were made parallel; the simulation is under a second,
+the rest is fmre computing each ReturnSet on request). The achieved curve reproduced to 7e-17. Chances: every goal
+1.0 in every Regime, except the home goal of 2032 under hyperinflation, 0.0 (median shortfall CHF 15 489 in today's
+francs). The store `lbsim` keeps those artefacts and three outlook runs (one with seed 1, for the timing).
 
-## C takes over
+## E (the app) and the coordinator take over
 
-- `lbsim.optim` (`symbolic`, `problem`, `goals/spec`, `mpc`) with theta fixed at 1 and per-state returns as
-  parameters, the variable grid in `ACTIVE_SEED.optimiser.grid` (0.5-year steps to 10 years, 1-year steps to 20),
-  the terminal requirement beyond the cap (`paths.saving_required` at zero return), `max_wall_time`. The draft's
-  solver settings are `SEED.optimiser`. The plan confidence is `optimiser.confidence` (0.90).
-- Parity against `lbsim.model` on every step length; the draft's slow `test_optim` cases under 1.0.0.
+- Start `python -m lbsim serve` (API on 8014 and three workers). The cockpit roster's `bench` now exists.
+- The app calls `POST /run` with the sheet and the base-Regime Allocation (section 5); `plan_run_id` is the plan's
+  `engine_run`, refreshed through `GET /runs/{id}`. The cockpit's "Planrechnung neu starten" is `POST /optimise`
+  with `requested_by {kind: curator, ref}`.
+- A request with `optimise: "background"` supersedes the client's older plans on another key; a repeated identical
+  request returns the same artefacts (`cached: true`) and the same plan run.
 
 ## To watch
 
-- The draft's frontier raises without a stated stop age (DECISIONS P-1); layer A keeps the error, the adapter's
-  submissions do not.
-- The findings-text record and the two tables are provisional (no named approver); findings are computed without
-  a gate and `provenance.records` says so. An owner's approval is a new calibration version.
-- The samples' Allocation belongs to client `bench`; a real run would refuse the mismatch (409).
+- **The retirement measure (P-11).** lbsim's `retirement_capital` is free wealth plus pillar 3a; C's
+  `optim.market.MEASURES` also counts pillar 2. The target already nets the pillar-2 annuity, so C's reading counts
+  it twice, and until they agree a retirement plan's in-sample and out-of-sample chances differ. Coordinator's call.
+- **High chances on the Balanced allocations.** On the bench Allocation, fmre's per-state profiles give a long-run
+  mean log return of 11.0 % a year against 0.6 % inflation, and the draft's income paths let skill grow for five
+  years (the "today" path doubles a young earner's income). Most goals then reach a chance of 1.0; the paths do
+  what their inputs say.
+- **The paths key (P-17)** does not move with aggregation's Regime content under the same id, as 3.9 states.
+- **The samples changed bytes** (`paths.sample.json`, `plan.sample.json`); the report's golden pages rest on the old.
+- The plan sample stays hand-built until C's solver produces one; `tests/test_worker.py` has a slow end-to-end test
+  of C's real solve (`-m slow`).
