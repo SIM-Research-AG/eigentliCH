@@ -626,10 +626,50 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "
 _LS_MEASURE_KIND = {"home": "property", "retirement": "retirement", "capital": "goal"}
 
 
+def subject_keys(sheet: Optional[LifeBalanceSheet], findings: Optional[LifeBalanceFindings],
+                 paths: Optional[LifeBalancePaths], plan: Optional[LifeBalancePlan]) -> dict[str, str]:
+    """A stable ordinal key for every person and goal id (REP-39): ``person1``, ``person2`` in the lbs sheet's
+    household order, ``goal1``, ``goal2`` in its goal order (its real view's goal list, then the goals its sections
+    name), then those only lbsim names. Fact ids carry the key, never the id, so no id reaches the page's markup;
+    the id stays in each fact's source path."""
+    persons: list[str] = []
+    goals: list[str] = []
+    if sheet is not None:
+        persons += [p.person_id for p in sheet.household.adults + sheet.household.dependants]
+        persons += [hc.person_id for hc in sheet.human_capital] + [p.person_id for p in sheet.pensions]
+        if sheet.real_view is not None:
+            goals += [g.goal_id for g in sheet.real_view.goals]
+        goals += [k.split(":", 1)[1] for k in lbs_subjects(sheet, "en") if k.startswith("goal:")]
+        persons += [k.split(":", 1)[1] for k in lbs_subjects(sheet, "en") if k.startswith("person:")]
+    if findings is not None:
+        persons += [e.person_id for e in findings.earning_power] + [p.person_id for p in findings.income_paths]
+        goals += [s.goal_id for p in findings.income_paths for s in p.saving_need]
+    for r in (paths.regimes if paths else ()):
+        goals += [g.goal_id for g in r.goals]
+    if plan is not None:
+        goals.append(plan.goal.goal_id)
+    out = {pid: f"person{n}" for n, pid in enumerate(dict.fromkeys(persons), start=1)}
+    out.update({gid: f"goal{n}" for n, gid in enumerate(dict.fromkeys(goals), start=1)})
+    return out
+
+
+_KEYED = ("lbs.human.", "lbs.pension.", "lbs.retirement.", "lbs.property.", "lbs.liquidity.", "lbsim.")
+
+
+def keyed(fact_id: str, keys: dict[str, str]) -> str:
+    """``fact_id`` with each segment that is a person or goal id replaced by its ordinal key (REP-39)."""
+    if not fact_id.startswith(_KEYED):
+        return fact_id
+    parts = fact_id.split(".")
+    return ".".join(parts[:2] + [keys.get(p, p) for p in parts[2:]])
+
+
 def lbsim_subjects(findings: Optional[LifeBalanceFindings], paths: Optional[LifeBalancePaths],
-                   plan: Optional[LifeBalancePlan], known: dict[str, str], lang: str) -> dict[str, str]:
+                   plan: Optional[LifeBalancePlan], known: dict[str, str], lang: str,
+                   keys: Optional[dict[str, str]] = None) -> dict[str, str]:
     """The generic names of lbsim's persons and goals (REP-20): the lbs sheet's names where the sheet names them
-    (``known``), numbered after them otherwise."""
+    (``known``); a goal only lbsim names is "Ziel <n>" / "Goal <n>" by its ordinal (REP-39), so every goal has a
+    name of its own and the caller's name for it (display fact ``goal.<id>``) replaces exactly that one."""
     out = dict(known)
     persons = [e.person_id for e in findings.earning_power] if findings else []
     persons += [p.person_id for p in findings.income_paths] if findings else []
@@ -644,9 +684,11 @@ def lbsim_subjects(findings: Optional[LifeBalanceFindings], paths: Optional[Life
         goals.append((plan.goal.goal_id, _LS_MEASURE_KIND.get(plan.goal.kind, "goal")))
     for p in (findings.income_paths if findings else ()):
         goals += [(s.goal_id, "goal") for s in p.saving_need]
-    missing = [(g, k) for g, k in dict(goals).items() if f"goal:{g}" not in out]
-    if missing:
-        out.update(voc.subjects([], missing, lang))
+    keys = keys or {}
+    for n, gid in enumerate(dict.fromkeys(g for g, _ in goals), start=1):
+        if f"goal:{gid}" not in out:
+            ordinal = keys.get(gid, f"goal{n}").removeprefix("goal")
+            out[f"goal:{gid}"] = voc.GOAL_N[lang].format(n=ordinal)
     return out
 
 
@@ -763,6 +805,8 @@ def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeB
                       at + ["zero_return_saving_chf_per_year"], text=f"{pname}: {g}, {w['saving_need']}", basis=b)
                 m.add(f"{base}.free_cash.{need.goal_id}", "income_paths", float(free), "chf_per_year",
                       at + ["free_cash_chf_per_year"], text=f"{pname}: {g}, {w['free_cash']}", basis=b)
+                m.add(f"{base}.goal.{need.goal_id}", "income_paths", need.goal_id, "text",
+                      ["income_paths", i, "saving_need", k, "goal_id"], text=f"{pname}: {w['goal']}", display=g)
                 m.add(f"{base}.holds.{need.goal_id}", "income_paths", bool(need.holds), "flag",
                       ["income_paths", i, "saving_need", k, "holds"], text=f"{pname}: {g}, {w['holds']}")
 

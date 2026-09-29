@@ -297,8 +297,8 @@ def _income_paths(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
         rows = []
         for gid in goals:
             need = by[base + "saving_need." + gid]
-            name = need.label.rsplit(", ", 1)[0].split(": ", 1)[-1]
-            rows.append((e(name), v(need, lang=lang),
+            name = v(by[base + "goal." + gid]) if base + "goal." + gid in by else "–"
+            rows.append((name, v(need, lang=lang),
                          v(by[base + "free_cash." + gid], lang=lang) if base + "free_cash." + gid in by else "–",
                          v(by[base + "holds." + gid]) if base + "holds." + gid in by else "–"))
         if rows:

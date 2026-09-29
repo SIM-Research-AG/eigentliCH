@@ -5,10 +5,10 @@ resume point. Model-derived research output; not investment advice.
 
 ## State (29.09.2026)
 
-- **Engine 15, v1.4.0**, calibration 1.0.0, prompt `report-prompt@1.1.0`. 418 tests pass (`python -m pytest`,
+- **Engine 15, v1.4.1**, calibration 1.0.0, prompt `report-prompt@1.1.0`. 418 tests pass (`python -m pytest`,
   about 60 s, needs the PostgreSQL container); the prose case re-frozen live on 29.09.2026, seven prose sections
   verified on the first draft (model `google/gemma-4-31B-it-qat-w4a16-ct`). The running server on 8015 needs a
-  restart to serve 1.4.0 (the coordinator restarts it; this build did not).
+  restart to serve 1.4.1 (the coordinator restarts it; this build did not).
 - **29.09.2026, lbsim and the charts** (REP-32 to REP-37): lbsim as a source (one per engine and artefact kind:
   findings, paths, plan), the refusals of a mix of sheets, Allocations, findings or paths, the five sections
   (earning power, income paths, outlook, plan, findings), lbsim's templates in the report's language, "wird

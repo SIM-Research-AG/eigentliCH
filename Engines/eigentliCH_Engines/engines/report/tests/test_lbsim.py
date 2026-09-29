@@ -224,16 +224,16 @@ def test_the_fan_dashes_the_goal_in_the_other_basis_only():
     for part in (nominal, real):
         ids = set(re.findall(r'data-fact="([^"]+)"', part))
         assert {"lbsim.fan.base.p10.end", "lbsim.fan.base.p50.end", "lbsim.fan.base.p90.end",
-                "lbsim.chance.base.g-home", "lbsim.goal.g-home.target", "lbsim.goal.g-home.date"} <= ids
+                "lbsim.chance.base.goal1", "lbsim.goal.goal1.target", "lbsim.goal.goal1.date"} <= ids
 
 
 @pytest.mark.parametrize("name", OUTLOOK_CASES)
 def test_the_facts_of_the_spec_are_there(name):
     report = gc.frozen(name)["report"]
     ids = {f["fact_id"] for f in report["facts"]}
-    assert {"lbsim.earning_power.p1.modelled", "lbsim.earning_power.p1.stated", "lbsim.earning_power.p1.level_basis",
-            "lbsim.path.today.saving_need.g-home", "lbsim.finding.undirected_surplus.undirected",
-            "lbsim.chance.base.g-home", "lbsim.chance.stagflation.g-ret", "lbsim.fan.base.p50.end"} <= ids
+    assert {"lbsim.earning_power.person1.modelled", "lbsim.earning_power.person1.stated", "lbsim.earning_power.person1.level_basis",
+            "lbsim.path.today.saving_need.goal1", "lbsim.finding.undirected_surplus.undirected",
+            "lbsim.chance.base.goal1", "lbsim.chance.stagflation.goal2", "lbsim.fan.base.p50.end"} <= ids
     if name == "de_outlook_calculating":
         assert "lbsim.plan.state" in ids and not any(i.startswith("lbsim.plan.action_now.") for i in ids)
     else:
@@ -242,7 +242,7 @@ def test_the_facts_of_the_spec_are_there(name):
                                                        "saving_chf_per_year")} <= ids
     basis = report["basis"]
     by = {f["fact_id"]: f for f in report["facts"]}
-    assert by["lbsim.path.today.saving_need.g-home"]["basis"] == basis
+    assert by["lbsim.path.today.saving_need.goal1"]["basis"] == basis
     assert by["lbsim.fan.base.p50.end"]["basis"] == basis
     # lbs's "earning power is another model's" note goes when lbsim's section is there.
     assert not any(i.startswith("lbs.human.") and i.endswith(".earning_power") for i in ids)
@@ -252,13 +252,13 @@ def test_a_real_report_reads_lbsims_real_views():
     real = {f["fact_id"]: f for f in gc.frozen("de_outlook_real")["report"]["facts"]}
     nominal = {f["fact_id"]: f for f in gc.frozen("de_outlook")["report"]["facts"]}
     need = FINDINGS["income_paths"][0]["views"]["real"]["saving_need"][0]
-    assert real["lbsim.path.today.saving_need.g-home"]["value"] == need["zero_return_saving_chf_per_year"]
-    assert real["lbsim.path.today.saving_need.g-home"]["sources"][0]["path"].startswith("/income_paths/0/views/real/")
-    assert real["lbsim.goal.g-home.target"]["value"] == PATHS["regimes"][0]["goals"][0]["target"]["real_chf"]
-    assert nominal["lbsim.goal.g-home.target"]["value"] == PATHS["regimes"][0]["goals"][0]["target"]["nominal_chf"]
+    assert real["lbsim.path.today.saving_need.goal1"]["value"] == need["zero_return_saving_chf_per_year"]
+    assert real["lbsim.path.today.saving_need.goal1"]["sources"][0]["path"].startswith("/income_paths/0/views/real/")
+    assert real["lbsim.goal.goal1.target"]["value"] == PATHS["regimes"][0]["goals"][0]["target"]["real_chf"]
+    assert nominal["lbsim.goal.goal1.target"]["value"] == PATHS["regimes"][0]["goals"][0]["target"]["nominal_chf"]
     assert real["lbsim.fan.base.p50.end"]["sources"][0]["path"].startswith("/regimes/0/bands/deposit_eligible/real/")
     # A chance is one per goal and Regime, independent of the view.
-    assert real["lbsim.chance.base.g-home"]["value"] == nominal["lbsim.chance.base.g-home"]["value"]
+    assert real["lbsim.chance.base.goal1"]["value"] == nominal["lbsim.chance.base.goal1"]["value"]
     # A finding's figure lbsim states nominal stays nominal, and is marked so.
     assert real["lbsim.finding.undirected_surplus.undirected"]["basis"] == "nominal"
 
@@ -381,3 +381,65 @@ def test_a_real_report_without_paths_says_why_chart_two_is_missing(client, serve
 def test_a_nominal_report_with_pcp_draws_the_charts_from_pcp():
     by = {f["fact_id"] for f in gc.frozen("de_outlook")["report"]["facts"]}
     assert "pcp.role.Gain" in by and not any(f.startswith("lbsim.alloc.") for f in by)
+
+
+# -- REP-39: no id on a page with lbsim sources, in the text or in the markup ---------------------------------------
+
+HEX = re.compile(r"(?<![0-9A-Fa-f])[0-9A-Fa-f]{32}(?![0-9A-Fa-f])")
+IDS = {'"g-home"': '"76658f42c1e04b5e9a3d2b1c0f9e8d7a"', '"g-ret"': '"8a1b2c3d4e5f60718293a4b5c6d7e8f9"',
+       '"p1"': '"0a4dc62a87194424a579a12bd149d901"', '"p2"': '"1b5ed73b98205535b68a23ce25a0e012"'}
+
+
+def _hexed(name: str, renames: dict[str, str]) -> bytes:
+    raw = _raw(name).decode("utf-8")
+    for old, new in {**IDS, **renames}.items():
+        raw = raw.replace(old, new)
+    return raw.encode("utf-8")
+
+
+@pytest.fixture(scope="module")
+def hex_pages(client, upstream):
+    """B1's samples with the ids the consumer app makes (32 hex), the goals named by the caller."""
+    renames = {SHEET["artefact_id"]: "LBS-00000000c0ffee02", FINDINGS["artefact_id"]: "LSF-00000000c0ffee03",
+               PATHS["artefact_id"]: "LSP-00000000c0ffee04", PLAN["artefact_id"]: "LSO-00000000c0ffee05"}
+    upstream.extra["pcp"][f"/allocation/{ALLOC['artefact_id']}"] = _raw("pcp_allocation_lbsim.json")
+    for name, new in (("lbs_sheet_lbsim.json", "LBS-00000000c0ffee02"), ("lbsim_findings.json", "LSF-00000000c0ffee03"),
+                      ("lbsim_paths.json", "LSP-00000000c0ffee04"), ("lbsim_plan.json", "LSO-00000000c0ffee05")):
+        engine_name = "lbs" if name.startswith("lbs_") else "lbsim"
+        upstream.extra[engine_name][f"/artefacts/{new}"] = _hexed(name, renames)
+    sources = [src("pcp", ALLOC)] + [{"engine": e, "artefact_id": a} for e, a in (
+        ("lbs", "LBS-00000000c0ffee02"), ("lbsim", "LSF-00000000c0ffee03"), ("lbsim", "LSP-00000000c0ffee04"),
+        ("lbsim", "LSO-00000000c0ffee05"))]
+    named = [{"key": "goal.8a1b2c3d4e5f60718293a4b5c6d7e8f9", "label": "Ziel", "value": "Frei mit sechzig",
+              "source": "app"}]
+    out = {}
+    for lang in ("de", "en"):
+        for basis in ("nominal", "real"):
+            srcs = sources if basis == "nominal" else sources[1:]
+            r = client.post("/report", json=request_body(client_ref=CLIENT, language=lang, sources=srcs, prose=False,
+                                                         basis=basis, display_facts=named))
+            assert r.status_code == 200, r.text
+            out[(lang, basis)] = r.json()
+    return out
+
+
+@pytest.mark.parametrize("lang,basis", [("de", "nominal"), ("en", "nominal"), ("de", "real"), ("en", "real")])
+def test_no_32_hex_string_anywhere_on_a_page_with_lbsim_sources(hex_pages, lang, basis):
+    rep = hex_pages[(lang, basis)]
+    assert HEX.findall(rep["html"]) == []
+    ids = {f["fact_id"] for f in rep["facts"]}
+    assert "lbsim.path.today.saving_need.goal1" in ids and "lbsim.chance.base.goal2" in ids
+    assert "lbsim.earning_power.person1.modelled" in ids and "lbs.human.person1.E" in ids
+    # The id stays in the source path's artefact, never in the fact id.
+    goal = next(f for f in rep["facts"] if f["fact_id"] == "lbsim.goal.goal1.name")
+    assert goal["value"] == "76658f42c1e04b5e9a3d2b1c0f9e8d7a"
+    # Only the caller's own naming key carries the id it names (never printed, REP-20).
+    assert [f["fact_id"] for f in rep["facts"] if HEX.search(f["fact_id"])] == ["caller.goal.8a1b2c3d4e5f60718293a4b5c6d7e8f9"]
+
+
+def test_the_income_path_table_names_each_goal(hex_pages):
+    page = hex_pages[("de", "nominal")]["html"]
+    table = re.search(r'data-section="income_paths">(.*?)</section>', page, re.S).group(1)
+    text = re.sub(r"<[^>]+>", " ", table)
+    assert "Frei mit sechzig" in text and "Ihr Wohneigentumsziel" in text
+    assert "Ihr Ziel" not in text

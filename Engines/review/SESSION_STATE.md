@@ -24,10 +24,17 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
 - Done: B2 (Monte Carlo, store, API, workers, test bench), D (report 1.4.0 charts + lbsim sections, REP-38 real
   charts; cockpit Outlook panel), B1 fix (calibration 1.2.0: corrected income paths), C (optimiser; retirement
   measure without pillar 2). Pushed to both remotes up to 60f25a1.
-- Running: C adds calibration 1.3.0 (owner: 500 iterations, 10-year solve horizon) and lbsim env URL overrides;
-  E builds the app (content v4, outlook page, charts, desktop.cmd 8014, use-case earning/outlook/check).
-- Next: start lbsim 8014 (`python -m lbsim serve` in eigentliCH_Engines/.venv, from engines/lbsim) once C is
-  done; restart cockpit and app; run E's live refresh commands; push to both remotes after every step.
+- Done: C calibration 1.3.0 (500 iterations, 10-year horizon, certified on the sample in 31 min) and lbsim env
+  URLs; E app 1.4.0 (intake v4 saved live, outlook page, charts, auto-trigger, backfill). Pushed 080464e.
+- Live: lbsim 8014 (`python -m lbsim serve`, 2 workers), app 8017 restarted (1.4.0), cockpit 8000 restarted,
+  temporary cockpit on 8098 for the use-case builder (stop it when the refresh is done).
+- Refresh ran (21:22-21:36): earning, mandates, outlook, reports all went through; `check` all_ok false because
+  report pages carry 32-hex goal ids in lbsim fact names, and the income-path rows read "Ihr Ziel" (D fixing).
+  Five designated goals read chance 0.0 (Corinne, Reto, Regula, Kurt, Esther): B2 investigating measure/mapping.
+  Miriam (EUR) and Lukas (USD) get findings but no paths: CHF only in v1 (LBSIM-14), by design.
+- After the fixes: restart report/lbsim as the agents say, `reports --refresh`, `check`, `check --plans`, the
+  live test, stop the 8098 cockpit, push both remotes. Owner is asleep (night 29./30.09.2026): no decisions
+  guessed; leave any for the morning in this file.
 - Docker: `Engines/deploy/` built, tested (images, smoke test, real-dump restore). CTO takes over 30.09.2026 from
   https://github.com/SIM-Research-AG/eigentliCH. Dump for him: `PostgreSQL/backups/simtech_for_server_2026-09-29.dump`.
   Pending engine changes: `Engines/deploy/ENGINE_CHANGES.md` (cockpit items 2-5, 8; fmre/app init 6-7).

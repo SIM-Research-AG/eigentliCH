@@ -455,6 +455,8 @@ TOPIC = {
     "other": {"de": "Hinweis", "en": "Note"},
 }
 UNNAMED = {"de": "ohne eigenen Namen", "en": "without a name of its own"}
+#: A goal only lbsim names, by its ordinal (REP-39), when the caller sends no name for it.
+GOAL_N = {"de": "Ziel {n}", "en": "Goal {n}"}
 
 
 def goal_kind(kind: Optional[str]) -> str:

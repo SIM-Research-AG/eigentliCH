@@ -18,7 +18,7 @@ https://app.notion.com/p/3e80ba72543f81279459c05a6644539a
 | Family | Communication |
 | Module | `report` |
 | Default port | 8015 (configurable) |
-| Status | v1.4.0 (29.09.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; 418 tests and one opt-in live test |
+| Status | v1.4.1 (29.09.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; 418 tests and one opt-in live test |
 | Consumes | `pcp-allocation@1.0.0` from `pcp` (8007, `GET /allocation/{id}`), `lbs-balance-sheet@1.0.0` from `lbs` (8013, `GET /artefacts/{id}`), `lbsim-findings@1.0.0`, `lbsim-paths@1.0.0` and `lbsim-plan@1.0.0` from `lbsim` (8014, `GET /artefacts/{id}`, typed by the id's prefix), a `ReportRequest` from the caller |
 | Produces | `Report` (`report@1.0.0`), with the rendered HTML |
 | Model | MiniMind (display name), served by spark7 (`https://spark7.minimind.ch`, vLLM), `google/gemma-4-31B-it-qat-w4a16-ct` |
@@ -74,7 +74,8 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    questions, the chance per goal and Regime, the fan's ends, and the plan's figures for this period. While the
    plan runs (paths without a plan among the sources), the fact `lbsim.plan.state` says "wird berechnet" / "being
    calculated"; an update with the plan among its sources then carries it. With lbsim's findings present, lbs's
-   note that earning power is another engine's is left out.
+   note that earning power is another engine's is left out. Fact ids carry no person or goal id: `person1`, `goal1` and so on
+   in the lbs sheet's order (REP-39); a goal only lbsim names is "Ziel <n>" unless the caller names it.
 4. **The sections**, in a fixed order, left out when empty and numbered at render time (after `dossier.py`):
    changes (an update only), household, balance sheet, the roles of the balance sheet, income, human capital,
    earning power, income paths and the saving they need, pensions, retirement, home ownership, liquidity, risk

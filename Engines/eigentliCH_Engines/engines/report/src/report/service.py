@@ -355,14 +355,17 @@ class Service:
         # Subjects named for readers (REP-20): generic names from the lbs sheet (and lbsim's, numbered after them),
         # the caller's names on the page.
         subject_names: dict[str, str] = engine.lbs_subjects(sheet, lang) if sheet is not None else {}
+        keys = engine.subject_keys(sheet, findings, paths, plan)
         if findings is not None or paths is not None or plan is not None:
-            subject_names = engine.lbsim_subjects(findings, paths, plan, subject_names, lang)
+            subject_names = engine.lbsim_subjects(findings, paths, plan, subject_names, lang, keys)
             if findings is not None:
                 # lbs states earning power as another engine's (LBS-10); with lbsim's section here, that note goes.
                 facts = [f for f in facts if not _earning_power_elsewhere(f)]
             facts.extend(engine.extract_lbsim(findings, paths, plan, sheet, subject_names, lang, request.basis,
                                               with_allocation=allocation is not None,
                                               min_weight=cal.position_min_weight))
+        # No person or goal id in a fact id (REP-39): the page's markup carries the fact ids.
+        facts = [f.model_copy(update={"fact_id": engine.keyed(f.fact_id, keys)}) for f in facts]
         dated = [(got.extractor.as_of(got.artefact), got.kind, got.artefact.artefact_id,
                   got.extractor.contract_version) for got in fetched if got.extractor.as_of(got.artefact)]
         undated = [(got.artefact.paths_artefact_id, got.kind, got.artefact.artefact_id,
@@ -376,7 +379,7 @@ class Service:
 
         facts = [_resolve_mandate(f, subject_names) for f in facts]
         names = voc.display_names(request.display_facts, subject_names)
-        figures = build_charts(facts, allocation, paths, plan, sheet, lang, request.basis)
+        figures = build_charts(facts, allocation, paths, plan, sheet, lang, request.basis, keys)
 
         warnings: list[str] = []
         notes: list[str] = []
@@ -559,7 +562,7 @@ def _earning_power_elsewhere(fact: Fact) -> bool:
 
 
 def build_charts(facts: list[Fact], allocation: Any, paths: Any, plan: Any, sheet: Any, lang: str,
-                 basis: str) -> dict[str, str]:
+                 basis: str, keys: Optional[dict[str, str]] = None) -> dict[str, str]:
     """The three charts (REP-34), per section: the weights (roles, positions) and target against reached (fit)
     from the pcp Allocation, the fan (outlook) from the lbsim paths. Every printed value is one of ``facts``."""
     cw = {k: v[lang] for k, v in voc.CHART_WORDS.items()}
@@ -600,9 +603,10 @@ def build_charts(facts: list[Fact], allocation: Any, paths: Any, plan: Any, shee
             if j is not None:
                 g = base.goals[j]
                 goal_value = g.target.real_chf if basis == "real" else g.target.nominal_chf
-                goal_fact = by.get(f"lbsim.goal.{g.goal_id}.target")
-                chance_fact = by.get(f"lbsim.chance.{base.key}.{g.goal_id}")
-                date_fact = by.get(f"lbsim.goal.{g.goal_id}.date")
+                gk = (keys or {}).get(g.goal_id, g.goal_id)
+                goal_fact = by.get(f"lbsim.goal.{gk}.target")
+                chance_fact = by.get(f"lbsim.chance.{base.key}.{gk}")
+                date_fact = by.get(f"lbsim.goal.{gk}.date")
                 dashed = g.chance_basis != basis
             caption = f"{cw['fan_title']}, {cw['basis_' + basis]}."
             if dashed:
