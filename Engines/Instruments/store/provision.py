@@ -97,7 +97,9 @@ ROSTER: tuple[Engine, ...] = (
            note="Cycle model; role created by hand on 27 September 2026, registered here since."),
     Engine("lbs", 8013, ("lbs",), built=True,
            note="Life Balance Sheet, eigentliCH_Engines/engines/lbs; built 28.09.2026."),
-    Engine("lbsim", 8014, ("lbsim",), built=False),
+    Engine("lbsim", 8014, ("lbsim",), built=True,
+           note="Life Balance Simulation, eigentliCH_Engines/engines/lbsim; provisioned 29.09.2026 "
+                "for the lbsim build (review/LBSIM_INTERFACES.md section 3.10)."),
     Engine("report", 8015, ("report",), built=True,
            note="eigentliCH Report Engine, drafts on spark7; eigentliCH_Engines/engines/report."),
     Engine("chatbot", 8016, ("chatbot",), built=True,
@@ -117,7 +119,7 @@ ROSTER: tuple[Engine, ...] = (
 #: it, and splitting that across repositories would mean no single place says what the
 #: layout is. The Macro repository still owns its *code*; this owns the layout.
 OWNED_HERE = ("fmre", "datafeed", "honi", "macrofield", "mrs", "aggregation", "cycle", "pcp",
-              "lbs", "report", "chatbot", "eigentlich")
+              "lbs", "lbsim", "report", "chatbot", "eigentlich")
 
 #: The cockpit's login for the curator workflow (Build Instruction section 9.1, owner
 #: 28.09.2026). A stated exception to "a role writes only its own schema": it owns nothing,

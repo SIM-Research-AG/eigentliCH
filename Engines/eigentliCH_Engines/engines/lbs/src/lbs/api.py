@@ -96,6 +96,11 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     def artefact(artefact_id: str) -> c.LifeBalanceSheet:
         return guard(service.artefact, artefact_id)
 
+    @app.get("/artefacts/{artefact_id}/request", tags=["lbs"], response_model=c.ArtefactRequest)
+    def artefact_request(artefact_id: str) -> c.ArtefactRequest:
+        """The request a sheet was built from (LBS-40); its request_hash equals the sheet's."""
+        return guard(service.artefact_request, artefact_id)
+
     @app.get("/calibration", tags=["standard"], response_model=c.Calibration)
     def calibration(version: Optional[str] = None) -> c.Calibration:
         return guard(service.calibration, version)

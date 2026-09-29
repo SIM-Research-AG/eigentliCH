@@ -539,6 +539,38 @@ def time_budget(answers: dict[str, Any], record: dict[str, Any]) -> TimeBudget:
                       leisure=leisure, sources=sources, caveats=tuple(caveats))
 
 
+def responsibility_tiers(cal: Calibration) -> dict[str, str]:
+    """Every way a responsibility tier may be named (its key, its German and its English label) to its key, from
+    the calibration's ``human-capital`` record. Empty when the record has no tiers."""
+    tiers = (cal.records.get("human-capital", {}).get("responsibility") or {}).get("tiers") or {}
+    names: dict[str, str] = {}
+    for key, tier in tiers.items():
+        if key.startswith("_") or not isinstance(tier, dict):
+            continue
+        names[key] = key
+        for label in (tier.get("label") or {}).values():
+            if isinstance(label, str):
+                names[label] = key
+    return names
+
+
+def earning_power_problems(request: LifeBalanceSheetRequest, cal: Calibration) -> tuple[str, ...]:
+    """LBS-39: the earning-power answers are validated, never computed from. The one check that needs the
+    calibration: a stated responsibility must be a tier of its ``human-capital`` record."""
+    if request.household is None:
+        return ()
+    names = responsibility_tiers(cal)
+    problems = []
+    for person in request.household.persons:
+        stated = person.earning_power.responsibility if person.earning_power else None
+        if stated is not None and stated not in names:
+            keys = sorted(set(names.values()))
+            problems.append(f"person {person.person_id}: the responsibility {stated!r} is not a tier of the "
+                            f"human-capital record in calibration {cal.version}; name one of {keys} by its key "
+                            "or its label")
+    return tuple(problems)
+
+
 def answers_of(person: Person) -> dict[str, Any]:
     return person.human_capital.model_dump(exclude={"health_withheld"})
 

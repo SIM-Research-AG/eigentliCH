@@ -5,12 +5,14 @@ resume point. Model-derived research output; not investment advice.
 
 ## State (29.09.2026)
 
-- **Engine 13, v1.3.0**, calibration **1.5.0 active**: the deterministic life balance sheet from the eigentliCH
+- **Engine 13, v1.4.0**, calibration **1.5.0 active**: the deterministic life balance sheet from the eigentliCH
   prototype's services (owner's ruling of 28.09.2026; `personal_alm` is left for `lbsim`), with the owner's
   decisions of 29.09.2026 built (LBS-23 to LBS-30), the nominal and real view (LBS-31 to LBS-35,
-  `review/REAL_VIEW_INTERFACES.md`) and the owner's decisions on its two assumptions (LBS-36 to LBS-38: CHF
-  inflation 1.0 %, the plausibility table approved). 401 tests pass (`python -m pytest`, needs the PostgreSQL
-  container); thirty-nine guarded rules mutation-checked.
+  `review/REAL_VIEW_INTERFACES.md`), the owner's decisions on its two assumptions (LBS-36 to LBS-38: CHF
+  inflation 1.0 %, the plausibility table approved) and the lbs part of the lbsim build (LBS-39 to LBS-41,
+  `review/LBSIM_INTERFACES.md` section 4): the answers lbsim reads carried in the request, validated and never
+  computed from, and `GET /artefacts/{artefact_id}/request`. 473 tests pass (`python -m pytest`, needs the
+  PostgreSQL container); forty-three guarded rules mutation-checked.
 - Calibrations, append-only, each a child of the one before: **1.0.0** the prototype reproduced (records as
   shipped), **1.1.0** `ahv-pension` and `risk-profile` approved by Nicolas on 29.09.2026 (content unchanged, the
   prototype's behaviour otherwise), **1.2.0** the four LBS-17 quirks corrected, **1.3.0** three more corrections
@@ -36,16 +38,40 @@ resume point. Model-derived research output; not investment advice.
   1.4.0) frozen with `changes.json` (832 leaves, each with its decision and kind of figure) and
   `required_returns.json` (LBS-38); the earlier steps rebuilt byte for byte (their manifests name the building
   engine, lbs@1.3.0, unchanged by 1.5.0).
-- Contracts: `lbs-request@1.0.0` gains the optional `goals[].contribution_share`, `goals[].amount_basis` and
-  `mandate.contribution_indexed` (no version change); `lbs-balance-sheet@1.0.0` gains optional fields only, left
+- Contracts: `lbs-request@1.0.0` gains the optional `goals[].contribution_share`, `goals[].amount_basis`,
+  `mandate.contribution_indexed`, `persons[].earning_power` and six `facts` (no version change); `lbs-balance-sheet@1.0.0` gains optional fields only, left
   out while unset; the calibration contract is `lbs-calibration@1.3.0`.
 - Records still provisional and read ungated as in the prototype: `intake-scales`, `roles`.
-- **The server on 8013 still runs the old code.** It was not restarted in this build or the two before (other
-  sessions use it); it must be restarted to serve lbs@1.3.0 with calibration 1.5.0. Until then it refuses
-  `contribution_share`, `amount_basis` and `contribution_indexed` as unknown fields, and knows neither 1.4.0 nor
-  1.5.0.
+- **The server on 8013 runs whatever code it was last started with.** This build did not restart it (the
+  coordinator does); until it is restarted on lbs@1.4.0 it refuses `earning_power` and the six new `facts` as
+  unknown fields and has no `/artefacts/{artefact_id}/request`, which lbsim needs.
+- Store for lbsim: `Instruments/store/provision.py` lists `lbsim` as built and owned there; `python -m
+  store.provision` created role `lbsim` and schema `lbsim` (owned by it, no tables yet) on 29.09.2026. Checked with
+  the role's own login: it creates and writes in `lbsim`, reads `datafeed`, and is refused in `lbs`, `pcp`,
+  `eigentlich`, `public` and `datafeed` writes.
 
 ## What the consumers must know (report, cockpit, consumer app)
+
+lbs@1.4.0 (LBS-39 to LBS-41, calibration unchanged):
+
+- Request, optional: `persons[].earning_power` (`expected_full_pensum_income`, `responsibility`, `sector`,
+  `education_status` none / in_progress / planned, `education_end_year`, `education_hours`,
+  `education_budget_per_year`, `health_work_capacity`) and `facts.stop_work_age`, `.legal_documents`,
+  `.mortgage_fixed_until`, `.amortisation_mode` direct / indirect, `.own_use_share`,
+  `.pillar3a_contribution_per_year`. Send each only when it is stated; ranges and checks in the README.
+  `responsibility` is a tier of the calibration's `human-capital` record, by key or by its German or English
+  label (the app's "Keine Führungsfunktion", "Oberes oder mittleres Kader", "Oberste Führung" are labels); anything
+  else is a 422. `health_work_capacity` is K3: while `human_capital.health_withheld` is true it is refused, so the
+  K3 filter must drop it together with `health`. `earning_power` on a dependant is refused.
+- The sheet is unchanged: `human_capital[].earning_power` stays `not_available` with the gap
+  `owned_by_another_engine`; lbsim computes it (LBS-41). A request with any new answer is a new request hash and so
+  a new sheet, which is lbsim's trigger.
+- New: `GET /artefacts/{artefact_id}/request` returns `{artefact_id, request_hash, contract_version:
+  "lbs-request@1.0.0", request}` from the run that built the sheet; `request_hash` equals the sheet's
+  `provenance.request_hash`; 404 for an unknown sheet.
+- Values move: `provenance.engine_version` `lbs@1.4.0` and so new idempotency keys and new artefact ids for every
+  request (a re-run under 1.4.0 is a new sheet). The request hash of a request without the new fields is unchanged
+  (pinned on all 28 golden cases); no contract version changes.
 
 Calibration 1.5.0 (lbs@1.3.0, no code or contract change):
 
@@ -126,8 +152,8 @@ The editable install's metadata (`src/lbs.egg-info`) still says 1.0.0 until the 
 
 ## Next steps, in order
 
-1. Restart the lbs server on 8013 so it serves lbs@1.3.0 with calibration 1.5.0 (and seeds 1.3.0, 1.4.0 and
-   1.5.0 in the store), once the sessions using it are done.
+1. Restart the lbs server on 8013 so it serves lbs@1.4.0 (the coordinator's step); lbsim reads
+   `/artefacts/{artefact_id}/request` from it.
 2. Consumer app and report: ask and send `amount_basis` and `contribution_indexed`; read the real view and the
    plausibility judgement (above).
 3. Curator and pcp: finalise the mandate proposal's hand-over (which derived dimensions pcp takes from lbs, how

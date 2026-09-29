@@ -25,7 +25,7 @@ def run(client):
 
 def test_standard_endpoints(client, run):
     health = client.get("/health").json()
-    assert health["status"] == "ok" and health["engine_version"] == "lbs@1.3.0"
+    assert health["status"] == "ok" and health["engine_version"] == "lbs@1.4.0"
     meta = client.get("/meta").json()
     assert meta["contract_versions"] == CONTRACT_VERSIONS and meta["allowlist"]["ok"]
     assert meta["allowlist"]["packages"]["psycopg"]["admitted_by"].startswith("LBS-02")

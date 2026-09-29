@@ -209,6 +209,17 @@ def succeeded_run_for_key(conn: psycopg.Connection, idempotency_key: str) -> Opt
     ).fetchone()
 
 
+def request_for_artefact(conn: psycopg.Connection, artefact_id: str) -> Optional[dict[str, Any]]:
+    """The request of the first successful run that published a sheet, with the sheet's stored request hash
+    (LBS-40). ``None`` for an unknown sheet."""
+    return conn.execute(
+        "SELECT r.request_json, a.request_hash FROM artefact a "
+        "JOIN run r ON r.artefact_id = a.artefact_id AND r.status = 'succeeded' "
+        "WHERE a.artefact_id = %s ORDER BY r.started_at, r.run_id LIMIT 1",
+        (artefact_id,),
+    ).fetchone()
+
+
 def table_counts(conn: psycopg.Connection) -> dict[str, int]:
     return {t: conn.execute(f"SELECT count(*) AS n FROM {t}").fetchone()["n"]
             for t in ("calibration", "artefact", "run")}

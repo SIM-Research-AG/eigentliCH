@@ -11,8 +11,18 @@ note, `desktop.cmd` also starts fmre (8006). All servers restarted. All 20 use c
 all_ok. Database backup `PostgreSQL/backups/simtech_all_2026-09-29_before-refresh.dump`. Pushed as
 commit f47319c. Temporary cockpit on 8098 stopped.
 
-Running: a Notion documentation agent (Build Instruction 9.2 and 5, engine pages 03, 04, 06, 07, 11, 12,
-13, 15, 16, Guide section 4, review dossier R-001..R-003 Done). Page ids are listed below.
+Notion pass done (all 12 pages), docs aligned, pushed as aa8237e.
+
+**lbsim build (Engine 14), started 29.09.2026 ~16:30.** Spec: `Engines/review/LBSIM_INTERFACES.md` (binding,
+with the owner's answers in section 10). casadi 3.7.2 installed in `eigentliCH_Engines/.venv` (IPOPT solve
+checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
+- Running: agent A (lbs 1.4.0: earning-power answers, new facts, `GET /artefacts/{id}/request`; lbsim
+  provisioning) and agent B1 (lbsim contracts, numpy model port, fast half, adapter, calibrations, golden layer
+  A, sample artefacts in `engines/lbsim/golden/samples/`).
+- Next: when both report, restart lbs 8013; start B2 (Monte Carlo, clients, store, service, API, workers), C
+  (optimiser in `src/lbsim/optim`), D (report charts and lbsim sections; cockpit Aussichten panel and roster)
+  in parallel; then E (app questions content v4, outlook page and charts, desktop.cmd 8014, use-case
+  `earning` and `outlook`, then mandates/reports refresh and check; the 20 plans take about 6 hours).
 
 Open: two hung pytest processes from the pcp agent (pids 4564 and 24748, started 15:25); the agent was
 not allowed to stop them, so this is the owner's call. The owner is judging FMRE-38 (a duration-6 bond

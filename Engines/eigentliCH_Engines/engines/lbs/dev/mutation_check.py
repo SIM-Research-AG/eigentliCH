@@ -8,8 +8,9 @@ the tree is left byte for byte as it was found even when a run is interrupted by
 found fails the check: the rule moved and the mutation must move with it.
 
 Twenty rules up to lbs@1.1.0 (LBS-22), nine for the owner's decisions of LBS-28 to LBS-30 (lbs@1.2.0) and
-eight for the nominal and real view, LBS-31 to LBS-35 (lbs@1.3.0), and two for the owner's decisions on its
-assumptions, LBS-36 to LBS-38 (calibration 1.5.0).
+eight for the nominal and real view, LBS-31 to LBS-35 (lbs@1.3.0), two for the owner's decisions on its
+assumptions, LBS-36 to LBS-38 (calibration 1.5.0), and four for the answers lbsim reads, LBS-39 to LBS-41
+(lbs@1.4.0).
 """
 
 from __future__ import annotations
@@ -171,6 +172,22 @@ MUTATIONS = (
     ("the plausibility table is recorded as approved in 1.5.0", "calibration.py",
      "plausibility_source=PLAUSIBILITY_SOURCE_1_5)", "plausibility_source=PLAUSIBILITY_SOURCE)",
      ["tests/test_engine.py::test_15_sets_the_chf_inflation_to_one_percent_and_keeps_the_rest"]),
+    # -- the answers lbsim reads (LBS-39 to LBS-41, lbs@1.4.0)
+    ("a request without earning power hashes as before", "service.py",
+     '        if person.get("earning_power") is None:  # lbs@1.4.0, LBS-39\n            person.pop("earning_power", None)\n',
+     "        pass\n",
+     ["tests/test_earning_power.py::test_a_golden_request_hashes_as_under_13"]),
+    ("a request without the new facts hashes as before", "service.py",
+     '        if payload["facts"].get(name) is None:  # lbs@1.4.0, LBS-39\n            payload["facts"].pop(name, None)\n',
+     "        pass\n",
+     ["tests/test_earning_power.py::test_a_golden_request_hashes_as_under_13"]),
+    ("a withheld health carries no work capacity", "contracts.py",
+     "        if self.human_capital.health_withheld and self.earning_power.health_work_capacity is not None:",
+     "        if False:",
+     ["tests/test_earning_power.py::test_health_withheld_covers_the_work_capacity"]),
+    ("the responsibility is a tier of the calibration", "service.py",
+     "        problems = engine.earning_power_problems(request, cal)\n", "        problems = ()\n",
+     ["tests/test_earning_power.py::test_the_responsibility_is_a_tier_of_the_calibration"]),
 )
 
 

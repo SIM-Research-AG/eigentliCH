@@ -15,7 +15,7 @@ finalise. Every figure is a port of the eigentliCH prototype's services, whose o
 | Family | Client (eigentliCH engines) |
 | Module | `lbs` |
 | Default port | 8013 (configurable in `config.yaml`) |
-| Status | v1.3.0 (29.09.2026), calibration 1.5.0 active (the nominal and real view at the owner's CHF inflation of 1.0 %); the prototype reproduced exactly under 1.0.0 and 1.1.0 (659 figures, deviation 0); the corrected behaviour frozen as golden layer B (steps 1.2.0 to 1.5.0); 401 tests |
+| Status | v1.4.0 (29.09.2026), calibration 1.5.0 active (the nominal and real view at the owner's CHF inflation of 1.0 %); the prototype reproduced exactly under 1.0.0 and 1.1.0 (659 figures, deviation 0); the corrected behaviour frozen as golden layer B (steps 1.2.0 to 1.5.0); the answers lbsim reads carried in the request and the request of a sheet read back (LBS-39 to LBS-41); 473 tests |
 | Consumes | Client data only (`lbs-request@1.0.0`); no upstream engine |
 | Produces | `LifeBalanceSheet` (`lbs-balance-sheet@1.0.0`) |
 | Downstream | `lbsim` (8014), `report` (8015); the mandate proposal goes to the curator, then `pcp` (8007) |
@@ -33,7 +33,7 @@ First time: `..\..\.venv\Scripts\python -m pip install --no-deps -e .`, the role
 (`database: password: ...`, git-ignored), then `..\..\.venv\Scripts\python -m lbs init-db`.
 
 ```bash
-..\..\.venv\Scripts\python -m pytest     # 401 tests, against the real PostgreSQL server
+..\..\.venv\Scripts\python -m pytest     # 473 tests, against the real PostgreSQL server
 ```
 
 ## What it computes, and from which prototype service
@@ -52,7 +52,7 @@ First time: `..\..\.venv\Scripts\python -m pip install --no-deps -e .`, the role
 | Goal observations | `goals.observations` | none |
 | Risk profile: willingness, capacity, anchors | `risk_profile.py`, `profile_inputs.py` | risk-profile (approved by Nicolas, 29.09.2026; unapproved in 1.0.0) |
 | Mandate proposal | `engines/lbs/derive.py`, S-curve `required_return`, `property.mandate_target` | property-funding, risk-profile, `MandatePolicy` |
-| Earning power | `personal_alm` | not available: the stochastic model belongs to `lbsim` (LBS-10) |
+| Earning power | `personal_alm` | not available: computed by `lbsim` from the answers in the request (LBS-10, LBS-41) |
 
 **The prototype's quirks, corrected (LBS-24, LBS-28).** Calibration 1.2.0 corrects the four behaviours LBS-17
 kept for golden fidelity, and 1.3.0 three more; 1.0.0 and 1.1.0 still reproduce the prototype and 1.2.0 its own
@@ -100,11 +100,12 @@ never a stock. Three verdicts: meets, does not meet, could not be determined.
 
 `LifeBalanceSheetRequest` (`lbs-request@1.0.0`): `client_ref` (opaque; names and e-mails are refused), `as_of`,
 `calibration_version`, `household` (`composition_as_of`, `principal`, `persons`: `person_id`, `kind`
-adult/dependant, `age`, `stated_gross_income`, `human_capital` answers, `ahv` facts), `positions` (`role`
+adult/dependant, `age`, `stated_gross_income`, `human_capital` answers, `ahv` facts, `earning_power` answers), `positions` (`role`
 gain/income/stabilisation/protection, `growth` accepted as gain; `capital_type` human/financial; `magnitude` with
 `unit` chf/chf_per_year/share_of_total; `stock_kind` asset/liability exactly for chf; `liquidity`; `vessel`
 free/pillar_2/pillar_3a/real_asset; `owner`; `active`; `funds_goals`), `goals` (`kind` property/retirement/other,
-`target_amount`, `target_date`, `occupancy`, `owners`, `contribution_share`, `amount_basis` today/future), `facts` (`canton`, `civil_status`, `has_no_liabilities`),
+`target_amount`, `target_date`, `occupancy`, `owners`, `contribution_share`, `amount_basis` today/future), `facts` (`canton`, `civil_status`, `has_no_liabilities`, and from lbs@1.4.0 `stop_work_age`, `legal_documents`,
+`mortgage_fixed_until`, `amortisation_mode`, `own_use_share`, `pillar3a_contribution_per_year`),
 `risk` (the capacity and willingness answers) and `mandate` (`goal_id`, `annual_contribution`, `name`,
 `contribution_indexed`).
 
@@ -114,6 +115,30 @@ request without them hashes as before). From calibration 1.4.0 a missing basis i
 missing indexation is fixed (decision 9); before 1.4.0 neither is read, and a note says so when they are stated.
 The consumer app's questions "in heutigen Franken?" (default ja) and "steigt der Betrag mit der Teuerung?"
 (default nein) map to them.
+
+**The answers lbsim reads** (LBS-39, lbs@1.4.0): the household is stated once, in lbs, and lbsim reads the request
+back (LBS-40). Optional and additive (the contract stays `lbs-request@1.0.0`; each field is left out of the request
+hash while unset, so a request without them hashes as before, pinned on all 28 golden cases). lbs validates them
+and computes nothing from them; the sheet is unchanged.
+
+| Field | Meaning | Checked |
+|---|---|---|
+| `persons[].earning_power.expected_full_pensum_income` | the gross income expected at a 100 % pensum once any education is done, CHF a year in today's francs | at least 0, finite |
+| `.responsibility` | the management function | a tier of `human-capital.responsibility.tiers` in the sheet's calibration, by its key (`ohne Kaderfunktion`, `oberes und mittleres Kader`, `topmanagement`) or its German or English label; else 422 |
+| `.sector` | the sector, as the intake words it | not empty |
+| `.education_status` | `none`, `in_progress` or `planned` | one of the three |
+| `.education_end_year` | the year an education under way or planned ends | 2000 to 2100; not with `none`; not before the year of `as_of` |
+| `.education_hours` | hours a week: a published band (`"3–5"`) or a number | a number 0 to 168, or a band that is not empty |
+| `.education_budget_per_year` | CHF a year | at least 0, finite |
+| `.health_work_capacity` | how much of a full week health allows | 0 to 1; K3 data, refused while `human_capital.health_withheld` is true |
+| `facts.stop_work_age` | the age the principal plans to stop working | 40 to 75 |
+| `facts.legal_documents` | the documents in place, as the intake words them; `[]` is a stated none | no empty or repeated entry |
+| `facts.mortgage_fixed_until` | the date the fixed rate ends | a date |
+| `facts.amortisation_mode` | `direct` or `indirect` | one of the two |
+| `facts.own_use_share` | the share of the property lived in | 0 to 1 |
+| `facts.pillar3a_contribution_per_year` | the yearly payment into pillar 3a, CHF | at least 0, finite |
+
+`earning_power` is asked of adults only (a dependant stating one is refused).
 
 **The yearly contribution** (LBS-25): the consumer app's onboarding question "How much can you put aside each year?"
 (CHF per year) goes into `mandate.annual_contribution`, a field `lbs-request@1.0.0` already has. It is the
@@ -161,6 +186,7 @@ Standard (Guide 2.1): `GET /health`, `/meta`, `/contracts`, `POST /run` (`run_id
 | Method | Path | |
 |---|---|---|
 | POST | `/validate` | Every gap and every unavailable section, without storing |
+| GET | `/artefacts/{artefact_id}/request` | The request the sheet was built from (LBS-40): `artefact_id`, `request_hash` (equal to the sheet's `provenance.request_hash`), `contract_version` `lbs-request@1.0.0`, `request`; 404 for an unknown sheet |
 | GET | `/sheet/{artefact_id}` | The LifeBalanceSheet |
 | GET | `/sheet/{artefact_id}/{grid, human-capital, pensions, findings, mandate, gaps}` | One view of it |
 | GET | `/records` | Each content record's approval state in a calibration |
@@ -212,9 +238,12 @@ keeps its `lbs-calibration@1.0.0` payload, 1.1.0 and 1.2.0 their `lbs-calibratio
   reconciles to its parts; the risk profile interpolates between its anchors and stays in [0, 1].
 * **Boundary**: the role cannot write outside its schema, owns it, no `REAL` column, every table commented,
   append-only triggers on calibrations and artefacts, and a concurrent burst against a real socket.
-* **Mutation-checked**: thirty-nine guarded rules each reverted once and their tests turned red (LBS-22,
+* **Mutation-checked**: forty-three guarded rules each reverted once and their tests turned red (LBS-22,
   `dev/mutation_check.py`), the owner's decisions of 29.09.2026 among them (nine for LBS-28 to LBS-30, eight for
-  the nominal and real view, two for its settled assumptions).
+  the nominal and real view, two for its settled assumptions, four for the answers lbsim reads: the two hash
+  exclusions, the withheld work capacity and the responsibility tier).
+* **The request hash is pinned** on all 28 golden requests (layer A and every step of layer B) at the value
+  lbs@1.3.0 gave them (`tests/test_earning_power.py`); the idempotency key moves only through the engine version.
 
 ## Open points
 
@@ -234,7 +263,8 @@ keeps its `lbs-calibration@1.0.0` payload, 1.1.0 and 1.2.0 their `lbs-calibratio
 config.yaml            port, store, active calibration (1.5.0)
 src/lbs/
   api.py               routing only
-  contracts.py         request, sheet, mandate proposal, calibration; pcp-mandate mirrored
+  contracts.py         request (with the answers lbsim reads), sheet, mandate proposal, calibration; pcp-mandate
+                       mirrored
   engine.py            every prototype service, ported (pure: no I/O, no clock)
   calibration.py       seed calibrations 1.0.0 to 1.5.0; seed_records/ (the prototype's content records)
   clients.py           no upstream engine

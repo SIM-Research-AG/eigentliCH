@@ -5,7 +5,9 @@ Inbound:
 * ``LifeBalanceSheetRequest`` (``lbs-request@1.0.0``), body of ``POST /run`` and ``POST /validate``: an opaque
   client reference, the date the sheet describes, the household, positions, goals, stated facts and the
   answers the prototype's services read. Everything the eigentliCH prototype read from its database, its
-  stored submission and its member facts, made explicit (LBS-04).
+  stored submission and its member facts, made explicit (LBS-04). From lbs@1.4.0 it also carries, optional
+  and additive, the answers lbsim reads (``persons[].earning_power`` and six more ``facts``, LBS-39): validated
+  here, never computed from, and left out of the request hash while unset.
 
 Outbound:
 
@@ -178,6 +180,62 @@ class AhvFacts(_Frozen):
     contribution_years_missing: Optional[int] = Field(default=None, ge=0)
 
 
+EducationStatus = Literal["none", "in_progress", "planned"]
+
+
+class EarningPowerAnswers(_Frozen):
+    """The answers lbsim's earning power and income paths read, per adult (LBS-39). lbs validates them and
+    computes nothing from them: earning power is lbsim's (LBS-10, amended by LBS-41). Each is optional; an
+    unanswered one means lbsim uses its model level and says so."""
+
+    #: The gross income the person expects at a 100 % pensum once any education under way or planned is done,
+    #: CHF a year in today's francs.
+    expected_full_pensum_income: Optional[float] = Field(default=None, ge=0)
+    #: The management function: a tier of ``human-capital.responsibility.tiers`` in the sheet's calibration, by
+    #: its key or by its German or English label. Checked against the calibration when the sheet is built.
+    responsibility: Optional[str] = None
+    #: The sector, as the intake words it (the top-management tier reads it).
+    sector: Optional[str] = None
+    education_status: Optional[EducationStatus] = None
+    #: The year an education under way or planned ends.
+    education_end_year: Optional[int] = Field(default=None, ge=2000, le=2100)
+    #: Hours a week for the education: a published band (``"3–5"`` with an en dash, ...) or a number of hours.
+    education_hours: Optional[float | str] = None
+    education_budget_per_year: Optional[float] = Field(default=None, ge=0)
+    #: How much of a full working week health allows, 0 to 1. K3 data, as ``human_capital.health``: it cannot
+    #: be stated while ``human_capital.health_withheld`` is true.
+    health_work_capacity: Optional[float] = Field(default=None, ge=0, le=1)
+
+    @field_validator("expected_full_pensum_income", "education_budget_per_year", "health_work_capacity")
+    @classmethod
+    def _finite_amounts(cls, value: Optional[float], info: Any) -> Optional[float]:
+        return _finite(value, f"earning_power.{info.field_name}")
+
+    @field_validator("responsibility", "sector")
+    @classmethod
+    def _words(cls, value: Optional[str], info: Any) -> Optional[str]:
+        if value is not None and not value.strip():
+            raise ValueError(f"earning_power.{info.field_name} is empty; leave it out when it is not answered")
+        return value
+
+    @field_validator("education_hours")
+    @classmethod
+    def _hours(cls, value: Optional[float | str]) -> Optional[float | str]:
+        if isinstance(value, str) and not value.strip():
+            raise ValueError("earning_power.education_hours is empty; leave it out when it is not answered")
+        if isinstance(value, (int, float)) and not (math.isfinite(value) and 0 <= value <= 168):
+            raise ValueError(f"earning_power.education_hours of {value!r} is not a number of hours in a week "
+                             "(0 to 168)")
+        return value
+
+    @model_validator(mode="after")
+    def _education(self) -> "EarningPowerAnswers":
+        if self.education_status == "none" and self.education_end_year is not None:
+            raise ValueError("earning_power states no education but an education end year; the end year belongs "
+                             "to an education under way or planned")
+        return self
+
+
 class Person(_Frozen):
     person_id: str
     kind: PersonKind
@@ -186,6 +244,9 @@ class Person(_Frozen):
     stated_gross_income: Optional[float] = Field(default=None, ge=0)
     human_capital: HumanCapitalAnswers = Field(default_factory=HumanCapitalAnswers)
     ahv: AhvFacts = Field(default_factory=AhvFacts)
+    #: Optional and additive (LBS-39, lbs@1.4.0): the answers lbsim reads for earning power. Validated here,
+    #: never computed from; left out of the request hash while unset.
+    earning_power: Optional[EarningPowerAnswers] = None
 
     @field_validator("person_id")
     @classmethod
@@ -196,6 +257,17 @@ class Person(_Frozen):
     @classmethod
     def _income(cls, value: Optional[float]) -> Optional[float]:
         return _finite(value, "stated_gross_income")
+
+    @model_validator(mode="after")
+    def _earning_power(self) -> "Person":
+        if self.earning_power is None:
+            return self
+        if self.kind != "adult":
+            raise ValueError(f"person {self.person_id} is a dependant; earning power is asked of adults only")
+        if self.human_capital.health_withheld and self.earning_power.health_work_capacity is not None:
+            raise ValueError(f"person {self.person_id}: health is withheld as K3 data, so "
+                             "earning_power.health_work_capacity cannot be stated; leave it out")
+        return self
 
 
 class Household(_Frozen):
@@ -299,6 +371,41 @@ class StatedFacts(_Frozen):
     #: The household stated that it owes nothing. Only this makes liabilities zero; no liability position is
     #: not a statement that there is no debt.
     has_no_liabilities: bool = False
+    # -- optional and additive (LBS-39, lbs@1.4.0): facts lbsim's findings read. Validated here, never computed
+    # -- from; each is left out of the request hash while unset. Unset is unanswered, never a default.
+    #: The age the principal plans to stop working.
+    stop_work_age: Optional[float] = Field(default=None, ge=40, le=75)
+    #: The legal documents in place (a will, a pension power of attorney, ...), as the intake words them. An
+    #: empty tuple is a stated "none"; unset is unanswered.
+    legal_documents: Optional[tuple[str, ...]] = None
+    #: The date the mortgage's fixed rate ends.
+    mortgage_fixed_until: Optional[date] = None
+    amortisation_mode: Optional[Literal["direct", "indirect"]] = None
+    #: The share of the property the household lives in itself, 0 to 1.
+    own_use_share: Optional[float] = Field(default=None, ge=0, le=1)
+    #: The yearly payment into pillar 3a, CHF.
+    pillar3a_contribution_per_year: Optional[float] = Field(default=None, ge=0)
+
+    @field_validator("stop_work_age", "own_use_share", "pillar3a_contribution_per_year")
+    @classmethod
+    def _finite_facts(cls, value: Optional[float], info: Any) -> Optional[float]:
+        return _finite(value, f"facts.{info.field_name}")
+
+    @field_validator("legal_documents")
+    @classmethod
+    def _documents(cls, value: Optional[tuple[str, ...]]) -> Optional[tuple[str, ...]]:
+        if value is None:
+            return value
+        if any(not d.strip() for d in value):
+            raise ValueError("facts.legal_documents names an empty document")
+        if len(set(value)) != len(value):
+            raise ValueError("facts.legal_documents names a document twice")
+        return value
+
+
+#: The fields ``StatedFacts`` gained in lbs@1.4.0 (LBS-39): each is left out of the request hash while unset.
+FACTS_ADDED_1_4: tuple[str, ...] = ("stop_work_age", "legal_documents", "mortgage_fixed_until", "amortisation_mode",
+                                    "own_use_share", "pillar3a_contribution_per_year")
 
 
 class RiskAnswers(_Frozen):
@@ -390,6 +497,12 @@ class LifeBalanceSheetRequest(_Frozen):
                              "sum to at most 1")
         if self.mandate is not None and self.mandate.goal_id not in gids:
             raise ValueError(f"the mandate names goal {self.mandate.goal_id!r}, which is not in the request")
+        for person in (self.household.persons if self.household else ()):
+            ep = person.earning_power
+            if (ep is not None and ep.education_status in ("in_progress", "planned")
+                    and ep.education_end_year is not None and ep.education_end_year < self.as_of.year):
+                raise ValueError(f"person {person.person_id}: an education {ep.education_status.replace('_', ' ')} "
+                                 f"cannot end in {ep.education_end_year}, before the sheet's year {self.as_of.year}")
         return self
 
 
@@ -1104,3 +1217,14 @@ class RunStatus(_Frozen):
     gaps: tuple[Gap, ...]
     provenance: Optional[Provenance]
     error: Optional[str]
+
+
+class ArtefactRequest(_Frozen):
+    """``GET /artefacts/{artefact_id}/request`` (LBS-40): the request a sheet was built from, read back from the
+    run that built it, so a downstream engine (lbsim) reads the household as it was stated once, in lbs.
+    ``request_hash`` is recomputed from ``request`` and equals the sheet's ``provenance.request_hash``."""
+
+    artefact_id: str
+    request_hash: str
+    contract_version: Literal["lbs-request@1.0.0"] = "lbs-request@1.0.0"
+    request: LifeBalanceSheetRequest

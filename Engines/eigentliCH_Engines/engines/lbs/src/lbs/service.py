@@ -28,6 +28,8 @@ from . import engine
 from . import store as st
 from .contracts import (
     CONTRACT_VERSIONS,
+    FACTS_ADDED_1_4,
+    ArtefactRequest,
     Calibration,
     Gap,
     LifeBalanceSheet,
@@ -61,7 +63,8 @@ def content_id(prefix: str, payload: Any) -> str:
 def request_hash(request: LifeBalanceSheetRequest) -> str:
     """The request's content, without the calibration choice (which the key carries resolved). A goal's unstated
     ``contribution_share`` (additive since lbs@1.2.0, LBS-29), ``amount_basis`` and ``mandate.contribution_indexed``
-    (since lbs@1.3.0, LBS-31) are left out, so a request that does not use them hashes as it did before."""
+    (since lbs@1.3.0, LBS-31) are left out, so a request that does not use them hashes as it did before. So are a
+    person's unstated ``earning_power`` and the six ``facts`` added with it (since lbs@1.4.0, LBS-39)."""
     payload = request.model_dump(mode="json", exclude={"calibration_version"})
     for goal in payload["goals"]:
         if goal.get("contribution_share") is None:
@@ -70,6 +73,12 @@ def request_hash(request: LifeBalanceSheetRequest) -> str:
             goal.pop("amount_basis", None)
     if payload.get("mandate") is not None and payload["mandate"].get("contribution_indexed") is None:
         payload["mandate"].pop("contribution_indexed", None)
+    for person in (payload.get("household") or {}).get("persons", ()):
+        if person.get("earning_power") is None:  # lbs@1.4.0, LBS-39
+            person.pop("earning_power", None)
+    for name in FACTS_ADDED_1_4:
+        if payload["facts"].get(name) is None:  # lbs@1.4.0, LBS-39
+            payload["facts"].pop(name, None)
     return content_id("REQ", payload)
 
 
@@ -187,10 +196,15 @@ class Service:
     # -- validate and run --------------------------------------------------
 
     def _calibration_for(self, request: LifeBalanceSheetRequest) -> Calibration:
+        """The request's calibration, and the checks on the request that need it (LBS-39)."""
         try:
-            return self.calibration(request.calibration_version)
+            cal = self.calibration(request.calibration_version)
         except NotFound as exc:
             raise InvalidRequest(str(exc)) from exc
+        problems = engine.earning_power_problems(request, cal)
+        if problems:
+            raise InvalidRequest("; ".join(problems))
+        return cal
 
     def validate(self, request: LifeBalanceSheetRequest) -> ValidationReport:
         """``POST /validate``: every gap and every unavailable section, without storing anything."""
@@ -271,6 +285,20 @@ class Service:
         if payload is None:
             raise NotFound(f"no life balance sheet {artefact_id!r}")
         return LifeBalanceSheet.model_validate_json(payload)
+
+    def artefact_request(self, artefact_id: str) -> ArtefactRequest:
+        """``GET /artefacts/{artefact_id}/request`` (LBS-40): the request the sheet was built from, from the run
+        that built it (``run.request_json``). Its hash is recomputed and must equal the sheet's."""
+        with self.store.session() as conn:
+            row = st.request_for_artefact(conn, artefact_id)
+        if row is None:
+            raise NotFound(f"no life balance sheet {artefact_id!r}")
+        request = LifeBalanceSheetRequest.model_validate_json(row["request_json"])
+        digest = request_hash(request)
+        if digest != row["request_hash"]:
+            raise Conflict(f"the stored request of sheet {artefact_id} hashes to {digest}, not to the sheet's "
+                           f"{row['request_hash']}; the sheet cannot be traced to its request")
+        return ArtefactRequest(artefact_id=artefact_id, request_hash=digest, request=request)
 
     def section(self, artefact_id: str, name: str) -> dict[str, Any]:
         sheet = self.artefact(artefact_id)
