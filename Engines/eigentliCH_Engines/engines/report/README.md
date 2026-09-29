@@ -100,7 +100,9 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    report also states lbs's inflation assumption and whether the contribution rises with prices. lbsim's real
    views are read likewise (the saving need's `views.real`, the real bands, a goal's `real_chf`); a chance is one
    per goal and Regime in either view; a finding's figure lbsim states nominal stays nominal and is marked so; the
-   plan's figures for this period are the same amount in both views and carry no mark.
+   plan's figures for this period are the same amount in both views and carry no mark. A real report with lbsim paths and no pcp source
+   draws charts 1 and 2 from the paths' `allocation_view` (REP-38): the weights with the Allocation's basis stated,
+   chart 2 from lbsim's derived real curves marked "umgerechnet"; without paths it says why chart 2 is missing.
 8. **The page** (REP-13): self-contained HTML in the house style of the dossiers (the stylesheet of
    `dossier.py` verbatim), every value printed as `<span data-fact="{fact_id}">`, the notice in the footer; no id of any kind:
    the sources are named in words with their dates (REP-23), the ids stay in the artefact. The tests hold every page to this: outside fact elements, identifiers, the section

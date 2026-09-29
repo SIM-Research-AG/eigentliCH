@@ -651,6 +651,14 @@ LBSIM_WORDS: dict[str, Texts] = {
     "plan_beyond_rule": {"de": "wird das Vermögen verlangt, das die übrigen Jahre ohne Rendite trägt",
                          "en": "the wealth that carries the remaining years at zero return is required"},
     "hours_a_week": {"de": "Stunden pro Woche", "en": "hours a week"},
+    "curves": {"de": "Ziel und erreichte Rendite in dieser Grundlage", "en": "Target and reached return in this basis"},
+    "curves_derived": {"de": "umgerechnet: von lbsim aus der nominalen Allokation mit der Teuerung jeder Marktlage",
+                       "en": "converted: by lbsim from the nominal allocation with the inflation of each market state"},
+    "curves_own": {"de": "wie die Allokation sie rechnet", "en": "as the allocation computes them"},
+    "no_real_curve": {"de": "Die Kurve von Ziel und erreichter Rendite fehlt: in heutigen Franken liegt sie nur mit den "
+                            "simulierten Verläufen vor, und diese sind nicht Teil dieses Berichts.",
+                      "en": "The curve of target and reached return is missing: in today’s francs it comes only with "
+                            "the simulated paths, and they are not part of this report."},
 }
 
 #: The sources table's words for lbsim's three artefacts (REP-23).
@@ -734,6 +742,12 @@ CHART_WORDS: dict[str, Texts] = {
                          "mittleren Verlaufs umgerechnet.",
                    "en": "Dashed: the goal is set in the other basis and converted at the median path’s inflation."},
     "converted": {"de": "umgerechnet", "en": "converted"},
+    "weights_basis": {"de": "Die Gewichte gelten in beiden Grundlagen; die Allokation ist {basis} gerechnet.",
+                      "en": "The weights hold in either basis; the allocation is computed {basis}."},
+    "fit_converted": {"de": "Umgerechnet: lbsim leitet die Kurven in heutigen Franken aus den nominalen der Allokation "
+                            "ab, mit der Teuerung jeder Marktlage.",
+                      "en": "Converted: lbsim derives the curves in today’s francs from the allocation’s nominal ones, "
+                            "with the inflation of each market state."},
     "goal": {"de": "Ziel", "en": "Goal"},
     "chance": {"de": "Chance", "en": "chance"},
     "low": {"de": "ungünstig", "en": "low"},

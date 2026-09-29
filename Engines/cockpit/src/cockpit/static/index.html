@@ -1636,7 +1636,7 @@ function drawOutlook(host, o, view) {   // view: {basis, regime, series}, kept a
       weightsChart(w1, av.instruments, av.by_role);
       const curves = (av.curves || {})[view.basis];
       const w2 = document.createElement("div"); ch.append(w2);
-      w2.innerHTML = `<h3 class="chart-t">${esc(ow("fit"))} ${basisChip(view.basis)}</h3>`;
+      w2.innerHTML = `<h3 class="chart-t">${esc(ow("fit"))} ${basisChip(view.basis)}${curves && curves.derived ? ` <span class="muted" style="font-weight:400">(${esc(ow("converted"))})</span>` : ""}</h3>`;
       if (curves) stateCurveChart(chartIn(w2, 280), curves.target, curves.achieved, view.basis);
       w2.insertAdjacentHTML("beforeend", `<p class="note">${curves && curves.derived ? `The ${esc(view.basis)} curves are derived by lbsim from the Allocation's ${esc(av.allocation_basis)} curves with the inflation of each state.` : `On the Allocation's own basis (${esc(av.allocation_basis)}).`}</p>`);
     }

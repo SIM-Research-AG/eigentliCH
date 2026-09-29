@@ -695,7 +695,8 @@ def fill_template(template: str, figures: dict[str, str]) -> str:
 
 def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeBalancePaths],
                   plan: Optional[LifeBalancePlan], sheet: Optional[LifeBalanceSheet], names: dict[str, str],
-                  lang: str, basis: str = "nominal") -> list[Fact]:
+                  lang: str, basis: str = "nominal", with_allocation: bool = True,
+                  min_weight: float = 0.0005) -> list[Fact]:
     """lbsim's figures (REP-33). The service has refused inconsistent sources before this is called: every
     artefact on one sheet, the paths on the pcp source's Allocation, the plan on the paths (REP-32)."""
     W = voc.LBSIM_WORDS
@@ -804,6 +805,11 @@ def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeB
         for n, q in enumerate(findings.next_questions):
             m.add(f"lbsim.question.{n}", "findings", getattr(q.question, lang), "text",
                   ["next_questions", n, "question", lang], text=w["question"])
+        if basis == "real" and not with_allocation and paths is None:
+            # Without lbsim's paths a real report has no curve of the Allocation in today's francs (REP-38).
+            m.add("lbsim.alloc.no_real_curve", "limits", w["no_real_curve"], "text", ["artefact_id"],
+                  text=voc.TOPIC["allocation"][lang],
+                  derivation="a real report without an lbsim paths source has no real curve of the Allocation")
         facts.extend(m.facts)
 
     if paths is not None and paths.regimes:
@@ -848,6 +854,31 @@ def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeB
                       text=f"{label_}: {w[key]} {w['at_date']}", basis=basis)
         m.add("lbsim.fan.explained", "outlook", w["fan_explained_text"], "text", ["regimes", 0, "bands"],
               text=w["fan_explained"], derivation="the report's reading of the p10, p50 and p90 bands")
+        av = paths.allocation_view
+        if av is not None and not with_allocation:
+            # Charts 1 and 2 from the Allocation the paths ran on, as lbsim states it (REP-38, owner 29.09.2026):
+            # the weights carry no basis and the Allocation's basis is stated; the curves in the report's basis,
+            # marked converted where lbsim derived them.
+            generated = av.mandate_name.startswith("lbs-") or voc.looks_internal(av.mandate_name)
+            m.add("lbsim.alloc.mandate_name", "allocation", av.mandate_name, "text", ["allocation_view", "mandate_name"],
+                  text=label("pcp.mandate_name", lang), display=voc.UNNAMED[lang] if generated else None)
+            m.add("lbsim.alloc.date", "allocation", av.date, "date", ["allocation_view", "date"],
+                  text=label("pcp.date", lang))
+            m.add("lbsim.alloc.basis", "allocation", av.allocation_basis, "text", ["allocation_view", "allocation_basis"],
+                  text=voc.BASIS_ALLOCATION_LABEL[lang], display=voc.BASIS_ALLOCATION[av.allocation_basis][lang])
+            for role, weight in av.by_role.items():
+                m.add(f"lbsim.alloc.role.{role}", "roles", float(weight), "share", ["allocation_view", "by_role", role],
+                      text=role_label(role, lang))
+            held = sorted(((j, i) for j, i in enumerate(av.instruments) if i.weight >= min_weight),
+                          key=lambda t: (-round(t[1].weight, 9), t[1].name))
+            for j, i in held:
+                m.add(f"lbsim.alloc.position.{i.instrument_id}", "positions", float(i.weight), "share",
+                      ["allocation_view", "instruments", j, "weight"], text=i.name)
+                m.add(f"lbsim.alloc.position_role.{i.instrument_id}", "positions", i.role, "text",
+                      ["allocation_view", "instruments", j, "role"], text=i.name, display=role_label(i.role, lang))
+            derived = getattr(av.curves, basis).derived
+            m.add("lbsim.alloc.curves", "fit", derived, "flag", ["allocation_view", "curves", basis, "derived"],
+                  text=w["curves"], display=w["curves_derived"] if derived else w["curves_own"])
         if plan is None:
             m.add("lbsim.plan.state", "plan", "calculating", "text", ["artefact_id"], text=w["plan"],
                   display=w["plan_calculating"],

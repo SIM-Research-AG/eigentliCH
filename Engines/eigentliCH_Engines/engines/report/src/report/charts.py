@@ -61,7 +61,7 @@ def _svg(key: str, height: float, title: str, desc: str, body: str, caption: str
 # (1) Weights
 # ---------------------------------------------------------------------------
 
-def weights(key: str, rows: Sequence[tuple[str, Fact]], title: str, desc: str) -> str:
+def weights(key: str, rows: Sequence[tuple[str, Fact]], title: str, desc: str, caption: str = "") -> str:
     """Horizontal bars: ``rows`` are ``(name, weight fact)``, the weight a share in ``fact.value``."""
     if not rows:
         return ""
@@ -79,7 +79,7 @@ def weights(key: str, rows: Sequence[tuple[str, Fact]], title: str, desc: str) -
         parts.append(f'<text x="{_f(label_w + length + 6)}" y="{_f(y + 15)}" fill="{INK}">{fact_text(f)}</text>')
     height = top + len(rows) * row_h + 8
     base = f'<line x1="{_f(label_w)}" y1="{_f(top)}" x2="{_f(label_w)}" y2="{_f(height - 8)}" stroke="{MUTED}"/>'
-    return _svg(key, height, title, desc, base + "".join(parts))
+    return _svg(key, height, title, desc, base + "".join(parts), caption)
 
 
 # ---------------------------------------------------------------------------

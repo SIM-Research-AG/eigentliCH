@@ -578,6 +578,37 @@ class LsRegimePaths(_Upstream):
     goals: tuple[LsGoalChance, ...]
 
 
+class LsAllocationInstrument(_Upstream):
+    instrument_id: str
+    name: str
+    role: str
+    weight: float
+
+
+class LsCurves(_Upstream):
+    target: tuple[float, ...]
+    achieved: tuple[float, ...]
+    #: ``True`` for the basis that is not the Allocation's: lbsim's conversion with each state's inflation.
+    derived: bool = False
+
+
+class LsCurvesView(_Upstream):
+    nominal: LsCurves
+    real: LsCurves
+
+
+class LsAllocationView(_Upstream):
+    """Charts 1 and 2 as lbsim states them (REP-38): the Allocation the paths ran on, its curves in both bases."""
+
+    allocation_id: str
+    mandate_name: str
+    allocation_basis: Basis
+    date: str
+    instruments: tuple[LsAllocationInstrument, ...]
+    by_role: dict[str, float]
+    curves: LsCurvesView
+
+
 class LifeBalancePaths(_Upstream):
     """``lbsim-paths@1.0.0``, as ``report`` reads it."""
 
@@ -592,6 +623,7 @@ class LifeBalancePaths(_Upstream):
     horizon_years: int
     n_paths: int
     regimes: tuple[LsRegimePaths, ...]
+    allocation_view: Optional[LsAllocationView] = None
 
 
 class LsPlanGoal(_Upstream):

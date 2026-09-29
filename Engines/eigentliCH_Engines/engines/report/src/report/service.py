@@ -360,7 +360,9 @@ class Service:
             if findings is not None:
                 # lbs states earning power as another engine's (LBS-10); with lbsim's section here, that note goes.
                 facts = [f for f in facts if not _earning_power_elsewhere(f)]
-            facts.extend(engine.extract_lbsim(findings, paths, plan, sheet, subject_names, lang, request.basis))
+            facts.extend(engine.extract_lbsim(findings, paths, plan, sheet, subject_names, lang, request.basis,
+                                              with_allocation=allocation is not None,
+                                              min_weight=cal.position_min_weight))
         dated = [(got.extractor.as_of(got.artefact), got.kind, got.artefact.artefact_id,
                   got.extractor.contract_version) for got in fetched if got.extractor.as_of(got.artefact)]
         undated = [(got.artefact.paths_artefact_id, got.kind, got.artefact.artefact_id,
@@ -563,13 +565,23 @@ def build_charts(facts: list[Fact], allocation: Any, paths: Any, plan: Any, shee
     cw = {k: v[lang] for k, v in voc.CHART_WORDS.items()}
     by = {f.fact_id: f for f in facts}
     out: dict[str, str] = {}
-    roles = [(f.label, f) for f in facts if f.fact_id.startswith("pcp.role.")]
+    av = paths.allocation_view if (paths is not None and allocation is None) else None
+    # Weights carry no basis; drawn from lbsim's view of the Allocation, the chart states the Allocation's (REP-38).
+    stated = cw["weights_basis"].format(basis=voc.BASIS_ALLOCATION[av.allocation_basis][lang]) if av else ""
+    roles = [(f.label, f) for f in facts if f.fact_id.startswith(("pcp.role.", "lbsim.alloc.role."))]
     if roles:
-        out["roles"] = charts.weights("roles", roles, cw["roles_title"], cw["roles_desc"])
-    held = [(f.label, f) for f in facts if f.fact_id.startswith("pcp.position.")]
+        out["roles"] = charts.weights("roles", roles, cw["roles_title"], cw["roles_desc"], stated)
+    held = [(f.label, f) for f in facts if f.fact_id.startswith(("pcp.position.", "lbsim.alloc.position."))]
     if held:
-        out["positions"] = charts.weights("positions", held, cw["positions_title"], cw["positions_desc"])
-    if allocation is not None and allocation.curves is not None:
+        out["positions"] = charts.weights("positions", held, cw["positions_title"], cw["positions_desc"], stated)
+    if av is not None:
+        curves = getattr(av.curves, basis)
+        caption = f"{cw['fit_title']}, {cw['basis_' + basis]}."
+        if curves.derived:
+            caption = f"{cw['fit_title']}, {cw['basis_' + basis]} ({cw['converted']}). {cw['fit_converted']}"
+        out["fit"] = charts.target_vs_reached(curves.target, curves.achieved, cw, cw["fit_title"], cw["fit_desc"],
+                                              caption)
+    elif allocation is not None and allocation.curves is not None:
         on = engine.allocation_basis(allocation)
         out["fit"] = charts.target_vs_reached(allocation.curves.target, allocation.curves.achieved, cw,
                                               cw["fit_title"], cw["fit_desc"],

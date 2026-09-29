@@ -92,6 +92,7 @@ PCP-...` from the running pcp, or `--pcp-offline` with the Optimizer venv), then
    report saying "wird berechnet" until a report without the paths, or with a later plan, is asked; the report
    does not read lbsim's run state (REP-33). Its mirror of `report-request@1.0.0` must admit `lbsim` as a source
    engine and more than one source of that engine (one per kind).
-14. A real report with lbsim draws on lbs and lbsim alone while lbsim's Allocations are nominal (REP-36); once pcp
-   serves real CHF Allocations and lbsim simulates on them, a real report can carry charts 1 and 2 again.
+14. A real report with lbsim draws on lbs and lbsim alone while lbsim's Allocations are nominal (REP-36), and takes
+   charts 1 and 2 from the paths' `allocation_view`, chart 2 as lbsim's converted real curves (REP-38). The app
+   must therefore leave the pcp source out of a real request that carries lbsim paths.
 15. The five lbsim sections have no prose slot; adding slots is a new calibration version.

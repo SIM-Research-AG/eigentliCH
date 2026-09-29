@@ -455,7 +455,8 @@ income paths with the zero-return saving need and the free cash per goal (nomina
 severity and urgency in words, the schedule and the rules not checked; the chances per goal under the Regime chosen
 by its house label, with every Regime's chances in one line; chart 1 (weights by role, house names, and by
 instrument, by name, from `allocation_view`), chart 2 (target and reached per state from
-`allocation_view.curves[basis]`, "Crisis" and "Boom" at the ends, the 0 % line) and chart 3 (the fan: 5 to 95 and
+`allocation_view.curves[basis]`, "Crisis" and "Boom" at the ends, the 0 % line; in the basis lbsim derived, the
+heading is marked converted, as the report marks it, REP-38) and chart 3 (the fan: 5 to 95 and
 25 to 75 of 100 paths and the median from `bands[series][basis]`, the series chosen among net worth and each goal
 measure, the goal line solid in the goal's own basis and dashed, labelled converted, in the other). The charts are
 Plotly through the page's `plot()` helper, and the panel carries a nominal / real switch as C-31's pages do (default

@@ -152,11 +152,11 @@ def _default(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
 
 
 def _positions(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
-    weights = [f for f in facts if f.fact_id.startswith("pcp.position.")]
-    roles = {f.fact_id.removeprefix("pcp.position_role."): f for f in facts if f.fact_id.startswith("pcp.position_role.")}
+    weights = [f for f in facts if f.fact_id.startswith(("pcp.position.", "lbsim.alloc.position."))]
+    roles = {f.fact_id.split("position_role.", 1)[1]: f for f in facts if "position_role." in f.fact_id}
     rows = []
     for f in weights:
-        iid = f.fact_id.removeprefix("pcp.position.")
+        iid = f.fact_id.split("position.", 1)[1]
         role = roles.get(iid)
         rows.append((e(f.label), v(role, lang=w["lang"]) if role else "", v(f, lang=w["lang"])))
     return _table([(w["block"], False), (w["role"], False), (w["weight"], True)], rows)

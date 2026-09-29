@@ -27,7 +27,8 @@ from . import golden_cases as gc
 from .conftest import request_body
 
 OUTLOOK_CASES = [c["name"] for c in gc.cases() if c["name"].startswith(("de_outlook", "en_outlook"))]
-ALL_THREE = ["de_outlook", "en_outlook", "de_outlook_calculating", "de_outlook_plan_update"]
+ALL_THREE = ["de_outlook", "en_outlook", "de_outlook_calculating", "de_outlook_plan_update", "de_outlook_real",
+             "en_outlook_real"]
 
 
 def _raw(name: str) -> bytes:
@@ -342,3 +343,41 @@ def test_the_fan_window_ends_at_the_goal_date():
     assert engine.fan_window(paths, "g-ret")[:2] == ("retirement_capital", 27)
     assert engine.fan_window(paths, None)[:2] == ("net_worth", 27)
     assert engine.designated_goal(paths, None, None) == "g-home"
+
+
+# -- REP-38: the allocation charts in a real report, from lbsim's view of the Allocation -------------------------
+
+@pytest.mark.parametrize("name,word", [("de_outlook_real", "umgerechnet"), ("en_outlook_real", "converted")])
+def test_a_real_report_draws_chart_two_from_lbsims_converted_curves(name, word):
+    report = gc.frozen(name)["report"]
+    by = {f["fact_id"]: f for f in report["facts"]}
+    curves = by["lbsim.alloc.curves"]
+    assert curves["value"] is True and curves["sources"][0]["engine"] == "lbsim"
+    assert curves["sources"][0]["path"] == "/allocation_view/curves/real/derived"
+    fit = re.search(r'data-chart="fit">(.*?)</figure>', report["html"], re.S).group(1)
+    caption = re.search(r"<figcaption>(.*?)</figcaption>", fit).group(1)
+    assert word in caption
+    # The drawn line is lbsim's real curve, not pcp's nominal one.
+    real = PATHS["allocation_view"]["curves"]["real"]["achieved"]
+    nominal = PATHS["allocation_view"]["curves"]["nominal"]["achieved"]
+    assert real != nominal
+    # Chart 1 states the Allocation's basis; no pcp figure is on a real page.
+    roles = re.search(r'data-chart="roles">(.*?)</figure>', report["html"], re.S).group(1)
+    assert "<figcaption>" in roles and "nominal" in roles
+    assert not any(f.startswith("pcp.") for f in by)
+    assert by["lbsim.alloc.basis"]["value"] == "nominal"
+
+
+def test_a_real_report_without_paths_says_why_chart_two_is_missing(client, served):
+    r = client.post("/report", json=request_body(client_ref=CLIENT, sources=[src("lbs", SHEET), src("lbsim", FINDINGS)],
+                                                 prose=False, basis="real"))
+    assert r.status_code == 200, r.text
+    rep = r.json()
+    assert 'data-chart="fit"' not in rep["html"] and 'data-chart="roles"' not in rep["html"]
+    note = next(f for f in rep["facts"] if f["fact_id"] == "lbsim.alloc.no_real_curve")
+    assert note["section"] == "limits" and note["display"] in rep["html"]
+
+
+def test_a_nominal_report_with_pcp_draws_the_charts_from_pcp():
+    by = {f["fact_id"] for f in gc.frozen("de_outlook")["report"]["facts"]}
+    assert "pcp.role.Gain" in by and not any(f.startswith("lbsim.alloc.") for f in by)
