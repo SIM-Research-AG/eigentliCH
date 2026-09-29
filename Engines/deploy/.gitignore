@@ -1,0 +1,5 @@
+# The real settings and secrets. Only .env.example is committed.
+.env
+# Database dumps brought to or taken from the server.
+*.dump
+globals-*.sql

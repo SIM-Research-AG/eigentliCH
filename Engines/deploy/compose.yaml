@@ -1,0 +1,506 @@
+# sim-tech / eigentliCH engine system on one Docker host.
+#
+#   cp .env.example .env        # then fill in every password and the tunnel token
+#   docker compose build        # builds the five family images on this machine (no registry)
+#   docker compose up -d        # postgres, provisioning, 14 engines and apps, backup, tunnel
+#   ./scripts/health.sh         # container states and every health endpoint
+#
+# Start order is expressed with depends_on: postgres healthy -> provision completed -> engines
+# in the roster's order (an engine waits for the engines it consumes). See README.md.
+#
+# Networking: every container is on the default compose network and reaches the others by
+# service name (http://fmre:8006, postgres:5432). Nothing publishes a host port. The only way in
+# from outside is the cloudflared tunnel to `eigentlich` (the app) and `cockpit`, behind
+# Cloudflare Access. compose.debug.yaml publishes ports on 127.0.0.1 for debugging.
+#
+# Build context for every image is the Engines folder (..); each Dockerfile has its own
+# <name>.Dockerfile.dockerignore allowlist beside it, so no .venv, .env, config.local.yaml,
+# config.toml, tests or caches enter an image.
+
+name: simtech
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+x-engine: &engine
+  restart: unless-stopped
+  logging: *logging
+  stop_grace_period: 20s
+
+x-macro: &macro
+  <<: *engine
+  image: simtech/macro:${IMAGE_TAG:-local}
+  pull_policy: never
+
+x-instruments: &instruments
+  <<: *engine
+  image: simtech/instruments:${IMAGE_TAG:-local}
+  pull_policy: never
+
+x-optimizer: &optimizer
+  <<: *engine
+  image: simtech/optimizer:${IMAGE_TAG:-local}
+  pull_policy: never
+
+x-eigentlich: &eigentlich
+  <<: *engine
+  image: simtech/eigentlich:${IMAGE_TAG:-local}
+  pull_policy: never
+
+x-cockpit: &cockpit
+  <<: *engine
+  image: simtech/cockpit:${IMAGE_TAG:-local}
+  pull_policy: never
+
+x-health: &health
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 60s
+
+x-ready: &ready
+  postgres:
+    condition: service_healthy
+  provision:
+    condition: service_completed_successfully
+
+services:
+
+  # ---- database -------------------------------------------------------------------------------
+
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-myuser}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?set POSTGRES_ADMIN_PASSWORD in .env}
+      POSTGRES_DB: postgres
+      TZ: ${TZ:-Europe/Zurich}
+    volumes:
+      # PG 18 keeps its data in a version subfolder (/var/lib/postgresql/18/docker), so the
+      # volume is mounted one level up, as on the owner's machine.
+      - pgdata:/var/lib/postgresql
+    shm_size: 256mb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # One-shot: creates database simtech, one role and schema per engine, the curator and
+  # catalogue roles and every grant. Idempotent; runs on every `up` and exits 0.
+  provision:
+    <<: *instruments
+    build:
+      context: ..
+      dockerfile: deploy/docker/instruments.Dockerfile
+    restart: "no"
+    working_dir: /srv/Engines/Instruments
+    command: ["python", "-X", "utf8", "-m", "store.provision"]
+    environment:
+      INSTRUMENTS_DB_HOST: postgres
+      INSTRUMENTS_DB_PORT: "5432"
+      SIMTECH_ADMIN_USER: ${POSTGRES_ADMIN_USER:-myuser}
+      SIMTECH_ADMIN_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?set POSTGRES_ADMIN_PASSWORD in .env}
+      SIMTECH_DATAFEED_PASSWORD: ${SIMTECH_DATAFEED_PASSWORD:?set in .env}
+      SIMTECH_HONI_PASSWORD: ${SIMTECH_HONI_PASSWORD:?set in .env}
+      SIMTECH_MACROFIELD_PASSWORD: ${SIMTECH_MACROFIELD_PASSWORD:?set in .env}
+      SIMTECH_AGGREGATION_PASSWORD: ${SIMTECH_AGGREGATION_PASSWORD:?set in .env}
+      SIMTECH_MRS_PASSWORD: ${SIMTECH_MRS_PASSWORD:?set in .env}
+      SIMTECH_FMRE_PASSWORD: ${SIMTECH_FMRE_PASSWORD:?set in .env}
+      SIMTECH_PCP_PASSWORD: ${SIMTECH_PCP_PASSWORD:?set in .env}
+      SIMTECH_CYCLE_PASSWORD: ${SIMTECH_CYCLE_PASSWORD:?set in .env}
+      SIMTECH_LBS_PASSWORD: ${SIMTECH_LBS_PASSWORD:?set in .env}
+      SIMTECH_LBSIM_PASSWORD: ${SIMTECH_LBSIM_PASSWORD:?set in .env}
+      SIMTECH_REPORT_PASSWORD: ${SIMTECH_REPORT_PASSWORD:?set in .env}
+      SIMTECH_CHATBOT_PASSWORD: ${SIMTECH_CHATBOT_PASSWORD:?set in .env}
+      SIMTECH_EIGENTLICH_PASSWORD: ${SIMTECH_EIGENTLICH_PASSWORD:?set in .env}
+      SIMTECH_CURATOR_PASSWORD: ${SIMTECH_CURATOR_PASSWORD:?set in .env}
+      SIMTECH_CATALOGUE_PASSWORD: ${SIMTECH_CATALOGUE_PASSWORD:?set in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Nightly pg_dump of simtech into the `backups` volume, keeping BACKUP_KEEP_DAYS days.
+  # Also the container scripts/restore.sh uses for pg_restore (same image as the server).
+  backup:
+    image: postgres:18
+    restart: unless-stopped
+    logging: *logging
+    command: ["bash", "/scripts/backup.sh"]
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_ADMIN_USER:-myuser}
+      PGPASSWORD: ${POSTGRES_ADMIN_PASSWORD:?set POSTGRES_ADMIN_PASSWORD in .env}
+      BACKUP_AT: ${BACKUP_AT:-02:30}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      TZ: ${TZ:-Europe/Zurich}
+    volumes:
+      - backups:/backups
+      - ./scripts:/scripts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ---- Macro family (one image) ---------------------------------------------------------------
+
+  datafeed:                       # Engine 01
+    <<: *macro
+    build:
+      context: ..
+      dockerfile: deploy/docker/macro.Dockerfile
+    working_dir: /srv/Engines/Macro/engines/datafeed
+    command: ["python", "-X", "utf8", "-m", "datafeed", "serve"]
+    environment:
+      DATAFEED_HOST: 0.0.0.0
+      DATAFEED_DB_HOST: postgres
+      DATAFEED_DB_PORT: "5432"
+      DATAFEED_DB_PASSWORD: ${SIMTECH_DATAFEED_PASSWORD:?set in .env}
+      # Empty: the admin ingest route answers 403. Set a long random value to allow it.
+      DATAFEED_ADMIN_TOKEN: ${DATAFEED_ADMIN_TOKEN:-}
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8001/health"]
+    depends_on:
+      <<: *ready
+
+  honi:                           # Engine 02
+    <<: *macro
+    working_dir: /srv/Engines/Macro/engines/honi
+    command: ["python", "-X", "utf8", "-m", "honi", "serve"]
+    environment:
+      HONI_HOST: 0.0.0.0
+      HONI_DB_HOST: postgres
+      HONI_DB_PORT: "5432"
+      HONI_DB_PASSWORD: ${SIMTECH_HONI_PASSWORD:?set in .env}
+      HONI_DATAFEED_URL: http://datafeed:8001
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8002/health"]
+    depends_on:
+      <<: *ready
+      datafeed:
+        condition: service_healthy
+
+  macrofield:                     # Engine 03 (reads its raw files from the image, no upstream)
+    <<: *macro
+    working_dir: /srv/Engines/Macro/engines/macrofield
+    command: ["python", "-X", "utf8", "-m", "macrofield", "serve"]
+    environment:
+      MACROFIELD_HOST: 0.0.0.0
+      MACROFIELD_DB_HOST: postgres
+      MACROFIELD_DB_PORT: "5432"
+      MACROFIELD_DB_PASSWORD: ${SIMTECH_MACROFIELD_PASSWORD:?set in .env}
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8003/health"]
+    depends_on:
+      <<: *ready
+      datafeed:
+        condition: service_healthy
+
+  mrs:                            # Engine 05
+    <<: *macro
+    working_dir: /srv/Engines/Macro/engines/mrs
+    command: ["python", "-X", "utf8", "-m", "mrs", "serve"]
+    environment:
+      MRS_HOST: 0.0.0.0
+      MRS_DB_HOST: postgres
+      MRS_DB_PORT: "5432"
+      MRS_DB_PASSWORD: ${SIMTECH_MRS_PASSWORD:?set in .env}
+      MRS_DATAFEED_URL: http://datafeed:8001
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8005/health"]
+    depends_on:
+      <<: *ready
+      datafeed:
+        condition: service_healthy
+
+  cycle:                          # Engine 12
+    <<: *macro
+    working_dir: /srv/Engines/Macro/engines/cycle
+    command: ["python", "-X", "utf8", "-m", "cycle", "serve"]
+    environment:
+      CYCLE_HOST: 0.0.0.0
+      CYCLE_DB_HOST: postgres
+      CYCLE_DB_PORT: "5432"
+      CYCLE_DB_PASSWORD: ${SIMTECH_CYCLE_PASSWORD:?set in .env}
+      CYCLE_DATAFEED_URL: http://datafeed:8001
+      CYCLE_MACROFIELD_URL: http://macrofield:8003
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8012/health"]
+    depends_on:
+      <<: *ready
+      datafeed:
+        condition: service_healthy
+      macrofield:
+        condition: service_healthy
+
+  aggregation:                    # Engine 04
+    <<: *macro
+    working_dir: /srv/Engines/Macro/engines/aggregation
+    command: ["python", "-X", "utf8", "-m", "aggregation", "serve"]
+    environment:
+      AGGREGATION_HOST: 0.0.0.0
+      AGGREGATION_DB_HOST: postgres
+      AGGREGATION_DB_PORT: "5432"
+      AGGREGATION_DB_PASSWORD: ${SIMTECH_AGGREGATION_PASSWORD:?set in .env}
+      AGGREGATION_MRS_URL: http://mrs:8005
+      AGGREGATION_CYCLE_URL: http://cycle:8012
+      AGGREGATION_MACROFIELD_URL: http://macrofield:8003
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8004/health"]
+    depends_on:
+      <<: *ready
+      mrs:
+        condition: service_healthy
+      cycle:
+        condition: service_healthy
+      macrofield:
+        condition: service_healthy
+
+  # ---- Instruments ----------------------------------------------------------------------------
+
+  fmre:                           # Engine 06. Its /v1/health reads the store, so it is unhealthy
+    <<: *instruments              # until fmre's tables exist (restored dump, or init-empty.sh).
+    working_dir: /srv/Engines/Instruments
+    command: ["python", "-X", "utf8", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8006"]
+    environment:
+      INSTRUMENTS_DB_HOST: postgres
+      INSTRUMENTS_DB_PORT: "5432"
+      INSTRUMENTS_DB_USER: fmre
+      INSTRUMENTS_DB_PASSWORD: ${SIMTECH_FMRE_PASSWORD:?set in .env}
+      INSTRUMENTS_AGGREGATION_URL: http://aggregation:8004
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8006/v1/health"]
+    depends_on:
+      <<: *ready
+      aggregation:
+        condition: service_healthy
+
+  # ---- Optimizer ------------------------------------------------------------------------------
+
+  pcp:                            # Engine 07
+    <<: *optimizer
+    build:
+      context: ..
+      dockerfile: deploy/docker/optimizer.Dockerfile
+    working_dir: /srv/Engines/Optimizer/engines/pcp
+    command: ["python", "-X", "utf8", "-m", "pcp", "serve"]
+    environment:
+      PCP_HOST: 0.0.0.0
+      PCP_DB_HOST: postgres
+      PCP_DB_PORT: "5432"
+      PCP_DB_PASSWORD: ${SIMTECH_PCP_PASSWORD:?set in .env}
+      PCP_AGGREGATION_URL: http://aggregation:8004
+      PCP_FMRE_URL: http://fmre:8006
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8007/health"]
+    depends_on:
+      <<: *ready
+      aggregation:
+        condition: service_healthy
+      fmre:
+        condition: service_started   # fmre's health depends on its data, not on it running
+
+  # ---- eigentliCH family (one image) ----------------------------------------------------------
+
+  lbs:                            # Engine 13
+    <<: *eigentlich
+    build:
+      context: ..
+      dockerfile: deploy/docker/eigentlich.Dockerfile
+    working_dir: /srv/Engines/eigentliCH_Engines/engines/lbs
+    command: ["python", "-X", "utf8", "-m", "lbs", "serve"]
+    environment:
+      LBS_HOST: 0.0.0.0
+      LBS_DB_HOST: postgres
+      LBS_DB_PORT: "5432"
+      LBS_DB_PASSWORD: ${SIMTECH_LBS_PASSWORD:?set in .env}
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8013/health"]
+    depends_on:
+      <<: *ready
+
+  # Engine 14, the API alone (`--workers 0`); the plan workers run in lbsim-worker. Upstream
+  # addresses come from deploy/config/lbsim.docker.yaml, baked in as its config.local.yaml.
+  lbsim:
+    <<: *eigentlich
+    working_dir: /srv/Engines/eigentliCH_Engines/engines/lbsim
+    command: ["python", "-X", "utf8", "-m", "lbsim", "serve", "--workers", "0"]
+    environment: &lbsim-env
+      LBSIM_HOST: 0.0.0.0
+      LBSIM_DB_HOST: postgres
+      LBSIM_DB_PORT: "5432"
+      LBSIM_DB_PASSWORD: ${SIMTECH_LBSIM_PASSWORD:?set in .env}
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8014/health"]
+    depends_on:
+      <<: *ready
+      lbs:
+        condition: service_healthy
+      pcp:
+        condition: service_healthy
+      aggregation:
+        condition: service_healthy
+      fmre:
+        condition: service_started
+
+  # The optimiser workers (IPOPT/MUMPS, one core each). One container per worker, LBSIM_WORKERS
+  # of them, each limited to LBSIM_WORKER_CPUS. They take plan runs from the queue in schema
+  # lbsim (SELECT ... FOR UPDATE SKIP LOCKED) and publish no port.
+  lbsim-worker:
+    <<: *eigentlich
+    working_dir: /srv/Engines/eigentliCH_Engines/engines/lbsim
+    command: ["python", "-X", "utf8", "-m", "lbsim", "worker"]
+    stop_grace_period: 30s
+    environment:
+      <<: *lbsim-env
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    deploy:
+      replicas: ${LBSIM_WORKERS:-3}
+      resources:
+        limits:
+          cpus: "${LBSIM_WORKER_CPUS:-1.0}"
+          memory: ${LBSIM_WORKER_MEMORY:-2g}
+    depends_on:
+      <<: *ready
+      lbsim:
+        condition: service_healthy
+
+  report:                         # Engine 15 (drafts on spark7, shown to readers as MiniMind)
+    <<: *eigentlich
+    working_dir: /srv/Engines/eigentliCH_Engines/engines/report
+    command: ["python", "-X", "utf8", "-m", "report", "serve"]
+    environment:
+      REPORT_HOST: 0.0.0.0
+      REPORT_DB_HOST: postgres
+      REPORT_DB_PORT: "5432"
+      REPORT_DB_PASSWORD: ${SIMTECH_REPORT_PASSWORD:?set in .env}
+      REPORT_PCP_URL: http://pcp:8007
+      REPORT_LBS_URL: http://lbs:8013
+      REPORT_LBSIM_URL: http://lbsim:8014
+      SPARK7_CLIENT_ID: ${SPARK7_CLIENT_ID:-}
+      SPARK7_CLIENT_SECRET: ${SPARK7_CLIENT_SECRET:-}
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8015/health"]
+    depends_on:
+      <<: *ready
+      lbs:
+        condition: service_healthy
+      pcp:
+        condition: service_healthy
+      lbsim:
+        condition: service_healthy
+
+  chatbot:                        # Engine 16 (answers on spark7, shown to readers as MiniMind)
+    <<: *eigentlich
+    working_dir: /srv/Engines/eigentliCH_Engines/engines/chatbot
+    command: ["python", "-X", "utf8", "-m", "chatbot", "serve"]
+    environment:
+      CHATBOT_HOST: 0.0.0.0
+      CHATBOT_DB_HOST: postgres
+      CHATBOT_DB_PORT: "5432"
+      CHATBOT_DB_PASSWORD: ${SIMTECH_CHATBOT_PASSWORD:?set in .env}
+      SPARK7_CLIENT_ID: ${SPARK7_CLIENT_ID:-}
+      SPARK7_CLIENT_SECRET: ${SPARK7_CLIENT_SECRET:-}
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8016/health"]
+    depends_on:
+      <<: *ready
+      lbsim:
+        condition: service_healthy
+
+  # The consumer app (no engine number). Exposed through the tunnel, behind Cloudflare Access.
+  eigentlich:
+    <<: *eigentlich
+    working_dir: /srv/Engines/eigentliCH_Engines/eigentlich
+    command: ["python", "-X", "utf8", "-m", "eigentlich", "serve"]
+    environment:
+      EIGENTLICH_APP_HOST: 0.0.0.0
+      EIGENTLICH_DB_HOST: postgres
+      EIGENTLICH_DB_PORT: "5432"
+      EIGENTLICH_DB_PASSWORD: ${SIMTECH_EIGENTLICH_PASSWORD:?set in .env}
+      EIGENTLICH_LBS_URL: http://lbs:8013
+      EIGENTLICH_CHATBOT_URL: http://chatbot:8016
+      EIGENTLICH_REPORT_URL: http://report:8015
+      EIGENTLICH_AGGREGATION_URL: http://aggregation:8004
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8017/health"]
+    depends_on:
+      <<: *ready
+      lbs:
+        condition: service_healthy
+      lbsim:
+        condition: service_healthy
+      report:
+        condition: service_healthy
+      chatbot:
+        condition: service_healthy
+
+  # ---- cockpit --------------------------------------------------------------------------------
+
+  # Status only: its config.local.yaml (generated at build) has no start commands. Exposed
+  # through the tunnel, behind Cloudflare Access. It waits for postgres only, so that it can
+  # show an engine that is down.
+  cockpit:                        # Engine 11
+    <<: *cockpit
+    build:
+      context: ..
+      dockerfile: deploy/docker/cockpit.Dockerfile
+    working_dir: /srv/Engines/cockpit
+    command: ["python", "-X", "utf8", "-m", "cockpit", "serve"]
+    environment:
+      COCKPIT_HOST: 0.0.0.0
+      COCKPIT_PORT: "8000"
+      COCKPIT_MODE: ${COCKPIT_MODE:-development}
+      COCKPIT_DATA_DIR: /data
+      COCKPIT_CURATOR_DB_PASSWORD: ${SIMTECH_CURATOR_PASSWORD:?set in .env}
+    volumes:
+      - cockpit-data:/data          # the CIO's decision log (append-only JSON lines)
+    healthcheck:
+      <<: *health
+      test: ["CMD", "python", "/opt/deploy/healthcheck.py", "http://127.0.0.1:8000/api/config"]
+    depends_on:
+      <<: *ready
+
+  # ---- the way in -----------------------------------------------------------------------------
+
+  # Cloudflare Tunnel (outbound only). Its public hostnames are set in the Cloudflare dashboard:
+  # the app -> http://eigentlich:8017, the cockpit -> http://cockpit:8000. See README.md.
+  # Profile `tunnel`, switched on by COMPOSE_PROFILES=tunnel in .env.
+  cloudflared:
+    image: cloudflare/cloudflared:${CLOUDFLARED_VERSION:-latest}
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    logging: *logging
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      eigentlich:
+        condition: service_started
+      cockpit:
+        condition: service_started
+
+volumes:
+  pgdata:
+  backups:
+  cockpit-data:

@@ -1,0 +1,29 @@
+# Versions the images install, taken from the working virtual environments on the owner's
+# machine (Macro/.venv, Optimizer/.venv, eigentliCH_Engines/.venv, system Python 3.12.10)
+# on 29.09.2026. A constraint only pins a package when some engine asks for it, so one file
+# serves every image. The engines' own pyproject.toml files decide WHAT is installed; this
+# file decides WHICH version. To upgrade a package, change it here and rebuild.
+fastapi==0.115.6
+starlette==0.41.3
+uvicorn==0.34.0
+click==8.5.0
+h11==0.16.0
+pydantic==2.10.4
+pydantic_core==2.27.2
+annotated-types==0.8.0
+typing_extensions==4.16.0
+httpx==0.28.1
+httpcore==1.0.9
+anyio==4.15.1
+idna==3.20
+certifi==2026.7.22
+numpy==2.5.3
+scipy==1.18.1
+PyYAML==6.0.3
+psycopg==3.2.3
+psycopg-binary==3.2.3
+tzdata==2026.4
+casadi==3.7.2
+openpyxl==3.1.5
+et_xmlfile==2.0.0
+packaging==26.3

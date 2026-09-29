@@ -1,0 +1,27 @@
+# Build context allowlist for cockpit.Dockerfile (context: the Engines folder). Later lines win.
+# Besides the cockpit itself, only the engines' testbench folders are let in.
+*
+!deploy/docker/constraints.txt
+!deploy/docker/deps.py
+!deploy/docker/healthcheck.py
+!deploy/docker/cockpit_docker_config.py
+!cockpit
+!Macro/engines/*/testbench
+!Instruments/testbench
+!Optimizer/engines/*/testbench
+!eigentliCH_Engines/engines/*/testbench
+
+**/.venv
+**/venv
+**/.env
+**/config.local.yaml
+**/config.toml
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.hypothesis
+**/*.egg-info
+**/tests
+**/dev
+**/*.cmd
+cockpit/data

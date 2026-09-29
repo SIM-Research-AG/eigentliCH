@@ -22,7 +22,7 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .hypothesis/
-deploy/
+/Engines/Macro/deploy/
 dist/
 data/logs/
 *.log
