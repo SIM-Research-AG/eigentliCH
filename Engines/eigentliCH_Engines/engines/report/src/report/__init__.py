@@ -6,5 +6,5 @@ Model-derived research output. Not investment advice.
 """
 
 ENGINE = "report"
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 ENGINE_VERSION = f"{ENGINE}@{__version__}"

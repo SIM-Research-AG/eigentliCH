@@ -498,3 +498,72 @@ and the sum as lbs does. lbs's two new gap inputs (`contribution_share`, and `ca
 position funding a property goal) are in `gaps.KNOWN` with their sentences. The use cases' shares are in
 `SHARES` of the build (retirement goals 0: they rest on the pension fund and the 3a); with them the required
 returns rise where the saving is shared (docs/USE_CASES.md).
+
+## The nominal and real view (29.09.2026)
+
+Built to `review/REAL_VIEW_INTERFACES.md` and the owner's decisions of 29.09.2026 (the design note "Design note:
+nominal and real view"). Everything is additive and opt-in: no contract version moves, a request without the new
+fields is byte for byte the request of before, and every stored row reads back unchanged. Everything is stored
+nominal; the real figures are lbs's and the report engine's, derived at the point of use. App version 1.3.0.
+
+### EIG-60 · A goal says whether its amount is in today's francs
+Owner decision 7. "Ist der Betrag in heutigen Franken?" is a question of the onboarding's next version (`onb2@0.3.0`,
+version 3 on the real store, saved by the owner's curator record `ac586536e6be42c68446c8f8f80e4242` with the note
+"goal amount in today's francs and indexed contribution asked (nominal and real view), owner 29.09.2026";
+`python -m eigentlich revise-content`, which now also runs `alignment.revise_basis`). It is `goal_amount_basis`, a
+choice (`today`: "Ja, in heutigen Franken", the default; `future`: "Nein, in Franken des Zieldatums") with the new
+content attribute `"scope": "goal"`: it is asked once per goal, on the plan page's goal form, which takes its
+wording, options and default from the content, and never in the questionnaire's sequence (`questionnaires.ordered`
+leaves it out; `PUT .../answers/goal_amount_basis` is refused, 422). The answer is stored on the goal, in the new
+nullable column `goal.amount_basis` (`today`, `future`; a CHECK; NULL is not stated), a plan column changed under a
+decision as every other, and sent as lbs's `goals[].amount_basis` (LBS-31) **only when stated**: unstated, lbs reads
+today's francs, and the request keeps its bytes and lbs's cache. The plan page states a goal's basis once the goal
+has an amount. lbs's two new gap inputs (a price or a need in future francs without a date to read it in today's
+francs) are in `gaps.KNOWN` with their sentences.
+
+### EIG-61 · The yearly contribution says whether it rises with prices
+Owner decision 9. "Steigt der Betrag mit der Teuerung?" (`contribution_indexed`, `nein`, the default, or `ja`) is
+an onboarding question right after `annual_contribution`, in the same content version as EIG-60. It is an answer,
+not a column (the mandate is built from the answers, EIG-45): `inputs.py` sends it as `mandate.contribution_indexed`
+(`ja` true, `nein` false), only when answered; any other value is left out and named in `dropped`.
+
+### EIG-62 · The nominal / real switch, nominal by default, the basis always shown
+Owner decision 6. Home, plan and reports carry a switch (`client/app/basis.js`): "Nominal" or "In heutigen
+Franken", nominal by default, remembered per browser (`localStorage`, a private window starts nominal), and the
+basis in words beside the figures ("Angezeigt: nominal", "in heutigen Franken", "nominal, in Franken vom
+31.12.2040"). In real the pages show lbs's real figures and compute none: the home page lists each goal's amount
+and the mandate's required return from the sheet's `real_view` and `mandate_proposal.views` (`GET
+.../balance-sheet` and the home page now carry `views`), and the plan shows lbs's figure beside each goal's stated
+amount (`goal_views`). Today's grid and totals are the same in both bases and say so. A sheet without a real view
+(a calibration before lbs's 1.4.0) says so in real; nothing is put in its place. A report is asked in the switch's
+basis: `POST .../reports` takes `basis` (`nominal` | `real`), stored in the new column `report_request.basis`, and
+sent as report-request's `basis` (REP-27) only when `real`, so a report engine before 1.3.0 still takes a nominal
+request. The report list shows each request's basis. Real reports never mix: an allocation whose parameter set is
+nominal is left out of a real report (the report engine would refuse the mix).
+
+### EIG-63 · Fix: the report takes the allocation of the current set on its base Regime
+The report took the client's latest succeeded pcp run, whatever its Regime or parameter set, so a report asked
+after the cockpit ran a scenario showed the scenario's allocation (the Ferienchalet case: the hyperinflation run
+was the newest). Now `Service.allocation_run` takes the newest succeeded pcp run **of the client's current
+finalised parameter set** (`parameter_set_current`; a superseded set's run is never taken, even when newer) **on its
+base Regime**. Which Regimes are scenarios, aggregation says (`GET /scenarios`, mirrored as `ScenarioListed`;
+`app.aggregation_url`, 8004): a run whose `regime_id` is listed is a scenario. A scenario is taken only when asked
+for: `POST .../reports` takes `scenario` (a policy such as `stagflation`, or a scenario's regime id), stored in the
+new column `report_request.scenario`; a named scenario without a run of the current set fails the job, naming it.
+aggregation is asked only when the current set has a run; when it cannot answer, the report waits
+(`EngineUnavailable`, the request stays open, "try again") rather than risk a scenario's allocation. That makes a
+report with an allocation depend on aggregation being up (`desktop.cmd` does not start it; the cockpit's does).
+On the real store on 29.09.2026 every one of the 20 use cases' latest run was already the base Regime's, so no
+report changes; the tests reproduce the case.
+
+### EIG-64 · Fix: the decision history in plain words
+The plan's decision list showed the store's own words: field keys ("label: angestellt → Lohn …", "time_basis"),
+role keys ("61,000 CHF, protection"), fact keys ("Ja: health, network_people"), `90000.0` and English thousands.
+Decisions are append-only, so none is rewritten: `eigentlich.decisions.Renderer` reads each stored text and says it
+again in the reader's language (`GET .../decisions?language=` adds `question_text` and `choice_text`; the stored
+`question` and `choice` stay): each field by its name ("Bezeichnung", "Betrag", "Gefäss"), a role by the house's
+name from `reference/roles` (by the position's kind of capital when the decision names one position, else both
+names once), a template, a liquidity, a vessel or an occupancy in words, a date as 31.12.2055, an amount in the
+Swiss format with the typographic apostrophe the page's other figures use (61’000 CHF), a share as 40 %, a fact key
+in a question («health») by its name. A text in none of the store's formats is shown as it is. New change lists are
+written in the same plain German from the start ("Betrag: neu 96’000, bisher 90’000").

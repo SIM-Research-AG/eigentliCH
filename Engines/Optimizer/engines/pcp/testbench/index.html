@@ -90,6 +90,7 @@
     <label>Engine <input id="api" size="24"></label>
     <label>Regime id <input id="regime" size="24"></label>
     <label>Currency <select id="currency"><option>CHF</option><option>EUR</option><option>USD</option></select></label>
+    <label>Basis <select id="basis"><option>nominal</option><option>real</option></select></label>
     <label>ReturnSet id <input id="rs" size="24"></label>
     <label>Speed <select id="speed"><option>exact</option><option>fast</option></select></label>
     <label>Month <input id="date" size="10" placeholder="latest"></label>
@@ -98,7 +99,7 @@
   </div>
   <div class="card">
     <h2>Mandate</h2>
-    <p class="q">The client's mandate as JSON (pcp-mandate@1.0.0). Economy weights blend the client's Regime; a market name uses aggregation's published blend. The Currency select sets the mandate's reporting currency: fmre measures the profiles in it, the target curve is read in it, and the ReturnSet id is the one fmre serves for it (PCP-18).</p>
+    <p class="q">The client's mandate as JSON (pcp-mandate@1.0.0). Economy weights blend the client's Regime; a market name uses aggregation's published blend. The Currency select sets the mandate's reporting currency: fmre measures the profiles in it, the target curve is read in it, and the ReturnSet id is the one fmre serves for it (PCP-18). The Basis select sets the basis of the target curve, nominal by default or real (net of the currency's inflation per state); fmre serves the profiles on it and the ReturnSet id is the one for that basis (PCP-22).</p>
     <textarea id="mandate" rows="12" style="width:100%;font:12px ui-monospace,Consolas,monospace"></textarea>
     <p class="note" id="status"></p>
   </div>
@@ -161,7 +162,7 @@ function exampleMandate(instruments) {
 }
 
 function request() {
-  const mandate = { ...JSON.parse($("mandate").value), currency: $("currency").value };
+  const mandate = withBasis({ ...JSON.parse($("mandate").value), currency: $("currency").value });
   $("mandate").value = JSON.stringify(mandate, null, 1);
   const body = { regime_id: $("regime").value.trim(), return_set_id: $("rs").value.trim(),
                  mandate, speed_mode: $("speed").value };
@@ -169,11 +170,17 @@ function request() {
   store.set("mandate", $("mandate").value); store.set("regime", body.regime_id); store.set("currency", mandate.currency);
   return body;
 }
+// A nominal mandate is sent without basis, exactly as before the real view (PCP-22).
+function withBasis(m) {
+  const out = { ...m };
+  if ($("basis").value === "real") out.basis = "real"; else delete out.basis;
+  return out;
+}
 
 async function doValidate() {
   try {
     const v = await post("/validate", request());
-    $("status").innerHTML = v.ok ? `<span class="ok">feasible: ${v.universe_size} instruments, ${v.constraint_rows} rows, month ${esc(v.date)}</span>`
+    $("status").innerHTML = v.ok ? `<span class="ok">feasible: ${v.universe_size} instruments, ${v.constraint_rows} rows, month ${esc(v.date)}, ${esc(v.currency)} ${esc(v.basis || "nominal")}</span>`
       : v.problems.map(p => `<div class="warn">${esc(p)}</div>`).join("");
     if (v.notes.length) $("status").innerHTML += v.notes.map(n => `<div class="note">${esc(n)}</div>`).join("");
   } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
@@ -205,6 +212,7 @@ async function showAllocation(id) {
       <div class="tile"><div class="v">${d.binding.length} / ${d.constraint_rows}</div><div class="k">rows binding · ${esc(d.solver_method)} · ${d.iterations} it.</div></div>
       <div class="tile"><div class="v">${esc(a.date)}</div><div class="k">Regime month · ${esc(a.regime_id)}</div></div>
       <div class="tile"><div class="v">${esc(a.currency || "source")}</div><div class="k">reporting currency · ${esc(a.return_set_id)}</div></div>
+      <div class="tile"><div class="v">${esc(a.basis || "nominal")}</div><div class="k">basis of every return figure${a.basis === "real" ? " · " + esc(a.provenance.upstream["fmre:deflator"] || "") : ""}</div></div>
     </div>
     <div class="card"><h2>1. Portfolio return profile against the mandate curve</h2><p class="q">x'BB per state against the target, annualised log return. Crisis states shaded.</p><div id="c1" class="chart"></div></div>
     <div class="card"><h2>2. Shortfall by state</h2><p class="q">Summed positive shortfall per state before squaring, with the client's regime distribution it is weighted by.</p><div id="c2" class="chart"></div></div>
@@ -222,7 +230,7 @@ async function showAllocation(id) {
   Plotly.newPlot("c1", [
     { x: STATES, y: a.curves.target, name: "mandate curve", mode: "lines+markers", line: { color: css("--s2"), dash: "dot" } },
     { x: STATES, y: a.curves.achieved, name: "portfolio", mode: "lines+markers", line: { color: css("--s1") } },
-  ], layout({ shapes: [crisisBand()], xaxis: { title: { text: "state (1 crisis … 25 boom)" }, dtick: 2 }, yaxis: { title: { text: "annualised log return" }, tickformat: ".1%" } }), cfg);
+  ], layout({ shapes: [crisisBand()], xaxis: { title: { text: "state (1 crisis … 25 boom)" }, dtick: 2 }, yaxis: { title: { text: `annualised log return, ${a.currency || "source"} ${a.basis || "nominal"}` }, tickformat: ".1%" } }), cfg);
   Plotly.newPlot("c2", [
     { x: STATES, y: a.curves.shortfall_by_state, type: "bar", name: "shortfall", marker: { color: css("--critical") } },
     { x: STATES, y: a.curves.regime, name: "regime weight", mode: "lines", yaxis: "y2", line: { color: css("--s3") } },
@@ -255,6 +263,7 @@ async function start() {
   } catch (e) { $("sub").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
   $("regime").value = params.get("regime") || store.get("regime") || "RGM-e2658e8e9bbbc81e";
   $("currency").value = params.get("currency") || store.get("currency") || "CHF";
+  $("basis").value = params.get("basis") || store.get("basis") || "nominal";
   try {
     const instruments = await get(upstream("fmre") + "/v1/instruments");
     $("mandate").value = store.get("mandate") || JSON.stringify(exampleMandate(instruments), null, 1);
@@ -264,18 +273,21 @@ async function start() {
     $("mandate").value = store.get("mandate") || "";
   }
 }
-// The ReturnSet id fmre serves for this Regime in this currency: both enter it (PCP-11, PCP-18).
+// The ReturnSet id fmre serves for this Regime in this currency on this basis: all three enter it
+// (PCP-11, PCP-18, PCP-22). A nominal request sends no basis, as before the real view.
 async function loadReturnSet() {
-  const ccy = $("currency").value, regime = $("regime").value.trim();
+  const ccy = $("currency").value, regime = $("regime").value.trim(), basis = $("basis").value;
   $("status").innerHTML = "";
   try {
     const rs = await get(upstream("fmre") + "/v1/return-set?include_instruments=true&include_blocks=false&regime_id="
-      + encodeURIComponent(regime) + "&currency=" + encodeURIComponent(ccy));
+      + encodeURIComponent(regime) + "&currency=" + encodeURIComponent(ccy) + (basis === "real" ? "&basis=real" : ""));
     $("rs").value = rs.return_set_id;
     const noted = (rs.provenance.notes || []).map(n => (n.match(/in currency=([A-Za-z]+)/) || [])[1]).filter(Boolean);
     const served = rs.provenance.currency || (noted.length === 1 ? noted[0] : null);
     if (rs.provenance.regime_id !== regime) $("status").innerHTML += `<div class="warn">fmre did not stamp ${esc(regime)} on ${esc(rs.return_set_id)}: pcp refuses it (PCP-11).</div>`;
     if (served !== ccy) $("status").innerHTML += `<div class="warn">fmre served ${esc(rs.return_set_id)} in ${esc(served || "no stated currency")}, not ${esc(ccy)}: pcp refuses it (PCP-18).</div>`;
+    const servedBasis = rs.provenance.basis || "nominal";
+    if (servedBasis !== basis) $("status").innerHTML += `<div class="warn">fmre served ${esc(rs.return_set_id)} on the ${esc(servedBasis)} basis${rs.provenance.basis ? "" : " (states none)"}, not ${esc(basis)}: pcp refuses it (PCP-22).</div>`;
   } catch (e) {
     $("status").innerHTML = `<span class="warn">fmre served no ReturnSet for ${esc(regime)} in ${esc(ccy)} (${esc(e.message)}); enter the id by hand.</span>`;
   }
@@ -284,6 +296,11 @@ $("api").addEventListener("change", () => { store.set("api", $("api").value); st
 $("currency").addEventListener("change", () => {
   store.set("currency", $("currency").value);
   try { $("mandate").value = JSON.stringify({ ...JSON.parse($("mandate").value), currency: $("currency").value }, null, 1); } catch (e) { /* hand-edited JSON: request() reports it */ }
+  loadReturnSet();
+});
+$("basis").addEventListener("change", () => {
+  store.set("basis", $("basis").value);
+  try { $("mandate").value = JSON.stringify(withBasis(JSON.parse($("mandate").value)), null, 1); } catch (e) { /* hand-edited JSON: request() reports it */ }
   loadReturnSet();
 });
 $("validateBtn").addEventListener("click", doValidate);

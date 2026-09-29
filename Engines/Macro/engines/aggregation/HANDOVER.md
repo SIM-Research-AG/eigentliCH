@@ -9,7 +9,7 @@ Signal" and "Aggregation: optimism levels and the Rogue targets". Decisions: `DE
 ## State
 
 Built, v1.0.0 of the engine, **calibration 1.2.0 active**, with **scenario Regimes** (29.09.2026,
-AGG-19 to AGG-22). 102 tests pass (including the cycle 1.1.0 and 1.2.0 mirror, AGG-18, the Manual 10.7 acceptance tests, the role boundary, the REAL sweep, a concurrent burst against a real socket, and the cockpit session's model card) (`python -m pytest`,
+AGG-19 to AGG-22), serving the policy's inflation path for the nominal and real view (AGG-24). 121 tests pass (including the cycle 1.1.0 and 1.2.0 mirror, AGG-18, the Manual 10.7 acceptance tests, the role boundary, the REAL sweep, a concurrent burst against a real socket, and the cockpit session's model card) (`python -m pytest`,
 needs the PostgreSQL container and the `aggregation` role).
 
 - **1.0.0** is the first draft's combination rule, reproduced to 0.0 on 3,333 monthly rows in 16
@@ -35,11 +35,17 @@ needs the PostgreSQL container and the `aggregation` role).
   (history to 2026-01-31, projected 2026-02-28 to 2031-01-31, month 60 = 2031-01-31 represents the
   scenario): depression `RGM-1af6968e287768c9` (`AGG-451c8d2ee5fb0bac`), hyperinflation
   `RGM-59eebfaf7744d8ec` (`AGG-36fb373718f6ecbb`), stagflation `RGM-6bb531998bfefc4d`
-  (`AGG-33dc16356adc24ff`), deferral `RGM-c0ed086f1916984e` (`AGG-bfad967a5be95d70`). Made in
+  (`AGG-33dc16356adc24ff`), deferral `RGM-c0ed086f1916984e` (`AGG-91e2e05e126ae47d`, replaced under AGG-23 from `AGG-bfad967a5be95d70`). Also in the store: defensive depression `RGM-f99483dc4ea990a9` (`AGG-0a169ebd38c25983`, on `RGM-3198a625d02278fa`) and Rogue stagflation `RGM-e43b8d512d418607` (`AGG-25589e1208c53341`, on `RGM-84547bcbce44aaa0`). Made in
   process against the real store (the `scenario` table was created by the usual start-up DDL); the
   Default Regime's stored bytes are unchanged. pcp's own `blend_regime` picks 2031-01-31 on them.
   The server on 8004 that was running on 29.09.2026 (started 06:28 from the system Python) predates
   the scenario endpoints: restart it (`start.cmd`) to serve them.
+- **Inflation path, 29.09.2026 (AGG-24).** Every scenario Regime serves `provenance.scenario.inflation_path`
+  (60 rates, equal to macrofield's TB-21 paths) and `inflation_final_12m` (months 49 to 60: depression
+  -0.0399677, hyperinflation 0.6355609, stagflation 0.0999872, deferral 0.0257211), derived from the
+  policy when read. Nothing in the store changed and no id moved (tested against the six stored
+  scenario Regimes). The fields reach HTTP readers (fmre) only after the server on 8004 is restarted
+  with this code.
 
 ## Next steps
 
@@ -54,10 +60,9 @@ needs the PostgreSQL container and the `aggregation` role).
    earlier Regimes read, and any id typed in.
 2. When macrofield reads datafeed: make the snapshot rule a refusal again (AGG-04).
 3. Deploy folder: `python dev/make_deploy.py` (built 28.09.2026, engine files only; rebuild for
-   the scenarios).
-4. Equal-height modes: fixed in code (AGG-23). Still to do by the owner: replace the stored deferral
-   scenario record `RGM-c0ed086f1916984e` (AGG-bfad967a5be95d70 -> AGG-91e2e05e126ae47d) as AGG-23
-   describes, then restart the server on 8004.
+   the scenarios and AGG-24).
+4. Restart the server on 8004 (`start.cmd`) so that it serves the scenario endpoints, the equal-height
+   modes fix (AGG-23; the deferral record is already replaced) and the inflation path (AGG-24).
 5. SQL Metadata row for the `scenario` table (DECISIONS open point 5).
 6. Test bench: the Scenarios tab (issue the four policies on the selected base, the state paths and
    the month-60 distributions overlaid; scenario Regimes appear in the Regime list) is built and

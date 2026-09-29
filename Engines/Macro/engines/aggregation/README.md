@@ -3,7 +3,7 @@
 > **Notice.** Model-derived research output of the aggregation layer. Not investment advice.
 
 > Resume from [HANDOVER.md](HANDOVER.md). Every decision is in [DECISIONS.md](DECISIONS.md)
-> (AGG-01 to AGG-22). Specification: the Notion page "Engine 04: Aggregation layer (aggregation)".
+> (AGG-01 to AGG-24). Specification: the Notion page "Engine 04: Aggregation layer (aggregation)".
 
 Combines the three model engines into the **combined market risk signal, the Regime**: a 25-state
 distribution per economy and month (1 cautious, 25 aggressive), used by `fmre`, `pcp` and
@@ -53,7 +53,7 @@ curl -X POST localhost:8004/run -H "content-type: application/json" -d \
 from the cache.
 
 ```bash
-python -m pytest        # 102 tests: engine, golden, Manual 10.7 acceptance, API, store, boundary, cycle versions, scenarios
+python -m pytest        # 121 tests: engine, golden, Manual 10.7 acceptance, API, store, boundary, cycle versions, scenarios
 ```
 
 ## Endpoints
@@ -124,6 +124,12 @@ Regime of the same contract (`aggregation-regime@1.0.0`):
 - `provenance.scenario` names the policy, the base Regime, the horizon, the template's sha256 and
   the scenario date. It is absent (not `null`) on an issued base Regime, so stored Regimes read back
   byte for byte and pcp's mirror reads a scenario Regime unchanged.
+- `provenance.scenario.inflation_path` is the policy's inflation path of the .m file (60 monthly
+  annualised rates, macrofield's TB-21 values) and `inflation_final_12m` its average over months 49
+  to 60, the rate fmre deflates a scenario by (nominal and real view): depression -4.00 %,
+  hyperinflation 63.56 %, stagflation 10.00 %, deferral 2.57 %. Both are derived from the policy when
+  the Regime is read, served in every response, and neither stored nor hashed, so no scenario id
+  moves (AGG-24). A base Regime carries neither.
 
 ## Calibrations
 

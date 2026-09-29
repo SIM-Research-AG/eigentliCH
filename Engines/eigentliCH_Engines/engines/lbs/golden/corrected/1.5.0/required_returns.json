@@ -1,0 +1,506 @@
+{
+ "db-02": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g2",
+  "judgement": {
+   "1.4.0": "not_realistic",
+   "1.5.0": "not_realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.12145877743023448,
+   "1.5.0": 0.12921076177735813,
+   "move_points": 0.7751984347123653
+  },
+  "real": {
+   "1.4.0": 0.11587938052759661,
+   "1.5.0": 0.11803045720530503,
+   "move_points": 0.2151076677708419
+  },
+  "target_chf": {
+   "1.4.0": 252588.38418169832,
+   "1.5.0": 265769.6123733858,
+   "move_chf": 13181.228191687493
+  }
+ },
+ "db-04": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g1",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0,
+   "1.5.0": 0.0,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.004975124378109319,
+   "1.5.0": -0.00990099009900991,
+   "move_points": -0.49258657209005907
+  },
+  "target_chf": {
+   "1.4.0": 63644.88611728062,
+   "1.5.0": 65324.92230363751,
+   "move_chf": 1680.0361863568905
+  }
+ },
+ "db-06": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g2",
+  "judgement": {
+   "1.4.0": "not_realistic",
+   "1.5.0": "not_realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.32443045274703763,
+   "1.5.0": 0.3321220075886231,
+   "move_points": 0.7691554841585457
+  },
+  "real": {
+   "1.4.0": 0.31784124651446555,
+   "1.5.0": 0.3189326807808148,
+   "move_points": 0.10914342663492782
+  },
+  "target_chf": {
+   "1.4.0": 256632.60531161542,
+   "1.5.0": 263406.9447727319,
+   "move_chf": 6774.339461116499
+  }
+ },
+ "db-07": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g2",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.029385293397353962,
+   "1.5.0": 0.03588427192880772,
+   "move_points": 0.6498978531453758
+  },
+  "real": {
+   "1.4.0": 0.02426397352970544,
+   "1.5.0": 0.025627992008720568,
+   "move_points": 0.13640184790151277
+  },
+  "target_chf": {
+   "1.4.0": 551568.5845503376,
+   "1.5.0": 563325.7432763375,
+   "move_chf": 11757.158725999878
+  }
+ },
+ "q-ceiling": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g1",
+  "judgement": {
+   "1.4.0": "not_realistic",
+   "1.5.0": "not_realistic"
+  },
+  "nominal": {
+   "1.4.0": 8.54750000002241,
+   "1.5.0": 8.595000000022992,
+   "move_points": 4.750000000058208
+  },
+  "real": {
+   "1.4.0": 8.500000000022299,
+   "1.5.0": 8.500000000022764,
+   "move_points": 4.654054919228656e-11
+  },
+  "target_chf": {
+   "1.4.0": 95474.99999999999,
+   "1.5.0": 95950.0,
+   "move_chf": 475.00000000001455
+  }
+ },
+ "q-no-vessel": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "home",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0,
+   "1.5.0": 0.0,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.004975124378109319,
+   "1.5.0": -0.00990099009900991,
+   "move_points": -0.49258657209005907
+  },
+  "target_chf": {
+   "1.4.0": 204284.6609445695,
+   "1.5.0": 208639.16417642133,
+   "move_chf": 4354.503231851821
+  }
+ },
+ "q-zero-income": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "home",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0,
+   "1.5.0": 0.0,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.004975124378109319,
+   "1.5.0": -0.00990099009900991,
+   "move_points": -0.49258657209005907
+  },
+  "target_chf": {
+   "1.4.0": 205306.08424929235,
+   "1.5.0": 210725.55581818556,
+   "move_chf": 5419.471568893205
+  }
+ },
+ "r-human-capital": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "home",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0,
+   "1.5.0": 0.0,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.004975124378109319,
+   "1.5.0": -0.00990099009900991,
+   "move_points": -0.49258657209005907
+  },
+  "target_chf": {
+   "1.4.0": 204284.6609445695,
+   "1.5.0": 208639.16417642133,
+   "move_chf": 4354.503231851821
+  }
+ },
+ "r-paid-mortgage": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "boat",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0286229973717127,
+   "1.5.0": 0.03489619729225524,
+   "move_points": 0.6273199920542538
+  },
+  "real": {
+   "1.4.0": 0.023505470021604857,
+   "1.5.0": 0.02464970028936153,
+   "move_points": 0.1144230267756674
+  },
+  "target_chf": {
+   "1.4.0": 163835.7886386955,
+   "1.5.0": 167743.81197341246,
+   "move_chf": 3908.0233347169706
+  }
+ },
+ "r-share-missing": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "home",
+  "judgement": {
+   "1.4.0": "not_realistic",
+   "1.5.0": "not_realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.153440920781577,
+   "1.5.0": 0.15982254725531675,
+   "move_points": 0.6381626473739743
+  },
+  "real": {
+   "1.4.0": 0.14770240873788776,
+   "1.5.0": 0.14833915569833334,
+   "move_points": 0.06367469604455778
+  },
+  "target_chf": {
+   "1.4.0": 410612.1684985847,
+   "1.5.0": 421451.1116363711,
+   "move_chf": 10838.94313778641
+  }
+ },
+ "r-share-stated": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "home",
+  "judgement": {
+   "1.4.0": "not_realistic",
+   "1.5.0": "not_realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.153440920781577,
+   "1.5.0": 0.15982254725531675,
+   "move_points": 0.6381626473739743
+  },
+  "real": {
+   "1.4.0": 0.14770240873788776,
+   "1.5.0": 0.14833915569833334,
+   "move_points": 0.06367469604455778
+  },
+  "target_chf": {
+   "1.4.0": 410612.1684985847,
+   "1.5.0": 421451.1116363711,
+   "move_chf": 10838.94313778641
+  }
+ },
+ "syn-couple": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g1",
+  "judgement": {
+   "1.4.0": "not_realistic",
+   "1.5.0": "not_realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.02793063802528195,
+   "1.5.0": 0.0343593921570573,
+   "move_points": 0.6428754131775349
+  },
+  "real": {
+   "1.4.0": 0.02281655524903692,
+   "1.5.0": 0.024118210056492284,
+   "move_points": 0.13016548074553658
+  },
+  "target_chf": {
+   "1.4.0": 184315.2622185324,
+   "1.5.0": 188711.788470089,
+   "move_chf": 4396.526251556585
+  }
+ },
+ "syn-property-1": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g1",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0,
+   "1.5.0": 0.0,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.004975124378109319,
+   "1.5.0": -0.00990099009900991,
+   "move_points": -0.49258657209005907
+  },
+  "target_chf": {
+   "1.4.0": 318900.72841639974,
+   "1.5.0": 338889.4769776137,
+   "move_chf": 19988.748561213957
+  }
+ },
+ "syn-property-2": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g1",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0,
+   "1.5.0": 0.0,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.004975124378109319,
+   "1.5.0": -0.00990099009900991,
+   "move_points": -0.49258657209005907
+  },
+  "target_chf": {
+   "1.4.0": 423085.5435043446,
+   "1.5.0": 447378.8474951995,
+   "move_chf": 24293.30399085488
+  }
+ },
+ "syn-property-3": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g1",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0,
+   "1.5.0": 0.0,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.004975124378109319,
+   "1.5.0": -0.00990099009900991,
+   "move_points": -0.49258657209005907
+  },
+  "target_chf": {
+   "1.4.0": 322097.70821877406,
+   "1.5.0": 345701.1554648637,
+   "move_chf": 23603.447246089636
+  }
+ },
+ "syn-property-4": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g1",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0,
+   "1.5.0": 0.0,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.004975124378109319,
+   "1.5.0": -0.00990099009900991,
+   "move_points": -0.49258657209005907
+  },
+  "target_chf": {
+   "1.4.0": 229241.209045872,
+   "1.5.0": 238821.82597353563,
+   "move_chf": 9580.616927663621
+  }
+ },
+ "syn-property-5": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g1",
+  "judgement": {
+   "1.4.0": "not_realistic",
+   "1.5.0": "not_realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.13160155960940756,
+   "1.5.0": 0.1386976981011685,
+   "move_points": 0.7096138491760939
+  },
+  "real": {
+   "1.4.0": 0.12597170110388833,
+   "1.5.0": 0.12742346346650346,
+   "move_points": 0.14517623626151277
+  },
+  "target_chf": {
+   "1.4.0": 473603.22034068435,
+   "1.5.0": 498318.0232000984,
+   "move_chf": 24714.802859414078
+  }
+ },
+ "v-future": {
+  "amount_basis": "future",
+  "contribution_indexed": false,
+  "goal_id": "g",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.0018282268138136715,
+   "1.5.0": 0.0018282268138136715,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": -0.003155993220085751,
+   "1.5.0": -0.008090864540778564,
+   "move_points": -0.4934871320692813
+  },
+  "target_chf": {
+   "1.4.0": 400000.0,
+   "1.5.0": 400000.0,
+   "move_chf": 0.0
+  }
+ },
+ "v-indexed": {
+  "amount_basis": "today",
+  "contribution_indexed": true,
+  "goal_id": "g",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.006837367982370779,
+   "1.5.0": 0.011846509092720225,
+   "move_points": 0.5009141110349447
+  },
+  "real": {
+   "1.4.0": 0.001828226848130221,
+   "1.5.0": 0.0018282268244753652,
+   "move_points": -2.3654855851873435e-09
+  },
+  "target_chf": {
+   "1.4.0": 441958.23087469133,
+   "1.5.0": 488076.0159791868,
+   "move_chf": 46117.78510449547
+  }
+ },
+ "v-not-realistic": {
+  "amount_basis": "future",
+  "contribution_indexed": false,
+  "goal_id": "g",
+  "judgement": {
+   "1.4.0": "not_realistic",
+   "1.5.0": "not_realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.15362135352916084,
+   "1.5.0": 0.15362135352916084,
+   "move_points": 0.0
+  },
+  "real": {
+   "1.4.0": 0.14788194381011044,
+   "1.5.0": 0.1421993599298621,
+   "move_points": -0.5682583880248337
+  },
+  "target_chf": {
+   "1.4.0": 125000.0,
+   "1.5.0": 125000.0,
+   "move_chf": 0.0
+  }
+ },
+ "v-worked-example": {
+  "amount_basis": "today",
+  "contribution_indexed": false,
+  "goal_id": "g",
+  "judgement": {
+   "1.4.0": "realistic",
+   "1.5.0": "realistic"
+  },
+  "nominal": {
+   "1.4.0": 0.008963185857282951,
+   "1.5.0": 0.015963740850565955,
+   "move_points": 0.7000554993283004
+  },
+  "real": {
+   "1.4.0": 0.003943468514709503,
+   "1.5.0": 0.005904693911451542,
+   "move_points": 0.1961225396742039
+  },
+  "target_chf": {
+   "1.4.0": 441958.23087469133,
+   "1.5.0": 488076.0159791868,
+   "move_chf": 46117.78510449547
+  }
+ }
+}

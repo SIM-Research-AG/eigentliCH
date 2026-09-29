@@ -40,7 +40,7 @@ CORS defaults to `*` so the disk-opened case works. **Narrow it before deploymen
 the engine binds to localhost, holds no user data and has no session to steal.
 
 ```bash
-python -m pytest -q                    # 332 tests, against a real server
+python -m pytest -q                    # 478 tests, against a real server
 ```
 
 ### The store
@@ -199,6 +199,91 @@ The test bench shows both: **Estimators · R-002/3** (toggle, currency, the 12 m
 return after every crisis and contraction month) and **Income · R-001**. Every choice made
 here is in `DECISIONS.md`.
 
+## Nominal and real view (29 September 2026)
+
+Everything is stored and published **nominal**; real is derived at the point of use, on
+request, and never stored. The owner's nine decisions and the fixed interfaces are in
+`Projects/Engines/review/REAL_VIEW_INTERFACES.md`; the choices made here are FMRE-26 to
+FMRE-32. Log returns throughout: `real = nominal - ln(1 + inflation)`, per state.
+
+```
+GET /v1/inflation?currency=CHF                          # the deflator, 25 states
+GET /v1/inflation?currency=CHF&regime_id=RGM-...        # a scenario Regime's own inflation
+GET /v1/return-set?regime_id=...&currency=CHF&basis=real
+GET /v1/instruments/{id}/profile?currency=CHF&basis=real[&regime_id=...]
+```
+
+* **The deflator** is the inflation over the 12 months after each month in a state, from
+  Engine 01's monthly `inflation.cpi_yoy` (CHF Swiss CPI, EUR euro-area HICP from 1999 and
+  German CPI before, USD US CPI-U), per phase with the floor of six effective years, read
+  onto the 25 states by pchip, not smoothed. A thin phase takes today's year-on-year
+  inflation, labelled `fallback` (on the snapshot of January 2026: the boom phase, in all
+  three currencies).
+* **Labels** by the ceiling: `measured` from -10 % to +20 % a year, `extrapolated` to -20 %
+  and +100 %, `not_computable` outside. Above the ceiling a real set is computed in CHF,
+  then USD, and says so (`provenance.deflator.hard_currency_fallback`, `provenance.currency`);
+  if neither qualifies the answer is 422 `not_computable` with the reason.
+* **A scenario Regime** is deflated by its policy's inflation (the mean of months 49 to 60,
+  `provenance.scenario.inflation_final_12m` from aggregation) in every state; one without
+  the field is refused loudly (503), never deflated by history.
+* **A real ReturnSet** has its own `return_set_id`, `provenance.basis: "real"` and
+  `provenance.deflator`, and its second note names the basis. Role and block profiles are
+  the US record in USD and are deflated by USD inflation. Without `currency=` each series
+  is deflated in its own currency, stated. `basis=nominal` or no basis is the published
+  set byte for byte, and carries neither field (`tests/test_default_pin.py`).
+
+Since FMRE-26 `provenance.estimator` names the estimator that built the instrument
+profiles (`forward_12m_smoothed` on the default); it said `plain_mean`, the calibration's.
+
+### Inflation pass-through under a scenario (29 September 2026)
+
+Deflating the historical nominal profiles by a scenario's own inflation treated every
+instrument as if its nominal return did not rise with prices: under hyperinflation (63.6 % a
+year) gold read -41.5 log points real at the crisis knot in CHF. Since FMRE-33 a scenario
+Regime carries each instrument from its **historical real return** to the scenario's
+inflation by its pass-through beta (`engines/fund_map/pass_through.py`):
+
+```
+r_real(i, s)      = nominal(i, s) - ln(1 + pi_hist(s))          historical per-state deflator
+scenario nominal  = r_real(i, s) + beta_i * ln(1 + pi_s)        [+ bond price change]
+scenario real     = r_real(i, s) + (beta_i - 1) * ln(1 + pi_s)  [+ bond price change]
+bond price change = -D_i * (ln(1 + pi_s) - ln(1 + pi_hist(s)))  a log return, no cap
+```
+
+* **Where:** the ReturnSet and the instrument profile under a scenario `regime_id`, in
+  `basis=nominal` and `basis=real`. Base Regimes, the nominal default and `/v1/inflation`
+  are unchanged byte for byte.
+* **House table** `ipt@1.1.0` (`IPT-585c7da4656ead2b`, stored in
+  `inflation_beta_calibration` with its source line; `ipt@1.0.0` stays stored): gold and
+  precious metals 1.0, commodities 1.0, inflation-linked bonds 1.0, real estate 0.8,
+  equities 0.6, **cash 0.0** (it loses the full inflation, no duration), nominal bonds 0.0
+  with duration (aggregate 6, government 7, short-dated 0.25), hedge funds and
+  alternatives 0.5, digital assets 0.5, volatility 0.5. The register maps onto the types
+  by asset class, refined by name and proxy; the full mapping is FMRE-34, its judgement
+  calls confirmed by the owner (FMRE-41). The bond loss is a log return since
+  `ipt@1.1.0`, so no cap (FMRE-38): under hyperinflation the price change alone is -94 %
+  at duration 6 and -97 % at 7.
+* **Role profiles** (FMRE-40) follow the same rule with a **blended beta**, the weighted
+  beta of their long-record blocks (and the weighted duration of their bond blocks), from
+  the historical USD deflator: gain 0.6, income 0.75, stabilisation 0.667, protection 0.5
+  with duration 3.5. Block types: equity 0.6, real estate 0.8, government bonds 0 with
+  duration 7, gold 1.0, commodities and agriculture 1.0, short rate as cash 0.
+  `provenance.inflation_pass_through.roles` names each role's blend and composition.
+  **Block profiles carry no pass-through.**
+* **Override** by the CIO, append-only and versioned (`inflation_beta_override`):
+
+```
+GET /v1/inflation-beta                              # every active instrument: type, house, override, in force
+GET /v1/inflation-beta/{instrument_id}/history      # the override versions, newest first
+PUT /v1/inflation-beta/{instrument_id}              # {beta 0..1.5 | null, duration?, reason, set_by}
+```
+
+  `beta: null` reverts to the house beta, as a new version. The beta in force enters every
+  scenario set's `return_set_id` and `provenance.inflation_pass_through` (per instrument
+  the beta used and its source, house or override; per role the blend). A role has no
+  override: its blocks' types change only by a new calibration version.
+* A scenario Regime without `inflation_final_12m` is now refused in nominal as well (503).
+
 ---
 
 ## What the engine refuses to do
@@ -309,6 +394,8 @@ engines/fund_map/
   estimate.py       per-instrument cascade (stored), D2, dispatch to forward.py
   forward.py        the 12 month forward measurement and its smoothing (the default, FMRE-22)
   currency.py       CHF / EUR / USD at the point of use (D-01)
+  inflation.py      the deflator per regime state and currency; the ceiling (real view)
+  pass_through.py   inflation pass-through beta under a scenario Regime (FMRE-33)
   service.py        orchestration; the only module the API talks to
 store/
   config.py         where the store lives; file + env, password never in the file
@@ -319,7 +406,7 @@ store/
                     VXTH index (network, via feeds/)
 api/main.py         the versioned /v1 surface
 testbench/          a standalone dev front end — NOT part of the system
-tests/              332 tests, incl. the frozen reference fixture
+tests/              478 tests, incl. the frozen reference fixture
 ```
 
 **Runtime dependencies are four**: `fastapi`, `pydantic`, `uvicorn`, `psycopg[binary]`.

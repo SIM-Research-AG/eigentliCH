@@ -83,6 +83,7 @@ class Lbs(StandIn):
     def __init__(self) -> None:
         super().__init__()
         self.sheets: dict[str, dict[str, Any]] = {}
+        self.real_view = True           # the sheet carries lbs's real view (calibration 1.4.0, LBS-31)
 
     def handle(self, method, path, body):
         if method == "POST" and path == "/run":
@@ -130,6 +131,31 @@ class Lbs(StandIn):
                 "gaps": gaps,
                 "notice": "Model-derived research output. Not investment advice.",
             }
+            if self.real_view:
+                # lbs's real view (LBS-31) in its shape: a price level of 1.5 to every target date
+                views = []
+                for g in body["goals"]:
+                    amount, basis = g["target_amount"], g.get("amount_basis") or "today"
+                    nominal = None if amount is None else (amount * 1.5 if basis == "today" else amount)
+                    real = None if amount is None else (amount if basis == "today" else amount / 1.5)
+                    views.append({"goal_id": g["goal_id"], "kind": g["kind"],
+                                  "unit": "chf_per_year" if g["kind"] == "retirement" else "chf",
+                                  "amount_basis": basis, "amount_basis_stated": "amount_basis" in g,
+                                  "stated_amount": amount, "horizon_years": 20.0, "price_level": 1.5,
+                                  "nominal": {"basis": "nominal", "amount": nominal, "as_at": g["target_date"]},
+                                  "real": {"basis": "real", "amount": real, "as_at": None}})
+                m = body["mandate"] or {}
+                self.sheets[aid]["real_view"] = {
+                    "currency": "CHF", "contribution_indexed": bool(m.get("contribution_indexed")),
+                    "contribution_indexed_stated": "contribution_indexed" in m, "goals": views,
+                    "inflation": {"currency": "CHF", "index": "CPI", "annual_rate": 0.01, "log_rate": 0.00995,
+                                  "label": "measured", "source": "stand-in"}}
+                if m:
+                    self.sheets[aid]["mandate_proposal"] = {
+                        "status": "available", "goal_id": m["goal_id"], "target_chf": 150000.0, "required_return": 0.05,
+                        "basis": "nominal",
+                        "views": {"nominal": {"basis": "nominal", "target_chf": 150000.0, "required_return": 0.05},
+                                  "real": {"basis": "real", "target_chf": 100000.0, "required_return": 0.0396}}}
             return 200, {"run_id": _id("RUN", [aid, len(self.requests)]), "status": "succeeded", "artefact_id": aid,
                          "idempotency_key": aid, "cached": False}
         if method == "GET" and path.startswith("/artefacts/"):
@@ -200,17 +226,34 @@ class Report(StandIn):
         return 404, {"detail": "no route"}
 
 
+class Aggregation(StandIn):
+    """``GET /scenarios``: the scenario Regimes, as ``aggregation`` lists them (EIG-63)."""
+    engine = "aggregation"
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.scenarios: list[dict[str, Any]] = []
+
+    def handle(self, method, path, body):
+        if method == "GET" and path == "/scenarios":
+            return 200, list(self.scenarios)
+        return 404, {"detail": "no route"}
+
+
 class Engines:
     def __init__(self) -> None:
         self.lbs, self.chatbot, self.report = Lbs(), Chatbot(), Report()
+        self.aggregation = Aggregation()
 
     def reset(self) -> None:
-        for e in (self.lbs, self.chatbot, self.report):
+        for e in (self.lbs, self.chatbot, self.report, self.aggregation):
             e.down = e.refuse = False
             e.delay_s = 0.0
         self.chatbot.unverified = []
         self.chatbot.refusal = False
         self.chatbot.general = False
+        self.lbs.real_view = True
+        self.aggregation.scenarios = []
 
 
 def app_settings(store: Settings, lbs_auto: Optional[dict[str, Any]] = None, **urls: str) -> AppSettings:
@@ -222,7 +265,8 @@ def app_settings(store: Settings, lbs_auto: Optional[dict[str, Any]] = None, **u
 def make_app(store: Settings, engines: Engines, lbs_auto: Optional[dict[str, Any]] = None):
     from eigentlich.api import create_app
     return create_app(app_settings(store, lbs_auto), lbs_transport=engines.lbs.transport(),
-                      chatbot_transport=engines.chatbot.transport(), report_transport=engines.report.transport())
+                      chatbot_transport=engines.chatbot.transport(), report_transport=engines.report.transport(),
+                      aggregation_transport=engines.aggregation.transport())
 
 
 def free_port() -> int:

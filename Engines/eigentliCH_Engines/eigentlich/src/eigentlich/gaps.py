@@ -56,6 +56,8 @@ KNOWN: dict[str, Optional[str]] = {
     "property.capital_type": "plan",
     "property.no_income_is_recorded_for_the_household": "plan",
     "property.the_household_composition_is_past_its_validity_horizon": "plan",
+    # a price in future francs without a date after today cannot be read in today's francs (lbs LBS-31)
+    "property.amount_basis": "plan",
     # a retirement goal
     "retirement.no_income_is_recorded_for_the_household": "plan",
     "retirement.the_members_age_is_not_recorded": None,
@@ -63,6 +65,7 @@ KNOWN: dict[str, Optional[str]] = {
     "retirement.the_ahv_table_is_not_approved": None,
     "retirement.the_pension_projection_record_is_not_approved": None,
     "retirement.the_household_composition_is_past_its_validity_horizon": "plan",
+    "retirement.the_need_is_in_future_francs_and_the_goal_has_no_date_to_read_it_in_todays_francs": "plan",
     # the risk profile
     "risk_profile.horizon_years": "intake",
     "risk_profile.vessel": "plan",

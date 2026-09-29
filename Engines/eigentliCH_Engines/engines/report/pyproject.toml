@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "report"
-version = "1.2.0"
+version = "1.3.0"
 description = "eigentliCH Report Engine, Engine 15: reports in which every figure traces to an artefact id; connecting prose by MiniMind (on spark7), every number checked. Model-derived research output; not investment advice."
 requires-python = ">=3.11"
 # Runtime. Every entry is on the Engine Building Guide allowlist (section 3) except

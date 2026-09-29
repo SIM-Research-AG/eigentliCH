@@ -7,6 +7,7 @@
     /api/export/...           Excel workbooks laid out from engine endpoints
     /api/launcher/...         start engines, read their logs (the desktop app's supervisor)
     /api/curator/...          the curator workflow on schema eigentlich, as role curator (C-16)
+    /api/cio/...              the CIO's writes to an engine the proxy cannot name (C-32)
     /api/{engine}/{path}      proxy, so the browser talks to one origin
     /bench/{engine}/          the engine's own test bench, pointed at the proxy
 
@@ -21,13 +22,14 @@ import time
 from contextlib import asynccontextmanager
 from datetime import date
 from typing import Any, Literal, Optional
+from urllib.parse import quote
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from . import __version__
 from .clients import Engines, _describe
@@ -35,7 +37,7 @@ from .curator import CuratorStore, Refused, Unavailable
 from .decisions import DecisionIn, DecisionLog
 from .export import NOTICE, decision_workbook, honi_workbook, instruments_workbook
 from .launcher import Launcher
-from .mandate import PRESET_KEYS, MandateForm, Problem, assemble, to_form, vocabulary
+from .mandate import DEFAULT_BASIS, PRESET_KEYS, MandateForm, Problem, assemble, to_form, vocabulary
 from .regime import LEVELS, RegimeProblem, choose, levels as regime_levels, regime_level
 from .settings import STATIC, Settings, load
 
@@ -98,6 +100,9 @@ class RunIn(_Body):
     currency: Optional[str] = Field(default=None, pattern=r"^[A-Z]{3}$")
     regime_policy: Optional[str] = None
     base_regime_id: Optional[str] = None
+    #: The basis the page fetched the ReturnSet in (C-31), context like ``currency``: it must be the
+    #: finalised mandate's ``basis`` (nominal when the mandate names none).
+    basis: Optional[Literal["nominal", "real"]] = None
 
 
 class MandateIn(BaseModel):
@@ -112,14 +117,33 @@ class ContentIn(_Body):
     note: Optional[str] = None
 
 
+class InflationBetaIn(BaseModel):
+    """The CIO's inflation pass-through override for one instrument (C-32), in fmre's own names
+    (``PUT /v1/inflation-beta/{instrument_id}``). ``beta`` null reverts to the house beta; ``set_by``
+    is the acting curator. fmre keeps every version (append-only); the cockpit keeps nothing."""
+    model_config = ConfigDict(extra="forbid")
+    beta: Optional[float] = Field(ge=0, le=1.5, description="0 to 1.5; null reverts to the house beta")
+    duration: Optional[float] = Field(default=None, ge=0, le=30, description="years; left out keeps the house duration")
+    reason: str = Field(min_length=1, description="required, for a set and for a revert")
+    set_by: str = Field(min_length=1, description="the acting curator")
+
+    @field_validator("reason", "set_by")
+    @classmethod
+    def _not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("must not be blank")
+        return v.strip()
+
+
 def create_app(settings: Optional[Settings] = None,
                transport: Optional[httpx.AsyncBaseTransport] = None,
-               launcher: Optional[Launcher] = None) -> FastAPI:
+               launcher: Optional[Launcher] = None,
+               curator: Optional[CuratorStore] = None) -> FastAPI:
     settings = settings or load()
     engines = Engines(settings, transport=transport)
     log = DecisionLog(settings.data_dir)
     launcher = launcher or Launcher(settings)
-    curator = CuratorStore(settings.curator_db)
+    curator = curator or CuratorStore(settings.curator_db)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -396,6 +420,11 @@ def create_app(settings: Optional[Settings] = None,
         if pset["client_id"] != client_id or pset["engine"] != body.engine:
             raise HTTPException(409, f"parameter set {pset['id']} is not a {body.engine} set of this client")
         mandate_currency = (pset["body"] or {}).get("currency", "CHF")
+        mandate_basis = (pset["body"] or {}).get("basis") or DEFAULT_BASIS   # absent means nominal (C-31)
+        if body.basis and body.basis != mandate_basis:
+            raise HTTPException(409, f"the ReturnSet was fetched on a {body.basis} basis, but the finalised mandate is "
+                                     f"{mandate_basis}: fetch the ReturnSet with basis={mandate_basis}, or finalise the "
+                                     f"mandate as {body.basis} first")
         if body.currency and body.currency != mandate_currency:
             raise HTTPException(409, f"the ReturnSet was fetched in {body.currency}, but the finalised mandate is in "
                                      f"{mandate_currency}: fetch the ReturnSet in {mandate_currency}, or finalise the "
@@ -423,8 +452,17 @@ def create_app(settings: Optional[Settings] = None,
             if fmre is None:
                 raise HTTPException(503, "the roster names no fmre: name the regime_id and return_set_id")
             query = httpx.QueryParams({"regime_id": regime_id, "include_instruments": "true",
-                                       "include_blocks": "false", "currency": mandate_currency})
-            return_set_id = (await fetch("fmre", f"/v1/return-set?{query}"))["return_set_id"]
+                                       "include_blocks": "false", "currency": mandate_currency,
+                                       # basis= only when real, as pcp asks fmre itself: a nominal query stays
+                                       # exactly what it was, so the ReturnSet id pcp fetches is the same (C-31)
+                                       **({"basis": mandate_basis} if mandate_basis != DEFAULT_BASIS else {})})
+            served = await fetch("fmre", f"/v1/return-set?{query}")
+            served_basis = (served.get("provenance") or {}).get("basis") or DEFAULT_BASIS
+            if served_basis != mandate_basis:   # pcp refuses it too; say so before pcp is asked (C-31)
+                raise HTTPException(409, f"fmre served the ReturnSet {served.get('return_set_id')} on a {served_basis} "
+                                         f"basis for a {mandate_basis} mandate: fmre does not serve basis="
+                                         f"{mandate_basis} yet, so pcp would refuse it")
+            return_set_id = served["return_set_id"]
         elif agg is not None:
             # A Regime named: say which level it is (the Regime's own optimism_scale); a named level
             # that is not the Regime's is refused before pcp is asked.
@@ -437,7 +475,7 @@ def create_app(settings: Optional[Settings] = None,
             optimism = actual or optimism
         context = {"regime_id": regime_id, "regime_policy": policy,
                    "base_regime_id": base_regime_id, "return_set_id": return_set_id,
-                   "currency": body.currency or mandate_currency}
+                   "currency": body.currency or mandate_currency, "basis": mandate_basis}
         if optimism:
             context["optimism"] = optimism
         request = {"regime_id": regime_id, "return_set_id": return_set_id, "mandate": pset["body"]}
@@ -581,6 +619,31 @@ def create_app(settings: Optional[Settings] = None,
     @app.get("/api/curator/binds", tags=["curator"])
     def curator_binds(all: bool = False) -> list[dict[str, Any]]:  # noqa: A002 - query parameter name
         return db(curator.bind_check, not all)
+
+    # ---- the CIO's writes to an engine (C-32) --------------------------------------------
+    # The proxy allows a write in cio mode only for an exact engine:path in cio.writable; fmre's
+    # override path carries the instrument id, so no entry could name it. This route forwards the
+    # one write, in both modes, as the curator routes do (C-16, C-20).
+
+    @app.put("/api/cio/inflation-beta/{instrument_id}", tags=["cio"])
+    async def cio_inflation_beta(instrument_id: str, body: InflationBetaIn) -> Response:
+        """Set (``beta`` 0 to 1.5, optionally ``duration``) or revert (``beta`` null) the CIO's inflation
+        pass-through override of one instrument in fmre, with the required ``reason``; ``set_by`` is the
+        acting curator, checked in service first, so a revoked one never reaches fmre. fmre's answer
+        (status and body) is passed through unchanged; fmre keeps every version."""
+        await run_in_threadpool(db, curator.in_service, body.set_by)
+        fmre = engine_or_404("fmre")
+        payload = {"beta": body.beta, "reason": body.reason, "set_by": body.set_by}
+        if body.duration is not None:
+            payload["duration"] = body.duration
+        try:
+            r = await engines.forward(fmre, "PUT", f"v1/inflation-beta/{quote(instrument_id, safe='')}", "",
+                                      json.dumps(payload).encode("utf-8"), "application/json")
+        except httpx.HTTPError as exc:
+            raise HTTPException(502, f"{fmre.name} (fmre) is {_describe(exc)} at {fmre.url}, so no override was "
+                                     "set. Start it from the System page.") from exc
+        headers = {k: v for k, v in r.headers.items() if k.lower() not in DROP}
+        return Response(r.content, status_code=r.status_code, headers=headers)
 
     # ---- proxy (last, so the cockpit's own routes win) -------------------------------
 

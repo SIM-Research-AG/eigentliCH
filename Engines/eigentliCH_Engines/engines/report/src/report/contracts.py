@@ -38,6 +38,9 @@ NOTICE = "Model-derived research output. Not investment advice."
 
 Language = Literal["de", "en"]
 EngineName = Literal["pcp", "lbs"]
+#: The basis of return and goal figures (REP-27): ``nominal`` (the default everywhere) or ``real``, in today's
+#: francs, with ``real = nominal - ln(1 + inflation)`` for log returns.
+Basis = Literal["nominal", "real"]
 
 _REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,79}$")
 
@@ -114,6 +117,9 @@ class Allocation(_Upstream):
     diagnostics: Diagnostics
     coverage: Coverage
     provenance: AllocationProvenance
+    #: Since pcp's real view (REP-28): the basis of the Mandate's target curve and of the ReturnSet it was solved
+    #: on. An Allocation without it counts as ``nominal``.
+    basis: Optional[Basis] = None
 
 
 # ---------------------------------------------------------------------------
@@ -219,6 +225,8 @@ class LbsProperty(_Upstream):
     target_date: Optional[str]
     binds_on: tuple[str, ...] = ()
     undetermined_because: tuple[str, ...] = ()
+    #: From lbs calibration 1.4.0: ``real``, ``price_chf`` is in today's francs (REP-27).
+    basis: Optional[Literal["real"]] = None
 
 
 class LbsLiquidity(_Upstream):
@@ -228,6 +236,15 @@ class LbsLiquidity(_Upstream):
     reason: str
 
 
+class LbsRetirementView(_Upstream):
+    """The retirement comparison in one basis (lbs LBS-31)."""
+
+    basis: Basis
+    needs_per_year: Optional[float]
+    covered_per_year: Optional[float]
+    shortfall_per_year: Optional[float]
+
+
 class LbsRetirement(_Upstream):
     goal_id: str
     verdict: str
@@ -235,12 +252,30 @@ class LbsRetirement(_Upstream):
     covered_per_year: Optional[float]
     shortfall_per_year: Optional[float]
     undetermined_because: tuple[str, ...] = ()
+    #: From lbs calibration 1.4.0: ``real``, the figures above are in today's francs, and ``views`` carries
+    #: both bases (REP-27).
+    basis: Optional[Literal["real"]] = None
+    views: Optional[dict[str, LbsRetirementView]] = None
 
 
 class LbsRiskProfile(_Upstream):
     status: Literal["available"]
     value: Optional[float]
     binds_on: Optional[str]
+
+
+class LbsRequiredReturnView(_Upstream):
+    """The mandate's target and required return in one basis (lbs LBS-31)."""
+
+    basis: Basis
+    target_chf: Optional[float]
+    required_return: Optional[float]
+
+
+class LbsPlausibility(_Upstream):
+    """Whether a portfolio within the risk profile can reasonably earn the required return (lbs LBS-34)."""
+
+    judgement: Literal["realistic", "not_realistic", "could_not_be_determined"]
 
 
 class LbsMandateProposal(_Upstream):
@@ -256,6 +291,10 @@ class LbsMandateProposal(_Upstream):
     feasible: Optional[bool]
     complete: bool
     release_state: Literal["unreleased"]
+    #: From lbs calibration 1.4.0 (REP-27): both views of the target and the required return, and the
+    #: plausibility of the required return.
+    views: Optional[dict[str, LbsRequiredReturnView]] = None
+    plausibility: Optional[LbsPlausibility] = None
 
 
 class LbsGap(_Upstream):
@@ -263,6 +302,46 @@ class LbsGap(_Upstream):
     input: str
     kind: str
     reason: str
+
+
+class LbsInflationUse(_Upstream):
+    """The inflation assumption a sheet used (lbs LBS-32)."""
+
+    currency: str
+    index: str
+    annual_rate: float
+    log_rate: float
+    label: Literal["measured", "extrapolated"]
+    source: str
+
+
+class LbsBasisAmount(_Upstream):
+    basis: Basis
+    amount: Optional[float]
+    as_at: Optional[str] = None
+    absent_because: Optional[str] = None
+
+
+class LbsGoalBasisView(_Upstream):
+    """One goal's amount in both bases (lbs LBS-31)."""
+
+    goal_id: str
+    unit: str
+    amount_basis: Literal["today", "future"]
+    amount_basis_stated: bool
+    nominal: LbsBasisAmount
+    real: LbsBasisAmount
+
+
+class LbsRealView(_Upstream):
+    """lbs's real view (lbs ``RealView``, LBS-31): the inflation assumption, whether the contribution is indexed,
+    every goal's amount in both bases (REP-27)."""
+
+    currency: str
+    inflation: LbsInflationUse
+    contribution_indexed: bool
+    contribution_indexed_stated: bool
+    goals: tuple[LbsGoalBasisView, ...] = ()
 
 
 class LbsProvenance(_Upstream):
@@ -292,6 +371,9 @@ class LifeBalanceSheet(_Upstream):
     mandate_proposal: Union[LbsMandateProposal, LbsNotAvailable] = Field(discriminator="status")
     gaps: tuple[LbsGap, ...]
     provenance: LbsProvenance
+    #: Since lbs's real view (REP-27): the goal figures and the required return in today's francs. A sheet
+    #: without it can be reported in nominal only.
+    real_view: Optional[LbsRealView] = None
 
 
 # ---------------------------------------------------------------------------
@@ -341,6 +423,10 @@ class ReportRequest(_Frozen):
     #: ``False`` renders the report without model prose.
     prose: bool = True
     calibration_version: Optional[str] = None
+    #: Since engine 1.3.0, optional (REP-27): the basis of the return and goal figures. ``real`` takes the real
+    #: figures from the lbs sheet and needs a pcp Allocation of basis ``real``; a mix is refused. Enters the
+    #: request id only when ``real``, so a request without it (or with ``nominal``) keeps its id and key.
+    basis: Basis = "nominal"
     #: Since engine 1.2.0, optional (REP-25): the report this one revises (a ``REP-...`` id of this client's),
     #: and the curator's remark that asks for the revision. Both enter the request id and so the idempotency
     #: key, so a revision is a distinct artefact; the note is printed on the page as the curator's remark and
@@ -466,6 +552,9 @@ class Fact(_Frozen):
     derivation: Optional[str] = None
     #: For a change: the previous value.
     previous: Union[bool, float, str, None] = None
+    #: Since engine 1.3.0 (REP-27): the basis of a return or goal figure, printed next to it; ``None`` for a
+    #: figure that has none (an amount today, a count, a date).
+    basis: Optional[Basis] = None
 
 
 ProseStatus = Literal["verified", "flagged", "rejected", "unavailable", "not_requested", "no_slot"]
@@ -529,6 +618,8 @@ class Report(_Frozen):
     #: Since engine 1.2.0, optional (REP-25): the report this one revises and the curator's remark, as requested.
     revision_of: Optional[str] = None
     revision_note: Optional[str] = None
+    #: Since engine 1.3.0 (REP-27): the basis the report was asked in. A report stored before it reads as nominal.
+    basis: Basis = "nominal"
     #: The as-of date of the newest source, the date the report speaks for.
     as_of: str
     facts: tuple[Fact, ...]

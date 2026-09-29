@@ -13,7 +13,9 @@ Own contracts, frozen, extra fields forbidden:
 
 * ``Mandate`` (``pcp-mandate@1.0.0``): the client's target curve, universe and bounds, the economy weights
   the client's Regime is blended from (PCP-04), and the reporting currency (CHF, EUR or USD, PCP-18) every
-  return figure is in, the target curve included.
+  return figure is in, the target curve included. An optional ``basis`` (``nominal`` by default, or ``real``)
+  says whether the target curve, and so every return figure, is nominal or net of the reporting currency's
+  inflation (PCP-22).
 * ``PCPRunRequest`` (``pcp-run@1.0.0``), body of ``POST /run`` and ``POST /validate``.
 * ``Allocation`` (``pcp-allocation@1.0.0``): weights per instrument, raw and renormalised separately labelled,
   the same weights by role, the portfolio map, the curves, diagnostics and provenance.
@@ -29,9 +31,9 @@ from __future__ import annotations
 
 import math
 import re
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer, model_validator
 
 N_STATES = 25
 
@@ -75,9 +77,54 @@ ReportingCurrency = Literal["CHF", "EUR", "USD"]
 #: or "currency=source" for the unconverted series). Read only while fmre has no structured field (PCP-19).
 _NOTED_CURRENCY = re.compile(r"\bin currency=([A-Za-z]+)\b")
 
+#: The nominal and real view (REAL_VIEW_INTERFACES.md, PCP-22): the basis of the mandate's target curve and so
+#: of every return figure. Real is log-return net of the reporting currency's inflation per regime state,
+#: ``real = nominal - ln(1 + inflation)``, deflated by fmre; nominal is the default everywhere.
+BASES: tuple[str, ...] = ("nominal", "real")
+Basis = Literal["nominal", "real"]
+
 
 class _Frozen(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class _NominalOmitted(_Frozen):
+    """A contract that gained an optional ``basis`` (PCP-22) and serialises it only when it is not the default.
+
+    ``nominal`` is left out of the JSON, so every mandate, Allocation and provenance written before the field
+    existed, and every nominal one written since, keeps its bytes and its content-addressed id (``mandate_id``,
+    the idempotency key, ``artefact_id``). A body without ``basis`` reads back as nominal.
+    """
+
+    @model_serializer(mode="wrap")
+    def _omit_nominal(self, handler):
+        data = handler(self)
+        if isinstance(data, dict):
+            if data.get("basis") == "nominal":
+                data.pop("basis")
+            if "hard_currency_fallback" in data and data["hard_currency_fallback"] is None:
+                data.pop("hard_currency_fallback")      # PCP-23: stated only when fmre fell back
+        return data
+
+
+#: The keys of fmre's decision-5 fallback (``Deflator.hard_currency_fallback`` in fmre's
+#: ``contracts/return_set.py``, built by ``engines/fund_map/inflation.py::hard_currency``).
+HARD_CURRENCY_FALLBACK_KEYS: tuple[str, ...] = ("from", "to", "states", "reason")
+
+
+def check_fallback(value: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+    """PCP-23: ``{from, to, states, reason}`` as fmre states it, ``from`` and ``to`` two different reporting
+    currencies. Kept exactly as fmre wrote it, never recomputed."""
+    if value is None:
+        return None
+    missing = [k for k in HARD_CURRENCY_FALLBACK_KEYS if k not in value]
+    if missing:
+        raise ValueError(f"hard_currency_fallback lacks {missing}; fmre states {{from, to, states, reason}}")
+    if value["from"] not in REPORTING_CURRENCIES or value["to"] not in REPORTING_CURRENCIES:
+        raise ValueError("hard_currency_fallback names a currency outside CHF, EUR, USD")
+    if value["from"] == value["to"]:
+        raise ValueError("hard_currency_fallback falls back from a currency to itself")
+    return value
 
 
 class _Upstream(BaseModel):
@@ -178,6 +225,23 @@ class ReturnSetProvenance(_Upstream):
     universe_version: str
     estimator: str = ""
     notes: tuple[str, ...] = ()
+    #: ``nominal`` or ``real`` (REAL_VIEW_INTERFACES.md): the basis the instrument profiles are on. A set that
+    #: does not state one is nominal (fmre's sets before the real view, and its default).
+    basis: Optional[str] = None
+    #: On a real set, how fmre deflated it: ``{currency, index, method, labels per state,
+    #: hard_currency_fallback}``. Read as fmre publishes it and reported, never recomputed here.
+    deflator: Optional[dict[str, Any]] = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unstated(self, handler):
+        # The Allocation's ``fmre:sha256`` is the checksum of this mirror: a set that states no basis and no
+        # deflator keeps the checksum, and so the Allocation its bytes, it had before these fields (PCP-22).
+        data = handler(self)
+        if isinstance(data, dict):
+            for key in ("basis", "deflator"):
+                if data.get(key) is None:
+                    data.pop(key, None)
+        return data
 
     def noted_currencies(self) -> tuple[str, ...]:
         """The currencies fmre's notes name for this set (``source`` for unconverted series), in order."""
@@ -229,7 +293,7 @@ class Bound(_Frozen):
         return self
 
 
-class Mandate(_Frozen):
+class Mandate(_NominalOmitted):
     """The client's mandate: what the portfolio must reach, from what, within which bounds.
 
     ``regime_weights`` blends the Regime's per-economy distributions for this client (PCP-04); a named
@@ -240,12 +304,18 @@ class Mandate(_Frozen):
     for the instrument profiles measured in it, and the ``target_curve`` is in it by definition (annualised
     log returns in that currency). It is not an exposure bound: the ``currency`` dimension of ``bounds``
     (CHF, USD, EUR, RMB, ...) limits what the portfolio holds, whatever it is reported in. CHF by default.
+
+    ``basis`` is the basis of the ``target_curve`` (PCP-22): ``nominal`` (the default) or ``real``, annualised
+    log returns net of the reporting currency's inflation. pcp asks fmre for the profiles on the same basis.
+    A nominal mandate serialises without the field, so its ``mandate_id`` is the one it had before the field
+    existed.
     """
 
     contract_version: Literal["pcp-mandate@1.0.0"] = "pcp-mandate@1.0.0"
     client: str = Field(min_length=1)
     name: str = Field(min_length=1)
     currency: ReportingCurrency = "CHF"
+    basis: Basis = "nominal"
     horizon_years: float = Field(default=1.0, gt=0.0)
     curve_unit: CurveUnit = "annualised_log_return"
     target_curve: tuple[float, ...]
@@ -269,6 +339,14 @@ class Mandate(_Frozen):
         if value not in REPORTING_CURRENCIES:
             raise ValueError(f"currency {value!r} is not a reporting currency; pcp reports in "
                              f"{', '.join(REPORTING_CURRENCIES)} (D-01, PCP-18)")
+        return value
+
+    @field_validator("basis", mode="before")
+    @classmethod
+    def _basis(cls, value: object) -> object:
+        if value not in BASES:
+            raise ValueError(f"basis {value!r} is not one of {', '.join(BASES)}; it is the basis of the target "
+                             "curve (PCP-22)")
         return value
 
     @model_validator(mode="after")
@@ -461,6 +539,11 @@ class ValidationReport(_Frozen):
     return_set_id: str
     #: The mandate's reporting currency, the one the ReturnSet was asked for in (PCP-18).
     currency: Optional[ReportingCurrency] = None
+    #: The mandate's basis, the one the ReturnSet was asked for on (PCP-22).
+    basis: Optional[Basis] = None
+    #: PCP-23: fmre's ``{from, to, states, reason}`` when the real set is measured in a hard currency because
+    #: the mandate's inflation left fmre's band. Left out of the JSON when there is none.
+    hard_currency_fallback: Optional[dict[str, Any]] = None
     date: Optional[str]
     universe_size: int
     constraint_rows: int
@@ -468,6 +551,13 @@ class ValidationReport(_Frozen):
     problems: tuple[str, ...]
     notes: tuple[str, ...] = ()
     notice: str = NOTICE
+
+    @model_serializer(mode="wrap")
+    def _omit_no_fallback(self, handler):
+        data = handler(self)
+        if isinstance(data, dict) and data.get("hard_currency_fallback", 0) is None:
+            data.pop("hard_currency_fallback")
+        return data
 
 
 class InstrumentWeight(_Frozen):
@@ -491,8 +581,8 @@ class PortfolioMap(_Frozen):
 
 
 class Curves(_Frozen):
-    """Every curve in the Allocation's ``currency``: the target by definition, the profiles as fmre measured
-    them in it (PCP-18)."""
+    """Every curve in the Allocation's ``currency`` and on its ``basis``: the target by definition, the
+    profiles as fmre measured them in it (PCP-18, PCP-22)."""
 
     target: tuple[float, ...]
     #: ``x'BB``: what the portfolio returns per state (not what the objective compares).
@@ -528,12 +618,19 @@ class Coverage(_Frozen):
     warnings: tuple[str, ...] = ()
 
 
-class Provenance(_Frozen):
+class Provenance(_NominalOmitted):
     regime_id: str
     return_set_id: str
     #: The currency the ReturnSet was served in, checked against the mandate's (PCP-18). ``None`` only on
     #: Allocations published before PCP-18, whose profiles were fmre's source-currency default.
     currency: Optional[ReportingCurrency] = None
+    #: The basis the ReturnSet was served on, checked against the mandate's (PCP-22). Serialised only when
+    #: ``real``; absent means nominal, which every Allocation published before PCP-22 is.
+    basis: Basis = "nominal"
+    #: PCP-23, decision 5 of the real view: fmre's ``{from, to, states, reason}`` when the mandate's currency
+    #: (``from``) left fmre's inflation band and the real set is measured in the hard currency ``to``, which is
+    #: then ``currency``. Real only; serialised only when present, so every other Allocation keeps its bytes.
+    hard_currency_fallback: Optional[dict[str, Any]] = None
     snapshot_id: str
     as_of: str
     date: str
@@ -550,8 +647,13 @@ class Provenance(_Frozen):
     speed_mode: SpeedMode
     label: Literal["model-derived"] = "model-derived"
 
+    @field_validator("hard_currency_fallback")
+    @classmethod
+    def _fallback(cls, value: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+        return check_fallback(value)
 
-class Allocation(_Frozen):
+
+class Allocation(_NominalOmitted):
     """The artefact of one run. Weights per instrument with the ``regime_id`` stamped.
 
     ``release_state`` is ``unreleased`` and cannot be anything else here: releasing advice is a person's
@@ -564,8 +666,14 @@ class Allocation(_Frozen):
     regime_id: str
     return_set_id: str
     #: The reporting currency of every return figure in this Allocation: the mandate's, and the one the
-    #: ReturnSet was measured in (PCP-18). ``None`` only on Allocations published before PCP-18.
+    #: ReturnSet was measured in (PCP-18). ``None`` only on Allocations published before PCP-18. On a real
+    #: Allocation with ``provenance.hard_currency_fallback`` (PCP-23) it is the hard currency the figures are
+    #: measured in (the fallback's ``to``), not the mandate's (the fallback's ``from``).
     currency: Optional[ReportingCurrency] = None
+    #: The basis of every return figure in this Allocation: the mandate's, and the one the ReturnSet was served
+    #: on (PCP-22). Stated in the JSON when ``real``; a body without it is nominal (every Allocation published
+    #: before PCP-22, and every nominal one since, byte for byte as before).
+    basis: Basis = "nominal"
     mandate_id: str
     client: str
     mandate_name: str
@@ -593,6 +701,11 @@ class Allocation(_Frozen):
             raise ValueError("the provenance regime_id differs from the Allocation's")
         if self.provenance.currency != self.currency:
             raise ValueError("the provenance currency differs from the Allocation's")
+        if self.provenance.basis != self.basis:
+            raise ValueError("the provenance basis differs from the Allocation's")
+        fb = self.provenance.hard_currency_fallback
+        if fb is not None and (self.basis != "real" or fb["to"] != self.currency):
+            raise ValueError("a hard-currency fallback is real only, and its 'to' is the Allocation's currency")
         if self.budget_met and abs(sum(i.weight for i in self.instruments) - 1.0) > 1e-9:
             raise ValueError("renormalised weights must sum to one")
         return self

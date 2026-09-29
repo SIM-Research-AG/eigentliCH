@@ -1,4 +1,5 @@
-"""Typed callers for the three engines the app uses: ``lbs`` (8013), ``chatbot`` (8016), ``report`` (8015).
+"""Typed callers for the engines the app uses: ``lbs`` (8013), ``chatbot`` (8016), ``report`` (8015), and
+``aggregation`` (8004), asked only which Regimes are scenarios (EIG-63).
 
 HTTP only; each response is validated against its mirror in ``contracts.py`` on arrival. An engine that is
 not there, answers with an error, or answers with something that breaks its contract raises
@@ -91,12 +92,25 @@ class _Client:
             return {"url": self.base_url, "reachable": False, "engine_version": None}
 
 
+def lbs_body(request: c.LbsRequest) -> dict[str, Any]:
+    """The request as sent: the nominal and real view's two answers (lbs LBS-31) only where the client stated
+    them, so every other request keeps its bytes (and lbs's cache) and an lbs before LBS-31 still takes it."""
+    body = c.dump(request)
+    for goal in body.get("goals") or []:
+        if goal.get("amount_basis") is None:
+            goal.pop("amount_basis", None)
+    mandate = body.get("mandate")
+    if isinstance(mandate, dict) and mandate.get("contribution_indexed") is None:
+        mandate.pop("contribution_indexed", None)
+    return body
+
+
 class LbsClient(_Client):
     engine = "lbs"
     start_hint = r"engines\lbs\start.cmd"
 
     def run(self, request: c.LbsRequest) -> c.RunAccepted:
-        return self._parse(c.RunAccepted, self._call("POST", "/run", json=c.dump(request)))
+        return self._parse(c.RunAccepted, self._call("POST", "/run", json=lbs_body(request)))
 
     def sheet(self, artefact_id: str) -> c.LifeBalanceSheet:
         sheet = self._parse(c.LifeBalanceSheet, self._call("GET", f"/artefacts/{artefact_id}"))
@@ -130,7 +144,29 @@ class ReportClient(_Client):
         for key in ("revision_of", "revision_note"):
             if body.get(key) is None:
                 body.pop(key, None)
+        # The basis (report 1.3.0, REP-27) only when real, so an engine before 1.3.0 still takes a nominal one.
+        if body.get("basis") == "nominal":
+            body.pop("basis")
         report = self._parse(c.Report, self._call("POST", "/report", json=body))
         if report.client_ref != request.client_ref:
             raise EngineRefused(self.engine, "the report engine answered for another client")
         return report
+
+
+class AggregationClient(_Client):
+    engine = "aggregation"
+    start_hint = r"Macro\engines\aggregation\start.cmd"
+
+    def scenarios(self) -> list[c.ScenarioListed]:
+        """Every scenario Regime aggregation has derived (``GET /scenarios``), with its policy and base."""
+        response = self._call("GET", "/scenarios")
+        try:
+            rows = response.json()
+        except ValueError as exc:
+            raise EngineRefused(self.engine, "aggregation /scenarios did not answer JSON") from exc
+        if not isinstance(rows, list):
+            raise EngineRefused(self.engine, "aggregation /scenarios did not answer a list")
+        try:
+            return [c.ScenarioListed.model_validate(r) for r in rows]
+        except ValidationError as exc:
+            raise EngineRefused(self.engine, f"aggregation /scenarios broke its contract: {str(exc)[:400]}") from exc

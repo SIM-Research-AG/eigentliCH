@@ -152,6 +152,8 @@ class FakePcp(httpx.AsyncBaseTransport):
     def __init__(self):
         self.calls: list[tuple[str, str, dict]] = []
         self.app = None
+        self.fmre_queries: list[dict[str, str]] = []
+        self.fmre_serves_real = True   # False: an fmre from before the real view, which ignores basis=
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
         body = json.loads(await request.aread() or b"{}")
@@ -162,8 +164,10 @@ class FakePcp(httpx.AsyncBaseTransport):
             return aggregation_answer(request, body)
         if request.url.port == 8006 and request.url.path == "/v1/return-set":  # fmre, stamped for the Regime asked
             q = request.url.params
-            return httpx.Response(200, json={"return_set_id": f"RS-{q['regime_id'][4:]}-{q['currency']}",
-                                             "provenance": {"regime_id": q["regime_id"]}})
+            self.fmre_queries.append(dict(q))
+            real = q.get("basis") == "real" and self.fmre_serves_real
+            return httpx.Response(200, json={"return_set_id": f"RS-{q['regime_id'][4:]}-{q['currency']}" + ("-real" if real else ""),
+                                             "provenance": {"regime_id": q["regime_id"], **({"basis": "real"} if real else {})}})
         if request.url.port == 8007:
             if request.url.path == "/validate":
                 return httpx.Response(200, json={"ok": True, "problems": [], "notes": []})
@@ -467,6 +471,32 @@ def test_cio_mode_allows_the_curator_writes_and_pcp_validation_only(tmp_path, sc
         assert r.status_code == 201 and r.json()["engine_run"]["status"] == "succeeded"
 
 
+def test_the_inflation_beta_override_is_set_by_a_curator_in_service_only(tmp_path, schema, world):
+    """C-32: the acting curator is checked in the store before fmre is asked; a revoked or unknown one never
+    reaches fmre, an in-service one is forwarded as set_by. Nothing is written to the store."""
+    from test_api import StandInFmreBeta
+    cfg = tmp_path / "config-beta.yaml"
+    cfg.write_text(f"""
+service: {{mode: cio}}
+data_dir: {tmp_path.as_posix()}/data
+curator_db: {{host: 127.0.0.1, port: 5432, dbname: simtech, schema: {schema}, user: curator}}
+engines:
+  - {{key: fmre, number: 6, name: Fund Map, url: "http://127.0.0.1:8006", status: built, api: v1}}
+""", encoding="utf-8")
+    fake = StandInFmreBeta()
+    settings = load(cfg, env={"COCKPIT_MODE": "cio", "COCKPIT_CURATOR_DB_PASSWORD": _curator_password()})
+    w = world
+    with TestClient(create_app(settings, transport=fake)) as client:
+        body = {"beta": 0.9, "reason": "Pricing power", "set_by": w["revoked"]}
+        r = client.put("/api/cio/inflation-beta/INS-a", json=body)
+        assert r.status_code == 403 and "revoked" in r.json()["detail"] and not fake.calls
+        assert client.put("/api/cio/inflation-beta/INS-a", json={**body, "set_by": "nobody"}).status_code == 422
+        assert not fake.calls
+        r = client.put("/api/cio/inflation-beta/INS-a", json={**body, "set_by": w["curator"]})
+        assert r.status_code == 200 and r.json()["override"]["set_by"] == w["curator"]
+        assert fake.calls == [("PUT", "/v1/inflation-beta/INS-a", {**body, "set_by": w["curator"]})]
+
+
 # ---- presets and the run's Regime and currency (C-22, C-23) -------------------------------------
 
 PRESETS = ROOT / "dev" / "presets"
@@ -515,7 +545,7 @@ def test_the_chosen_regime_and_currency_go_into_the_run(api):
     run = r.json()
     assert run["request"] == sent, "the engine_run records exactly what pcp was sent"
     assert run["context"] == {"regime_id": "RGM-scn", "regime_policy": "stagflation", "base_regime_id": "RGM-base",
-                              "return_set_id": "RS-eur", "currency": "EUR"}
+                              "return_set_id": "RS-eur", "currency": "EUR", "basis": "nominal"}
     # a ReturnSet fetched in another currency than the finalised mandate's is refused before pcp is asked
     n = len(fake.calls)
     r = client.post(f"/api/curator/clients/{w['client']}/runs", json={**body, "currency": "USD"})
@@ -543,7 +573,8 @@ def test_a_run_naming_no_regime_uses_the_default_optimism_level_even_when_anothe
         sent = [c for c in fake.calls if c[1] == "/run"][-1][2]
         assert sent == {"regime_id": "RGM-default", "return_set_id": "RS-default-CHF", "mandate": MANDATE},             "the default level's latest Regime, not aggregation's newest run (rogue)"
         assert r.json()["context"] == {"regime_id": "RGM-default", "regime_policy": None, "base_regime_id": None,
-                                       "return_set_id": "RS-default-CHF", "currency": "CHF", "optimism": "default"}
+                                       "return_set_id": "RS-default-CHF", "currency": "CHF", "optimism": "default",
+                                       "basis": "nominal"}
         r = client.post(url, json={"curator_id": w["curator"], "optimism": "aggressive", "regime_policy": "stagflation"})
         assert r.status_code == 201, r.text
         ctx = r.json()["context"]
@@ -560,3 +591,37 @@ def test_a_run_naming_no_regime_uses_the_default_optimism_level_even_when_anothe
         assert client.post(url, json={"curator_id": w["curator"], "return_set_id": "RS-x"}).status_code == 422
         n = len(fake.calls)
         assert client.post(url, json={"curator_id": w["revoked"]}).status_code == 403 and len(fake.calls) == n,             "a revoked curator asks no engine"
+
+
+def test_a_real_mandate_is_run_on_fmres_real_return_set_and_nominal_stays_as_it_was(tmp_path, schema, world):
+    """The mandate's basis goes through (C-31): a real mandate's run asks fmre for basis=real in its currency
+    and answers the basis in its context; a nominal one asks exactly what it asked before (no basis=). A
+    ReturnSet fmre serves on another basis, and a page that fetched on another basis, are refused before
+    pcp is asked."""
+    client, fake = make_client(tmp_path, schema, extra=AGG_AND_FMRE)
+    w = world
+    url = f"/api/curator/clients/{w['client']}/runs"
+    with client:
+        client.post(f"/api/curator/clients/{w['client']}/parameter-sets", json={"curator_id": w["curator"], "body": MANDATE})
+        r = client.post(url, json={"curator_id": w["curator"]})
+        assert r.status_code == 201, r.text
+        assert "basis" not in fake.fmre_queries[-1], "a nominal run asks fmre what it asked before the real view"
+        assert r.json()["context"]["basis"] == "nominal"
+
+        real = {**MANDATE, "basis": "real"}
+        client.post(f"/api/curator/clients/{w['client']}/parameter-sets", json={"curator_id": w["curator"], "body": real})
+        r = client.post(url, json={"curator_id": w["curator"]})
+        assert r.status_code == 201, r.text
+        assert fake.fmre_queries[-1]["basis"] == "real" and fake.fmre_queries[-1]["currency"] == "CHF"
+        sent = [c for c in fake.calls if c[1] == "/run"][-1][2]
+        assert sent["return_set_id"] == "RS-default-CHF-real" and sent["mandate"]["basis"] == "real"
+        assert r.json()["context"]["basis"] == "real"
+
+        n = len(fake.calls)
+        r = client.post(url, json={"curator_id": w["curator"], "regime_id": "RGM-default", "return_set_id": "RS-x",
+                                   "basis": "nominal"})
+        assert r.status_code == 409 and "real" in r.json()["detail"], "the page fetched on another basis"
+        fake.fmre_serves_real = False
+        r = client.post(url, json={"curator_id": w["curator"]})
+        assert r.status_code == 409 and "basis=real" in r.json()["detail"], "fmre served a nominal set"
+        assert not [c for c in fake.calls[n:] if c[1] == "/run"], "pcp is not asked"

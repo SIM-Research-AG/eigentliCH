@@ -4,16 +4,20 @@
 A run:
 
 1. Resolves the request against ``config.yaml`` (speed mode, calibration) and computes the idempotency key
-   from the regime id, the return set id, the mandate, its reporting currency, the month, the speed mode, the
-   calibration's content hash and the engine and contract versions. A key already answered is answered
+   from the regime id, the return set id, the mandate, its reporting currency, its basis (when real), the
+   month, the speed mode, the calibration's content hash and the engine and contract versions. A key already answered is answered
    again, free.
-2. Reads the Regime from ``aggregation``, the ReturnSet in the mandate's currency and the instrument register
-   from ``fmre``, and refuses, before any solve (every refusal names its reason):
+2. Reads the Regime from ``aggregation``, the ReturnSet in the mandate's currency and on its basis, and the
+   instrument register from ``fmre``, and refuses, before any solve (every refusal names its reason):
    * a ``return_set_id`` other than the one ``fmre`` serves;
    * a ReturnSet whose ``regime_id`` is not the requested one, including one that carries none: strict,
      no interim acceptance (owner, 28.09.2026, PCP-11; Engine Building Guide section 4);
    * a ReturnSet measured in another currency than the mandate's, including one that states none: strict,
-     like the ``regime_id`` rule (PCP-18, PCP-19);
+     like the ``regime_id`` rule (PCP-18, PCP-19). The one exception is fmre's hard-currency fallback on a
+     real set (PCP-23): accepted only when its ``from`` is the mandate's currency and its ``to`` the served
+     one, and then stated on the Allocation; a fallback that does not match is refused;
+   * a ReturnSet on another basis than the mandate's (a set that states none is nominal), or a real set whose
+     deflator labels a state ``not_computable`` (PCP-22);
    * profiles in another unit than the mandate's curve, or a horizon other than one year;
    * a universe instrument ``fmre`` does not publish, or one that cannot be classified;
    * a mandate that is structurally infeasible.
@@ -39,7 +43,8 @@ from . import ENGINE, ENGINE_VERSION, calibration as seeds
 from . import constraints as cons
 from . import engine
 from . import store as st
-from .clients import AggregationClient, FmreClient, NotFoundUpstream, UpstreamError, checksum
+from .clients import (AggregationClient, FmreClient, NotComputableUpstream, NotFoundUpstream, UpstreamError,
+                      checksum)
 from .contracts import (
     CONTRACT_VERSIONS,
     Allocation,
@@ -57,6 +62,7 @@ from .contracts import (
     RunAccepted,
     RunStatus,
     ValidationReport,
+    check_fallback,
 )
 from .settings import ROOT, Settings
 
@@ -103,6 +109,88 @@ def served_currency(rs: ReturnSet) -> Optional[str]:
     return noted[0] if len(noted) == 1 else None
 
 
+def served_basis(rs: ReturnSet) -> str:
+    """The basis a ReturnSet states its instrument profiles are on. A set without ``provenance.basis`` is
+    nominal: fmre's default, and every set it served before the real view (PCP-22)."""
+    return rs.provenance.basis if rs.provenance.basis is not None else "nominal"
+
+
+def deflator_summary(rs: ReturnSet) -> tuple[str, dict[str, int], Optional[str]]:
+    """fmre's deflator on a real set (its ``Deflator``: ``currency``, ``index``, ``method``, ``labels`` per
+    state, ``hard_currency_fallback``, ``scenario``), as reported: ``(what, label -> number of states,
+    hard-currency fallback)``. Read as fmre publishes it, never recomputed (PCP-22)."""
+    d = rs.provenance.deflator or {}
+    counts: dict[str, int] = {}
+    for label in d.get("labels") or ():
+        counts[str(label)] = counts.get(str(label), 0) + 1
+    what = " ".join(str(d[k]) for k in ("currency", "index") if d.get(k)) or "no deflator stated"
+    if d.get("method"):
+        what += f" ({d['method']})"
+    if d.get("scenario"):
+        what += f", scenario {d['scenario']}"
+    fb = d.get("hard_currency_fallback")
+    if isinstance(fb, dict):
+        fallback = (f"{fb.get('from', '?')} to {fb.get('to', '?')}"
+                    + (f", states {fb['states']}" if fb.get("states") else "")
+                    + (f": {fb['reason']}" if fb.get("reason") else ""))
+    else:
+        fallback = str(fb) if fb else None
+    return what, counts, fallback
+
+
+def accepted_fallback(rs: ReturnSet, mandate: Mandate, served: Optional[str]) -> Optional[dict[str, Any]]:
+    """PCP-23: the currency check with fmre's hard-currency fallback (decision 5 of the real view).
+
+    When the mandate's currency's inflation leaves fmre's band (-20 % to +100 %) in a state, fmre measures the
+    real set in CHF, then USD, and says so: ``provenance.currency`` is the hard currency and
+    ``provenance.deflator.hard_currency_fallback`` is ``{from, to, states, reason}``. Such a set is accepted
+    only when the mandate and the set are real, ``from`` is the mandate's currency, ``to`` the served one, and
+    the deflator's currency (when stated) the served one. Returns the fallback as fmre wrote it, ``None`` when
+    the set is in the mandate's currency without one; raises :class:`Refused` on every other mismatch.
+    """
+    fb = (rs.provenance.deflator or {}).get("hard_currency_fallback")
+    if served == mandate.currency and fb is None:
+        return None
+    rid = rs.return_set_id
+    if served != mandate.currency and (fb is None or mandate.basis != "real" or served_basis(rs) != "real"):
+        raise Refused(
+            f"ReturnSet {rid} is measured in {served or 'no stated currency'}, not the mandate's "
+            f"{mandate.currency}; a ReturnSet in another currency than the mandate's is refused (PCP-18)"
+            + ("; fmre has not stated a currency on this set (the unconverted source-currency default "
+               "states none)" if served is None else "")
+            + ("; these are fmre's unconverted source-currency profiles" if served == "source" else "")
+            + ("; it states no hard-currency fallback, the only case another currency is accepted in (PCP-23)"
+               if fb is None and mandate.basis == "real" and served not in (None, "source") else "")
+            + ("; a hard-currency fallback is accepted on a real mandate and a real set only (PCP-23)"
+               if fb is not None else ""))
+    what = f"ReturnSet {rid} states a hard-currency fallback {fb!r}"
+    if not isinstance(fb, dict):
+        raise Refused(f"{what}, not fmre's {{from, to, states, reason}}; refused (PCP-23)")
+    try:
+        check_fallback(fb)
+    except ValueError as exc:
+        raise Refused(f"{what}: {exc}; refused (PCP-23)") from exc
+    if fb["from"] != mandate.currency:
+        raise Refused(f"{what} from {fb['from']}, not from the mandate's {mandate.currency}; only a fallback "
+                      "from the mandate's currency is accepted (PCP-23)")
+    if fb["to"] != served:
+        raise Refused(f"{what} to {fb['to']}, but the set is measured in {served or 'no stated currency'}; "
+                      "the fallback's currency must be the one the set is measured in (PCP-23)")
+    deflated_in = (rs.provenance.deflator or {}).get("currency")
+    if deflated_in is not None and deflated_in != served:
+        raise Refused(f"ReturnSet {rid} is measured in {served} but deflated in {deflated_in}; a hard-currency "
+                      "fallback is accepted only when both are the fallback's currency (PCP-23)")
+    return fb
+
+
+def fallback_warning(fb: dict[str, Any]) -> str:
+    """The plain-words statement every Allocation and ValidationReport on a hard-currency fallback carries."""
+    return (f"real, measured in {fb['to']} because {fb['from']} inflation left the computable band (fmre's "
+            f"-20 % to +100 %) in states {fb['states']}: every return figure in this Allocation is real "
+            f"{fb['to']}, not real {fb['from']}, and the mandate's real target curve is fitted against the real "
+            f"{fb['to']} profiles. fmre: {fb['reason']} (PCP-23)")
+
+
 @dataclass(frozen=True)
 class Prepared:
     """Everything a solve needs, after every check that does not need a solution."""
@@ -116,6 +204,10 @@ class Prepared:
     problem: engine.Problem
     blend: engine.BlendedRegime
     warnings: tuple[str, ...]
+    #: The currency every return figure is measured in: the mandate's, or the hard currency (PCP-23).
+    currency: str = "CHF"
+    #: fmre's ``{from, to, states, reason}`` when the set is on a hard-currency fallback (PCP-23).
+    hard_currency_fallback: Optional[dict[str, Any]] = None
 
 
 class Service:
@@ -209,8 +301,11 @@ class Service:
         except UpstreamError as exc:
             raise Unavailable(str(exc)) from exc
         try:
-            rs = self.fmre.return_set(request.regime_id, m.currency)
+            rs = self.fmre.return_set(request.regime_id, m.currency, m.basis)
             register = {r.instrument_id: r for r in self.fmre.instruments()}
+        except NotComputableUpstream as exc:
+            raise Refused(f"fmre states the real view in {m.currency} is not_computable: {exc}; a real mandate "
+                          "cannot be fitted without it (PCP-22)") from exc
         except UpstreamError as exc:
             raise Unavailable(str(exc)) from exc
 
@@ -225,13 +320,20 @@ class Service:
                 "against is refused (Engine Building Guide section 4)"
                 + ("; fmre has not stamped a regime_id on this set" if stamped is None else ""))
         served = served_currency(rs)
-        if served != m.currency:
+        hard_fb = accepted_fallback(rs, m, served)       # PCP-18, PCP-19, PCP-23: raises on a mismatch
+        basis = served_basis(rs)
+        if basis != m.basis:
             raise Refused(
-                f"ReturnSet {rs.return_set_id} is measured in {served or 'no stated currency'}, not the mandate's "
-                f"{m.currency}; a ReturnSet in another currency than the mandate's is refused (PCP-18)"
-                + ("; fmre has not stated a currency on this set (the unconverted source-currency default "
-                   "states none)" if served is None else "")
-                + ("; these are fmre's unconverted source-currency profiles" if served == "source" else ""))
+                f"ReturnSet {rs.return_set_id} is on the {basis} basis, not the mandate's {m.basis}; the target "
+                f"curve is {m.basis} and a ReturnSet on another basis is refused (PCP-22)"
+                + ("; fmre states no basis on this set, which counts as nominal"
+                   if rs.provenance.basis is None else ""))
+        if m.basis == "real":
+            _, counts, _ = deflator_summary(rs)
+            if counts.get("not_computable"):
+                raise Refused(f"ReturnSet {rs.return_set_id}'s deflator labels {counts['not_computable']} states "
+                              "not_computable: no real view is defined there, so the real target curve cannot be "
+                              "fitted (PCP-22)")
         if abs(m.horizon_years - 1.0) > 1e-12:
             raise Refused(f"the mandate's horizon is {m.horizon_years} years; the profiles are annual and pcp "
                           "does not compound them to another horizon")
@@ -269,19 +371,28 @@ class Service:
             esg_min=m.esg_min, max_single_position=m.max_single_position,
             fixed=tuple(m.fixed_allocations.get(i, 0.0) for i in ids))
         warnings: list[str] = []
+        if hard_fb is not None:
+            warnings.append(fallback_warning(hard_fb))
+        if m.basis == "real":
+            what, counts, fallback = deflator_summary(rs)
+            labels = ", ".join(f"{k} {v}" for k, v in sorted(counts.items())) or "no per-state labels stated"
+            warnings.append(f"real basis: the target curve and every profile are net of inflation, deflated by "
+                            f"fmre with {what}; states: {labels}"
+                            + (f"; hard-currency fallback {fallback}" if fallback else "") + " (PCP-22)")
         if len(set(esg)) == 1:
             warnings.append(f"every instrument carries the same ESG score ({esg[0]}), so the ESG row cannot "
                             "discriminate (PCP-06)")
         return Prepared(calibration=cal, regime=regime, return_set=rs,
                         names={i: register[i].name for i in ids},
                         coverage={i: profiles[i].coverage for i in ids}, sources=sources, problem=problem,
-                        blend=blend, warnings=tuple(warnings))
+                        blend=blend, warnings=tuple(warnings), currency=served,
+                        hard_currency_fallback=hard_fb)
 
     def validate(self, request: PCPRunRequest) -> ValidationReport:
         """``POST /validate``: every check short of solving. Problems are reported, not raised."""
         mid = mandate_id(request.mandate)
         base = dict(mandate_id=mid, regime_id=request.regime_id, return_set_id=request.return_set_id,
-                    currency=request.mandate.currency)
+                    currency=request.mandate.currency, basis=request.mandate.basis)
         try:
             prepared = self.prepare(request)
         except Refused as exc:
@@ -295,18 +406,26 @@ class Service:
         problems = system.feasibility_problems()
         return ValidationReport(ok=not problems, date=prepared.blend.date,
                                 universe_size=len(prepared.problem.ids), constraint_rows=system.n_rows,
-                                problems=tuple(problems), notes=prepared.warnings, **base)
+                                problems=tuple(problems), notes=prepared.warnings,
+                                hard_currency_fallback=prepared.hard_currency_fallback, **base)
 
     # -- runs --------------------------------------------------------------
 
     def idempotency_key(self, request: PCPRunRequest, cal: Calibration) -> str:
-        return content_id("IDK", {
+        payload = {
             "regime_id": request.regime_id, "return_set_id": request.return_set_id,
             "mandate": request.mandate.model_dump(mode="json"), "currency": request.mandate.currency,
             "date": request.date,
             "speed_mode": self._speed(request), "calibration_hash": seeds.calibration_hash(cal),
             "engine_version": ENGINE_VERSION, "contract_versions": CONTRACT_VERSIONS,
-        })
+        }
+        # PCP-22: the basis enters explicitly (and through the mandate and fmre's return_set_id) when real; a
+        # nominal request keeps the key it had before the field existed. PCP-23: a hard-currency fallback enters
+        # through the return_set_id, which fmre derives from the asked currency, the served one and the fallback
+        # (its identity ``deflator.fallback``); it is only known once fmre answers, after the key is looked up.
+        if request.mandate.basis != "nominal":
+            payload["basis"] = request.mandate.basis
+        return content_id("IDK", payload)
 
     def submit(self, request: PCPRunRequest) -> RunAccepted:
         try:
@@ -452,20 +571,28 @@ def build_allocation(request: PCPRunRequest, prepared: Prepared, outcome: engine
                         "seeded values (PCP-07)")
     mid = mandate_id(m)
     regime, rs = prepared.regime, prepared.return_set
+    upstream = {"aggregation:artefact": regime.artefact_id,
+                "aggregation:calibration": regime.provenance.calibration_version,
+                "aggregation:optimism": regime.optimism_scale, "aggregation:sha256": checksum(regime),
+                "fmre:return_set": rs.return_set_id, "fmre:calibration": rs.provenance.calibration_id,
+                "fmre:engine": rs.engine_version, "fmre:currency": served_currency(rs) or "",
+                "fmre:sha256": checksum(rs)}
+    if m.basis != "nominal":        # PCP-22: a nominal Allocation keeps its bytes
+        what, _, fallback = deflator_summary(rs)
+        upstream.update({"fmre:basis": served_basis(rs), "fmre:deflator": what,
+                         "fmre:hard_currency_fallback": fallback or ""})
+    currency = prepared.currency        # the mandate's, or the hard currency of a fallback (PCP-23)
     provenance = Provenance(
-        regime_id=request.regime_id, return_set_id=rs.return_set_id, currency=m.currency, snapshot_id=regime.provenance.snapshot_id,
-        as_of=regime.provenance.as_of, date=prepared.blend.date,
-        upstream={"aggregation:artefact": regime.artefact_id,
-                  "aggregation:calibration": regime.provenance.calibration_version,
-                  "aggregation:optimism": regime.optimism_scale, "aggregation:sha256": checksum(regime),
-                  "fmre:return_set": rs.return_set_id, "fmre:calibration": rs.provenance.calibration_id,
-                  "fmre:engine": rs.engine_version, "fmre:currency": served_currency(rs) or "",
-                  "fmre:sha256": checksum(rs)},
+        regime_id=request.regime_id, return_set_id=rs.return_set_id, currency=currency, basis=m.basis,
+        hard_currency_fallback=prepared.hard_currency_fallback,
+        snapshot_id=regime.provenance.snapshot_id,
+        as_of=regime.provenance.as_of, date=prepared.blend.date, upstream=upstream,
         regime_weights=prepared.blend.weights, regime_market=m.regime_market, mandate_id=mid,
         engine_version=ENGINE_VERSION, contract_versions=CONTRACT_VERSIONS, calibration_version=cal.version,
         calibration_hash=seeds.calibration_hash(cal), idempotency_key=key, speed_mode=speed)
     body = dict(
-        regime_id=request.regime_id, return_set_id=rs.return_set_id, currency=m.currency, mandate_id=mid,
+        regime_id=request.regime_id, return_set_id=rs.return_set_id, currency=currency, basis=m.basis,
+        mandate_id=mid,
         client=m.client,
         mandate_name=m.name, date=prepared.blend.date, speed_mode=speed, calibration_version=cal.version,
         instruments=tuple(InstrumentWeight(instrument_id=i, name=prepared.names[i], role=p.labels["role"][j],

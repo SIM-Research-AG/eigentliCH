@@ -24,6 +24,7 @@ class Timeouts:
     lbs_s: float = 60.0
     chatbot_s: float = 330.0
     report_s: float = 330.0
+    aggregation_s: float = 10.0
     health_s: float = 1.5
 
 
@@ -53,6 +54,8 @@ class AppSettings:
     lbs_url: str = "http://127.0.0.1:8013"
     chatbot_url: str = "http://127.0.0.1:8016"
     report_url: str = "http://127.0.0.1:8015"
+    #: Asked only which Regimes are scenarios, when a report takes a pcp allocation (EIG-63).
+    aggregation_url: str = "http://127.0.0.1:8004"
     timeouts: Timeouts = field(default_factory=Timeouts)
     grounding: Grounding = field(default_factory=Grounding)
     lbs_auto: LbsAuto = field(default_factory=LbsAuto)
@@ -60,7 +63,8 @@ class AppSettings:
     def describe(self) -> dict[str, Any]:
         """Safe to publish: no password."""
         return {"host": self.host, "port": self.port, "cors_origins": list(self.cors_origins),
-                "engines": {"lbs": self.lbs_url, "chatbot": self.chatbot_url, "report": self.report_url},
+                "engines": {"lbs": self.lbs_url, "chatbot": self.chatbot_url, "report": self.report_url,
+                            "aggregation": self.aggregation_url},
                 "timeouts": self.timeouts.__dict__, "grounding": self.grounding.__dict__,
                 "lbs_auto": self.lbs_auto.__dict__,
                 "store": self.store.database.describe()}
@@ -72,6 +76,7 @@ _ENV = {
     f"{PREFIX}LBS_URL": ("lbs_url", str),
     f"{PREFIX}CHATBOT_URL": ("chatbot_url", str),
     f"{PREFIX}REPORT_URL": ("report_url", str),
+    f"{PREFIX}AGGREGATION_URL": ("aggregation_url", str),
 }
 
 
@@ -95,8 +100,8 @@ def load_app(path: Optional[Path] = None, overrides: Optional[Mapping[str, Any]]
     if overrides:
         app = _deep_merge(app, overrides)
 
-    known = {"host", "port", "cors_origins", "lbs_url", "chatbot_url", "report_url", "timeouts", "grounding",
-             "lbs_auto"}
+    known = {"host", "port", "cors_origins", "lbs_url", "chatbot_url", "report_url", "aggregation_url", "timeouts",
+             "grounding", "lbs_auto"}
     extra = set(app) - known
     if extra:
         raise ConfigError(f"unknown app keys: {sorted(extra)}")
@@ -111,7 +116,7 @@ def load_app(path: Optional[Path] = None, overrides: Optional[Mapping[str, Any]]
         raise ConfigError(f"app.timeouts, app.grounding or app.lbs_auto: {exc}") from exc
     if a.debounce_s < 0:
         raise ConfigError("app.lbs_auto.debounce_s is not negative")
-    for key in ("lbs_url", "chatbot_url", "report_url"):
+    for key in ("lbs_url", "chatbot_url", "report_url", "aggregation_url"):
         if key in app:
             app[key] = str(app[key]).rstrip("/")
     port = int(app.pop("port", 8017))

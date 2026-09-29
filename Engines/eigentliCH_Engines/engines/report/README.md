@@ -17,7 +17,7 @@ https://app.notion.com/p/3e80ba72543f81279459c05a6644539a
 | Family | Communication |
 | Module | `report` |
 | Default port | 8015 (configurable) |
-| Status | v1.2.0 (29.09.2026), calibration 1.0.0, prompt `report-prompt@1.0.0`; 278 tests and one opt-in live test |
+| Status | v1.3.0 (29.09.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; 335 tests and one opt-in live test |
 | Consumes | `pcp-allocation@1.0.0` from `pcp` (8007, `GET /allocation/{id}`), `lbs-balance-sheet@1.0.0` from `lbs` (8013, `GET /artefacts/{id}`), a `ReportRequest` from the caller |
 | Produces | `Report` (`report@1.0.0`), with the rendered HTML |
 | Model | MiniMind (display name), served by spark7 (`https://spark7.minimind.ch`, vLLM), `google/gemma-4-31B-it-qat-w4a16-ct` |
@@ -36,22 +36,24 @@ First time: `..\..\.venv\Scripts\pip install --no-deps -e .`, the role and schem
 the engines it draws on running (`pcp` on 8007, `lbs` on 8013). `python -m report probe` checks the model service.
 
 ```bash
-python -m pytest              # 278 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
+python -m pytest              # 335 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
 python -m pytest -m live -s   # one report with prose against the real spark7
 ```
 
 ## How a report is made
 
 1. **The key** (REP-11): the request's content hash (client, kind, language, the source artefact ids, the
-   previous report, the display facts, whether prose is wanted, and for a revision the revised report and the
-   curator's note, REP-25), the calibration hash, and when prose is wanted
+   previous report, the display facts, whether prose is wanted, for a revision the revised report and the
+   curator's note, REP-25, and the basis when it is `real`, REP-27), the calibration hash, and when prose is wanted
    the model's name and host and the prompt version and hash. Upstream artefacts are content-addressed and
    append-only, so their ids stand for their content; their sha256 as received is in the provenance. A key
    already answered by a **complete** report is served from the store (REP-07).
 2. **The sources** are read from their engines and validated against this engine's mirrors of their contracts.
    Refused, each with its reason: an artefact the engine does not have, one that breaks its contract, one about
    another client (lbs carries `client_ref`), an update whose previous report is missing or another client's,
-   a revision whose revised report is missing or another client's.
+   a revision whose revised report is missing or another client's, and a mix of bases (REP-28): a pcp
+   Allocation of another basis than the request's (one without `basis` is nominal), a real request on an lbs
+   sheet without its real view, an lbs figure whose stated basis is not the one asked, an update across bases.
 3. **The facts.** One extractor per engine (`engine.EXTRACTORS`: mirror, path, extraction) turns the artefact
    into facts. A section lbs could not compute (`not_available`) becomes a stated fact, "not available:
    <reason>", never a number (REP-09); the reason is printed as a plain sentence in the report's language
@@ -77,7 +79,13 @@ python -m pytest -m live -s   # one report with prose against the real spark7
 6. **spark7 unavailable** (REP-07): the first failure stops the prose for the rest of the report (one timeout,
    not ten), the report is produced without prose, with a warning, `complete: false`. It is stored, and never
    served as the answer to a repeat: asking again tries again.
-7. **The page** (REP-13): self-contained HTML in the house style of the dossiers (the stylesheet of
+7. **The basis** (REP-27): nominal by default, or real on request. The lede states it ("Alle Beträge nominal." /
+   "Alle Beträge in heutigen Franken (real).") and the basis word stands next to every return and goal figure.
+   In real, the figures are lbs's own real ones (`mandate_proposal.views.real`, the retirement and property
+   figures lbs 1.4.0 states real, `real_view.goals[].real`), never deflated here; what lbs gives only in
+   nominal (a liquidity gap, a fixed contribution, the BVG projection) is shown so and marked nominal. A real
+   report also states lbs's inflation assumption and whether the contribution rises with prices.
+8. **The page** (REP-13): self-contained HTML in the house style of the dossiers (the stylesheet of
    `dossier.py` verbatim), every value printed as `<span data-fact="{fact_id}">`, the notice in the footer; no id of any kind:
    the sources are named in words with their dates (REP-23), the ids stay in the artefact. The tests hold every page to this: outside fact elements, identifiers, the section
    index and the engine's notes it carries no number of two or more digits. A revision prints the curator's
@@ -91,11 +99,14 @@ python -m pytest -m live -s   # one report with prose against the real spark7
 (`name` titles the page; `person.<id>` and `goal.<id>` name a subject),
 `prose` (default true), `calibration_version`, and since 1.2.0, optional (REP-25): `revision_of` (the `REP-...` id
 of the report revised, this client's) and `revision_note` (the curator's remark, 1 to 4 000 characters, only with
-`revision_of`).
+`revision_of`), and since 1.3.0, optional (REP-27): `basis` (`nominal`, the default, or `real`; in the request id
+only when `real`, so a request without it keeps its id).
 
 `Report` (`report@1.0.0`, version unchanged): `artefact_id` (`REP-...`, the content hash), `client_ref`, `kind`,
-`language`, `title` (the kind and the display fact `name`, never the `client_ref`), `previous_report_id`, `revision_of` and `revision_note` (optional, since 1.2.0), `as_of` (the newest source date), `facts` [{`fact_id`, `section`, `label`,
-`value`, `unit` (chf, chf_per_year, share, count, number, text, date, flag), `display`, `sources` [{`engine`,
+`language`, `title` (the kind and the display fact `name`, never the `client_ref`), `previous_report_id`, `revision_of` and `revision_note` (optional, since 1.2.0), `basis` (since 1.3.0, `nominal`
+when absent), `as_of` (the newest source date), `facts` [{`fact_id`, `section`, `label`,
+`value`, `unit` (chf, chf_per_year, share, count, number, text, date, flag), `display`, `basis` (a return or goal
+figure's, since 1.3.0), `sources` [{`engine`,
 `artefact_id`, `contract_version`, `path` (JSON pointer)}], `derivation`, `previous`}], `sections` [{`key`,
 `title`, `fact_ids`, `prose`, `prose_status` (verified, flagged, rejected, unavailable, not_requested, no_slot),
 `prose_model`, `unverified_numbers`, `prose_attempts`, `prose_note`}], `complete`, `warnings`, `html`,
@@ -132,8 +143,9 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
 
 ## Model quality
 
-* **Golden** (`golden/inputs`, `golden/reports`): seven reports over frozen artefacts (German and English, a
-  property case, a liquidity case, an update, a revision, and one with spark7's real prose), reproduced exactly; the
+* **Golden** (`golden/inputs`, `golden/reports`): ten reports over frozen artefacts (German and English, a
+  property case, a liquidity case, an update, a revision, three in the real view's inputs: real in German and
+  English and nominal on a sheet with both views, and one with spark7's real prose), reproduced exactly; the
   prose-free ones byte for byte on a fresh store. On every frozen report, **every figure is traced to an artefact
   id**: each fact's path is resolved in the frozen artefact it cites and must give the value the report states;
   a change must resolve in the previous report; a display fact in the request.
@@ -151,7 +163,10 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
 * **Regression tests verified by reverting**: each of these was broken once and its test turned red: a report
   without prose is not cached, never another client's artefact, not-available not doubled, a not-available
   section never a number, flagged prose not printed, labels carry no figure, the per-key lock, the scale-word
-  rule, a change cites both reports, the house's role names, a revision's fields in the key.
+  rule, a change cites both reports, the house's role names, a revision's fields in the key; and for the basis
+  (`tests/test_basis.py`): the mix checks, the basis in the key and not in a nominal request's id, the update
+  across bases, the basis word on the page, the header line, lbs's real figures read in real, lbs's stated basis
+  checked.
 
 ## Layout
 

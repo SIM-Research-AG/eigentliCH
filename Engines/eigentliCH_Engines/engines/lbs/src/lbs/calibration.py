@@ -1,7 +1,7 @@
 """Calibration: the prototype's content records, the mandate policy figures and which prototype quirks are
 corrected, nothing else.
 
-Four seeds, append-only, each a child of the one before:
+Six seeds, append-only, each a child of the one before:
 
 ``1.0.0``  the prototype reproduced, records as shipped (ahv-pension and risk-profile unapproved).
 ``1.1.0``  the owner's approval of ahv-pension and risk-profile (Nicolas, 29.09.2026, LBS-23): the same
@@ -10,9 +10,17 @@ Four seeds, append-only, each a child of the one before:
 ``1.2.0``  1.1.0 with the four LBS-17 quirks corrected (owner, 29.09.2026, LBS-24).
 ``1.3.0``  1.2.0 with three more corrections (owner, 29.09.2026, LBS-28): a human-capital stock is never free
            wealth, a stated mortgage of 0 is a paid-off mortgage, and the yearly saving is split between the
-           goals by their stated shares. **Active.**
+           goals by their stated shares.
+``1.4.0``  1.3.0 with the nominal and real view (owner's decisions of 29.09.2026, LBS-31 to LBS-35): a goal
+           amount is in today's francs unless stated otherwise and is inflated to its date at the calibrated
+           long-run inflation of the currency; an indexed contribution rises with it; the required return is
+           judged against a plausibility ceiling by risk level.
+``1.5.0``  1.4.0 with the owner's decisions on its two assumptions (Nicolas, 29.09.2026, LBS-36, LBS-37): the
+           CHF long-run inflation is 1.0 %, the midpoint of the SNB's 0 to 2 % price-stability range
+           (forward-looking), in place of the measured 0.50 %; EUR and USD stay measured; the plausibility
+           table is approved unchanged. **Active.**
 
-The hashes of 1.0.0, 1.1.0 and 1.2.0 are pinned (``tests/test_api.py``): each is stored and a changed hash
+The hashes of 1.0.0 to 1.5.0 are pinned (``tests/test_api.py``): each is stored and a changed hash
 stops the service at startup.
 
 ``1.0.0``
@@ -48,7 +56,17 @@ import json
 from importlib import resources
 from typing import Any
 
-from .contracts import LATER_CORRECTIONS, RECORD_NAMES, Calibration, Corrections, LiquidityRule, MandatePolicy
+from .contracts import (
+    LATER_CORRECTIONS,
+    RECORD_NAMES,
+    Calibration,
+    Corrections,
+    InflationAssumption,
+    LiquidityRule,
+    MandatePolicy,
+    PlausibilityRow,
+    RealViewPolicy,
+)
 
 
 def _record(name: str) -> dict[str, Any]:
@@ -80,8 +98,11 @@ SEED = Calibration(
 def canonical_json(calibration: Calibration) -> str:
     """The byte-stable form a calibration is hashed and stored in. An absent ``corrections`` block is left out
     rather than written as null, so a calibration stored before the block existed (the seed 1.0.0) keeps its
-    bytes and its hash; likewise an unnamed later correction (LBS-28), so 1.2.0 keeps its own."""
+    bytes and its hash; likewise an unnamed later correction (LBS-28), so 1.2.0 keeps its own, and an absent
+    ``real_view`` block (LBS-35), so 1.0.0 to 1.3.0 keep theirs."""
     payload = calibration.model_dump(mode="json")
+    if payload.get("real_view") is None:
+        payload.pop("real_view", None)
     if payload.get("corrections") is None:
         payload.pop("corrections", None)
     else:
@@ -109,7 +130,8 @@ def with_approved(calibration: Calibration, *names: str, version: str, published
         if approval is not None:
             about["_approval"] = approval
         records[name]["_about"].update(about)
-    contract = ("lbs-calibration@1.2.0" if calibration.contract_version == "lbs-calibration@1.2.0"
+    contract = (calibration.contract_version
+                if calibration.contract_version in ("lbs-calibration@1.2.0", "lbs-calibration@1.3.0")
                 else "lbs-calibration@1.1.0")
     return Calibration.model_validate({**calibration.model_dump(), "contract_version": contract,
                                        "version": version, "parent_version": calibration.version,
@@ -154,4 +176,89 @@ CORRECTED_1_3 = Calibration.model_validate({
                                zero_mortgage_is_a_stated_zero=True,
                                contribution_is_split_by_goal_share=True).model_dump()})
 
-SEEDS: tuple[Calibration, ...] = (SEED, APPROVED, CORRECTED, CORRECTED_1_3)
+#: The calibrated long-run inflation per currency (LBS-32): the mean log inflation of the datafeed's monthly
+#: year-on-year CPI series in snapshot ``bloomberg-2026-01-05`` (checksum 2b4bc756...), read once at build time
+#: on 29.09.2026 through ``GET /panel`` of datafeed (8001), as a simple rate ``exp(mean ln(1 + yoy)) - 1``,
+#: rounded to 0.01 point. lbs reads no engine at run time.
+INFLATION = {
+    "CHF": InflationAssumption(
+        annual_rate=0.0050, index="Swiss CPI (LIK), datafeed inflation.cpi_yoy CH (SZCPIYOY Index)",
+        source=("mean log inflation of the monthly year-on-year series, 238 months from 2006-01 to 2025-10 (the "
+                "last three months are a named datafeed gap): 0.4997 % a year, rounded to 0.50 %; datafeed "
+                "snapshot bloomberg-2026-01-05, read 29.09.2026"),
+        cross_check=("SNB: price stability is CPI inflation below 2 % a year (a range of 0 to 2 %); the measured "
+                     "mean sits in its lower half")),
+    "EUR": InflationAssumption(
+        annual_rate=0.0211, index="euro-area HICP, datafeed inflation.cpi_yoy EU (EHPIEU Index)",
+        source=("mean log inflation of the monthly year-on-year series, 241 months from 2006-01 to 2026-01: "
+                "2.1114 % a year, rounded to 2.11 %; datafeed snapshot bloomberg-2026-01-05, read 29.09.2026"),
+        cross_check="ECB: 2 % HICP inflation over the medium term"),
+    "USD": InflationAssumption(
+        annual_rate=0.0254, index="US CPI-U, datafeed inflation.cpi_yoy US (CPI YOY Index)",
+        source=("mean log inflation of the monthly year-on-year series, 241 months from 2006-01 to 2026-01: "
+                "2.5390 % a year, rounded to 2.54 %; datafeed snapshot bloomberg-2026-01-05, read 29.09.2026"),
+        cross_check=("Fed: 2 % a year measured by the PCE price index, which has run below CPI-U; the measured "
+                     "CPI-U mean is above the target by about that wedge")),
+}
+
+#: The plausibility ceiling of a required return by risk level (LBS-34), real, simple, a year. A house
+#: assumption proposed by this build on 29.09.2026 for the owner to confirm, not a measured figure.
+PLAUSIBILITY = (
+    PlausibilityRow(risk_level=0.0, real_return=0.020),
+    PlausibilityRow(risk_level=0.5, real_return=0.035),
+    PlausibilityRow(risk_level=1.0, real_return=0.050),
+)
+PLAUSIBILITY_SOURCE = (
+    "house assumption proposed on 29.09.2026 for the owner to confirm (LBS-34): the most a portfolio at the "
+    "risk profile's level can reasonably be planned to earn over the long run, real, a year; 2 % at the cautious "
+    "end (about the long-run real return of Swiss government bonds), 5 % at the aggressive end (about the "
+    "long-run real return of Swiss equities), linear in between; a plan that needs more than the long-run "
+    "return of the asset class it may hold rests on luck")
+
+#: The owner's decisions on the nominal and real view, 29.09.2026 (LBS-31 to LBS-35).
+CORRECTED_1_4 = Calibration.model_validate({
+    **CORRECTED_1_3.model_dump(), "contract_version": "lbs-calibration@1.3.0", "version": "1.4.0",
+    "parent_version": CORRECTED_1_3.version,
+    "note": ("1.3.0 with the nominal and real view (owner's decisions of 29.09.2026, LBS-31 to LBS-35): a goal "
+             "amount is in today's francs unless the request says future francs (decision 7) and is inflated to "
+             "its target date at the currency's calibrated long-run inflation; a contribution the request states "
+             "as indexed rises with it, else it is fixed in francs (decision 9); the sheet carries the goal "
+             "figures and the required return in both bases; the retirement comparison is made in today's "
+             "francs; and the required return is judged against a plausibility ceiling by risk level."),
+    "real_view": RealViewPolicy(inflation=INFLATION, plausibility=PLAUSIBILITY,
+                                plausibility_source=PLAUSIBILITY_SOURCE).model_dump()})
+
+#: The owner's CHF inflation assumption, 29.09.2026 (LBS-36): forward-looking, not measured. EUR and USD keep
+#: their measured figures of 1.4.0, source for source.
+INFLATION_1_5 = {
+    **INFLATION,
+    "CHF": InflationAssumption(
+        annual_rate=0.0100, index="Swiss CPI (LIK), datafeed inflation.cpi_yoy CH (SZCPIYOY Index)",
+        source=("owner's decision (Nicolas, 29.09.2026, LBS-36): 1.0 % a year, the midpoint of the SNB's "
+                "price-stability range of 0 to 2 % CPI inflation, a forward-looking assumption; it replaces the "
+                "measured mean of 1.4.0 (0.4997 % a year, 238 months from 2006-01 to 2025-10, datafeed snapshot "
+                "bloomberg-2026-01-05), which reflects the low-inflation regime of 2006 to 2026"),
+        cross_check=("SNB: price stability is CPI inflation below 2 % a year (a range of 0 to 2 %); the "
+                     "assumption is its midpoint, twice the measured 2006 to 2026 mean")),
+}
+
+#: The plausibility table of 1.4.0, confirmed by the owner (Nicolas, 29.09.2026, LBS-37): no value changes.
+PLAUSIBILITY_SOURCE_1_5 = (
+    "approved by the owner (Nicolas, 29.09.2026, LBS-37), the table unchanged from its proposal in 1.4.0 "
+    "(LBS-34): the most a portfolio at the risk profile's level can reasonably be planned to earn over the long "
+    "run, real, a year; 2 % at the cautious end (about the long-run real return of Swiss government bonds), 5 % "
+    "at the aggressive end (about the long-run real return of Swiss equities), linear in between; a plan that "
+    "needs more than the long-run return of the asset class it may hold rests on luck")
+
+#: The owner's decisions on the two assumptions of 1.4.0, 29.09.2026 (LBS-36 to LBS-38). The active calibration.
+CORRECTED_1_5 = Calibration.model_validate({
+    **CORRECTED_1_4.model_dump(), "contract_version": "lbs-calibration@1.3.0", "version": "1.5.0",
+    "parent_version": CORRECTED_1_4.version,
+    "note": ("1.4.0 with the owner's decisions on its two assumptions (Nicolas, 29.09.2026, LBS-36, LBS-37): the "
+             "CHF long-run inflation is 1.0 % a year, the midpoint of the SNB's 0 to 2 % price-stability range "
+             "(forward-looking), in place of the measured 0.50 %; EUR 2.11 % and USD 2.54 % stay measured; the "
+             "plausibility table (2 %, 3.5 % and 5 % real at risk levels 0, 0.5 and 1) is approved unchanged."),
+    "real_view": RealViewPolicy(inflation=INFLATION_1_5, plausibility=PLAUSIBILITY,
+                                plausibility_source=PLAUSIBILITY_SOURCE_1_5).model_dump()})
+
+SEEDS: tuple[Calibration, ...] = (SEED, APPROVED, CORRECTED, CORRECTED_1_3, CORRECTED_1_4, CORRECTED_1_5)

@@ -52,7 +52,7 @@ changed`, `revoked and cannot act`, ...). CHECK failures are `23514`, uniqueness
   rows keep their prototype ids.
 * **Time** is `timestamptz` throughout; dates that are dates (`composition_as_of`, `stated_on`) are `date`.
 * **JSON** is `jsonb`. **Floats** are `double precision` (only `position.magnitude`, `goal.target_amount`,
-  `goal.contribution_share`); there is no `real` anywhere.
+  `goal.contribution_share`); there is no `real` column anywhere (the real view is derived, section 4.8).
 * **`data_class`** (C-04): every table carries `data_class smallint`, K0..K3 as 0..3, with a per-table
   floor enforced by CHECK. K0 published content; K1 identifying (client, curator, consent); K2 personal and
   substantive (plan, decisions, threads, reports); K3 documentary and health (submissions; answers and
@@ -227,6 +227,25 @@ restates it directly; the cockpit restates one by the plan change below ("State 
   (the onboarding's `annual_contribution`), shown as 0 to 100 % in the app. The active goals' shares sum to at
   most 1: the app refuses more (and lbs refuses such a request), so a cockpit write should keep to it too;
   the database checks the range only.
+
+### 4.8 The nominal and real view, 29.09.2026 (additive, EIG-60 to EIG-63)
+
+Everything is stored nominal; real figures are derived by lbs and the report engine at the point of use. Three
+columns, each NULL for every row written before:
+
+* `goal.amount_basis` (`today`, `future` or NULL): whether `target_amount` is in today's francs or in the francs
+  of `target_date`, the client's answer to "Ist der Betrag in heutigen Franken?" (the onboarding's
+  `goal_amount_basis`, asked per goal on the plan page). NULL is not stated, which lbs reads as today's francs
+  (owner decision 7). The app sends it as `goals[].amount_basis` only when stated. A plan column: changed under
+  a decision, as every goal column.
+* `report_request.basis` (`nominal`, `real` or NULL): the basis the report was asked in; NULL is nominal.
+* `report_request.scenario` (NULL, or an aggregation policy such as `stagflation`, or a scenario regime id): a
+  scenario Regime asked for. NULL takes the pcp run of the client's **current** parameter set on its base
+  Regime (never a scenario, never a superseded set's run). Both are set on insert and never change.
+
+The yearly contribution's "Steigt der Betrag mit der Teuerung?" is an onboarding answer
+(`contribution_indexed`, `ja` or `nein`), not a column; the app sends it as `mandate.contribution_indexed`.
+A cockpit that writes a report request may set `basis` and `scenario` directly.
 
 ## 5. Who writes what
 
@@ -892,9 +911,11 @@ eigentlich: plan table (C-09). A client goal; deactivated, never deleted. K2.
 | created_at | timestamp with time zone |  | now() |
 | data_class | smallint |  | 2 |
 | contribution_share | double precision | yes |  |
+| amount_basis | text | yes |  |
 
 Constraints:
 
+- `goal_amount_basis`: `CHECK (((amount_basis IS NULL) OR (amount_basis = ANY (ARRAY['today'::text, 'future'::text]))))`
 - `goal_contribution_share`: `CHECK (((contribution_share IS NULL) OR ((contribution_share >= (0)::double precision) AND (contribution_share <= (1)::double precision))))`
 - `goal_data_class_check`: `CHECK (((data_class >= 2) AND (data_class <= 3)))`
 - `goal_client_id_fkey`: `FOREIGN KEY (client_id) REFERENCES client(id)`
@@ -1225,14 +1246,18 @@ eigentlich: a request for a report or an update; withdrawal (withdrawn_at, set o
 | withdrawn_at | timestamp with time zone | yes |  |
 | created_at | timestamp with time zone |  | now() |
 | data_class | smallint |  | 2 |
+| basis | text | yes |  |
+| scenario | text | yes |  |
 
 Constraints:
 
+- `report_request_basis`: `CHECK (((basis IS NULL) OR (basis = ANY (ARRAY['nominal'::text, 'real'::text]))))`
 - `report_request_client_own`: `CHECK (((requested_by_kind <> 'client'::text) OR (requested_by_ref = client_id)))`
 - `report_request_data_class_check`: `CHECK (((data_class >= 2) AND (data_class <= 3)))`
 - `report_request_kind_check`: `CHECK ((kind = ANY (ARRAY['report'::text, 'update'::text])))`
 - `report_request_language_check`: `CHECK ((language ~ '^[a-z]{2}(-[A-Z]{2})?$'::text))`
 - `report_request_requested_by_kind_check`: `CHECK ((requested_by_kind = ANY (ARRAY['client'::text, 'curator'::text])))`
+- `report_request_scenario`: `CHECK (((scenario IS NULL) OR (scenario ~ '^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$'::text)))`
 - `report_request_client_id_fkey`: `FOREIGN KEY (client_id) REFERENCES client(id)`
 - `report_request_pkey`: `PRIMARY KEY (id)`
 
@@ -1489,7 +1514,7 @@ Columns: `id`, `client_id`, `subject`, `created_at`, `closed_at`, `last_author_k
 
 eigentlich: each report request with its state: open, fulfilled or withdrawn, and its latest report.
 
-Columns: `id`, `client_id`, `kind`, `requested_by_kind`, `requested_by_ref`, `language`, `note`, `created_at`, `withdrawn_at`, `latest_report_id`, `latest_report_at`, `state`
+Columns: `id`, `client_id`, `kind`, `requested_by_kind`, `requested_by_ref`, `language`, `note`, `created_at`, `withdrawn_at`, `latest_report_id`, `latest_report_at`, `state`, `basis`, `scenario`
 
 #### view `approval_state`
 

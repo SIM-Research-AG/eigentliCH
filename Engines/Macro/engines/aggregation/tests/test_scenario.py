@@ -27,7 +27,7 @@ from pydantic import BaseModel, ConfigDict
 
 from aggregation import ENGINE_VERSION, calibration as seeds
 from aggregation import scenario as sc
-from aggregation.contracts import CONTRACT_VERSIONS, N_STATES, Regime
+from aggregation.contracts import CONTRACT_VERSIONS, DERIVED_SCENARIO_FIELDS, N_STATES, STORED, Regime
 from aggregation.service import Service, build_regime, build_scenario_regime, content_id, regime_id_for
 
 from .conftest import GOLDEN
@@ -37,6 +37,16 @@ ACTIVE = next(c for c in seeds.SEEDS if c.version == "1.2.0")
 DEFAULT_REGIME_ID = "RGM-e2658e8e9bbbc81e"
 PCP_CONTRACTS = (Path(__file__).resolve().parents[4] / "Optimizer" / "engines" / "pcp" / "src" / "pcp"
                  / "contracts.py")
+#: macrofield's freeze of the same template (TB-21), read only.
+MACROFIELD_FROZEN = (Path(__file__).resolve().parents[2] / "macrofield" / "golden" / "scenario_saa"
+                     / "scenario_saa.json")
+#: The scenario Regimes on the Default, as stored on 29.09.2026 (deferral as replaced under AGG-23).
+ISSUED_ON_DEFAULT = {
+    "depression": ("RGM-1af6968e287768c9", "AGG-451c8d2ee5fb0bac"),
+    "hyperinflation": ("RGM-59eebfaf7744d8ec", "AGG-36fb373718f6ecbb"),
+    "stagflation": ("RGM-6bb531998bfefc4d", "AGG-33dc16356adc24ff"),
+    "deferral": ("RGM-c0ed086f1916984e", "AGG-91e2e05e126ae47d"),
+}
 
 
 def _default_key(mrs, cycle, macro) -> str:
@@ -189,6 +199,111 @@ def test_a_scenario_of_a_scenario_is_refused(scenarios):
 
 
 # ---------------------------------------------------------------------------
+# The policy's inflation path (AGG-24)
+# ---------------------------------------------------------------------------
+
+def _macrofield_frozen() -> dict:
+    if not MACROFIELD_FROZEN.is_file():
+        pytest.skip("macrofield's golden freeze is not on disk (a deploy folder)")
+    return json.loads(MACROFIELD_FROZEN.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("policy", sc.SCENARIO_POLICIES)
+def test_inflation_path_is_macrofields_tb21_path(policy):
+    mf = _macrofield_frozen()
+    assert mf["sha256"] == sc.TEMPLATE_SHA256
+    want = np.asarray(mf["policies"][policy]["inflation"])
+    got = sc.inflation_path(policy)
+    assert got.shape == want.shape == (60,)
+    assert np.max(np.abs(got - want)) <= 1e-15
+
+
+def test_inflation_paths_have_the_templates_shapes():
+    dep, hyp, stag, dfr = (sc.inflation_path(p) for p in sc.SCENARIO_POLICIES)
+    assert math.isclose(dep[0], 0.02, abs_tol=1e-5) and math.isclose(dep[-1], -0.04, abs_tol=1e-5)
+    assert np.all(np.diff(dep) <= 0)                               # sigmoid, falling
+    assert hyp[0] == 0.2 and math.isclose(hyp[-1], 1.0) and np.all(np.diff(hyp) >= 0)
+    assert math.isclose(stag[-1], 0.10, abs_tol=1e-4) and np.all(np.diff(stag) >= 0)
+    assert dfr[0] == dfr[-1] and 0.059 < dfr.max() <= 0.06          # hump from 2 % to 6 % and back
+
+
+@pytest.mark.parametrize("policy", sc.SCENARIO_POLICIES)
+def test_inflation_final_12m_is_the_mean_of_months_49_to_60(policy):
+    path = sc.inflation_path(policy)
+    assert sc.inflation_final_12m(path) == math.fsum(path[48:60]) / 12
+
+
+@pytest.mark.parametrize("policy", sc.SCENARIO_POLICIES)
+def test_a_scenario_regime_serves_its_inflation_path(scenarios, policy):
+    s = scenarios[policy].provenance.scenario
+    assert s.inflation_path == tuple(sc.inflation_path(policy))
+    assert s.inflation_final_12m == sc.inflation_final_12m(sc.inflation_path(policy))
+    served = json.loads(scenarios[policy].model_dump_json())["provenance"]["scenario"]
+    assert len(served["inflation_path"]) == 60 and served["inflation_final_12m"] == s.inflation_final_12m
+    stored = json.loads(scenarios[policy].model_dump_json(context=STORED))["provenance"]["scenario"]
+    assert not set(DERIVED_SCENARIO_FIELDS) & set(stored)
+    # the stored form reads back with the fields derived; a value that is not the policy's is refused
+    assert Regime.model_validate_json(scenarios[policy].model_dump_json(context=STORED)) == scenarios[policy]
+    body = json.loads(scenarios[policy].model_dump_json())
+    body["provenance"]["scenario"]["inflation_final_12m"] += 0.01
+    with pytest.raises(ValueError):
+        Regime.model_validate(body)
+
+
+@pytest.mark.parametrize("policy", sc.SCENARIO_POLICIES)
+def test_the_inflation_path_moves_no_scenario_regime_id(scenarios, policy):
+    # the artefact ids are checked against the store below: the in-process base differs from the
+    # stored Default in its artefact_id (its inputs were served in-process), which enters the hash
+    assert scenarios[policy].regime_id == ISSUED_ON_DEFAULT[policy][0]
+
+
+def test_a_base_regime_carries_no_inflation_path(base):
+    assert base.provenance.scenario is None
+    assert base.model_dump_json() == base.model_dump_json(context=STORED)
+    assert "inflation_path" not in base.model_dump_json()
+
+
+def test_the_stored_scenario_regimes_read_back_with_their_inflation_path():
+    """The real store, read only: every stored scenario Regime reads with the derived fields, and
+    its stored form is the stored payload byte for byte, under its own artefact id."""
+    import psycopg
+
+    from aggregation.settings import load
+
+    db = load().database
+    try:
+        with psycopg.connect(db.conninfo(), connect_timeout=5) as conn:
+            conn.execute(f"SET search_path TO {db.schema}")
+            rows = conn.execute("SELECT a.artefact_id, a.regime_id, a.payload_json FROM scenario s "
+                                "JOIN artefact a USING (artefact_id)").fetchall()
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"real store not reachable: {exc}")
+    if not rows:
+        pytest.skip("no scenario Regime in the real store")
+    for artefact_id, regime_id, payload in rows:
+        r = Regime.model_validate_json(payload)
+        s = r.provenance.scenario
+        assert r.regime_id == regime_id and r.artefact_id == artefact_id
+        assert s.inflation_path == tuple(sc.inflation_path(s.policy)) and len(s.inflation_path) == 60
+        assert (r.model_dump_json(context=STORED) == payload) is True      # no 5 MB diff on failure
+        draft = r.model_copy(update={"artefact_id": ""})
+        assert content_id("AGG", draft.model_dump(mode="json", context=STORED)) == artefact_id
+    # rebuilt from the stored Default, every scenario keeps its regime_id and artefact_id
+    by_regime = {regime_id: payload for _, regime_id, payload in rows}
+    with psycopg.connect(db.conninfo(), connect_timeout=5) as conn:
+        conn.execute(f"SET search_path TO {db.schema}")
+        row = conn.execute("SELECT payload_json FROM artefact WHERE regime_id = %s", (DEFAULT_REGIME_ID,)).fetchone()
+    if row is None:
+        pytest.skip(f"{DEFAULT_REGIME_ID} is not in the real store")
+    base = Regime.model_validate_json(row[0])
+    for policy, (regime_id, artefact_id) in ISSUED_ON_DEFAULT.items():
+        key = Service.scenario_key(base, policy)
+        again = build_scenario_regime(base, policy, ACTIVE.reading, key, regime_id_for(key))
+        assert (again.regime_id, again.artefact_id) == (regime_id, artefact_id)
+        assert regime_id in by_regime
+
+
+# ---------------------------------------------------------------------------
 # pcp's mirror
 # ---------------------------------------------------------------------------
 
@@ -263,6 +378,7 @@ def test_pcps_mirror_reads_a_scenario_regime_unchanged(scenarios, policy):
     k = _pcp_default_month(mirrored, {"US": 0.5, "CH": 0.3, "IN": 0.2})
     assert mirrored.dates[k] == scenarios[policy].provenance.scenario.scenario_date
     assert _PcpMirrorCopy.Regime.model_validate_json(body).regime_id == mirrored.regime_id
+    assert "inflation_path" in body                               # the served form, with AGG-24's fields
 
 
 def test_pcps_mirror_still_reads_a_base_regime(base):

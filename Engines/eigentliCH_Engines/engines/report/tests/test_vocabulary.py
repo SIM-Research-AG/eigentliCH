@@ -55,12 +55,19 @@ def _tables():
         yield e.key, e.text
     for w in voc.PCP_WARNINGS:
         yield w.key, w.text
-    for table in (voc.GAP_KINDS, voc.FINDING_REASONS, voc.BINDS, voc.TOPIC, voc.GOAL, voc.PAGE_NOTES):
+    for table in (voc.GAP_KINDS, voc.FINDING_REASONS, voc.BINDS, voc.TOPIC, voc.GOAL, voc.PAGE_NOTES,
+                  voc.BASIS_WORDS, voc.JUDGEMENT):
         yield from table.items()
     for key, texts in (("fallback_reason", voc.FALLBACK_REASON), ("fallback_gap", voc.FALLBACK_GAP),
                        ("fallback_finding", voc.FALLBACK_FINDING), ("fallback_pcp", voc.FALLBACK_PCP),
-                       ("unnamed", voc.UNNAMED), ("person", voc.PERSON)):
+                       ("unnamed", voc.UNNAMED), ("person", voc.PERSON),
+                       ("basis_nominal_kept", voc.BASIS_NOMINAL_KEPT), ("basis_label", voc.BASIS_ALLOCATION_LABEL)):
         yield key, texts
+    for name, table in (("basis_header", voc.BASIS_HEADER), ("basis_mark", voc.BASIS_MARK),
+                        ("basis_allocation", voc.BASIS_ALLOCATION), ("basis_prompt", voc.BASIS_PROMPT)):
+        assert set(table) == {"nominal", "real"}, name
+        for basis, texts in table.items():
+            yield f"{name}.{basis}", texts
 
 
 @pytest.mark.parametrize("key,texts", list(_tables()), ids=[k for k, _ in _tables()])

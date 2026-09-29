@@ -137,6 +137,12 @@
   .hidden { display: none !important; }
   .tex { overflow-x: auto; padding: 2px 0 8px; } .tex .katex-display { margin: .5em 0; text-align: left; }
   .tex .katex-display > .katex { text-align: left; }
+  .seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 6px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; padding: 5px 12px; background: var(--raised); color: var(--ink-2); }
+  .seg button + button { border-left: 1px solid var(--axis); }
+  .seg button[aria-pressed="true"] { background: var(--s1); color: #fff; font-weight: 600; }
+  .fld { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  .pill.basis-real { border-color: var(--s3); color: var(--ink); }
   table.params { margin: 4px 0 10px; } table.params td:first-child { white-space: nowrap; }
   h3.chart-t { font-size: 13px; font-weight: 600; margin: 14px 0 0; color: var(--ink-2); }
   ul.notes { margin: 10px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 12.5px; }
@@ -311,6 +317,170 @@ async function fm() {
 }
 async function decisions(force) { if (!S.decisions || force) S.decisions = await api("/decisions"); return S.decisions; }
 const latestDecision = kind => (S.decisions || []).find(d => d.kind === kind);
+
+// ---------------------------------------------------------------------------------------
+// Nominal and real (C-31). Default nominal, the basis always shown next to the figures. The
+// switch only names the basis to the engines (fmre basis=real, the Mandate's basis); the real
+// figures and the inflation behind them are fmre's, the cockpit converts nothing (C-07). Only
+// the Parameters page and the instrument views carry a switch: the macro views (macrofield,
+// cycle, aggregation) stay nominal (owner, 29.09.2026).
+// ---------------------------------------------------------------------------------------
+const BASES = [["nominal", "Nominal"], ["real", "Real"]];
+const DEFAULT_BASIS = "nominal";
+function basisSwitch(id, value) {   // a segmented nominal / real switch; wire it with wireBasis
+  return `<span class="seg" role="group" aria-label="Basis: nominal or real" id="${id}" data-basis-switch>${BASES.map(([k, n]) =>
+    `<button type="button" data-basis="${k}" aria-pressed="${k === (value || DEFAULT_BASIS)}">${n}</button>`).join("")}</span>`;
+}
+function wireBasis(id, onchange) {
+  const el = $(id); if (!el) return;
+  el.querySelectorAll("[data-basis]").forEach(b => b.onclick = () => {
+    el.querySelectorAll("[data-basis]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    onchange(b.dataset.basis);
+  });
+}
+function setBasisSwitch(id, value) { const el = $(id); if (el) el.querySelectorAll("[data-basis]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.basis === (value || DEFAULT_BASIS)))); }
+const basisChip = b => b === "real" ? `<span class="pill basis-real" title="after the inflation of the currency, as fmre deflates it">real</span>` : `<span class="pill" title="before inflation">nominal</span>`;
+const servedBasis = rs => (rs && rs.provenance && rs.provenance.basis) || DEFAULT_BASIS;   // a set that names no basis is nominal
+// fmre's labels for the inflation of each state (decisions 1, 4, 5 of the real view)
+const INFL_LABEL = { measured: ["--s1", "measured: inside -10 % to +20 % a year"], extrapolated: ["--s4", "extrapolated: -20 % to -10 % or +20 % to +100 % a year"],
+  fallback: ["--s2", "fallback: too little data in the state, today's year-on-year inflation"], not_computable: ["--critical", "not computable: outside -20 % to +100 % a year"] };
+function hardCurrencyNote(...sources) {   // fmre's hard_currency_fallback, wherever it states it, shown as it came
+  for (const src of sources) {
+    const h = src && src.hard_currency_fallback;
+    if (!h) continue;
+    if (typeof h === "string") return `<p class="warn">Hard-currency real view: ${esc(h)}.</p>`;
+    // fmre: {from, to, states, reason} when the asked currency's inflation left the band (decision 5)
+    return `<p class="warn">Hard-currency real view: real in <b>${esc(h.to || "")}</b>, not ${esc(h.from || "the asked currency")}${Array.isArray(h.states) && h.states.length ? ` (states ${esc(h.states.join(", "))} outside -20 % to +100 % a year)` : ""}.${h.reason ? ` <span class="ink2">${esc(h.reason)}</span>` : ""}</p>`;
+  }
+  return "";
+}
+function deflatorLine(dfl, cur) {   // provenance.deflator of a real ReturnSet, as fmre states it
+  const list = Array.isArray(dfl.labels) ? dfl.labels : [];   // fmre: the weakest label per state
+  const counts = list.reduce((o, l) => { const k = typeof l === "string" ? l : l && l.label; if (k) o[k] = (o[k] || 0) + 1; return o; }, {});
+  const txt = Object.entries(counts).map(([k, n]) => `${n} ${esc(label(k))}`).join(", ");
+  return `<div class="ink2" style="font-size:12.5px">Deflated by fmre with ${esc(dfl.index || "the currency's index")} (${esc(dfl.currency || cur)}${dfl.scenario ? `, the scenario's own inflation (${esc(dfl.scenario)})` : ""})${txt ? `: ${txt} states` : ""}.</div>${hardCurrencyNote(dfl)}`;
+}
+function inflationView(host, inf, deflator) {   // the per-state inflation fmre used, drawn as it served it
+  if (!inf || !Array.isArray(inf.states)) { host.innerHTML = `<p class="warn">fmre served no per-state inflation${inf && inf.problem ? `: ${esc(inf.problem)}` : ""}.</p>${hardCurrencyNote(deflator)}`; return; }
+  const counts = {}; inf.states.forEach(s => { counts[s.label] = (counts[s.label] || 0) + 1; });
+  host.innerHTML = `<div class="ink2" style="font-size:12.5px"><b>${esc(inf.currency || "")}</b> · ${esc(inf.index || "")}${inf.method ? ` · ${esc(inf.method)}` : ""}${inf.as_of ? ` · as of ${esc(inf.as_of)}` : ""}</div>
+    <div class="row" style="margin:4px 0">${Object.entries(counts).map(([k, n]) => `<span class="pill" title="${esc((INFL_LABEL[k] || [])[1] || k)}" style="border-color:var(${(INFL_LABEL[k] || ["--axis"])[0]})">${esc(label(k))} ${n}</span>`).join("")}</div>`;
+  const el = chartIn(host, 190);
+  plot(el, Object.keys(counts).map(k => {
+    const pts = inf.states.filter(s => s.label === k);
+    return { type: "bar", name: label(k), x: pts.map(s => s.state), y: pts.map(s => s.inflation), marker: { color: css((INFL_LABEL[k] || ["--rest"])[0]) },
+             customdata: pts.map(s => [s.n_obs ?? "", s.log_inflation]), hovertemplate: `state %{x}: %{y:.2%} a year<br>${esc(label(k))}, n=%{customdata[0]}<extra></extra>` };
+  }), { margin: { l: 46, r: 8, t: 6, b: 30 }, barmode: "overlay", xaxis: { dtick: 4, range: [0.5, 25.5] }, yaxis: { tickformat: ".0%" }, legend: { orientation: "h", y: -0.3 }, showlegend: Object.keys(counts).length > 1 });
+  const rv = inf.real_view || {};   // fmre: in which currency a real figure is computed, or why none is
+  host.insertAdjacentHTML("beforeend", `${rv.status === "not_computable" ? `<p class="bad">No real view: ${esc(rv.reason || "not computable")}.</p>` : ""}${hardCurrencyNote(deflator, rv)}<p class="note">From fmre /v1/inflation${inf.source ? ` (${esc(typeof inf.source === "string" ? inf.source : JSON.stringify(inf.source))})` : ""}: the inflation measured in each state over the following 12 months. The real profiles are fmre's, nominal minus ln(1 + inflation) per state; the cockpit converts nothing.</p>`);
+}
+
+// ---------------------------------------------------------------------------------------
+// Inflation pass-through under a scenario (C-32). fmre holds the house beta per instrument and the
+// CIO's override (append-only versions); under a scenario Regime fmre sets real = historical real +
+// (beta - 1) * ln(1 + scenario inflation), so beta = 1 is a full inflation hedge. The cockpit lists,
+// forwards the CIO's set or revert (PUT /api/cio/inflation-beta/{id}, the acting curator as set_by)
+// and shows which beta a scenario ReturnSet used; it computes nothing.
+// ---------------------------------------------------------------------------------------
+const INFLATION_BETA_MAX = 1.5;   // fmre's accepted range, 0 to 1.5 (the cockpit and fmre both refuse outside it)
+const INFLATION_DURATION_MAX = 30;   // years, fmre's bound on a duration
+const INFLATION_BETA_HISTORY = "/fmre/v1/inflation-beta/{id}/history";   // one instrument's override versions
+const inForce = o => o && ((o.beta !== null && o.beta !== undefined) || (o.duration !== null && o.duration !== undefined)) ? o : null;
+const curatorName = idv => ((C.curators || []).find(c => c.id === idv) || {}).display_name || idv || "";
+const betaTxt = v => v === null || v === undefined ? `<span class="muted">n/a</span>` : fmt(v, 2);
+const betaSource = s => s === "override" ? `<span class="pill basis-real" title="the CIO's override">override</span>` : `<span class="pill" title="fmre's house beta">${esc(s || "house")}</span>`;
+function passThroughRows(rs) {   // provenance.inflation_pass_through of a scenario ReturnSet, as fmre states it
+  const pt = rs && rs.provenance && rs.provenance.inflation_pass_through;
+  if (!pt) return null;
+  const list = Array.isArray(pt) ? pt : Array.isArray(pt.instruments) ? pt.instruments
+    : Object.entries(pt.instruments || pt).filter(([, v]) => v && typeof v === "object").map(([k, v]) => ({ instrument_id: k, ...v }));
+  // fmre (rs@1.0.0, FMRE-33): instruments [{instrument_id, type, beta, source, duration, duration_source, override_version, deflator_currency}]
+  return list.map(r => ({ id: r.instrument_id || r.key, name: r.name, type: r.type, beta: r.beta ?? r.beta_used ?? r.effective_beta, source: r.source,
+                          duration: r.duration, durationSource: r.duration_source, version: r.override_version, ccy: r.deflator_currency }));
+}
+function passThroughView(rs, nameOf = id => id) {   // which beta each instrument's scenario profile used
+  const rows = passThroughRows(rs);
+  if (!rows) return "";
+  const pt = rs.provenance.inflation_pass_through, n = rows.filter(r => r.source === "override").length;
+  const num = v => v !== null && v !== undefined;
+  return `<details style="margin-top:6px"><summary class="ink2" style="cursor:pointer;font-size:12.5px">Inflation pass-through used by fmre: ${rows.length} instruments, ${n ? `<b>${n} on the CIO's override</b>` : "all on the house beta"}${pt.policy || pt.scenario ? ` (scenario ${esc(pt.policy || "")} ${idChip(pt.scenario)}${num(pt.inflation_final_12m) ? `, inflation ${pct(pt.inflation_final_12m)} a year` : ""})` : ""}</summary>
+    <div class="scroll"><table style="max-width:720px;margin-top:4px"><thead><tr><th class="l">Instrument</th><th class="l">Type</th><th>Beta used</th><th class="l">Source</th><th>Duration</th><th class="l">Deflator</th></tr></thead><tbody>${
+    rows.map(r => `<tr><td class="l">${esc(r.name || nameOf(r.id))} ${idChip(r.id)}</td><td class="l ink2">${esc(label(r.type || ""))}</td><td>${betaTxt(r.beta)}</td>
+      <td class="l">${betaSource(r.source)}${num(r.version) ? ` <span class="muted">v${esc(r.version)}</span>` : ""}</td><td>${num(r.duration) ? `${fmt(r.duration, 2)} <span class="muted">${esc(r.durationSource || "")}</span>` : ""}</td><td class="l ink2">${esc(r.ccy || "")}</td></tr>`).join("")}</tbody></table></div>
+    <p class="note">From the ReturnSet's provenance.inflation_pass_through${pt.calibration_version ? ` (house table ${esc(pt.calibration_version)})` : ""}: under the scenario fmre sets real = historical real + (beta - 1) · ln(1 + scenario inflation), and a nominal bond adds the price change of its duration. Role profiles take the blended beta and duration of their blocks; block profiles carry no pass-through.</p></details>`;
+}
+async function inflationBetaPanel(host) {
+  const draw = async (openId, historyFor) => {
+    let list;
+    try { list = await api("/fmre/v1/inflation-beta"); }
+    catch (e) { host.innerHTML = `<p class="warn">fmre does not serve the inflation pass-through (${esc(e.message)}).</p>`; return; }
+    list = Array.isArray(list) ? list : (list && (list.instruments || list.items)) || [];
+    // fmre keeps a revert as a version with a null beta (and duration): an override is in force only when it names one
+    const ov = r => inForce(r.override);
+    host.innerHTML = `<div class="scroll" style="max-height:460px;overflow-y:auto"><table id="ibTable"><thead><tr><th class="l">Instrument</th><th class="l">Type</th><th>House beta</th><th>Override</th><th class="l">Reason, set by</th><th>Effective beta</th><th>Duration</th><th></th></tr></thead><tbody>${
+      list.map(r => { const o = ov(r), last = r.override;
+        return `<tr data-id="${esc(r.instrument_id)}"${r.instrument_id === openId ? ` class="sel"` : ""}><td class="l">${esc(r.name)} ${idChip(r.instrument_id)}</td><td class="l ink2">${esc(r.type_label || label(r.type || ""))}</td><td>${betaTxt(r.house_beta)}</td>
+          <td>${o ? `<b>${o.beta === null || o.beta === undefined ? `<span class="muted">house</span>` : betaTxt(o.beta)}</b>${o.duration !== null && o.duration !== undefined ? `<div class="muted" style="font-size:11px">duration ${fmt(o.duration, 2)}</div>` : ""}` : `<span class="muted">${last ? "reverted" : "none"}</span>`}</td>
+          <td class="l" style="max-width:280px;font-size:12px">${last ? `${esc(last.reason)}<div class="muted" style="font-size:11px">${esc(curatorName(last.set_by))}, ${esc(when(last.set_at))}${last.version !== undefined && last.version !== null ? `, v${esc(last.version)}` : ""}</div>` : ""}</td>
+          <td>${betaTxt(r.effective_beta ?? r.beta)} ${betaSource(r.source || (o && o.beta !== null && o.beta !== undefined ? "override" : "house"))}</td><td>${r.duration !== null && r.duration !== undefined ? fmt(r.duration, 2) : ""}</td>
+          <td class="l noprint"><button type="button" class="linkish" data-ib="${esc(r.instrument_id)}">${o ? "change or revert" : "override"}</button></td></tr>`; }).join("")}</tbody></table></div>
+      <div id="ibForm" class="noprint"></div><div id="ibHist"></div>`;
+    host.querySelectorAll("[data-ib]").forEach(b => b.onclick = () => form(list.find(r => r.instrument_id === b.dataset.ib)));
+    if (openId) { const r = list.find(x => x.instrument_id === openId); if (r) form(r, historyFor === openId); }
+  };
+  const put = (id, data) => api(`/cio/inflation-beta/${encodeURIComponent(id)}`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(data) });
+  const form = (r, showHistory) => {
+    host.querySelectorAll("#ibTable tbody tr").forEach(tr => tr.classList.toggle("sel", tr.dataset.id === r.instrument_id));
+    const o = inForce(r.override);
+    $("ibForm").innerHTML = `<div class="filters" style="margin-top:12px;border-top:1px solid var(--grid);padding-top:10px">
+        <div class="fld"><b style="color:var(--ink)">${esc(r.name)}</b><span>house beta ${betaTxt(r.house_beta)}${o ? `, override ${betaTxt(o.beta)}` : ", no override"}</span></div>
+        <label>Beta (0 to ${INFLATION_BETA_MAX}) <input id="ibBeta" type="number" min="0" max="${INFLATION_BETA_MAX}" step="0.05" size="6" value="${o ? esc(o.beta) : ""}" placeholder="${r.house_beta ?? ""}"></label>
+        <label title="Years, 0 to ${INFLATION_DURATION_MAX}; left empty, fmre keeps the house duration">Duration, years (optional) <input id="ibDur" type="number" min="0" max="${INFLATION_DURATION_MAX}" step="0.25" size="6" value="${o && o.duration !== null && o.duration !== undefined ? esc(o.duration) : ""}" placeholder="${r.duration ?? ""}"></label>
+        <label style="flex:1;min-width:240px">Reason (required) <input id="ibReason" style="width:100%" placeholder="Why the house beta does not hold for this instrument"></label>
+        <button class="primary" type="button" id="ibSet">Set override</button>
+        <button type="button" id="ibRevert"${o ? "" : " disabled title=\"no override to revert\""}>Revert to house beta</button>
+        <button type="button" id="ibShowHist">History</button></div>
+      <p class="note" style="margin-top:0">Saved in fmre as a new version, set by the acting curator (${esc(curatorName($("acting").value) || "choose one in the header")}); a revert is a version too and needs its reason.</p>`;
+    const act = async data => {
+      const reason = $("ibReason").value.trim();
+      if (!reason) { $("ibReason").focus(); toast("Give the reason: fmre keeps it with the version."); return; }
+      try {
+        await put(r.instrument_id, { ...data, reason, set_by: actingCurator() });
+        toast(data.beta === null ? `Reverted <b>${esc(r.name)}</b> to the house beta.` : `Override for <b>${esc(r.name)}</b> set to ${fmt(data.beta, 2)}.`);
+        await draw(r.instrument_id, r.instrument_id);
+      } catch (e) { toast(`<span class="bad">Not saved:</span> ${esc(e.message)}`, 8000); }
+    };
+    $("ibSet").onclick = () => {
+      const raw = $("ibBeta").value.trim(), beta = Number(raw), dur = $("ibDur").value.trim();
+      if (!raw || !Number.isFinite(beta) || beta < 0 || beta > INFLATION_BETA_MAX) { $("ibBeta").focus(); toast(`Beta between 0 and ${INFLATION_BETA_MAX}.`); return; }
+      if (dur && !(Number(dur) >= 0 && Number(dur) <= INFLATION_DURATION_MAX)) { $("ibDur").focus(); toast(`Duration between 0 and ${INFLATION_DURATION_MAX} years, or empty for the house duration.`); return; }
+      act({ beta, ...(dur ? { duration: Number(dur) } : {}) });
+    };
+    $("ibRevert").onclick = () => act({ beta: null });
+    $("ibShowHist").onclick = () => history(r);
+    if (showHistory) history(r); else $("ibHist").innerHTML = "";
+  };
+  const history = async r => {
+    const box = $("ibHist"); box.innerHTML = `<p class="muted">Asking fmre…</p>`;
+    let rows = r.history || r.versions;
+    if (!rows) {
+      const id = encodeURIComponent(r.instrument_id);
+      try { const h = await api(`${INFLATION_BETA_HISTORY}`.replace("{id}", id)); rows = Array.isArray(h) ? h : (h && (h.versions || h.history)) || []; }
+      catch (e) {   // fmre's list carries the version in force only; the earlier versions need its history endpoint
+        const o = r.override;
+        box.innerHTML = `<h3 class="chart-t">History: ${esc(r.name)}</h3><p class="warn">fmre serves the version in force only, not the earlier ones (${esc(e.message)}).</p>${o ? `<div class="scroll"><table style="max-width:820px"><thead><tr><th>Version</th><th class="l">Set at</th><th>Beta</th><th>Duration</th><th class="l">Reason</th><th class="l">Set by</th></tr></thead><tbody>
+          <tr><td>${o.version ?? ""}</td><td class="l">${esc(when(o.set_at))}</td><td>${o.beta === null || o.beta === undefined ? `<span class="muted">house (reverted)</span>` : fmt(o.beta, 2)}</td><td>${o.duration !== null && o.duration !== undefined ? fmt(o.duration, 2) : `<span class="muted">house</span>`}</td><td class="l">${esc(o.reason)}</td><td class="l">${esc(curatorName(o.set_by))}</td></tr></tbody></table></div>` : `<p class="muted">No override ever set.</p>`}`;
+        return;
+      }
+    }
+    const order = (a, b) => (b.version ?? 0) - (a.version ?? 0) || String(b.set_at || "").localeCompare(String(a.set_at || ""));
+    box.innerHTML = `<h3 class="chart-t">History: ${esc(r.name)}, ${rows.length} version${rows.length === 1 ? "" : "s"}, newest first</h3>
+      <div class="scroll"><table style="max-width:820px"><thead><tr><th>Version</th><th class="l">Set at</th><th>Beta</th><th>Duration</th><th class="l">Reason</th><th class="l">Set by</th></tr></thead><tbody>${
+      [...rows].sort(order).map(v => `<tr><td>${v.version ?? ""}</td><td class="l">${esc(when(v.set_at))}</td><td>${v.beta === null || v.beta === undefined ? `<span class="muted">house (reverted)</span>` : fmt(v.beta, 2)}</td>
+        <td>${v.duration !== null && v.duration !== undefined ? fmt(v.duration, 2) : `<span class="muted">house</span>`}</td><td class="l">${esc(v.reason)}</td><td class="l">${esc(curatorName(v.set_by))}</td></tr>`).join("") || `<tr><td class="l muted" colspan="6">no override ever set</td></tr>`}</tbody></table></div>`;
+  };
+  await draw();
+}
 
 // ---------------------------------------------------------------------------------------
 // navigation
@@ -627,6 +797,29 @@ page("cio/country", "cio", "Country dossier", async () => {
 page("cio/instruments", "cio", "Instrument selection", async () => {
   head("Instrument selection", "The universe with its 25-state return profiles, integrity flags and track record; build the shortlist.");
   const f = await fm(); await decisions();
+  // Nominal or real (C-31): nominal unless switched (?basis=real). Real asks fmre for the ReturnSet with
+  // basis=real in a reporting currency (its role and instrument profiles deflated by fmre) and for the
+  // per-state inflation it used; nothing is converted here.
+  const CCYS = ["CHF", "EUR", "USD"];
+  let basis = S.params.get("basis") === "real" ? "real" : DEFAULT_BASIS;
+  const ccy = CCYS.includes(S.params.get("ccy")) ? S.params.get("ccy") : "CHF";
+  const bar = document.createElement("div"); bar.className = "filters"; $("main").append(bar);
+  const view = { rs: f.returnSet, prof: f.prof, role: f.role, inflation: null, problem: "" };
+  if (basis === "real") {
+    try {
+      const [rs, inf] = await Promise.all([
+        api(`/fmre/v1/return-set?${new URLSearchParams({ basis: "real", currency: ccy, include_instruments: true, include_blocks: false })}`),
+        api(`/fmre/v1/inflation?${new URLSearchParams({ currency: ccy })}`).catch(e => ({ problem: e.message }))]);
+      if (servedBasis(rs) !== "real") throw new Error(`fmre served ${rs.return_set_id} on a ${servedBasis(rs)} basis: it does not serve basis=real yet`);
+      Object.assign(view, { rs, inflation: inf, prof: Object.fromEntries(rs.instrument_profiles.map(p => [p.key, p])), role: Object.fromEntries(rs.role_profiles.map(p => [p.role, p])) });
+    } catch (e) { view.problem = e.message; basis = DEFAULT_BASIS; }
+  }
+  const go = (b, c) => { const h = `#/cio/instruments${b === "real" ? `?${new URLSearchParams({ basis: "real", ccy: c })}` : ""}`; if (location.hash === h) route(); else location.hash = h; };
+  bar.innerHTML = `<div class="fld">Basis ${basisSwitch("iBasis", basis)}</div>
+    <label>Reporting currency <select id="iCcy"${basis === "real" ? "" : " disabled title=\"the nominal profiles are in each series' source currency, as fmre serves them by default\""}>${CCYS.map(c => `<option${c === ccy ? " selected" : ""}>${c}</option>`).join("")}</select></label>
+    <div class="ink2" style="font-size:12.5px;align-self:center">Profiles shown ${basisChip(basis)} ${basis === "real" ? `in <b>${esc(ccy)}</b>, deflated by fmre with ${esc((view.inflation && view.inflation.index) || "the currency's index")}` : "in each series' source currency"} · ReturnSet ${idChip(view.rs.return_set_id)}</div>
+    ${view.problem ? `<div class="bad" style="flex-basis:100%">No real view: ${esc(view.problem)}. The figures below are nominal.</div>` : ""}`;
+  wireBasis("iBasis", b => go(b, $("iCcy").value)); $("iCcy").onchange = () => go("real", $("iCcy").value);
   // The link to HoNI: the register names the economies an instrument is exposed to, and honi
   // publishes each economy's score and its trend. Optional: without honi the column is blank.
   const hn = await honi().catch(() => null);
@@ -653,12 +846,19 @@ page("cio/instruments", "cio", "Instrument selection", async () => {
   if (store.get("iCountry") && (codes.includes(store.get("iCountry")) || store.get("iCountry") === "-")) $("iCountry").value = store.get("iCountry");
 
   const g = document.createElement("div"); g.className = "grid2"; $("main").append(g); card.host = g;
-  const roles = card("Role profiles", "How does each role behave across the 25 states, from crisis to boom?",
-    `Annualised log return per state; filled markers are data-driven states, open markers interpolated, extrapolated or seeded. Calibration ${esc(f.shapes.calibration_id)}: ${f.shapes.checks.filter(c => c.passed).length} of ${f.shapes.checks.length} shape checks pass.`);
+  const roles = card(`Role profiles ${basisChip(basis)}`, "How does each role behave across the 25 states, from crisis to boom?",
+    `Annualised log return per state, ${basis === "real" ? `real (after ${esc(ccy)} inflation, fmre's deflation)` : "nominal"}; filled markers are data-driven states, open markers interpolated, extrapolated or seeded. Calibration ${esc(f.shapes.calibration_id)}: ${f.shapes.checks.filter(c => c.passed).length} of ${f.shapes.checks.length} shape checks pass.`);
   const detail = card("Instrument against its role", "Click a row in the universe to compare an instrument's profile with its role.");
   card.host = null;
+  if (basis === "real") inflationView(card(`Inflation used: ${esc(ccy)}, per state`, "Which inflation did fmre take off each state's return?",
+    "Measured is inside -10 % to +20 % a year; extrapolated is the rest of the band fmre computes (-20 % to +100 %); fallback is today's year-on-year inflation for a state with too little data."),
+    view.inflation, (view.rs.provenance || {}).deflator);
   const tableCard = card("", "", f.performance.caveat);
   const integ = card("Register integrity", "Which entries should not be trusted as separate instruments?");
+  // C-32: the house beta and the CIO's override per instrument, from fmre; a set or revert goes through
+  // the cockpit route PUT /api/cio/inflation-beta/{id} with the reason and the acting curator as set_by.
+  const passThrough = card("Inflation pass-through (scenarios)", "How much of a scenario's inflation does each instrument pass on to its return?",
+    "Under a scenario Regime fmre sets real = historical real + (beta - 1) · ln(1 + scenario inflation): beta 1 is a full inflation hedge, 0 none. The house beta is fmre's; an override is the CIO's, kept by fmre as a new version each time (a revert too), with its reason and who set it. Base Regimes and nominal profiles are not affected. The cockpit computes nothing.");
 
   const states = f.axis.state_axis.map((_, k) => k + 1);
   const phaseTicks = { tickvals: [3, 8, 13, 18, 23], ticktext: f.axis.phase_names };
@@ -667,20 +867,24 @@ page("cio/instruments", "cio", "Instrument selection", async () => {
     customdata: p.states.map(s => [s.method, s.n_obs]), hovertemplate: `${esc(name)}, state %{x}: %{y:.2%}<br>%{customdata[0]}, n=%{customdata[1]}<extra></extra>` });
   // The four curves converge towards boom, so end labels would collide: identity is carried by the
   // legend, the dash pattern and the hover instead (secondary encoding for the fourth slot).
-  plot(chartIn(roles, 400), ROLES.filter(([r]) => f.role[r]).map(([r, v, dash]) => profileTrace(f.role[r], r, css(v), dash)),
-    { xaxis: { ...phaseTicks, title: { text: "State (phase)" } }, yaxis: { tickformat: ".0%", title: { text: "Annualised log return" } }, hovermode: "x unified" });
+  plot(chartIn(roles, 400), ROLES.filter(([r]) => view.role[r]).map(([r, v, dash]) => profileTrace(view.role[r], r, css(v), dash)),
+    { xaxis: { ...phaseTicks, title: { text: "State (phase)" } }, yaxis: { tickformat: ".0%", title: { text: `Annualised log return, ${basis}` } }, hovermode: "x unified" });
+  const notes = ((view.rs.provenance || {}).notes || view.rs.notes || []).filter(n => /basis|real|inflation|deflat/i.test(String(n)));
+  if (basis === "real" && notes.length) roles.insertAdjacentHTML("beforeend", notes.map(n => `<p class="note">fmre: ${esc(n)}</p>`).join(""));
+  // A scenario ReturnSet names the beta each instrument's profile used (C-32); a base set names none.
+  roles.insertAdjacentHTML("beforeend", passThroughView(view.rs, id => (f.register.find(x => x.instrument_id === id) || {}).name || id));
 
   let current = store.get("instrument");
   const drawDetail = id => {
     const r = f.register.find(x => x.instrument_id === id); if (!r) return;
     current = id; store.set("instrument", id);
-    const p = f.prof[id], perf = f.perf[id] || {}, role = f.role[r.role], rv = (ROLES.find(x => x[0] === r.role) || ROLES[0]);
-    detail.parentElement.querySelector("h2").textContent = `${r.name} against its role (${r.role})`;
+    const p = view.prof[id], perf = f.perf[id] || {}, role = view.role[r.role], rv = (ROLES.find(x => x[0] === r.role) || ROLES[0]);
+    detail.parentElement.querySelector("h2").innerHTML = `${esc(r.name)} against its role (${esc(r.role)}) ${basisChip(basis)}`;
     detail.innerHTML = ""; const el = chartIn(detail, 330);
     const traces = [];
     if (role) traces.push({ ...profileTrace(role, `role: ${r.role}`, css("--rest"), "dash", 2) });
     if (p) traces.push(profileTrace(p, r.name, css(rv[1]), "solid", 2));
-    plot(el, traces, { xaxis: { ...phaseTicks, title: { text: "State (phase)" } }, yaxis: { tickformat: ".0%" }, hovermode: "x unified" });
+    plot(el, traces, { xaxis: { ...phaseTicks, title: { text: "State (phase)" } }, yaxis: { tickformat: ".0%", title: { text: basis } }, hovermode: "x unified" });
     const m = perf.performance || {};
     detail.insertAdjacentHTML("beforeend", `<div class="scroll" style="margin-top:6px"><table><tbody>${[
       ["Profile coverage", `${esc(perf.coverage || (p && p.coverage) || "n/a")}${perf.borrowed_from ? `, borrowed from ${esc(perf.borrowed_from)}` : ""}`],
@@ -736,7 +940,7 @@ page("cio/instruments", "cio", "Instrument selection", async () => {
     store.set("author", $("sAuthor").value);
     try {
       const d = await post("/decisions", { kind: "instrument_selection", title: $("sTitle").value, author: $("sAuthor").value, note: $("sNote").value,
-        basis: { return_set: f.returnSet.return_set_id, calibration: f.shapes.calibration_id }, rows: out });
+        basis: { return_set: view.rs.return_set_id, calibration: f.shapes.calibration_id, profiles_basis: basis, ...(basis === "real" ? { currency: ccy } : {}) }, rows: out });
       await decisions(true);
       Object.keys(picks).forEach(k => delete picks[k]); out.forEach(r => picks[r.instrument_id] = r);
       $("iExport").href = exportHref(d.decision_id);
@@ -753,6 +957,7 @@ page("cio/instruments", "cio", "Instrument selection", async () => {
     <div><b>Proxy artefacts</b> <span class="muted">(correlation 1 on a shared proxy)</span>${o.proxy_artefact.map(p => `<div class="warn ink2">${esc(p.a)} and ${esc(p.b)} via ${esc(p.proxy)}</div>`).join("") || `<div class="ok">none</div>`}</div>
     <div><b>Classification flags</b>${f.classification.instruments.filter(r => r.flag).map(r => `<div class="warn ink2" title="${esc(r.explanation || "")}">${esc(r.name)}: ${esc(r.flag)}</div>`).join("") || `<div class="ok">none</div>`}</div></div>
     <p class="note">From the Fund Map engine's /v1/data/overlap (threshold ${o.threshold}, at least ${o.min_shared_months} shared months) and /v1/data/classification (beta bound ${f.classification.beta_bound} against ${esc(f.classification.benchmark)}).</p>`;
+  await inflationBetaPanel(passThrough);
 });
 
 // ---------------------------------------------------------------------------------------
@@ -1271,7 +1476,7 @@ page("curator/parameters", "curator", "Parameters", async () => {
   const curveByKey = Object.fromEntries(curves.map(c => [c.key, c]));
   const lo = Math.min(-2, ...curves.map(c => c.min_pct)), hi = Math.max(8, ...curves.map(c => c.max_pct));   // a shared axis for the gallery
   // F: the form, in the server's form units (percent). P: the page's other state.
-  let F = { client: id, name: "", currency: "CHF", horizon_years: 1, curve: { points_pct: null }, universe: [], max_single_position_pct: null, esg_min: 0,
+  let F = { client: id, name: "", currency: "CHF", basis: DEFAULT_BASIS, horizon_years: 1, curve: { points_pct: null }, universe: [], max_single_position_pct: null, esg_min: 0,
             fixed_allocations_pct: {}, bounds_pct: {}, regime_market: null, regime_weights_pct: null };
   const P = { proposal: null, lbs: null, source: "", preset: null,
               curve: { base: null, shift: 0, tilt: 0, preset: null, label: "" },
@@ -1292,10 +1497,11 @@ page("curator/parameters", "curator", "Parameters", async () => {
     <p class="note">${presets.curves && presets.curves.version ? `Presets from the content store: target curves v${presets.curves.version}, mandates v${presets.mandates && presets.mandates.version || "none"} (edit them on the Questionnaires page, key reference/…; every save is a new version).` : ""}</p>`;
 
   // ---- 2 · regime and currency -----------------------------------------------------------
-  const regCard = card("2 · Regime and currency", "pcp solves against one Regime from aggregation and the ReturnSet fmre serves for that Regime in the mandate's currency. aggregation issues one Regime per optimism level: choose the level (default unless the client's mandate calls for another), then no scenario or a scenario derived from that level's Regime.");
+  const regCard = card("2 · Regime, currency and basis", "pcp solves against one Regime from aggregation and the ReturnSet fmre serves for that Regime in the mandate's currency and basis (nominal unless switched to real). aggregation issues one Regime per optimism level: choose the level (default unless the client's mandate calls for another), then no scenario or a scenario derived from that level's Regime.");
   regCard.innerHTML = `<div class="filters"><label>Optimism <select id="rOpt">${OPTIMISM_LEVELS.map(([k, n]) => `<option value="${k}"${k === "default" ? " selected" : ""}>${n}</option>`).join("")}</select></label>
       <label>Scenario <select id="rKind"><option value="">No scenario</option>${SCENARIO_POLICIES.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select></label>
       <label>Currency <select id="mCur">${voc.currencies.map(c => `<option>${c}</option>`).join("")}</select></label>
+      <div class="fld" title="The basis of the target curve: nominal, or real (after the inflation of the mandate's currency). Stored with the mandate; fmre serves the real ReturnSet.">Basis ${basisSwitch("mBasis", F.basis)}</div>
       <button type="button" id="rRefresh">Fetch again</button><span class="origin" data-origin="currency"></span></div>
     <div id="rInfo" class="ink2"></div><div class="fieldmsg" data-field="currency"></div>
     <details style="margin-top:8px"><summary class="muted" style="cursor:pointer">Advanced: ids, solver speed, month</summary><div class="filters" style="margin-top:8px">
@@ -1308,15 +1514,18 @@ page("curator/parameters", "curator", "Parameters", async () => {
       $("rKind").innerHTML = `<option value="">No scenario</option>` + rows.map(([k, n, dsc]) => `<option value="${esc(k)}" title="${esc(dsc)}">${esc(n)}</option>`).join(""); $("rKind").value = v; }
   }).catch(() => {});
   const getRs = async () => {
-    const rid = $("pReg").value.trim(), cur = $("mCur").value;
+    const rid = $("pReg").value.trim(), cur = $("mCur").value, basis = F.basis || DEFAULT_BASIS;
     if (!rid) return;
     try {
-      const rs = await api(`/fmre/v1/return-set?${new URLSearchParams({ regime_id: rid, include_instruments: true, include_blocks: false, currency: cur })}`);
-      $("pRs").value = rs.return_set_id; store.set("pcp:rs", rs.return_set_id); store.set("pcp:regime", rid); P.rs = { id: rs.return_set_id, currency: cur, regime: rid };
-      const stamped = rs.provenance && rs.provenance.regime_id;
-      $("rsInfo").innerHTML = stamped === rid ? `<span class="ok">ReturnSet ${idChip(rs.return_set_id)} in <b>${esc(cur)}</b>, stamped for this Regime (as of ${esc(rs.as_of || "")}).</span>`
-        : `<span class="warn">fmre stamped ${idChip(stamped || "no regime")} on ${idChip(rs.return_set_id)}, not this Regime: pcp refuses it.</span>`;
-    } catch (e) { $("rsInfo").innerHTML = `<span class="bad">fmre could not serve the ReturnSet in ${esc(cur)}: ${esc(e.message)}</span>`; }
+      const rs = await api(`/fmre/v1/return-set?${new URLSearchParams({ regime_id: rid, include_instruments: true, include_blocks: false, currency: cur, ...(basis === "real" ? { basis } : {}) })}`);   // basis= only when real, as pcp asks fmre (C-31)
+      $("pRs").value = rs.return_set_id; store.set("pcp:rs", rs.return_set_id); store.set("pcp:regime", rid); P.rs = { id: rs.return_set_id, currency: cur, regime: rid, basis: servedBasis(rs) };
+      const stamped = rs.provenance && rs.provenance.regime_id, served = servedBasis(rs), dfl = (rs.provenance && rs.provenance.deflator) || null;
+      $("rsInfo").innerHTML = (stamped === rid ? `<span class="ok">ReturnSet ${idChip(rs.return_set_id)} in <b>${esc(cur)}</b>, ${basisChip(served)}, stamped for this Regime (as of ${esc(rs.as_of || "")}).</span>`
+        : `<span class="warn">fmre stamped ${idChip(stamped || "no regime")} on ${idChip(rs.return_set_id)}, not this Regime: pcp refuses it.</span>`)
+        + (served !== basis ? `<div class="warn">The mandate is ${esc(basis)}, but fmre served a ${esc(served)} ReturnSet${basis === "real" ? " (it does not serve basis=real yet)" : ""}: pcp refuses the pair.</div>` : "")
+        + (served === "real" && dfl ? deflatorLine(dfl, cur) : "")
+        + passThroughView(rs);   // a scenario set names the inflation beta each instrument used (C-32)
+    } catch (e) { $("rsInfo").innerHTML = `<span class="bad">fmre could not serve the ReturnSet in ${esc(cur)} (${esc(basis)}): ${esc(e.message)}</span>`; }
   };
   const loadRegime = async () => {
     // The cockpit's /curator/regime makes the choice the run route makes (C-30): the latest succeeded
@@ -1349,6 +1558,8 @@ page("curator/parameters", "curator", "Parameters", async () => {
   };
   $("rKind").onchange = loadRegime; $("rOpt").onchange = loadRegime; $("rRefresh").onclick = loadRegime;
   $("mCur").onchange = () => { F.currency = $("mCur").value; refreshOrigins(); getRs(); };
+  const setBasis = b => { F.basis = b || DEFAULT_BASIS; setBasisSwitch("mBasis", F.basis); if ($("cChart")) drawCurve(); };
+  wireBasis("mBasis", b => { setBasis(b); getRs(); });
   $("pReg").onchange = () => { const rid = $("pReg").value.trim(), m = regimeMemo(rid) || {}; store.set("pcp:regime", rid);
     P.regime = { ...P.regime, id: rid, policy: m.policy || null, optimism: m.optimism || null, base: m.base_regime_id || null }; getRs(); };   // a typed id: the run route asks aggregation for its level
   $("pRs").onchange = () => store.set("pcp:rs", $("pRs").value.trim());
@@ -1358,28 +1569,30 @@ page("curator/parameters", "curator", "Parameters", async () => {
   curveCard.innerHTML = `${curves.length ? `<div class="presets">${curves.map(c => `<button type="button" class="preset" data-cp="${esc(c.key)}" title="${esc(c.description)}&#10;${esc(c.formula)}"><b>${esc(c.name)}</b>${spark(c.points_pct, lo, hi)}<span>mean ${fmt(c.mean_pct, 1)} % · ${fmt(c.min_pct, 1)} to ${fmt(c.max_pct, 1)} %</span></button>`).join("")}</div>`
       : `<p class="warn">No target-curve presets in the content store${presets.curves && presets.curves.missing ? `: ${esc(presets.curves.missing)}` : ""}.</p>`}
     <div class="grid2" style="margin-top:12px"><div>
-      <div id="cLabel" style="margin-bottom:6px"></div>
+      <div id="cLabel" style="margin-bottom:6px"></div><div id="cBasis" style="margin-bottom:8px"></div>
       <div class="filters"><label>Level shift, percentage points <span class="row"><input type="range" id="cShiftR" min="-6" max="6" step="0.1" value="0" style="width:170px"><input id="cShift" type="number" step="0.1" value="0" style="width:74px"></span></label>
         <label>Slope tilt, pp added at boom (taken off at crisis) <span class="row"><input type="range" id="cTiltR" min="-6" max="6" step="0.1" value="0" style="width:170px"><input id="cTilt" type="number" step="0.1" value="0" style="width:74px"></span></label></div>
       <div class="row"><button type="button" id="cMatch" disabled>Match the lbs required return</button><button type="button" id="cZero">Reset shift and tilt</button><span class="origin" data-origin="target_curve"></span></div>
       <div id="cInfo" class="ink2" style="margin-top:6px"></div><div class="fieldmsg" data-field="target_curve"></div>
       <details style="margin-top:8px"><summary class="muted" style="cursor:pointer">Enter the 25 points yourself (percent per year)</summary><div class="ptgrid" id="cPts"></div><button type="button" id="cUsePts" style="margin-top:6px">Use these points</button></details>
-      <p class="note">Entered and shown in percent per year. Stored for pcp as the annualised log return ln(1 + p/100) (curve_unit annualised_log_return): 5 % a year is stored as 0.0488, −10 % as −0.1054.</p>
+      <p class="note">Entered and shown in percent per year, on the mandate's basis (section 2). Stored for pcp as the annualised log return ln(1 + p/100) (curve_unit annualised_log_return): 5 % a year is stored as 0.0488, −10 % as −0.1054.</p>
     </div><div><div id="cChart" class="chart" style="height:280px"></div></div></div>`;
   const curvePoints = () => P.curve.base ? adjustCurve(P.curve.base, P.curve.shift, P.curve.tilt) : null;
   const drawCurve = () => {
     const pts = curvePoints(), c = P.curve, lbsPts = P.lbs && P.lbs.curve.points_pct, st = Array.from({ length: 25 }, (_, i) => i + 1);
     curveCard.querySelectorAll("[data-cp]").forEach(b => b.classList.toggle("sel", b.dataset.cp === c.preset));
     $("cLabel").innerHTML = pts ? `<b>${esc(c.label || "custom")}</b>${c.shift || c.tilt ? ` <span class="ink2">${pp(c.shift)} level, ${pp(c.tilt)} tilt</span>` : ""}` : `<span class="muted">No curve chosen yet.</span>`;
-    const pv = curveByKey[c.preset], req = P.proposal && P.proposal.status === "available" ? P.proposal.required_return : null;
-    $("cMatch").disabled = !(pv && req !== null && req !== undefined);
-    $("cMatch").title = req === null || req === undefined ? "no lbs required return loaded" : !pv ? "matching needs a preset (its mean is stored with it)" : `sets the curve's mean over the 25 states to ${fmt(req * 100, 2)} %, as lbs levels its own ramp`;
+    const pv = curveByKey[c.preset], req = P.proposal && P.proposal.status === "available" ? P.proposal.required_return : null, real = F.basis === "real";
+    $("cBasis").innerHTML = real ? `${basisChip("real")} <span class="ink2">The curve is read as <b>real</b>: every point is a return after the inflation of the mandate's currency, and the level shift and tilt apply in real terms. The presets are nominal data, taken as they are and read as real; the cockpit converts nothing, fmre's real ReturnSet does the deflating.</span>`
+      : `${basisChip("nominal")} <span class="ink2">The curve is read as nominal, before inflation.</span>`;
+    $("cMatch").disabled = real || !(pv && req !== null && req !== undefined);
+    $("cMatch").title = real ? "lbs's required return is nominal; in real the curve's level is set by the shift" : req === null || req === undefined ? "no lbs required return loaded" : !pv ? "matching needs a preset (its mean is stored with it)" : `sets the curve's mean over the 25 states to ${fmt(req * 100, 2)} %, as lbs levels its own ramp`;
     $("cInfo").innerHTML = pv ? `${esc(pv.description)} <span class="muted">Mean ${fmt(pv.mean_pct + c.shift, 2)} % a year after the shift (the tilt keeps the mean).</span>` : c.label === "lbs proposal" ? "The ramp lbs derived from the goal: its mean is the required return." : "";
     const traces = [];
     if (pts && (c.shift || c.tilt)) traces.push({ x: st, y: c.base, name: "preset as stored", mode: "lines", line: { color: css("--rest"), dash: "dot" }, hovertemplate: "state %{x}: %{y:.2f} %<extra>preset</extra>" });
     if (lbsPts && c.label !== "lbs proposal") traces.push({ x: st, y: lbsPts, name: "lbs proposal", mode: "lines", line: { color: css("--s2"), dash: "dash" }, hovertemplate: "state %{x}: %{y:.2f} %<extra>lbs</extra>" });
     if (pts) traces.push({ x: st, y: pts, name: "target curve", mode: "lines+markers", line: { color: css("--s1"), width: 2.5 }, marker: { size: 5 }, hovertemplate: "state %{x}: %{y:.2f} % a year<extra></extra>" });
-    plot($("cChart"), traces, { margin: { l: 52, r: 12, t: 8, b: 40 }, xaxis: { dtick: 2, range: [0.5, 25.5], title: { text: "state (1 crisis to 25 boom)" } }, yaxis: { ticksuffix: " %", zeroline: true, zerolinecolor: css("--axis") }, legend: { orientation: "h", y: -0.28 } });
+    plot($("cChart"), traces, { margin: { l: 52, r: 12, t: 8, b: 40 }, xaxis: { dtick: 2, range: [0.5, 25.5], title: { text: "state (1 crisis to 25 boom)" } }, yaxis: { ticksuffix: " %", title: { text: `percent a year, ${real ? "real" : "nominal"}` }, zeroline: true, zerolinecolor: css("--axis") }, legend: { orientation: "h", y: -0.28 } });
     $("cPts").innerHTML = st.map((s, i) => `<label>${s}<input data-pt="${i}" type="number" step="0.1" value="${pts ? (Math.round(pts[i] * 100) / 100) : ""}"></label>`).join("");
     refreshOrigins();
   };
@@ -1538,7 +1751,7 @@ page("curator/parameters", "curator", "Parameters", async () => {
   function readForm(soft) {
     const n = (el, field) => { const v = $(el) ? $(el).value.trim() : ""; if (v === "") return null; const x = Number(v); if (!Number.isFinite(x) && !soft) throw new Error(`${fieldName(field)}: "${v}" is not a number`); return x; };
     const pts = curvePoints(), b = blendValues();
-    return { client: $("mClient") ? $("mClient").value.trim() : F.client, name: $("mName") ? $("mName").value.trim() : F.name, currency: $("mCur").value,
+    return { client: $("mClient") ? $("mClient").value.trim() : F.client, name: $("mName") ? $("mName").value.trim() : F.name, currency: $("mCur").value, basis: F.basis || DEFAULT_BASIS,
       horizon_years: n("mHor", "horizon_years") ?? 1, curve: pts ? (P.curve.preset || P.curve.shift || P.curve.tilt ? { base_pct: P.curve.base, shift_pp: P.curve.shift, tilt_pp: P.curve.tilt, preset: P.curve.preset,
         preset_version: presets.curves && presets.curves.version } : { points_pct: pts }) : { points_pct: null },
       universe: $("uText") || uniCard.querySelector(".checklist") ? readUniverse() : F.universe, max_single_position_pct: n("mMax", "max_single_position"), esg_min: n("mEsg", "esg_min") ?? 0,
@@ -1546,12 +1759,14 @@ page("curator/parameters", "curator", "Parameters", async () => {
       regime_market: b.market || null, regime_weights_pct: b.market ? null : (b.weights && Object.keys(b.weights).length ? Object.fromEntries(Object.entries(b.weights).filter(([, v]) => v)) : null) };
   }
   function drawAll(form, source) {
-    F = { ...F, ...form, client: form.client || id }; P.source = source;
+    const before = F.basis;
+    F = { ...F, ...form, client: form.client || id, basis: form.basis || DEFAULT_BASIS }; P.source = source;
     $("mCur").value = voc.currencies.includes(F.currency) ? F.currency : "CHF";
+    setBasis(F.basis);
     drawBasics(); drawUniverse(); drawBounds(); drawBlend();
-    $("pStartInfo").innerHTML = source ? `Form filled from <b>${esc(source)}</b>. Nothing is saved until you finalise.` : "";
+    $("pStartInfo").innerHTML = source ? `Form filled from <b>${esc(source)}</b>. Nothing is saved until you finalise.${before && before !== F.basis ? ` Its basis is <b>${esc(F.basis)}</b>, so the switch moved from ${esc(before)}.` : ""}` : "";
     clearMsgs(); refreshOrigins();
-    if (P.rs && P.rs.currency !== $("mCur").value) getRs();
+    if (P.rs && (P.rs.currency !== $("mCur").value || P.rs.basis !== F.basis)) getRs();
   }
   const clearMsgs = () => document.querySelectorAll(".fieldmsg").forEach(e => { e.innerHTML = ""; });
   const fieldOf = msg => {   // which field a pcp message is about, for showing it next to that field
@@ -1613,9 +1828,10 @@ page("curator/parameters", "curator", "Parameters", async () => {
       if (p.currency) { f.currency = P.lbs.currency; kept.push("currency"); }
       if (p.esg_min !== null && p.esg_min !== undefined) { f.esg_min = P.lbs.esg_min; kept.push("ESG floor"); }
       Object.keys(p.bounds || {}).forEach(dim => { f.bounds_pct[dim] = JSON.parse(JSON.stringify(P.lbs.bounds_pct[dim])); kept.push(`${(DIM_LABEL[dim] || dim).toLowerCase()} bounds`); });
-      if (cp && p.required_return !== null && p.required_return !== undefined) { shift = Math.round((p.required_return * 100 - cp.mean_pct) * 100) / 100; kept.push("the curve's level (the required return)"); }
+      if (cp && p.required_return !== null && p.required_return !== undefined && F.basis === "real") kept.push("not the curve's level (lbs's required return is nominal, the mandate real)");
+      else if (cp && p.required_return !== null && p.required_return !== undefined) { shift = Math.round((p.required_return * 100 - cp.mean_pct) * 100) / 100; kept.push("the curve's level (the required return)"); }
     }
-    f.name = mp.name;
+    f.name = mp.name; f.basis = F.basis;   // a preset is nominal data; it takes the switch as it stands (C-31)
     drawAll(f, `the preset “${mp.name}”`);
     P.preset = mp.key;
     startCard.querySelectorAll("[data-mp]").forEach(b => b.classList.toggle("sel", b.dataset.mp === mp.key));
@@ -1642,7 +1858,7 @@ page("curator/parameters", "curator", "Parameters", async () => {
   $("pLoad").onclick = async () => { await loadProposal(); if (P.lbs) await fromMandate(fromProposal(P.proposal), "the lbs proposal", { base: P.lbs.curve.points_pct, preset: null, label: "lbs proposal", shift: 0, tilt: 0 }); };
   $("pFromCur").onclick = () => current && fromMandate(current.body, `the current parameter set (finalised ${when(current.finalised_at).slice(0, 10)})`).catch(e => toast(esc(e.message)));
   $("pFromLbs").onclick = () => P.lbs ? fromMandate(fromProposal(P.proposal), "the lbs proposal", P.lbs.curve.points_pct ? { base: P.lbs.curve.points_pct, preset: null, label: "lbs proposal", shift: 0, tilt: 0 } : null) : toast("No lbs proposal loaded: load one under Start from.");
-  $("pFromBlank").onclick = () => { drawAll({ client: id, name: "", currency: "CHF", horizon_years: 1, curve: { points_pct: null }, universe: [], max_single_position_pct: null, esg_min: 0, fixed_allocations_pct: {}, bounds_pct: {}, regime_market: null, regime_weights_pct: null }, "an empty mandate"); setCurve(null, null, ""); };
+  $("pFromBlank").onclick = () => { drawAll({ client: id, name: "", currency: "CHF", basis: F.basis, horizon_years: 1, curve: { points_pct: null }, universe: [], max_single_position_pct: null, esg_min: 0, fixed_allocations_pct: {}, bounds_pct: {}, regime_market: null, regime_weights_pct: null }, "an empty mandate"); setCurve(null, null, ""); };
 
   const basis = card("What the lbs proposal rests on", "As lbs published it; nothing here is recomputed.");
   function drawBasis() {
@@ -1694,15 +1910,16 @@ page("curator/parameters", "curator", "Parameters", async () => {
     if (!b.regime_id || !b.return_set_id) throw new Error("A run needs the Regime and the ReturnSet (section 2).");
     const memo = P.regime.id === b.regime_id ? { policy: P.regime.policy, base_regime_id: P.regime.policy ? P.regime.base : null, optimism: P.regime.optimism } : (regimeMemo(b.regime_id) || {});
     const run = await cpost(`/clients/${encodeURIComponent(id)}/runs`, { engine: "pcp", parameter_set_id: current.id, ...b, currency: (P.rs && P.rs.id === b.return_set_id ? P.rs.currency : $("mCur").value),
+      basis: (P.rs && P.rs.id === b.return_set_id ? P.rs.basis : F.basis) || DEFAULT_BASIS,
       ...(memo.optimism ? { optimism: memo.optimism } : {}), ...(memo.policy ? { regime_policy: memo.policy, base_regime_id: memo.base_regime_id || null } : {}) });
-    out(`<p class="${run.status === "succeeded" ? "ok" : run.status === "failed" ? "bad" : "warn"}">pcp run ${esc(run.status)}${run.error ? `: ${esc(run.error.slice(0, 600))}` : ""}. ${run.context ? `${regimeText({ optimism: run.context.optimism, policy: run.context.regime_policy })} ${idChip(run.context.regime_id)}. ` : ""}Recorded with the client ${idChip(run.id)}.</p>`);
+    out(`<p class="${run.status === "succeeded" ? "ok" : run.status === "failed" ? "bad" : "warn"}">pcp run ${esc(run.status)}${run.error ? `: ${esc(run.error.slice(0, 600))}` : ""}. ${run.context ? `${regimeText({ optimism: run.context.optimism, policy: run.context.regime_policy })} ${idChip(run.context.regime_id)}. ` : ""}${run.context && run.context.basis ? `Basis ${basisChip(run.context.basis)}. ` : ""}Recorded with the client ${idChip(run.id)}.</p>`);
     if (run.artefact_id) await showAllocation(run.artefact_id, run.context);
   });
 
   // ---- history and the allocation --------------------------------------------------------------
   const hist = card("History", "The client's mandates for pcp, newest first, and its engine runs.");
   hist.innerHTML = `${table(d.parameter_sets.filter(p => p.engine === "pcp"), [["Finalised", p => when(p.finalised_at)], ["By", p => esc(p.finalised_by_name || "")],
-      ["State", p => p.current ? '<span class="ok">current</span>' : '<span class="muted">superseded</span>'], ["Mandate", p => `<b>${esc(p.body.name || "")}</b> <span class="muted">${esc(p.body.currency || "")}</span>`],
+      ["State", p => p.current ? '<span class="ok">current</span>' : '<span class="muted">superseded</span>'], ["Mandate", p => `<b>${esc(p.body.name || "")}</b> <span class="muted">${esc(p.body.currency || "")}</span> ${basisChip(p.body.basis || DEFAULT_BASIS)}`],
       ["Universe", p => (p.body.universe || []).length, false], ["Note", p => `<span class="ink2">${esc(p.note || "")}</span>`],
       ["", p => `<button type="button" data-load="${esc(p.id)}">Load into the form</button>`]], "No parameter set finalised.")}
     <h3 class="chart-t">Engine runs</h3>${runsTable(d.engine_runs)}`;
@@ -1715,15 +1932,16 @@ page("curator/parameters", "curator", "Parameters", async () => {
       const a = await api(`/pcp/allocation/${encodeURIComponent(aid)}`);
       const run = d.engine_runs.find(r => r.artefact_id === aid), req = (run && run.request) || {};
       const currency = (ctx && ctx.currency) || (req.mandate && req.mandate.currency) || null;
+      const abasis = a.basis || (ctx && ctx.basis) || (req.mandate && (req.mandate.basis || DEFAULT_BASIS)) || null;   // pcp's Allocation states it; else the run's
       if (ctx && (ctx.regime_policy || ctx.optimism) && ctx.regime_id === a.regime_id) regimeMemo(a.regime_id, { ...(regimeMemo(a.regime_id) || {}), optimism: ctx.optimism || null, policy: ctx.regime_policy || null, base_regime_id: ctx.base_regime_id || null });
       const held = a.instruments.filter(i => i.weight > 0).sort((p, q) => q.weight - p.weight);
       allocHost.innerHTML = `<div class="tiles"><div class="tile"><div class="v" style="font-size:16px">${await regimeLabel(a.regime_id, ctx)}</div><div class="k">computed under · Regime month ${esc(a.date)}</div></div>
-          <div class="tile"><div class="v">${currency ? esc(currency) : `<span class="muted">n/a</span>`}</div><div class="k">currency${currency ? "" : " (no recorded run names it)"} · ReturnSet ${idChip(a.return_set_id)}</div></div>
+          <div class="tile"><div class="v">${currency ? esc(currency) : `<span class="muted">n/a</span>`}</div><div class="k">currency${currency ? "" : " (no recorded run names it)"} · basis ${abasis ? basisChip(abasis) : `<span class="muted">not stated</span>`} · ReturnSet ${idChip(a.return_set_id)}</div></div>
           <div class="tile"><div class="v">${a.budget_met ? "met" : "not met"}</div><div class="k">budget (raw weight sum ${fmt(a.raw_weight_sum, 4)})</div></div>
           <div class="tile"><div class="v">${held.length}</div><div class="k">instruments held · ${esc(a.release_state)}</div></div></div>
         <div class="grid2"><div>${table(held, [["Instrument", i => `${esc(i.name)} ${idChip(i.instrument_id, 14)}`], ["Role", i => esc(ROLE_LABEL[i.role] || i.role)], ["Weight", i => pct(i.weight, 2), false], ["Profile coverage", i => esc(i.coverage)]])}</div>
           <div>${table(Object.entries(a.weights_by_role || {}), [["Role", r => esc(ROLE_LABEL[r[0]] || r[0])], ["Weight", r => pct(r[1], 1), false]])}<div id="allocCurve" class="chart" style="height:260px"></div></div></div>
-        ${(a.coverage.warnings || []).map(w => `<p class="note warn">${esc(w)}</p>`).join("")}<p class="note">${esc(a.notice)} Curves in pcp's unit (annualised log return).</p>`;
+        ${(a.coverage.warnings || []).map(w => `<p class="note warn">${esc(w)}</p>`).join("")}<p class="note">${esc(a.notice)} Curves in pcp's unit (annualised log return)${abasis ? `, ${esc(abasis)}` : ""}.</p>`;
       const st = Array.from({ length: a.curves.target.length }, (_, i) => i + 1);
       plot($("allocCurve"), [{ x: st, y: a.curves.target, name: "mandate curve", mode: "lines+markers", line: { color: css("--s2"), dash: "dot" } },
                              { x: st, y: a.curves.achieved, name: "portfolio", mode: "lines+markers", line: { color: css("--s1") } }],

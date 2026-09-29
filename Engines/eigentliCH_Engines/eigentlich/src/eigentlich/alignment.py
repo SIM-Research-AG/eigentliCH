@@ -43,6 +43,17 @@ intake section ``21``, the partner (EIG-53)
     after section 16 (the client's own human capital). ``inputs.py`` sends them as the partner's person.
 intake ``hours_learning`` dropped (EIG-58)
     ``education_hours`` (the band) stays; answers given to earlier versions stay and are still read.
+
+For the nominal and real view (``revise_basis``, EIG-60 and EIG-61; also run by ``revise-content``), the
+onboarding's next version ``onb2@0.3.0``:
+
+onboarding ``contribution_indexed`` (EIG-61)
+    "Steigt der Betrag mit der Teuerung?" after ``annual_contribution``: ``nein`` (the default, owner decision 9:
+    fixed in francs) or ``ja``. ``inputs.py`` sends it as ``mandate.contribution_indexed``.
+onboarding ``goal_amount_basis`` (EIG-60)
+    "Ist der Betrag in heutigen Franken?", asked per goal (``scope: goal``), not in the sequence: the plan page's
+    goal form and the onboarding's completion read its wording. ``today`` (the default, owner decision 7) or
+    ``future``; stored on the goal (``goal.amount_basis``), sent as ``goals[].amount_basis``.
 """
 
 from __future__ import annotations
@@ -327,6 +338,66 @@ def revised_intake(body: dict[str, Any]) -> dict[str, Any]:
 REVISIONS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {INTAKE: revised_intake}
 
 
+# ---------------------------------------------------------------------------------------------------------
+# The nominal and real view (owner decisions 7 and 9 of 29.09.2026, EIG-60 and EIG-61): whether a goal's amount
+# is in today's francs, and whether the yearly contribution rises with prices. The onboarding's next version.
+# ---------------------------------------------------------------------------------------------------------
+
+BASIS_NOTE = "goal amount in today's francs and indexed contribution asked (nominal and real view), owner 29.09.2026"
+
+#: The key of the question asked per goal. ``scope: goal`` keeps it out of the questionnaire's sequence.
+GOAL_AMOUNT_BASIS_KEY = "goal_amount_basis"
+
+CONTRIBUTION_INDEXED = {
+    "key": "contribution_indexed", "type": "choice", "required": False, "default": "nein",
+    "question": {"de": "Steigt der Betrag mit der Teuerung?", "en": "Does the amount rise with prices?",
+                 "en_draft": True},
+    "why": {"de": "Wenn Sie den Betrag jedes Jahr der Teuerung anpassen, legen Sie später mehr Franken zur Seite. "
+                  "Ohne Angabe rechnet die Bilanz mit einem festen Betrag in Franken.",
+            "en": "If you raise the amount with prices every year, you put more francs aside later. Without an "
+                  "answer the balance sheet counts a fixed amount in francs.", "en_draft": True},
+    "options": [{"value": "nein", "label": {"de": "Nein, er bleibt in Franken gleich",
+                                            "en": "No, it stays the same in francs"}},
+                {"value": "ja", "label": {"de": "Ja, er steigt mit der Teuerung", "en": "Yes, it rises with prices"}}],
+    "provenance": "new (EIG-61)",
+    "_note": "Owner decision 9 of 29.09.2026: the default is fixed in francs. Read into lbs-request "
+             "mandate.contribution_indexed (ja: true, nein: false); unanswered is left out of the request.",
+}
+
+GOAL_AMOUNT_BASIS = {
+    "key": GOAL_AMOUNT_BASIS_KEY, "type": "choice", "scope": "goal", "required": False, "default": "today",
+    "fills": {"entity": "goal", "field": "amount_basis"},
+    "question": {"de": "Ist der Betrag in heutigen Franken?", "en": "Is the amount in today's francs?",
+                 "en_draft": True},
+    "why": {"de": "Ein Betrag in heutigen Franken meint, was er heute kaufen kann: die Bilanz rechnet ihn mit der "
+                  "Teuerung bis zum Zieldatum hoch. Ein Betrag in Franken des Zieldatums bleibt, wie er ist.",
+            "en": "An amount in today's francs means what it buys today: the balance sheet raises it with prices "
+                  "to the target date. An amount in the francs of the target date stays as it is.",
+            "en_draft": True},
+    "options": [{"value": "today", "label": {"de": "Ja, in heutigen Franken", "en": "Yes, in today's francs"}},
+                {"value": "future", "label": {"de": "Nein, in Franken des Zieldatums",
+                                              "en": "No, in the francs of the target date"}}],
+    "provenance": "new (EIG-60)",
+    "_note": "Owner decision 7 of 29.09.2026: the default is today's francs. Asked per goal on the plan page "
+             "(scope goal, never in the questionnaire's sequence); stored as goal.amount_basis and sent as "
+             "lbs-request goals[].amount_basis.",
+}
+
+
+def basis_onboarding(body: dict[str, Any]) -> dict[str, Any]:
+    """``contribution_indexed`` right after ``annual_contribution``, and the per-goal ``goal_amount_basis``."""
+    new = copy.deepcopy(body)
+    anchor = "annual_contribution" if _question(new, "annual_contribution") is not None else None
+    _insert_after(new, anchor, CONTRIBUTION_INDEXED)
+    _insert_after(new, None, GOAL_AMOUNT_BASIS)
+    if new != body:
+        new["version"] = "onb2@0.3.0"
+    return new
+
+
+BASIS_REVISIONS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {ONBOARDING: basis_onboarding}
+
+
 def _changed_keys(old: dict[str, Any], new: dict[str, Any]) -> list[str]:
     """Keys added or changed, then ``-key`` for each question removed."""
     before = {q["key"]: q for q in old.get("questions") or []}
@@ -345,6 +416,12 @@ def revise(conn, *, curator_id: str, note: str = REVISION_NOTE) -> dict[str, Any
     """The owner's content changes of 29.09.2026 after the use cases (EIG-53, EIG-58): the intake's partner
     section and ``hours_learning`` dropped, saved as a new version by ``curator_id``; nothing when done."""
     return _save_all(conn, REVISIONS, curator_id=curator_id, note=note)
+
+
+def revise_basis(conn, *, curator_id: str, note: str = BASIS_NOTE) -> dict[str, Any]:
+    """The nominal and real view's two questions (EIG-60, EIG-61) as the onboarding's next version, saved by
+    ``curator_id``; nothing when done."""
+    return _save_all(conn, BASIS_REVISIONS, curator_id=curator_id, note=note)
 
 
 def _save_all(conn, changes: dict[str, Callable[[dict[str, Any]], dict[str, Any]]], *, curator_id: str,
@@ -379,4 +456,4 @@ def offered(options: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 __all__ = ["align", "aligned_intake", "aligned_onboarding", "NOTE", "offered", "revise", "revised_intake",
-           "REVISION_NOTE", "PARTNER_KEYS"]
+           "REVISION_NOTE", "PARTNER_KEYS", "revise_basis", "basis_onboarding", "BASIS_NOTE", "GOAL_AMOUNT_BASIS_KEY"]

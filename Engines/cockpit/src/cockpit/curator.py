@@ -216,6 +216,12 @@ class CuratorStore:
                 raise NotFound(f"no client {client_id}")
             self._in_service(conn, curator_id)
 
+    def in_service(self, curator_id: str) -> None:
+        """Check, before a write to an engine that concerns no client (C-32), that the acting curator
+        exists and is in service; raises as a refused write would."""
+        with self.session() as conn:
+            self._in_service(conn, curator_id)
+
     def latest_run(self, client_id: str, engine: str) -> Optional[dict[str, Any]]:
         """The client's most recent ``engine_run`` for this engine, whoever requested it."""
         return self._one("""SELECT id, engine, parameter_set_id, requested_by_kind, requested_by_ref, run_id, artefact_id,

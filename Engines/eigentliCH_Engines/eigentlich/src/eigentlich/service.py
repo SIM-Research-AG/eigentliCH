@@ -35,14 +35,16 @@ import psycopg
 from psycopg import sql
 
 from . import contracts as c
+from . import decisions as dx
 from . import gaps, grounding, inputs, questionnaires as qn, store
 from .appsettings import AppSettings
-from .clients import ChatbotClient, EngineError, EngineRefused, EngineUnavailable, LbsClient, ReportClient
+from .clients import (AggregationClient, ChatbotClient, EngineError, EngineRefused, EngineUnavailable, LbsClient,
+                      ReportClient)
 from .inputs import MEMBER_ORDER
 from .store import Decision, NotFound, Store
 
 APP = "eigentlich-app"
-APP_VERSION = "1.2.0"
+APP_VERSION = "1.3.0"
 
 #: ``engine_run.requested_by_ref`` of the automatic lbs runs (``requested_by_kind = 'system'``).
 AUTO_REF = "eigentlich-app:auto"
@@ -50,6 +52,10 @@ BACKFILL_REF = "eigentlich-app:lbs-backfill"
 
 ROLES = ("growth", "income", "stabilisation", "protection")
 CAPITAL_TYPES = ("human", "financial")
+
+#: The nominal and real view (REAL_VIEW_INTERFACES.md): the basis a figure is shown and a report asked in.
+BASES = ("nominal", "real")
+AMOUNT_BASES = inputs.AMOUNT_BASES
 
 #: The house's role names (``reference/roles``, reviewed by the owner on 30.08.2026), used only when that record
 #: is missing, so that a page never falls back to lbs's English names (EIG-56).
@@ -104,12 +110,14 @@ class Job:
 
 class Service:
     def __init__(self, settings: AppSettings, st: Store, lbs: LbsClient, chatbot: ChatbotClient,
-                 report: ReportClient, workers: int = 8):
+                 report: ReportClient, workers: int = 8, aggregation: Optional[AggregationClient] = None):
         self.settings = settings
         self.store = st
         self.lbs = lbs
         self.chatbot = chatbot
         self.report = report
+        self.aggregation = aggregation or AggregationClient(settings.aggregation_url, settings.timeouts.aggregation_s,
+                                                            settings.timeouts.connect_s)
         self.started = time.monotonic()
         self._jobs: dict[tuple[str, str], Job] = {}
         self._lock = threading.Lock()
@@ -124,7 +132,7 @@ class Service:
         for timer in timers:
             timer.cancel()
         self._pool.shutdown(wait=True)
-        for client in (self.lbs, self.chatbot, self.report):
+        for client in (self.lbs, self.chatbot, self.report, self.aggregation):
             client.close()
 
     # ------------------------------------------------------------------ standard
@@ -137,7 +145,8 @@ class Service:
         except Exception as exc:  # noqa: BLE001 - health reports, it does not raise
             db = f"unreachable: {type(exc).__name__}"
         t = self.settings.timeouts.health_s
-        engines = {"lbs": self.lbs.health(t), "chatbot": self.chatbot.health(t), "report": self.report.health(t)}
+        engines = {"lbs": self.lbs.health(t), "chatbot": self.chatbot.health(t), "report": self.report.health(t),
+                   "aggregation": self.aggregation.health(t)}
         return {"status": "ok" if db == "ok" else "degraded", "app": APP, "app_version": APP_VERSION,
                 "store": db, "engines": engines, "sign_in": False,
                 "uptime_s": round(time.monotonic() - self.started, 3)}
@@ -335,6 +344,8 @@ class Service:
             "asked": {q["key"]: qn.is_asked(q, answers) for q in body.get("questions") or []},
             "next_question_key": qn.next_question(body, answers),
             "goal_templates": templates,
+            # asked per goal on the plan page, never in the sequence (EIG-60)
+            "goal_questions": [q["key"] for q in qn.goal_questions(body)],
             "onboarding_completed_at": client["onboarding_completed_at"],
             "can_complete": name == "onboarding" and client["onboarding_completed_at"] is None
                             and bool(answers.get("employment_position")),
@@ -353,6 +364,8 @@ class Service:
                 q = qn.question(content["body"], question_key)
             except KeyError as exc:
                 raise NotFound(f"{key}@{content_version} has no question {question_key!r}") from exc
+            if not qn.in_sequence(q):
+                raise Invalid(f"{question_key!r} is asked per goal: answer it on the goal, in the plan")
             stored = qn.check(q, value)
             row = store.put_answer(conn, client_id=client_id, questionnaire_key=key, content_version=content_version,
                                    question_key=question_key, value=stored, answered_by_kind="client",
@@ -568,6 +581,7 @@ class Service:
                                    (goal_ids,)).fetchall()
             roles = self._roles(conn)
             onboarding = store.content_current(conn, qn.NAMES["onboarding"])["body"]
+            sheet_run = self._latest_sheet_run(conn, client_id)
         fact_labels = {}
         for q in onboarding.get("questions") or []:
             fills = q.get("fills") or {}
@@ -589,7 +603,35 @@ class Service:
                 "partner": partner["label"] if partner else None,
                 # more than one goal with an amount and a date: each is asked its share of the saving (EIG-59)
                 "shares_asked": len(dated) > 1,
-                "shares_total": round(sum(g["contribution_share"] or 0 for g in p["goals"] if g["active"]), 6)}
+                "shares_total": round(sum(g["contribution_share"] or 0 for g in p["goals"] if g["active"]), 6),
+                # asked per goal (EIG-60): the wording from the onboarding's content, in the reader's language
+                "goal_questions": [self._goal_question(q, lang) for q in qn.goal_questions(onboarding)],
+                # each goal's amount in both bases, as the latest sheet computed them (lbs LBS-31), for the switch
+                "goal_views": self._goal_views(sheet_run)}
+
+    @staticmethod
+    def _goal_question(q: dict[str, Any], lang: str) -> dict[str, Any]:
+        return {"key": q["key"], "field": (q.get("fills") or {}).get("field"), "default": q.get("default"),
+                "question": _text(q.get("question"), lang), "why": _text(q.get("why"), lang),
+                "options": [{"value": o.get("value"), "label": _text(o.get("label"), lang) or o.get("value")}
+                            for o in q.get("options") or [] if o.get("offered", True) is not False]}
+
+    @staticmethod
+    def _latest_sheet_run(conn, client_id: str) -> Optional[dict[str, Any]]:
+        return conn.execute("SELECT * FROM engine_run WHERE client_id = %s AND engine = 'lbs' AND status = 'succeeded' "
+                            "ORDER BY finished_at DESC LIMIT 1", (client_id,)).fetchone()
+
+    def _goal_views(self, run: Optional[dict[str, Any]]) -> dict[str, Any]:
+        """``{goal id: lbs's GoalBasisView}`` from the sheet of ``run``; empty when there is none, lbs cannot hand
+        it over now, or the sheet has no real view (a calibration before lbs's 1.4.0)."""
+        if run is None:
+            return {}
+        try:
+            sheet = self.lbs.sheet_raw(run["artefact_id"])
+        except EngineError:
+            return {}
+        rv = sheet.get("real_view") or {}
+        return {g["goal_id"]: g for g in rv.get("goals") or [] if isinstance(g, dict) and g.get("goal_id")}
 
     def _roles(self, conn) -> dict[str, Any]:
         try:
@@ -612,11 +654,27 @@ class Service:
         text = definition.get(lang) if isinstance(definition, dict) else None
         return name, text or None
 
-    def decisions(self, client_id: str, limit: int = 100) -> list[dict[str, Any]]:
+    def _renderer(self, conn, lang: str) -> dx.Renderer:
+        """Decisions in plain words (EIG-64): role names from ``reference/roles``, templates and facts by name."""
+        roles = dx.role_names(self._roles(conn), lang,
+                              lambda key, cap: ROLE_NAMES.get(key, {}).get(cap, {}).get(lang))
+        templates = {tpl["key"]: (tpl.get(lang) or tpl.get("de") or {}).get("name") or tpl["key"]
+                     for tpl in self._goal_templates(conn) if isinstance(tpl, dict) and tpl.get("key")}
+        return dx.Renderer(lang, roles=roles, templates=templates)
+
+    def decisions(self, client_id: str, limit: int = 100, language: str = "de") -> list[dict[str, Any]]:
+        """The client's decisions, newest first, each with ``question_text`` and ``choice_text``: the stored text
+        said in plain words in ``language`` (EIG-64). The stored text is unchanged."""
+        lang = _lang(language)
         with self.store.session() as conn:
             store.get_client(conn, client_id)
-            return conn.execute("SELECT * FROM decision WHERE client_id = %s ORDER BY seq DESC LIMIT %s",
+            rows = conn.execute("SELECT * FROM decision WHERE client_id = %s ORDER BY seq DESC LIMIT %s",
                                 (client_id, limit)).fetchall()
+            capital = {r["decision_id"]: r["capital_type"] for r in conn.execute(
+                "SELECT dp.decision_id, p.capital_type FROM decision_position dp JOIN position p ON p.id = dp.position_id "
+                "WHERE dp.decision_id = ANY(%s)", ([r["id"] for r in rows],)).fetchall()}
+            render = self._renderer(conn, lang)
+        return [render.decision(r, capital.get(r["id"])) for r in rows]
 
     def set_household(self, client_id: str, *, adults: list[str], dependants: list[str],
                       as_of: Optional[date] = None, reasoning: Optional[str] = None) -> dict[str, Any]:
@@ -696,13 +754,9 @@ class Service:
             raise NotFound(f"no {table} {row_id} of this client")
         return row
 
-    @staticmethod
-    def _changes(old: dict[str, Any], new: dict[str, Any]) -> str:
-        parts = []
-        for k, v in new.items():
-            if old.get(k) != v:
-                parts.append(f"{k}: {old.get(k) if old.get(k) is not None else '—'} → {v if v is not None else '—'}")
-        return "; ".join(parts) or "keine Änderung"
+    def _changes(self, conn, old: dict[str, Any], new: dict[str, Any]) -> str:
+        """What changed, in plain German (EIG-64): each field by its name, each value in words."""
+        return self._renderer(conn, "de").changes(old, new, old.get("capital_type"))
 
     def update_position(self, client_id: str, position_id: str, values: dict[str, Any]) -> dict[str, Any]:
         row = self._position_values(values)
@@ -719,7 +773,7 @@ class Service:
                 raise Invalid("nothing to change")
             with store.plan_change(conn, decision=Decision(
                     client_id=client_id, author="client", author_ref=client_id,
-                    question=f"Position «{old['label']}» ändern?", choice=self._changes(old, row),
+                    question=f"Position «{old['label']}» ändern?", choice=self._changes(conn, old, row),
                     reasoning=values.get("reasoning"))) as ch:
                 result = ch.update("position", position_id, **row)
         self.schedule_lbs(client_id)
@@ -741,7 +795,7 @@ class Service:
         return result
 
     _GOAL_FIELDS = ("name", "target_amount", "target_date", "safety", "liquidity_need", "volatility_tolerance",
-                    "horizon", "flexibility", "template", "occupancy", "contribution_share")
+                    "horizon", "flexibility", "template", "occupancy", "contribution_share", "amount_basis")
 
     def _goal_values(self, values: dict[str, Any]) -> dict[str, Any]:
         out = {k: values[k] for k in self._GOAL_FIELDS if k in values}
@@ -750,6 +804,8 @@ class Service:
         share = out.get("contribution_share")
         if share is not None and (isinstance(share, bool) or not isinstance(share, (int, float)) or not 0 <= share <= 1):
             raise Invalid("a goal's share of the yearly saving is between 0 and 1 (0 to 100 %)")
+        if out.get("amount_basis") not in (None, *AMOUNT_BASES):
+            raise Invalid("a goal's amount is in today's francs (today) or in the francs of its date (future)")
         return out
 
     @staticmethod
@@ -806,7 +862,7 @@ class Service:
                 raise Invalid("nothing to change")
             if old["active"] and "contribution_share" in row:
                 self._check_shares(conn, client_id, goal_id, row["contribution_share"])
-            choice = self._changes(old, row) if row else "Finanzierung angepasst"
+            choice = self._changes(conn, old, row) if row else "Finanzierung angepasst"
             with store.plan_change(conn, decision=Decision(
                     client_id=client_id, author="client", author_ref=client_id,
                     question=f"Ziel «{old['name']}» ändern?", choice=choice,
@@ -936,7 +992,30 @@ class Service:
                 "requested_by_kind": run["requested_by_kind"],
                 "plan_changed_since": bool(changed and changed > run["created_at"]),
                 "sheet": {k: sheet.get(k) for k in ("artefact_id", "as_of", "grid", "totals", "gaps", "household",
-                                                    "calibration_version", "notice")}}
+                                                    "calibration_version", "notice")},
+                # the nominal and real view (lbs LBS-31): each goal's amount and the required return in both bases,
+                # with the goals' names; the page shows one basis at a time, nominal by default
+                "views": self._sheet_views(sheet, names["goals"])}
+
+    @staticmethod
+    def _sheet_views(sheet: dict[str, Any], goal_names: dict[str, str]) -> dict[str, Any]:
+        """What the page's nominal / real switch needs from the sheet: ``available`` false when the sheet has no
+        real view (a calibration before lbs's 1.4.0); the goals in both bases; the mandate's required return in
+        both bases (``nominal`` from the proposal itself when it has no ``views``)."""
+        rv = sheet.get("real_view") if isinstance(sheet.get("real_view"), dict) else None
+        mp = sheet.get("mandate_proposal") if isinstance(sheet.get("mandate_proposal"), dict) else {}
+        goals = [{**g, "name": goal_names.get(g.get("goal_id"))} for g in (rv or {}).get("goals") or [] if isinstance(g, dict)]
+        mandate = None
+        if mp.get("status") == "available" or "required_return" in mp:
+            views = mp.get("views") or {}
+            nominal = views.get("nominal") or {"basis": "nominal", "target_chf": mp.get("target_chf"),
+                                               "required_return": mp.get("required_return")}
+            mandate = {"goal_id": mp.get("goal_id"), "name": goal_names.get(mp.get("goal_id")),
+                       "nominal": nominal, "real": views.get("real"),
+                       "plausibility": mp.get("plausibility")}
+        return {"available": rv is not None, "inflation": (rv or {}).get("inflation"),
+                "contribution_indexed": (rv or {}).get("contribution_indexed"),
+                "goals": goals, "mandate": mandate}
 
     # ------------------------------------------------------------------ threads
 
@@ -1191,16 +1270,25 @@ class Service:
         return row["body_html"]
 
     def request_report(self, client_id: str, *, kind: str, language: str = "de", note: Optional[str] = None,
-                       wait: bool = False) -> dict[str, Any]:
+                       wait: bool = False, basis: str = "nominal", scenario: Optional[str] = None) -> dict[str, Any]:
+        """A report or update request, in ``basis`` (``nominal``, the default, or ``real``: in today's francs,
+        EIG-62), on the base Regime of the client's current parameter set unless a ``scenario`` is named (an
+        aggregation policy such as ``stagflation``, or a scenario's regime id; EIG-63)."""
         if kind not in ("report", "update"):
             raise Invalid("kind is report or update")
+        if basis not in BASES:
+            raise Invalid("a report's basis is nominal or real")
+        scenario = (scenario or "").strip() or None
+        if scenario is not None and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", scenario):
+            raise Invalid("a scenario is named by its policy or its regime id")
         with self.store.session() as conn:
             store.get_client(conn, client_id)
             if kind == "update" and conn.execute("SELECT 1 FROM report WHERE client_id = %s LIMIT 1",
                                                  (client_id,)).fetchone() is None:
                 raise Conflict("an update states the changes since an earlier report; ask for a report first")
             req = store.request_report(conn, client_id=client_id, kind=kind, requested_by_kind="client",
-                                       requested_by_ref=client_id, language=_lang(language), note=note)
+                                       requested_by_ref=client_id, language=_lang(language), note=note,
+                                       basis=basis, scenario=scenario)
         job = self.produce(client_id, req["id"], wait=wait)
         return {"request_id": req["id"], "job": job}
 
@@ -1252,10 +1340,10 @@ class Service:
             q = conn.execute("SELECT * FROM report_request WHERE id = %s", (request_id,)).fetchone()
             previous = conn.execute("SELECT report_artefact_id FROM report WHERE client_id = %s AND request_id <> %s "
                                     "ORDER BY seq DESC LIMIT 1", (client_id, request_id)).fetchone()
-            pcp = conn.execute("SELECT artefact_id FROM engine_run WHERE client_id = %s AND engine = 'pcp' "
-                               "AND status = 'succeeded' ORDER BY finished_at DESC LIMIT 1", (client_id,)).fetchone()
         if q["kind"] == "update" and previous is None:
             raise Conflict("an update needs an earlier report of this client")
+        basis = q.get("basis") or "nominal"
+        pcp, _why = self.allocation_run(client_id, basis=basis, scenario=q.get("scenario"))
         sheet = self.run_balance_sheet(client_id)
         sources = [c.SourceRef(engine="lbs", artefact_id=sheet["artefact_id"])]
         if pcp:
@@ -1263,7 +1351,7 @@ class Service:
         request = c.ReportRequest(client_ref=client_id, kind=q["kind"], language=_lang(q["language"]),
                                   sources=tuple(sources),
                                   previous_report_id=previous["report_artefact_id"] if q["kind"] == "update" else None,
-                                  revision_of=revision_of, revision_note=revision_note)
+                                  revision_of=revision_of, revision_note=revision_note, basis=basis)
 
         def call():
             rep = self.report.report(request)
@@ -1277,6 +1365,50 @@ class Service:
             store.add_report(conn, request_id=request_id, client_id=client_id, report_artefact_id=rep.artefact_id,
                              body_html=rep.html, lbs_artefact_id=sheet["artefact_id"],
                              allocation_artefact_id=pcp["artefact_id"] if pcp else None)
+
+    def allocation_run(self, client_id: str, *, basis: str = "nominal",
+                       scenario: Optional[str] = None) -> tuple[Optional[dict[str, Any]], Optional[str]]:
+        """The pcp run a report draws on (EIG-63), and why there is none when there is none.
+
+        The run is one of the client's **current finalised parameter set** (never a superseded one), succeeded,
+        newest first, on the set's **base Regime**: a run on a scenario Regime is taken only when that scenario
+        is asked for, by its policy (``stagflation``) or its regime id. Which Regimes are scenarios, aggregation
+        says (``GET /scenarios``); it is asked only when the current set has a run, and when it cannot answer the
+        report waits (``EngineUnavailable``) rather than risk a scenario's allocation. A set whose basis is not
+        the report's is left out (the report engine refuses a mix, REP-27): nominal and real are never mixed.
+        Reasons: ``no_parameter_set``, ``no_run``, ``basis``, ``no_base_run``, ``no_scenario_run``."""
+        with self.store.session() as conn:
+            pset = conn.execute("SELECT id, body FROM parameter_set_current WHERE client_id = %s AND engine = 'pcp'",
+                                (client_id,)).fetchone()
+            if pset is None:
+                return None, "no_parameter_set"
+            runs = conn.execute("SELECT id, artefact_id, request, parameter_set_id, finished_at FROM engine_run "
+                                "WHERE client_id = %s AND engine = 'pcp' AND status = 'succeeded' "
+                                "AND parameter_set_id = %s ORDER BY finished_at DESC, created_at DESC",
+                                (client_id, pset["id"])).fetchall()
+        if not runs:
+            if scenario:
+                raise Conflict(f"no pcp run of the current parameter set on the scenario {scenario!r}")
+            return None, "no_run"
+        set_basis = ((pset["body"] or {}).get("basis") or "nominal") if isinstance(pset["body"], dict) else "nominal"
+        if set_basis != basis:
+            if scenario:
+                raise Conflict(f"the current parameter set is {set_basis}; a {basis} report takes no {set_basis} "
+                               "allocation")
+            return None, "basis"
+        listed = {s.regime_id: s for s in self.aggregation.scenarios()}
+
+        def regime(run: dict[str, Any]) -> Optional[str]:
+            return (run["request"] or {}).get("regime_id") if isinstance(run["request"], dict) else None
+
+        if scenario is None:
+            chosen = next((r for r in runs if regime(r) and regime(r) not in listed), None)
+            return (chosen, None) if chosen else (None, "no_base_run")
+        chosen = next((r for r in runs if regime(r) in listed
+                       and scenario in (listed[regime(r)].policy, regime(r))), None)
+        if chosen is None:
+            raise Conflict(f"no pcp run of the current parameter set on the scenario {scenario!r}")
+        return chosen, None
 
     # ------------------------------------------------------------------ home
 

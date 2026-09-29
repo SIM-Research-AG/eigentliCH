@@ -41,11 +41,13 @@ app:
   lbs_url: http://127.0.0.1:8013       # POST /run, GET /artefacts/{id}   lbs-request@1.0.0
   chatbot_url: http://127.0.0.1:8016   # POST /answer                     chat-request@1.0.0
   report_url: http://127.0.0.1:8015    # POST /report                     report-request@1.0.0
+  aggregation_url: http://127.0.0.1:8004  # GET /scenarios: which Regimes are scenarios (EIG-63)
   timeouts:
     connect_s: 5
     lbs_s: 60
     chatbot_s: 330                # the chatbot streams from spark7; its own total limit is 300 s
     report_s: 330
+    aggregation_s: 10
     health_s: 1.5                 # the probe in /health
   lbs_auto:
     # The balance sheet runs by itself after every change of a client's plan or answers (EIG-47):

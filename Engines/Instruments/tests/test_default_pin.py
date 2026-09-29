@@ -125,7 +125,9 @@ class TestTheDefaultIsPinned:
         assert body["contract_version"] == CONTRACT
         assert body["provenance"]["regime_id"] is None
         assert body["provenance"]["calibration_id"] == CALIBRATION
-        assert body["provenance"]["estimator"] == "plain_mean"
+        # FMRE-26: the estimator that built the instrument profiles, not the calibration's
+        # (plain_mean, which stays on /v1/calibration). The id already named the method.
+        assert body["provenance"]["estimator"] == DEFAULT_METHOD
         assert body["provenance"]["currency"] is None, "the default is not converted"
 
     def test_stamped_id_and_version(self, client):
@@ -166,6 +168,46 @@ class TestTheDefaultIsPinned:
                   for q in ("", f"?regime_id={REGIME}", "?profile_method=cascade",
                             f"?regime_id={REGIME}&profile_method=cascade")}
         assert not served & set(PREVIOUS_IDS)
+
+
+class TestNominalIsTheDefaultByteForByte:
+    """The nominal and real view (29.09.2026) is opt-in: ``basis=nominal``, or no basis,
+    is the published set byte for byte, and neither carries ``basis`` or ``deflator``.
+
+    ``DEFAULT_SHA256`` pins the whole body of the default requests in this module's
+    throwaway store, as they stood once FMRE-26 named the estimator; a byte that moves
+    fails here."""
+
+    DEFAULT_SHA256 = {
+        "": "b855620cb9f4544dccd140b08afb647bf58306a78f0ac5f8e978677322975963",
+        f"?regime_id={REGIME}":
+            "71d706761fc450ead8e19dc844bfad360edd50100c754354ca276e297332a949",
+        f"?regime_id={REGIME}&profile_method=cascade":
+            "fdc87e431de3e9d72eb3f6a2931d683b9766af68acc4a02e7f60c702d8a17540",
+    }
+
+    @pytest.mark.parametrize("query", ["", f"?regime_id={REGIME}",
+                                       f"?regime_id={REGIME}&profile_method=cascade",
+                                       "?profile_method=forward_12m"])
+    def test_basis_nominal_is_the_default(self, client, query):
+        sep = "&" if query else "?"
+        named = client.get(f"/v1/return-set{query}{sep}basis=nominal")
+        assert named.status_code == 200
+        assert named.content == client.get(f"/v1/return-set{query}").content
+        assert not {"basis", "deflator"} & set(named.json()["provenance"])
+
+    @pytest.mark.parametrize("query", sorted(DEFAULT_SHA256))
+    def test_the_default_bytes_are_pinned(self, client, query):
+        import hashlib
+        body = client.get(f"/v1/return-set{query}").content
+        assert hashlib.sha256(body).hexdigest() == self.DEFAULT_SHA256[query]
+
+    def test_the_estimator_named_is_the_estimator_used(self, client):
+        for method in ("cascade", "shape_scaled", "forward_12m", DEFAULT_METHOD):
+            body = client.get(f"/v1/return-set?regime_id={REGIME}&profile_method={method}"
+                              ).json()
+            assert body["provenance"]["estimator"] == method
+            assert f"profile_method={method} " in body["provenance"]["notes"][3]
 
 
 class TestTheEstimatorIsInTheId:

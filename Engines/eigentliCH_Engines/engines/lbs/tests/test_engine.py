@@ -831,3 +831,281 @@ def test_the_shares_sum_to_at_most_one(home, later, ok):
     else:
         with pytest.raises(ValidationError):
             LifeBalanceSheetRequest.model_validate(body)
+
+
+# ===========================================================================
+# The nominal and real view (owner's decisions of 29.09.2026; LBS-31 to LBS-35): calibration 1.4.0
+# ===========================================================================
+
+from lbs.calibration import CORRECTED_1_4  # noqa: E402
+from lbs.contracts import RealViewPolicy  # noqa: E402
+
+
+def _at(rate: float) -> Calibration:
+    """1.4.0 with the CHF inflation set to ``rate`` (the design note's worked example uses 2 %)."""
+    d = CORRECTED_1_4.model_dump()
+    d["real_view"]["inflation"]["CHF"]["annual_rate"] = rate
+    return Calibration.model_validate({**d, "version": "1.4.0-test"})
+
+
+def _worked(amount_basis=None, indexed=None, amount=400_000, date_="2046-09-29", free=150_000, saving=12_000,
+            risk=None):
+    """The design note's section 4.2: CHF 400 000 in 20 years, 150 000 now, 12 000 a year in monthly steps."""
+    goal = {"goal_id": "g", "kind": "other", "target_amount": amount, "target_date": date_}
+    if amount_basis is not None:
+        goal["amount_basis"] = amount_basis
+    mandate = {"goal_id": "g", "annual_contribution": saving}
+    if indexed is not None:
+        mandate["contribution_indexed"] = indexed
+    return sample_request(
+        as_of="2026-09-29", goals=[goal], mandate=mandate, facts={"has_no_liabilities": True},
+        risk=risk if risk is not None else {"stated_loss": 0.3},
+        positions=[{"position_id": "free", "role": "gain", "capital_type": "financial", "magnitude": free,
+                    "unit": "chf", "stock_kind": "asset", "liquidity": "immediate", "vessel": "free",
+                    "funds_goals": ["g"]}])
+
+
+def test_the_design_notes_worked_example_to_the_cent():
+    """Section 4.2 of the design note: read as future francs the goal needs 0.18 % a year; in today's francs at
+    2 % inflation its nominal target is 594 379 and it needs 2.96 % nominal, 0.94 % real (log)."""
+    as_future = sheet(_worked(amount_basis="future"), _at(0.02)).mandate_proposal
+    assert as_future.target_chf == 400_000
+    assert round(as_future.required_return * 100, 2) == 0.18
+    s = sheet(_worked(), _at(0.02))
+    m = s.mandate_proposal
+    assert round(m.target_chf, 2) == 594_378.96 and round(400_000 * 1.02 ** 20, 2) == 594_378.96
+    assert round(m.required_return * 100, 2) == 2.96
+    assert m.required_return == pytest.approx(0.029610281315, abs=1e-10)
+    real = m.views["real"]
+    assert real.basis == "real" and real.target_chf == pytest.approx(400_000, abs=0.005)
+    assert round(real.required_return_log * 100, 2) == 0.94
+    assert real.required_return_log == pytest.approx(math.log1p(m.required_return) - math.log(1.02), abs=1e-15)
+    assert real.required_return == pytest.approx((1 + m.required_return) / 1.02 - 1, abs=1e-15)
+    nominal = m.views["nominal"]
+    assert nominal.basis == "nominal" and nominal.target_chf == m.target_chf
+    assert nominal.required_return == m.required_return and m.basis == "nominal"
+    # the required return funds the nominal target to the cent
+    wealth = engine.terminal_wealth(150_000, [1_000.0] * 240, m.required_return, 12)
+    assert abs(wealth - m.target_chf) < 0.01
+    view = s.real_view.goals[0]
+    assert (view.amount_basis, view.amount_basis_stated) == ("today", False)
+    assert view.horizon_years == 20 and view.price_level == pytest.approx(1.02 ** 20, rel=1e-15)
+    assert not s.real_view.contribution_indexed and not s.real_view.contribution_indexed_stated
+    assert any("decision 7" in n for n in m.notes) and any("decision 9" in n for n in m.notes)
+
+
+def test_a_missing_basis_is_todays_francs_and_future_francs_keep_the_old_figures():
+    """Decision 7: a missing amount_basis reads as today; a stated future basis gives 1.3.0's nominal figures."""
+    old = sheet(_worked(), CORRECTED_1_3).mandate_proposal
+    future = sheet(_worked(amount_basis="future"), CORRECTED_1_4).mandate_proposal
+    today = sheet(_worked(amount_basis="today"), CORRECTED_1_4).mandate_proposal
+    unstated = sheet(_worked(), CORRECTED_1_4).mandate_proposal
+    assert future.target_chf == old.target_chf and future.required_return == old.required_return
+    assert future.target_curve == old.target_curve
+    assert unstated.target_chf == today.target_chf == pytest.approx(400_000 * 1.005 ** 20, rel=1e-12)
+    assert unstated.required_return == today.required_return > old.required_return
+    assert future.views["real"].target_chf == pytest.approx(400_000 / 1.005 ** 20, rel=1e-12)
+
+
+def test_an_indexed_contribution_holds_the_real_problem_at_its_uninflated_one():
+    """Decision 9 and LBS-31: an indexed contribution keeps its purchasing power month by month, so the real
+    required return of a goal in today's francs is the one the problem poses without inflation (0.18 % here, at
+    any inflation)."""
+    uninflated = sheet(_worked(amount_basis="future"), _at(0.0)).mandate_proposal.required_return
+    for rate in (0.005, 0.02, 0.10):
+        m = sheet(_worked(indexed=True), _at(rate)).mandate_proposal
+        assert m.views["real"].required_return == pytest.approx(uninflated, abs=1e-9)
+        fixed = sheet(_worked(indexed=False), _at(rate)).mandate_proposal
+        assert fixed.views["real"].required_return > m.views["real"].required_return
+    s = sheet(_worked(indexed=True), _at(0.02))
+    assert s.real_view.contribution_indexed and s.real_view.contribution_indexed_stated
+
+
+def test_an_undated_goal_has_only_its_stated_basis():
+    s = sheet(_worked(date_=None), CORRECTED_1_4)
+    view = s.real_view.goals[0]
+    assert view.real.amount == 400_000 and view.nominal.amount is None
+    assert "undated" in view.nominal.absent_because and view.price_level is None
+    future = sheet(_worked(amount_basis="future", date_=None), CORRECTED_1_4).real_view.goals[0]
+    assert future.nominal.amount == 400_000 and future.real.amount is None
+
+
+def test_16_percent_in_a_year_and_a_quarter_is_feasible_and_not_realistic():
+    """LBS-34: feasible keeps its narrow meaning (a return below the 1000 % search ceiling exists); the
+    plausibility judgement says a portfolio within the risk profile cannot reasonably earn it, and names the
+    levers, each computed: each alone reaches the goal at the ceiling."""
+    body = _worked(amount_basis="future", amount=125_000, date_="2027-12-29", free=100_000, saving=4_000)
+    s = sheet(body, CORRECTED_1_4)
+    m = s.mandate_proposal
+    assert m.goal_horizon_years == pytest.approx(1.25, abs=0.01) and m.required_return > 0.15 and m.feasible
+    p = m.plausibility
+    assert p.judgement == "not_realistic" and p.risk_level == s.risk_profile.value
+    assert p.ceiling_real == pytest.approx(engine.plausibility_ceiling(engine.Ctx(req=None, cal=CORRECTED_1_4),
+                                                                       p.risk_level))
+    assert p.ceiling_nominal == pytest.approx((1 + p.ceiling_real) * 1.005 - 1)
+    levers = {lever["lever"]: lever for lever in p.levers}
+    assert set(levers) == {"longer_horizon", "higher_saving", "smaller_goal"}
+    months = 15
+    at_ceiling = engine.terminal_wealth(100_000, [levers["higher_saving"]["annual_contribution"] / 12] * months,
+                                        p.ceiling_nominal, 12)
+    assert at_ceiling == pytest.approx(125_000, rel=1e-9)
+    assert levers["smaller_goal"]["target_chf_nominal"] == pytest.approx(
+        engine.terminal_wealth(100_000, [4_000 / 12] * months, p.ceiling_nominal, 12), rel=1e-12)
+    k = round(levers["longer_horizon"]["horizon_years"] * 12)
+    assert engine.terminal_wealth(100_000, [4_000 / 12] * k, p.ceiling_nominal, 12) >= 125_000
+    assert engine.terminal_wealth(100_000, [4_000 / 12] * (k - 1), p.ceiling_nominal, 12) < 125_000
+    assert "longer horizon, a higher saving or a smaller goal" in p.reason
+    # an easy goal is realistic, with no levers
+    easy = sheet(_worked(amount_basis="future"), CORRECTED_1_4).mandate_proposal.plausibility
+    assert easy.judgement == "realistic" and easy.levers == ()
+
+
+def test_without_a_risk_profile_the_table_bounds_the_judgement():
+    """No profile: realistic below the most cautious row, not realistic above the most aggressive, could not
+    be determined in between."""
+    d = CORRECTED_1_4.model_dump()
+    d["records"]["risk-profile"]["_about"]["provisional"] = True
+    unapproved = Calibration.model_validate({**d, "version": "1.4.0-noprofile"})
+    rows = CORRECTED_1_4.real_view.plausibility
+    s = sheet(_worked(amount_basis="future"), unapproved)
+    assert isinstance(s.risk_profile, NotAvailable)
+    assert s.mandate_proposal.plausibility.judgement == "realistic"
+    assert s.mandate_proposal.plausibility.ceiling_real == rows[0].real_return
+    hard = sheet(_worked(amount_basis="future", amount=125_000, date_="2027-12-29", free=100_000, saving=4_000),
+                 unapproved).mandate_proposal.plausibility
+    assert hard.judgement == "not_realistic" and hard.ceiling_real == rows[-1].real_return and hard.levers
+    # about 3 % real: between the rows
+    mid = sheet(_worked(amount_basis="future", amount=150_000 * 1.035 ** 10, date_="2036-09-29", saving=0),
+                unapproved).mandate_proposal.plausibility
+    assert mid.judgement == "could_not_be_determined" and mid.ceiling_real is None
+    unreachable = sheet(_worked(amount_basis="future", amount=10 ** 12, date_="2027-09-29", saving=0),
+                        CORRECTED_1_4).mandate_proposal
+    assert unreachable.feasible is False and unreachable.plausibility.judgement == "not_realistic"
+
+
+def test_the_retirement_comparison_is_made_in_todays_francs():
+    """LBS-33: a need in today's francs against AHV (indexed, today's francs) and the nominal BVG pension
+    deflated from its first year; both views side by side."""
+    body = sample_request()
+    old = sheet(body, CORRECTED_1_3).retirement[0]
+    s = sheet(body, CORRECTED_1_4)
+    new = s.retirement[0]
+    years = new.pillar2["to_age"] - new.pillar2["from_age"]
+    bvg_real = new.pillar2["yearly"] / 1.005 ** years
+    assert new.basis == "real" and new.needs_per_year == old.needs_per_year == 80_000
+    assert new.covered_per_year == pytest.approx(new.ahv["yearly"] + bvg_real, rel=1e-12)
+    assert old.covered_per_year == pytest.approx(new.ahv["yearly"] + new.pillar2["yearly"], rel=1e-12)
+    assert new.views["real"].bvg_per_year == pytest.approx(bvg_real) and new.views["real"].as_at is None
+    level = s.real_view.goals[1].price_level
+    assert new.views["nominal"].needs_per_year == pytest.approx(80_000 * level)
+    assert new.views["nominal"].as_at == date(2051, 1, 1)
+    body["goals"][1]["amount_basis"] = "future"
+    future = sheet(body, CORRECTED_1_4).retirement[0]
+    assert future.needs_per_year == pytest.approx(80_000 / level)
+
+
+def test_a_property_price_in_future_francs_is_tested_in_todays_francs():
+    body = sample_request()
+    body["goals"][0]["amount_basis"] = "future"
+    s = sheet(body, CORRECTED_1_4)
+    level = s.real_view.goals[0].price_level
+    assert s.property[0].basis == "real" and s.property[0].price_chf == pytest.approx(1_000_000 / level)
+    today = sheet(sample_request(), CORRECTED_1_4)
+    assert today.property[0].price_chf == 1_000_000
+    assert today.mandate_proposal.target_chf == pytest.approx(0.2 * 1_000_000 * today.real_view.goals[0].price_level)
+
+
+def test_earlier_calibrations_do_not_read_the_new_fields_and_keep_their_bytes():
+    """LBS-35: under 1.0.0 to 1.3.0 the new fields are not read (a note says so) and the sheet carries none of
+    the new keys, so a stored artefact keeps its bytes and its id."""
+    body = _worked(amount_basis="today", indexed=True)
+    for cal in (SEED, APPROVED, CORRECTED, CORRECTED_1_3):
+        s = sheet(body, cal)
+        dumped = s.model_dump(mode="json")
+        assert "real_view" not in dumped
+        if isinstance(s.mandate_proposal, MandateProposal):
+            assert not {"basis", "views", "plausibility"} & set(dumped["mandate_proposal"])
+            assert any("are not read" in n for n in s.mandate_proposal.notes)
+        assert all("basis" not in r for r in dumped["retirement"] + dumped["property"])
+    plain = sheet(_worked(), CORRECTED_1_3)
+    assert not any("are not read" in n for n in plain.mandate_proposal.notes)
+    assert sheet(_worked(), CORRECTED_1_4).model_dump(mode="json")["real_view"]["inflation"]["label"] == "measured"
+
+
+def test_the_real_view_calibration_is_checked():
+    rv = CORRECTED_1_4.real_view.model_dump()
+    assert CORRECTED_1_4.real_view.inflation["CHF"].annual_rate == 0.005
+    assert set(CORRECTED_1_4.real_view.inflation) == {"CHF", "EUR", "USD"}
+    with pytest.raises(ValidationError, match="not computable"):
+        RealViewPolicy.model_validate({**rv, "inflation": {**rv["inflation"], "CHF": {
+            **rv["inflation"]["CHF"], "annual_rate": 1.5}}})
+    with pytest.raises(ValidationError, match="lacks an inflation"):
+        RealViewPolicy.model_validate({**rv, "inflation": {"CHF": rv["inflation"]["CHF"]}})
+    with pytest.raises(ValidationError, match="does not fall"):
+        RealViewPolicy.model_validate({**rv, "plausibility": [{"risk_level": 0.0, "real_return": 0.05},
+                                                              {"risk_level": 1.0, "real_return": 0.02}]})
+    with pytest.raises(ValidationError, match="needs lbs-calibration@1.3.0"):
+        Calibration.model_validate({**CORRECTED_1_4.model_dump(), "contract_version": "lbs-calibration@1.2.0"})
+    assert (CORRECTED_1_4.version, CORRECTED_1_4.parent_version) == ("1.4.0", "1.3.0")
+    assert CORRECTED_1_4.records == CORRECTED_1_3.records and CORRECTED_1_4.corrections == CORRECTED_1_3.corrections
+
+
+# ===========================================================================
+# The owner's decisions on the two assumptions of 1.4.0 (29.09.2026; LBS-36 to LBS-38): calibration 1.5.0
+# ===========================================================================
+
+from lbs.calibration import CORRECTED_1_5  # noqa: E402
+
+
+def test_15_sets_the_chf_inflation_to_one_percent_and_keeps_the_rest():
+    """LBS-36: CHF 1.0 %, the midpoint of the SNB's 0 to 2 % range, forward-looking, with its source line; EUR and
+    USD keep their measured figures; LBS-37: the plausibility table is 1.4.0's, now approved. Nothing else in
+    the calibration moves."""
+    rv, old = CORRECTED_1_5.real_view, CORRECTED_1_4.real_view
+    chf = rv.inflation["CHF"]
+    assert chf.annual_rate == 0.01 and old.inflation["CHF"].annual_rate == 0.005
+    assert "Nicolas, 29.09.2026" in chf.source and "midpoint" in chf.source and "SNB" in chf.source
+    assert "0.4997" in chf.source and chf.index == old.inflation["CHF"].index
+    assert rv.inflation["EUR"] == old.inflation["EUR"] and rv.inflation["USD"] == old.inflation["USD"]
+    assert (rv.inflation["EUR"].annual_rate, rv.inflation["USD"].annual_rate) == (0.0211, 0.0254)
+    assert rv.plausibility == old.plausibility
+    assert [(r.risk_level, r.real_return) for r in rv.plausibility] == [(0.0, 0.02), (0.5, 0.035), (1.0, 0.05)]
+    assert rv.plausibility_source.startswith("approved by the owner (Nicolas, 29.09.2026")
+    assert "proposed" in old.plausibility_source and "to confirm" in old.plausibility_source
+    assert (rv.measured_band, rv.lever_horizon_limit_years) == (old.measured_band, old.lever_horizon_limit_years)
+    assert (CORRECTED_1_5.version, CORRECTED_1_5.parent_version) == ("1.5.0", "1.4.0")
+    assert CORRECTED_1_5.records == CORRECTED_1_4.records and CORRECTED_1_5.policy == CORRECTED_1_4.policy
+    assert CORRECTED_1_5.corrections == CORRECTED_1_4.corrections
+
+
+def test_the_design_notes_worked_example_at_the_chf_one_percent():
+    """The worked example (CHF 400 000 in today's francs in 20 years, 150 000 now, 12 000 a year fixed) under
+    1.5.0, the owner's CHF 1 %: nominal target 488 076.02, 1.60 % nominal and 0.59 % real (log, and simple);
+    read as future francs 0.18 % as before; with the contribution indexed 0.18 % real, as at any inflation."""
+    s = sheet(_worked(), CORRECTED_1_5)
+    m = s.mandate_proposal
+    assert round(m.target_chf, 2) == 488_076.02 and round(400_000 * 1.01 ** 20, 2) == 488_076.02
+    assert round(m.required_return * 100, 2) == 1.60
+    assert m.required_return == pytest.approx(0.015963740851, abs=1e-10)
+    real = m.views["real"]
+    assert real.target_chf == pytest.approx(400_000, abs=0.005)
+    assert round(real.required_return * 100, 2) == 0.59 and round(real.required_return_log * 100, 2) == 0.59
+    assert real.required_return == pytest.approx((1 + m.required_return) / 1.01 - 1, abs=1e-15)
+    assert real.required_return_log == pytest.approx(math.log1p(m.required_return) - math.log(1.01), abs=1e-15)
+    wealth = engine.terminal_wealth(150_000, [1_000.0] * 240, m.required_return, 12)
+    assert abs(wealth - m.target_chf) < 0.01
+    assert s.real_view.inflation.annual_rate == 0.01 and s.real_view.inflation.label == "measured"
+    assert s.real_view.goals[0].price_level == pytest.approx(1.01 ** 20, rel=1e-15)
+    # the same figures as the 2 % example's machinery at 1 %: 1.5.0 differs from 1.4.0 in the rate only
+    assert m.required_return == sheet(_worked(), _at(0.01)).mandate_proposal.required_return
+    # between the measured 0.50 % (1.4.0) and the design note's 2 %
+    low, high = sheet(_worked(), CORRECTED_1_4).mandate_proposal, sheet(_worked(), _at(0.02)).mandate_proposal
+    assert low.required_return < m.required_return < high.required_return
+    assert low.views["real"].required_return < real.required_return < high.views["real"].required_return
+    future = sheet(_worked(amount_basis="future"), CORRECTED_1_5).mandate_proposal
+    assert round(future.required_return * 100, 2) == 0.18 and future.target_chf == 400_000
+    indexed = sheet(_worked(indexed=True), CORRECTED_1_5).mandate_proposal
+    assert round(indexed.views["real"].required_return * 100, 2) == 0.18
+    assert m.plausibility.judgement == "realistic"
+    assert m.plausibility.ceiling_source.startswith("approved by the owner")
+    assert m.plausibility.ceiling_nominal == pytest.approx((1 + m.plausibility.ceiling_real) * 1.01 - 1)

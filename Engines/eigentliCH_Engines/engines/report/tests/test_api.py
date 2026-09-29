@@ -26,10 +26,10 @@ def more_artefacts(upstream):
 
 def test_standard_endpoints(client, spark):
     health = client.get("/health").json()
-    assert health["status"] == "ok" and health["engine_version"] == "report@1.2.0"
+    assert health["status"] == "ok" and health["engine_version"] == "report@1.3.0"
     meta = client.get("/meta").json()
     assert meta["contract_versions"] == CONTRACT_VERSIONS and meta["allowlist"]["ok"]
-    assert meta["prompt_version"] == "report-prompt@1.0.0" and meta["sections"][0] == "changes"
+    assert meta["prompt_version"] == "report-prompt@1.1.0" and meta["sections"][0] == "changes"
     assert set(meta["upstream"]) == {"pcp", "lbs"}
     contracts = client.get("/contracts").json()
     assert contracts["Report"]["version"] == "report@1.0.0" and contracts["Allocation(pcp)"]["direction"] == "in"
@@ -277,7 +277,7 @@ def test_a_request_without_revision_fields_keeps_its_request_id():
 
     req = ReportRequest.model_validate(request_body())
     before = engine.content_id("RRQ", {k: v for k, v in req.model_dump(mode="json").items()
-                                       if k not in ("calibration_version", "revision_of", "revision_note")})
+                                       if k not in ("calibration_version", "revision_of", "revision_note", "basis")})
     assert Service.request_id(req) == before
     with_note = ReportRequest.model_validate(request_body(revision_of="REP-0000000000000000", revision_note="x y"))
     assert Service.request_id(with_note) != before

@@ -23,7 +23,8 @@ STATUSES = ("built", "parked", "scaffold", "planned")
 #: starts and links to (the eigentliCH consumer app), with no engine number (C-18).
 KINDS = ("engine", "app")
 #: First path segments under /api that belong to the cockpit itself, never to an engine.
-RESERVED = frozenset({"graph", "config", "decisions", "export", "launcher", "curator"})
+#: ``cio``: the CIO's writes to an engine that the proxy cannot allow by an exact path (C-32).
+RESERVED = frozenset({"graph", "config", "decisions", "export", "launcher", "curator", "cio"})
 
 
 @dataclass(frozen=True)

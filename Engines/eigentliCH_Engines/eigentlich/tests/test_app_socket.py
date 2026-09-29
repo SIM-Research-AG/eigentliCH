@@ -23,8 +23,8 @@ def world(settings, st):
     with st.session() as conn:
         assert seeding.seed(conn, settings.prototype_root)["ok"]
     engines = Engines()
-    with serve(engines.lbs.asgi()) as lbs, serve(engines.chatbot.asgi()) as chat, serve(engines.report.asgi()) as rep:
-        cfg = app_settings(settings, lbs_url=lbs, chatbot_url=chat, report_url=rep)
+    with serve(engines.lbs.asgi()) as lbs, serve(engines.chatbot.asgi()) as chat, serve(engines.report.asgi()) as rep,             serve(engines.aggregation.asgi()) as agg:
+        cfg = app_settings(settings, lbs_url=lbs, chatbot_url=chat, report_url=rep, aggregation_url=agg)
         with serve(create_app(cfg)) as base:
             yield {"base": base, "engines": engines}
 

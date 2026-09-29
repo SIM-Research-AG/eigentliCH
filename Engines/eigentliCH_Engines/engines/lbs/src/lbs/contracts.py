@@ -14,11 +14,18 @@ Outbound:
   findings, the risk profile, a ``MandateProposal`` in the shape of ``pcp-mandate@1.0.0``, every gap, and
   provenance. A section that cannot be computed carries ``status = not_available`` and the reason, never a
   number (LBS-07).
-* ``Calibration`` (``lbs-calibration@1.2.0``): the prototype's content records verbatim, with their approval
+* ``Calibration`` (``lbs-calibration@1.3.0``): the prototype's content records verbatim, with their approval
   metadata, the mandate policy figures and, from 1.1.0 on, the optional ``corrections`` block that says which
-  prototype behaviours the calibration corrects (LBS-24; from 1.2.0 on, the three of LBS-28 as well). Older
-  payloads are still read: a ``lbs-calibration@1.0.0`` payload (the seed 1.0.0) has no corrections block and so
-  reproduces the prototype; a ``lbs-calibration@1.1.0`` payload names the four corrections of LBS-24 only.
+  prototype behaviours the calibration corrects (LBS-24; from 1.2.0 on, the three of LBS-28 as well); from 1.3.0
+  on, the optional ``real_view`` block (LBS-31): the long-run inflation assumption per currency and the
+  plausibility ceiling of a required return by risk level. Older payloads are still read: a
+  ``lbs-calibration@1.0.0`` payload (the seed 1.0.0) has no corrections block and so reproduces the prototype; a
+  ``lbs-calibration@1.1.0`` payload names the four corrections of LBS-24 only; a ``lbs-calibration@1.2.0`` payload
+  has no real view.
+
+**Additive fields are left out when unset.** The fields added for the nominal and real view (LBS-31 to LBS-35)
+are ``None`` under a calibration without the ``real_view`` block and are then left out of the serialised sheet,
+so a sheet under 1.0.0 to 1.3.0 keeps its bytes and its artefact id.
 
 Mirrored, never imported (Engine Building Guide section 1): the bucket vocabularies and the bound-source rule
 of ``pcp-mandate@1.0.0`` (Optimizer ``pcp``, contracts.py), which the mandate proposal is shaped to.
@@ -29,9 +36,9 @@ from __future__ import annotations
 import math
 import re
 from datetime import date
-from typing import Any, Literal, Optional
+from typing import Any, ClassVar, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer, model_validator
 
 N_STATES = 25
 
@@ -39,7 +46,7 @@ CONTRACT_VERSIONS: dict[str, str] = {
     "LifeBalanceSheetRequest": "lbs-request@1.0.0",
     "LifeBalanceSheet": "lbs-balance-sheet@1.0.0",
     "ValidationReport": "lbs-validation@1.0.0",
-    "Calibration": "lbs-calibration@1.2.0",
+    "Calibration": "lbs-calibration@1.3.0",
     # The shape the mandate proposal mirrors (Optimizer pcp). Mirrored, not imported.
     "Mandate(pcp)": "pcp-mandate@1.0.0",
 }
@@ -115,6 +122,22 @@ def _finite(value: Optional[float], what: str) -> Optional[float]:
 
 class _Frozen(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class _Additive(_Frozen):
+    """A model that gained optional fields after artefacts were stored: each field named in ``_additive`` is left
+    out of the serialised form while it is ``None``, so an artefact without it keeps its bytes (LBS-35)."""
+
+    _additive: ClassVar[tuple[str, ...]] = ()
+
+    @model_serializer(mode="wrap")
+    def _leave_out_unset_additive_fields(self, handler: Any) -> Any:
+        data = handler(self)
+        if isinstance(data, dict):
+            for name in self._additive:
+                if data.get(name) is None:
+                    data.pop(name, None)
+        return data
 
 
 # ---------------------------------------------------------------------------
@@ -258,6 +281,10 @@ class Goal(_Frozen):
     #: Optional and additive (LBS-29): the stated shares of all goals sum to at most 1 (a rest may go to no goal
     #: in the request); a goal without one has not said. Read from calibration 1.3.0 on.
     contribution_share: Optional[float] = Field(default=None, ge=0, le=1)
+    #: Whether ``target_amount`` is in today's francs (the purchasing power of ``as_of``) or in the francs of the
+    #: target date. Optional and additive (LBS-31); a missing basis means ``today``, the owner's decision 7 of
+    #: 29.09.2026, and lbs inflates the amount to the target date. Read from calibration 1.4.0 on.
+    amount_basis: Optional[Literal["today", "future"]] = None
 
     @field_validator("goal_id")
     @classmethod
@@ -305,6 +332,10 @@ class MandateRequest(_Frozen):
     #: required return and the target curve: an absent contribution is a gap, never zero; a stated 0 is 0.
     annual_contribution: Optional[float] = Field(default=None, ge=0)
     name: Optional[str] = None
+    #: Whether the yearly contribution rises with prices (the consumer app's "steigt der Betrag mit der
+    #: Teuerung?"). Optional and additive (LBS-31); missing means fixed in francs, the owner's decision 9. Read
+    #: from calibration 1.4.0 on.
+    contribution_indexed: Optional[bool] = None
 
 
 class LifeBalanceSheetRequest(_Frozen):
@@ -438,11 +469,72 @@ LATER_CORRECTIONS: tuple[str, ...] = ("human_capital_is_never_free_wealth", "zer
                                       "contribution_is_split_by_goal_share")
 
 
+#: The currencies lbs carries an inflation assumption for (decision 3: the reporting currency's index).
+INFLATION_CURRENCIES: tuple[str, ...] = ("CHF", "EUR", "USD")
+
+
+class InflationAssumption(_Frozen):
+    """The long-run expected inflation of one currency: a simple annual rate, with where it comes from. lbs reads
+    no engine at run time; the figure is the calibration's (LBS-32)."""
+
+    annual_rate: float
+    #: The price index the rate describes (decision 3).
+    index: str
+    #: How the figure was obtained, in one sentence a reader can repeat.
+    source: str
+    #: What else the figure was checked against (the central bank's target).
+    cross_check: str = ""
+
+    @field_validator("annual_rate")
+    @classmethod
+    def _band(cls, value: float) -> float:
+        if not math.isfinite(value) or not (-0.20 <= value <= 1.00):
+            raise ValueError("an inflation assumption outside -20 % to +100 % a year is not computable (decision 4)")
+        return value
+
+
+class PlausibilityRow(_Frozen):
+    """One row of the plausibility table: the most a portfolio at this risk level can reasonably be planned to
+    earn, as a real annual return (simple, decimal)."""
+
+    risk_level: float = Field(ge=0.0, le=1.0)
+    real_return: float
+
+
+class RealViewPolicy(_Frozen):
+    """The figures the nominal and real view needs (LBS-31 to LBS-34). Present from calibration 1.4.0 on; a
+    calibration without it computes as before, in the stated francs throughout."""
+
+    inflation: dict[str, InflationAssumption]
+    #: Decision 4: inside this band a real figure is ``measured``, outside it (up to the computable band)
+    #: ``extrapolated``.
+    measured_band: tuple[float, float] = (-0.10, 0.20)
+    #: The plausibility ceiling by risk level, interpolated linearly between rows (LBS-34).
+    plausibility: tuple[PlausibilityRow, ...]
+    plausibility_source: str
+    #: The levers search a longer horizon up to this many years.
+    lever_horizon_limit_years: float = Field(default=100.0, gt=0)
+
+    @model_validator(mode="after")
+    def _rows(self) -> "RealViewPolicy":
+        levels = [r.risk_level for r in self.plausibility]
+        if len(levels) < 2 or levels != sorted(set(levels)) or levels[0] != 0.0 or levels[-1] != 1.0:
+            raise ValueError("the plausibility table runs from risk level 0 to 1 in strictly rising rows")
+        reals = [r.real_return for r in self.plausibility]
+        if reals != sorted(reals):
+            raise ValueError("the plausibility ceiling does not fall as the risk level rises")
+        missing = sorted(set(INFLATION_CURRENCIES) - set(self.inflation))
+        if missing:
+            raise ValueError(f"the real view lacks an inflation assumption for {missing}")
+        return self
+
+
 class Calibration(_Frozen):
     #: 1.0.0 is the seed's contract (no corrections block); 1.1.0 adds the optional block with the four
-    #: corrections of LBS-24; 1.2.0 adds the three of LBS-28 to it. All three are read.
-    contract_version: Literal["lbs-calibration@1.0.0", "lbs-calibration@1.1.0",
-                              "lbs-calibration@1.2.0"] = "lbs-calibration@1.2.0"
+    #: corrections of LBS-24; 1.2.0 adds the three of LBS-28 to it; 1.3.0 adds the optional ``real_view``
+    #: block (LBS-31). All four are read.
+    contract_version: Literal["lbs-calibration@1.0.0", "lbs-calibration@1.1.0", "lbs-calibration@1.2.0",
+                              "lbs-calibration@1.3.0"] = "lbs-calibration@1.3.0"
     version: str
     parent_version: Optional[str] = None
     note: str = ""
@@ -452,6 +544,8 @@ class Calibration(_Frozen):
     policy: MandatePolicy
     #: ``None``: the prototype's behaviour throughout, kept selectable for golden fidelity (LBS-24).
     corrections: Optional[Corrections] = None
+    #: ``None``: no real view; goal amounts are read in the francs they are stated in, as before (LBS-31).
+    real_view: Optional[RealViewPolicy] = None
 
     @field_validator("version")
     @classmethod
@@ -475,6 +569,8 @@ class Calibration(_Frozen):
         if (self.corrections is not None and self.contract_version == "lbs-calibration@1.1.0"
                 and any(getattr(self.corrections, name) is not None for name in LATER_CORRECTIONS)):
             raise ValueError(f"the corrections {list(LATER_CORRECTIONS)} need lbs-calibration@1.2.0")
+        if self.real_view is not None and self.contract_version != "lbs-calibration@1.3.0":
+            raise ValueError("a real_view block needs lbs-calibration@1.3.0")
         return self
 
 
@@ -650,7 +746,12 @@ class CoupleCap(_Frozen):
     lost_to_the_cap_monthly: float
 
 
-class PropertyFinding(_Frozen):
+Basis = Literal["nominal", "real"]
+
+
+class PropertyFinding(_Additive):
+    _additive: ClassVar[tuple[str, ...]] = ("basis",)
+
     goal_id: str
     verdict: Verdict
     price_chf: Optional[float]
@@ -664,6 +765,9 @@ class PropertyFinding(_Frozen):
     levers: tuple[dict[str, Any], ...]
     occupancy_options: tuple[dict[str, Any], ...]
     conventions: str = "property-funding"
+    #: From calibration 1.4.0: ``real``, the equity and affordability tests run on the price in today's francs
+    #: (a ratio test in today's terms; a price stated in future francs is deflated to today first, LBS-31).
+    basis: Optional[Literal["real"]] = None
 
 
 class LiquidityFinding(_Frozen):
@@ -677,7 +781,22 @@ class LiquidityFinding(_Frozen):
     prepared: dict[str, Any]
 
 
-class RetirementFinding(_Frozen):
+class RetirementView(_Frozen):
+    """The retirement comparison in one basis (LBS-31)."""
+
+    basis: Basis
+    #: ``real``: francs of ``as_of`` (today's francs), ``as_at`` null; ``nominal``: francs of ``as_at``.
+    as_at: Optional[date]
+    needs_per_year: Optional[float]
+    ahv_per_year: Optional[float]
+    bvg_per_year: Optional[float]
+    covered_per_year: Optional[float]
+    shortfall_per_year: Optional[float]
+
+
+class RetirementFinding(_Additive):
+    _additive: ClassVar[tuple[str, ...]] = ("basis", "views")
+
     goal_id: str
     verdict: Verdict
     needs_per_year: Optional[float]
@@ -689,6 +808,10 @@ class RetirementFinding(_Frozen):
     covered_per_year: Optional[float]
     shortfall_per_year: Optional[float]
     conventions: tuple[str, ...] = ("ahv-pension", "bvg-projection")
+    #: From calibration 1.4.0: ``real``, the need, the pensions and the verdict above are in today's francs (the
+    #: BVG pension, nominal by law, deflated from its first year), and ``views`` carries both bases (LBS-33).
+    basis: Optional[Literal["real"]] = None
+    views: Optional[dict[str, RetirementView]] = None
 
 
 class GoalObservations(_Frozen):
@@ -728,7 +851,40 @@ class CuratorItem(_Frozen):
     reason: str
 
 
-class MandateProposal(_Frozen):
+class RequiredReturnView(_Frozen):
+    """The mandate's target and required return in one basis (LBS-31). Real = (1 + nominal) / (1 + inflation)
+    - 1, exact (Fisher); in logs, real = nominal - ln(1 + inflation)."""
+
+    basis: Basis
+    #: ``nominal``: francs of the target date; ``real``: today's francs (the purchasing power of ``as_of``).
+    target_chf: Optional[float]
+    #: A decimal annual rate compounded monthly, as ``required_return``; ``None`` when none exists.
+    required_return: Optional[float]
+    #: ``ln(1 + required_return)``, the unit of the target curve.
+    required_return_log: Optional[float]
+
+
+class Plausibility(_Frozen):
+    """Whether a portfolio within the household's risk profile can reasonably earn the required return
+    (LBS-34). ``feasible`` keeps its narrow meaning (a return below the search ceiling exists); this is the
+    judgement a household can act on."""
+
+    judgement: Literal["realistic", "not_realistic", "could_not_be_determined"]
+    #: The real required return judged (simple, decimal a year); ``None`` when none exists below the ceiling.
+    required_return_real: Optional[float]
+    #: The ceiling applied, real and nominal (simple, decimal a year); ``None`` when no single ceiling applies.
+    ceiling_real: Optional[float]
+    ceiling_nominal: Optional[float]
+    #: The risk profile's level the ceiling is read at; ``None`` without a profile.
+    risk_level: Optional[float]
+    ceiling_source: str
+    reason: str
+    #: When not realistic: what reaches the goal at the ceiling (a longer horizon, a higher saving, a smaller
+    #: goal), each computed.
+    levers: tuple[dict[str, Any], ...] = ()
+
+
+class MandateProposal(_Additive):
     """A proposal in the shape of ``pcp-mandate@1.0.0`` for the curator to finalise. Unreleased.
 
     Field names are pcp's. lbs fills what the household determines (the curve's level, the derived
@@ -736,6 +892,8 @@ class MandateProposal(_Frozen):
     field to the curator, listed in ``curator_to_fill``. ``complete`` is true only when nothing is left, which
     in lbs 1.x is never: the universe, the position cap and the regime blend are always the curator's (LBS-12).
     """
+
+    _additive: ClassVar[tuple[str, ...]] = ("basis", "views", "plausibility")
 
     status: Literal["available"] = "available"
     shape: Literal["pcp-mandate@1.0.0"] = "pcp-mandate@1.0.0"
@@ -772,6 +930,13 @@ class MandateProposal(_Frozen):
     complete: bool
     release_state: Literal["unreleased"] = "unreleased"
     notes: tuple[str, ...] = ()
+    # -- the nominal and real view (LBS-31, LBS-34), from calibration 1.4.0; left out before
+    #: The basis of ``target_curve``, ``target_chf`` and ``required_return``: always ``nominal`` (decision 6; the
+    #: optional ``basis`` of ``pcp-mandate@1.0.0``, default nominal).
+    basis: Optional[Literal["nominal"]] = None
+    #: Both views of the target and the required return, side by side: ``nominal`` and ``real``.
+    views: Optional[dict[str, RequiredReturnView]] = None
+    plausibility: Optional[Plausibility] = None
 
     @model_validator(mode="after")
     def _shape(self) -> "MandateProposal":
@@ -789,6 +954,61 @@ class MandateProposal(_Frozen):
         return self
 
 
+class InflationUse(_Frozen):
+    """The inflation assumption a sheet used (LBS-32)."""
+
+    currency: str
+    index: str
+    #: Simple, decimal a year; and ``ln(1 + annual_rate)``, the rate every real figure is deflated by.
+    annual_rate: float
+    log_rate: float
+    #: Decision 4: ``measured`` inside -10 % to +20 % a year, else ``extrapolated``.
+    label: Literal["measured", "extrapolated"]
+    source: str
+
+
+class BasisAmount(_Frozen):
+    basis: Basis
+    amount: Optional[float]
+    #: ``real``: francs of ``as_of``, ``as_at`` null; ``nominal``: francs of ``as_at`` (the goal's target date).
+    as_at: Optional[date]
+    #: Why the amount is absent, when it is.
+    absent_because: Optional[str] = None
+
+
+class GoalBasisView(_Frozen):
+    """One goal's amount in both bases (LBS-31)."""
+
+    goal_id: str
+    kind: GoalKind
+    #: What ``target_amount`` is: ``chf`` (a price or an amount) or ``chf_per_year`` (a retirement need).
+    unit: Literal["chf", "chf_per_year"]
+    amount_basis: Literal["today", "future"]
+    #: False when the request did not say and decision 7's default (today's francs) was applied.
+    amount_basis_stated: bool
+    stated_amount: Optional[float]
+    #: Whole months to the target date, over 12, and the price level there: ``(1 + inflation) ** horizon``.
+    horizon_years: Optional[float]
+    price_level: Optional[float]
+    nominal: BasisAmount
+    real: BasisAmount
+
+
+class RealView(_Frozen):
+    """The nominal and real view of the sheet (LBS-31): the inflation assumption, whether the contribution is
+    indexed, and every goal's amount in both bases. Everything else on the sheet names its own basis."""
+
+    currency: str
+    inflation: InflationUse
+    contribution_indexed: bool
+    #: False when the request did not say and decision 9's default (fixed in francs) was applied.
+    contribution_indexed_stated: bool
+    goals: tuple[GoalBasisView, ...]
+    convention: str = ("log returns throughout: real = nominal - ln(1 + inflation); a simple rate converts "
+                       "exactly as (1 + nominal) / (1 + inflation) - 1. A figure is nominal unless its basis says "
+                       "real; the default view is nominal (decision 6)")
+
+
 class Provenance(_Frozen):
     engine_version: str
     contract_versions: dict[str, str]
@@ -801,8 +1021,10 @@ class Provenance(_Frozen):
     label: Literal["model-derived"] = "model-derived"
 
 
-class LifeBalanceSheet(_Frozen):
+class LifeBalanceSheet(_Additive):
     """The artefact of one run."""
+
+    _additive: ClassVar[tuple[str, ...]] = ("real_view",)
 
     contract_version: Literal["lbs-balance-sheet@1.0.0"] = "lbs-balance-sheet@1.0.0"
     artefact_id: str
@@ -824,6 +1046,8 @@ class LifeBalanceSheet(_Frozen):
     gaps: tuple[Gap, ...]
     provenance: Provenance
     notice: str = NOTICE
+    #: From calibration 1.4.0 (LBS-31); left out before.
+    real_view: Optional[RealView] = None
 
     @model_validator(mode="after")
     def _identity(self) -> "LifeBalanceSheet":

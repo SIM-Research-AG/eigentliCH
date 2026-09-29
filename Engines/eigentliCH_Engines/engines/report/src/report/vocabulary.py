@@ -235,6 +235,17 @@ GAP_INPUTS: tuple[Entry, ...] = (
        "The goal has no date in the future; an investment horizon cannot be determined."),
     _e("annual_contribution", r"^annual_contribution$", "Der jährliche Sparbetrag für das Ziel ist nicht angegeben.",
        "The yearly contribution towards the goal is not stated."),
+    # The real view (lbs LBS-31, REP-27).
+    _e("amount_basis", r"^amount_basis$",
+       "Der Betrag des Ziels ist in künftigen Franken angegeben, aber das Ziel hat kein Datum; in heutigen Franken "
+       "lässt er sich nicht lesen.",
+       "The goal’s amount is stated in future francs, but the goal has no date; it cannot be read in today’s "
+       "francs."),
+    _e("the_need_is_in_future_francs_and_the_goal_has_no_date_to_read_it_in_todays_francs",
+       r"^the_need_is_in_future_francs_and_the_goal_has_no_date_to_read_it_in_todays_francs$",
+       "Der Bedarf ist in künftigen Franken angegeben, aber das Ziel hat kein Datum; in heutigen Franken lässt er "
+       "sich nicht lesen.",
+       "The need is stated in future francs, but the goal has no date; it cannot be read in today’s francs."),
     _e("required_return", r"^required_return$",
        "Das Ziel ist mit keiner plausiblen Rendite erreichbar; die Hebel sind Zeithorizont, Sparbeiträge, "
        "Startvermögen und Zielgrösse, nicht die Allokation.",
@@ -323,6 +334,12 @@ class PcpWarning:
     text: Texts
 
 
+_REAL_NOTE = "real basis: the target curve and every profile are net of inflation"
+_REAL_TEXT = ("Die Renditen dieser Allokation sind real: die Zielkurve und alle Profile sind um die Teuerung "
+              "bereinigt.",
+              "The returns of this allocation are real: the target curve and every profile are net of "
+              "inflation.")
+
 PCP_WARNINGS: tuple[PcpWarning, ...] = (
     PcpWarning("same_esg", "every instrument carries the same ESG score", re.compile(r"same ESG score"),
                {"de": "Alle Bausteine haben dieselbe ESG-Bewertung, deshalb unterscheidet die ESG-Vorgabe nicht "
@@ -358,6 +375,18 @@ PCP_WARNINGS: tuple[PcpWarning, ...] = (
                {"de": "Das erste Verfahren der Optimierung hat nicht zu einer Lösung gefunden; ein Ersatzverfahren "
                       "wurde eingesetzt.",
                 "en": "The optimiser's first method did not reach a solution; a fallback method was used."}),
+    # The real view (pcp PCP-22, REP-28): most specific first, the deflator's labels read from pcp's note.
+    PcpWarning("real_basis_hard_currency", _REAL_NOTE, re.compile(r"^real basis: .*hard-currency fallback"),
+               {"de": _REAL_TEXT[0] + " Für einen Teil der Marktlagen ist in einer harten Währung gerechnet, weil "
+                      "die Teuerung dort ausserhalb des berechenbaren Bereichs liegt.",
+                "en": _REAL_TEXT[1] + " For some market states the figures are computed in a hard currency, because "
+                      "inflation there lies outside the computable band."}),
+    PcpWarning("real_basis_estimated", _REAL_NOTE,
+               re.compile(r"^real basis: .*\b(extrapolated|fallback|not_computable)\b"),
+               {"de": _REAL_TEXT[0] + " Für einen Teil der Marktlagen ist die Teuerung geschätzt, nicht gemessen.",
+                "en": _REAL_TEXT[1] + " For some market states the inflation is estimated, not measured."}),
+    PcpWarning("real_basis", _REAL_NOTE, re.compile(r"^real basis: the target curve"),
+               {"de": _REAL_TEXT[0], "en": _REAL_TEXT[1]}),
 )
 FALLBACK_PCP = {"de": "Die Optimierung meldet einen weiteren Hinweis zu dieser Allokation.",
                 "en": "The optimiser reports a further note on this allocation."}
@@ -494,3 +523,56 @@ PAGE_NOTES: dict[str, Texts] = {
 
 def page_note(key: str, lang: str, **values: str) -> str:
     return PAGE_NOTES[key][lang].format(**values)
+
+
+# ---------------------------------------------------------------------------
+# The basis of return and goal figures (REP-27): nominal or real, always shown
+# ---------------------------------------------------------------------------
+
+#: The header line: what every amount on the page is.
+BASIS_HEADER: dict[str, Texts] = {
+    "nominal": {"de": "Alle Beträge nominal.", "en": "All amounts nominal."},
+    "real": {"de": "Alle Beträge in heutigen Franken (real).", "en": "All amounts in today’s francs (real)."},
+}
+#: The word printed next to every return and goal figure.
+BASIS_MARK: dict[str, Texts] = {
+    "nominal": {"de": "nominal", "en": "nominal"},
+    "real": {"de": "real", "en": "real"},
+}
+#: The header's second line in a real report that still carries a figure lbs gives in nominal terms only (a
+#: BVG projection, a liquidity gap, a contribution fixed in francs).
+BASIS_NOMINAL_KEPT: Texts = {
+    "de": "Wo «nominal» steht, ist die Zahl nicht teuerungsbereinigt.",
+    "en": "A figure marked “nominal” is not adjusted for inflation.",
+}
+#: The basis of an Allocation's returns, as the allocation section states it.
+BASIS_ALLOCATION: dict[str, Texts] = {
+    "nominal": {"de": "nominal", "en": "nominal"},
+    "real": {"de": "real, teuerungsbereinigt", "en": "real, net of inflation"},
+}
+BASIS_ALLOCATION_LABEL: Texts = {"de": "Grundlage der Renditen", "en": "Basis of the returns"}
+#: What the model is told about the marked figures (part of the prompt and its hash).
+BASIS_PROMPT: dict[str, Texts] = {
+    "nominal": {"de": " Zahlen mit dem Vermerk «nominal» sind nicht teuerungsbereinigt.",
+                "en": " Figures marked “nominal” are not adjusted for inflation."},
+    "real": {"de": " Zahlen mit dem Vermerk «real» sind teuerungsbereinigt, in heutigen Franken; nenne sie so.",
+             "en": " Figures marked “real” are adjusted for inflation, in today's francs; call them that."},
+}
+
+
+def basis_mark(basis: str, lang: str) -> str:
+    return BASIS_MARK[basis][lang]
+#: The words of lbs's real view (REP-27): its inflation assumption, the contribution, the plausibility.
+BASIS_WORDS: dict[str, Texts] = {
+    "inflation": {"de": "Teuerungsannahme pro Jahr", "en": "Inflation assumed a year"},
+    "inflation_label": {"de": "Teuerungsannahme", "en": "Inflation assumption"},
+    "measured": {"de": "gemessen", "en": "measured"},
+    "extrapolated": {"de": "über den gemessenen Bereich hinaus geschätzt", "en": "estimated beyond the measured range"},
+    "indexed": {"de": "Beitrag steigt mit der Teuerung", "en": "Contribution rises with prices"},
+    "plausibility": {"de": "Nötige Rendite, gemessen am Risikoprofil", "en": "Required return, given the risk profile"},
+}
+JUDGEMENT: dict[str, Texts] = {
+    "realistic": {"de": "realistisch", "en": "realistic"},
+    "not_realistic": {"de": "nicht realistisch", "en": "not realistic"},
+    "could_not_be_determined": {"de": "nicht bestimmbar", "en": "could not be determined"},
+}

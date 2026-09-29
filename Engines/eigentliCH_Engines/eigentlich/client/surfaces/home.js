@@ -6,6 +6,7 @@
 import { api, detailText } from '../app/api.js';
 import { amount, button, clear, h, notice, when, put } from '../app/dom.js';
 import { t } from '../app/i18n.js';
+import { basisLabel, basisSwitch, currentBasis, pct } from '../app/basis.js';
 
 export function showValue(value, L) {
   if (value === null || value === undefined) return '';
@@ -74,6 +75,45 @@ export function totals(sheet, L) {
     h('th', { text: t(k, L) }),
     h('td', { class: 'num', text: v === null || v === undefined ? t('sheet.open', L) : `CHF ${amount(v, L)}` }),
   ])));
+}
+
+/** A date (ISO) as 31.12.2040. */
+function day(iso, L) {
+  if (!iso) return '';
+  return new Intl.DateTimeFormat(L === 'en' ? 'en-GB' : 'de-CH', { dateStyle: 'medium' }).format(new Date(`${iso}T12:00:00`));
+}
+
+/** The goals in the chosen basis, from lbs's real view (LBS-31), and the mandate's required return, each with
+ *  its basis beside it. Real is today's francs; nominal is the francs of the goal's date. */
+export function goalFigures(views, basis, L) {
+  const box = h('div', { class: 'goal-figures', 'data-basis': basis });
+  const shown = basisLabel(basis, L);
+  if (basis === 'real' && !(views && views.available)) {
+    put(box, notice(t('basis.not_available', L), 'calm'));
+    return box;
+  }
+  const rows = [];
+  for (const g of (views && views.goals) || []) {
+    const v = g[basis] || {};
+    const unit = g.unit === 'chf_per_year' ? ` ${t('unit.per_year', L)}` : '';
+    const figure = v.amount === null || v.amount === undefined ? t('sheet.open', L) : `CHF ${amount(v.amount, L)}${unit}`;
+    const where = basis === 'real' ? shown : (v.as_at ? t('basis.as_at', L, { date: day(v.as_at, L) }) : shown);
+    rows.push(h('tr', {}, [h('th', { text: g.name || t('gap.this_goal', L) }),
+      h('td', { class: 'num', text: figure }), h('td', { class: 'small muted', text: where })]));
+  }
+  const m = views && views.mandate;
+  if (m && m[basis]) {
+    const rr = m[basis].required_return;
+    rows.push(h('tr', {}, [h('th', { text: t('home.required_return', L, { name: m.name || t('gap.this_goal', L) }) }),
+      h('td', { class: 'num', text: rr === null || rr === undefined ? t('home.required_none', L) : `${pct(rr, L)} ${t('unit.per_year', L)}` }),
+      h('td', { class: 'small muted', text: shown })]));
+  }
+  if (!rows.length) return box;
+  put(box, h('h3', { text: t('home.goals_title', L) }), h('table', { class: 'figures' }, rows));
+  if (basis === 'real' && views.inflation) {
+    put(box, h('p', { class: 'small muted', text: t('basis.inflation', L, { rate: pct(views.inflation.annual_rate, L) }) }));
+  }
+  return box;
 }
 
 const ACTIONS = { plan: '#/plan', onboarding: '#/q/onboarding', intake: '#/q/intake' };
@@ -153,10 +193,16 @@ export async function render(main, { language, client, go }) {
 
   // -- the role grid from the lbs sheet
   const sheetBox = h('div');
-  put(main, h('h2', { text: t('home.grid_title', L) }), h('p', { class: 'muted', text: t('home.grid_lede', L) }), sheetBox);
+  const switchSlot = h('div');
+  put(main, h('h2', { text: t('home.grid_title', L) }), h('p', { class: 'muted', text: t('home.grid_lede', L) }), switchSlot, sheetBox);
   let poll = null;
+  let last = null;
   function drawSheet(bs) {
+    last = bs;
     clear(sheetBox);
+    clear(switchSlot);
+    put(switchSlot, basisSwitch(L, () => drawSheet(last)));
+    const basis = currentBasis();
     if (poll) { clearTimeout(poll); poll = null; }
     // An automatic run is on its way (EIG-47): say so, and fetch the sheet again when it is done.
     if (bs.pending) {
@@ -181,7 +227,9 @@ export async function render(main, { language, client, go }) {
         h('p', { class: 'small muted', text: t('home.sheet_as_of', L, { date: s.as_of, when: when(bs.made_at, L), id: s.artefact_id }) }),
         h('p', { class: 'small', text: t('home.sheet_age', L, { age: age(bs.age_s, L) }) }),
         bs.plan_changed_since && !bs.pending ? notice(t('home.sheet_stale', L), 'calm') : null,
+        basis === 'real' ? h('p', { class: 'small muted', text: t('basis.today_same', L) }) : null,
         sheetGrid(s, L), totals(s, L),
+        goalFigures(bs.views, basis, L),
         missingList(bs.missing || [], L, go),
         h('p', { class: 'small muted', text: t('notice', L) }),
       );

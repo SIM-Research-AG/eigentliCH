@@ -245,17 +245,27 @@ class _Maker:
                           path=_pointer(*path))
 
     def add(self, fact_id: str, section: str, value: Any, unit: str, path: Sequence[Any], *,
-            text: Optional[str] = None, display: Optional[str] = None, derivation: Optional[str] = None) -> None:
+            text: Optional[str] = None, display: Optional[str] = None, derivation: Optional[str] = None,
+            basis: Optional[str] = None) -> None:
         if value is None:
             return
         if isinstance(value, float) and not math.isfinite(value):
             raise EngineError(f"{self.engine} {self.artefact_id}: {_pointer(*path)} is not finite")
         self.facts.append(Fact(fact_id=fact_id, section=section, label=text or label(fact_id, self.lang),
                                value=value, unit=unit, display=display or fmt(value, unit, self.lang),
-                               sources=(self.src(*path),), derivation=derivation))
+                               sources=(self.src(*path),), derivation=derivation, basis=basis))
 
 
-def extract_pcp(a: Allocation, cal: Calibration, lang: str) -> list[Fact]:
+def allocation_basis(a: Allocation) -> str:
+    """The basis of an Allocation's returns: its ``basis``, or ``nominal`` for one without it (REP-28)."""
+    return a.basis or "nominal"
+
+
+def extract_pcp(a: Allocation, cal: Calibration, lang: str, basis: str = "nominal") -> list[Fact]:
+    """pcp's figures. ``basis`` is the report's; the service has refused an Allocation of another basis before
+    this is called (REP-28), so here it is only checked again."""
+    if allocation_basis(a) != basis:
+        raise EngineError(f"pcp allocation {a.artefact_id} is {allocation_basis(a)}, the report is asked in {basis}")
     m = _Maker("pcp", a.artefact_id, a.contract_version, lang)
     generated = a.mandate_name.startswith("lbs-") or voc.looks_internal(a.mandate_name)
     m.add("pcp.mandate_name", "allocation", a.mandate_name, "text", ["mandate_name"],
@@ -264,6 +274,9 @@ def extract_pcp(a: Allocation, cal: Calibration, lang: str) -> list[Fact]:
     m.add("pcp.release_state", "allocation", a.release_state, "text", ["release_state"],
           display=RELEASE[lang].get(a.release_state, a.release_state))
     m.add("pcp.budget_met", "allocation", a.budget_met, "flag", ["budget_met"])
+    if a.basis is not None:
+        m.add("pcp.basis", "allocation", a.basis, "text", ["basis"], text=voc.BASIS_ALLOCATION_LABEL[lang],
+              display=voc.BASIS_ALLOCATION[a.basis][lang])
     held = [i for i in a.instruments if i.weight >= cal.position_min_weight]
     m.add("pcp.positions_held", "allocation", float(len(held)), "count", ["instruments"],
           derivation=f"count of instruments with weight >= {cal.position_min_weight}")
@@ -384,8 +397,46 @@ def _gap_subject(section: str, input_: str, names: dict[str, str], lang: str) ->
     return voc.TOPIC.get(head, voc.TOPIC["other"])[lang]
 
 
-def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str) -> list[Fact]:
+#: One figure in one basis: ``(value, the basis lbs states for it, its path)``.
+Figure = tuple[Optional[float], str, list[Any]]
+
+
+def _goal_figure(m: "_Maker", fact_id: str, section: str, views: dict[str, Figure], unit: str, basis: str, *,
+                 text: str, digits: Optional[int] = None) -> None:
+    """A return or goal figure (REP-27), marked with its basis. ``views`` holds the figure in each basis lbs
+    gives it in, each with the basis lbs states for it. In nominal, the nominal figure. In real, the real figure;
+    a figure lbs has no real view of (a liquidity gap, a fixed contribution) is shown as lbs states it, nominal,
+    and marked so. A figure whose stated basis is not the one it is read as is refused: a report never mixes
+    nominal and real figures under one label."""
+    want = basis if basis in views else "nominal"
+    fig = views.get(want)
+    if fig is None:
+        if views:
+            raise EngineError(f"lbs sheet {m.artefact_id} gives {fact_id} in {' and '.join(sorted(views))} only, "
+                              f"not in {basis}")
+        return
+    value, stated, path = fig
+    if stated != want:
+        raise EngineError(f"lbs sheet {m.artefact_id}: {_pointer(*path)} is {stated}, read as {want}; a report "
+                          "never mixes nominal and real figures")
+    display = _share(value, m.lang, digits) if (digits is not None and value is not None) else None
+    m.add(fact_id, section, value, unit, path, text=text, display=display, basis=stated)
+
+
+def _views(top: Figure, more: Iterable[tuple[str, Figure]]) -> dict[str, Figure]:
+    """The top-level figure first (so a nominal report cites the paths it always cited), then lbs's views."""
+    out: dict[str, Figure] = {top[1]: top}
+    for key, fig in more:
+        out.setdefault(key, fig)
+    return out
+
+
+def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "nominal") -> list[Fact]:
     m = _Maker("lbs", s.artefact_id, s.contract_version, lang)
+    rv = s.real_view
+    if basis == "real" and rv is None:
+        raise EngineError(f"lbs sheet {s.artefact_id} has no real view; a real report needs one")
+    goal_views = {g.goal_id: (k, g) for k, g in enumerate(rv.goals)} if rv is not None else {}
     w = WORDS_LBS[lang]
     names = lbs_subjects(s, lang)
     h = s.household
@@ -442,13 +493,14 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str) -> list[Fact]:
                   text=f"{who}: {w['bvg_opening']}")
             m.add(f"{base}.bvg.to_age", "pensions", float(b.to_age), "count", ["pensions", j, "bvg", "to_age"],
                   text=f"{who}: {w['bvg_to_age']}")
+            # A projection lbs makes in nominal terms only: marked nominal in either basis (REP-27).
             m.add(f"{base}.bvg.closing", "pensions", b.closing_balance, "chf", ["pensions", j, "bvg", "closing_balance"],
-                  text=f"{who}: {w['bvg_closing']}")
+                  text=f"{who}: {w['bvg_closing']}", basis="nominal")
             m.add(f"{base}.bvg.conversion", "pensions", b.conversion_rate, "share",
                   ["pensions", j, "bvg", "conversion_rate"], text=f"{who}: {w['bvg_conversion']}",
                   display=_share(b.conversion_rate, lang, 2))
             m.add(f"{base}.bvg.yearly", "pensions", b.yearly_pension, "chf_per_year",
-                  ["pensions", j, "bvg", "yearly_pension"], text=f"{who}: {w['bvg_yearly']}")
+                  ["pensions", j, "bvg", "yearly_pension"], text=f"{who}: {w['bvg_yearly']}", basis="nominal")
         else:
             _not_available(m, f"{base}.bvg", "pensions", p.bvg.reason, ["pensions", j, "bvg", "reason"],
                            f"{who}: {w['bvg']}")
@@ -465,26 +517,34 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str) -> list[Fact]:
         goal = names[f"goal:{r.goal_id}"]
         m.add(f"{base}.verdict", "retirement", r.verdict, "text", ["retirement", j, "verdict"],
               text=f"{goal}: {w['verdict']}", display=VERDICT[lang].get(r.verdict, r.verdict))
-        m.add(f"{base}.needs", "retirement", r.needs_per_year, "chf_per_year", ["retirement", j, "needs_per_year"],
-              text=f"{goal}: {w['needs']}")
-        m.add(f"{base}.covered", "retirement", r.covered_per_year, "chf_per_year",
-              ["retirement", j, "covered_per_year"], text=f"{goal}: {w['covered']}")
-        m.add(f"{base}.shortfall", "retirement", r.shortfall_per_year, "chf_per_year",
-              ["retirement", j, "shortfall_per_year"], text=f"{goal}: {w['shortfall']}")
+        for key, field in (("needs", "needs_per_year"), ("covered", "covered_per_year"),
+                           ("shortfall", "shortfall_per_year")):
+            # From lbs calibration 1.4.0 the top-level figures are real and ``views`` carries both bases.
+            top = "real" if r.basis == "real" else "nominal"
+            views = _views((getattr(r, field), top, ["retirement", j, field]),
+                           ((b, (getattr(v, field), v.basis, ["retirement", j, "views", b, field]))
+                            for b, v in (r.views or {}).items()))
+            _goal_figure(m, f"{base}.{key}", "retirement", views, "chf_per_year", basis, text=f"{goal}: {w[key]}")
 
     for j, p in enumerate(s.property):
         base = f"lbs.property.{p.goal_id}"
         goal = names[f"goal:{p.goal_id}"]
         m.add(f"{base}.verdict", "property", p.verdict, "text", ["property", j, "verdict"],
               text=f"{goal}: {w['verdict']}", display=VERDICT[lang].get(p.verdict, p.verdict))
-        m.add(f"{base}.price", "property", p.price_chf, "chf", ["property", j, "price_chf"], text=f"{goal}: {w['price']}")
+        top = "real" if p.basis == "real" else "nominal"
+        k, gv = goal_views.get(p.goal_id, (None, None))
+        views = _views((p.price_chf, top, ["property", j, "price_chf"]),
+                       ((b, (getattr(gv, b).amount, getattr(gv, b).basis, ["real_view", "goals", k, b, "amount"]))
+                        for b in (("nominal", "real") if gv is not None else ())))
+        _goal_figure(m, f"{base}.price", "property", views, "chf", basis, text=f"{goal}: {w['price']}")
         m.add(f"{base}.target_date", "property", p.target_date, "date", ["property", j, "target_date"],
               text=f"{goal}: {w['target_date']}")
 
     for j, q in enumerate(s.liquidity):
         base = f"lbs.liquidity.{q.goal_id}"
         goal = names[f"goal:{q.goal_id}"]
-        m.add(f"{base}.gap", "liquidity", q.gap_chf, "chf", ["liquidity", j, "gap_chf"], text=f"{goal}: {w['gap']}")
+        _goal_figure(m, f"{base}.gap", "liquidity", {"nominal": (q.gap_chf, "nominal", ["liquidity", j, "gap_chf"])},
+                     "chf", basis, text=f"{goal}: {w['gap']}")
         m.add(f"{base}.due", "liquidity", q.due_date, "date", ["liquidity", j, "due_date"], text=f"{goal}: {w['due']}")
         m.add(f"{base}.reason", "liquidity", q.reason, "text", ["liquidity", j, "reason"], text=goal,
               display=voc.finding_text(q.reason, lang))
@@ -501,18 +561,31 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str) -> list[Fact]:
         generated = mp.name == f"lbs-{mp.goal_id}" or voc.looks_internal(mp.name)
         m.add("lbs.mandate.name", "mandate", mp.name, "text", ["mandate_proposal", "name"], text=w["m_name"],
               display=names.get(f"goal:{mp.goal_id}", voc.UNNAMED[lang]) if generated else None)
-        m.add("lbs.mandate.target", "mandate", mp.target_chf, "chf", ["mandate_proposal", "target_chf"],
-              text=w["m_target"])
+        def mandate_views(field: str) -> dict[str, Figure]:
+            return _views((getattr(mp, field), "nominal", ["mandate_proposal", field]),
+                          ((b, (getattr(v, field), v.basis, ["mandate_proposal", "views", b, field]))
+                           for b, v in (mp.views or {}).items()))
+
+        _goal_figure(m, "lbs.mandate.target", "mandate", mandate_views("target_chf"), "chf", basis, text=w["m_target"])
         m.add("lbs.mandate.horizon", "mandate", mp.goal_horizon_years, "number",
               ["mandate_proposal", "goal_horizon_years"], text=w["m_horizon"])
         m.add("lbs.mandate.drawable", "mandate", mp.drawable_chf, "chf", ["mandate_proposal", "drawable_chf"],
               text=w["m_drawable"])
-        m.add("lbs.mandate.contribution", "mandate", mp.annual_contribution, "chf_per_year",
-              ["mandate_proposal", "annual_contribution"], text=w["m_contribution"])
-        if mp.required_return is not None:
-            m.add("lbs.mandate.required_return", "mandate", mp.required_return, "share",
-                  ["mandate_proposal", "required_return"], text=w["m_required"],
-                  display=_share(mp.required_return, lang, 2))
+        # The contribution is this year's francs; it stays constant in today's francs only when it rises with
+        # prices (lbs ``contribution_indexed``), so it is real then and nominal otherwise. An indexed
+        # contribution's first payment is the same amount in both views, so it is stated in the report's basis.
+        indexed = rv is not None and rv.contribution_indexed
+        paid_basis = basis if indexed else "nominal"
+        paid: Figure = (mp.annual_contribution, paid_basis, ["mandate_proposal", "annual_contribution"])
+        _goal_figure(m, "lbs.mandate.contribution", "mandate", {paid_basis: paid}, "chf_per_year",
+                     paid_basis, text=w["m_contribution"])
+        _goal_figure(m, "lbs.mandate.required_return", "mandate", mandate_views("required_return"), "share", basis,
+                     text=w["m_required"], digits=2)
+        if mp.plausibility is not None:
+            judged = mp.plausibility.judgement
+            m.add("lbs.mandate.plausibility", "mandate", judged, "text",
+                  ["mandate_proposal", "plausibility", "judgement"], text=voc.BASIS_WORDS["plausibility"][lang],
+                  display=voc.JUDGEMENT.get(judged, voc.JUDGEMENT["could_not_be_determined"])[lang])
         m.add("lbs.mandate.feasible", "mandate", mp.feasible, "flag", ["mandate_proposal", "feasible"],
               text=w["m_feasible"])
         m.add("lbs.mandate.complete", "mandate", mp.complete, "flag", ["mandate_proposal", "complete"],
@@ -521,6 +594,16 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str) -> list[Fact]:
               text=w["m_release"], display=RELEASE[lang].get(mp.release_state, mp.release_state))
     else:
         _not_available(m, "lbs.mandate", "mandate", mp.reason, ["mandate_proposal", "reason"], w["mandate"])
+    if basis == "real" and rv is not None:
+        # What the real figures rest on (REP-27): lbs's inflation assumption and whether the saving rises with it.
+        bw = voc.BASIS_WORDS
+        m.add("lbs.real.inflation", "mandate", rv.inflation.annual_rate, "share",
+              ["real_view", "inflation", "annual_rate"], text=bw["inflation"][lang],
+              display=_share(rv.inflation.annual_rate, lang, 2))
+        m.add("lbs.real.inflation_label", "mandate", rv.inflation.label, "text", ["real_view", "inflation", "label"],
+              text=bw["inflation_label"][lang], display=bw[rv.inflation.label][lang])
+        m.add("lbs.real.contribution_indexed", "mandate", rv.contribution_indexed, "flag",
+              ["real_view", "contribution_indexed"], text=bw["indexed"][lang])
 
     for n, g in enumerate(s.gaps):
         m.add(f"lbs.gap.{n}", "limits", f"{g.input}: {g.reason}", "text", ["gaps", n, "reason"],
@@ -537,20 +620,26 @@ class Extractor:
     mirror: type[BaseModel]
     #: The upstream path an artefact is read from.
     path: Callable[[str], str]
-    extract: Callable[[Any, Calibration, str], list[Fact]]
+    #: ``(artefact, calibration, language, basis)`` to facts (the basis since REP-27).
+    extract: Callable[[Any, Calibration, str, str], list[Fact]]
     #: The client the artefact is about, when it says; checked against the request's client_ref.
     client_ref: Callable[[Any], Optional[str]]
     as_of: Callable[[Any], str]
+    #: The bases the artefact's figures can be read in: an Allocation has one (REP-28), an lbs sheet both when
+    #: it carries a real view (REP-27).
+    bases: Callable[[Any], frozenset[str]] = lambda a: frozenset({"nominal"})
 
 
 EXTRACTORS: dict[str, Extractor] = {
     "pcp": Extractor(engine="pcp", contract_version="pcp-allocation@1.0.0", mirror=Allocation,
                      path=lambda aid: f"/allocation/{aid}", extract=extract_pcp,
                      # pcp's ``client`` is a free label on the mandate, not an identifier: not checked (REP-10).
-                     client_ref=lambda a: None, as_of=lambda a: a.date),
+                     client_ref=lambda a: None, as_of=lambda a: a.date,
+                     bases=lambda a: frozenset({allocation_basis(a)})),
     "lbs": Extractor(engine="lbs", contract_version="lbs-balance-sheet@1.0.0", mirror=LifeBalanceSheet,
                      path=lambda aid: f"/artefacts/{aid}", extract=extract_lbs,
-                     client_ref=lambda s: s.client_ref, as_of=lambda s: s.as_of),
+                     client_ref=lambda s: s.client_ref, as_of=lambda s: s.as_of,
+                     bases=lambda s: frozenset({"nominal", "real"} if s.real_view is not None else {"nominal"})),
 }
 
 
@@ -649,11 +738,11 @@ def change_facts(previous: Report, current: Sequence[Fact], lang: str) -> list[F
         arrow = f"{fmt(old_v, f.unit, lang)} → {fmt(new_v, f.unit, lang)}"
         out.append(Fact(fact_id=f"change.{f.fact_id}", section="changes", label=f.label, value=new_v, unit=f.unit,
                         display=arrow, previous=old_v, sources=(prev_src(n),) + f.sources,
-                        derivation=f"current value against report {previous.artefact_id}"))
+                        derivation=f"current value against report {previous.artefact_id}", basis=f.basis))
         delta = new_v - old_v
         out.append(Fact(fact_id=f"delta.{f.fact_id}", section="changes", label=f.label, value=delta, previous=old_v,
                         unit=f.unit, display=fmt_change(delta, f.unit, lang), sources=(prev_src(n),) + f.sources,
-                        derivation="current minus previous"))
+                        derivation="current minus previous", basis=f.basis))
     whole = FactSource(engine="report", artefact_id=previous.artefact_id, contract_version=previous.contract_version,
                        path="/facts")
     out.append(Fact(fact_id="changes.unchanged", section="changes", label=label("changes.unchanged", lang),
@@ -674,7 +763,7 @@ def change_facts(previous: Report, current: Sequence[Fact], lang: str) -> list[F
 # Prose: the prompt. A change to any text here is a new PROMPT_VERSION; its hash enters the key.
 # ---------------------------------------------------------------------------
 
-PROMPT_VERSION = "report-prompt@1.0.0"
+PROMPT_VERSION = "report-prompt@1.1.0"
 
 SYSTEM = {
     "de": (
@@ -713,23 +802,33 @@ SYSTEM = {
 }
 
 PROMPT = {
-    "de": ("{ask}\n\nAlle Beträge sind Schweizer Franken. Schreibe zwei bis drei Sätze Fliesstext, beginne direkt "
+    "de": ("{ask}\n\nAlle Beträge sind Schweizer Franken.{basis} Schreibe zwei bis drei Sätze Fliesstext, beginne direkt "
            "mit dem ersten Satz, ohne Überschrift und ohne diese Anweisung zu wiederholen.\n\nDie Zahlen zu "
            "\u00ab{title}\u00bb:\n{facts}\n"),
-    "en": ("{ask}\n\nAll amounts are Swiss francs. Write two to three sentences of plain prose, start directly with "
+    "en": ("{ask}\n\nAll amounts are Swiss francs.{basis} Write two to three sentences of plain prose, start directly with "
            "the first sentence, with no heading and without repeating this instruction.\n\nThe figures for "
            "\u201c{title}\u201d:\n{facts}\n"),
 }
 
 
 def prompt_hash() -> str:
-    return content_id("PRM", {"version": PROMPT_VERSION, "system": SYSTEM, "prompt": PROMPT})
+    return content_id("PRM", {"version": PROMPT_VERSION, "system": SYSTEM, "prompt": PROMPT,
+                              "basis": voc.BASIS_PROMPT, "mark": voc.BASIS_MARK})
+
+
+def fact_line(f: Fact, lang: str) -> str:
+    """One figure as the model sees it: its label, its printed value and, for a return or goal figure, its
+    basis in brackets (REP-27)."""
+    mark = f" ({voc.basis_mark(f.basis, lang)})" if f.basis else ""
+    return f"- {f.label}: {f.display}{mark}"
 
 
 def prose_messages(title: str, facts: Sequence[Fact], ask: str, lang: str) -> list[dict[str, str]]:
-    lines = "\n".join(f"- {f.label}: {f.display}" for f in facts)
+    lines = "\n".join(fact_line(f, lang) for f in facts)
+    bases = sorted({f.basis for f in facts if f.basis})
+    basis = "".join(voc.BASIS_PROMPT[b][lang] for b in bases)
     return [{"role": "system", "content": SYSTEM[lang]},
-            {"role": "user", "content": PROMPT[lang].format(ask=ask, title=title, facts=lines)}]
+            {"role": "user", "content": PROMPT[lang].format(ask=ask, title=title, facts=lines, basis=basis)}]
 
 
 def clean(text: str, lang: str) -> str:

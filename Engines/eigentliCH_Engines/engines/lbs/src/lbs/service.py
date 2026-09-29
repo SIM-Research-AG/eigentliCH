@@ -60,12 +60,16 @@ def content_id(prefix: str, payload: Any) -> str:
 
 def request_hash(request: LifeBalanceSheetRequest) -> str:
     """The request's content, without the calibration choice (which the key carries resolved). A goal's unstated
-    ``contribution_share`` (additive since lbs@1.2.0, LBS-29) is left out, so a request that does not use it
-    hashes as it did before the field existed."""
+    ``contribution_share`` (additive since lbs@1.2.0, LBS-29), ``amount_basis`` and ``mandate.contribution_indexed``
+    (since lbs@1.3.0, LBS-31) are left out, so a request that does not use them hashes as it did before."""
     payload = request.model_dump(mode="json", exclude={"calibration_version"})
     for goal in payload["goals"]:
         if goal.get("contribution_share") is None:
             goal.pop("contribution_share", None)
+        if goal.get("amount_basis") is None:  # lbs@1.3.0, LBS-31
+            goal.pop("amount_basis", None)
+    if payload.get("mandate") is not None and payload["mandate"].get("contribution_indexed") is None:
+        payload["mandate"].pop("contribution_indexed", None)
     return content_id("REQ", payload)
 
 

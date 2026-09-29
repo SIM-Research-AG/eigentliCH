@@ -30,13 +30,13 @@ cd eigentlich
 ..\.venv\Scripts\python -m eigentlich migrate --from <file.db>
 ..\.venv\Scripts\python -m eigentlich show                        # counts, content keys, binds, migrations
 ..\.venv\Scripts\python -m eigentlich align-content --curator <id|email>   # questionnaires aligned to the maps (EIG-44/45)
-..\.venv\Scripts\python -m eigentlich revise-content --curator <id|email>  # intake v3: partner section, no hours_learning (EIG-53/58)
+..\.venv\Scripts\python -m eigentlich revise-content --curator <id|email>  # intake v3 (EIG-53/58), onboarding v3 (EIG-60/61)
 ..\.venv\Scripts\python -m eigentlich fix-encoding [--apply]      # UTF-8 read as a code page: list, then correct (EIG-46)
 ..\.venv\Scripts\python -m eigentlich lbs-backfill [--dry-run]    # one lbs run per client without a sheet (EIG-47)
 ```
 
 `align-content`, `revise-content` and `fix-encoding --apply` were run on the real store on 29.09.2026 (the
-onboarding is at version 2, the intake at version 3, both saved by the owner's curator record;
+onboarding is at version 3, the intake at version 3, both saved by the owner's curator record;
 `scoring_bind_check` 169 of 169 ok); `lbs-backfill` too, with lbs running (74 clients, 74 sheets). `lbs-backfill` refuses to start, and writes nothing, when lbs does
 not answer.
 
@@ -87,14 +87,15 @@ never commit.
 ## The client app
 
 `start.cmd` (or `..\.venv\Scripts\python -m eigentlich serve`) serves it at **http://127.0.0.1:8017/**, API
-docs at `/docs`. It connects as role `eigentlich` to the configured schema and calls three engines over HTTP
-(`config.yaml` `app:`; `EIGENTLICH_LBS_URL`, `_CHATBOT_URL`, `_REPORT_URL`, `_APP_PORT` override):
+docs at `/docs`. It connects as role `eigentlich` to the configured schema and calls four engines over HTTP
+(`config.yaml` `app:`; `EIGENTLICH_LBS_URL`, `_CHATBOT_URL`, `_REPORT_URL`, `_AGGREGATION_URL`, `_APP_PORT` override):
 
 | engine | call | for |
 |---|---|---|
-| lbs 8013 | `POST /run` (`lbs-request@1.0.0`, with `goals[].contribution_share` from lbs@1.2.0), `GET /artefacts/{id}` | the role grid on the home page; every report |
+| lbs 8013 | `POST /run` (`lbs-request@1.0.0`, with `goals[].contribution_share` from lbs@1.2.0; `goals[].amount_basis` and `mandate.contribution_indexed` from lbs@1.3.0, sent only when stated), `GET /artefacts/{id}` | the role grid and the goals in both bases; every report |
 | chatbot 8016 | `POST /answer` (`chat-request@1.0.0`) | spark7's draft answer in a thread |
-| report 8015 | `POST /report` (`report-request@1.0.0`; a revision with `revision_of`, `revision_note`: report 1.2.0) | reports, updates, revisions |
+| report 8015 | `POST /report` (`report-request@1.0.0`; a revision with `revision_of`, `revision_note`: report 1.2.0; `basis: real`: report 1.3.0) | reports, updates, revisions |
+| aggregation 8004 | `GET /scenarios` | which pcp runs are on a scenario Regime, for a report with an allocation (EIG-63) |
 
 Every call is an `engine_run`. An engine that is down is named on the page; the question or request stays
 open and can be tried again. Nothing is made up in its place.
@@ -115,11 +116,11 @@ Routes (JSON; `{c}` is the client id): `GET /health`, `GET /meta`; `GET|POST /ap
 `PUT .../answers/{question}`, `POST .../edit`, `GET /api/questionnaires/{name}/history`,
 `POST /api/clients/{c}/onboarding/complete`; `GET /api/clients/{c}/plan`, `GET .../decisions`,
 `PUT .../household`, `PUT .../facts/{key}`, `POST .../positions`, `PATCH .../positions/{id}`, `POST .../positions/{id}/deactivate|reactivate`,
-`POST .../goals`, `PATCH .../goals/{id}`, `POST .../goals/{id}/deactivate|reactivate`;
+`POST .../goals`, `PATCH .../goals/{id}` (with `amount_basis`: `today` | `future`), `POST .../goals/{id}/deactivate|reactivate`;
 `GET|POST /api/clients/{c}/balance-sheet[?language=de|en]` (POST takes an optional `{"curator_id": ...}`: the
 cockpit's button, recorded as that curator's run, 403 unless the curator is in service); `GET|POST /api/clients/{c}/threads`, `GET .../threads/{id}`,
 `POST .../threads/{id}/messages|draft|close`; `GET|POST /api/clients/{c}/approvals`,
-`POST .../approvals/{id}/withdraw`; `GET|POST /api/clients/{c}/reports`, `POST .../reports/{id}/produce[?revision=true]` (a revision takes `{"revision_note", "revision_of"}`), `POST .../withdraw`,
+`POST .../approvals/{id}/withdraw`; `GET|POST /api/clients/{c}/reports` (POST with `basis`: `nominal` | `real`, and `scenario` for a scenario Regime), `POST .../reports/{id}/produce[?revision=true]` (a revision takes `{"revision_note", "revision_of"}`), `POST .../withdraw`,
 `GET /api/clients/{c}/report/{report}/html`. Slow calls run in the background; `?wait=true` runs them inline.
 
 **lbs runs by itself** (EIG-47): every change of a client's plan or answers made in the app schedules a run,
@@ -136,8 +137,16 @@ age, salary, hours, AHV years and human capital; a position belongs to the clien
 date (`goal.contribution_share`, EIG-59). A stated fact wins over an answer, so answering a question that fills
 a fact again restates the fact, and `PUT .../facts/{key}` restates one directly (EIG-54).
 
-The decisions behind the app are EIG-29 to EIG-59 in DECISIONS.md (the owner's of 29.09.2026: EIG-44 to
-EIG-52; the fix round after the use cases: EIG-53 to EIG-59).
+**The nominal and real view** (EIG-60 to EIG-64): each goal says whether its amount is in today's francs
+("Ist der Betrag in heutigen Franken?", default ja, `goal.amount_basis`) and the yearly contribution whether it
+rises with prices ("Steigt der Betrag mit der Teuerung?", default nein, an onboarding answer); both reach lbs only
+when stated. Home, plan and reports carry a nominal / real switch, nominal by default, remembered per browser,
+the basis always shown; in real the pages show lbs's real figures and a report is asked with `basis=real`. A
+report takes the pcp run of the client's current parameter set on its base Regime, a scenario only when asked
+for (EIG-63). The decision list reads in plain words, with the house's role names and Swiss figures (EIG-64).
+
+The decisions behind the app are EIG-29 to EIG-64 in DECISIONS.md (the owner's of 29.09.2026: EIG-44 to
+EIG-52; the fix round after the use cases: EIG-53 to EIG-59; the nominal and real view: EIG-60 to EIG-64).
 
 ## Tests
 
@@ -158,9 +167,10 @@ so run `init-db` once first.
 src/eigentlich/   settings.py  store.py  schema.sql  seed.py  intake.py  migrate.py  __main__.py
                   app: appsettings.py  api.py  service.py  clients.py  contracts.py  inputs.py
                        grounding.py  questionnaires.py  gaps.py
-                  29.09.2026: alignment.py (content aligned to the maps, and the intake's partner section)
-                              encoding.py (code-page repair)
-client/           the browser app: index.html  app/ (api, dom, i18n, main)  surfaces/  style/
+                  29.09.2026: alignment.py (content aligned to the maps, the intake's partner section, the
+                              onboarding's two basis questions)  encoding.py (code-page repair)
+                              decisions.py (a decision in plain words)
+client/           the browser app: index.html  app/ (api, basis, dom, i18n, main)  surfaces/  style/
 start.cmd         the app on 8017
 tests/            one module per concern; conftest.py (throwaway schemas, curator grants), world.py;
                   test_app_*.py and appkit.py (stand-in engines) for the app

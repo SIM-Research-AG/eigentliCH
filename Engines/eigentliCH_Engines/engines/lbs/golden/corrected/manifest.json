@@ -10,7 +10,7 @@
   "unstated_vessel_is_a_gap": "a stock without a vessel is a named gap, neither hard equity nor free wealth; the prototype counted it as both",
   "zero_income_is_a_stated_zero": "a stated zero income is zero; the prototype read it as no income"
  },
- "engine_version": "lbs@1.2.0",
+ "engine_version": "lbs@1.3.0",
  "layer_a_cases": [
   "db-01",
   "db-02",

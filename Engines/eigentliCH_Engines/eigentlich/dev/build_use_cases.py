@@ -11,6 +11,7 @@ changed.
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py erase [--apply]     # everyone else, one at a time
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py enrich [--only simon,miriam]
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py partners            # partners and saving shares (EIG-53, 59)
+    ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py basis               # today's or future francs, indexed saving (EIG-60, 61)
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py mandates [--refresh]  # lbs, parameter set, pcp runs
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py threads | curate | reports [--refresh] | updates | approvals
     ..\.venv\Scripts\python -X utf8 dev\build_use_cases.py revision            # the revision that was a copy (Regula)
@@ -1759,6 +1760,25 @@ SHARES: dict[str, dict[str, float]] = {
 }
 assert all(abs(sum(v.values())) <= 1 + 1e-9 for v in SHARES.values())
 
+#: The nominal and real view (EIG-60, EIG-61). Every goal with an amount states whether the amount is in today's
+#: francs; these are in the francs of their date, because the amount is fixed in francs: a mortgage to pay down,
+#: a debt to amortise, a contract price, a sum promised in a will, a pension-fund buy-in from the fund's statement.
+FUTURE_FRANCS: dict[str, tuple[str, ...]] = {
+    "claudia": ("Hypothek bis 2040",),
+    "michele": ("Renditeobjekt",),
+    "isabelle": ("Praxisanteil",),
+    "regula": ("Erbvorbezug",),
+    "elio": ("Einkauf",),
+}
+#: Whether the yearly saving rises with prices: yes for the employed, whose salary follows the cost of living;
+#: no for the self-employed, those between jobs and those who live on their assets.
+INDEXED: dict[str, str] = {
+    "simon": "ja", "miriam": "ja", "fabienne": "ja", "lukas": "ja", "noemi": "ja", "celine": "nein",
+    "isabelle": "ja", "anita": "nein", "corinne": "ja", "tanja": "nein", "michele": "nein", "reto": "nein",
+    "claudia": "ja", "yasmin": "ja", "elio": "ja", "franziska": "ja", "regula": "nein", "kurt": "nein",
+    "esther": "nein", "peter": "nein",
+}
+
 
 # =====================================================================================================
 # The build: every write goes through the app's API, the store's documented functions or the cockpit's
@@ -2258,6 +2278,44 @@ def cmd_partners(args):
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "use-cases-partners.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False, default=str),
                                                  encoding="utf-8")
+
+
+def cmd_basis(args):
+    """The nominal and real view's two answers (EIG-60, EIG-61), through the app's routes: each goal with an
+    amount states whether the amount is in today's francs (``FUTURE_FRANCS`` names those that are not), and the
+    onboarding's "Steigt der Betrag mit der Teuerung?" is answered (``INDEXED``); then one lbs run per client,
+    the curator's button. Writes only what differs."""
+    summary = {}
+    for c in selected(args):
+        cid = c["id"]
+        done: dict[str, Any] = {}
+        future = FUTURE_FRANCS.get(c["key"], ())
+        changed = []
+        for g in app("GET", f"/api/clients/{cid}/plan")["goals"]:
+            if not g["active"] or g.get("target_amount") is None:
+                continue
+            want = "future" if any(g["name"].startswith(prefix) for prefix in future) else "today"
+            if g.get("amount_basis") == want:
+                continue
+            app("PATCH", f"/api/clients/{cid}/goals/{g['id']}",
+                json={"amount_basis": want, "reasoning": "Angegeben, ob der Betrag in heutigen Franken ist."})
+            changed.append(f"{g['name'][:40]}: {want}")
+        done["goals"] = changed
+        done["answers"] = answer_all(cid, "onboarding", {"contribution_indexed": INDEXED[c["key"]]})
+        r = call("POST", f"{APP}/api/clients/{cid}/balance-sheet", json={"curator_id": CURATOR}, ok=(200, 502, 503),
+                 retries=0)
+        views = (r or {}).get("views") or {}
+        done["real_view"] = bool(views.get("available"))
+        done["goals_real"] = {g.get("name"): (g.get("real") or {}).get("amount") for g in views.get("goals") or []}
+        mandate = views.get("mandate") or {}
+        done["required_return"] = {b: (mandate.get(b) or {}).get("required_return") for b in ("nominal", "real")}
+        summary[c["name"]] = done
+        log(f"{c['name']:<14} goals {changed or 'unchanged'}; indexed {INDEXED[c['key']]} "
+            f"({'set' if done['answers'] else 'unchanged'}); real view {'yes' if done['real_view'] else 'NO'}; "
+            f"required return {done['required_return']}")
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "use-cases-basis.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False, default=str),
+                                              encoding="utf-8")
 
 
 # ------------------------------------------------------------------------------------------ the chain
@@ -3086,7 +3144,7 @@ def cmd_check(args):
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("step", choices=["select", "erase", "enrich", "partners", "mandates", "threads", "curate",
+    p.add_argument("step", choices=["select", "erase", "enrich", "partners", "basis", "mandates", "threads", "curate",
                                     "reports", "updates", "approvals", "revision", "check", "all"])
     p.add_argument("--apply", action="store_true", help="erase: really erase (otherwise a dry run)")
     p.add_argument("--only", help="comma-separated client keys (simon, miriam, ...)")
@@ -3096,11 +3154,12 @@ def main(argv=None):
                                                           "the latest is older than the latest pcp run")
     args = p.parse_args(argv)
     steps = {"select": cmd_select, "erase": cmd_erase, "enrich": cmd_enrich, "partners": cmd_partners,
+             "basis": cmd_basis,
              "mandates": cmd_mandates,
              "threads": cmd_threads, "curate": cmd_curate, "reports": cmd_reports, "updates": cmd_updates,
              "approvals": cmd_approvals, "revision": cmd_revision, "check": cmd_check}
     if args.step == "all":
-        for name in ("enrich", "partners", "mandates", "threads", "curate", "reports", "updates", "approvals",
+        for name in ("enrich", "partners", "basis", "mandates", "threads", "curate", "reports", "updates", "approvals",
                      "revision", "check"):
             log(f"== {name}")
             steps[name](args)

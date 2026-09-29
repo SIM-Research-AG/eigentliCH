@@ -8,14 +8,22 @@ builds is refused here, with the field named, before it is sent. Inbound artefac
                Mirrored from ``engines/lbs/src/lbs/contracts.py`` as it stood on 28.09.2026; re-read on
                29.09.2026 (new calibration 1.1.0 with corrections): the request is unchanged field for field.
                Re-read again on 29.09.2026 (lbs@1.2.0): ``goals[].contribution_share`` added (LBS-29), and the
-               request's owner and share checks mirrored.
+               request's owner and share checks mirrored. Re-read on 29.09.2026 for the nominal and real view
+               (lbs's LBS-31, calibration 1.4.0): ``goals[].amount_basis`` (today | future) and
+               ``mandate.contribution_indexed``, both optional and sent only when the client stated them, so a
+               request without them keeps its bytes and an lbs before LBS-31 still takes it (EIG-60, EIG-61). The
+               sheet's ``real_view`` and the mandate proposal's ``views`` are read for display (partial).
 * ``chatbot``  ``chat-request@1.0.0`` out; ``chat-answer@1.0.0`` (partial) in.
                Mirrored from ``engines/chatbot/src/chatbot/contracts.py`` of 28.09.2026; re-read on 29.09.2026:
                the answer's optional ``basis`` (CHB-18) and ``model_display_name`` (CHB-21) added.
 * ``report``   ``report-request@1.0.0`` out (the engine names the artefact list ``sources``); ``report@1.0.0``
                (partial) in. Mirrored from ``engines/report/src/report/contracts.py`` of 28.09.2026; re-read on
                29.09.2026 (report 1.2.0, REP-25): the optional ``revision_of`` and ``revision_note`` added
-               (EIG-57). ``display_facts`` is not mirrored: the app sends none.
+               (EIG-57). ``display_facts`` is not mirrored: the app sends none. Re-read on 29.09.2026 (REP-27):
+               the optional ``basis`` (nominal | real), sent only when ``real`` (EIG-62).
+* ``aggregation`` ``GET /scenarios`` in (``ScenarioListed``, partial): which Regimes are scenarios, so a report
+               takes the allocation of the base Regime unless a scenario is asked for (EIG-63). Mirrored from
+               ``Macro/engines/aggregation/src/aggregation/contracts.py`` of 29.09.2026.
 """
 
 from __future__ import annotations
@@ -129,6 +137,9 @@ class LbsGoal(_Out):
     #: The goal's share of the household's one yearly saving, 0 to 1 (lbs@1.2.0, LBS-29; read from calibration
     #: 1.3.0 on). The stated shares sum to at most 1: lbs refuses the request otherwise (EIG-59).
     contribution_share: Optional[float] = Field(default=None, ge=0, le=1)
+    #: Whether ``target_amount`` is in today's francs or in the francs of the target date (lbs LBS-31; missing
+    #: means today, owner decision 7). Sent only when the client answered (EIG-60).
+    amount_basis: Optional[Literal["today", "future"]] = None
 
     @field_validator("goal_id")
     @classmethod
@@ -163,6 +174,9 @@ class LbsMandate(_Out):
     goal_id: str
     annual_contribution: Optional[float] = Field(default=None, ge=0)
     name: Optional[str] = None
+    #: Whether the yearly contribution rises with prices (lbs LBS-31; missing means fixed in francs, owner
+    #: decision 9). Sent only when the client answered (EIG-61).
+    contribution_indexed: Optional[bool] = None
 
 
 class LbsRequest(_Out):
@@ -334,6 +348,9 @@ class ReportRequest(_Out):
     #: remark. Both enter the engine's request id, so a revision is a new artefact, never the cached copy.
     revision_of: Optional[str] = Field(default=None, min_length=1, max_length=80)
     revision_note: Optional[str] = Field(default=None, min_length=1, max_length=4000)
+    #: The basis of the return and goal figures (report 1.3.0, REP-27): ``real`` takes the real figures from the
+    #: lbs sheet and needs a pcp Allocation of basis ``real``. Sent only when ``real`` (EIG-62).
+    basis: Literal["nominal", "real"] = "nominal"
 
     @field_validator("client_ref")
     @classmethod
@@ -359,7 +376,18 @@ class Report(_In):
     complete: bool
     warnings: tuple[str, ...] = ()
     html: str
+    basis: Literal["nominal", "real"] = "nominal"
     notice: str = NOTICE
+
+
+# ---------------------------------------------------------------------------
+# aggregation: which Regimes are scenarios (partial mirror)
+# ---------------------------------------------------------------------------
+
+class ScenarioListed(_In):
+    regime_id: str
+    policy: str
+    base_regime_id: str
 
 
 def dump(model: BaseModel) -> dict[str, Any]:

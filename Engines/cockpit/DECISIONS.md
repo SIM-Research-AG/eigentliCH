@@ -336,3 +336,93 @@ route picks the default level's latest Regime although the rogue run is newer an
 each named level, and a scenario from the chosen level. `tests/test_curator.py`: a run naming no Regime is sent the
 default Regime and its ReturnSet; a named level with a scenario, a named Regime's level, the 409 and 422 refusals, and a
 revoked curator asking no engine. Both fail with the old choice (checked by reverting once).
+
+**C-31 A nominal / real switch on the Parameters page and the instrument views; the macro views stay nominal
+(owner, 29.09.2026).** The binding interfaces are `review/REAL_VIEW_INTERFACES.md` (design note "Design note:
+nominal and real view"). The default is **nominal** everywhere, and the basis is always shown next to the
+figures. The cockpit converts nothing (C-07): the switch only names the basis to the engines, and every real
+figure and the inflation behind it is fmre's (`real = nominal - ln(1 + inflation)`, per state).
+*Parameters.* Section 2 is now "Regime, currency and basis", with the switch beside the currency. It sets the
+Mandate's `basis`, the basis of its `target_curve` (pcp PCP-22). `mandate.py` writes `basis` into the Mandate
+**only when it is real**. pcp's Mandate leaves a nominal basis out of its JSON too, so a nominal mandate keeps
+its bytes and its idempotency key, and the presets and the stored sets read back unchanged; `to_form` reads a
+missing basis as nominal. The ReturnSet is fetched with `basis=real` when the mandate is real and **without
+`basis=` when nominal**, the query pcp itself sends to fmre (`pcp/clients.py`), so both arrive at the same
+`return_set_id`. The page shows the basis the set was served on (`provenance.basis`; a set that states none is
+nominal), fmre's deflator (index, the scenario when there is one, the count of `deflator.labels` per state)
+and the hard-currency note (`hard_currency_fallback {from, to, states, reason}`). It says plainly when fmre
+served another basis than the mandate's, because pcp refuses that pair. Loading a stored mandate or the lbs
+proposal takes that mandate's basis (the lbs proposal is nominal) and says so when the switch moves. A preset
+or an empty mandate keeps the switch as it stands.
+*Target curve.* The presets stay nominal data (C-22). In real mode the curve card says that the curve is read
+as real, that the level shift and the tilt apply in real terms, and that nothing is converted. "Match the lbs
+required return" is disabled in real mode, and a preset applied in real mode does not take its level from lbs,
+because lbs's required return is nominal; lbs's real figures are for a later build.
+*Run route.* `POST /api/curator/clients/{id}/runs` takes an optional context field `basis` (never forwarded to
+pcp, like `currency`, C-23). It answers 409 before pcp is asked when that basis is not the finalised mandate's.
+When the route fetches the ReturnSet itself, it asks with the mandate's basis (only when real) and answers 409
+if fmre serves another basis (an fmre from before the real view ignores `basis=`). The run's `context` names
+`basis`. The allocation shows the basis beside the currency: pcp's `Allocation.basis` (left out when nominal),
+otherwise the run's. The history table shows each mandate's basis.
+*Instrument selection.* A switch and a reporting currency (CHF, EUR, USD; real only) in the page's link
+(`#/cio/instruments?basis=real&ccy=CHF`), so a reload opens nominal unless the link says real. Real asks fmre
+for `GET /v1/return-set?basis=real&currency=` (role and instrument profiles, deflated by fmre) and for `GET
+/v1/inflation?currency=`. The inflation used is drawn as a small bar chart per state, coloured by fmre's labels
+(measured, extrapolated, fallback, not computable), with the counts, the index, `real_view` and the
+hard-currency note. If fmre cannot serve the real set, or serves it on a nominal basis, the page says so and
+shows nominal figures labelled nominal. A shortlist saved from a real view records `profiles_basis` and the
+currency with the ReturnSet id. The Excel export stays nominal.
+*No switch.* Regime and signals (cycle, aggregation), the Models pages (macrofield and the rest), Country
+dossier, Boundary conditions, Overview and Optimiser hand-over stay nominal (owner: macrofield always nominal).
+*Tests.* `tests/test_api.py`: the form's basis is nominal by default, is left out of a nominal Mandate and
+written for a real one, with the curve's numbers unchanged; the switch appears on exactly the Parameters and
+Instrument selection pages (no macro page, no Models page); nominal is the default and basis= reaches fmre and
+the run. `tests/test_curator.py`: a real mandate's run asks fmre for basis=real and answers the basis; a nominal
+run asks what it asked before; the page-basis mismatch and a nominal set served for a real mandate are refused
+before pcp. All four fail with the behaviour reverted (checked once).
+
+**C-32 The CIO's inflation pass-through override, on Instrument selection, written through a cockpit route (owner,
+29.09.2026).** Under a scenario Regime fmre carries each instrument to the scenario's inflation with a pass-through beta:
+real = historical real + (beta - 1) · ln(1 + scenario inflation), plus a duration loss for a nominal bond, so beta 1 is a
+full inflation hedge and 0 none (fmre FMRE-33 to FMRE-37, `engines/fund_map/pass_through.py`). fmre holds the house table
+(beta and duration per instrument type, calibration `ipt@...`) and the CIO's overrides, append-only and versioned per
+instrument (`inflation_beta_override`; the latest version is in force, a null beta reverts to the house value). The
+cockpit computes nothing (C-07): it lists what fmre serves, forwards the CIO's set or revert, and shows the beta a scenario
+set used.
+*Instrument selection.* A card "Inflation pass-through (scenarios)" lists `GET /v1/inflation-beta` through the proxy
+(fmre's `api/main.py`: `{calibration, bounds, instruments}`, each instrument with `type`, `type_label`, `house_beta`,
+`house_duration`, `override` (the latest version: `version`, `beta`, `duration`, `reason`, `set_by`, `set_at`) or null, and
+the beta in force as `beta` with its `source`, and `duration` with `duration_source`): per active instrument its name, type,
+house beta, the override (beta, duration, reason, who set it, when, version) and the effective beta and duration. "override" or "change or revert" opens a form: beta (0 to 1.5), an optional duration in years (0 to 30;
+empty keeps the house duration) and the **required reason**; "Set override" and "Revert to house beta" (beta null, with its
+reason; a version too). fmre keeps a revert as a version with a null beta (a null duration keeps the house duration),
+so the page counts an override as in force only when it names a beta or a duration, and shows a reverted one as
+"reverted" with its reason. `set_by` is the **acting curator** chosen in the header (C-16), sent as the curator's id and
+shown by name. "History" lists the
+instrument's versions newest first from `GET /v1/inflation-beta/{id}/history`. fmre serves no such endpoint yet (its list
+carries the version in force only), so until it does the page shows the version in force with its number and says that the
+earlier versions are not served (open point). The panel is
+the same on the nominal and the real view; the beta acts under a scenario only.
+*Which beta a scenario used.* A ReturnSet stamped for a scenario Regime carries `provenance.inflation_pass_through`
+(scenario, policy, `inflation_final_12m`, calibration, and per instrument `beta`, `source` house or override, `duration`,
+`override_version`, `deflator_currency`). Where a page shows such a set it lists it in a collapsed table: on Parameters
+under the ReturnSet line (the scenario sets pcp runs on, with the real switch of C-31), and on Instrument selection under
+the role profiles whenever the served set carries it (the base set it shows today carries none, so nothing is shown).
+*Why a cockpit route and not the proxy.* The proxy forwards a write in cio mode only for an exact `engine:path` in
+`cio.writable` (`Settings.writable`); it has no path prefix, and fmre's path carries the instrument id, so no entry could name
+it (as for the app in C-20). Rather than adding prefixes to the proxy, one route forwards the one write: `PUT
+/api/cio/inflation-beta/{instrument_id}` with fmre's own body `{beta, duration?, reason, set_by}`, allowed in both modes like
+the decision log and the curator routes (C-02). `cio` is a new reserved segment (no engine may take it). The route refuses
+with 422, before fmre is asked, a missing or blank reason, a beta outside 0 to 1.5 or missing (null reverts), a duration
+outside 0 to 30, no `set_by`, or any other field; it checks the acting curator in the store (`CuratorStore.in_service`), so
+a revoked or unknown curator is refused (403, 422) and never reaches fmre; it sends `duration` only when given; fmre's answer
+(status and body) comes back unchanged, and an fmre that is down answers 502 saying no override was set. The cockpit keeps
+nothing: fmre's versions are the record. `cio.writable` is unchanged: a PUT through the proxy stays refused in cio mode.
+*Tests.* `tests/test_api.py`, on a stand-in fmre shaped as its `api/main.py` answers (list, append-only versions, the PUT's
+`{written, ...}`) and a stand-in curator check: list through the proxy, set with a reason and a duration, a set without
+duration, revert as the next version, fmre's 404 passed through, in
+both modes; nine bodies refused with 422 before fmre (no reason, blank reason, a revert without reason, beta 1.6, -0.1,
+no beta, duration 31, no set_by, an extra field); in cio mode the proxy PUT refused and never forwarded, `cio.writable`
+naming no inflation-beta path, a revoked curator refused before fmre, fmre down, and `cio` reserved; the page's panel, its
+PUT with `set_by: actingCurator()`, the revert, and the pass-through table on both pages. `tests/test_curator.py`: against
+the throwaway schema, a revoked and an unknown curator never reach fmre, one in service is forwarded as `set_by`.

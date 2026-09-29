@@ -35,6 +35,7 @@ const PATTERNS = [
   [/is already (in|out of|active|inactive)/, 'err.already'], [/^no client /, 'err.no_client'],
   [/shares of the yearly saving would sum to (\d+) %/, 'err.shares_sum'], [/share of the yearly saving is between/, 'err.share_range'],
   [/belongs to the client or the partner/, 'err.owner'], [/a fact key is/, 'err.invalid'],
+  [/is asked per goal/, 'err.per_goal'], [/amount is in today's francs/, 'err.amount_basis'], [/report's basis is/, 'err.basis'],
 ];
 const BY_STATUS = { 0: 'err.server_down', 403: 'err.forbidden', 404: 'err.not_found', 409: 'err.conflict', 422: 'err.invalid', 400: 'err.invalid' };
 
@@ -108,7 +109,7 @@ export const api = {
   completeOnboarding: (id) => request('POST', `${C(id)}/onboarding/complete`),
 
   plan: (id, lang) => request('GET', `${C(id)}/plan?language=${lang}`),
-  decisions: (id) => request('GET', `${C(id)}/decisions`),
+  decisions: (id, lang) => request('GET', `${C(id)}/decisions?language=${lang || 'de'}`),
   setHousehold: (id, body) => request('PUT', `${C(id)}/household`, body),
   createPosition: (id, body) => request('POST', `${C(id)}/positions`, body),
   patchPosition: (id, pid, body) => request('PATCH', `${C(id)}/positions/${enc(pid)}`, body),

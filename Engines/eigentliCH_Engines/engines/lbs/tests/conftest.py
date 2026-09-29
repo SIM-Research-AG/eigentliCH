@@ -6,7 +6,7 @@
   teardown asserts it drops only that schema.
 * **The golden cases** in ``golden/cases`` (requests) and ``golden/expected`` (the prototype's outputs), and
   the calibrations they run under: the seed 1.0.0 and the owner's approval 1.1.0 for the prototype layer,
-  1.2.0 and 1.3.0 for the corrected layer.
+  1.2.0, 1.3.0, 1.4.0 (the nominal and real view) and 1.5.0 (its assumptions settled) for the corrected layer.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from typing import Callable, Iterator
 import psycopg
 import pytest
 
-from lbs.calibration import APPROVED, CORRECTED, CORRECTED_1_3, SEED
+from lbs.calibration import APPROVED, CORRECTED, CORRECTED_1_3, CORRECTED_1_4, SEED
 from lbs.settings import Settings, load
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -31,7 +31,7 @@ GOLDEN = ROOT / "golden"
 #: which differs from 1.1.0 only in the publisher's name). 1.2.0, the corrected behaviour, has its own layer
 #: (``golden/corrected``, LBS-24).
 CALIBRATIONS = {"seed": SEED, "approved": APPROVED}
-__all__ = ["APPROVED", "CORRECTED", "CORRECTED_1_3", "SEED", "CALIBRATIONS"]
+__all__ = ["APPROVED", "CORRECTED", "CORRECTED_1_3", "CORRECTED_1_4", "SEED", "CALIBRATIONS"]
 
 
 def pytest_configure(config):

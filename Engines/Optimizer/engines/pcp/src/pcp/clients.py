@@ -25,6 +25,11 @@ class NotFoundUpstream(UpstreamError):
     """The upstream engine answered, and has no such artefact."""
 
 
+class NotComputableUpstream(UpstreamError):
+    """fmre answered that the real view is ``not_computable`` (422, decision 5): no currency inside the
+    inflation band. A stated result with its reason, not an outage (PCP-22)."""
+
+
 def checksum(model: BaseModel) -> str:
     """sha256 of the part of an input this engine read: its upstream fingerprint."""
     blob = json.dumps(model.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
@@ -51,6 +56,13 @@ class _Client:
                                 f"Start it with {self.start_hint}.") from exc
         if response.status_code == 404:
             raise NotFoundUpstream(f"{self.engine} answered 404 for {path}: {response.text[:300]}")
+        if response.status_code == 422:
+            try:
+                detail = response.json().get("detail")
+            except ValueError:
+                detail = None
+            if isinstance(detail, dict) and detail.get("status") == "not_computable":
+                raise NotComputableUpstream(str(detail.get("reason") or "no reason given"))
         if response.status_code != 200:
             raise UpstreamError(f"{self.engine} answered {response.status_code} for {path}: "
                                 f"{response.text[:300]}")
@@ -77,13 +89,18 @@ class FmreClient(_Client):
     engine = "fmre"
     start_hint = "Instruments/start.cmd"
 
-    def return_set(self, regime_id: str, currency: str) -> ReturnSet:
-        """The current ReturnSet with its instrument profiles, stamped against ``regime_id`` and measured in
-        ``currency`` (CHF, EUR or USD; D-01, PCP-18). ``fmre`` serves the current set only, confirms the Regime
-        with aggregation before stamping it, and converts the instrument series at the point of use; both the
-        Regime and the currency enter its ``return_set_id``."""
-        body = self._get("/v1/return-set", {"include_instruments": "true", "include_blocks": "false",
-                                            "regime_id": regime_id, "currency": currency})
+    def return_set(self, regime_id: str, currency: str, basis: str = "nominal") -> ReturnSet:
+        """The current ReturnSet with its instrument profiles, stamped against ``regime_id``, measured in
+        ``currency`` (CHF, EUR or USD; D-01, PCP-18) and on ``basis`` (nominal or real, PCP-22). ``fmre`` serves
+        the current set only, confirms the Regime with aggregation before stamping it, converts the instrument
+        series at the point of use and, on ``basis=real``, subtracts the per-state log inflation of the
+        currency; the Regime, the currency and the basis enter its ``return_set_id``. A nominal request is sent
+        without ``basis=``, exactly the query it was before the real view (fmre's default is nominal)."""
+        params = {"include_instruments": "true", "include_blocks": "false", "regime_id": regime_id,
+                  "currency": currency}
+        if basis != "nominal":
+            params["basis"] = basis
+        body = self._get("/v1/return-set", params)
         try:
             return ReturnSet.model_validate_json(body)
         except ValidationError as exc:

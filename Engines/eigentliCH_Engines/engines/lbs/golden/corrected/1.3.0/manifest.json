@@ -19,7 +19,7 @@
   "human_capital_is_never_free_wealth": "a human-capital stock in chf is human capital only, never free wealth or equity; before, the capacity counted it as free",
   "zero_mortgage_is_a_stated_zero": "a stated mortgage of 0 is a paid-off mortgage, a debt service of 0; before, it read as no answer"
  },
- "engine_version": "lbs@1.2.0",
+ "engine_version": "lbs@1.3.0",
  "layer_a_cases": [
   "db-01",
   "db-02",

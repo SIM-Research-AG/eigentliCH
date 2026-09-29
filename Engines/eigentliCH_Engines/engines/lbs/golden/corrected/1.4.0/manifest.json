@@ -1,0 +1,55 @@
+{
+ "after": {
+  "hash": "CAL-99a3654972f86773",
+  "version": "1.4.0"
+ },
+ "before": {
+  "hash": "CAL-2fa18ff0a38495b5",
+  "version": "1.3.0"
+ },
+ "built_by": "dev/build_golden_corrected.py",
+ "cases": {
+  "v-future": "the same goal stated in future francs: the nominal figures of 1.3.0, and a real view beside them",
+  "v-indexed": "the same goal stated in today's francs with the contribution indexed: the real required return is the one of the problem without inflation",
+  "v-not-realistic": "125'000 in future francs in 1.25 years from 100'000 and 4'000 a year: about 15 % a year, feasible and not realistic, with the levers",
+  "v-retirement": "a need of 60'000 a year in today's francs against AHV and a nominal BVG pension, compared in today's francs",
+  "v-worked-example": "the design note's worked example: CHF 400'000 in today's francs (not stated, decision 7) in 20 years, 150'000 now, 12'000 a year fixed; under 1.4.0 at the calibrated CHF inflation"
+ },
+ "cases_13": [
+  "r-human-capital",
+  "r-paid-mortgage",
+  "r-share-missing",
+  "r-share-stated"
+ ],
+ "changes_by": {
+  "amounts_in_todays_francs": "a goal amount in today's francs unless stated (decision 7), inflated to its date, and a contribution fixed or indexed (decision 9): the mandate's target, required return, curve and notes in francs of the target date (LBS-31)",
+  "plausibility": "the plausibility judgement of the required return (LBS-34), new",
+  "real_view": "the real view and the basis of each figure, new and additive (LBS-31, LBS-35)",
+  "retirement_in_todays_francs": "the retirement comparison in today's francs: the need read in today's francs and the nominal BVG pension deflated from its first year (LBS-33)"
+ },
+ "engine_version": "lbs@1.3.0",
+ "layer_a_cases": [
+  "db-01",
+  "db-02",
+  "db-03",
+  "db-04",
+  "db-05",
+  "db-06",
+  "db-07",
+  "db-08",
+  "syn-couple",
+  "syn-liquidity",
+  "syn-property-1",
+  "syn-property-2",
+  "syn-property-3",
+  "syn-property-4",
+  "syn-property-5"
+ ],
+ "quirk_cases": [
+  "q-ceiling",
+  "q-horizon",
+  "q-no-vessel",
+  "q-zero-income"
+ ],
+ "tolerance": "1e-9 relative on every number (absolute near zero), every other leaf exactly"
+}

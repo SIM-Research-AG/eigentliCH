@@ -1,0 +1,57 @@
+{
+ "after": {
+  "hash": "CAL-fdf122697c7aa04b",
+  "version": "1.5.0"
+ },
+ "before": {
+  "hash": "CAL-99a3654972f86773",
+  "version": "1.4.0"
+ },
+ "built_by": "dev/build_golden_corrected.py",
+ "cases": [
+  "db-01",
+  "db-02",
+  "db-03",
+  "db-04",
+  "db-05",
+  "db-06",
+  "db-07",
+  "db-08",
+  "syn-couple",
+  "syn-liquidity",
+  "syn-property-1",
+  "syn-property-2",
+  "syn-property-3",
+  "syn-property-4",
+  "syn-property-5",
+  "q-ceiling",
+  "q-horizon",
+  "q-no-vessel",
+  "q-zero-income",
+  "r-human-capital",
+  "r-paid-mortgage",
+  "r-share-missing",
+  "r-share-stated",
+  "v-future",
+  "v-indexed",
+  "v-not-realistic",
+  "v-retirement",
+  "v-worked-example"
+ ],
+ "changes_by": {
+  "chf_inflation_1_percent": "the CHF long-run inflation of 1.0 % a year, the midpoint of the SNB's 0 to 2 % range, in place of the measured 0.50 % (LBS-36): every figure converted between today's francs and francs of a date moves with it",
+  "plausibility_table_approved": "the plausibility table approved by the owner unchanged (LBS-37): the source line of the ceiling says so; no ceiling moves"
+ },
+ "engine_version": "lbs@1.3.0",
+ "figures": {
+  "goal_amounts": "a goal's amount in the other basis and its price level (real_view.goals)",
+  "inflation_assumption": "the assumption itself: rate, log rate, source (real_view.inflation)",
+  "other": "anything else",
+  "plausibility": "the plausibility judgement: the nominal ceiling, the real required return, the levers",
+  "property": "a property price stated in future francs, deflated to today",
+  "required_return": "the mandate's target, required return (nominal and real), curve and notes",
+  "retirement": "the retirement comparison in today's francs (the BVG pension deflated) and its nominal view"
+ },
+ "required_returns": "required_returns.json: the designated goal's required return under 1.4.0 and 1.5.0, nominal and real, and its move in points, for every case that has one",
+ "tolerance": "1e-9 relative on every number (absolute near zero), every other leaf exactly"
+}

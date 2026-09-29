@@ -459,6 +459,7 @@ class PcpMandate(BaseModel):
     client: str = Field(min_length=1)
     name: str = Field(min_length=1)
     currency: str = Field(default="CHF", pattern=r"^[A-Z]{3}$")
+    basis: Literal["nominal", "real"] = "nominal"   # PCP-22: the basis of the target curve, optional
     horizon_years: float = Field(default=1.0, gt=0.0)
     curve_unit: Literal["annualised_log_return", "annualised_decimal"] = "annualised_log_return"
     target_curve: tuple[float, ...]
@@ -688,3 +689,230 @@ engines:
             s = client.get("/api/curator/regime", params={"optimism": "defensive", "policy": "depression"}).json()
             assert s["base_regime_id"] == "RGM-defensive" and s["optimism"] == "defensive"
             assert client.get("/api/curator/regime", params={"optimism": "reckless"}).status_code == 422
+
+
+# ---- nominal and real (C-31) -----------------------------------------------------------------------
+
+STATIC_PAGE = Path(__file__).resolve().parents[1] / "src" / "cockpit" / "static" / "index.html"
+
+
+def _page_blocks() -> dict[str, str]:
+    """Each page's render code in index.html, keyed by page id (from its page(...) call to the next)."""
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    starts = [(m.start(), m.group(1)) for m in re.finditer(r'^page\("([^"]+)"', html, re.M)]
+    ends = [s for s, _ in starts[1:]] + [len(html)]
+    return {pid: html[s:e] for (s, pid), e in zip(starts, ends)}
+
+
+def test_the_basis_is_nominal_by_default_and_real_passes_through_to_the_mandate(dev):
+    """The switch sets the Mandate's basis (C-31). Nominal is the default and is left out of the Mandate,
+    as pcp leaves it out (a nominal mandate keeps its bytes and its idempotency key); real is written as
+    real and read back. The curve's numbers are the same on both bases: the cockpit converts nothing."""
+    client, fake = dev
+    nominal = client.post("/api/curator/mandate/assemble", json=FORM).json()["mandate"]
+    assert "basis" not in nominal, "a nominal mandate is what it was before the real view"
+    assert client.post("/api/curator/mandate/form", json={"mandate": nominal}).json()["basis"] == "nominal"
+    assert client.post("/api/curator/mandate/assemble", json={**FORM, "basis": "nominal"}).json()["mandate"] == nominal
+    real = client.post("/api/curator/mandate/assemble", json={**FORM, "basis": "real"}).json()["mandate"]
+    assert real["basis"] == "real"
+    assert real["target_curve"] == nominal["target_curve"], "real reads the same curve as real: no conversion"
+    assert {k: v for k, v in real.items() if k != "basis"} == nominal
+    PcpMandate.model_validate(real)
+    assert client.post("/api/curator/mandate/form", json={"mandate": real}).json()["basis"] == "real"
+    assert client.post("/api/curator/mandate/assemble", json={**FORM, "basis": "inflation"}).status_code == 422
+    voc = client.get("/api/curator/mandate/vocabulary").json()
+    assert voc["bases"] == ["nominal", "real"] and voc["default_basis"] == "nominal"
+    assert not fake.calls
+
+
+def test_the_switch_is_on_the_parameters_page_and_the_instrument_views_only():
+    """The Parameters page and Instrument selection carry the nominal / real switch; every other page, the
+    macro views (macrofield, cycle, aggregation: Regime and signals, the Models pages) above all, has none
+    and stays nominal (owner, 29.09.2026)."""
+    blocks = _page_blocks()
+    with_switch = {pid for pid, code in blocks.items() if re.search(r'basisSwitch\("', code)}
+    assert with_switch == {"curator/parameters", "cio/instruments"}, with_switch
+    for macro in ("cio/regime", "cio/country", "cio/bounds", "cio/overview", "cio/optimiser"):
+        assert "basis=real" not in blocks[macro] and 'basis: "real"' not in blocks[macro], macro
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    render_model = html[html.index("async function renderModel("):html.index("function benchPages(")]
+    assert "basisSwitch(" not in render_model and "basis" not in render_model, "the Models pages stay nominal"
+
+
+def test_the_switch_defaults_to_nominal_and_names_the_basis_to_fmre():
+    """Default nominal on both pages. The Parameters page asks fmre for the ReturnSet with basis= when real
+    (and without it when nominal, as pcp does), and sends the basis to the run route; the instrument view
+    asks fmre for the real ReturnSet and the per-state inflation of its currency."""
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    assert 'const DEFAULT_BASIS = "nominal";' in html
+    blocks = _page_blocks()
+    params, instruments = blocks["curator/parameters"], blocks["cio/instruments"]
+    assert "basis: DEFAULT_BASIS" in params, "the form starts nominal"
+    assert '...(basis === "real" ? { basis } : {})' in params, "basis= to fmre when real"
+    assert "basis: (P.rs && P.rs.id === b.return_set_id ? P.rs.basis : F.basis)" in params, "the run is told the basis"
+    assert 'basis: F.basis || DEFAULT_BASIS' in params, "the form sends its basis to /mandate/assemble"
+    assert 'S.params.get("basis") === "real" ? "real" : DEFAULT_BASIS' in instruments, "nominal unless ?basis=real"
+    assert 'basis: "real", currency: ccy' in instruments and "/fmre/v1/inflation?" in instruments
+
+
+# ---- the CIO's inflation pass-through override (C-32) ------------------------------------------------
+
+class StandInFmreBeta(httpx.AsyncBaseTransport):
+    """fmre on 8006 as its api/main.py serves the inflation pass-through (FMRE-33..37): GET /v1/inflation-beta
+    answers {calibration, bounds, instruments}, each instrument with its house type, house beta and duration,
+    the latest override version (or null; a revert is a version with a null beta), and the beta and duration in
+    force with their source; PUT /v1/inflation-beta/{id} appends the next version and answers {written, ...row}.
+    No history endpoint (fmre serves the version in force only). Every other port refuses."""
+
+    HOUSE = {"INS-a": ("Alpha", "equities", "equities", 0.6, None),
+             "INS-b": ("Bravo", "nominal_bonds_aggregate", "nominal bonds, aggregate", 0.0, 6.0)}
+
+    def __init__(self, up: bool = True):
+        self.up = up
+        self.calls: list[tuple[str, str, dict]] = []
+        self.versions: dict[str, list[dict]] = {k: [] for k in self.HOUSE}
+
+    def entry(self, iid: str) -> dict:
+        name, typ, typ_label, house, house_duration = self.HOUSE[iid]
+        override = self.versions[iid][-1] if self.versions[iid] else None
+        beta, source = (override["beta"], "override") if override and override["beta"] is not None else (house, "house")
+        duration, dsource = ((override["duration"], "override") if override and override["duration"] is not None
+                             else (house_duration, "house" if house_duration is not None else None))
+        return {"instrument_id": iid, "name": name, "asset_class": "Equity", "role": "gain", "proxy_symbol": None,
+                "type": typ, "type_label": typ_label, "rule": "r", "house_beta": house, "house_duration": house_duration,
+                "override": override, "beta": beta, "source": source, "duration": duration, "duration_source": dsource}
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        body = json.loads(await request.aread() or b"{}")
+        if request.url.port != 8006 or not self.up:
+            raise httpx.ConnectError("refused", request=request)
+        self.calls.append((request.method, request.url.path, body))
+        parts = request.url.path.strip("/").split("/")
+        if parts[:2] != ["v1", "inflation-beta"]:
+            return httpx.Response(404, json={"detail": "Not Found"})
+        if len(parts) == 2 and request.method == "GET":
+            return httpx.Response(200, json={"calibration": {"version": "ipt@1.1.0"},
+                                             "bounds": {"beta": [0.0, 1.5], "duration": [0.0, 30.0]},
+                                             "instruments": [self.entry(k) for k in self.HOUSE]})
+        iid = parts[2] if len(parts) > 2 else ""
+        if len(parts) == 3 and request.method == "PUT":
+            if iid not in self.HOUSE:
+                return httpx.Response(404, json={"detail": f"no instrument {iid!r}"})
+            beta, duration = body.get("beta"), body.get("duration")
+            if (not str(body.get("reason") or "").strip() or (beta is not None and not 0 <= beta <= 1.5)
+                    or (duration is not None and not 0 <= duration <= 30)):
+                return httpx.Response(422, json={"detail": "fmre refuses"})
+            row = {"instrument_id": iid, "version": len(self.versions[iid]) + 1, "beta": beta, "duration": duration,
+                   "reason": body["reason"], "set_by": body.get("set_by"),
+                   "set_at": f"2026-09-29T12:0{len(self.versions[iid])}:00Z", "calibration_version": "ipt@1.1.0"}
+            self.versions[iid].append(row)
+            return httpx.Response(200, json={"written": row, **self.entry(iid)})
+        return httpx.Response(404 if request.method == "GET" else 405, json={"detail": "Not Found"})
+
+
+class Curators:
+    """The curator store's in-service check, without a database: cur-1 is in service, cur-x revoked."""
+
+    def in_service(self, curator_id: str) -> None:
+        from cockpit.curator import Refused
+        if curator_id == "cur-x":
+            raise Refused(403, f"curator {curator_id} is revoked and cannot act (A161)")
+        if curator_id != "cur-1":
+            raise Refused(422, f"no curator {curator_id}")
+
+
+def beta_client(config: Path, mode: str, up: bool = True) -> tuple[TestClient, StandInFmreBeta]:
+    fake = StandInFmreBeta(up)
+    settings = load(config, env={"COCKPIT_MODE": mode})
+    return TestClient(create_app(settings, transport=fake, curator=Curators())), fake
+
+
+@pytest.mark.parametrize("mode", ["development", "cio"])
+def test_the_cio_lists_sets_and_reverts_an_inflation_beta_with_a_reason(config, mode):
+    """The list comes through the proxy unchanged; a set and a revert go through PUT /api/cio/inflation-beta/{id},
+    forwarded to fmre in fmre's own names, with the acting curator as set_by, in both modes (C-32)."""
+    client, fake = beta_client(config, mode)
+    with client:
+        listed = client.get("/api/fmre/v1/inflation-beta").json()
+        assert listed["bounds"] == {"beta": [0.0, 1.5], "duration": [0.0, 30.0]}
+        assert [(r["instrument_id"], r["house_beta"], r["override"], r["beta"], r["source"]) for r in listed["instruments"]] == \
+            [("INS-a", 0.6, None, 0.6, "house"), ("INS-b", 0.0, None, 0.0, "house")]
+        r = client.put("/api/cio/inflation-beta/INS-a",
+                       json={"beta": 0.8, "duration": 2, "reason": "Pricing power", "set_by": "cur-1"})
+        assert r.status_code == 200, r.text
+        assert fake.calls[-1] == ("PUT", "/v1/inflation-beta/INS-a",
+                                  {"beta": 0.8, "reason": "Pricing power", "set_by": "cur-1", "duration": 2.0})
+        got = r.json()
+        assert got["written"]["version"] == 1 and got["beta"] == 0.8 and got["source"] == "override"
+        assert got["override"]["set_by"] == "cur-1" and got["duration"] == 2.0
+        # without a duration none is sent: fmre keeps the house duration
+        r = client.put("/api/cio/inflation-beta/INS-b", json={"beta": 1.2, "reason": "Linker", "set_by": "cur-1"})
+        assert "duration" not in fake.calls[-1][2] and r.json()["duration"] == 6.0
+        # revert: beta null, with its reason; fmre appends it as the next version
+        r = client.put("/api/cio/inflation-beta/INS-a",
+                       json={"beta": None, "reason": "Back to the house view", "set_by": "cur-1"})
+        assert r.status_code == 200 and r.json()["beta"] == 0.6 and r.json()["source"] == "house"
+        assert r.json()["override"]["version"] == 2 and r.json()["override"]["beta"] is None
+        assert fake.calls[-1][2] == {"beta": None, "reason": "Back to the house view", "set_by": "cur-1"}
+        assert [v["beta"] for v in fake.versions["INS-a"]] == [0.8, None], "append-only: the set, then the revert"
+        # fmre's own refusal (an unknown instrument) comes back as fmre answered it
+        r = client.put("/api/cio/inflation-beta/INS-zz", json={"beta": 0.5, "reason": "x", "set_by": "cur-1"})
+        assert r.status_code == 404 and "INS-zz" in r.json()["detail"]
+
+
+@pytest.mark.parametrize("body", [
+    {"beta": 0.8, "set_by": "cur-1"},                               # no reason
+    {"beta": 0.8, "reason": "   ", "set_by": "cur-1"},              # a blank reason
+    {"beta": None, "set_by": "cur-1"},                              # a revert needs its reason too
+    {"beta": 1.6, "reason": "too much", "set_by": "cur-1"},         # outside 0 to 1.5
+    {"beta": -0.1, "reason": "negative", "set_by": "cur-1"},
+    {"beta": 0.5, "duration": 31, "reason": "too long", "set_by": "cur-1"},   # a duration is 0 to 30 years
+    {"reason": "no beta named", "set_by": "cur-1"},                 # beta is required (null reverts)
+    {"beta": 0.8, "reason": "nobody"},                              # no acting curator
+    {"beta": 0.8, "reason": "r", "set_by": "cur-1", "note": "x"},   # nothing fmre does not take
+])
+def test_an_override_without_its_reason_or_out_of_range_never_reaches_fmre(config, body):
+    client, fake = beta_client(config, "cio")
+    with client:
+        assert client.put("/api/cio/inflation-beta/INS-a", json=body).status_code == 422
+        assert not fake.calls
+
+
+def test_the_proxy_stays_closed_to_the_override_in_cio_mode_and_a_revoked_curator_is_refused(config):
+    """cio.writable holds exact engine:path pairs only, so fmre's PUT is not added to it: in cio mode a PUT
+    through the proxy is refused and never reaches fmre; the cockpit route is the one way (C-32). A revoked
+    curator is refused before fmre is asked."""
+    body = {"beta": 0.8, "reason": "r", "set_by": "cur-1"}
+    client, fake = beta_client(config, "cio")
+    with client:
+        assert client.put("/api/fmre/v1/inflation-beta/INS-a", json=body).status_code == 403 and not fake.calls
+        assert not any("inflation-beta" in w for w in client.get("/api/config").json()["cio"]["writable"])
+        r = client.put("/api/cio/inflation-beta/INS-a", json={**body, "set_by": "cur-x"})
+        assert r.status_code == 403 and "revoked" in r.json()["detail"] and not fake.calls
+    client, fake = beta_client(config, "development")
+    with client:   # development mode: the proxy lets it through, as every write
+        assert client.put("/api/fmre/v1/inflation-beta/INS-a", json=body).status_code == 200
+    client, fake = beta_client(config, "cio", up=False)
+    with client:
+        r = client.put("/api/cio/inflation-beta/INS-a", json=body)
+        assert r.status_code == 502 and "no override was set" in r.json()["detail"]
+    p = config.with_name("reserved.yaml")
+    p.write_text('engines:\n  - {key: cio, number: 1, name: x, url: "http://h:8001", status: built}\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="collides"):
+        load(p, env={})
+
+
+def test_the_instrument_page_carries_the_pass_through_panel_and_shows_the_beta_a_scenario_used():
+    """Instrument selection lists fmre's inflation betas and writes through the cockpit route with the acting
+    curator as set_by; where scenario profiles are shown (Instrument selection, Parameters) the page shows
+    provenance.inflation_pass_through."""
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    blocks = _page_blocks()
+    instruments, params = blocks["cio/instruments"], blocks["curator/parameters"]
+    assert "Inflation pass-through (scenarios)" in instruments and "inflationBetaPanel(" in instruments
+    assert 'api("/fmre/v1/inflation-beta")' in html
+    assert 'api(`/cio/inflation-beta/${encodeURIComponent(id)}`, { method: "PUT"' in html
+    assert "set_by: actingCurator()" in html and "act({ beta: null })" in html
+    assert "passThroughView(view.rs" in instruments and "passThroughView(rs)" in params
+    assert "inflation_pass_through" in html
+    assert [pid for pid, code in blocks.items() if "inflationBetaPanel(" in code] == ["cio/instruments"]

@@ -32,6 +32,7 @@ from typing import Any, Iterator
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from pydantic import BaseModel, ConfigDict, Field
 
 from api.data import router as data_router
 from api.datafeed import router as datafeed_router
@@ -60,6 +61,10 @@ TESTBENCH = Path(__file__).resolve().parent.parent / "testbench"
 #: D-01: the currencies a reader may ask for. Every currency parameter is opt-in; omitted,
 #: each series stays in the currency it was measured in, which is what is published.
 CURRENCY_PATTERN = r"^(CHF|EUR|USD)$"
+
+#: The basis of the figures (owner, 29.09.2026). Omitted or ``nominal``: the published set,
+#: byte for byte; ``real``: each profile minus ln(1 + inflation) per state.
+BASIS_PATTERN = r"^(nominal|real)$"
 
 #: The estimator choice. Omitted, the configured default (``service.DEFAULT_PROFILE_METHOD``,
 #: the 12 month forward measurement lightly smoothed, FMRE-22); ``cascade`` without a
@@ -94,7 +99,8 @@ CORS_ORIGINS = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    # PUT for the cockpit's inflation-beta override (FMRE-35).
+    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
     allow_headers=["*"],
     # Credentials must stay off: a wildcard origin with credentials is rejected by every
     # browser, and this API has no session to send anyway.
@@ -303,17 +309,21 @@ def roles(conn: db.Connection = Depends(get_conn)) -> dict[str, Any]:
 AGGREGATION_URL = os.environ.get("INSTRUMENTS_AGGREGATION_URL", "http://127.0.0.1:8004")
 
 
-def confirm_regime(regime_id: str) -> None:
+def confirm_regime(regime_id: str) -> dict[str, Any]:
     """Refuse to stamp a ``regime_id`` that aggregation does not serve.
 
     Standard library only, like the rest of the client path. An unknown id is the caller's
     error (422); an aggregation that cannot be reached is not, and says so (503). Stamping
     an unconfirmed id would pass a Regime that does not exist straight on to the optimiser.
+
+    Returns aggregation's ``/regime/{id}/current`` body: a scenario Regime carries its
+    ``scenario`` there (AGG-21), which the inflation pass-through reads (FMRE-33).
     """
     url = f"{AGGREGATION_URL.rstrip('/')}/regime/{urllib.parse.quote(regime_id)}/current"
     try:
         with urllib.request.urlopen(url, timeout=10) as response:
-            served = json.loads(response.read()).get("regime_id")
+            body = json.loads(response.read())
+            served = body.get("regime_id")
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             raise HTTPException(
@@ -333,6 +343,438 @@ def confirm_regime(regime_id: str) -> None:
             status_code=503,
             detail=f"aggregation answered for {served!r} when asked for {regime_id!r}",
         )
+    return body
+
+
+def fetch_regime(regime_id: str) -> dict[str, Any]:
+    """The Regime aggregation serves under ``regime_id`` (``GET /regime/{id}``).
+
+    Read for the real view only: a scenario Regime carries its policy's inflation in
+    ``provenance.scenario`` (decision 2). An unknown id is the caller's error (422), an
+    unreachable aggregation is not (503), as in :func:`confirm_regime`.
+    """
+    url = f"{AGGREGATION_URL.rstrip('/')}/regime/{urllib.parse.quote(regime_id)}"
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            body = json.loads(response.read())
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            raise HTTPException(
+                status_code=422, detail=f"aggregation serves no Regime {regime_id!r}",
+            ) from exc
+        raise HTTPException(
+            status_code=503, detail=f"aggregation answered {exc.code} for {regime_id!r}"
+        ) from exc
+    except (urllib.error.URLError, OSError, ValueError) as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"cannot read Regime {regime_id!r}: aggregation at {AGGREGATION_URL} "
+                   f"unreachable",
+        ) from exc
+    if body.get("regime_id") != regime_id:
+        raise HTTPException(
+            status_code=503,
+            detail=f"aggregation answered for {body.get('regime_id')!r} when asked for "
+                   f"{regime_id!r}",
+        )
+    return body
+
+
+def scenario_inflation(regime_id: str) -> dict[str, Any] | None:
+    """The scenario's inflation for the real view, or ``None`` for a base Regime.
+
+    A scenario Regime must carry ``provenance.scenario.inflation_final_12m`` (aggregation
+    AGG-24): the average annual inflation over months 49 to 60 of its policy's path. One
+    without it is refused loudly (503): the historical per-state inflation is never a
+    stand-in for a scenario's own (decision 2).
+    """
+    regime = fetch_regime(regime_id)
+    return _scenario_of(regime_id, (regime.get("provenance") or {}).get("scenario"))
+
+
+def scenario_of_current(regime_id: str, current: dict[str, Any] | None) -> dict[str, Any] | None:
+    """The scenario of a Regime from aggregation's ``/current`` body (``confirm_regime``).
+
+    What the **nominal** view under a scenario reads for the inflation pass-through
+    (FMRE-33): a base Regime's body carries no ``scenario`` and is left exactly as it was.
+    """
+    return _scenario_of(regime_id, (current or {}).get("scenario"), nominal=True)
+
+
+def _scenario_of(regime_id: str, scenario: dict[str, Any] | None, *,
+                 nominal: bool = False) -> dict[str, Any] | None:
+    if not scenario:
+        return None
+    value = scenario.get("inflation_final_12m")
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        what = ("The nominal view under a scenario carries each instrument to the "
+                "scenario's inflation by its pass-through beta (FMRE-33) and needs it"
+                if nominal else
+                "The real view under a scenario uses the policy's own inflation (decision 2) "
+                "and never the historical per-state inflation")
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"Regime {regime_id!r} is a scenario Regime (policy "
+                f"{scenario.get('policy')!r}) but aggregation serves no "
+                f"provenance.scenario.inflation_final_12m for it. {what}, so nothing was "
+                f"deflated. Restart aggregation on a build that derives the field (AGG-24)."),
+        )
+    return {"regime_id": regime_id, "policy": scenario.get("policy"),
+            "inflation_final_12m": float(value),
+            "inflation_path_months": len(scenario.get("inflation_path") or ())}
+
+
+def _pass_through_context(conn: db.Connection, instruments: list[dict], map_id: str | None,
+                          scenario: dict[str, Any],
+                          currency: str | None = None) -> dict[str, Any]:
+    """What a scenario set carries its instruments with (FMRE-33): the stored house table,
+    the betas in force, and the historical deflator of every currency.
+
+    ``currency`` is the currency the set is measured in; None (source currency) takes each
+    view's own, as the real view does (an instrument without history: USD).
+    """
+    from engines.fund_map.inflation import NotComputable
+    if map_id is None:
+        raise HTTPException(status_code=503, detail="no state map; load the monthly signal")
+    try:
+        cal = service.ensure_pass_through_calibration(conn)
+        curves = service.historical_inflation_curves(
+            conn, service.modal_signal_by_period(conn), service.load_state_map(conn, map_id))
+    except service.PassThroughError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    except NotComputable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {"cal": cal, "curves": curves, "scenario": scenario, "currency": currency,
+            "betas": service.effective_betas(conn, instruments), "applied": {}, "roles": {}}
+
+
+def _carry(ctx: dict[str, Any], view: dict, instrument_id: str) -> dict:
+    """One view carried to the scenario, nominal; the beta used is recorded in ``ctx``."""
+    from contracts.return_set import PassThroughInstrument
+    from engines.fund_map.inflation import NotComputable
+    entry = ctx["betas"][instrument_id]
+    currency = ctx["currency"] or _source_deflator_currency(view)
+    try:
+        carried = service.pass_through_view(
+            view, entry, ctx["scenario"]["inflation_final_12m"], ctx["curves"], currency)
+    except NotComputable as exc:
+        raise _not_computable(exc) from exc
+    ctx["applied"][instrument_id] = PassThroughInstrument(
+        instrument_id=instrument_id, type=entry["type"], beta=entry["beta"],
+        source=entry["source"], duration=entry["duration"],
+        duration_source=entry["duration_source"],
+        override_version=(entry["override"]["version"] if entry["override"] else None),
+        deflator_currency=currency)
+    return carried
+
+
+def _carry_roles(ctx: dict[str, Any], role_profiles: tuple[Profile, ...]
+                 ) -> tuple[Profile, ...]:
+    """The role profiles carried to the scenario, nominal, by their blended beta (FMRE-40).
+
+    Each role takes the weighted beta (and bond duration) of its long-record blocks, as the
+    stored calibration ``ipt@1.1.0`` states it; the composition is recorded in ``ctx``.
+    """
+    from contracts.return_set import PassThroughBlock, PassThroughRole
+    from engines.fund_map.inflation import NotComputable
+    blends = ctx["cal"]["payload"]["roles"]
+    out = []
+    for profile in role_profiles:
+        blend = blends[profile.key]
+        try:
+            values = service.pass_through_role(
+                [st.value for st in profile.states], blend,
+                ctx["scenario"]["inflation_final_12m"], ctx["curves"])
+        except NotComputable as exc:
+            raise _not_computable(exc) from exc
+        out.append(profile.model_copy(update={"states": tuple(
+            st.model_copy(update={"value": v}) for st, v in zip(profile.states, values))}))
+        ctx["roles"][profile.key] = PassThroughRole(
+            role=profile.key, beta=blend["beta"], duration=blend["duration"],
+            deflator_currency="USD",
+            composition=tuple(PassThroughBlock(**c) for c in blend["composition"]))
+    return tuple(out)
+
+
+def _pass_through_provenance(ctx: dict[str, Any], keys: list[str]):
+    from contracts.return_set import InflationPassThrough
+    from engines.fund_map import pass_through as pt
+    cal, scenario = ctx["cal"], ctx["scenario"]
+    roles = tuple(ctx["roles"].values())
+    return InflationPassThrough(
+        calibration_version=cal["version"], calibration_id=cal["calibration_id"],
+        source=cal["source"], scenario=scenario["regime_id"], policy=scenario["policy"],
+        inflation_final_12m=scenario["inflation_final_12m"], price_floor=pt.PRICE_FLOOR,
+        formula=pt.FORMULA,
+        applied_to=("instruments", "roles") if roles else ("instruments",),
+        instruments=tuple(ctx["applied"][k] for k in keys if k in ctx["applied"]),
+        roles=roles)
+
+
+def _pass_through_identity(ctx: dict[str, Any], keys: list[str]) -> dict[str, Any]:
+    """The effective betas enter the id: an override is another artefact (FMRE-35); the
+    roles' blended betas too (FMRE-40)."""
+    applied = ctx["applied"]
+    identity = {"cal": ctx["cal"]["calibration_id"],
+                "pi_s": ctx["scenario"]["inflation_final_12m"],
+                "b": {k: [applied[k].beta, applied[k].duration, applied[k].source]
+                      for k in keys if k in applied}}
+    if ctx["roles"]:
+        identity["roles"] = {k: [r.beta, r.duration] for k, r in ctx["roles"].items()}
+    return identity
+
+
+def _pass_through_note(ctx: dict[str, Any]) -> str:
+    s = ctx["scenario"]
+    return (
+        f"Inflation pass-through under the scenario Regime {s['regime_id']} "
+        f"({s['policy']}: {s['inflation_final_12m']:.2%} a year): each instrument profile is "
+        f"its historical real return (nominal minus the historical per-state inflation of "
+        f"the currency it is measured in) plus beta * ln(1 + inflation), and a nominal bond "
+        f"also takes the price change -duration * (ln(1 + scenario inflation) - ln(1 + "
+        f"historical inflation)), a log return with no cap; beta per instrument and its "
+        f"source (house or override) in provenance.inflation_pass_through, calibration "
+        f"{ctx['cal']['version']}. "
+        + ("Role profiles follow the same rule with the weighted beta and bond duration of "
+           "their blocks, from the historical USD inflation (per role in "
+           "provenance.inflation_pass_through.roles); block profiles carry no pass-through."
+           if ctx["roles"] else "Role and block profiles carry no pass-through."))
+
+
+def _view_payload(key: str, role: str, view: dict,
+                  values: list[float] | None = None) -> Profile:
+    return _profile_payload(
+        key, "instrument", role, view["profile"] if values is None else values,
+        view["methods"], view["n_obs"], coverage=view["coverage"],
+        borrowed_from=view["borrowed_from"], match_score=view["match_score"])
+
+
+def _deflated(profile: Profile, log_inflation: tuple[float, ...]) -> Profile:
+    """``real = nominal - ln(1 + inflation)`` on a published profile; labels unchanged."""
+    return profile.model_copy(update={"states": tuple(
+        s.model_copy(update={"value": s.value - d})
+        for s, d in zip(profile.states, log_inflation))})
+
+
+def _source_deflator_currency(view: dict) -> str:
+    """The currency an instrument is deflated in when the set is in source currency.
+
+    The currency its series is measured in; an instrument without history is its role's
+    seed, the long annual record in USD, and is deflated in USD like the role profiles.
+    """
+    return view["currency"] if view["series"] is not None else "USD"
+
+
+def _resolve_currency(curves: dict, wanted: str) -> tuple[str, dict | None]:
+    """Decision 5 for one currency, as an HTTP answer."""
+    from engines.fund_map.inflation import NotComputable, hard_currency
+    if wanted not in curves:
+        raise HTTPException(status_code=422, detail=(
+            f"no inflation index for {wanted}; basis=real needs CHF, EUR or USD"))
+    try:
+        return hard_currency(wanted, curves)
+    except NotComputable as exc:
+        raise _not_computable(exc) from exc
+
+
+def _real_context(conn: db.Connection, map_id: str | None, scenario: dict | None,
+                  currency: str | None) -> dict[str, Any]:
+    """The deflators of a real set, and the currency it is computed in (decision 5).
+
+    Resolved before any profile is measured, so a set that falls back to a hard currency
+    is measured in it directly.
+    """
+    from engines.fund_map.inflation import NotComputable
+
+    if map_id is None:
+        raise HTTPException(status_code=503, detail="no state map; load the monthly signal")
+    try:
+        curves = service.inflation_curves(
+            conn, service.modal_signal_by_period(conn), service.load_state_map(conn, map_id),
+            scenario)
+    except NotComputable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    set_currency, fallback = (currency, None)
+    if currency is not None:
+        set_currency, fallback = _resolve_currency(curves, currency)
+    return {"curves": curves, "currency": set_currency,
+            "fallbacks": [fallback] if fallback else []}
+
+
+def _real_view(ctx: dict[str, Any], *,
+               method: ProfileMethod, currency: str | None, scenario: dict | None,
+               role_profiles: tuple[Profile, ...], block_profiles: tuple[Profile, ...],
+               rows: list, views: dict[str, dict], universe,
+               pt_ctx: dict[str, Any] | None = None) -> dict[str, Any]:
+    """The ``basis=real`` set: every profile minus its currency's per-state log inflation.
+
+    **Instruments** are deflated by the inflation of the currency they are measured in:
+    ``currency=`` when given, otherwise each series' source currency (stated). **Role and
+    block profiles** are the long annual record in USD and are deflated by USD inflation.
+    Under a scenario Regime every curve is the scenario's (decision 2). A currency whose
+    inflation leaves the band in any state gives way to CHF, then USD (decision 5): the
+    affected profiles are re-measured in that currency and the fallback is named; if no
+    currency is inside the band the set is ``not_computable`` (422, with the reason).
+    """
+    from contracts.return_set import Deflator, DeflatorCurve
+    from engines.fund_map.inflation import (
+        NotComputable, curve_reason, deflate, weakest_labels)
+
+    curves = ctx["curves"]
+    set_currency = ctx["currency"]
+    fallbacks: list[dict] = list(ctx["fallbacks"])
+    applied: dict[str, set[str]] = {}
+
+    by_id = {i["instrument_id"]: i for i in universe.instruments} if universe else {}
+    cache: dict = {}
+    instrument_profiles = []
+    for r in rows:
+        iid = r["instrument_id"]
+        view = views[iid]
+        if set_currency is not None:
+            target = set_currency
+        else:
+            target, fallback = _resolve_currency(curves, _source_deflator_currency(view))
+            if fallback:
+                fallbacks.append({**fallback, "instrument": iid})
+        if target != view["currency"] and view["series"] is not None:
+            try:
+                view = service.estimate_view(universe, by_id[iid], method, target, cache)
+            except CurrencyError as exc:
+                raise HTTPException(status_code=503, detail=str(exc)) from exc
+            if pt_ctx is not None:
+                # Re-measured in another currency: carried to the scenario again.
+                view = _carry(pt_ctx, view, iid)
+        try:
+            values = deflate(view["profile"], curves[target])
+        except NotComputable as exc:
+            raise _not_computable(exc) from exc
+        applied.setdefault(target, set()).add("instruments")
+        instrument_profiles.append(_view_payload(iid, r["role"], view, values))
+
+    role_curve = curves["USD"]
+    if not role_curve.computable():
+        raise _not_computable(NotComputable(
+            "the role profiles are the long annual record in USD: "
+            + curve_reason(role_curve)))
+    applied.setdefault("USD", set()).add("roles")
+    roles = tuple(_deflated(p, role_curve.log_inflation) for p in role_profiles)
+    blocks = tuple(_deflated(p, role_curve.log_inflation) for p in block_profiles)
+
+    used = sorted(applied)
+    instrument_curves = [curves[c] for c in used if "instruments" in applied[c]]
+    labels = weakest_labels(instrument_curves or [role_curve])
+    index = (curves[set_currency].index if set_currency is not None
+             else "; ".join(f"{c}: {curves[c].index}" for c in used))
+    if set_currency is not None:
+        hard = fallbacks[0] if fallbacks else None
+    else:
+        hard = {"fallbacks": fallbacks} if fallbacks else None
+    deflator = Deflator(
+        currency=set_currency, index=index, method=role_curve.method, labels=labels,
+        hard_currency_fallback=hard,
+        scenario=scenario["regime_id"] if scenario else None,
+        curves=tuple(
+            DeflatorCurve(currency=c, index=curves[c].index, source=curves[c].source,
+                          log_inflation=curves[c].log_inflation, labels=curves[c].labels,
+                          applied_to=tuple(sorted(applied[c])))
+            for c in used),
+    )
+    if scenario:
+        what = (f"the scenario Regime {scenario['regime_id']}'s own inflation "
+                f"({scenario['policy']}: {scenario['inflation_final_12m']:.2%} a year, the "
+                f"average over months 49 to 60 of its policy path) in every state "
+                f"(decision 2)")
+    else:
+        what = ("the inflation measured over the 12 months after each month in that "
+                "regime state, per currency (GET /v1/inflation): " + index)
+    note = (
+        f"Basis: real in currency={set_currency or 'source'}: every profile is nominal "
+        f"minus ln(1 + inflation) per state, {what}. "
+        + ("Instruments are deflated in the currency their series is measured in (CHF for "
+           "the andersCH recovered returns, USD for public proxies); an instrument without "
+           "history is its role seed and is deflated in USD. " if set_currency is None
+           else "")
+        + "Role profiles are the long annual record in USD and are deflated by USD "
+        "inflation. Everything is stored nominal; real is derived at the point of use. "
+        "Per-state labels are in provenance.deflator."
+        + (" Hard-currency view: " + "; ".join(f["reason"] for f in fallbacks) + "."
+           if fallbacks else "")
+    )
+    identity = {
+        "ccy": set_currency, "asked": currency,
+        "src": sorted({curves[c].source for c in used}),
+        "method": "scenario" if scenario else "forward_12m",
+        "fallback": [[f["from"], f["to"], f.get("instrument")] for f in fallbacks],
+        "scenario": ([scenario["regime_id"], scenario["policy"],
+                      scenario["inflation_final_12m"]] if scenario else None),
+    }
+    return {"role_profiles": roles, "block_profiles": blocks,
+            "instrument_profiles": tuple(instrument_profiles), "deflator": deflator,
+            "note": note, "identity": identity, "currency": set_currency}
+
+
+def _not_computable(exc: Exception) -> HTTPException:
+    """Decision 5, no currency inside the band: a stated result with its reason."""
+    return HTTPException(status_code=422, detail={
+        "status": "not_computable", "basis": "real", "reason": str(exc)})
+
+
+@app.get("/v1/inflation", tags=["return-set"])
+def inflation(
+    currency: str = Query(..., pattern=CURRENCY_PATTERN,
+                          description="The reporting currency; its own index (decision 3)."),
+    regime_id: str | None = Query(
+        None, min_length=1,
+        description="A scenario Regime: its policy's inflation in every state (decision 2). "
+                    "A base Regime gives the historical per-state inflation."),
+    conn: db.Connection = Depends(get_conn),
+) -> dict[str, Any]:
+    """Inflation over the following 12 months in each of the 25 regime states.
+
+    The deflator of the real view (owner, 29.09.2026): per state, the inflation of the
+    currency's index measured over the 12 months after each month in that state, per phase
+    and read onto the states like a profile (``engines/fund_map/inflation.py``). Each state
+    carries ``inflation`` (simple, annual), ``log_inflation`` (what a real log return
+    subtracts: ``real = nominal - ln(1 + inflation)``), ``label`` (``measured`` inside
+    -10 % .. +20 %, ``extrapolated`` in the rest of -20 % .. +100 %, ``fallback`` where the
+    phase was too thin and today's year-on-year inflation stands in, ``not_computable``
+    outside the band) and ``n_obs``. ``real_view`` says in which currency a real figure
+    would be computed (decision 5).
+    """
+    from engines.fund_map.inflation import (
+        CEILING, FLOOR, MEASURED_HIGH, MEASURED_LOW, NotComputable, hard_currency)
+
+    scenario = scenario_inflation(regime_id) if regime_id is not None else None
+    calibration_id = _require_calibration(conn)
+    map_id = service.latest_state_map_id(conn, calibration_id)
+    if map_id is None:
+        raise HTTPException(status_code=503, detail="no state map; load the monthly signal")
+    state_map = service.load_state_map(conn, map_id)
+    signal = service.modal_signal_by_period(conn)
+    wanted = [currency] + [c for c in ("CHF", "USD") if c != currency]
+    try:
+        curves = service.inflation_curves(conn, signal, state_map, scenario, wanted)
+    except NotComputable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    body = curves[currency].as_payload()
+    try:
+        eff, fallback = hard_currency(currency, curves)
+        real_view: dict[str, Any] = {"status": "computable", "currency": eff,
+                                     "hard_currency_fallback": fallback}
+    except NotComputable as exc:
+        real_view = {"status": "not_computable", "currency": None, "reason": str(exc)}
+    body.update(
+        regime_id=regime_id,
+        regime_kind=None if regime_id is None else ("scenario" if scenario else "base"),
+        calibration_id=calibration_id, state_map_id=map_id,
+        unit="annual inflation (simple) and ln(1 + inflation)",
+        ceiling={"floor": FLOOR, "measured_low": MEASURED_LOW,
+                 "measured_high": MEASURED_HIGH, "ceiling": CEILING},
+        real_view=real_view,
+    )
+    return body
 
 
 @app.get("/v1/return-set", tags=["return-set"])
@@ -353,6 +795,11 @@ def return_set(
         None, pattern=CURRENCY_PATTERN,
         description="D-01: measure the instrument profiles in CHF, EUR or USD. "
                     "Omitted, each series in its source currency."),
+    basis: str | None = Query(
+        None, pattern=BASIS_PATTERN,
+        description="nominal (the default, unchanged) or real: each profile minus "
+                    "ln(1 + inflation) per state, the currency's inflation over the "
+                    "following 12 months in that state, or a scenario Regime's own."),
     conn: db.Connection = Depends(get_conn),
 ) -> JSONResponse:
     """The ``ReturnSet`` artefact, validated and checked for moments before it leaves.
@@ -377,14 +824,27 @@ def return_set(
     default_method = service.configured_profile_method()
     method = ProfileMethod(profile_method) if profile_method else default_method
     computed = currency is not None or method is not ProfileMethod.CASCADE
-    if regime_id is not None:
-        confirm_regime(regime_id)
+    # ``basis=nominal`` is the default set, byte for byte: nothing below looks at it.
+    real = basis == "real"
+    current = confirm_regime(regime_id) if regime_id is not None else None
+    # A scenario Regime: its inflation deflates a real set (decision 2) and carries every
+    # instrument to the scenario by its pass-through beta, nominal and real (FMRE-33). A
+    # base Regime is read for nothing more than the stamp, and its set is what it was.
+    if regime_id is None:
+        scenario = None
+    elif real:
+        scenario = scenario_inflation(regime_id)
+    else:
+        scenario = scenario_of_current(regime_id, current)
     started = time.perf_counter()
     calibration_id = _require_calibration(conn)
     header = conn.execute(
         "SELECT * FROM calibration WHERE calibration_id = %s", (calibration_id,)
     ).fetchone()
     map_id = service.latest_state_map_id(conn, calibration_id)
+    real_ctx = _real_context(conn, map_id, scenario, currency) if real else None
+    # A real set that fell back to a hard currency (decision 5) is measured in it.
+    view_currency = real_ctx["currency"] if real_ctx is not None else currency
 
     stored = service.load_role_profiles(conn, calibration_id)
     role_profiles = tuple(
@@ -394,6 +854,10 @@ def return_set(
     )
 
     instrument_profiles: tuple[Profile, ...] = ()
+    rows: list = []
+    views: dict[str, dict] = {}
+    universe = None
+    pt_ctx: dict[str, Any] | None = None
     if include_instruments:
         rows = conn.execute(
             "SELECT i.instrument_id, i.role, p.profile_json, p.methods_json, p.n_obs_json,      "
@@ -411,26 +875,29 @@ def return_set(
             )
             for r in rows
         )
-        if computed:
+        if computed or real or scenario is not None:
             try:
                 universe = service.load_universe(conn, calibration_id)
             except RuntimeError as exc:
                 raise HTTPException(status_code=503, detail=str(exc)) from exc
             by_id = {i["instrument_id"]: i for i in universe.instruments}
             cache: dict = {}
-            computed = []
             for r in rows:
                 try:
-                    view = service.estimate_view(
-                        universe, by_id[r["instrument_id"]], method, currency, cache)
+                    views[r["instrument_id"]] = service.estimate_view(
+                        universe, by_id[r["instrument_id"]], method, view_currency, cache)
                 except CurrencyError as exc:
                     raise HTTPException(status_code=503, detail=str(exc)) from exc
-                computed.append(_profile_payload(
-                    r["instrument_id"], "instrument", r["role"], view["profile"],
-                    view["methods"], view["n_obs"], coverage=view["coverage"],
-                    borrowed_from=view["borrowed_from"], match_score=view["match_score"],
-                ))
-            instrument_profiles = tuple(computed)
+            if scenario is not None:
+                pt_ctx = _pass_through_context(conn, universe.instruments, map_id, scenario,
+                                               view_currency)
+                for r in rows:
+                    views[r["instrument_id"]] = _carry(
+                        pt_ctx, views[r["instrument_id"]], r["instrument_id"])
+            instrument_profiles = tuple(
+                _view_payload(r["instrument_id"], r["role"], views[r["instrument_id"]])
+                for r in rows
+            )
 
     block_profiles: tuple[Profile, ...] = ()
     if include_blocks:
@@ -440,6 +907,22 @@ def return_set(
                              b["n_obs"], coverage=_weakest(b["methods"]))
             for b in blocks.values()
         )
+
+    if scenario is not None and pt_ctx is None:
+        pt_ctx = _pass_through_context(conn, [], map_id, scenario)
+    if pt_ctx is not None:
+        # FMRE-40: the role profiles follow the same rule, with their blended beta.
+        role_profiles = _carry_roles(pt_ctx, role_profiles)
+
+    real_set = None
+    if real:
+        real_set = _real_view(
+            real_ctx, method=method, currency=currency,
+            scenario=scenario, role_profiles=role_profiles, block_profiles=block_profiles,
+            rows=rows, views=views, universe=universe, pt_ctx=pt_ctx)
+        role_profiles = real_set["role_profiles"]
+        block_profiles = real_set["block_profiles"]
+        instrument_profiles = real_set["instrument_profiles"]
 
     signal = conn.execute(
         "SELECT MIN(period) AS lo, MAX(period) AS hi FROM market_risk_month"
@@ -488,6 +971,38 @@ def return_set(
             "each instrument series in its source currency (CHF for the andersCH "
             "recovered returns, USD for public proxies)."),
     )
+    set_currency = currency
+    pass_through = None
+    if pt_ctx is not None:
+        # FMRE-33/35: the effective betas and the scenario's inflation are in the id.
+        keys = [p.key for p in instrument_profiles]
+        identity["pt"] = _pass_through_identity(pt_ctx, keys)
+        run_inputs["inflation_pass_through"] = identity["pt"]
+        pass_through = _pass_through_provenance(pt_ctx, keys)
+        if real_set is None:
+            notes = (notes[0], "Basis: nominal. " + _pass_through_note(pt_ctx)) + notes[2:]
+    if real_set is not None:
+        # The basis enters the id, the run manifest and the notes; nominal never does.
+        identity["basis"] = "real"
+        identity["deflator"] = real_set["identity"]
+        run_inputs["basis"] = "real"
+        run_inputs["deflator"] = real_set["identity"]
+        real_note = real_set["note"]
+        if pt_ctx is not None:
+            real_note += (" " + _pass_through_note(pt_ctx) + " Real is therefore the "
+                          "historical real return plus (beta - 1) * ln(1 + inflation).")
+        notes = (notes[0], real_note) + notes[2:]
+        set_currency = real_set["currency"]
+        if set_currency != currency:
+            # Decision 5: the set is real in a hard currency, and says so where pcp reads.
+            notes = notes[:3] + (
+                f"Instrument profiles: profile_method={method.value} in "
+                f"currency={set_currency}; {how} Hard-currency view: the request asked "
+                f"for currency={currency}.",
+                f"Currency: instrument profiles measured in {set_currency}, converted "
+                f"monthly at the point of use before estimation. Role profiles are the "
+                f"long annual record in USD and are not converted.",
+            )
     artefact = ReturnSet(
         return_set_id=db.content_id("RS", identity),
         engine_version=service.ENGINE_VERSION,
@@ -502,11 +1017,16 @@ def return_set(
             universe_version=service.UNIVERSE_VERSION,
             calibration_window=f"{header['first_year']}..{header['last_year']}",
             signal_window=f"{signal['lo']}..{signal['hi']}" if signal["lo"] else "",
-            estimator=header["estimator"],
+            # The estimator that built the instrument profiles (FMRE-26). The calibration's
+            # own estimator (plain_mean) stays on /v1/calibration.
+            estimator=method.value,
             source_sha256=db.loads(header["sources_json"]),
             notes=notes,
             # D-01: the measurement currency of a converted set; null on the default.
-            currency=currency,
+            currency=set_currency,
+            basis="real" if real_set is not None else None,
+            deflator=real_set["deflator"] if real_set is not None else None,
+            inflation_pass_through=pass_through,
         ),
         run_id=service.record_run(
             conn, engine=service.ENGINE,
@@ -708,6 +1228,48 @@ def estimate(
     }
 
 
+def _real_profile(ctx: dict[str, Any], universe, inst: dict, method: ProfileMethod,
+                  currency: str | None, scenario: dict | None,
+                  view: dict, pt_ctx: dict[str, Any] | None = None
+                  ) -> tuple[dict, dict[str, Any]]:
+    """One instrument's profile on the real basis, and what it was deflated with."""
+    curves = ctx["curves"]
+    if ctx["currency"] is not None:
+        target = ctx["currency"]
+        fallback = ctx["fallbacks"][0] if ctx["fallbacks"] else None
+    else:
+        target, fallback = _resolve_currency(curves, _source_deflator_currency(view))
+    if target != view["currency"] and view["series"] is not None:
+        try:
+            view = service.estimate_view(universe, inst, method, target)
+        except CurrencyError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        if pt_ctx is not None:
+            view = _carry(pt_ctx, view, inst["instrument_id"])
+    curve = curves[target]
+    d = curve.log_inflation
+    real_view = dict(view, profile=[v - x for v, x in zip(view["profile"], d)])
+    if "unsmoothed" in view:
+        real_view["unsmoothed"] = dict(
+            view["unsmoothed"],
+            profile=[v - x for v, x in zip(view["unsmoothed"]["profile"], d)])
+    return real_view, {
+        "basis": "real",
+        "deflator": {
+            "currency": target, "asked_currency": currency, "index": curve.index,
+            "method": curve.method, "source": curve.source,
+            "log_inflation": list(d), "labels": list(curve.labels),
+            "hard_currency_fallback": fallback,
+            "scenario": scenario["regime_id"] if scenario else None,
+            "note": ("real = nominal - ln(1 + inflation) per state, on states and "
+                     "unsmoothed; phases, after_stress, crisis_months and "
+                     "protection_check stay nominal"
+                     + ("" if currency else "; currency=source: deflated in the currency "
+                        "the series is measured in")),
+        },
+    }
+
+
 @app.get("/v1/instruments/{instrument_id}/profile", tags=["instruments"])
 def instrument_profile(
     instrument_id: str,
@@ -718,9 +1280,25 @@ def instrument_profile(
     currency: str | None = Query(
         None, pattern=CURRENCY_PATTERN,
         description="Opt-in (D-01): measure the profile in CHF, EUR or USD."),
+    basis: str | None = Query(
+        None, pattern=BASIS_PATTERN,
+        description="nominal (the default, unchanged) or real: the profile minus "
+                    "ln(1 + inflation) per state."),
+    regime_id: str | None = Query(
+        None, min_length=1,
+        description="A scenario Regime: the profile is carried to the scenario's inflation "
+                    "by the instrument's pass-through beta (FMRE-33), and with basis=real "
+                    "deflated by it (decision 2). A base Regime changes nothing."),
     conn: db.Connection = Depends(get_conn),
 ) -> dict[str, Any]:
     """One instrument's 25-state profile under the default estimator, or another's.
+
+    ``basis=real`` subtracts ``ln(1 + inflation)`` per state from ``states`` and from the
+    unsmoothed profile: the inflation of the currency the profile is measured in
+    (``currency=``, or the series' source currency, stated), or with ``regime_id`` the
+    scenario Regime's own. ``deflator`` names the index, the per-state labels and any
+    hard-currency fallback (decision 5); ``phases``, ``after_stress``, ``crisis_months``
+    and ``protection_check`` stay nominal. Without ``basis`` the response is unchanged.
 
     Without ``method`` this is the default estimator's profile (the 12 month forward
     measurement, lightly smoothed, FMRE-22), computed on request and never stored. The
@@ -732,18 +1310,55 @@ def instrument_profile(
     """
     calibration_id = _require_calibration(conn)
     chosen = ProfileMethod(method) if method else service.configured_profile_method()
-    if chosen is not ProfileMethod.CASCADE or currency is not None:
+    real = basis == "real"
+    if regime_id is None:
+        scenario = None
+    elif real:
+        scenario = scenario_inflation(regime_id)
+    else:
+        # Since FMRE-33 a scenario moves the nominal profile too (its pass-through); a base
+        # Regime changes nothing and the response is the one without regime_id.
+        scenario = scenario_of_current(regime_id, confirm_regime(regime_id))
+    if (chosen is not ProfileMethod.CASCADE or currency is not None or real
+            or scenario is not None):
         try:
             universe = service.load_universe(conn, calibration_id)
             inst = next((i for i in universe.instruments
                          if i["instrument_id"] == instrument_id), None)
             if inst is None:
                 raise HTTPException(status_code=404, detail=f"no instrument {instrument_id!r}")
-            view = service.estimate_view(universe, inst, chosen, currency)
+            real_ctx = (_real_context(conn, universe.map_id, scenario, currency)
+                        if real else None)
+            view = service.estimate_view(
+                universe, inst, chosen,
+                real_ctx["currency"] if real_ctx is not None else currency)
         except CurrencyError as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except RuntimeError as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
+        # The protection rules are statements about the historical nominal profile
+        # (FMRE-32): judged before any scenario or deflator touches it.
+        nominal_view = view
+        real_extra: dict[str, Any] = {}
+        pt_ctx = None
+        if scenario is not None:
+            pt_ctx = _pass_through_context(
+                conn, [inst], universe.map_id, scenario,
+                real_ctx["currency"] if real_ctx is not None else currency)
+            view = _carry(pt_ctx, view, instrument_id)
+        if real_ctx is not None:
+            view, real_extra = _real_profile(real_ctx, universe, inst, chosen, currency,
+                                             scenario, view, pt_ctx)
+        if pt_ctx is not None:
+            entry = pt_ctx["betas"][instrument_id]
+            real_extra["inflation_pass_through"] = {
+                **_pass_through_provenance(pt_ctx, [instrument_id]).model_dump(mode="json"),
+                "house_beta": entry["house_beta"], "house_duration": entry["house_duration"],
+                "rule": entry["rule"],
+                "note": ("states and unsmoothed are carried to the scenario; phases, "
+                         "after_stress, crisis_months and protection_check stay the "
+                         "historical nominal ones"),
+            }
         states = [
             {"state": i + 1, "value": view["profile"][i], "method": view["methods"][i],
              "n_obs": view["n_obs"][i]}
@@ -767,8 +1382,10 @@ def instrument_profile(
             "states": states,
             "protection_type": (service.protection_type(inst).value
                                 if inst["role"] == "protection" else None),
-            "protection_check": service.protection_check(view, service.protection_type(inst)),
+            "protection_check": service.protection_check(nominal_view,
+                                                         service.protection_type(inst)),
             **extra,
+            **real_extra,
         }
     row = conn.execute(
         "SELECT * FROM instrument_profile WHERE instrument_id = %s AND calibration_id = %s",
@@ -799,6 +1416,119 @@ def instrument_profile(
             for i in range(len(profile))
         ],
     }
+
+
+# ---------------------------------------------------------------------------
+# Inflation pass-through beta: the house table and the CIO's overrides (FMRE-33..37)
+# ---------------------------------------------------------------------------
+
+
+class BetaOverrideIn(BaseModel):
+    """``PUT /v1/inflation-beta/{instrument_id}``: one new override version."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    #: 0 .. 1.5; null reverts to the house beta.
+    beta: float | None = Field(..., ge=0.0, le=1.5)
+    #: Years, 0 .. 30; null (or omitted) keeps the house duration.
+    duration: float | None = Field(None, ge=0.0, le=30.0)
+    reason: str = Field(..., min_length=1)
+    set_by: str = Field(..., min_length=1)
+
+
+def _beta_row(inst: dict, entry: dict) -> dict[str, Any]:
+    return {"instrument_id": inst["instrument_id"], "name": inst["name"],
+            "asset_class": inst["asset_class"], "role": inst["role"],
+            "proxy_symbol": inst.get("proxy_symbol"), **entry}
+
+
+def _active_instruments(conn: db.Connection) -> list[dict]:
+    return [dict(r) for r in conn.execute(
+        "SELECT instrument_id, name, role, asset_class, proxy_symbol, active FROM instrument "
+        "WHERE active = 1 ORDER BY name").fetchall()]
+
+
+@app.get("/v1/inflation-beta", tags=["return-set"])
+def inflation_beta(conn: db.Connection = Depends(get_conn)) -> dict[str, Any]:
+    """Every active instrument's inflation pass-through: its house type, the house beta,
+    the CIO's override if any, the beta in force, and the duration where relevant.
+
+    Read under a scenario Regime only (FMRE-33): scenario nominal = historical real +
+    beta * ln(1 + scenario inflation), a nominal bond also taking the duration loss. Base
+    Regimes are not touched by it.
+    """
+    from engines.fund_map import pass_through as pt
+    try:
+        cal = service.ensure_pass_through_calibration(conn)
+    except service.PassThroughError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    instruments = _active_instruments(conn)
+    betas = service.effective_betas(conn, instruments)
+    return {
+        "calibration": {"version": cal["version"], "calibration_id": cal["calibration_id"],
+                        "source": cal["source"], "created_at": cal["created_at"],
+                        "types": cal["payload"]["types"], "rules": cal["payload"]["rules"],
+                        "blocks": cal["payload"]["blocks"], "roles": cal["payload"]["roles"],
+                        "formula": pt.FORMULA},
+        "bounds": {"beta": [pt.BETA_MIN, pt.BETA_MAX],
+                   "duration": [pt.DURATION_MIN, pt.DURATION_MAX]},
+        "instruments": [_beta_row(i, betas[i["instrument_id"]]) for i in instruments],
+    }
+
+
+@app.get("/v1/inflation-beta/{instrument_id}/history", tags=["return-set"])
+def inflation_beta_history(
+    instrument_id: str,
+    conn: db.Connection = Depends(get_conn),
+) -> list[dict[str, Any]]:
+    """Every override version of one instrument, newest first (the first is in force).
+
+    A revert is a version with ``beta: null`` (the house beta). An instrument never
+    overridden answers ``[]``; an unknown one 404.
+    """
+    if conn.execute("SELECT 1 FROM instrument WHERE instrument_id = %s",
+                    (instrument_id,)).fetchone() is None:
+        raise HTTPException(status_code=404, detail=f"no instrument {instrument_id!r}")
+    return [dict(r) for r in conn.execute(
+        "SELECT version, beta, duration, reason, set_by, set_at FROM inflation_beta_override "
+        "WHERE instrument_id = %s ORDER BY version DESC", (instrument_id,)).fetchall()]
+
+
+@app.put("/v1/inflation-beta/{instrument_id}", tags=["return-set"])
+def put_inflation_beta(
+    instrument_id: str,
+    payload: BetaOverrideIn,
+    conn: db.Connection = Depends(get_conn),
+) -> dict[str, Any]:
+    """Set the CIO's override of one instrument's pass-through beta (and duration).
+
+    Append-only: every call writes the next version, nothing is updated or deleted; a
+    version with ``beta: null`` reverts to the house beta. The beta in force enters every
+    scenario set's ``return_set_id`` and ``provenance.inflation_pass_through``.
+    """
+    import psycopg
+
+    inst = conn.execute(
+        "SELECT instrument_id, name, role, asset_class, proxy_symbol, active FROM instrument "
+        "WHERE instrument_id = %s", (instrument_id,)).fetchone()
+    if inst is None:
+        raise HTTPException(status_code=404, detail=f"no instrument {instrument_id!r}")
+    try:
+        row = service.put_beta_override(
+            conn, instrument_id, beta=payload.beta, duration=payload.duration,
+            reason=payload.reason, set_by=payload.set_by)
+    except service.PassThroughError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except psycopg.errors.UniqueViolation as exc:
+        raise HTTPException(status_code=409, detail=(
+            f"another override of {instrument_id!r} was written at the same moment; "
+            f"read GET /v1/inflation-beta and try again")) from exc
+    inst = dict(inst)
+    entry = service.effective_beta(inst, row)
+    return {"written": {k: row[k] for k in ("instrument_id", "version", "beta", "duration",
+                                            "reason", "set_by", "set_at",
+                                            "calibration_version")},
+            **_beta_row(inst, entry)}
 
 
 @app.get("/v1/instruments/{instrument_id}/returns", tags=["instruments"])

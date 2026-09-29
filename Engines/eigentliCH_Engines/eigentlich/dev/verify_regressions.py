@@ -182,6 +182,39 @@ CODE_CASES += [
      f"{S}alignment.py", '    new["questions"] = [q for q in new["questions"] if q.get("key") != "hours_learning"]\n', ""),
 ]
 
+RV = f"{T}test_app_realview.py"
+
+# The nominal and real view and the two bugs of 29.09.2026 (EIG-60 to EIG-64).
+CODE_CASES += [
+    ("real view: the indexed question", f"{RV}::test_the_onboarding_gains_the_two_questions_saved_by_the_owner",
+     f"{S}alignment.py", "    _insert_after(new, anchor, CONTRIBUTION_INDEXED)\n", ""),
+    ("real view: per goal, not in sequence", f"{RV}::test_the_per_goal_question_is_not_in_the_sequence",
+     f"{S}questionnaires.py", '    return q.get("scope") in (None, "client")', "    return True"),
+    ("real view: amount_basis reaches lbs", f"{RV}::test_a_goals_amount_basis_is_stored_and_sent_only_when_stated",
+     f"{S}inputs.py", 'amount_basis=row.get("amount_basis") if row.get("amount_basis") in AMOUNT_BASES else None))',
+     "amount_basis=None))"),
+    ("real view: unstated is left out", f"{RV}::test_a_goals_amount_basis_is_stored_and_sent_only_when_stated",
+     f"{S}clients.py", '        if goal.get("amount_basis") is None:\n            goal.pop("amount_basis", None)\n', ""),
+    ("real view: indexed contribution", f"{RV}::test_the_indexed_contribution_is_sent_only_when_answered",
+     f"{S}inputs.py", "contribution_indexed=indexed) if chosen else None", "contribution_indexed=None) if chosen else None"),
+    ("real view: a report's basis is sent", f"{RV}::test_a_report_is_asked_in_its_basis", f"{S}service.py",
+     "revision_of=revision_of, revision_note=revision_note, basis=basis)", "revision_of=revision_of, revision_note=revision_note)"),
+    ("report: the base Regime's run", f"{RV}::test_a_report_takes_the_base_regime_run_of_the_current_set",
+     f"{S}service.py", "chosen = next((r for r in runs if regime(r) and regime(r) not in listed), None)",
+     "chosen = runs[0]"),
+    ("report: the current set's run", f"{RV}::test_a_report_takes_the_base_regime_run_of_the_current_set",
+     f"{S}service.py", '"AND parameter_set_id = %s ORDER BY finished_at DESC, created_at DESC",',
+     '"AND %s::text IS NOT NULL ORDER BY finished_at DESC, created_at DESC",'),
+    ("report: real takes no nominal", f"{RV}::test_a_real_report_takes_no_nominal_allocation", f"{S}service.py",
+     "        if set_basis != basis:\n", "        if False:\n"),
+    ("decisions: roles and figures", f"{RV}::test_the_plan_s_decisions_read_in_plain_words", f"{S}decisions.py",
+     "            return f\"{number(_as_number(m.group(1)))} CHF, {self.role(m.group(2), capital or 'financial')}\"",
+     "            return text"),
+    ("decisions: written in plain words", f"{T}test_app_api.py::test_a_position_edit_writes_its_decision",
+     f"{S}service.py", '        return self._renderer(conn, "de").changes(old, new, old.get("capital_type"))',
+     '        return "; ".join(f"{k}: {old.get(k)} → {v}" for k, v in new.items() if old.get(k) != v)'),
+]
+
 CASES += [
     ("basis only on AI answers", "tests/test_app_inputs.py::test_only_an_ai_answer_carries_a_basis",
      "ALTER TABLE thread_message DROP CONSTRAINT thread_message_basis"),

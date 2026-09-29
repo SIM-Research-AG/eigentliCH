@@ -5,33 +5,86 @@ resume point. Model-derived research output; not investment advice.
 
 ## State (29.09.2026)
 
-- **Engine 13, v1.2.0**, calibration **1.3.0 active**: the deterministic life balance sheet from the eigentliCH
+- **Engine 13, v1.3.0**, calibration **1.5.0 active**: the deterministic life balance sheet from the eigentliCH
   prototype's services (owner's ruling of 28.09.2026; `personal_alm` is left for `lbsim`), with the owner's
-  decisions of 29.09.2026 built (LBS-23 to LBS-30). 268 tests pass (`python -m pytest`, needs the PostgreSQL
-  container); twenty-nine guarded rules mutation-checked.
+  decisions of 29.09.2026 built (LBS-23 to LBS-30), the nominal and real view (LBS-31 to LBS-35,
+  `review/REAL_VIEW_INTERFACES.md`) and the owner's decisions on its two assumptions (LBS-36 to LBS-38: CHF
+  inflation 1.0 %, the plausibility table approved). 401 tests pass (`python -m pytest`, needs the PostgreSQL
+  container); thirty-nine guarded rules mutation-checked.
 - Calibrations, append-only, each a child of the one before: **1.0.0** the prototype reproduced (records as
   shipped), **1.1.0** `ahv-pension` and `risk-profile` approved by Nicolas on 29.09.2026 (content unchanged, the
   prototype's behaviour otherwise), **1.2.0** the four LBS-17 quirks corrected, **1.3.0** three more corrections
   (LBS-28): a human-capital stock is never free wealth, a stated mortgage of 0 is a paid-off mortgage, and the
-  yearly saving is split between goals by `goals[].contribution_share`. 1.0.0, 1.1.0 and 1.2.0 stay selectable
-  with `calibration_version`, unchanged, their hashes pinned (`CAL-2c0d67f4f820dfc9`, `CAL-e69eb8fc77af48a3`,
-  `CAL-6e23bd89792ac4dc`).
-- Store: database `simtech`, schema `lbs`, role `lbs`; 1.0.0 to 1.2.0 are in the real store. 1.3.0 is written by
-  the service's startup (or `init-db`) the first time lbs@1.2.0 starts against it. Password in
+  yearly saving is split between goals by `goals[].contribution_share`, **1.4.0** the nominal and real view: goal
+  amounts in today's francs unless stated (inflated to their date at CHF 0.50 % a year, the datafeed's 2006 to 2026
+  mean), an indexed contribution when stated, both views on the sheet, the retirement comparison in today's
+  francs, and a plausibility judgement of the required return, **1.5.0** the owner's decisions on 1.4.0's two
+  assumptions: CHF inflation 1.0 % a year (the midpoint of the SNB's 0 to 2 % range, forward-looking; EUR 2.11 %
+  and USD 2.54 % stay measured) and the plausibility table (2 %, 3.5 %, 5 % real at risk levels 0, 0.5, 1)
+  approved unchanged. 1.0.0 to 1.4.0 stay selectable with `calibration_version`, unchanged, their hashes pinned
+  (`CAL-2c0d67f4f820dfc9`, `CAL-e69eb8fc77af48a3`, `CAL-6e23bd89792ac4dc`, `CAL-2fa18ff0a38495b5`,
+  `CAL-99a3654972f86773`); 1.5.0 is `CAL-fdf122697c7aa04b`.
+- Store: database `simtech`, schema `lbs`, role `lbs`; 1.0.0 to 1.2.0 are in the real store. 1.3.0, 1.4.0 and
+  1.5.0 are written by the service's startup (or `init-db`) the first time lbs@1.3.0 starts against it. Password in
   `config.local.yaml` (git-ignored).
 - Golden layer A (the prototype, 15 cases under 1.0.0 and 1.1.0) reproduced exactly (659 figures, deviation 0).
   Golden layer B, step 1.2.0 (19 cases, against 1.1.0) unchanged, rebuilt byte for byte; step 1.3.0
   (`golden/corrected/1.3.0`, 23 cases, against 1.2.0) frozen: each new case moves by its own correction only,
   prototype cases only where they exercise one (`db-01`, `db-05`, `syn-couple`, and the share gap of every
-  multi-goal household).
-- Contracts: `lbs-request@1.0.0` gains the optional `goals[].contribution_share` (no version change);
-  `lbs-balance-sheet@1.0.0` unchanged in shape; the calibration contract is `lbs-calibration@1.2.0`.
+  multi-goal household); step 1.4.0 (`golden/corrected/1.4.0`, 28 cases, against 1.3.0) frozen, each changed leaf
+  attributed to one of four parts (LBS-35); step 1.5.0 (`golden/corrected/1.5.0`, the same 28 cases, against
+  1.4.0) frozen with `changes.json` (832 leaves, each with its decision and kind of figure) and
+  `required_returns.json` (LBS-38); the earlier steps rebuilt byte for byte (their manifests name the building
+  engine, lbs@1.3.0, unchanged by 1.5.0).
+- Contracts: `lbs-request@1.0.0` gains the optional `goals[].contribution_share`, `goals[].amount_basis` and
+  `mandate.contribution_indexed` (no version change); `lbs-balance-sheet@1.0.0` gains optional fields only, left
+  out while unset; the calibration contract is `lbs-calibration@1.3.0`.
 - Records still provisional and read ungated as in the prototype: `intake-scales`, `roles`.
-- **The server on 8013 still runs the old code.** It was not restarted in this build (another agent was using it
-  for the use-case build); it must be restarted to serve lbs@1.2.0 with calibration 1.3.0. Until then it
-  refuses `contribution_share` as an unknown field.
+- **The server on 8013 still runs the old code.** It was not restarted in this build or the two before (other
+  sessions use it); it must be restarted to serve lbs@1.3.0 with calibration 1.5.0. Until then it refuses
+  `contribution_share`, `amount_basis` and `contribution_indexed` as unknown fields, and knows neither 1.4.0 nor
+  1.5.0.
 
 ## What the consumers must know (report, cockpit, consumer app)
+
+Calibration 1.5.0 (lbs@1.3.0, no code or contract change):
+
+- **Figures move on purpose** (LBS-36): at CHF 1.0 % a goal in today's francs has a higher target in francs of
+  its date and, with a fixed saving, a higher required return, nominal +0.63 to +0.78 points and real +0.06 to
+  +0.22 points on the golden cases (the worked example: 0.90 % to 1.60 % nominal, 0.39 % to 0.59 % real, the
+  target 441,958.23 to 488,076.02). An indexed saving keeps its real required return; a goal in future francs its
+  nominal one. The retirement comparison covers less (the BVG pension deflated at 1 %): shortfalls grow, and a
+  verdict can flip (`v-retirement`: meets to does not meet). No plausibility judgement flips in the cases. The list
+  is `golden/corrected/1.5.0/changes.json` and `required_returns.json`.
+- Strings: `real_view.inflation.source` names the owner's decision; `mandate_proposal.plausibility.ceiling_source`
+  says the table is approved. `real_view.inflation.label` stays `measured` (decision 4's band, not the method).
+- Values move: `calibration_version` `1.5.0`, new idempotency keys; `engine_version` and every contract version
+  unchanged.
+
+The nominal and real view (lbs@1.3.0, calibration 1.4.0):
+
+- Request, optional: `goals[].amount_basis` `today|future` (the app's "in heutigen Franken?", default ja, maps to
+  `today`) and `mandate.contribution_indexed` bool ("steigt der Betrag mit der Teuerung?", default nein, maps to
+  false). Not sending them is the owner's default: today's francs, fixed contribution.
+- **Figures move under 1.4.0 on purpose** (decision 7): a mandate on a dated goal amount now has
+  `target_chf` in francs of the target date and a higher nominal `required_return` and curve; the retirement
+  finding compares in today's francs (the BVG pension deflated), so `covered_per_year` and `shortfall_per_year`
+  move. The per-case list is `golden/corrected/1.4.0/changes.json`.
+- Sheet, additive: `real_view` (inflation `{currency, index, annual_rate, log_rate, label, source}`,
+  `contribution_indexed`, `goals[]` with `nominal` and `real` amounts), `mandate_proposal.basis` (`nominal`),
+  `mandate_proposal.views.{nominal,real}` (`target_chf`, `required_return`, `required_return_log`, `basis`),
+  `mandate_proposal.plausibility` (`judgement` realistic / not_realistic / could_not_be_determined, ceilings,
+  `levers`), `retirement[].basis` (`real`) and `.views.{real,nominal}`, `property[].basis` (`real`). A mirror that
+  forbids unknown fields must add them before reading a 1.4.0 sheet.
+- **report** in `basis: real` takes `mandate_proposal.views.real` and the retirement finding (already real); in
+  nominal, the top-level figures (`basis: nominal`) and `retirement[].views.nominal`. Show `plausibility` next to
+  the required return; `feasible` alone no longer says the goal is reachable in practice.
+- **pcp**: the proposal's curve is nominal; the Mandate's optional `basis` is `nominal` (pcp's default).
+- Values move: `provenance.engine_version` `lbs@1.3.0`, `contract_versions.Calibration` `lbs-calibration@1.3.0`,
+  `calibration_version` `1.4.0`, new idempotency keys; the request hash of a request without the new fields is
+  unchanged.
+
+Earlier (lbs@1.2.0, calibration 1.3.0):
 
 - No request or balance-sheet field was removed or retyped. One request field was added, optional:
   `goals[].contribution_share` (0 to 1, the goal's share of `mandate.annual_contribution`; the stated shares sum
@@ -73,10 +126,13 @@ The editable install's metadata (`src/lbs.egg-info`) still says 1.0.0 until the 
 
 ## Next steps, in order
 
-1. Restart the lbs server on 8013 so it serves lbs@1.2.0 with calibration 1.3.0 (and seeds 1.3.0 in the store).
-2. Curator and pcp: finalise the mandate proposal's hand-over (which derived dimensions pcp takes from lbs, how
+1. Restart the lbs server on 8013 so it serves lbs@1.3.0 with calibration 1.5.0 (and seeds 1.3.0, 1.4.0 and
+   1.5.0 in the store), once the sessions using it are done.
+2. Consumer app and report: ask and send `amount_basis` and `contribution_indexed`; read the real view and the
+   plausibility judgement (above).
+3. Curator and pcp: finalise the mandate proposal's hand-over (which derived dimensions pcp takes from lbs, how
    the curator fills universe, position cap and regime blend) and whether retirement goals get a withdrawal rate.
-3. Consumer app: ask the share of the yearly saving per goal and send `goals[].contribution_share` (LBS-29).
-4. Owner: approve (or not) `intake-scales` and `roles`, still provisional and read ungated.
-5. Storage and access rules for client data (README open points).
-6. Deploy folder when signed off: `python dev/make_deploy.py`.
+4. Consumer app: ask the share of the yearly saving per goal and send `goals[].contribution_share` (LBS-29).
+5. Owner: approve (or not) `intake-scales` and `roles`, still provisional and read ungated.
+6. Storage and access rules for client data (README open points).
+7. Deploy folder when signed off: `python dev/make_deploy.py`.

@@ -7,13 +7,16 @@ Each mutation is a literal replacement in one source file, applied, tested and r
 the tree is left byte for byte as it was found even when a run is interrupted by an exception. A mutation whose text is not
 found fails the check: the rule moved and the mutation must move with it.
 
-Twenty rules up to lbs@1.1.0 (LBS-22) and nine for the owner's decisions of LBS-28 to LBS-30 (lbs@1.2.0).
+Twenty rules up to lbs@1.1.0 (LBS-22), nine for the owner's decisions of LBS-28 to LBS-30 (lbs@1.2.0) and
+eight for the nominal and real view, LBS-31 to LBS-35 (lbs@1.3.0), and two for the owner's decisions on its
+assumptions, LBS-36 to LBS-38 (calibration 1.5.0).
 """
 
 from __future__ import annotations
 
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,7 +70,7 @@ MUTATIONS = (
      ["tests/test_engine.py::test_the_approval_changes_only_the_about_block",
       "tests/test_golden.py::test_reproduces_the_prototype"]),
     ("the corrected calibration is the default", "../../config.yaml",
-     'active: "1.3.0"', 'active: "1.2.0"',
+     'active: "1.5.0"', 'active: "1.4.0"',
      ["tests/test_api.py::test_standard_endpoints"]),
     ("the seed keeps its stored bytes", "calibration.py",
      '    if payload.get("corrections") is None:\n        payload.pop("corrections", None)\n', "",
@@ -129,7 +132,59 @@ MUTATIONS = (
      '        if goal.get("contribution_share") is None:\n            goal.pop("contribution_share", None)\n',
      "        pass\n",
      ["tests/test_api.py::test_a_request_without_the_new_field_hashes_as_before"]),
+    # -- the nominal and real view (LBS-31 to LBS-35, lbs@1.3.0)
+    ("a missing amount basis is today's francs", "engine.py",
+     '    return (goal.amount_basis or "today"), goal.amount_basis is not None',
+     '    return (goal.amount_basis or "future"), goal.amount_basis is not None',
+     ["tests/test_engine.py::test_the_design_notes_worked_example_to_the_cent",
+      "tests/test_engine.py::test_a_missing_basis_is_todays_francs_and_future_francs_keep_the_old_figures"]),
+    ("an indexed contribution rises with prices", "engine.py",
+     "    if not indexed or infl is None:\n        return [step] * months",
+     "    if True:\n        return [step] * months",
+     ["tests/test_engine.py::test_an_indexed_contribution_holds_the_real_problem_at_its_uninflated_one"]),
+    ("feasible is not realistic", "engine.py",
+     "    if real is not None and real <= ceiling + 1e-12:",
+     "    if r_star is not None:",
+     ["tests/test_engine.py::test_16_percent_in_a_year_and_a_quarter_is_feasible_and_not_realistic"]),
+    ("the BVG pension is read in today's francs", "engine.py",
+     "                covered += bvg_real\n", "                covered += yearly\n",
+     ["tests/test_engine.py::test_the_retirement_comparison_is_made_in_todays_francs"]),
+    ("a future price is tested in today's francs", "engine.py",
+     "            price = goal_amounts(ctx, goal).real\n", "            price = goal.target_amount\n",
+     ["tests/test_engine.py::test_a_property_price_in_future_francs_is_tested_in_todays_francs"]),
+    ("additive fields are left out when unset", "contracts.py",
+     "                if data.get(name) is None:\n                    data.pop(name, None)",
+     "                if False:\n                    data.pop(name, None)",
+     ["tests/test_engine.py::test_earlier_calibrations_do_not_read_the_new_fields_and_keep_their_bytes"]),
+    ("1.3.0 keeps its stored bytes", "calibration.py",
+     '    if payload.get("real_view") is None:\n        payload.pop("real_view", None)\n', "",
+     ["tests/test_api.py::test_13_keeps_its_stored_hash_and_14_is_pinned"]),
+    ("a request without the real-view fields hashes as before", "service.py",
+     '        if goal.get("amount_basis") is None:  # lbs@1.3.0, LBS-31\n            goal.pop("amount_basis", None)\n',
+     "",
+     ["tests/test_api.py::test_a_request_without_the_real_view_fields_hashes_as_before"]),
+    # -- the owner's decisions on the assumptions of 1.4.0, 29.09.2026 (LBS-36 to LBS-38), calibration 1.5.0
+    ("the CHF inflation is 1 % in 1.5.0", "calibration.py",
+     '        annual_rate=0.0100, index="Swiss CPI (LIK)', '        annual_rate=0.0050, index="Swiss CPI (LIK)',
+     ["tests/test_engine.py::test_the_design_notes_worked_example_at_the_chf_one_percent",
+      "tests/test_golden_corrected.py::test_the_15_sheet_matches_its_frozen_form"]),
+    ("the plausibility table is recorded as approved in 1.5.0", "calibration.py",
+     "plausibility_source=PLAUSIBILITY_SOURCE_1_5)", "plausibility_source=PLAUSIBILITY_SOURCE)",
+     ["tests/test_engine.py::test_15_sets_the_chf_inflation_to_one_percent_and_keeps_the_rest"]),
 )
+
+
+def _write(path: Path, data: bytes) -> None:
+    """Write, retrying a transient refusal (the NAS share has refused a write with EINVAL while a scanner held
+    the file): a failed restore would leave a rule reverted in the tree."""
+    for attempt in range(20):
+        try:
+            path.write_bytes(data)
+            return
+        except OSError:
+            if attempt == 19:
+                raise
+            time.sleep(0.5)
 
 
 def main() -> int:
@@ -143,11 +198,11 @@ def main() -> int:
             failures.append(f"{name}: the original text occurs {text.count(original)} times in {file}")
             continue
         try:
-            path.write_bytes(text.replace(original, mutated).encode("utf-8"))
+            _write(path, text.replace(original, mutated).encode("utf-8"))
             result = subprocess.run([python, "-m", "pytest", "-q", "-x", "-p", "no:cacheprovider", *tests],
                                     cwd=ROOT, capture_output=True, text=True)
         finally:
-            path.write_bytes(raw)
+            _write(path, raw)
         red = result.returncode != 0
         print(f"{'red  ' if red else 'GREEN'}  {name}")
         if not red:

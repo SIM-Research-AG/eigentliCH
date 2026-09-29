@@ -6,6 +6,7 @@ import { api, detailText } from '../app/api.js';
 import { amount, button, clear, field, h, notice, when, put } from '../app/dom.js';
 import { t } from '../app/i18n.js';
 import { roleName, showValue } from './home.js';
+import { basisLabel, basisSwitch, currentBasis } from '../app/basis.js';
 
 const UNITS = ['', 'chf', 'chf_per_year', 'share_of_total'];
 const LIQUIDITY = ['', 'immediate', 'within_months', 'within_years', 'illiquid'];
@@ -66,8 +67,16 @@ function positionForm(L, { position, role, capital, partner, onSave, onCancel })
   ]);
 }
 
-function goalForm(L, { goal, positions, sharesAsked, onSave, onCancel, templates }) {
+/** The per-goal question "Ist der Betrag in heutigen Franken?" (EIG-60), worded by the onboarding's content. */
+function basisQuestion(questions) {
+  return (questions || []).find((q) => q.field === 'amount_basis') || null;
+}
+
+function goalForm(L, { goal, positions, sharesAsked, onSave, onCancel, templates, questions }) {
   const g = goal || {};
+  const bq = basisQuestion(questions);
+  const amountBasis = bq ? h('select', {}, bq.options.map((o) => h('option', {
+    value: o.value, text: o.label, selected: (g.amount_basis || bq.default) === o.value ? true : null }))) : null;
   const name = h('input', { type: 'text', maxlength: '300', value: g.name || '', required: true });
   const target = h('input', { type: 'number', min: '0', step: 'any', value: g.target_amount ?? '' });
   const date = h('input', { type: 'date', value: g.target_date || '' });
@@ -92,6 +101,8 @@ function goalForm(L, { goal, positions, sharesAsked, onSave, onCancel, templates
       const body = { name: name.value.trim(), target_amount: target.value === '' ? null : Number(target.value),
         target_date: date.value || null, occupancy: occupancy.value || null,
         funded_by: boxes.filter(([cb]) => cb.checked).map(([cb]) => cb.value), reasoning: reasoning.value.trim() || null };
+      // stated only when the client gives an amount or changes an earlier answer: unstated reads as today's francs
+      if (amountBasis && (body.target_amount !== null || g.amount_basis)) body.amount_basis = amountBasis.value;
       if (askShare) {
         const pct = share.value === '' ? null : Number(share.value);
         if (pct !== null && !(pct >= 0 && pct <= 100)) { put(err, notice(t('err.share_range', L), 'error')); return; }
@@ -103,6 +114,7 @@ function goalForm(L, { goal, positions, sharesAsked, onSave, onCancel, templates
     h('h3', { text: goal ? t('plan.edit_goal', L) : t('plan.new_goal', L) }),
     field(t('plan.goal_name', L), name),
     h('div', { class: 'two' }, [field(t('plan.target_amount', L), target, t('plan.target_amount_hint', L)), field(t('plan.target_date', L), date)]),
+    amountBasis ? field(bq.question, amountBasis, bq.why) : null,
     field(t('plan.occupancy', L), occupancy, t('plan.occupancy_hint', L)),
     askShare ? field(t('plan.share', L), share, t('plan.share_hint', L)) : null,
     boxes.length ? h('fieldset', { class: 'field' }, [h('legend', { class: 'field-label', text: t('plan.funded_by', L) }),
@@ -114,12 +126,24 @@ function goalForm(L, { goal, positions, sharesAsked, onSave, onCancel, templates
   ]);
 }
 
+/** lbs's figure for a goal in the chosen basis (LBS-31): "Laut Bilanz: CHF 540’000 in heutigen Franken". */
+function goalInView(view, basis, L) {
+  if (!view) return null;
+  const v = view[basis] || {};
+  if (v.amount === null || v.amount === undefined) return null;
+  const unit = view.unit === 'chf_per_year' ? ` ${t('unit.per_year', L)}` : '';
+  const where = basis === 'nominal' && v.as_at
+    ? t('basis.as_at', L, { date: new Intl.DateTimeFormat(L === 'en' ? 'en-GB' : 'de-CH', { dateStyle: 'medium' }).format(new Date(`${v.as_at}T12:00:00`)) })
+    : basisLabel(basis, L);
+  return h('div', { class: 'small', 'data-basis': basis, text: t('plan.in_view', L, { amount: `CHF ${amount(v.amount, L)}${unit}`, basis: where }) });
+}
+
 export async function render(main, ctx) {
   const { language: L, client } = ctx;
   let plan;
   let decisions;
   try {
-    [plan, decisions] = await Promise.all([api.plan(client.id, L), api.decisions(client.id)]);
+    [plan, decisions] = await Promise.all([api.plan(client.id, L), api.decisions(client.id, L)]);
   } catch (e) {
     put(main, notice(detailText(e), 'error'));
     return;
@@ -218,13 +242,14 @@ export async function render(main, ctx) {
     ]));
   }
 
-  // -- goals
-  put(main, h('h2', { text: t('plan.goals', L) }));
+  // -- goals, with the nominal / real switch: the stated amount and its basis, and lbs's figure in the chosen basis
+  const basis = currentBasis();
+  put(main, h('h2', { text: t('plan.goals', L) }), basisSwitch(L, () => reload()));
   const goalSlot = h('div');
   const goals = h('ul', { class: 'list' });
   put(main, h('div', { class: 'actions' }, [button(t('plan.add_goal', L), {
     class: 'primary',
-    onClick: () => { clear(goalSlot); put(goalSlot, goalForm(L, { positions: plan.positions, sharesAsked: plan.shares_asked, onCancel: () => clear(goalSlot),
+    onClick: () => { clear(goalSlot); put(goalSlot, goalForm(L, { positions: plan.positions, sharesAsked: plan.shares_asked, questions: plan.goal_questions, onCancel: () => clear(goalSlot),
       onSave: async (body) => { await api.createGoal(client.id, body); reload(); } })); },
   })]), goalSlot, goals);
   if (!plan.goals.length) put(goals, h('li', { class: 'muted', text: t('plan.no_goals', L) }));
@@ -239,15 +264,16 @@ export async function render(main, ctx) {
         h('span', { class: 'badge quiet', text: t(`goalkind.${g.kind}`, L) }),
       ]),
       h('div', { class: 'small muted' }, [
-        g.target_amount !== null ? `CHF ${amount(g.target_amount, L)}` : t('plan.no_amount', L),
+        g.target_amount !== null ? `CHF ${amount(g.target_amount, L)} ${t(`plan.stated_${g.amount_basis || 'today'}`, L)}` : t('plan.no_amount', L),
         ' · ', g.target_date || t('plan.no_date', L),
         funders.length ? ` · ${t('plan.funded_by', L)}: ${funders.join(', ')}` : '',
         g.contribution_share !== null && g.contribution_share !== undefined
           ? ` · ${t('plan.share_of_saving', L, { n: String(Math.round(g.contribution_share * 1000) / 10) })}` : '',
       ]),
+      goalInView(plan.goal_views && plan.goal_views[g.id], basis, L),
       h('div', { class: 'actions' }, [
         g.active ? button(t('plan.edit', L), {
-          onClick: () => { clear(goalSlot); put(goalSlot, goalForm(L, { goal: g, positions: plan.positions, sharesAsked: plan.shares_asked, onCancel: () => clear(goalSlot),
+          onClick: () => { clear(goalSlot); put(goalSlot, goalForm(L, { goal: g, positions: plan.positions, sharesAsked: plan.shares_asked, questions: plan.goal_questions, onCancel: () => clear(goalSlot),
             onSave: async (body) => { await api.patchGoal(client.id, g.id, body); reload(); } })); goalSlot.scrollIntoView({ behavior: 'smooth' }); },
         }) : null,
         button(g.active ? t('plan.goal_deactivate', L) : t('plan.goal_reactivate', L), {
@@ -296,9 +322,9 @@ export async function render(main, ctx) {
   const dl = h('ul', { class: 'list' });
   for (const d of decisions.slice(0, 40)) {
     put(dl, h('li', {}, [
-      h('div', { class: 'row' }, [h('strong', { class: 'grow', text: d.question }),
+      h('div', { class: 'row' }, [h('strong', { class: 'grow', text: d.question_text || d.question }),
         h('span', { class: 'small muted', text: `${t(`author.${d.author}`, L)} · ${when(d.created_at, L)}` })]),
-      h('div', { class: 'small', text: d.choice }),
+      h('div', { class: 'small', text: d.choice_text || d.choice }),
       d.reasoning ? h('div', { class: 'small muted', text: d.reasoning }) : null,
     ]));
   }

@@ -229,6 +229,58 @@ CREATE TABLE IF NOT EXISTS run_manifest (
 );
 
 -- ---------------------------------------------------------------------------
+-- Inflation pass-through (beta) under a scenario Regime (owner, 29.09.2026; FMRE-33..37).
+-- Both tables are append-only: a trigger refuses UPDATE and DELETE.
+-- ---------------------------------------------------------------------------
+
+-- The house table, one row per calibration version (engines/fund_map/pass_through.py).
+CREATE TABLE IF NOT EXISTS inflation_beta_calibration (
+    version        TEXT PRIMARY KEY,     -- ipt@<semver>
+    calibration_id TEXT NOT NULL UNIQUE, -- IPT-<16 hex>, a hash of payload_json
+    created_at     TEXT NOT NULL,
+    source         TEXT NOT NULL,        -- the source line: who decided the table, when
+    payload_json   TEXT NOT NULL         -- types (beta, duration), mapping rules, price floor, formula
+);
+
+-- The CIO's override of one instrument's beta (and duration), versioned per instrument.
+-- The latest version is in force; beta NULL (or duration NULL) means the house value.
+CREATE TABLE IF NOT EXISTS inflation_beta_override (
+    instrument_id       TEXT NOT NULL REFERENCES instrument(instrument_id),
+    version             INTEGER NOT NULL,           -- 1, 2, ... per instrument
+    beta                DOUBLE PRECISION,           -- 0 .. 1.5; NULL reverts to the house beta
+    duration            DOUBLE PRECISION,           -- years; NULL keeps the house duration
+    reason              TEXT NOT NULL,
+    set_by              TEXT NOT NULL,
+    set_at              TEXT NOT NULL,              -- ISO-8601 UTC
+    calibration_version TEXT NOT NULL,              -- the house table in force when set
+    PRIMARY KEY (instrument_id, version)
+);
+
+COMMENT ON TABLE inflation_beta_calibration IS
+    'Inflation pass-through house table (beta and duration per instrument type, register '
+    'mapping rules), one append-only row per calibration version, with its source line. '
+    'Read under a scenario Regime only (FMRE-33 to FMRE-37).';
+COMMENT ON TABLE inflation_beta_override IS
+    'The CIO''s per-instrument override of the inflation pass-through beta and duration, '
+    'append-only and versioned; the latest version is in force, a NULL beta reverts to the '
+    'house value. Written by PUT /v1/inflation-beta/{instrument_id}.';
+
+CREATE OR REPLACE FUNCTION refuse_change() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    RAISE EXCEPTION '% is append-only: % refused', TG_TABLE_NAME, TG_OP;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS inflation_beta_calibration_append_only ON inflation_beta_calibration;
+CREATE TRIGGER inflation_beta_calibration_append_only
+    BEFORE UPDATE OR DELETE ON inflation_beta_calibration
+    FOR EACH ROW EXECUTE FUNCTION refuse_change();
+DROP TRIGGER IF EXISTS inflation_beta_override_append_only ON inflation_beta_override;
+CREATE TRIGGER inflation_beta_override_append_only
+    BEFORE UPDATE OR DELETE ON inflation_beta_override
+    FOR EACH ROW EXECUTE FUNCTION refuse_change();
+
+-- ---------------------------------------------------------------------------
 -- Evolutions
 --
 -- This file is meant to be applied to an existing database as well as an empty one, and

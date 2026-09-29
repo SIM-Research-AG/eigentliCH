@@ -52,7 +52,7 @@ changed`, `revoked and cannot act`, ...). CHECK failures are `23514`, uniqueness
   rows keep their prototype ids.
 * **Time** is `timestamptz` throughout; dates that are dates (`composition_as_of`, `stated_on`) are `date`.
 * **JSON** is `jsonb`. **Floats** are `double precision` (only `position.magnitude`, `goal.target_amount`,
-  `goal.contribution_share`); there is no `real` anywhere.
+  `goal.contribution_share`); there is no `real` column anywhere (the real view is derived, section 4.8).
 * **`data_class`** (C-04): every table carries `data_class smallint`, K0..K3 as 0..3, with a per-table
   floor enforced by CHECK. K0 published content; K1 identifying (client, curator, consent); K2 personal and
   substantive (plan, decisions, threads, reports); K3 documentary and health (submissions; answers and
@@ -227,6 +227,25 @@ restates it directly; the cockpit restates one by the plan change below ("State 
   (the onboarding's `annual_contribution`), shown as 0 to 100 % in the app. The active goals' shares sum to at
   most 1: the app refuses more (and lbs refuses such a request), so a cockpit write should keep to it too;
   the database checks the range only.
+
+### 4.8 The nominal and real view, 29.09.2026 (additive, EIG-60 to EIG-63)
+
+Everything is stored nominal; real figures are derived by lbs and the report engine at the point of use. Three
+columns, each NULL for every row written before:
+
+* `goal.amount_basis` (`today`, `future` or NULL): whether `target_amount` is in today's francs or in the francs
+  of `target_date`, the client's answer to "Ist der Betrag in heutigen Franken?" (the onboarding's
+  `goal_amount_basis`, asked per goal on the plan page). NULL is not stated, which lbs reads as today's francs
+  (owner decision 7). The app sends it as `goals[].amount_basis` only when stated. A plan column: changed under
+  a decision, as every goal column.
+* `report_request.basis` (`nominal`, `real` or NULL): the basis the report was asked in; NULL is nominal.
+* `report_request.scenario` (NULL, or an aggregation policy such as `stagflation`, or a scenario regime id): a
+  scenario Regime asked for. NULL takes the pcp run of the client's **current** parameter set on its base
+  Regime (never a scenario, never a superseded set's run). Both are set on insert and never change.
+
+The yearly contribution's "Steigt der Betrag mit der Teuerung?" is an onboarding answer
+(`contribution_indexed`, `ja` or `nein`), not a column; the app sends it as `mandate.contribution_indexed`.
+A cockpit that writes a report request may set `basis` and `scenario` directly.
 
 ## 5. Who writes what
 

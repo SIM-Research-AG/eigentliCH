@@ -116,7 +116,8 @@ class TestIsolation:
                 "SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_schema = %s",
                 (store.schema,),
             ).fetchone()["n"]
-        assert here == 15, f"expected 15 tables in {store.schema}, found {here}"
+        # 15 until 29.09.2026; +2 for the inflation pass-through (FMRE-35).
+        assert here == 17, f"expected 17 tables in {store.schema}, found {here}"
 
     def test_the_search_path_is_pinned_to_the_engine_schema(self, store):
         with db.session() as conn:

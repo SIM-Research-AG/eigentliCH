@@ -35,6 +35,7 @@ from . import store as st
 from .clients import ArtefactClient, UpstreamError, checksum
 from .contracts import (
     CONTRACT_VERSIONS,
+    STORED,
     AggregationRunRequest,
     Calibration,
     CoverageReport,
@@ -228,7 +229,7 @@ class Service:
         with self.store.session() as conn:
             st.put_artefact(conn, artefact_id=artefact.artefact_id, regime_id=rid, idempotency_key=key,
                             contract_version=artefact.contract_version,
-                            payload_json=artefact.model_dump_json())
+                            payload_json=artefact.model_dump_json(context=STORED))
             st.finish_run(conn, run_id=run_id, status="succeeded", finished_at=st.utc_now(),
                           wall_clock_ms=(time.perf_counter() - t0) * 1000.0,
                           artefact_id=artefact.artefact_id,
@@ -449,7 +450,7 @@ class Service:
             raise InvalidRequest(f"cannot derive the {request.policy} scenario from {base.regime_id}: {exc}") from exc
         with self.store.session() as conn:
             st.put_artefact(conn, artefact_id=regime.artefact_id, regime_id=rid, idempotency_key=key,
-                            contract_version=regime.contract_version, payload_json=regime.model_dump_json())
+                            contract_version=regime.contract_version, payload_json=regime.model_dump_json(context=STORED))
             st.put_scenario(conn, regime_id=rid, artefact_id=regime.artefact_id,
                             base_regime_id=base.regime_id, policy=request.policy)
         return ScenarioAccepted(regime_id=rid, cached=False, policy=request.policy, base_regime_id=base.regime_id)
@@ -622,7 +623,9 @@ def build_scenario_regime(base: Regime, policy: str, reading: Reading, key: str,
     body = dict(regime_id=rid, optimism_scale=base.optimism_scale, dates=dates, economies=tuple(economies),
                 markets=tuple(markets), coverage=coverage, provenance=provenance)
     draft = Regime(artefact_id="", **body)
-    return Regime(artefact_id=content_id("AGG", draft.model_dump(mode="json")), **body)
+    # the derived inflation fields (AGG-24) are not hashed: the id of every scenario Regime issued
+    # before them stays
+    return Regime(artefact_id=content_id("AGG", draft.model_dump(mode="json", context=STORED)), **body)
 
 
 #: Engine Building Guide section 3. Normalised distribution names.

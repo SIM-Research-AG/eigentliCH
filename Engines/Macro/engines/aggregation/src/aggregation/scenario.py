@@ -22,6 +22,7 @@ statement for statement:
 from __future__ import annotations
 
 import calendar
+import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -141,3 +142,54 @@ def month_ends_after(date: str, months: int) -> list[str]:
             year, month = year + 1, 1
         out.append(f"{year:04d}-{month:02d}-{calendar.monthrange(year, month)[1]:02d}")
     return out
+
+
+# ---------------------------------------------------------------------------
+# The policy's inflation path (AGG-24): nominal and real view
+# ---------------------------------------------------------------------------
+
+#: The months whose average is ``inflation_final_12m``: months 49 to 60 of the path (1-based).
+FINAL_MONTHS = 12
+
+
+def inflation_path(policy: str, months: int = HORIZON_MONTHS) -> np.ndarray:
+    """``inflation`` of the .m file for one policy: ``months`` annualised rates on ``times =
+    linspace(0, 1, T)``, statement for statement. The same values as macrofield's frozen TB-21
+    paths (``Macro/engines/macrofield/golden/scenario_saa/scenario_saa.json``, tested to 1e-15).
+
+    * depression: ``fliplr(endVal + range ./ (1 + exp(-steepness * (times - midpoint))))`` with
+      +2 % to -4 %, midpoint 0.5, steepness 20;
+    * hyperinflation: ``startVal * exp(log(endVal / startVal) * times.^power)``, 20 % to 100 %, power 4;
+    * stagflation: ``startVal + range ./ (1 + exp(-steepness * (times - midpoint)))``, 2 % to 10 %,
+      midpoint 0.3, steepness 15;
+    * deferral: two half Gaussians from 2 % to the peak of 6 % at 0.5 and back, sigma 0.5 / 2.5.
+    """
+    times = np.linspace(0.0, 1.0, months)
+    if policy == "depression":
+        start, end, midpoint, steepness = 0.02, -0.04, 0.5, 20.0
+        rng = start - end
+        return (end + rng / (1 + np.exp(-steepness * (times - midpoint))))[::-1].copy()
+    if policy == "hyperinflation":
+        start, end, power = 0.2, 1.0, 4.0
+        return start * np.exp(np.log(end / start) * times ** power)
+    if policy == "stagflation":
+        start, end, midpoint, steepness = 0.02, 0.1, 0.3, 15.0
+        rng = end - start
+        return start + rng / (1 + np.exp(-steepness * (times - midpoint)))
+    if policy == "deferral":
+        start, peak, position = 0.02, 0.06, 0.5
+        rng = peak - start
+        sigma1, sigma2 = position / 2.5, (1 - position) / 2.5
+        out = np.zeros(months)
+        for i, t in enumerate(times):
+            sigma = sigma1 if t <= position else sigma2
+            out[i] = start + rng * np.exp(-0.5 * ((t - position) / sigma) ** 2)
+        return out
+    raise ValueError(f"unknown scenario policy {policy!r}")
+
+
+def inflation_final_12m(path: np.ndarray) -> float:
+    """The average annual inflation over the last ``FINAL_MONTHS`` months of the path (months 49 to
+    60): the arithmetic mean of the twelve annualised rates."""
+    tail = [float(v) for v in np.asarray(path, dtype=float)[-FINAL_MONTHS:]]
+    return math.fsum(tail) / len(tail)

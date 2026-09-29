@@ -15,6 +15,12 @@ and the curve as annualised log returns. This module converts between the two an
   ``required * 100 - preset mean``, the preset's mean being stored with the preset (data, not
   computed here).
 
+The form's ``basis`` (``nominal``, the default, or ``real``) is the basis of the target curve (C-31).
+It is written into the Mandate only when it is ``real``: a Mandate without ``basis`` is nominal in pcp's
+contract, so a nominal mandate stays byte for byte what it was (its idempotency key does not move). The
+cockpit converts nothing between the two: a curve read as real is the same numbers, and pcp asks fmre
+for the real ReturnSet (C-07).
+
 These are unit conversions of numbers the curator typed or a preset stores, not model figures: no
 engine publishes them and no estimate enters (C-07 holds; ``math`` is the standard library and no
 numerics package is imported). pcp remains the judge of the mandate: ``/validate`` answers for it.
@@ -28,7 +34,7 @@ Mirrored, never imported (Engine Building Guide section 1).
 from __future__ import annotations
 
 import math
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -51,10 +57,17 @@ BOUND_SOURCE: dict[str, str] = {
     "asset_class": "policy", "capital_type": "policy", "phase": "policy", "region": "policy",
 }
 CURRENCIES = ("CHF", "EUR", "USD")
+#: The bases of the target curve (C-31); ``nominal`` unless the curator switches.
+BASES = ("nominal", "real")
+DEFAULT_BASIS = "nominal"
 PRESET_KEYS = {"curves": "reference/target-curve-presets", "mandates": "reference/mandate-presets"}
 CONVERSION = ("Target curve: entered and shown in percent per year; stored as the annualised log return "
               "ln(1 + p/100) (curve_unit annualised_log_return). Weights and bounds: entered in percent, "
               "stored as fractions (p/100).")
+BASIS_NOTE = ("Basis: nominal unless switched. In real, the target curve is read as a real return (after the "
+              "inflation of the mandate's currency) and the level shift and tilt apply in real terms; the presets "
+              "are nominal data, read as real, and the cockpit converts nothing. pcp fetches fmre's real ReturnSet "
+              "(basis=real), which deflates by the per-state inflation fmre measures.")
 #: Decimals kept when converting, so 35 % is stored as 0.35 and not 0.35000000000000003.
 _DIGITS = 12
 
@@ -93,6 +106,8 @@ class MandateForm(BaseModel):
     client: str = ""
     name: str = ""
     currency: str = "CHF"
+    #: The basis of the target curve (C-31): nominal (default) or real.
+    basis: Literal["nominal", "real"] = DEFAULT_BASIS
     horizon_years: float = 1.0
     curve: CurveIn
     universe: list[str] = Field(default_factory=list)
@@ -224,6 +239,8 @@ def assemble(form: MandateForm) -> dict[str, Any]:
         "esg_min": form.esg_min, "fixed_allocations": fixed, "bounds": bounds,
         "bound_sources": {d: BOUND_SOURCE[d] for d in bounds},
     }
+    if form.basis != DEFAULT_BASIS:   # only a real mandate says so; absent means nominal (C-31)
+        mandate["basis"] = form.basis
     market = (form.regime_market or "").strip()
     weights = form.regime_weights_pct
     if market and weights:
@@ -258,7 +275,8 @@ def to_form(mandate: dict[str, Any]) -> dict[str, Any]:
     weights = mandate.get("regime_weights")
     return {
         "client": mandate.get("client") or "", "name": mandate.get("name") or "",
-        "currency": mandate.get("currency") or "CHF", "horizon_years": mandate.get("horizon_years") or 1.0,
+        "currency": mandate.get("currency") or "CHF", "basis": mandate.get("basis") or DEFAULT_BASIS,
+        "horizon_years": mandate.get("horizon_years") or 1.0,
         "curve": {"points_pct": points}, "universe": list(mandate.get("universe") or []),
         "max_single_position_pct": pct(mandate.get("max_single_position")),
         "esg_min": mandate.get("esg_min") or 0.0,
@@ -272,6 +290,7 @@ def vocabulary() -> dict[str, Any]:
     """What the form lays out: dimensions, buckets, the fixed source of each, the currencies."""
     return {"contract_version": CONTRACT, "n_states": N_STATES, "dimensions": list(DIMENSIONS),
             "buckets": {k: list(v) for k, v in BUCKETS.items()}, "bound_source": BOUND_SOURCE,
-            "currencies": list(CURRENCIES), "preset_keys": PRESET_KEYS, "conversion": CONVERSION,
+            "currencies": list(CURRENCIES), "bases": list(BASES), "default_basis": DEFAULT_BASIS,
+            "basis_note": BASIS_NOTE, "preset_keys": PRESET_KEYS, "conversion": CONVERSION,
             "tilt": "point i (1..25) = preset_i + shift + tilt * (i - 13) / 12",
             "match": "shift = lbs required return x 100 - preset mean"}

@@ -1,10 +1,13 @@
 // Reports and updates. The client asks for one; the app runs lbs for the client, adds the curator's pcp
 // allocation when there is one, and asks the report engine. While an engine is down the request stays
 // open and can be tried again; nothing is made up in its place. Approval only on the client's request.
+// The nominal / real switch (nominal by default, remembered per browser) sets the basis a new report is asked in
+// (EIG-62); every request shows the basis it was asked in.
 
 import { api, detailText, jobText } from '../app/api.js';
 import { button, clear, field, h, notice, when, put } from '../app/dom.js';
 import { t } from '../app/i18n.js';
+import { basisLabel, basisSwitch, currentBasis } from '../app/basis.js';
 
 const POLL_MS = 3000;
 
@@ -49,11 +52,14 @@ async function list(main, ctx) {
     const err = h('div');
     const note = h('input', { type: 'text', maxlength: '1000', placeholder: t('report.note_hint', L) });
     const hasReport = rows.some((r) => r.reports.length);
+    const basis = currentBasis();
     const ask = (kind) => async () => {
       clear(err);
-      try { await api.requestReport(client.id, { kind, language: L, note: note.value.trim() || null }); load(); } catch (e) { put(err, notice(detailText(e), 'error')); }
+      try { await api.requestReport(client.id, { kind, language: L, note: note.value.trim() || null, basis }); load(); } catch (e) { put(err, notice(detailText(e), 'error')); }
     };
     put(root, h('div', { class: 'card' }, [
+      basisSwitch(L, () => draw(rows)),
+      h('p', { class: 'field-hint', text: t(`report.basis_hint_${basis}`, L) }),
       field(t('report.note', L), note),
       h('div', { class: 'actions' }, [
         button(t('report.ask_report', L), { class: 'primary', onClick: ask('report') }),
@@ -70,6 +76,7 @@ async function list(main, ctx) {
       const li = h('li', {}, [
         h('div', { class: 'row' }, [
           h('strong', { class: 'grow', text: `${t(`report.kind_${r.kind}`, L)} · ${when(r.created_at, L)}` }),
+          h('span', { class: 'badge quiet', 'data-basis': r.basis || 'nominal', text: basisLabel(r.basis || 'nominal', L) }),
           badge(r.state, L),
         ]),
         r.note ? h('p', { class: 'small muted', text: r.note }) : null,

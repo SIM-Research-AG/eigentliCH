@@ -6,7 +6,7 @@ the resume point. Model-derived research output; not investment advice.
 ## State (29.09.2026)
 
 - **Engine 07, v1.2.0**, calibration **1.1.0 active** (1.0.0 reproduces the draft). Built by Nicolas, taken over
-  from Tino on 28.09.2026. 100 tests pass (`python -m pytest`, about 30 s, needs the PostgreSQL container).
+  from Tino on 28.09.2026. 119 tests pass (`python -m pytest`, about 30 s, needs the PostgreSQL container).
 - **Feasibility and convergence** (29.09.2026, PCP-21): all 18 failed runs in the store (11 mandates; 10 runs
   Income focus, 6 Growth global, 1 Swiss home bias, 1 Balanced CHF) were infeasible as stated and passed `/validate`: a bucket floor above what its
   instruments can hold under `max_single_position` (one Gain instrument under a derived Gain floor of 0.171, three
@@ -22,6 +22,20 @@ the resume point. Model-derived research output; not investment advice.
   in none, and the Allocation states it (`currency`, `provenance.currency`). No contract version moved: CHF
   mandates written before still validate with the same `mandate_id`. The consumers must send the
   `return_set_id` fmre serves for the Regime **in the mandate's currency**: the currency is part of that id.
+- **Nominal and real view** (owner, 29.09.2026, PCP-22, `review/REAL_VIEW_INTERFACES.md`): the mandate's optional
+  `basis` (`nominal` by default, or `real`) is the basis of its target curve. pcp asks fmre for `&basis=real`,
+  refuses a set on another basis (none counts as nominal) and fmre's `not_computable`, and the Allocation states
+  `basis`. Nominal is untouched byte for byte: the same query to fmre, the same `mandate_id`, idempotency key and
+  `artefact_id` (pinned in `tests/test_basis.py`). No version moved. Tested against the stand-in only: live fmre
+  on 8006 serves `basis=real` once it is restarted with the real view. The consumers must send fmre's **real**
+  `return_set_id` for a real mandate: the basis is part of that id. **8007 serves none of this until restarted.**
+- **Hard-currency fallback accepted** (owner, 29.09.2026, PCP-23): a real set fmre measures in CHF (then USD)
+  because the mandate's currency's inflation left the -20 % to +100 % band is accepted only when
+  `deflator.hard_currency_fallback.from` is the mandate's currency and `to` the served one; any other currency
+  mismatch stays refused. The Allocation's `currency` and `provenance.currency` are then the hard currency,
+  `provenance.hard_currency_fallback` is fmre's `{from, to, states, reason}`, and a warning says it in plain words.
+  `report` and the cockpit should show `currency`, `provenance.hard_currency_fallback` (from, to, states) and the
+  warning that starts "real, measured in". Tested against the stand-in only.
 - Store: database `simtech`, schema `pcp`, role `pcp` (provisioned by `Instruments/store/provision.py`,
   `pcp` in `ROSTER` and `OWNED_HERE`). Password in `config.local.yaml` (git-ignored).
 - Golden layer A (the eigentliCH draft, 7 mandates) reproduced to 2e-14 on weights; layer C frozen.
@@ -52,27 +66,30 @@ then `python dev/build_golden_production.py`, and check the layer C diff before 
 1. **Restart 8007** (owner) to serve 1.2.0 (PCP-21), then rebuild the use cases whose runs failed from the
    cockpit's `mp@1.1.0` presets (C-29). A mandate whose bounds still conflict (a CHF floor above what its CHF
    instruments hold, a growth preset under a Gain ceiling of 29 %) is refused at `/validate` with the rows named.
-2. **fmre to publish `provenance.currency`** on the ReturnSet (`CHF`, `EUR`, `USD`, or null for the source
+2. **Real view live** (PCP-22, PCP-23): once fmre serves `basis=real`, validate a real `balanced_global` against
+   it in process, and, where fmre falls back, check that live fmre's fallback set validates with its own
+   `return_set_id` and that `report` and the cockpit show the hard currency and the warning.
+3. **fmre to publish `provenance.currency`** on the ReturnSet (`CHF`, `EUR`, `USD`, or null for the source
    default). Until then pcp reads fmre's opt-in note `... in currency=CHF; ...` (PCP-19); the field replaces it
    with no change here. Then refreeze (`dev/freeze_inputs.py`, now CHF), rebuild layer C and update PCP-20.
-3. **Weights barely move the objective** on 54 instruments (about 0.6%, PCP-03): decide whether that is
+4. **Weights barely move the objective** on 54 instruments (about 0.6%, PCP-03): decide whether that is
    accepted, or whether `profile_scale` (MATLAB's effective 100) or a smaller universe is the answer. Each is a
    new calibration.
-4. fmre to publish economic phase, home scenario and a real ESG score per instrument (PCP-06); until then the
+5. fmre to publish economic phase, home scenario and a real ESG score per instrument (PCP-06); until then the
    calibration table carries them and row 57 is inert.
-5. Golden layer B: the MATLAB Review workbooks (`SIM_Tech/Master_Controller/Review`), with their full bound
+6. Golden layer B: the MATLAB Review workbooks (`SIM_Tech/Master_Controller/Review`), with their full bound
    blocks and classifications; compare objectives within a few per cent (PCP-17).
-6. The cockpit's CIO decisions (optimiser bounds, HoNI per-country bounds) as a bound source: the Manual allows
+7. The cockpit's CIO decisions (optimiser bounds, HoNI per-country bounds) as a bound source: the Manual allows
    only `derived` and `policy` (cockpit decision C-06 waits for this Mandate contract).
-7. Deploy folder when signed off: `python dev/make_deploy.py`.
+8. Deploy folder when signed off: `python dev/make_deploy.py`.
 
 ## Where things are
 
 | Path | What |
 |---|---|
 | `README.md` | Reference: model, contracts, endpoints, calibrations, quality |
-| `DECISIONS.md` | PCP-01 to PCP-21 |
+| `DECISIONS.md` | PCP-01 to PCP-23 |
 | `src/pcp/` | Engine; pure core in `engine.py`, `objective.py`, `constraints.py`, `solver.py` |
 | `golden/draft/` | Layer A, frozen from the draft by `dev/build_golden_draft.py` (run it with the draft's `.venv`) |
 | `golden/inputs/`, `golden/production/` | Layer C: frozen Regime, ReturnSet and register; this build's outputs |
-| `testbench/index.html` | Development UI: the Manual's five charts and the portfolio map; a Currency select (CHF, EUR, USD) |
+| `testbench/index.html` | Development UI: the Manual's five charts and the portfolio map; a Currency select (CHF, EUR, USD) and a Basis select (nominal, real) |

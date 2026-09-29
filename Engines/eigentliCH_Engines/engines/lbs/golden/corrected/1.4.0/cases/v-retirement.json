@@ -1,0 +1,70 @@
+{
+ "client_ref": "v-retirement",
+ "as_of": "2026-09-29",
+ "household": {
+  "composition_as_of": "2026-09-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 40
+   }
+  ]
+ },
+ "facts": {
+  "civil_status": "ledig",
+  "has_no_liabilities": true
+ },
+ "risk": {
+  "stated_loss": 0.3,
+  "crisis_behaviour": "nichts, ich blieb investiert",
+  "employment": "angestellt",
+  "spend_now_per_year": 60000
+ },
+ "positions": [
+  {
+   "position_id": "free",
+   "role": "gain",
+   "capital_type": "financial",
+   "magnitude": 100000,
+   "unit": "chf",
+   "owner": "p1",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "funds_goals": [
+    "later"
+   ]
+  },
+  {
+   "position_id": "pk",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 150000,
+   "unit": "chf",
+   "owner": "p1",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2"
+  },
+  {
+   "position_id": "sal",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 110000,
+   "unit": "chf_per_year",
+   "owner": "p1"
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "later",
+   "kind": "retirement",
+   "target_amount": 60000,
+   "target_date": "2051-10-01",
+   "owners": [
+    "p1"
+   ]
+  }
+ ]
+}

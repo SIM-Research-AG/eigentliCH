@@ -1,0 +1,54 @@
+{
+ "client_ref": "v-indexed",
+ "as_of": "2026-09-29",
+ "household": {
+  "composition_as_of": "2026-09-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 45
+   }
+  ]
+ },
+ "facts": {
+  "civil_status": "ledig",
+  "has_no_liabilities": true
+ },
+ "risk": {
+  "stated_loss": 0.3,
+  "crisis_behaviour": "nichts, ich blieb investiert",
+  "employment": "angestellt",
+  "spend_now_per_year": 60000
+ },
+ "positions": [
+  {
+   "position_id": "free",
+   "role": "gain",
+   "capital_type": "financial",
+   "magnitude": 150000,
+   "unit": "chf",
+   "owner": "p1",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "funds_goals": [
+    "g"
+   ]
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g",
+   "kind": "other",
+   "target_amount": 400000,
+   "target_date": "2046-09-29",
+   "amount_basis": "today"
+  }
+ ],
+ "mandate": {
+  "goal_id": "g",
+  "annual_contribution": 12000,
+  "contribution_indexed": true
+ }
+}

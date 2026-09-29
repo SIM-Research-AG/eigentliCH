@@ -11,7 +11,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 import httpx
 import psycopg
@@ -22,7 +22,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 from .appsettings import AppSettings, load_app
-from .clients import ChatbotClient, EngineRefused, EngineUnavailable, LbsClient, ReportClient
+from .clients import AggregationClient, ChatbotClient, EngineRefused, EngineUnavailable, LbsClient, ReportClient
 from .questionnaires import AnswerRefused
 from .service import APP_VERSION, Conflict, Forbidden, Invalid, Service
 from .settings import ROOT
@@ -104,6 +104,9 @@ class GoalBody(_Body):
     #: The goal's share of the yearly saving, 0 to 1 (the page shows 0 to 100 %); the active goals' shares sum
     #: to at most 1 (EIG-59).
     contribution_share: Optional[float] = Field(default=None, ge=0, le=1)
+    #: Whether the amount is in today's francs (``today``, the default when unstated) or in the francs of the
+    #: target date (``future``): "Ist der Betrag in heutigen Franken?" (EIG-60).
+    amount_basis: Optional[Literal["today", "future"]] = None
     funded_by: Optional[list[str]] = None
     reasoning: Optional[str] = Field(default=None, max_length=2000)
 
@@ -150,6 +153,10 @@ class ReportBody(_Body):
     kind: str = "report"              # report | update
     language: str = "de"
     note: Optional[str] = Field(default=None, max_length=1000)
+    #: ``nominal`` (the default) or ``real``: the report's figures in today's francs (EIG-62).
+    basis: Literal["nominal", "real"] = "nominal"
+    #: A scenario Regime asked for by its policy or regime id; without it, the base Regime (EIG-63).
+    scenario: Optional[str] = Field(default=None, max_length=64)
 
 
 def _fields(model: BaseModel) -> dict[str, Any]:
@@ -159,13 +166,16 @@ def _fields(model: BaseModel) -> dict[str, Any]:
 def create_app(settings: Optional[AppSettings] = None, *,
                lbs_transport: Optional[httpx.BaseTransport] = None,
                chatbot_transport: Optional[httpx.BaseTransport] = None,
-               report_transport: Optional[httpx.BaseTransport] = None) -> FastAPI:
+               report_transport: Optional[httpx.BaseTransport] = None,
+               aggregation_transport: Optional[httpx.BaseTransport] = None) -> FastAPI:
     settings = settings or load_app()
     t = settings.timeouts
     service = Service(settings, Store(settings.store.database),
                       LbsClient(settings.lbs_url, t.lbs_s, t.connect_s, lbs_transport),
                       ChatbotClient(settings.chatbot_url, t.chatbot_s, t.connect_s, chatbot_transport),
-                      ReportClient(settings.report_url, t.report_s, t.connect_s, report_transport))
+                      ReportClient(settings.report_url, t.report_s, t.connect_s, report_transport),
+                      aggregation=AggregationClient(settings.aggregation_url, t.aggregation_s, t.connect_s,
+                                                    aggregation_transport))
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -268,8 +278,9 @@ def create_app(settings: Optional[AppSettings] = None, *,
         return guard(service.plan, client_id, language)
 
     @app.get("/api/clients/{client_id}/decisions", tags=["plan"])
-    def decisions(client_id: str) -> list[dict[str, Any]]:
-        return guard(service.decisions, client_id)
+    def decisions(client_id: str, language: str = "de") -> list[dict[str, Any]]:
+        """Newest first; ``question_text`` and ``choice_text`` say the stored text in plain words (EIG-64)."""
+        return guard(service.decisions, client_id, language=language)
 
     @app.put("/api/clients/{client_id}/facts/{key}", tags=["plan"])
     def restate_fact(client_id: str, key: str, body: FactBody) -> dict[str, Any]:
@@ -385,7 +396,7 @@ def create_app(settings: Optional[AppSettings] = None, *,
     def request_report(client_id: str, body: ReportBody, wait: bool = Query(False)) -> dict[str, Any]:
         """A report or update request; lbs runs, then the report engine (in the background unless ``wait``)."""
         return guard(service.request_report, client_id, kind=body.kind, language=body.language, note=body.note,
-                     wait=wait)
+                     wait=wait, basis=body.basis, scenario=body.scenario)
 
     @app.post("/api/clients/{client_id}/reports/{request_id}/produce", tags=["reports"])
     def produce(client_id: str, request_id: str, wait: bool = Query(False), revision: bool = Query(False),

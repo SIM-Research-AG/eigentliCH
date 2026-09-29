@@ -970,6 +970,242 @@ def estimator_comparison(conn: db.Connection, calibration_id: str, *,
     }
 
 
+# ---------------------------------------------------------------------------
+# The deflator: inflation per regime state and currency (nominal and real view)
+# ---------------------------------------------------------------------------
+
+#: Engine 01's shared schema, where ``inflation.cpi_yoy`` lives (read-only; the role holds
+#: ``SELECT`` there). Not ``config.datafeed_schema``, which is this engine's private copy
+#: ``fmre_feed`` and holds no monthly CPI.
+CPI_SCHEMA = os.environ.get("INSTRUMENTS_CPI_SCHEMA", "datafeed")
+
+
+@dataclass(frozen=True)
+class CpiSeries:
+    """One currency's year-on-year inflation by month, and where it came from."""
+
+    currency: str
+    yoy: dict[str, float]          # YYYY-MM -> simple rate
+    index: str
+    source: str
+    snapshot_id: str | None
+
+
+def load_cpi_yoy(conn: db.Connection, currency: str) -> CpiSeries:
+    """The monthly year-on-year CPI of a currency's index (decision 3), from datafeed.
+
+    Read from the latest snapshot of Engine 01. EUR takes the euro-area HICP from 1999 and
+    German CPI before, month by month, only where German data reaches (in the snapshot of
+    January 2026 both start in 2006, so EUR is HICP throughout).
+    """
+    from engines.fund_map.inflation import CPI_SERIES, EUR_HICP_FROM, INDEX
+
+    if currency not in INDEX:
+        raise ValueError(f"{currency!r} has no inflation index; one of {sorted(INDEX)}")
+    schema = CPI_SCHEMA
+    snap = conn.execute(
+        f"SELECT snapshot_id FROM {schema}.snapshot ORDER BY built_at DESC, snapshot_id DESC "
+        f"LIMIT 1").fetchone()
+    snapshot_id = snap["snapshot_id"] if snap else None
+    series: dict[str, dict[str, float]] = {}
+    for country, _, _ in INDEX[currency]:
+        series[country] = {
+            r["date"][:7]: r["value"]
+            for r in conn.execute(
+                f"SELECT date, value FROM {schema}.observation WHERE series_id = %s AND "
+                f"country = %s AND snapshot_id = %s AND value IS NOT NULL",
+                (CPI_SERIES, country, snapshot_id))
+        }
+    if currency == "EUR":
+        eu, de = series["EU"], series["DE"]
+        yoy = {p: v for p, v in de.items() if p < EUR_HICP_FROM}
+        yoy.update({p: v for p, v in eu.items() if p >= EUR_HICP_FROM})
+    else:
+        yoy = series[INDEX[currency][0][0]]
+    index = "; ".join(f"{name} ({code}, datafeed {CPI_SERIES} {country})"
+                      for country, code, name in INDEX[currency])
+    return CpiSeries(currency, yoy, index,
+                     f"datafeed:{CPI_SERIES}@{snapshot_id}", snapshot_id)
+
+
+def inflation_curve(conn: db.Connection, signal: dict[str, int], state_map: StateMap,
+                    currency: str):
+    """``pi(s, c)``: the historical deflator of one currency (decision 1)."""
+    from engines.fund_map.inflation import state_curve
+    cpi = load_cpi_yoy(conn, currency)
+    return state_curve(currency, cpi.yoy, signal, state_map,
+                       index=cpi.index, source=cpi.source)
+
+
+def inflation_curves(conn: db.Connection, signal: dict[str, int], state_map: StateMap,
+                     scenario: dict | None = None,
+                     currencies: Sequence[str] = ("CHF", "EUR", "USD")) -> dict:
+    """The deflator of every currency: historical, or the scenario's (decision 2).
+
+    ``scenario`` is ``{"policy", "inflation_final_12m", "regime_id"}`` of a scenario Regime;
+    its inflation applies to every state and, being the policy's path rather than a
+    currency's, to every currency alike.
+    """
+    from engines.fund_map.inflation import scenario_curve
+    if scenario is not None:
+        return {c: scenario_curve(c, scenario["inflation_final_12m"],
+                                  policy=scenario["policy"], regime_id=scenario["regime_id"])
+                for c in currencies}
+    return {c: inflation_curve(conn, signal, state_map, c) for c in currencies}
+
+
+# ---------------------------------------------------------------------------
+# Inflation pass-through (beta) under a scenario Regime (owner, 29.09.2026; FMRE-33..37)
+# ---------------------------------------------------------------------------
+
+
+class PassThroughError(ValueError):
+    """Raised on a stored calibration that disagrees with the code, or a bad override."""
+
+
+def pass_through_calibration() -> dict:
+    """The house table as code states it: version, id, source and payload."""
+    from engines.fund_map import pass_through as pt
+    payload = pt.calibration_payload()
+    return {"version": pt.CALIBRATION_VERSION,
+            "calibration_id": db.content_id("IPT", payload),
+            "source": pt.SOURCE, "payload": payload}
+
+
+def ensure_pass_through_calibration(conn: db.Connection) -> dict:
+    """Store the house table under its version (once), and check the stored one agrees.
+
+    Append-only: a version is written once and never changed (the table's trigger refuses
+    an UPDATE). Code that changes the table without a new version is refused here, loudly,
+    instead of serving figures under a version whose stored content says otherwise.
+    """
+    cal = pass_through_calibration()
+    conn.execute(
+        "INSERT INTO inflation_beta_calibration (version, calibration_id, created_at, source, "
+        "payload_json) VALUES (%s, %s, %s, %s, %s) ON CONFLICT (version) DO NOTHING",
+        (cal["version"], cal["calibration_id"], db.utc_now(), cal["source"],
+         db.dumps(cal["payload"])))
+    row = conn.execute(
+        "SELECT calibration_id, created_at FROM inflation_beta_calibration WHERE version = %s",
+        (cal["version"],)).fetchone()
+    if row["calibration_id"] != cal["calibration_id"]:
+        raise PassThroughError(
+            f"the stored inflation pass-through calibration {cal['version']} is "
+            f"{row['calibration_id']}, the code's is {cal['calibration_id']}: the house table "
+            f"changed without a new version. Bump pass_through.CALIBRATION_VERSION.")
+    return dict(cal, created_at=row["created_at"])
+
+
+def latest_beta_overrides(conn: db.Connection) -> dict[str, dict]:
+    """The override in force per instrument: its latest version."""
+    rows = conn.execute(
+        "SELECT DISTINCT ON (instrument_id) * FROM inflation_beta_override "
+        "ORDER BY instrument_id, version DESC").fetchall()
+    return {r["instrument_id"]: dict(r) for r in rows}
+
+
+def effective_beta(instrument: dict, override: dict | None) -> dict:
+    """House type, house beta and duration, the override, and what is in force."""
+    from engines.fund_map import pass_through as pt
+    key, rule = pt.classify(instrument)
+    kind = pt.TYPES[key]
+    beta, source = kind.beta, "house"
+    duration = kind.duration
+    duration_source = "house" if duration is not None else None
+    if override is not None:
+        if override["beta"] is not None:
+            beta, source = override["beta"], "override"
+        if override["duration"] is not None:
+            duration, duration_source = override["duration"], "override"
+    return {
+        "type": key, "type_label": kind.label, "rule": pt.RULES[rule][1],
+        "house_beta": kind.beta, "house_duration": kind.duration,
+        "override": ({k: override[k] for k in ("version", "beta", "duration", "reason",
+                                               "set_by", "set_at", "calibration_version")}
+                     if override is not None else None),
+        "beta": beta, "source": source,
+        "duration": duration, "duration_source": duration_source,
+    }
+
+
+def effective_betas(conn: db.Connection, instruments: Sequence[dict]) -> dict[str, dict]:
+    overrides = latest_beta_overrides(conn)
+    return {i["instrument_id"]: effective_beta(i, overrides.get(i["instrument_id"]))
+            for i in instruments}
+
+
+def put_beta_override(conn: db.Connection, instrument_id: str, *, beta: float | None,
+                      duration: float | None, reason: str, set_by: str) -> dict:
+    """Append the next override version of one instrument. Never updates a row."""
+    from engines.fund_map import pass_through as pt
+    if beta is not None and not (pt.BETA_MIN <= beta <= pt.BETA_MAX):
+        raise PassThroughError(f"beta {beta!r} is outside {pt.BETA_MIN} .. {pt.BETA_MAX}")
+    if duration is not None and not (pt.DURATION_MIN <= duration <= pt.DURATION_MAX):
+        raise PassThroughError(
+            f"duration {duration!r} is outside {pt.DURATION_MIN} .. {pt.DURATION_MAX} years")
+    if not reason.strip():
+        raise PassThroughError("a reason is required")
+    if not set_by.strip():
+        raise PassThroughError("set_by is required")
+    cal = ensure_pass_through_calibration(conn)
+    row = conn.execute(
+        "INSERT INTO inflation_beta_override (instrument_id, version, beta, duration, reason, "
+        "set_by, set_at, calibration_version) SELECT %s, COALESCE(MAX(version), 0) + 1, %s, "
+        "%s, %s, %s, %s, %s FROM inflation_beta_override WHERE instrument_id = %s "
+        "RETURNING *",
+        (instrument_id, beta, duration, reason.strip(), set_by.strip(), db.utc_now(),
+         cal["version"], instrument_id)).fetchone()
+    return dict(row)
+
+
+def historical_inflation_curves(conn: db.Connection, signal: dict[str, int],
+                                state_map: StateMap) -> dict:
+    """The historical deflator of every currency: ``pi_hist(s)`` of the pass-through."""
+    return inflation_curves(conn, signal, state_map, None)
+
+
+def pass_through_view(view: dict, entry: dict, pi_s: float, curves: dict,
+                      currency: str) -> dict:
+    """One computed view carried to the scenario, nominal (``pass_through.scenario_nominal``).
+
+    ``currency`` names the historical deflator (the currency the view is measured in);
+    the unsmoothed profile, where present, is carried the same way. Nothing else moves.
+    """
+    from engines.fund_map.inflation import NotComputable, curve_reason
+    from engines.fund_map.pass_through import scenario_nominal
+    curve = curves[currency]
+    if not curve.computable():
+        raise NotComputable("the historical deflator of the pass-through: "
+                            + curve_reason(curve))
+    hist_log = [s.log_inflation for s in curve.states]
+
+    def carry(values):
+        return scenario_nominal(values, hist_log, pi_s, entry["beta"], entry["duration"])
+
+    out = dict(view, profile=carry(view["profile"]))
+    if "unsmoothed" in view:
+        out["unsmoothed"] = dict(view["unsmoothed"],
+                                 profile=carry(view["unsmoothed"]["profile"]))
+    return out
+
+
+def pass_through_role(values: Sequence[float], blend: dict, pi_s: float,
+                      curves: dict) -> list[float]:
+    """One role profile carried to the scenario, nominal, by its blended beta (FMRE-40).
+
+    A role profile is the long annual record in USD, so its historical real return is
+    measured with the historical USD inflation; ``blend`` is ``pass_through.role_blend``.
+    """
+    from engines.fund_map.inflation import NotComputable, curve_reason
+    from engines.fund_map.pass_through import scenario_nominal
+    curve = curves["USD"]
+    if not curve.computable():
+        raise NotComputable("the historical deflator of the role pass-through (USD): "
+                            + curve_reason(curve))
+    return scenario_nominal(list(values), [s.log_inflation for s in curve.states], pi_s,
+                            blend["beta"], blend["duration"])
+
+
 def shape_checks(means: dict[str, list[float]]) -> list[tuple[str, bool]]:
     """The eight shape assertions of manual section 11.3, on block phase means.
 

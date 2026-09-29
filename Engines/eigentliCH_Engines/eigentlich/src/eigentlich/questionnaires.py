@@ -45,8 +45,22 @@ class AnswerRefused(ValueError):
     """The value does not fit the question. The message says why, in plain words."""
 
 
+def in_sequence(q: dict[str, Any]) -> bool:
+    """A question asked in the questionnaire's sequence. ``scope: goal`` (EIG-60) is asked once per goal, on the
+    plan page, and never here."""
+    return q.get("scope") in (None, "client")
+
+
 def ordered(body: dict[str, Any]) -> list[dict[str, Any]]:
-    return sorted(body.get("questions") or [], key=lambda q: (q.get("order", 0), q["key"]))
+    """The questions of the sequence, in order (the per-goal ones are left out, EIG-60)."""
+    return sorted((q for q in body.get("questions") or [] if in_sequence(q)),
+                  key=lambda q: (q.get("order", 0), q["key"]))
+
+
+def goal_questions(body: dict[str, Any]) -> list[dict[str, Any]]:
+    """The questions asked per goal (``scope: goal``), in order."""
+    return sorted((q for q in body.get("questions") or [] if q.get("scope") == "goal"),
+                  key=lambda q: (q.get("order", 0), q["key"]))
 
 
 def question(body: dict[str, Any], key: str) -> dict[str, Any]:

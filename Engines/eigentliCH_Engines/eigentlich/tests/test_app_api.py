@@ -70,7 +70,7 @@ def as_curator(settings, sql: str, params=()):
 def test_health_and_meta(http):
     h = http.get("/health").json()
     assert h["status"] == "ok" and h["store"] == "ok" and h["sign_in"] is False
-    assert set(h["engines"]) == {"lbs", "chatbot", "report"} and h["engines"]["lbs"]["reachable"]
+    assert set(h["engines"]) == {"lbs", "chatbot", "report", "aggregation"} and h["engines"]["lbs"]["reachable"]
     m = http.get("/meta").json()
     assert m["contract_versions"]["ChatRequest(chatbot)"] == "chat-request@1.0.0"
     assert m["settings"]["port"] == 8017 and m["settings"]["store"]["password_set"] in (True, False)
@@ -236,7 +236,8 @@ def test_a_position_edit_writes_its_decision(http, settings):
         d = conn.execute("SELECT * FROM decision WHERE id = %s", (edited["decision_id"],)).fetchone()
         links = conn.execute("SELECT decision_id FROM decision_position WHERE position_id = %s", (pos["id"],)).fetchall()
     assert d["client_id"] == cid and d["author"] == "client" and d["reasoning"] == "Lohnausweis 2026"
-    assert "magnitude: 90000.0 → 96000.0" in d["choice"] and "«Lohn»" in d["question"]
+    # in plain German, with a Swiss figure (EIG-64), never the field key or 96000.0
+    assert d["choice"] == "Betrag: neu 96’000, bisher 90’000" and "«Lohn»" in d["question"]
     assert {x["decision_id"] for x in links} == {pos["decision_id"], edited["decision_id"]}
 
     r = http.post(f"/api/clients/{cid}/positions/{pos['id']}/deactivate", json={"reasoning": "Stelle gewechselt"})
@@ -535,10 +536,15 @@ def test_report_flow_with_lbs_and_the_curators_allocation(http, settings, engine
     assert "script-src" not in html.headers["content-security-policy"] and "default-src 'none'" in html.headers["content-security-policy"]
     assert http.get(f"/api/clients/{new_client(http, 'Neugier')}/report/{rep['id']}/html").status_code == 404
 
-    # the curator ran pcp in the cockpit; the update names it and the previous report
-    as_curator(settings, "INSERT INTO engine_run (client_id, engine, request, requested_by_kind, requested_by_ref, "
-                         "status, artefact_id, started_at, finished_at) VALUES (%s, 'pcp', '{}', 'curator', %s, "
-                         "'running', NULL, now(), NULL)", (cid, curator))
+    # the curator finalised a mandate and ran pcp on it in the cockpit (on the base Regime); the update names it
+    # and the previous report
+    ps = as_curator(settings, "INSERT INTO parameter_set (client_id, engine, contract_version, body, finalised_by) "
+                              "VALUES (%s, 'pcp', 'pcp-mandate@1.0.0', '{\"currency\": \"CHF\"}', %s) RETURNING id",
+                    (cid, curator))
+    as_curator(settings, "INSERT INTO engine_run (client_id, engine, parameter_set_id, request, requested_by_kind, "
+                         "requested_by_ref, status, artefact_id, started_at, finished_at) VALUES (%s, 'pcp', %s, "
+                         "'{\"regime_id\": \"RGM-0000000000000b0e\"}', 'curator', %s, 'running', NULL, now(), NULL)",
+               (cid, ps["id"], curator))
     as_curator(settings, "UPDATE engine_run SET status = 'succeeded', artefact_id = 'ALC-0001', finished_at = now() "
                          "WHERE client_id = %s AND engine = 'pcp'", (cid,))
     r = http.post(f"/api/clients/{cid}/reports?wait=true", json={"kind": "update"})

@@ -3,7 +3,7 @@
 The curve-fit optimiser. For a client's mandate it fits the target return curve across the 25 regime states
 with the fmre instrument profiles, each state weighted by the client's blend of the Regime, under the mandate's
 75-row constraint block, and publishes the **Allocation**: weights per instrument with the `regime_id` stamped,
-in the mandate's reporting currency (CHF, EUR or USD), the same weights by role, the portfolio map, the curves
+in the mandate's reporting currency (CHF, EUR or USD) and on its basis (nominal or real), the same weights by role, the portfolio map, the curves
 and the diagnostics. Unreleased: releasing advice is a person's act outside this engine.
 
 > Model-derived research output. The allocation is the solution of a model, not a forecast and not a
@@ -13,8 +13,8 @@ and the diagnostics. Unreleased: releasing advice is a person's act outside this
 |---|---|
 | Module | `pcp` |
 | Default port | 8007 (configurable) |
-| Status | v1.2.0 (29.09.2026: joint feasibility check and solver rescue, PCP-21; reporting currency, PCP-18), calibration 1.1.0; the draft reproduced to 2e-14 (golden layer A); 100 tests |
-| Consumes | `Regime` from `aggregation` (8004, `aggregation-regime@1.0.0`), `ReturnSet` in the mandate's currency and the instrument register from `fmre` (8006, `rs@1.0.0`), the client's `Mandate` |
+| Status | v1.2.0 (29.09.2026: hard-currency fallback accepted and marked, PCP-23; nominal and real view, PCP-22; joint feasibility check and solver rescue, PCP-21; reporting currency, PCP-18), calibration 1.1.0; the draft reproduced to 2e-14 (golden layer A); 119 tests |
+| Consumes | `Regime` from `aggregation` (8004, `aggregation-regime@1.0.0`), `ReturnSet` in the mandate's currency and on its basis and the instrument register from `fmre` (8006, `rs@1.0.0`), the client's `Mandate` |
 | Produces | `Allocation` (`pcp-allocation@1.0.0`) |
 | Downstream | `report` (the Allocation's facts), the cockpit's Parameters page |
 
@@ -32,12 +32,13 @@ First time: `..\..\.venv\Scripts\pip install -e .[dev]`, the role and schema fro
 
 A run needs `aggregation` and `fmre` running. pcp asks fmre for the ReturnSet stamped against the requested
 Regime and measured in the mandate's currency (`/v1/return-set?regime_id=...&currency=CHF|EUR|USD`); fmre
-confirms the Regime with aggregation first, and both the stamp and the currency enter the `return_set_id`, so
-the request names the set fmre serves for that Regime in that currency (PCP-09, PCP-11, PCP-18). The tests run
+confirms the Regime with aggregation first, and the stamp, the currency and (for a real mandate, `&basis=real`) the
+basis enter the `return_set_id`, so the request names the set fmre serves for that Regime in that currency on that
+basis (PCP-09, PCP-11, PCP-18, PCP-22). The tests run
 on frozen inputs.
 
 ```bash
-python -m pytest        # 100 tests, against the real PostgreSQL server
+python -m pytest        # 119 tests, against the real PostgreSQL server
 ```
 
 ## The model
@@ -80,7 +81,9 @@ none. Every ESG score is 1.0 today, so row 57 cannot discriminate.
 
 **Refusals** (before any solve, each naming its reason): a `regime_id` on the ReturnSet other than the requested
 one, or none (strict, PCP-11); a ReturnSet measured in another currency than the mandate's, or stating none
-(strict, PCP-18, PCP-19); a `return_set_id` fmre does not serve; profiles in another unit than the curve, or
+(strict, PCP-18, PCP-19; the one exception is fmre's hard-currency fallback on a real set whose `from` is the
+mandate's currency and `to` the served one, PCP-23); a ReturnSet on another basis than the mandate's, a set without `provenance.basis`
+counting as nominal, or a real view fmre states `not_computable` (strict, PCP-22); a `return_set_id` fmre does not serve; profiles in another unit than the curve, or
 a horizon other than one year (PCP-13); a universe instrument fmre does not publish or that cannot be classified;
 a weighted economy not assessed in the month; a mislabelled bound source (Manual 14.2); a structurally infeasible
 mandate: per dimension, per bucket (a floor above what its instruments can hold under `max_single_position`), and as
@@ -90,7 +93,8 @@ Nothing is published from an unconverged solve or from raw weights that miss the
 ## Contracts and endpoints
 
 `Mandate` (`pcp-mandate@1.0.0`): `client`, `name`, `currency` (`CHF`, `EUR` or `USD`, CHF by default: the
-reporting currency, see below), `horizon_years` (1), `curve_unit`, `target_curve` (25), `universe` (fmre
+reporting currency, see below), `basis` (`nominal` by default, or `real`: the basis of the `target_curve`, see
+below), `horizon_years` (1), `curve_unit`, `target_curve` (25), `universe` (fmre
 instrument ids), `max_single_position`, `esg_min`, `fixed_allocations`, `bounds` (dimension to bucket to
 `{lower, upper}`), `bound_sources` (dimension to `derived` or `policy`), and exactly one of `regime_weights` or
 `regime_market`. `PCPRunRequest` (`pcp-run@1.0.0`): `regime_id`, `return_set_id` (the id fmre serves for that
@@ -106,6 +110,29 @@ limits what the portfolio holds, whatever it is reported in. pcp reads the serve
 (PCP-19). The contract versions are unchanged: every CHF mandate written before still validates with the same
 `mandate_id`, and `currency` on the Allocation is an additional optional field (`None` only on Allocations
 published before 1.1.0).
+
+**Basis** (PCP-22, `review/REAL_VIEW_INTERFACES.md`). The mandate's optional `basis` is the basis of its
+`target_curve`: `nominal` (the default everywhere) or `real`, annualised log returns net of the reporting
+currency's inflation per regime state (`real = nominal - ln(1 + inflation)`). For a real mandate pcp asks fmre
+for `&basis=real` (fmre deflates, pcp never does), names fmre's real `return_set_id`, and refuses a set whose
+`provenance.basis` is not `real` (a set without the field is nominal), fmre's `not_computable` answer, and a
+deflator that labels a state `not_computable`, each with the reason. The Allocation states `basis` and
+`provenance.basis`; a real one carries fmre's deflator in `provenance.upstream` (`fmre:basis`, `fmre:deflator`,
+`fmre:hard_currency_fallback`) and the per-state labels in a warning. The basis enters the idempotency key. A
+nominal mandate is sent to fmre without `basis=` and serialises without the field, as does its Allocation, so
+every id it had before stays (`mandate_id`, idempotency key, `artefact_id`); a body without `basis` reads as
+nominal. No contract version moved.
+
+**Hard-currency fallback** (PCP-23, fmre's decision 5). When a real mandate's currency leaves fmre's -20 % to
++100 % inflation band, fmre measures the real set in CHF (then USD) instead and states it:
+`provenance.currency` is the hard currency and `provenance.deflator.hard_currency_fallback` is
+`{from, to, states, reason}`. pcp accepts that set only when the mandate is real, `from` is the mandate's
+currency and `to` (and the deflator's currency) the served one; any other currency mismatch stays refused. The
+Allocation then says so: `currency` and `provenance.currency` are the hard currency the figures are in,
+`provenance.hard_currency_fallback` is fmre's `{from, to, states, reason}` (`from` is the mandate's currency),
+and `coverage.warnings` states it in plain words ("real, measured in CHF because EUR inflation left the
+computable band ..."); `/validate` returns the same in `hard_currency_fallback` and `notes`. The fallback enters
+the idempotency key through fmre's `return_set_id`, which it moves. Absent, the field is left out of the JSON.
 
 Standard (Guide 2.1): `GET /health`, `/meta`, `/contracts`, `POST /run`, `GET /runs`, `/runs/{run_id}`,
 `/artefacts/{artefact_id}`, `GET` and `PUT /calibration`. Engine specific:
@@ -147,6 +174,21 @@ Standard (Guide 2.1): `GET /health`, `/meta`, `/contracts`, `POST /run`, `GET /r
   named; two tight feasible variants on which the calibrated fast solve misses the budget, rescued; the rescue
   never engages on layer A. The capacity check, the joint check, the rescue and the reduced rows were each
   reverted once and their tests turned red.
+* **Basis**, `tests/test_basis.py` (PCP-22), against the fmre stand-in (which deflates on `basis=real` as fmre
+  does and moves the id): the mandate takes nominal or real and defaults to nominal; a nominal mandate, with or
+  without the field, keeps the `mandate_id`, idempotency key and `artefact_id` measured before the field existed;
+  the set is requested on the mandate's basis; a set on another basis, one stating none against a real mandate,
+  fmre's `not_computable` and a `not_computable` label are refused; the real Allocation states its basis and
+  deflator, reports a hard-currency fallback, and gets its own key. Each of the omission of nominal, the omission
+  of an unstated basis on the mirror, the basis passed to fmre, the basis check, fmre's `not_computable` answer as a refusal, the label refusal,
+  the basis on the Allocation and on its provenance, and "no basis counts as nominal" was reverted once and its
+  test turned red.
+* **Hard-currency fallback**, `tests/test_fallback.py` (PCP-23), against the stand-in (which, given
+  `hard_currency={"EUR": "CHF"}`, serves a real EUR request in CHF with the fallback, as fmre does): accepted with
+  the fallback and stated on the Allocation and the ValidationReport, with its own key; refused without it, with a
+  `from` or `to` that does not match, incomplete, on a nominal mandate and when deflated in another currency; the
+  Allocation contract ties the fallback to its currency and to real. The acceptance, the `from` check, the `to`
+  check and the hard currency on the Allocation were each reverted once and their tests turned red.
 * **Currency**, `tests/test_currency.py`: the mandate takes CHF, EUR or USD and defaults to CHF; the ReturnSet
   is requested in the mandate's currency; a set in another currency, in none or unconverted is refused; the
   Allocation names its currency, which enters the idempotency key. The frozen ReturnSet is fmre's
@@ -169,7 +211,7 @@ src/pcp/
   service.py           orchestration
 golden/                draft (layer A), inputs and production (layer C)
 dev/                   build_golden_draft.py, freeze_inputs.py, build_golden_production.py, make_deploy.py
-testbench/index.html   development only; the Currency select sets the mandate's currency and fetches the matching set
+testbench/index.html   development only; the Currency and Basis selects set the mandate's currency and basis and fetch the matching set
 tests/
 ```
 

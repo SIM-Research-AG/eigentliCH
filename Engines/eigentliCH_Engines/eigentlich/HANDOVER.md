@@ -124,6 +124,54 @@
 27. **The shares' sum is checked by the app, not the database** (the cockpit could write more); `inputs.py` then
     sends none and names it in `dropped`.
 
+## The nominal and real view (29.09.2026, EIG-60 to EIG-64)
+
+* **Built** to `review/REAL_VIEW_INTERFACES.md`: the two questions (EIG-60 per goal, EIG-61 for the yearly
+  contribution) as the onboarding's version 3, stored as `goal.amount_basis` and the answer
+  `contribution_indexed`, sent to lbs as `goals[].amount_basis` and `mandate.contribution_indexed` only when stated;
+  the nominal / real switch on home, plan and reports (EIG-62, `client/app/basis.js`), lbs's real figures shown in
+  real and a report asked with `basis=real`; **bug fixes**: the report's allocation is the current parameter set's
+  run on its base Regime, a scenario only when asked (EIG-63, asks aggregation `GET /scenarios`); the decision list
+  in plain German with the house's role names and 61’000 CHF (EIG-64, `decisions.py`). App version 1.3.0.
+* **Schema, additive:** `goal.amount_basis`, `report_request.basis`, `report_request.scenario` with their CHECKs,
+  and the two columns appended to the view `report_request_state`; applied to the real schema by `init-db`;
+  SCHEMA.md regenerated (section 4.8).
+* **Content:** `questionnaire/onboarding` version 3 (`onb2@0.3.0`) saved on the real store by the owner's curator
+  record (`revise-content`); `scoring_bind_check` 169 of 169 ok.
+* **Use cases:** step `basis` of `dev/build_use_cases.py` run on the real store through a temporary app on port 8027
+  (new code, same store and engines; stopped afterwards; 8017 was not touched): every goal with an amount states its
+  basis (five in future francs: Claudia's mortgage, Michele's amortisation, Isabelle's practice share, Regula's
+  advance on inheritance, Elio's buy-in), the indexed question answered for all 20, then the curator's lbs button.
+  All 20 sheets carry lbs's real view (lbs@1.3.0, calibration 1.4.0). A second run wrote nothing.
+* **Tests:** 383 passed, 3 skipped (live, opt-in); with `EIGENTLICH_LIVE=1` the 3 live tests passed against lbs
+  1.3.0, chatbot 1.2.0 and report 1.3.0; report 1.3.0 took the app's `basis: real` request. `tests/test_app_realview.py`
+  (21 tests); `dev/verify_regressions.py` has 11 more code guards (61 in all), each shown to fail reverted and pass
+  restored. The browser pages were checked by headless screenshots only.
+* **Mirrors re-read:** lbs `contracts.py` (lbs@1.3.0, LBS-31: `goals[].amount_basis`, `mandate.contribution_indexed`,
+  the sheet's `real_view` and the proposal's `views`); report `contracts.py` (1.3.0, REP-27: `basis`, sent only when
+  real); aggregation `ScenarioListed`.
+
+### To restart (the owner's session)
+
+* **The app on 8017** runs 1.2.0 and must be restarted to serve 1.3.0 (the switch, the questions, the report fix,
+  the plain decision list). Until then a German plan page still shows the raw decision texts, a report can still take
+  a scenario's allocation, and a home visit there can make an lbs run without the two answers (lbs then reads today's
+  francs and a fixed contribution, the defaults, so only the five future-francs goals read differently); after the
+  restart, `build_use_cases.py basis` (it presses the curator's lbs button) brings every sheet back.
+* **lbs (8013) and report (8015)** already run 1.3.0; nothing to restart there.
+* **aggregation (8004)** must be up for a report with an allocation (EIG-63); `desktop.cmd` does not start it.
+
+### Open points from this round
+
+28. **A report with an allocation needs aggregation.** Down, the report waits (open, try again). If that is too strict
+    for the desktop setup, `desktop.cmd` could start aggregation, or the cockpit could record the Regime's kind on the
+    `engine_run` so the app needs no call.
+29. **No real allocation exists yet**: every parameter set is nominal, so a real report has no allocation (a mix is
+    refused). The cockpit's real mandate (pcp PCP-22) fills it.
+30. **The switch shows lbs's figures only**; the plan's goal list shows lbs's figure from the latest sheet, which may be
+    older than the goal's last change (the page says "Laut Bilanz").
+31. **The scenario of a report** is asked through the API only (`scenario`); the client's page offers none.
+
 ## For the next agents
 
 * **Cockpit:** link to a client's view with `http://127.0.0.1:8017/#/client/<id>/home`; for a report

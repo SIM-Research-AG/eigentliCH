@@ -1,7 +1,8 @@
 # Handover — Fund Map engine
 
 **Written 27 September 2026, before a context reset; state as of 29 September 2026** (the
-owner's decisions of that day are built, FMRE-15 to FMRE-24; R-002 is decided: the
+owner's decisions of that day are built, FMRE-15 to FMRE-25, and the nominal and real
+view, FMRE-26 to FMRE-32, and the inflation pass-through under a scenario, FMRE-33 to FMRE-41; R-002 is decided: the
 default estimator is the 12 month forward measurement, lightly smoothed). What a new session needs to
 pick this up without re-deriving it. `README.md` is the reference; this is the state of
 play.
@@ -13,7 +14,7 @@ play.
 ```bash
 cd Projects/Engines/Instruments
 start.cmd                      # or: python -m uvicorn api.main:app --port 8006
-python -m pytest -q            # 332 tests, needs the Postgres container up
+python -m pytest -q            # 478 tests, needs the Postgres container up
 ```
 
 **The `regime_id` stamp (28.09.2026).** `GET /v1/return-set?regime_id=RGM-...` stamps the
@@ -26,13 +27,47 @@ instruments under the default estimator, FMRE-23); without the parameter the set
 serves. Standard library only (`urllib`). A converted set (`currency=`) names its currency
 in `provenance.currency` (null on the default, FMRE-21), which pcp v1.1.0 reads.
 
+**The nominal and real view (29.09.2026, FMRE-26 to FMRE-32).** `GET /v1/inflation`
+serves the deflator per state and currency; `basis=real` on `/v1/return-set` and the
+instrument profile gives the real figures (`real = nominal - ln(1 + inflation)`), with the
+basis in the id, `provenance.basis` / `provenance.deflator` and the second note. The
+default stays nominal and byte for byte what it was (pinned, sha256 of the whole body).
+Under a scenario Regime the deflator is the policy's own inflation read from aggregation
+(`/regime/{id}`, `provenance.scenario.inflation_final_12m`); **until aggregation serves
+that field a real scenario set is refused, 503**. Also fixed: `provenance.estimator` said
+`plain_mean`, it now names the estimator used (FMRE-26; ids unchanged). **The server on
+8006 serves all of this only after a restart.**
+
+**The inflation pass-through under a scenario (29.09.2026, FMRE-33 to FMRE-37).** A
+scenario Regime no longer deflates the historical nominal profiles by its own inflation
+(gold -41.5 log points real in crisis under hyperinflation); each instrument keeps its
+historical real return and takes `beta * ln(1 + pi_s)` nominal, nominal bonds also a
+duration loss, a log return without a cap since FMRE-38 (README "Inflation pass-through under a
+scenario"). House table `ipt@1.1.0` (below; `ipt@1.0.0` before), CIO overrides append-only via
+`GET /v1/inflation-beta`, `GET /v1/inflation-beta/{id}/history`, `PUT /v1/inflation-beta/{id}`.
+Base Regimes and the nominal default are byte for byte unchanged; every scenario set's id
+moves (hyperinflation `RGM-59eebfaf7744d8ec`, CHF, under `ipt@1.0.0`: real
+`RS-dfda56ea5dbcd389`, nominal `RS-83a2e1c5b9d90886`; they move again with `ipt@1.1.0`). A nominal scenario set now needs `inflation_final_12m` too (503
+without). The two new tables were created in the live store on 29.09.2026
+(`db.initialise()`); **8006 serves the pass-through only after a restart.**
+
+**The owner's pass-through decisions (29.09.2026, FMRE-38 to FMRE-41), `ipt@1.1.0`
+(`IPT-585c7da4656ead2b`).** The bond loss is `-D * (ln(1 + pi_s) - ln(1 + pi_hist))`, a log
+return without a cap; cash has beta 0; the four role profiles are carried by the weighted
+beta of their blocks (gain 0.6, income 0.75, stabilisation 0.667, protection 0.5 with
+duration 3.5; block types FMRE-40), recorded per role in
+`provenance.inflation_pass_through.roles`; block profiles carry none; the mapping's
+judgement calls are confirmed. `ipt@1.0.0` stays in the store. Every scenario set's id
+moves again; the new live ids are to be read after the restart. **8006 serves `ipt@1.1.0`
+only after a restart** (it stores the new version on its first scenario request).
+
 Test bench at <http://127.0.0.1:8006/>, also openable straight off disk
 (`testbench/index.html` — it detects `file://` and calls `127.0.0.1:8006`).
 
 **Docker running is not enough.** The container is the database; the engine is a separate
 process that does not come back after a reboot. This has caught us twice.
 
-Store: PostgreSQL **`simtech`**, schema **`fmre`** (15 tables) plus **`fmre_feed`**
+Store: PostgreSQL **`simtech`**, schema **`fmre`** (17 tables) plus **`fmre_feed`**
 (7 tables), connecting as the role **`fmre`**. Config in `config.toml` (git-ignored, copy
 `config.example.toml`). `python -m store.provision --show` prints the layout.
 
@@ -48,6 +83,8 @@ If any of these changes without a recorded decision, something broke.
 | State map id | `MAP-eb4b581619a03147` |
 | Default ReturnSet | `RS-8b6a98484992c9d3` unstamped, `RS-59598b143ab78c56` stamped (`RGM-e2658e8e9bbbc81e`); stamped in CHF `RS-c472e411e39645f5`, EUR `RS-dd496e3d3e72affe`, USD `RS-76d1a29edc752997` |
 | Default estimator | `forward_12m_smoothed` (FMRE-22); stored profiles are the cascade's |
+| Real view (opt-in) | `basis=real`, stamped in CHF `RS-c323b6c26950cf5e` (datafeed snapshot `bloomberg-2026-01-05`); the nominal ids above do not move (FMRE-29) |
+| Pass-through calibration | `ipt@1.1.0`, `IPT-585c7da4656ead2b` (FMRE-38 to FMRE-40; before `ipt@1.0.0`, `IPT-a6426b5352de9e3e`, kept); only scenario sets read it |
 | Reference reproduction | **5 × 10⁻¹⁶** worst error over 200 published values |
 | Phase counts | crisis 24 · contraction 16 · stagnation 25 · expansion 74 · boom 11 |
 | Shape assertions | 8 of 8 pass |
@@ -272,8 +309,26 @@ Consistent with §11.4 (stabilisers peak in *contraction*), but worth a rule rev
 
 ## 5. In flight, not finished
 
-*CHF / EUR / USD from 2003 is done (section 4.1a). What follows is the long-history
-and real-return part, still open.*
+*CHF / EUR / USD from 2003 is done (section 4.1a). The real view on 2006 to 2026 is
+done too (FMRE-27 to FMRE-32, README "Nominal and real view"). What follows is the
+long-history part, still open.*
+
+**Real view, open after 29.09.2026:** (1) the boom phase has five effective years of CPI
+windows and so takes today's inflation (`fallback`) in every currency; a longer CPI record
+(JST R6, below) would measure it. (2) Germany 1922 to 1923 as a hard-currency stress case
+is not built (decision 8). (3) The bench has no tab for `/v1/inflation` or
+`/v1/inflation-beta` yet. (4) Checked 29.09.2026: aggregation on 8004 serves
+`inflation_final_12m`, hyperinflation 0.6356 (log 0.492).
+
+**Pass-through, decided 29.09.2026 (FMRE-38 to FMRE-41):** the three open points of
+FMRE-33, FMRE-34 and FMRE-36 (the cap, the roles, the mapping's judgement calls) are
+decided. Still open: (1) a nominal bond under hyperinflation reads about -97 % real at
+duration 6 in CHF, not the -94 % of the brief: -94 % is the price change, and beta 0 also
+loses the whole inflation (FMRE-38). (2) Block profiles carry no pass-through; the
+diagnostic `include_blocks=true` shows them historical under a scenario. (3) The cockpit's
+pass-through panel still says "Role and block profiles carry no pass-through" and its
+stub names `ipt@1.0.0` (`cockpit/src/cockpit/static/index.html`, `cockpit/tests/test_api.py`;
+not this engine's files).
 
 **Real / nominal and the currency matrix.** Brief from the user: use data as far back as it
 exists, Deutsche Mark as the EUR proxy before 1999, and **allow a hyperinflation set** —
@@ -343,7 +398,7 @@ the dependency budget.
 ```
 contracts/          frozen, extra=forbid; depends on nothing
 engines/fund_map/   numerics · indicators · phases · calibrate · roles · state_map
-                    · estimate · forward · currency · service
+                    · estimate · forward · currency · inflation · pass_through · service
                     (pure functions; service is the only one the API uses)
 store/              config · db (psycopg) · provision (database, roles, grants) · schema.sql
                     · etl/ (long_record, market_signal, universe, bootstrap, datafeed,
@@ -352,7 +407,7 @@ feeds/              yahoo.py + cboe.py + proxy_map.py + security_meta.py: the ON
                     network code
 api/                main · deps · data (the three-level tester) · integrity
 testbench/          9 tabs; not part of the system
-tests/              332 tests
+tests/              478 tests
 ```
 
 Three data levels in the bench, as requested: **1 · Raw data** (provenance, raw series,
@@ -413,7 +468,7 @@ Engine Building Guide; what matters here is the shape and what is still outstand
 
 ```
 simtech
-  fmre         owner fmre        the engine's own artefacts, 15 tables
+  fmre         owner fmre        the engine's own artefacts, 17 tables
   fmre_feed    owner fmre        interim private copy of the series it reads, 7 tables
   datafeed     owner datafeed    the shared feed, once Engine 01 moves in
   public       closed            REVOKE ALL FROM PUBLIC; nothing lives here

@@ -31,6 +31,7 @@ from .contracts import (
     ROLES,
     STOCK_UNITS,
     AhvPension,
+    BasisAmount,
     BvgProjection,
     Calibration,
     Capital,
@@ -38,10 +39,13 @@ from .contracts import (
     CuratorItem,
     Currency,
     Gap,
+    Goal,
+    GoalBasisView,
     GoalObservations,
     GridCell,
     HouseholdPerson,
     HouseholdSection,
+    InflationUse,
     LifeBalanceSheetRequest,
     LiquidityFinding,
     MandateProposal,
@@ -49,11 +53,15 @@ from .contracts import (
     Person,
     PersonHumanCapital,
     PersonPensions,
+    Plausibility,
     Position,
     PropertyFinding,
     ProposedBound,
+    RealView,
     RecordUse,
+    RequiredReturnView,
     RetirementFinding,
+    RetirementView,
     RiskProfile,
     TimeBudget,
     Totals,
@@ -104,6 +112,8 @@ class Ctx:
     cal: Calibration
     gaps: list[Gap] = field(default_factory=list)
     used: dict[str, bool] = field(default_factory=dict)
+    #: The calibrated inflation of the reporting currency, from 1.4.0 (LBS-32); ``None`` before: no real view.
+    inflation: Optional["Inflation"] = None
 
     def record(self, name: str, *, gated: bool = True) -> dict[str, Any]:
         """Read a record. ``gated`` raises ``NotApproved`` for an unapproved one, as the prototype does."""
@@ -839,6 +849,245 @@ def pensions(ctx: Ctx) -> tuple[tuple[PersonPensions, ...], CoupleCap | NotAvail
 # Property goals (services/property.py, goals.property_finding)
 # ===========================================================================
 
+# ===========================================================================
+# The nominal and real view (owner's decisions of 29.09.2026; LBS-31 to LBS-35)
+# ===========================================================================
+
+@dataclass(frozen=True)
+class Inflation:
+    """The calibrated long-run inflation of the reporting currency: a simple annual rate and its log."""
+
+    currency: str
+    rate: float
+    log: float
+    use: InflationUse
+
+    def level(self, months: int, steps_per_year: int) -> float:
+        """The price level after ``months`` whole months: ``(1 + rate) ** (months / 12)``."""
+        return (1.0 + self.rate) ** (months / steps_per_year)
+
+    def real(self, nominal_rate: float) -> float:
+        """A simple annual nominal rate in real terms, exactly (Fisher)."""
+        return (1.0 + nominal_rate) / (1.0 + self.rate) - 1.0
+
+    def nominal(self, real_rate: float) -> float:
+        return (1.0 + real_rate) * (1.0 + self.rate) - 1.0
+
+
+def inflation_of(cal: Calibration) -> Optional[Inflation]:
+    """The inflation assumption of the calibration's reporting currency (LBS-32); ``None`` without a real view.
+    lbs reads no engine at run time: the figure is the calibration's, with its source."""
+    rv = cal.real_view
+    if rv is None:
+        return None
+    currency = cal.policy.currency
+    if currency not in rv.inflation:
+        raise EngineError(f"the calibration's real view carries no inflation assumption for {currency}")
+    a = rv.inflation[currency]
+    low, high = rv.measured_band
+    label = "measured" if low <= a.annual_rate <= high else "extrapolated"
+    use = InflationUse(currency=currency, index=a.index, annual_rate=a.annual_rate,
+                       log_rate=math.log1p(a.annual_rate), label=label, source=a.source)
+    return Inflation(currency=currency, rate=a.annual_rate, log=math.log1p(a.annual_rate), use=use)
+
+
+def months_to(ctx: Ctx, target_date: Optional[date]) -> Optional[int]:
+    """Whole months from ``as_of`` to a date, the grid the required return runs on (``None`` when undated or not
+    after ``as_of``). The price level at the date is compounded over the same months, so a figure converts
+    between the bases exactly as the required return does (LBS-31)."""
+    if target_date is None:
+        return None
+    pol = ctx.cal.policy
+    horizon = (target_date - ctx.req.as_of).days / pol.days_per_year
+    if horizon <= 0:
+        return None
+    return max(1, int(round(horizon * pol.steps_per_year)))
+
+
+def amount_basis(goal: Goal) -> tuple[str, bool]:
+    """A goal amount's basis and whether the request stated it: a missing basis is today's francs (decision 7)."""
+    return (goal.amount_basis or "today"), goal.amount_basis is not None
+
+
+@dataclass(frozen=True)
+class GoalAmounts:
+    nominal: Optional[float]
+    real: Optional[float]
+    months: Optional[int]
+    level: Optional[float]
+    absent_because: Optional[str]
+
+
+def goal_amounts(ctx: Ctx, goal: Goal) -> GoalAmounts:
+    """The goal's amount in francs of its date (nominal) and in today's francs (real). A today's-francs amount
+    is inflated to its date; a future-francs amount is deflated to today. Without a date only the stated basis
+    is known."""
+    infl = ctx.inflation
+    assert infl is not None
+    basis, _ = amount_basis(goal)
+    months = months_to(ctx, goal.target_date)
+    level = infl.level(months, ctx.cal.policy.steps_per_year) if months is not None else None
+    stated = goal.target_amount
+    if stated is None:
+        return GoalAmounts(None, None, months, level, "the goal names no amount")
+    why = None
+    if level is None:
+        why = ("the goal is undated, so the price level at its date is unknown" if goal.target_date is None
+               else "the goal's date is not after as_of")
+    if basis == "today":
+        return GoalAmounts(float(stated) * level if level is not None else None, float(stated), months, level, why)
+    return GoalAmounts(float(stated), float(stated) / level if level is not None else None, months, level, why)
+
+
+def goal_basis_view(ctx: Ctx, goal: Goal) -> GoalBasisView:
+    basis, stated = amount_basis(goal)
+    a = goal_amounts(ctx, goal)
+    return GoalBasisView(
+        goal_id=goal.goal_id, kind=goal.kind, unit="chf_per_year" if goal.kind == "retirement" else "chf",
+        amount_basis=basis, amount_basis_stated=stated, stated_amount=goal.target_amount,
+        horizon_years=a.months / ctx.cal.policy.steps_per_year if a.months is not None else None,
+        price_level=a.level,
+        nominal=BasisAmount(basis="nominal", amount=a.nominal, as_at=goal.target_date,
+                            absent_because=a.absent_because if a.nominal is None else None),
+        real=BasisAmount(basis="real", amount=a.real, as_at=None,
+                         absent_because=a.absent_because if a.real is None else None))
+
+
+def real_view(ctx: Ctx) -> RealView:
+    m = ctx.req.mandate
+    stated = m is not None and m.contribution_indexed is not None
+    return RealView(currency=ctx.inflation.currency, inflation=ctx.inflation.use,
+                    contribution_indexed=bool(m.contribution_indexed) if stated else False,
+                    contribution_indexed_stated=stated,
+                    goals=tuple(goal_basis_view(ctx, g) for g in ctx.req.goals))
+
+
+def contribution_path(annual: float, months: int, steps_per_year: int, infl: Optional[Inflation],
+                      indexed: bool) -> list[float]:
+    """The monthly contributions. Fixed: ``annual / 12`` each month. Indexed (LBS-31): the payment at the end of
+    month ``k`` is ``annual / 12 * (1 + inflation) ** (k / 12)``, so it keeps its purchasing power month by
+    month and the problem in today's francs is the one a fixed contribution poses without inflation."""
+    step = annual / steps_per_year
+    if not indexed or infl is None:
+        return [step] * months
+    return [step * (1.0 + infl.rate) ** (k / steps_per_year) for k in range(1, months + 1)]
+
+
+def terminal_wealth(initial_wealth: float, contributions: list[float], annual: float, steps_per_year: int) -> float:
+    """The S-curve engine's accumulation at a constant annual return, compounded monthly."""
+    step = (1.0 + annual) ** (1.0 / steps_per_year) - 1.0
+    value = float(initial_wealth)
+    for c in contributions:
+        value = value * (1.0 + step) + c
+    return value
+
+
+def plausibility_ceiling(ctx: Ctx, level: float) -> float:
+    """The real return a portfolio at this risk level can reasonably be planned to earn: the calibration's
+    table, linear between its rows (LBS-34)."""
+    rows = ctx.cal.real_view.plausibility
+    for low, high in zip(rows, rows[1:]):
+        if low.risk_level <= level <= high.risk_level:
+            t = (level - low.risk_level) / (high.risk_level - low.risk_level)
+            return low.real_return + t * (high.real_return - low.real_return)
+    raise EngineError(f"risk level {level} is outside the plausibility table")
+
+
+def plausibility_levers(ctx: Ctx, goal: Goal, *, ceiling_nominal: float, drawable: float, contribution: float,
+                        indexed: bool, target: float, target_real: Optional[float], months: int,
+                        per_unit: Optional[float] = None) -> tuple[dict[str, Any], ...]:
+    """What reaches the goal at the ceiling, each lever alone: a longer horizon, a higher saving, a smaller goal.
+    ``target`` is the mandate's nominal target at its date and ``target_real`` the same in today's francs."""
+    pol, infl = ctx.cal.policy, ctx.inflation
+    spy = pol.steps_per_year
+    path = contribution_path(contribution, months, spy, infl, indexed)
+    reach = terminal_wealth(drawable, path, ceiling_nominal, spy)
+    level = infl.level(months, spy)
+    out: list[dict[str, Any]] = []
+    # a longer horizon: the first month at which the plan reaches the goal at the ceiling. A goal in today's
+    # francs keeps its purchasing power, so its nominal amount rises with the months; one in future francs is
+    # held at its nominal amount.
+    basis, _ = amount_basis(goal)
+    step = (1.0 + ceiling_nominal) ** (1.0 / spy) - 1.0
+    value, found = float(drawable), None
+    limit = int(round(ctx.cal.real_view.lever_horizon_limit_years * spy))
+    for k in range(1, limit + 1):
+        pay = contribution / spy * ((1.0 + infl.rate) ** (k / spy) if indexed else 1.0)
+        value = value * (1.0 + step) + pay
+        need = target_real * infl.level(k, spy) if (basis == "today" and target_real is not None) else target
+        if k > months and value >= need:
+            found = k
+            break
+    if found is None:
+        out.append({"lever": "longer_horizon", "reaches_the_goal": False,
+                    "why": (f"no date within {ctx.cal.real_view.lever_horizon_limit_years:g} years reaches the goal "
+                            "at the ceiling")})
+    else:
+        out.append({"lever": "longer_horizon", "reaches_the_goal": True, "horizon_years": found / spy,
+                    "target_date": add_months(ctx.req.as_of, found).isoformat(),
+                    "why": ("the first month at which the plan reaches the goal at the ceiling"
+                            + (", the goal held in today's francs" if basis == "today" else
+                               ", the goal held at its amount in future francs"))})
+    # a higher saving: terminal wealth is linear in the contribution
+    unit = terminal_wealth(0.0, contribution_path(1.0, months, spy, infl, indexed), ceiling_nominal, spy)
+    grown = terminal_wealth(drawable, [0.0] * months, ceiling_nominal, spy)
+    needed = max(0.0, (target - grown) / unit) if unit > 0 else None
+    out.append({"lever": "higher_saving", "annual_contribution": needed,
+                "more_per_year": None if needed is None else max(0.0, needed - contribution),
+                "indexed": indexed,
+                "why": "the yearly contribution to this goal that reaches it at the ceiling by its date"})
+    # a smaller goal: what the plan reaches at the ceiling by the date
+    out.append({"lever": "smaller_goal", "target_chf_nominal": reach, "target_chf_real": reach / level,
+                "why": ("the target the plan reaches at the ceiling by the date (for a property goal, the "
+                        "deposit), in francs of the date and in today's francs")})
+    return tuple(out)
+
+
+def plausibility(ctx: Ctx, goal: Goal, profile: RiskProfile | NotAvailable, r_star: Optional[float],
+                 computed: bool, **lever_args: Any) -> Plausibility:
+    """Whether a portfolio within the household's risk profile can reasonably earn the required return (LBS-34).
+    ``feasible`` only says a return below the 1000 percent search ceiling exists; this judges it against the
+    calibration's ceiling at the profile's level. Without a profile: realistic below the most cautious row,
+    not realistic above the most aggressive, and could not be determined in between."""
+    rv, infl = ctx.cal.real_view, ctx.inflation
+    source = ctx.cal.real_view.plausibility_source
+    if not computed:
+        return Plausibility(judgement=COULD_NOT_BE_DETERMINED, required_return_real=None, ceiling_real=None,
+                            ceiling_nominal=None, risk_level=None, ceiling_source=source,
+                            reason="no required return was computed (see gaps), so there is nothing to judge")
+    real = infl.real(r_star) if r_star is not None else None
+    level = profile.value if isinstance(profile, RiskProfile) else None
+    lowest, highest = rv.plausibility[0].real_return, rv.plausibility[-1].real_return
+    if level is not None:
+        ceiling = plausibility_ceiling(ctx, level)
+        where = f"the risk profile's level {level:.4f}"
+    elif real is not None and real <= lowest:
+        ceiling, where = lowest, "the most cautious row (no risk profile; any profile allows at least this)"
+    elif real is None or real > highest:
+        ceiling, where = highest, "the most aggressive row (no risk profile; no profile allows more)"
+    else:
+        return Plausibility(
+            judgement=COULD_NOT_BE_DETERMINED, required_return_real=real, ceiling_real=None, ceiling_nominal=None,
+            risk_level=None, ceiling_source=source,
+            reason=(f"no risk profile is available and the real required return of {real:.2%} a year lies between "
+                    f"the most cautious ceiling ({lowest:.2%}) and the most aggressive ({highest:.2%})"))
+    ceiling_nominal = infl.nominal(ceiling)
+    if real is not None and real <= ceiling + 1e-12:
+        return Plausibility(judgement="realistic", required_return_real=real, ceiling_real=ceiling,
+                            ceiling_nominal=ceiling_nominal, risk_level=level, ceiling_source=source,
+                            reason=(f"the real required return of {real:.2%} a year is within the {ceiling:.2%} a "
+                                    f"portfolio at {where} can reasonably earn"))
+    levers = plausibility_levers(ctx, goal, ceiling_nominal=ceiling_nominal, **lever_args)
+    needs = ("no return below the search ceiling reaches the goal" if real is None
+             else f"the goal needs {real:.2%} a year real ({r_star:.2%} nominal)")
+    return Plausibility(
+        judgement="not_realistic", required_return_real=real, ceiling_real=ceiling, ceiling_nominal=ceiling_nominal,
+        risk_level=level, ceiling_source=source, levers=levers,
+        reason=(f"{needs}, above the {ceiling:.2%} real ({ceiling_nominal:.2%} nominal) a portfolio at {where} can "
+                "reasonably earn; the levers are a longer horizon, a higher saving or a smaller goal, not the "
+                "allocation"))
+
+
 def occupancies(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {k: v for k, v in record["occupancy"].items() if not k.startswith("_")}
 
@@ -1042,10 +1291,21 @@ def property_findings(ctx: Ctx, income: Optional[float]) -> tuple[PropertyFindin
         options = tuple({"value": k, "label": r["label"], "why": r.get("why")}
                         for k, r in occupancies(record).items())
         hard, p2, p3a, unknown = capital_by_eligibility(ctx, goal.goal_id)
-        base = dict(goal_id=goal.goal_id, price_chf=goal.target_amount, target_date=goal.target_date,
-                    occupancy=goal.occupancy, occupancy_options=options)
+        price = goal.target_amount
+        extra: dict[str, Any] = {}
+        if ctx.inflation is not None:
+            # LBS-31: the equity and affordability tests are ratio tests in today's terms; a price in future
+            # francs is deflated to today first (the default, today's francs, is read as stated).
+            extra["basis"] = "real"
+            price = goal_amounts(ctx, goal).real
+            if price is None and goal.target_amount is not None:
+                ctx.gap(f"property.{goal.goal_id}", "amount_basis", "not_in_the_request",
+                        "the price is stated in future francs but the goal has no date after as_of, so it cannot "
+                        "be read in today's francs")
+        base = dict(goal_id=goal.goal_id, price_chf=price, target_date=goal.target_date,
+                    occupancy=goal.occupancy, occupancy_options=options, **extra)
         try:
-            res = property_assess(record, goal_id=goal.goal_id, price=goal.target_amount,
+            res = property_assess(record, goal_id=goal.goal_id, price=price,
                                   target_date=goal.target_date, occupancy=goal.occupancy, hard_available=hard,
                                   pillar2_available=p2, pillar3a_available=p3a, household_income=income,
                                   unknown_vessel_available=unknown,
@@ -1192,6 +1452,15 @@ def retirement_findings(ctx: Ctx, income: Optional[float]) -> tuple[RetirementFi
             why.append("the_members_age_is_not_recorded")
         if goal.target_amount is None:
             why.append("the_goal_names_no_yearly_amount")
+        # LBS-33 (from 1.4.0): the comparison is made in today's francs.
+        infl = ctx.inflation
+        need = goal.target_amount
+        amounts = goal_amounts(ctx, goal) if infl is not None else None
+        if amounts is not None:
+            need = amounts.real
+            if need is None and goal.target_amount is not None:
+                why.append("the_need_is_in_future_francs_and_the_goal_has_no_date_to_read_it_in_todays_francs")
+        ahv_yearly = bvg_yearly = bvg_real = None
         covered: float = 0
         reached = False
         ahv_payload = pillar2_payload = None
@@ -1204,6 +1473,7 @@ def retirement_findings(ctx: Ctx, income: Optional[float]) -> tuple[RetirementFi
                 first = ahv_illustration(record, income, None)
                 reached = True
                 covered += first.yearly
+                ahv_yearly = first.yearly
                 caveats.extend(first.caveats)
                 ahv_payload = {"basis": "current_income_as_a_stand_in_for_the_lifetime_average",
                                "monthly": first.monthly, "yearly": first.yearly, "at_minimum": first.at_minimum,
@@ -1220,8 +1490,16 @@ def retirement_findings(ctx: Ctx, income: Optional[float]) -> tuple[RetirementFi
                 second = bvg_project(record, current_age=age, opening_balance=balance or 0, gross_salary=income)
                 reached = True
                 yearly = second.monthly_pension * 12
-                covered += yearly
+                bvg_yearly = bvg_real = yearly
+                if infl is not None:
+                    # nominal by law and not indexed: its first year's pension in today's francs
+                    bvg_real = yearly / infl.level((second.to_age - second.from_age) * ctx.cal.policy.steps_per_year,
+                                                   ctx.cal.policy.steps_per_year)
+                covered += bvg_real
                 caveats.extend(second.caveats)
+                if infl is not None:
+                    caveats.append("the_bvg_pension_is_nominal_and_not_indexed_so_it_is_read_in_todays_francs_"
+                                   "and_loses_purchasing_power_after_its_first_year")
                 if balance is None:
                     caveats.append("no_position_names_a_pension_fund_so_the_opening_balance_is_zero")
                 pillar2_payload = {"opening_balance": second.opening_balance,
@@ -1233,20 +1511,33 @@ def retirement_findings(ctx: Ctx, income: Optional[float]) -> tuple[RetirementFi
             why.append("the_household_composition_is_past_its_validity_horizon")
         verdict = COULD_NOT_BE_DETERMINED
         covered_out = shortfall = None
-        if reached and goal.target_amount:
+        if reached and need:
             covered_out = covered
-            shortfall = max(0, goal.target_amount - covered)
-            verdict = MEETS if covered >= goal.target_amount else DOES_NOT_MEET
+            shortfall = max(0, need - covered)
+            verdict = MEETS if covered >= need else DOES_NOT_MEET
             if "the_household_composition_is_past_its_validity_horizon" in why:
                 verdict = COULD_NOT_BE_DETERMINED
         for reason in why:
             kind = "record_not_approved" if "approved" in reason else (
                 "past_its_validity_horizon" if "horizon" in reason else "not_in_the_request")
             ctx.gap(section, reason, kind, f"the retirement finding: {reason.replace('_', ' ')}")
-        out.append(RetirementFinding(goal_id=goal.goal_id, verdict=verdict, needs_per_year=goal.target_amount,
+        extra: dict[str, Any] = {}
+        if infl is not None:
+            real_view_ = RetirementView(basis="real", as_at=None, needs_per_year=need, ahv_per_year=ahv_yearly,
+                                        bvg_per_year=bvg_real, covered_per_year=covered_out,
+                                        shortfall_per_year=shortfall)
+            views = {"real": real_view_}
+            if amounts.level is not None:
+                def up(x: Optional[float]) -> Optional[float]:
+                    return None if x is None else x * amounts.level
+                views["nominal"] = RetirementView(
+                    basis="nominal", as_at=goal.target_date, needs_per_year=up(need), ahv_per_year=up(ahv_yearly),
+                    bvg_per_year=up(bvg_real), covered_per_year=up(covered_out), shortfall_per_year=up(shortfall))
+            extra = {"basis": "real", "views": views}
+        out.append(RetirementFinding(goal_id=goal.goal_id, verdict=verdict, needs_per_year=need,
                                      target_date=goal.target_date, undetermined_because=tuple(why),
                                      caveats=tuple(caveats), ahv=ahv_payload, pillar2=pillar2_payload,
-                                     covered_per_year=covered_out, shortfall_per_year=shortfall))
+                                     covered_per_year=covered_out, shortfall_per_year=shortfall, **extra))
     return tuple(out)
 
 
@@ -1622,6 +1913,13 @@ def mandate_proposal(ctx: Ctx, totals_: Totals, profile: RiskProfile | NotAvaila
     goal = next(g for g in req.goals if g.goal_id == m.goal_id)
     notes: list[str] = []
     curator: list[CuratorItem] = []
+    infl = ctx.inflation
+    amounts = goal_amounts(ctx, goal) if infl is not None else None
+    indexed = bool(m.contribution_indexed) if infl is not None else False
+    if infl is None and (any(g.amount_basis is not None for g in req.goals) or m.contribution_indexed is not None):
+        notes.append("this calibration has no real view, so amount_basis and contribution_indexed are not read "
+                     "(they are from calibration 1.4.0 on): every amount is read in the francs it is stated in and "
+                     "the contribution as fixed")
 
     # -- what the portfolio has to accumulate
     target: Optional[float] = None
@@ -1637,9 +1935,11 @@ def mandate_proposal(ctx: Ctx, totals_: Totals, profile: RiskProfile | NotAvaila
                 basis = "not available: record not approved (property-funding), so no deposit is derived"
                 ctx.gap(section, "property-funding", "record_not_approved", basis)
             else:
-                mt = mandate_target(record, goal.target_amount, goal.occupancy)
-                target = mt.target
+                price = goal.target_amount if amounts is None else amounts.nominal
+                mt = mandate_target(record, price if price is not None else goal.target_amount, goal.occupancy)
+                target = mt.target if price is not None else None
                 basis = (f"deposit: {mt.equity_min:.0%} of the price {mt.price:,.0f} "
+                         f"{'' if amounts is None else '(in francs of the target date) '}"
                          f"({'strictest occupancy assumed' if mt.assumed else 'occupancy ' + mt.occupancy}); the "
                          "rest is a mortgage, which the affordability test governs")
                 if mt.assumed:
@@ -1653,8 +1953,9 @@ def mandate_proposal(ctx: Ctx, totals_: Totals, profile: RiskProfile | NotAvaila
             basis = "not available: the goal names no amount"
             ctx.gap(section, "target_amount", "not_in_the_request", "the goal names no amount")
         else:
-            target = float(goal.target_amount)
-            basis = "the goal's own amount"
+            target = float(goal.target_amount) if amounts is None else amounts.nominal
+            basis = ("the goal's own amount" if amounts is None
+                     else "the goal's own amount, in francs of the target date")
 
     horizon: Optional[float] = None
     if goal.target_date is None:
@@ -1674,12 +1975,32 @@ def mandate_proposal(ctx: Ctx, totals_: Totals, profile: RiskProfile | NotAvaila
                 "onboarding's \"How much can you put aside each year?\"); a required return and a target curve "
                 "without it would rest on a zero nobody stated")
 
+    if infl is not None:
+        ab, ab_stated = amount_basis(goal)
+        if goal.target_amount is not None and amounts.level is not None:
+            if ab == "today":
+                notes.append(f"the goal's amount {goal.target_amount:,.0f} is in today's francs "
+                             f"({'as stated' if ab_stated else 'the request does not say; decision 7: today by default'}) "
+                             f"and is inflated to its date at {infl.rate:.2%} a year ({infl.currency}, price level "
+                             f"{amounts.level:.4f}): {amounts.nominal:,.2f} in francs of the target date")
+            else:
+                notes.append(f"the goal's amount {goal.target_amount:,.0f} is in francs of its target date (as stated); "
+                             f"in today's francs it is {amounts.real:,.2f} at {infl.rate:.2%} a year")
+        if contribution is not None:
+            notes.append(f"the contribution {'rises with prices (as stated)' if indexed else 'is fixed in francs'}"
+                         f"{'' if indexed or m.contribution_indexed is not None else ' (the request does not say; decision 9: fixed by default)'}"
+                         f"{'' if indexed else f', so its purchasing power falls by {infl.rate:.2%} a year'}")
+
     r_star: Optional[float] = None
     feasible: Optional[bool] = None
     curve: Optional[tuple[float, ...]] = None
+    computed = False
+    steps = 0
     if target is not None and horizon is not None and horizon > 0 and drawable is not None and contribution is not None:
         steps = max(1, int(round(horizon * pol.steps_per_year)))
-        r_star = required_return(drawable, target, [contribution / pol.steps_per_year] * steps,
+        computed = True
+        r_star = required_return(drawable, target, contribution_path(contribution, steps, pol.steps_per_year, infl,
+                                                                     indexed),
                                  steps_per_year=pol.steps_per_year, ceiling=pol.search_ceiling,
                                  tolerance=pol.bisection_tolerance, max_iterations=pol.bisection_max_iterations,
                                  reach_the_ceiling=ctx.corrects("required_return_search_reaches_its_ceiling"))
@@ -1769,12 +2090,31 @@ def mandate_proposal(ctx: Ctx, totals_: Totals, profile: RiskProfile | NotAvaila
         notes.append("the risk profile also interpolates asset-class bounds "
                      f"{profile.asset_class_bounds}; asset class is a policy dimension, so they are a suggestion "
                      "for the curator and not a derived bound")
+    extra: dict[str, Any] = {}
+    if infl is not None:
+        level = infl.level(steps, pol.steps_per_year) if computed else (amounts.level or None)
+        target_real = (target / level) if (target is not None and level) else None
+        extra["basis"] = "nominal"
+        extra["views"] = {
+            "nominal": RequiredReturnView(basis="nominal", target_chf=target, required_return=r_star,
+                                          required_return_log=None if r_star is None else math.log1p(r_star)),
+            "real": RequiredReturnView(basis="real", target_chf=target_real,
+                                       required_return=None if r_star is None else infl.real(r_star),
+                                       required_return_log=None if r_star is None else math.log1p(r_star) - infl.log)}
+        lever_args = {}
+        if computed:
+            lever_args = dict(drawable=drawable, contribution=contribution, indexed=indexed, target=target,
+                              target_real=target_real, months=steps)
+        extra["plausibility"] = plausibility(ctx, goal, profile, r_star, computed, **lever_args)
+        if r_star == 0.0:
+            notes.append(f"funded at a zero nominal return, which is {infl.real(0.0):.2%} a year in real terms; the "
+                         "real required return is at most that")
     return MandateProposal(
         client=req.client_ref, name=m.name or f"lbs-{goal.goal_id}", currency=pol.currency, target_curve=curve,
         esg_min=esg_min, bounds=bounds, bound_sources={d: "derived" for d in bounds}, goal_id=goal.goal_id,
         goal_kind=goal.kind, target_basis=basis, target_chf=target, goal_horizon_years=horizon,
         drawable_chf=drawable, annual_contribution=contribution, required_return=r_star, feasible=feasible,
-        curve_shape=shape, curator_to_fill=tuple(curator), complete=not curator, notes=tuple(notes))
+        curve_shape=shape, curator_to_fill=tuple(curator), complete=not curator, notes=tuple(notes), **extra)
 
 
 # ===========================================================================
@@ -1784,7 +2124,7 @@ def mandate_proposal(ctx: Ctx, totals_: Totals, profile: RiskProfile | NotAvaila
 def build(req: LifeBalanceSheetRequest, cal: Calibration) -> tuple[dict[str, Any], tuple[Gap, ...],
                                                                      tuple[RecordUse, ...]]:
     """Every section of the sheet, the gaps and the records read. The service adds ids and provenance."""
-    ctx = Ctx(req=req, cal=cal)
+    ctx = Ctx(req=req, cal=cal, inflation=inflation_of(cal))
     household = household_section(ctx)
     cells = grid(ctx)
     tot = totals(ctx)
@@ -1799,5 +2139,7 @@ def build(req: LifeBalanceSheetRequest, cal: Calibration) -> tuple[dict[str, Any
     body = dict(household=household, grid=cells, totals=tot, human_capital=hc, pensions=pens, couple_cap=couple,
                 property=prop, liquidity=liq, retirement=ret, observations=obs, risk_profile=profile,
                 mandate_proposal=mandate)
+    if ctx.inflation is not None:
+        body["real_view"] = real_view(ctx)
     gaps = tuple(sorted(ctx.gaps, key=lambda g: (g.section, g.input, g.kind)))
     return body, gaps, ctx.uses()

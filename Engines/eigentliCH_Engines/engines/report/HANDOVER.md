@@ -5,9 +5,16 @@ resume point. Model-derived research output; not investment advice.
 
 ## State (29.09.2026)
 
-- **Engine 15, v1.2.0**, calibration 1.0.0, prompt `report-prompt@1.0.0`. 278 tests pass (`python -m pytest`,
-  about 25 s, needs the PostgreSQL container); the live test passes (`python -m pytest -m live -s`: seven prose
-  sections verified on the first draft in 26.8 s, model `google/gemma-4-31B-it-qat-w4a16-ct`).
+- **Engine 15, v1.3.0**, calibration 1.0.0, prompt `report-prompt@1.1.0`. 335 tests pass (`python -m pytest`,
+  about 30 s, needs the PostgreSQL container); the prose case re-frozen live under the new prompt, seven prose
+  sections verified on the first draft (model `google/gemma-4-31B-it-qat-w4a16-ct`).
+- **29.09.2026, the nominal and real view** (REP-27 to REP-30): optional `basis: nominal|real` in
+  `report-request@1.0.0` (default nominal, in the key only when real, so every earlier request keeps its id);
+  the basis in the lede and next to every return and goal figure; real takes lbs's own real figures
+  (lbs calibration 1.4.0, `real_view`, `views`) and needs a pcp Allocation of basis real; a mix is refused
+  with its reason. Frozen inputs: two lbs 1.4.0 sheets built by lbs's code, one pcp real Allocation stand-in
+  (`dev/freeze_inputs.py --real`). The running server on 8015 needs a restart to serve 1.3.0 (the
+  coordinator restarts it; this build did not).
 - **29.09.2026, fixes from the use cases**: the four roles carry the house's names from `reference/roles`
   (Absicherung and Einkommen, not Schutz and Ertrag; REP-24); a revision is a distinct report: optional
   `revision_of` and `revision_note` in `report-request@1.0.0`, in the key, the curator's remark on the page
@@ -55,3 +62,12 @@ PCP-...` from the running pcp, or `--pcp-offline` with the Optimizer venv), then
 6. The family README (`eigentliCH_Engines/README.md`) still lists this engine as a scaffold; it was outside this
    build's folders.
 7. Deploy folder when signed off: `python dev/make_deploy.py`.
+8. **The real view's inputs**: `pcp_allocation_real.json` is a stand-in (REP-29); freeze a real Allocation from
+   the running pcp once fmre serves real ReturnSets, and re-run `dev/freeze_inputs.py --real` if lbs's 1.4.0
+   sheets change. `freeze_lbs` builds under lbs's newest calibration (now 1.4.0): a plain re-freeze would
+   change the nominal inputs too, so check the diff.
+9. **The consumer app** must add `basis` to its mirror of `report-request@1.0.0` (extra fields are forbidden
+   there) and send `"basis": "real"` with the real switch, together with a pcp Allocation solved on basis real
+   and an lbs sheet under calibration 1.4.0; otherwise the report answers 422 with the reason.
+10. lbs's plausibility reason and levers (LBS-34) and a goal's `amount_basis` are not printed yet; only the
+   judgement is. The pensions' AHV figures carry no basis mark (lbs states none for them).

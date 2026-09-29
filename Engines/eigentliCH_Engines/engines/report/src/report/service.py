@@ -214,6 +214,10 @@ class Service:
         for field in ("revision_of", "revision_note"):
             if payload.get(field) is None:
                 payload.pop(field, None)
+        # The basis (REP-27) likewise: only ``real`` enters the id, so a request without it, or with the default
+        # ``nominal``, keeps the id and key it had before the field existed.
+        if payload.get("basis") == "nominal":
+            payload.pop("basis")
         return engine.content_id("RRQ", payload)
 
     def _model_use(self) -> ModelUse:
@@ -298,6 +302,9 @@ class Service:
             if about is not None and about != request.client_ref:
                 raise Refused(f"{ref.engine} artefact {ref.artefact_id} is about client {about!r}, not "
                               f"{request.client_ref!r}; a report never draws on another client's artefact")
+            bases = got.extractor.bases(got.artefact)
+            if request.basis not in bases:
+                raise Refused(_mix_reason(ref.engine, ref.artefact_id, bases, request.basis))
             fetched.append(got)
         return fetched
 
@@ -310,6 +317,10 @@ class Service:
             raise Refused(f"the previous report {request.previous_report_id!r} does not exist") from exc
         if previous.client_ref != request.client_ref:
             raise Refused(f"the previous report {previous.artefact_id} is about another client")
+        if previous.basis != request.basis:
+            raise Refused(f"the previous report {previous.artefact_id} is {previous.basis} and this update is asked "
+                          f"in {request.basis}; an update compares figures of one basis only: ask it in "
+                          f"{previous.basis}, or ask a new report in {request.basis}")
         return previous
 
     def _revised(self, request: ReportRequest) -> Optional[Report]:
@@ -333,7 +344,7 @@ class Service:
 
         facts: list[Fact] = []
         for got in fetched:
-            facts.extend(got.extractor.extract(got.artefact, cal, lang))
+            facts.extend(got.extractor.extract(got.artefact, cal, lang, request.basis))
         dated = [(got.extractor.as_of(got.artefact), got.engine, got.artefact.artefact_id,
                   got.extractor.contract_version) for got in fetched]
         facts.append(engine.as_of_fact(dated, lang))
@@ -394,10 +405,10 @@ class Service:
         title = render.plain_title(lang, request.kind, client_name)
         html = render.render(lang=lang, kind=request.kind, title=title, facts=facts, sections=sections,
                              warnings=notes, provenance=provenance, calibration_version=cal.version,
-                             engine_version=ENGINE_VERSION, assistant=assistant, names=names)
+                             engine_version=ENGINE_VERSION, assistant=assistant, names=names, basis=request.basis)
         body = dict(client_ref=request.client_ref, kind=request.kind, language=lang, title=title,
                     previous_report_id=request.previous_report_id, revision_of=request.revision_of,
-                    revision_note=request.revision_note, as_of=as_of, facts=tuple(facts),
+                    revision_note=request.revision_note, basis=request.basis, as_of=as_of, facts=tuple(facts),
                     sections=tuple(sections), complete=degraded is None, warnings=tuple(warnings), html=html,
                     provenance=provenance)
         draft = Report(artefact_id="", **body)
@@ -469,6 +480,16 @@ class Service:
     def reports(self, client_ref: Optional[str], limit: int = 50) -> list[dict[str, Any]]:
         with self.store.session() as conn:
             return st.list_reports(conn, client_ref, max(1, min(limit, 500)))
+
+
+def _mix_reason(engine_name: str, artefact_id: str, bases: frozenset[str], asked: str) -> str:
+    """Why a source cannot be reported in the basis asked (REP-27, REP-28): a report never mixes bases."""
+    have = " and ".join(sorted(bases))
+    if engine_name == "pcp":
+        return (f"pcp allocation {artefact_id} is {have} and the report is asked in {asked}; a report never mixes "
+                f"nominal and real figures: ask pcp for an Allocation with basis={asked}, or ask the report in {have}")
+    return (f"lbs sheet {artefact_id} carries {have} figures only and the report is asked in {asked}; a report "
+            f"never mixes nominal and real figures: ask lbs for a sheet with its real view, or ask the report in {have}")
 
 
 def _resolve_mandate(fact: Fact, subject_names: dict[str, str]) -> Fact:

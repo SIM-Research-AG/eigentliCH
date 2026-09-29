@@ -26,9 +26,11 @@ def _client(name: str) -> str:
 
 def upstream_files() -> dict[str, dict[str, str]]:
     """engine -> upstream path -> frozen file."""
-    return {"pcp": {f"/allocation/{_id(n)}": n for n in ("pcp_allocation.json", "pcp_allocation_2.json")},
+    return {"pcp": {f"/allocation/{_id(n)}": n for n in ("pcp_allocation.json", "pcp_allocation_2.json",
+                                                          "pcp_allocation_real.json")},
             "lbs": {f"/artefacts/{_id(n)}": n for n in ("lbs_sheet.json", "lbs_sheet_property.json",
-                                                         "lbs_sheet_liquidity.json")}}
+                                                         "lbs_sheet_liquidity.json", "lbs_sheet_real.json",
+                                                         "lbs_sheet_property_real.json")}}
 
 
 NAME = [{"key": "name", "label": "Kundin", "value": "Muster", "source": "golden"}]
@@ -62,6 +64,19 @@ def cases() -> list[dict[str, Any]]:
         {"name": "de_revision", "revision_of": "de_full",
          "request": {"client_ref": couple, "kind": "report", "language": "de", "sources": both,
                      "display_facts": NAME, "prose": False, "revision_note": REVISION_NOTE}},
+        # The real view (REP-27): a real report on lbs's real figures and pcp's real Allocation (a stand-in), the
+        # same in English on the property sheet, and a nominal report on a sheet that carries both views.
+        {"name": "de_real", "request": {"client_ref": couple, "kind": "report", "language": "de", "basis": "real",
+                                        "display_facts": NAME, "prose": False,
+                                        "sources": [{"engine": "pcp", "artefact_id": _id("pcp_allocation_real.json")},
+                                                    {"engine": "lbs", "artefact_id": _id("lbs_sheet_real.json")}]}},
+        {"name": "en_property_real", "request": {"client_ref": _client("lbs_sheet_property_real.json"),
+                                                 "kind": "report", "language": "en", "prose": False, "basis": "real",
+                                                 "sources": [{"engine": "lbs",
+                                                              "artefact_id": _id("lbs_sheet_property_real.json")}]}},
+        {"name": "en_property_nominal_views", "request": {
+            "client_ref": _client("lbs_sheet_property_real.json"), "kind": "report", "language": "en",
+            "prose": False, "sources": [{"engine": "lbs", "artefact_id": _id("lbs_sheet_property_real.json")}]}},
         {"name": "de_full_prose", "live": True,
          "request": {"client_ref": couple, "kind": "report", "language": "de", "sources": both,
                      "display_facts": NAME, "prose": True}},

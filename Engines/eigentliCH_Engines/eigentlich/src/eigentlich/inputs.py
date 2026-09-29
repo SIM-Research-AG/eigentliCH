@@ -31,6 +31,10 @@ Where each field comes from:
   answer, CHF per year (EIG-45; a stated fact of that key would win, as everywhere). Without a mandate goal
   the contribution has nothing to attach to and is named in ``dropped``; without an answer it stays absent
   and lbs names the gap.
+* **the nominal and real view** (lbs LBS-31): ``goals[].amount_basis`` is the goal's stored ``amount_basis``
+  (``today`` or ``future``, EIG-60) and ``mandate.contribution_indexed`` the onboarding's
+  ``contribution_indexed`` answer (``ja`` true, ``nein`` false, EIG-61). Each is sent only when stated; unstated,
+  lbs reads today's francs and a fixed contribution (owner decisions 7 and 9), and the request keeps its bytes.
 * ``risk.esg_exclusions``: the intake's ``esg_exclusions``: the chosen options (a list, EIG-44), or for an
   answer to the earlier free-text version, the text split at commas, semicolons and line breaks.
 """
@@ -58,6 +62,10 @@ _PROPERTY_TEMPLATES = ("home_ownership", "holiday_property")
 _RETIREMENT_TEMPLATES = ("early_retirement", "retirement")
 
 VESSELS = ("free", "pillar_2", "pillar_3a", "real_asset")
+
+#: A goal amount's basis (EIG-60) and the indexed contribution's answer (EIG-61), as lbs reads them.
+AMOUNT_BASES = ("today", "future")
+INDEXED: dict[Any, bool] = {"ja": True, "nein": False, True: True, False: False}
 
 #: A household's current members: the client first, then adults, then dependants, by label. Members written
 #: in one transaction share created_at, and household_member has no write-order column.
@@ -264,7 +272,8 @@ def build(g: Gathered, as_of: date) -> tuple[c.LbsRequest, list[str]]:
                           target_amount=row["target_amount"] if (row["target_amount"] or 0) >= 0 else None,
                           target_date=row["target_date"],
                           occupancy=row["occupancy"] if kind == "property" else None, owners=owners,
-                          contribution_share=row.get("contribution_share")))
+                          contribution_share=row.get("contribution_share"),
+                          amount_basis=row.get("amount_basis") if row.get("amount_basis") in AMOUNT_BASES else None))
     shares = [x["contribution_share"] for x in goals if x["contribution_share"] is not None]
     if sum(shares) > 1 + 1e-9:
         dropped.append(f"contribution_share: the goals' shares sum to {sum(shares) * 100:.0f} %, above 100 %; none is sent")
@@ -323,7 +332,12 @@ def build(g: Gathered, as_of: date) -> tuple[c.LbsRequest, list[str]]:
     if contribution is not None and chosen is None:
         dropped.append(f"annual_contribution: {contribution:g} CHF per year, but no goal with an amount and a date "
                        "to attach it to (the mandate goal)")
-    mandate = c.LbsMandate(goal_id=chosen["id"], annual_contribution=contribution, name=None) if chosen else None
+    indexed_answer = answer("contribution_indexed")
+    indexed = INDEXED.get(indexed_answer) if isinstance(indexed_answer, (str, bool)) else None
+    if indexed_answer is not None and indexed is None:
+        dropped.append(f"contribution_indexed: {indexed_answer!r} is neither ja nor nein")
+    mandate = c.LbsMandate(goal_id=chosen["id"], annual_contribution=contribution, name=None,
+                           contribution_indexed=indexed) if chosen else None
 
     request = c.LbsRequest(client_ref=client_id, as_of=as_of, household=household, positions=tuple(positions),
                            goals=tuple(goals), facts=facts, risk=risk, mandate=mandate)

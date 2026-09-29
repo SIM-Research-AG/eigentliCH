@@ -63,7 +63,7 @@ PLAN_COLUMNS: Mapping[str, tuple[str, ...]] = {
                  "tags", "time_basis", "started_on", "active", "liquidity", "stock_kind", "owner", "data_class"),
     "goal": ("id", "client_id", "name", "target_amount", "target_date", "safety", "liquidity_need",
              "volatility_tolerance", "horizon", "flexibility", "template", "frozen_at", "occupancy", "active",
-             "contribution_share", "data_class"),
+             "contribution_share", "amount_basis", "data_class"),
     "client_fact": ("id", "client_id", "stated_key", "stated_value", "stated_on", "stated_by", "superseded_on",
                     "data_class"),
 }
@@ -329,9 +329,17 @@ def thread_messages(conn, thread_id: str) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def request_report(conn, *, client_id: str, kind: str, requested_by_kind: str, requested_by_ref: str,
-                   language: str, note: Optional[str] = None) -> dict[str, Any]:
-    return _insert(conn, "report_request", {"client_id": client_id, "kind": kind, "requested_by_kind": requested_by_kind,
-                                            "requested_by_ref": requested_by_ref, "language": language, "note": note})
+                   language: str, note: Optional[str] = None, basis: Optional[str] = None,
+                   scenario: Optional[str] = None) -> dict[str, Any]:
+    """``basis`` (``nominal`` or ``real``; None is nominal) and ``scenario`` (a scenario Regime asked for; None is
+    the base Regime) are stored only when given (EIG-62, EIG-63)."""
+    values = {"client_id": client_id, "kind": kind, "requested_by_kind": requested_by_kind,
+              "requested_by_ref": requested_by_ref, "language": language, "note": note}
+    if basis is not None:
+        values["basis"] = basis
+    if scenario is not None:
+        values["scenario"] = scenario
+    return _insert(conn, "report_request", values)
 
 
 def withdraw_report_request(conn, request_id: str) -> dict[str, Any]:

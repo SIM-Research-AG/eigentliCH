@@ -503,6 +503,52 @@ class ScenarioProvenance(_Frozen):
     projected_from: str
     scenario_date: str
     rule_version: str
+    #: The policy's inflation path of ``Scenario_SAA.m`` (AGG-24, nominal and real view):
+    #: ``horizon_months`` annualised rates, month 1 to 60, macrofield's TB-21 values. A deterministic
+    #: function of ``policy`` and ``horizon_months``, so it is **derived when the Regime is read**, never
+    #: taken on trust: a value that differs from the policy's is refused. It is left out of the stored
+    #: payload and of the ``artefact_id`` hash (serialise with ``context=STORED``), so no stored
+    #: scenario Regime, ``artefact_id`` or ``regime_id`` moves.
+    inflation_path: Optional[tuple[float, ...]] = None
+    #: The average annual inflation over the final 12 months of the path (months 49 to 60), the
+    #: scenario's inflation that fmre applies to every state (AGG-24). Derived as ``inflation_path``.
+    inflation_final_12m: Optional[float] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_inflation(cls, data):
+        if not isinstance(data, dict) or data.get("policy") is None:
+            return data
+        from . import scenario as sc                     # lazy: scenario imports this module
+
+        months = int(data.get("horizon_months", sc.HORIZON_MONTHS))
+        path = sc.inflation_path(data["policy"], months)
+        derived = {"inflation_path": tuple(float(v) for v in path),
+                   "inflation_final_12m": sc.inflation_final_12m(path)}
+        given = data.get("inflation_path")
+        if given is not None and tuple(float(v) for v in given) != derived["inflation_path"]:
+            raise ValueError(f"inflation_path is not the {data['policy']} policy's path of Scenario_SAA.m")
+        given = data.get("inflation_final_12m")
+        if given is not None and float(given) != derived["inflation_final_12m"]:
+            raise ValueError(f"inflation_final_12m is not the {data['policy']} policy's average of months "
+                             f"{months - sc.FINAL_MONTHS + 1} to {months}")
+        return {**data, **derived}
+
+    @model_serializer(mode="wrap")
+    def _omit_derived_when_stored(self, handler, info):
+        data = handler(self)
+        if isinstance(data, dict) and isinstance(info.context, dict) and info.context.get("stored"):
+            for name in DERIVED_SCENARIO_FIELDS:
+                data.pop(name, None)
+        return data
+
+
+#: Fields of ``provenance.scenario`` derived at read time (AGG-24): not stored, not hashed.
+DERIVED_SCENARIO_FIELDS: tuple[str, ...] = ("inflation_path", "inflation_final_12m")
+
+#: Serialisation context of the stored payload and of the ``artefact_id`` hash:
+#: ``regime.model_dump_json(context=STORED)``.
+STORED: dict[str, bool] = {"stored": True}
 
 
 class Provenance(_Frozen):

@@ -21,7 +21,14 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 STATE_COUNT = 25
 
@@ -138,6 +145,127 @@ class Profile(BaseModel):
         return value
 
 
+DeflatorLabel = Literal["measured", "extrapolated", "fallback", "not_computable"]
+
+
+class DeflatorCurve(BaseModel):
+    """One currency's per-state log inflation, as a real set subtracted it."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    currency: Literal["CHF", "EUR", "USD"]
+    index: str
+    source: str
+    #: ``ln(1 + inflation)`` per state, 25 values: ``real = nominal - log_inflation``.
+    log_inflation: tuple[float, ...]
+    labels: tuple[DeflatorLabel, ...]
+    #: What each part of the set was deflated with: ``instruments`` and/or ``roles``.
+    applied_to: tuple[str, ...]
+
+
+class Deflator(BaseModel):
+    """How a real ReturnSet was deflated (nominal and real view, 29 September 2026).
+
+    Additive and optional: only a ``basis=real`` set carries it, so the nominal default
+    serialises byte for byte as before and the contract stays ``rs@1.0.0``.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    #: The currency the real figures are in; null when each instrument is deflated in its
+    #: series' own (source) currency.
+    currency: Literal["CHF", "EUR", "USD"] | None
+    index: str
+    method: str
+    #: Per state, the weakest ceiling label over every curve applied to the instruments.
+    labels: tuple[DeflatorLabel, ...]
+    #: Decision 5: ``{from, to, states, reason}`` when the asked currency's inflation left
+    #: the band and the set is real in a hard currency instead; null otherwise.
+    hard_currency_fallback: dict[str, Any] | None = None
+    #: The scenario Regime whose policy inflation was applied (decision 2); null for the
+    #: historical per-state deflator.
+    scenario: str | None = None
+    curves: tuple[DeflatorCurve, ...] = ()
+
+
+class PassThroughInstrument(BaseModel):
+    """The inflation pass-through one instrument was carried to the scenario with."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    instrument_id: str
+    #: The house type (``engines/fund_map/pass_through.py::HOUSE_TABLE``).
+    type: str
+    beta: float
+    #: ``house`` or ``override`` (the CIO's, ``PUT /v1/inflation-beta/{id}``).
+    source: Literal["house", "override"]
+    #: Years, for a nominal bond (or where the CIO set one); null otherwise.
+    duration: float | None = None
+    duration_source: Literal["house", "override"] | None = None
+    #: The override version in force, when there is one.
+    override_version: int | None = None
+    #: The currency whose historical per-state inflation gives the historical real return.
+    deflator_currency: Literal["CHF", "EUR", "USD"]
+
+
+class PassThroughBlock(BaseModel):
+    """One block of a role's blended pass-through (FMRE-40)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    block: str
+    #: The block's share of the role (normalised).
+    weight: float
+    #: The block's house type (``pass_through.BLOCK_TYPES``).
+    type: str
+    beta: float
+    duration: float | None = None
+
+
+class PassThroughRole(BaseModel):
+    """The blended pass-through one role profile was carried to the scenario with."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    role: str
+    #: ``sum(weight * beta)`` over the role's blocks.
+    beta: float
+    #: ``sum(weight * duration)`` over its nominal bond blocks; null when it has none.
+    duration: float | None = None
+    #: A role profile is the long annual record in USD: its historical real return is
+    #: measured with the historical USD inflation.
+    deflator_currency: Literal["CHF", "EUR", "USD"] = "USD"
+    composition: tuple[PassThroughBlock, ...] = ()
+
+
+class InflationPassThrough(BaseModel):
+    """How a scenario set's instruments were carried to the scenario's inflation (FMRE-33).
+
+    Additive and optional: only a set stamped against a scenario Regime carries it, so every
+    other set serialises byte for byte as before and the contract stays ``rs@1.0.0``.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    calibration_version: str
+    calibration_id: str
+    source: str
+    scenario: str
+    policy: str | None = None
+    #: The scenario's inflation, simple annual rate (aggregation ``inflation_final_12m``).
+    inflation_final_12m: float
+    #: ``ipt@1.0.0`` capped a bond's loss at 99 % of its price (0.01); null since
+    #: ``ipt@1.1.0``, whose log-form duration loss needs no cap (FMRE-38).
+    price_floor: float | None = None
+    formula: str
+    #: What was carried: ``instruments`` and, in a ReturnSet since ``ipt@1.1.0``, ``roles``
+    #: (FMRE-40). Block profiles carry no pass-through.
+    applied_to: tuple[str, ...] = ("instruments",)
+    instruments: tuple[PassThroughInstrument, ...] = ()
+    #: Per role, the blended beta and its composition (FMRE-40).
+    roles: tuple[PassThroughRole, ...] = ()
+
+
 class Provenance(BaseModel):
     """Where a ReturnSet came from, in enough detail to reproduce it."""
 
@@ -163,6 +291,23 @@ class Provenance(BaseModel):
     #: v1.1.0, optional and additive, so the contract stays ``rs@1.0.0``; the provenance
     #: note on an opt-in set still names the currency as well.
     currency: Literal["CHF", "EUR", "USD"] | None = None
+    #: ``real`` on a ``basis=real`` set (29 September 2026); the fields below are **left out
+    #: of the JSON** when absent (not null), so a nominal set serialises byte for byte as
+    #: before. Everything is stored nominal; real is derived at the point of use.
+    basis: Literal["nominal", "real"] | None = None
+    deflator: Deflator | None = None
+    #: Under a scenario Regime only (FMRE-33): the inflation pass-through calibration and,
+    #: per instrument, the beta used and its source. Left out of the JSON when absent.
+    inflation_pass_through: InflationPassThrough | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_absent_basis(self, handler):
+        data = handler(self)
+        if isinstance(data, dict):
+            for name in ("basis", "deflator", "inflation_pass_through"):
+                if data.get(name) is None:
+                    data.pop(name, None)
+        return data
 
 
 class ReturnSet(BaseModel):

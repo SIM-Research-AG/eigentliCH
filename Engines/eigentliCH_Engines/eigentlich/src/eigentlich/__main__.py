@@ -11,7 +11,8 @@ fix-encoding | lbs-backfill``.
 ``align-content --curator ID|EMAIL``  save the questionnaires aligned to the scoring maps as new versions by
              that curator (EIG-44, EIG-45); nothing when already aligned. Prints the bind check.
 ``revise-content --curator ID|EMAIL``  save the intake with the partner section and without ``hours_learning``
-             as a new version by that curator (EIG-53, EIG-58); nothing when already done.
+             as a new version by that curator (EIG-53, EIG-58), and the onboarding with the nominal and real
+             view's two questions (EIG-60, EIG-61); nothing when already done.
 ``fix-encoding [--apply]``  list the migrated texts that are UTF-8 read as a code page and, with ``--apply``,
              correct them (EIG-46). Without ``--apply`` nothing is written.
 ``lbs-backfill [--limit N] [--dry-run]``  one lbs run for every client without a successful one (EIG-47).
@@ -121,13 +122,18 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.command in ("align-content", "revise-content"):
-            from .alignment import align, revise
+            from .alignment import align, revise, revise_basis
             with st.session() as conn:
                 row = conn.execute("SELECT id FROM curator WHERE id = %s OR email = %s", (args.curator, args.curator)).fetchone()
                 if row is None:
                     print(f"no curator {args.curator}", file=sys.stderr)
                     return 2
-                report = (align if args.command == "align-content" else revise)(conn, curator_id=row["id"])
+                if args.command == "align-content":
+                    report = align(conn, curator_id=row["id"])
+                else:
+                    report = revise(conn, curator_id=row["id"])
+                    basis = revise_basis(conn, curator_id=row["id"])
+                    report = {"saved": {**report["saved"], **basis["saved"]}, "binds": basis["binds"]}
                 mismatches = conn.execute("SELECT scoring_key, question_key, option_value, status FROM scoring_bind_check "
                                           "WHERE status <> 'ok' ORDER BY scoring_key, bind_index").fetchall()
             for key, r in report["saved"].items():

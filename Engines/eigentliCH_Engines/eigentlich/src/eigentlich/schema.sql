@@ -510,6 +510,20 @@ BEGIN
 END
 $$;
 
+-- Added 29.09.2026 (EIG-60), additive. `goal.amount_basis`: whether the goal's amount is in today's francs
+-- (`today`) or in the francs of its target date (`future`), as the client answered "Ist der Betrag in heutigen
+-- Franken?". NULL is not stated, which lbs reads as today's francs (owner decision 7 of 29.09.2026).
+ALTER TABLE goal ADD COLUMN IF NOT EXISTS amount_basis text;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'goal_amount_basis'
+                    AND conrelid = 'goal'::regclass) THEN
+        ALTER TABLE goal ADD CONSTRAINT goal_amount_basis
+            CHECK (amount_basis IS NULL OR amount_basis IN ('today', 'future'));
+    END IF;
+END
+$$;
+
 CREATE TABLE IF NOT EXISTS goal_funding (
     goal_id     text NOT NULL REFERENCES goal (id),
     position_id text NOT NULL REFERENCES position (id),
@@ -773,6 +787,27 @@ CREATE TABLE IF NOT EXISTS report_request (
 );
 CREATE INDEX IF NOT EXISTS report_request_by_client ON report_request (client_id);
 
+-- Added 29.09.2026 (EIG-62, EIG-63), additive. `basis`: the basis the report was asked in, `nominal` or `real`
+-- (in today's francs); NULL is nominal, as every request before. `scenario`: a scenario Regime asked for by
+-- name (aggregation's policy, such as `stagflation`, or a scenario's regime id); NULL is the base Regime.
+-- Both are set on insert and never change (the request's guard).
+ALTER TABLE report_request ADD COLUMN IF NOT EXISTS basis text;
+ALTER TABLE report_request ADD COLUMN IF NOT EXISTS scenario text;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'report_request_basis'
+                    AND conrelid = 'report_request'::regclass) THEN
+        ALTER TABLE report_request ADD CONSTRAINT report_request_basis
+            CHECK (basis IS NULL OR basis IN ('nominal', 'real'));
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'report_request_scenario'
+                    AND conrelid = 'report_request'::regclass) THEN
+        ALTER TABLE report_request ADD CONSTRAINT report_request_scenario
+            CHECK (scenario IS NULL OR scenario ~ '^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$');
+    END IF;
+END
+$$;
+
 CREATE TABLE IF NOT EXISTS report (
     id                     text PRIMARY KEY DEFAULT new_id(),
     seq                    bigint GENERATED ALWAYS AS IDENTITY UNIQUE,  -- write order
@@ -822,7 +857,8 @@ CREATE OR REPLACE VIEW report_request_state AS
            q.created_at, q.withdrawn_at, r.id AS latest_report_id, r.created_at AS latest_report_at,
            CASE WHEN q.withdrawn_at IS NOT NULL THEN 'withdrawn'
                 WHEN r.id IS NULL THEN 'open'
-                ELSE 'fulfilled' END AS state
+                ELSE 'fulfilled' END AS state,
+           q.basis, q.scenario
       FROM report_request q
       LEFT JOIN LATERAL (SELECT id, created_at FROM report WHERE request_id = q.id
                           ORDER BY seq DESC LIMIT 1) r ON true;
@@ -1261,6 +1297,7 @@ COMMENT ON TABLE position IS 'eigentlich: plan table (C-09). A position in the r
 COMMENT ON TABLE goal IS 'eigentlich: plan table (C-09). A client goal; deactivated, never deleted. K2.';
 COMMENT ON COLUMN position.owner IS 'eigentlich: whose position it is: client or partner (the first other adult of the client''s household); NULL reads as the client (EIG-53).';
 COMMENT ON COLUMN goal.contribution_share IS 'eigentlich: the goal''s share of the household''s yearly saving, 0 to 1 (0 to 100 % in the app); NULL not stated; the active goals'' shares sum to at most 1, checked by the app (EIG-59).';
+COMMENT ON COLUMN goal.amount_basis IS 'eigentlich: whether target_amount is in today''s francs (today) or in the francs of the target date (future), as the client answered; NULL not stated, read by lbs as today (owner decision 7, EIG-60).';
 COMMENT ON TABLE goal_funding IS 'eigentlich: plan link (C-09): which positions fund a goal; a change needs a decision linked to the goal in the same transaction; deactivated, never deleted. K2.';
 COMMENT ON TABLE goal_owner IS 'eigentlich: plan link (C-09): which household members own a goal; same rule as goal_funding. K2.';
 COMMENT ON TABLE client_fact IS 'eigentlich: plan table (C-09). Stated facts per key (canton, civil status, health, ...); one current per client and key; superseded, never deleted. K1 to K3 per row.';
@@ -1274,6 +1311,8 @@ COMMENT ON TABLE thread_message IS 'eigentlich: messages in a thread by the clie
 COMMENT ON COLUMN thread_message.basis IS 'eigentlich: what a spark7 (MiniMind) answer rests on, from chat-answer basis: grounded, general or mixed; NULL for human messages, refusals and answers stored before 29.09.2026 (EIG-50).';
 COMMENT ON VIEW thread_state IS 'eigentlich: each thread with its state: awaiting_answer, answered or closed.';
 COMMENT ON TABLE report_request IS 'eigentlich: a request for a report or an update; withdrawal (withdrawn_at, set once, only while unfulfilled) is the only update. K2.';
+COMMENT ON COLUMN report_request.basis IS 'eigentlich: the basis the report was asked in: nominal or real (today''s francs); NULL is nominal (EIG-62).';
+COMMENT ON COLUMN report_request.scenario IS 'eigentlich: a scenario Regime asked for (aggregation''s policy name or a scenario regime id); NULL is the base Regime of the current parameter set (EIG-63).';
 COMMENT ON TABLE report IS 'eigentlich: a report produced for a request, with the report engine''s artefact id and the LBS and Allocation artefacts it rests on; append-only. K2.';
 COMMENT ON VIEW report_request_state IS 'eigentlich: each report request with its state: open, fulfilled or withdrawn, and its latest report.';
 COMMENT ON TABLE approval_request IS 'eigentlich: a client''s request that a curator approve a report, an update or an AI-drafted answer; one per item; without a request nothing waits; append-only. K2.';

@@ -1,13 +1,14 @@
 """The HTTP surface: every standard endpoint and every additive one against a freshly provisioned store; runs
 are idempotent; calibrations are append-only and a new version is how a record gets approved; the active
-calibration (1.3.0, corrected, LBS-28) is the default and the prototype's behaviour and 1.2.0 stay selectable
-(LBS-23, LBS-24)."""
+calibration (1.5.0, the owner's CHF inflation of 1.0 % on the nominal and real view, LBS-36) is the default and
+the prototype's behaviour, 1.2.0, 1.3.0 and 1.4.0 stay selectable (LBS-23, LBS-24, LBS-35, LBS-38)."""
 
 from __future__ import annotations
 
 import pytest
 
-from lbs.calibration import APPROVED, CORRECTED, SEED, calibration_hash, with_approved
+from lbs.calibration import (APPROVED, CORRECTED, CORRECTED_1_3, CORRECTED_1_4, CORRECTED_1_5, SEED, calibration_hash,
+                             with_approved)
 from lbs.contracts import CONTRACT_VERSIONS
 
 from .conftest import sample_request
@@ -24,25 +25,26 @@ def run(client):
 
 def test_standard_endpoints(client, run):
     health = client.get("/health").json()
-    assert health["status"] == "ok" and health["engine_version"] == "lbs@1.2.0"
+    assert health["status"] == "ok" and health["engine_version"] == "lbs@1.3.0"
     meta = client.get("/meta").json()
     assert meta["contract_versions"] == CONTRACT_VERSIONS and meta["allowlist"]["ok"]
     assert meta["allowlist"]["packages"]["psycopg"]["admitted_by"].startswith("LBS-02")
-    assert meta["calibration_version"] == "1.3.0" and meta["upstream"] == {}
+    assert meta["calibration_version"] == "1.5.0" and meta["upstream"] == {}
     assert "password" not in str(meta["store"]).replace("password_set", "")
     contracts = client.get("/contracts").json()
     assert contracts["LifeBalanceSheetRequest"]["version"] == "lbs-request@1.0.0"
     assert contracts["LifeBalanceSheet"]["version"] == "lbs-balance-sheet@1.0.0"
     assert contracts["LifeBalanceSheet"]["direction"] == "out" and contracts["Mandate(pcp)"]["direction"] == "mirrored"
     cal = client.get("/calibration").json()
-    assert cal["version"] == "1.3.0" and set(cal["records"]) >= {"ahv-pension", "bvg-projection"}
+    assert cal["version"] == "1.5.0" and set(cal["records"]) >= {"ahv-pension", "bvg-projection"}
     assert cal["corrections"] == {"required_return_search_reaches_its_ceiling": True,
                                   "capacity_horizon_is_years_to_the_planned_age": True,
                                   "zero_income_is_a_stated_zero": True, "unstated_vessel_is_a_gap": True,
                                   "human_capital_is_never_free_wealth": True, "zero_mortgage_is_a_stated_zero": True,
                                   "contribution_is_split_by_goal_share": True}
+    assert cal["real_view"]["inflation"]["CHF"]["annual_rate"] == 0.01
     status = client.get(f"/runs/{run['run_id']}").json()
-    assert status["status"] == "succeeded" and status["provenance"]["calibration_version"] == "1.3.0"
+    assert status["status"] == "succeeded" and status["provenance"]["calibration_version"] == "1.5.0"
     assert not any(g["input"] in ("ahv", "risk-profile") for g in status["gaps"])
     assert client.get(f"/artefacts/{run['artefact_id']}").status_code == 200
     assert any(r["run_id"] == run["run_id"] for r in client.get("/runs").json())
@@ -66,7 +68,7 @@ def test_the_sheet_and_its_views(client, run):
 def test_rerunning_is_free_and_gives_the_same_artefact(client, run):
     again = client.post("/run", json=sample_request()).json()
     assert again["cached"] and again["artefact_id"] == run["artefact_id"] and again["run_id"] == run["run_id"]
-    named = client.post("/run", json=sample_request(calibration_version="1.3.0")).json()
+    named = client.post("/run", json=sample_request(calibration_version="1.5.0")).json()
     assert named["cached"] and named["idempotency_key"] == run["idempotency_key"]
 
 
@@ -78,7 +80,7 @@ def test_a_changed_request_is_a_new_artefact(client, run):
 def test_validate_reports_gaps_without_storing(client):
     before = len(client.get("/runs").json())
     v = client.post("/validate", json=sample_request(client_ref="validate-only")).json()
-    assert v["ok"] and v["calibration_version"] == "1.3.0" and v["sections"]["risk_profile"] == "available"
+    assert v["ok"] and v["calibration_version"] == "1.5.0" and v["sections"]["risk_profile"] == "available"
     assert not any(g["kind"] == "record_not_approved" for g in v["gaps"])
     old = client.post("/validate", json=sample_request(client_ref="validate-only", calibration_version="1.0.0")).json()
     assert old["ok"] and old["sections"]["risk_profile"].startswith("not available: record not approved")
@@ -105,26 +107,31 @@ def test_a_calibration_is_approved_by_a_new_version_never_in_place(client):
     pensions = client.get(f"/sheet/{r['artefact_id']}/pensions").json()["pensions"][0]
     assert pensions["ahv"]["status"] == "available" and pensions["ahv"]["full_monthly"] > 0
     versions = {v["version"]: v["active"] for v in client.get("/calibration/versions").json()}
-    assert versions == {"1.0.0": False, "1.1.0": False, "1.2.0": False, "1.3.0": True, "1.9.0": False}
+    assert versions == {"1.0.0": False, "1.1.0": False, "1.2.0": False, "1.3.0": False, "1.4.0": False,
+                        "1.5.0": True, "1.9.0": False}
 
 
 def test_the_owner_approval_is_seeded_and_the_reproduction_stays_selectable(client):
     """LBS-23: 1.1.0 approves ahv-pension and risk-profile (Nicolas, 29.09.2026); LBS-24: 1.2.0 corrects the
-    quirks; LBS-28: 1.3.0 corrects three more and is the default; 1.0.0, 1.1.0 and 1.2.0 stay selectable by
-    name."""
+    quirks; LBS-28: 1.3.0 corrects three more; LBS-35: 1.4.0 adds the real view; LBS-38: 1.5.0 sets the CHF
+    inflation to 1.0 % and is the default; 1.0.0 to 1.4.0 stay selectable by name."""
     default = client.get("/records").json()
-    assert default["calibration_version"] == "1.3.0"
+    assert default["calibration_version"] == "1.5.0"
     for name in ("ahv-pension", "risk-profile"):
         rec = default["records"][name]
         assert rec["approved"] and rec["published_by"] == "Nicolas" and rec["decided_on"] == "2026-09-29"
     parents = {v["version"]: v["parent_version"] for v in client.get("/calibration/versions").json()}
     assert parents["1.1.0"] == "1.0.0" and parents["1.2.0"] == "1.1.0" and parents["1.3.0"] == "1.2.0"
+    assert parents["1.4.0"] == "1.3.0" and parents["1.5.0"] == "1.4.0"
     assert client.get("/calibration", params={"version": "1.1.0"}).json()["corrections"] is None
     later = client.get("/calibration", params={"version": "1.2.0"}).json()["corrections"]
     assert {k: v for k, v in later.items() if v is not None} == {
         "required_return_search_reaches_its_ceiling": True, "capacity_horizon_is_years_to_the_planned_age": True,
         "zero_income_is_a_stated_zero": True, "unstated_vessel_is_a_gap": True}
-    for version in ("1.0.0", "1.1.0", "1.2.0"):
+    assert client.get("/calibration", params={"version": "1.3.0"}).json().get("real_view") is None
+    assert client.get("/calibration", params={"version": "1.4.0"}).json()["real_view"]["inflation"]["CHF"][
+        "annual_rate"] == 0.005
+    for version in ("1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0"):
         r = client.post("/run", json=sample_request(calibration_version=version)).json()
         assert r["status"] == "succeeded"
         assert client.get(f"/sheet/{r['artefact_id']}").json()["calibration_version"] == version
@@ -144,6 +151,23 @@ def test_the_stored_calibrations_keep_their_hashes():
     assert CORRECTED.contract_version == "lbs-calibration@1.1.0"
 
 
+def test_13_keeps_its_stored_hash_and_14_is_pinned():
+    """1.3.0 is stored as an lbs-calibration@1.2.0 payload; an absent real_view block is left out of the canonical
+    form, so it keeps its bytes (LBS-35). 1.4.0 is pinned from its first build."""
+    assert calibration_hash(CORRECTED_1_3) == "CAL-2fa18ff0a38495b5"
+    assert CORRECTED_1_3.contract_version == "lbs-calibration@1.2.0"
+    assert calibration_hash(CORRECTED_1_4) == "CAL-99a3654972f86773"
+    assert CORRECTED_1_4.contract_version == "lbs-calibration@1.3.0"
+
+
+def test_14_keeps_its_hash_and_15_is_pinned():
+    """1.5.0 (LBS-38) changes only its own real_view block: 1.4.0 keeps CAL-99a3654972f86773, and 1.5.0 is pinned
+    from its first build, on the same calibration contract."""
+    assert calibration_hash(CORRECTED_1_4) == "CAL-99a3654972f86773"
+    assert calibration_hash(CORRECTED_1_5) == "CAL-fdf122697c7aa04b"
+    assert CORRECTED_1_5.contract_version == "lbs-calibration@1.3.0"
+
+
 def test_a_request_without_the_new_field_hashes_as_before():
     """contribution_share is additive (LBS-29): a request that does not state it keeps the request hash lbs@1.1.0
     gave it, and lbs-request@1.0.0 stays the request's contract."""
@@ -151,6 +175,33 @@ def test_a_request_without_the_new_field_hashes_as_before():
     from lbs.service import request_hash
 
     assert request_hash(LifeBalanceSheetRequest.model_validate(sample_request())) == "REQ-d6000dfa05961ba6"
+
+
+def test_a_request_without_the_real_view_fields_hashes_as_before():
+    """amount_basis and contribution_indexed are additive (LBS-31): unstated, the hash is lbs@1.2.0's; stated,
+    it is a new request."""
+    from lbs.contracts import LifeBalanceSheetRequest
+    from lbs.service import request_hash
+
+    body = sample_request()
+    assert request_hash(LifeBalanceSheetRequest.model_validate(body)) == "REQ-d6000dfa05961ba6"
+    body["goals"][0]["amount_basis"] = "today"
+    assert request_hash(LifeBalanceSheetRequest.model_validate(body)) != "REQ-d6000dfa05961ba6"
+    body = sample_request(mandate={"goal_id": "home", "annual_contribution": 24000, "contribution_indexed": False})
+    assert request_hash(LifeBalanceSheetRequest.model_validate(body)) != "REQ-d6000dfa05961ba6"
+
+
+def test_the_real_view_fields_are_checked_at_the_boundary(client):
+    body = sample_request()
+    body["goals"][0]["amount_basis"] = "yesterday"
+    assert client.post("/run", json=body).status_code == 422
+    body["goals"][0]["amount_basis"] = "future"
+    r = client.post("/run", json=body).json()
+    assert r["status"] == "succeeded"
+    sheet = client.get(f"/sheet/{r['artefact_id']}").json()
+    assert sheet["real_view"]["goals"][0]["amount_basis"] == "future"
+    assert sheet["mandate_proposal"]["basis"] == "nominal" and set(sheet["mandate_proposal"]["views"]) == {
+        "nominal", "real"}
 
 
 def test_contribution_shares_are_checked_at_the_boundary(client):

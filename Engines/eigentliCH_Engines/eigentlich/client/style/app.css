@@ -198,3 +198,7 @@ table.figures td.num { text-align: right; }
 /* multi_choice (EIG-44): one checkbox per option */
 .checks { display: flex; flex-direction: column; gap: 0.35rem; margin: 0.5rem 0; }
 .check { display: flex; align-items: center; gap: 0.4rem; }
+
+/* The nominal / real switch (EIG-62): the basis is always shown beside it. */
+.basis-switch { gap: .5rem; flex-wrap: wrap; align-items: center; margin: .5rem 0 1rem; }
+.basis-switch button[aria-pressed="true"] { font-weight: 600; }

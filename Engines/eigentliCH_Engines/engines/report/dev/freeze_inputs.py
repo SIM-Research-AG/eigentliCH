@@ -1,6 +1,7 @@
 """Freeze the upstream artefacts the report tests run on, into ``golden/inputs/``.
 
     python dev/freeze_inputs.py                     # pcp from the running pcp (8007), lbs in-process
+    python dev/freeze_inputs.py --real              # the real view: lbs 1.4.0 sheets, the pcp real stand-in
     ..\\..\\..\\Optimizer\\.venv\\Scripts\\python dev/freeze_inputs.py --pcp-offline   # pcp in-process
 
 pcp (``pcp-allocation@1.0.0``)
@@ -120,8 +121,52 @@ def freeze_lbs() -> None:
         print(f"{name}: {sheet.artefact_id} ({sheet.client_ref}, calibration {sheet.calibration_version})")
 
 
+#: The real view (REP-27, REP-29): lbs sheets under lbs's calibration 1.4.0, the first with a ``real_view``.
+LBS_REAL_CASES = {"lbs_sheet_real.json": "syn-couple", "lbs_sheet_property_real.json": "syn-property-1"}
+LBS_REAL_CALIBRATION = "1.4.0"
+#: A stand-in for pcp's real Allocation: pcp_allocation.json restated on basis ``real`` as pcp PCP-22 writes it
+#: (``basis`` and ``provenance.basis`` real, pcp's real-basis note first among the coverage warnings), under its
+#: own content id. pcp's real path needs a real ReturnSet from fmre, which an offline freeze cannot have.
+PCP_REAL_STANDIN = "pcp_allocation_real.json"
+PCP_REAL_NOTE = ("real basis: the target curve and every profile are net of inflation, deflated by fmre with CHF "
+                 "Swiss CPI (per_state_forward_12m); states: measured 23, extrapolated 2 (PCP-22)")
+
+
+def freeze_real() -> None:
+    import hashlib
+
+    sys.path.insert(0, str(LBS / "src"))
+    from lbs.calibration import SEEDS  # type: ignore[import-not-found]
+    from lbs.contracts import LifeBalanceSheetRequest  # type: ignore[import-not-found]
+    from lbs.service import build_sheet  # type: ignore[import-not-found]
+
+    cal = next(c for c in SEEDS if c.version == LBS_REAL_CALIBRATION)
+    for name, case_name in LBS_REAL_CASES.items():
+        case = json.loads((LBS / "golden" / "cases" / f"{case_name}.json").read_text(encoding="utf-8"))
+        sheet = build_sheet(LifeBalanceSheetRequest.model_validate(case), cal)
+        text = sheet.model_dump_json(indent=1)
+        assert LifeBalanceSheet.model_validate_json(text).real_view is not None, name
+        (INPUTS / name).write_text(text + "\n", encoding="utf-8")
+        print(f"{name}: {sheet.artefact_id} ({sheet.client_ref}, calibration {sheet.calibration_version})")
+    raw = json.loads((INPUTS / "pcp_allocation.json").read_text(encoding="utf-8"))
+    raw["basis"] = "real"
+    raw["provenance"]["basis"] = "real"
+    raw["coverage"]["warnings"] = [PCP_REAL_NOTE] + list(raw["coverage"].get("warnings") or [])
+    raw["_standin"] = ("report dev/freeze_inputs.py --real: pcp_allocation.json restated on basis real, a stand-in "
+                       "until a real Allocation is frozen from the running pcp")
+    raw["artefact_id"] = ""
+    raw["artefact_id"] = "PCP-" + hashlib.sha256(json.dumps(raw, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+    text = json.dumps(raw, ensure_ascii=False, indent=1)
+    assert Allocation.model_validate_json(text).basis == "real"
+    (INPUTS / PCP_REAL_STANDIN).write_text(text + "\n", encoding="utf-8")
+    print(f"{PCP_REAL_STANDIN} (stand-in): {raw['artefact_id']}")
+
+
 def main(argv: list[str]) -> int:
     INPUTS.mkdir(parents=True, exist_ok=True)
+    if "--real" in argv:
+        freeze_real()
+        return 0
     if "--pcp-offline" in argv:
         freeze_pcp_offline()
         return 0

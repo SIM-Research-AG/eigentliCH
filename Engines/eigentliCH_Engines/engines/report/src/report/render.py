@@ -61,6 +61,7 @@ CSS = """
   .neg{color:var(--warn)} .pos{color:var(--ok)}
   tr.tot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:700}
   small{font-size:12.4px;color:var(--soft);font-family:ui-sans-serif,system-ui,sans-serif}
+  small.basis{font-size:11px;letter-spacing:.04em}
   .foot{margin-top:40px;padding-top:15px;border-top:1px solid var(--line);
         font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft)}
   code{font:11.5px ui-monospace,Consolas,monospace}
@@ -73,7 +74,8 @@ WORDS: dict[str, dict[str, str]] = {
     "de": {
         "eyebrow_report": "eigentliCH · Bericht", "eyebrow_update": "eigentliCH · Update",
         "h1_report": "Bericht", "h1_update": "Update zum Bericht",
-        "lede": "Stand {as_of}. Jede Zahl in diesem Bericht stammt aus einem veröffentlichten Artefakt; woher, steht "
+        "lang": "de",
+        "lede": "Stand {as_of}. {basis} Jede Zahl in diesem Bericht stammt aus einem veröffentlichten Artefakt; woher, steht "
                 "im letzten Abschnitt.",
         "lede_prose": " Die verbindenden Sätze schreibt {assistant}, die KI von eigentliCH, und jede Zahl darin ist "
                       "gegen die Fakten ihres Abschnitts geprüft.",
@@ -95,7 +97,8 @@ WORDS: dict[str, dict[str, str]] = {
     "en": {
         "eyebrow_report": "eigentliCH · Report", "eyebrow_update": "eigentliCH · Update",
         "h1_report": "Report", "h1_update": "Update to the report",
-        "lede": "As of {as_of}. Every figure in this report comes from a published artefact; where from is set out in "
+        "lang": "en",
+        "lede": "As of {as_of}. {basis} Every figure in this report comes from a published artefact; where from is set out in "
                 "the last section.",
         "lede_prose": " The connecting sentences are written by {assistant}, eigentliCH's AI, and every figure in "
                       "them is checked against the facts of their section.",
@@ -121,9 +124,13 @@ def e(x: Any) -> str:
     return html.escape("" if x is None else str(x), quote=True)
 
 
-def v(f: Fact, tag: str = "span") -> str:
-    """A fact's value as the page prints it, traceable by its id."""
-    return f'<{tag} data-fact="{e(f.fact_id)}">{e(f.display)}</{tag}>'
+def v(f: Fact, tag: str = "span", lang: str = "") -> str:
+    """A fact's value as the page prints it, traceable by its id; a return or goal figure with its basis next
+    to it (REP-27)."""
+    out = f'<{tag} data-fact="{e(f.fact_id)}">{e(f.display)}</{tag}>'
+    if f.basis and lang:
+        out += f' <small class="basis" data-basis="{e(f.basis)}">{e(voc.basis_mark(f.basis, lang))}</small>'
+    return out
 
 
 def _table(headers: Sequence[tuple[str, bool]], rows: Sequence[Sequence[str]]) -> str:
@@ -136,7 +143,7 @@ def _table(headers: Sequence[tuple[str, bool]], rows: Sequence[Sequence[str]]) -
 
 
 def _default(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
-    return _table([(w["figure"], False), (w["value"], True)], [(e(f.label), v(f)) for f in facts])
+    return _table([(w["figure"], False), (w["value"], True)], [(e(f.label), v(f, lang=w["lang"])) for f in facts])
 
 
 def _positions(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
@@ -146,7 +153,7 @@ def _positions(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
     for f in weights:
         iid = f.fact_id.removeprefix("pcp.position.")
         role = roles.get(iid)
-        rows.append((e(f.label), v(role) if role else "", v(f)))
+        rows.append((e(f.label), v(role, lang=w["lang"]) if role else "", v(f, lang=w["lang"])))
     return _table([(w["block"], False), (w["role"], False), (w["weight"], True)], rows)
 
 
@@ -158,8 +165,8 @@ def _grid(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
     rows = []
     for parts in cells.values():
         name = next(iter(parts.values())).label
-        rows.append((e(name), v(parts["assets"]) if "assets" in parts else "–",
-                     v(parts["liabilities"]) if "liabilities" in parts else "–"))
+        rows.append((e(name), v(parts["assets"], lang=w["lang"]) if "assets" in parts else "–",
+                     v(parts["liabilities"], lang=w["lang"]) if "liabilities" in parts else "–"))
     return _table([(w["cell"], False), (w["assets"], True), (w["liabilities"], True)], rows)
 
 
@@ -171,7 +178,7 @@ def _changes(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
         rows = []
         for f in moved:
             delta = by.get("delta." + f.fact_id.removeprefix("change."))
-            rows.append((e(f.label), v(f), v(delta) if delta else ""))
+            rows.append((e(f.label), v(f, lang=w["lang"]), v(delta, lang=w["lang"]) if delta else ""))
         out.append(_table([(w["figure"], False), (w["before_now"], True), (w["change"], True)], rows))
     else:
         out.append(f"<p>{e(w['no_changes'])}</p>")
@@ -182,7 +189,7 @@ def _changes(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
 
 
 def _limits(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
-    items = "".join(f"<li><small>{e(f.label)}:</small> {v(f)}</li>" for f in facts)
+    items = "".join(f"<li><small>{e(f.label)}:</small> {v(f, lang=w["lang"])}</li>" for f in facts)
     return f'<div class="box"><ul>{items}</ul></div>'
 
 
@@ -210,7 +217,7 @@ BODY = {"positions": _positions, "grid": _grid, "changes": _changes, "limits": _
 
 def render(*, lang: str, kind: str, title: str, facts: Sequence[Fact], sections: Sequence[Section],
            warnings: Sequence[str], provenance: ReportProvenance, calibration_version: str, engine_version: str,
-           assistant: str = "MiniMind", names: Optional[Mapping[str, str]] = None) -> str:
+           assistant: str = "MiniMind", names: Optional[Mapping[str, str]] = None, basis: str = "nominal") -> str:
     """The page. ``warnings`` are the page's notes, already in the reader's language (the artefact's own
     ``warnings`` are the engine's, in English). ``names`` maps a generic subject name ("Person 1", "Ihr
     Wohneigentumsziel") to the name the caller sent for it (REP-20); it is applied to labels, text values and
@@ -238,7 +245,12 @@ def render(*, lang: str, kind: str, title: str, facts: Sequence[Fact], sections:
         parts.append("</section>")
 
     as_of = by.get("sources.as_of")
-    lede = w["lede"].format(as_of=v(as_of) if as_of else "–")
+    # The basis of the whole page (REP-27), right after the date; in a real report, a word for any figure that
+    # lbs projects in nominal terms only and that is marked so.
+    kept = basis == "real" and any(f.basis == "nominal" for f in facts)
+    head = voc.BASIS_HEADER[basis][lang] + (" " + voc.BASIS_NOMINAL_KEPT[lang] if kept else "")
+    lede = w["lede"].format(as_of=v(as_of) if as_of else "–",
+                            basis=f'<span data-basis="{e(basis)}">{e(head)}</span>')
     if any(s.prose_status == "verified" for s in sections):
         lede += w["lede_prose"].format(assistant=e(assistant))
     if kind == "update":

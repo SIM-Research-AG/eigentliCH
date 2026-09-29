@@ -416,6 +416,45 @@ will or inheritance contract, and a specialist). Two reports.
 
 ---
 
+## The nominal and real view (29.09.2026, EIG-60 to EIG-64)
+
+Step `basis` of `dev/build_use_cases.py` states, through the app's routes, whether each goal's amount is in today's
+francs (every goal with an amount; the default is today's francs) and answers "Steigt der Betrag mit der Teuerung?"
+for each client, then presses the curator's lbs button. The employed index their saving (their salary follows the
+cost of living); the self-employed, those between jobs and those who live on their assets do not. A goal is in the
+francs of its date where the amount is fixed in francs: a mortgage to pay down, a debt to amortise, a contract
+price, a sum promised in a will, a buy-in from the pension fund's statement. The required return is the mandate
+goal's, from lbs@1.3.0 (calibration 1.4.0, its long-run inflation assumption for CHF), nominal and real side by
+side; the app shows one at a time, nominal by default. A goal already
+funded (0 % nominal) reads -0.5 % real: money that stays in francs loses purchasing power.
+
+| client | saving indexed | goals in francs of their date | required return, nominal | real |
+|---|---|---|---|---|
+| Simon N. | ja | keins | 6.1 % | 5.6 % |
+| Miriam S. | ja | keins | 0.0 % | -0.5 % |
+| Fabienne G. | ja | keins | 5.1 % | 4.5 % |
+| Lukas M. | ja | keins | 0.0 % | -0.5 % |
+| Noemi B. | ja | keins | 1.8 % | 1.3 % |
+| Céline B. | nein | keins | 0.0 % | -0.5 % |
+| Isabelle C. | ja | Praxisanteil übernehmen 2030 | 2.6 % | 2.1 % |
+| Anita P. | nein | keins | 0.0 % | -0.5 % |
+| Corinne B. | ja | keins | 0.0 % | -0.5 % |
+| Tanja E. | nein | keins | 8.0 % | 7.5 % |
+| Michele B. | nein | Renditeobjekt halten und 2035 amortisier | 12.5 % | 11.9 % |
+| Reto S. | nein | keins | 7.1 % | 6.5 % |
+| Claudia I. | ja | Hypothek bis 2040 halbieren | 5.1 % | 4.6 % |
+| Yasmin T. | ja | keins | 5.7 % | 5.2 % |
+| Elio T. | ja | Einkauf in die zweite Säule 2027–2030, g | 16.8 % | 16.2 % |
+| Franziska O. | ja | keins | 0.0 % | -0.5 % |
+| Regula A. | nein | Erbvorbezug an Andrea und Martin 2028 | 5.0 % | 4.5 % |
+| Kurt W. | nein | keins | 1.1 % | 0.6 % |
+| Esther W. | nein | keins | 1.0 % | 0.5 % |
+| Peter S. | nein | keins | 0.0 % | -0.5 % |
+
+The parameter sets and pcp runs are unchanged (all nominal); a real report therefore carries no allocation until
+a real mandate is finalised. Every one of the 20 clients' latest pcp run is on the base Regime, so the report fix
+(EIG-63) changes none of the reports already made.
+
 ## Coverage matrix
 
 Columns: Si Simon, Mi Miriam, Fa Fabienne, Lu Lukas, No Noemi, Cé Céline, Is Isabelle, An Anita, Co Corinne,
