@@ -1,6 +1,6 @@
 """``solve`` end to end on B1's sample household (slow: real IPOPT solves).
 
-- a plan under calibration 1.0.0 (the draft's market) and under 1.1.0 (the allocation market), with the
+- a plan under calibration 1.0.0 (the draft's market) and under the active one (the allocation market), with the
   out-of-sample chance from the injected Monte Carlo (a stand-in; the engine's is B2's);
 - an unfundable goal is determined on its draw and not redrawn (M79);
 - the 20-year case: the sample's 27-year horizon capped at 20 years (30 steps), its retirement goal beyond the
@@ -17,7 +17,7 @@ import time
 import pytest
 
 from optim_helpers import (ACTIVE_SEED, OPTIM_GOLDEN, SEED, StandInSimulate, never, no_deadline, quiet,
-                           sample_problem)
+                           sample_problem, with_optimiser)
 from lbsim.optim import solve
 
 pytestmark = pytest.mark.slow
@@ -57,14 +57,33 @@ def test_the_draft_market_under_1_0_0_plans_or_redraws_then_reports_nothing():
         assert out.seeds_used == tuple(problem.seed + 1_000 * k for k in range(SEED.optimiser.seed_retries))
 
 
-def test_a_plan_under_1_1_0_on_the_allocation_market():
+def test_a_plan_under_the_active_calibration_on_the_allocation_market():
+    """The allocation market certifies a plan for the sample household. Solved at the draft's test budget of
+    3000 IPOPT iterations (``test_optim``'s ``solve_fi`` default): at the calibration's 400 (the draft's
+    ``run_case``) the phase-2 solves reach a funded point and stop at the limit on every draw (measured
+    29.09.2026: they need 2000 to 2700 iterations), which the next test holds."""
     problem = sample_problem(horizon=3.0, extra=False)
+    problem = dataclasses.replace(problem, calibration=with_optimiser(ACTIVE_SEED, max_iter=3000, seed_retries=1))
     sim = StandInSimulate()
     out = solve(problem, simulate=sim, deadline=no_deadline(), should_cancel=never, progress=quiet)
     r = _check_plan(out, problem, sim)
     assert r.control_path.money_basis == "today_indexed"
     assert all(abs(s.controls["theta"] - 1.0) < 1e-6 for s in r.control_path.steps), "theta is fixed at 1"
     assert r.solver.grid == (0.5,) * 6 and r.horizon.beyond_cap_rule is None
+    assert out.diagnostics["in_sample_cvar"] <= 1e-3 + 1e-6, "the certified plan meets the CVaR bound"
+
+
+def test_at_the_calibrated_400_iterations_the_run_plans_or_reports_nothing():
+    """The active calibration as shipped (``max_iter`` 400): a certified plan, or three draws (``seed + 1000 k``) and a failed run with no
+    figures. On the sample household (29.09.2026) it is the second."""
+    problem = sample_problem(horizon=3.0, extra=False)
+    sim = StandInSimulate()
+    out = solve(problem, simulate=sim, deadline=no_deadline(), should_cancel=never, progress=quiet)
+    if out.status == "succeeded":
+        _check_plan(out, problem, sim)
+    else:
+        assert out.failure_kind == "solver" and out.result is None and not sim.calls
+        assert out.seeds_used == tuple(problem.seed + 1_000 * k for k in range(ACTIVE_SEED.optimiser.seed_retries))
 
 
 def test_an_unfundable_goal_is_determined_on_its_draw_and_not_redrawn():

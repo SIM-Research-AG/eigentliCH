@@ -1,0 +1,95 @@
+{
+  "wall_clock_s": 4076.7,
+  "status": "failed",
+  "failure_kind": "solver",
+  "solves": [
+    {
+      "phase": "restore",
+      "start": 1,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 400,
+      "success": false,
+      "cvar": -0.8930208336026786,
+      "wall_clock_s": 375.9530000000086
+    },
+    {
+      "phase": "restore",
+      "start": 2,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 400,
+      "success": false,
+      "cvar": 38.86412338562215,
+      "wall_clock_s": 129.68799999999464
+    },
+    {
+      "phase": "best_life",
+      "start": 1,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 400,
+      "success": false,
+      "cvar": -0.017897217771397023,
+      "wall_clock_s": 1035.2809999999881
+    },
+    {
+      "phase": "best_life",
+      "start": 2,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 400,
+      "success": false,
+      "cvar": -0.0009749945282624753,
+      "wall_clock_s": 123.06200000000536
+    },
+    {
+      "phase": "best_life",
+      "start": 3,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 400,
+      "success": false,
+      "cvar": -0.020957760725176522,
+      "wall_clock_s": 311.0929999999935
+    },
+    {
+      "phase": "best_life",
+      "start": 4,
+      "return_status": "Maximum_Iterations_Exceeded",
+      "iter_count": 400,
+      "success": false,
+      "cvar": 1.1260711795001612,
+      "wall_clock_s": 106.63999999998487
+    }
+  ],
+  "grid": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "outcome": null,
+  "measured_by": "tests/optim/test_optim_end_to_end.py::test_the_20_year_case_finishes_inside_the_budget"
+}

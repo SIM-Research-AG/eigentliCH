@@ -162,3 +162,109 @@ against the draft or the spec.
   1.0.0 and 1.1.0 keep their bytes and hashes (the switch is left out of the canonical form while unset), layer A
   is unchanged, and layer B's `changes.json` gains the step 1.1.0 to 1.2.0 with every changed leaf attributed to
   P-9. The regression case is `golden/lbs_cases/lbsim-reduced-pensum`, the live household's shape anonymised.
+
+
+---
+
+## The optimiser (agent C, 29.09.2026)
+
+This section is agent C's, for `src/lbsim/optim/**`, `tests/optim/**` and `golden/optim/**`. Everything above it
+is B1's and B2's.
+
+- **O-1 the handshake.** `lbsim.optim.types` (no casadi) holds `PlanProblem`, `MarketInputs`, `GoalInput`,
+  `ControlPath`, `ControlStep`, `PlanOutcome`, `PlanResult` and the result parts; `lbsim.optim.solve(problem, *,
+  simulate, deadline, should_cancel, progress) -> PlanOutcome` imports the NLP (and casadi) only when called. A test
+  runs `import lbsim.optim` in a fresh interpreter and finds no casadi in `sys.modules` (LBSIM-03). Field names are
+  fixed; B2 builds against them.
+- **O-2 the port.** `symbolic.py`, `goals.py`, `spec.py`, `problem.py` and `mpc.py` are the draft's, against
+  `lbsim.model` (which is the draft's model line for line). Under calibration 1.0.0 with the draft's market the port
+  reproduces the draft's three slow `test_optim` solves to the last printed digit (`u0`, in-sample chance, CVaR,
+  outcome, costates, iteration count; the golden is `golden/optim/draft_test_optim.json`, built by the draft itself
+  under its own interpreter). The draft's long measurement notes stay in the draft; each rule in the port names its
+  M-number.
+- **O-3 the NLP runs in today's francs (LBSIM-07, LBSIM-08).** Wages and spending pass inflation through at 1.0, so
+  the draft's income law, consumption, habit, indexed tax tariff and AHV are real quantities and its drift is used
+  unchanged. Per scenario and step: liquid wealth earns `exp((r_s - pi_s) dt)`, real assets `exp(g - pi_s dt)`, and
+  debt and both pillars lose `exp(-pi_s dt)` (they are nominal; the drift keeps the nominal interest and the credited
+  rates). The draft's market is taken out of the drift (`mu_M = r_f = mu_R = 0`); theta is fixed at 1 by an equality
+  and keeps its slot. A calibration with another pass-through is refused (a failed run, `solver`). One state per
+  simulated year, from that year's distribution; the property follows `dev/build_samples.py`'s reading (nominal log
+  growth less `sigma^2 / 2`, noise correlated 0.30 with the state's normal quantile). The numpy twin is
+  `market.numpy_allocation_step`.
+- **O-4 the CVaR tolerance on a ratio.** The draft widens its tolerance to `1e-5 * G` for every goal kind, but only
+  the FI slack is in francs; on the home, company and retirement ratios (and lbsim's measure slack) that is a
+  tolerance of about 1. Measured on the sample household: a bound of 1.2 certified a plan whose in-sample chance was
+  0. The port widens only the FI slack; a ratio keeps `optimiser.cvar_tol` (1e-3 of the target). The FI path, and so
+  the reproduction, is untouched.
+- **O-5 lbsim's goals are a target on a measure.** Home, retirement and capital (LBSIM-19) are tested at the deadline
+  as `(level * measure + extra - target) / target`. **One measure for the engine** (the coordinator's decision of
+  29.09.2026, following B2's P-11): the NLP evaluates B2's own `lbsim.paths.engine.measure_values` on its symbols for
+  the linear measures, and `symbolic._drawable_real` (the exact twin) for `drawable`, so the in-sample and the
+  out-of-sample chance judge one quantity; a test holds them equal for every goal kind, with and without haircuts.
+  `deposit_eligible` is W_L + W_3a + `pension_deposit_share` W_P; `retirement_capital` is W_L + W_3a, without pillar
+  2, because the retirement target is the gap its annuity leaves (counting the capital again would count it twice; the
+  port first counted it, and that was corrected); `drawable` is `HouseholdWealth.drawable` with the Params haircuts. A
+  goal in the francs of its date is compared nominally with each scenario's own price level; a goal in today's francs
+  in real terms (LBSIM-09). The target is the paths artefact's (the retirement target is the capital the fast half
+  derives at the withdrawal rate), so the draft's home serviceability test and annuity funding ratio are not used for
+  lbsim's goals; they remain for the draft kinds. The normaliser does not move with the target, so the target
+  reachable at the confidence is exactly `(1 - s*) * target`.
+- **O-6 the grid and the cap.** `grid_rule = variable`: 0.5-year steps while t < 10, 1-year steps to the cap
+  (`min(max_solve_horizon_years, last rung)` = 20), ending at the node nearest the latest goal; each goal at its
+  nearest node. A goal beyond the last node is tested there against `max(0, target - planned saving x remaining
+  years)` (the fast half's `free_cash` for the goal, carried in `GoalInput.planned_saving_chf_per_year`; a negative
+  saving raises the requirement above the target), exactly B2's requirement, and the plan says `beyond_cap_rule:
+  zero_return_terminal`. `draft_single_step` is the draft's `run_case` rule exactly. Discounting uses each node's own
+  time.
+- **O-7 the clock.** Each IPOPT call gets `ipopt.max_wall_time` = the time left before the run's deadline (at least 1
+  s); the deadline and `should_cancel` are checked before and after every solve; `progress` hears `{phase, start, of,
+  seed_attempt, elapsed_s}` before every solve. A stop raises through every layer, so a timed out or cancelled run is
+  `failed` with no figures and no call to `simulate`. A cancel waits for the solve in progress (IPOPT is not
+  interrupted).
+- **O-8 seeds.** In-sample `seed`; redraws `seed + 1000 k` for a pathological draw only, never for a goal phase 1 has
+  determined unfundable (M79); out-of-sample `seed + 500 000` with `n_out_of_sample` paths (default
+  `optimiser.M_eval`). The allocation scenarios come from one `default_rng(seed)`: the state uniforms (paths x years),
+  then the property noise (paths x steps). Every seed tried is in `seeds_used`, a stopped run's too.
+- **O-9 outcomes.** `plan` is `solved`. `goal_not_fundable` (phase 1 converged, funding impossible) is a result with
+  phase 1's action (what trying hardest assumes, the draft's reading) and `reachable`. The draft's `undetermined` (no
+  converged, certified solve) is `failed` / `solver`: no figure from a non-converged solve.
+- **O-10 the plan's figures.** `chance.out_of_sample` and `shortfall_cvar_chf` are the injected Monte Carlo's (B2's);
+  the in-sample CVaR stays in `diagnostics`. `action_now`: hours are tau x 100 (the productive week), and
+  `saving_chf_per_year` is the first period's drift of liquid wealth without the market. `exchange_rate.dominant`
+  names the dominant control (`tau_N` or `tau_Y`) or is None. `control_path` is on the grid, `money_basis`
+  `today_indexed` under the allocation market (1.1.0 and 1.2.0; C, m_E, m_N indexed by each path's own price level;
+  p_A nominal) and `nominal` under 1.0.0, the last step held to the horizon. `ipopt_version` is None: CasADi does not
+  report the IPOPT build it bundles; `casadi_version` pins it.
+- **O-11 the household.** The state from the adapter's submission with the draft converter's mid-scale defaults (E
+  0.5, N 0.5, H 0.8); `Params` through the fast half's own `_params_from` inside the calibration's tables, so the plan
+  and the findings read one parameter set; epsilon is `1 - confidence`, clamped to 0.01..0.5 as the draft's converter
+  does.
+- **O-12 draft features carried unchanged (for the owner, not fixed).** (a) The retirement slack evaluates AHV at the
+  deadline state's age plus the horizon again (age0 + 2h) on both the numpy and the symbolic side; harmless for a goal
+  at 65 or later, wrong for an earlier one. lbsim's retirement goal is a measure (O-5), so it does not reach the plan.
+  (b) The exchange rate's networking value uses `p.K_N0` and the retired multiplicative ceiling, so it can be negative
+  (the draft's flagship gives -0.032); the winner is unaffected there. (c) The draft's parity helper set `W_P` and
+  `W_3a` after its `return`, so its parity ran with both at zero; the port's parity sets them.
+- **O-13 test lanes.** Default: `timeout 900 ../../.venv/Scripts/python -X utf8 -m pytest -q -p no:warnings
+  tests/optim` (slow deselected by `pyproject.toml`). Slow: `pytest -m slow --dist loadfile -n 4 tests/optim`; `--dist
+  loadfile` keeps the module-scoped `sol_90` solve on one worker. pytest-xdist is not in the family venv (29.09.2026)
+  and was not installed; without it the slow lane runs serially with `-m slow`.
+- **O-14 `run.reference_simulate`** is a per-path simulation of the NLP's own step, for tests and diagnosis only. The
+  engine's out-of-sample chance is B2's Monte Carlo.
+- **O-15 the calibrated iteration limit is the binding constraint (for the owner).** Every seed calibration (1.0.0,
+  1.1.0, 1.2.0) carries the draft's `run_case` setting `max_iter = 400`. Measured on B2's regenerated sample household
+  (29.09.2026, 3-year home goal, allocation market): every phase-2 solve reaches a funded point (CVaR about -0.01) and
+  stops at 400 iterations on all three draws, so the run is `failed` / `solver`; at 3000 iterations (the draft's
+  `test_optim` budget) the same rule certifies a plan in 2000 to 2700 iterations (in-sample chance 0.93, 459 s). Under
+  1.0.0 the draft market fails the same way on this household. Raising the limit is a calibration change (a new
+  version, a named approver) and was not made here; on the 20-year grid a 400-iteration solve takes 2 to 17 minutes,
+  so 3000 iterations would not fit the 120-minute budget without fewer starts or draws.
+- **O-16 the 20-year case.** The sample's 27-year horizon on the 30-step grid (20 half-year and 10 one-year steps, M =
+  14, two restore and four best-life starts, three draws): 4077 s, 68 minutes (measured by
+  `test_the_20_year_case_finishes_inside_the_budget`, record in `golden/optim/twenty_year_run.json`), inside the
+  120-minute budget; a 400-iteration solve takes 2 to 17 minutes on this grid. The outcome is `failed` / `solver`:
+  every solve on every draw stopped at 400 iterations (O-15), so no figures. The run finishes; it does not yet plan.
+- **O-17 the solves are deterministic.** The same restore solve, five times with OpenBLAS on 20 threads and five times
+  pinned to one, all concurrent, gave identical iterations and CVaR to the last bit. Differences seen during the build
+  came from B2 regenerating the sample household while runs were starting.
+
