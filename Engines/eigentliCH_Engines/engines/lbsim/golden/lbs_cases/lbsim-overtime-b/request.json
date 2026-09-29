@@ -1,0 +1,233 @@
+{
+ "contract_version": "lbs-request@1.0.0",
+ "client_ref": "lbsim-overtime-b",
+ "as_of": "2026-09-28",
+ "calibration_version": null,
+ "household": {
+  "composition_as_of": "2026-09-01",
+  "persons": [
+   {
+    "person_id": "p1",
+    "kind": "adult",
+    "age": 47,
+    "stated_gross_income": null,
+    "human_capital": {
+     "qualification_highest": "Universitäre Hochschule",
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": null,
+     "network_people": 12.0,
+     "mandates": 1.0,
+     "network_reach": null,
+     "health": "0.85",
+     "health_withheld": false,
+     "hours_per_week": 50.0,
+     "rest_hours": null,
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": null
+    },
+    "earning_power": {
+     "expected_full_pensum_income": 150000.0,
+     "responsibility": "Oberste Führung",
+     "sector": "andere Branche",
+     "education_status": "planned",
+     "education_end_year": 2027,
+     "education_hours": "1–2",
+     "education_budget_per_year": 11000.0,
+     "health_work_capacity": null
+    }
+   },
+   {
+    "person_id": "p2",
+    "kind": "adult",
+    "age": 45,
+    "stated_gross_income": null,
+    "human_capital": {
+     "qualification_highest": "Berufsausbildung (EFZ)",
+     "qualification_year": null,
+     "years_in_field": null,
+     "education_recent": null,
+     "network_people": 5.0,
+     "mandates": 0.0,
+     "network_reach": null,
+     "health": "1",
+     "health_withheld": false,
+     "hours_per_week": 17.0,
+     "rest_hours": null,
+     "hours_learning": null,
+     "hours_network": null
+    },
+    "ahv": {
+     "mdje": null,
+     "contribution_years_missing": null
+    },
+    "earning_power": {
+     "expected_full_pensum_income": 105000.0,
+     "responsibility": "Keine Führungsfunktion",
+     "sector": null,
+     "education_status": "none",
+     "education_end_year": null,
+     "education_hours": null,
+     "education_budget_per_year": null,
+     "health_work_capacity": null
+    }
+   }
+  ],
+  "principal": "p1"
+ },
+ "positions": [
+  {
+   "position_id": "i1",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 140000.0,
+   "unit": "chf_per_year",
+   "stock_kind": null,
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "i2",
+   "role": "income",
+   "capital_type": "human",
+   "magnitude": 42000.0,
+   "unit": "chf_per_year",
+   "stock_kind": null,
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p2",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a1",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 28000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "immediate",
+   "vessel": "free",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a2",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 125000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_2",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a3",
+   "role": "protection",
+   "capital_type": "financial",
+   "magnitude": 38000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "pillar_3a",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "a4",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 1800000.0,
+   "unit": "chf",
+   "stock_kind": "asset",
+   "liquidity": "illiquid",
+   "vessel": "real_asset",
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  },
+  {
+   "position_id": "d1",
+   "role": "stabilisation",
+   "capital_type": "financial",
+   "magnitude": 804000.0,
+   "unit": "chf",
+   "stock_kind": "liability",
+   "liquidity": null,
+   "vessel": null,
+   "owner": "p1",
+   "active": true,
+   "funds_goals": []
+  }
+ ],
+ "goals": [
+  {
+   "goal_id": "g-ret",
+   "kind": "retirement",
+   "target_amount": 120000.0,
+   "target_date": "2044-12-31",
+   "occupancy": null,
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  },
+  {
+   "goal_id": "g-cap",
+   "kind": "other",
+   "target_amount": 250000.0,
+   "target_date": "2035-12-31",
+   "occupancy": null,
+   "owners": [],
+   "contribution_share": null,
+   "amount_basis": null
+  }
+ ],
+ "facts": {
+  "canton": "Tessin",
+  "civil_status": "verheiratet",
+  "has_no_liabilities": false,
+  "stop_work_age": 65.0,
+  "legal_documents": [
+   "Testament",
+   "Ehevertrag"
+  ],
+  "mortgage_fixed_until": "2031-12-31",
+  "amortisation_mode": "direct",
+  "own_use_share": 1.0,
+  "pillar3a_contribution_per_year": 7258.0
+ },
+ "risk": {
+  "stated_loss": 0.2,
+  "crisis_behaviour": null,
+  "esg_exclusions": [],
+  "esg_level": null,
+  "employment": null,
+  "liquidity_reserve_months": null,
+  "spend_now_per_year": 135000.0,
+  "variable_income_per_year": null,
+  "gross_income_per_year": 140000.0,
+  "mandates": null,
+  "plan_until_age": 90.0,
+  "mortgage": 804000.0,
+  "mortgage_rate_pct": 1.8,
+  "amortisation_per_year": null
+ },
+ "mandate": {
+  "goal_id": "g-ret",
+  "annual_contribution": 30000.0,
+  "name": null,
+  "contribution_indexed": null
+ }
+}

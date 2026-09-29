@@ -314,3 +314,19 @@ is B1's and B2's.
   that draw stopping at 500; in-sample chance 1.0 (14 of 14), out-of-sample 1.0 from B2's `plan.simulate` (400 paths,
   seed 20760929); 1868 s (31 minutes), inside the 120-minute budget (`golden/optim/ten_year_run.json`). O-15 and O-16
   describe 1.2.0 and stay as the record of why.
+- **P-25 each stated income where it belongs, calibration 1.5.0 (29.09.2026).** Found by B2's live refresh: the
+  stated expectation at a full pensum ("once any education is done") was the level of every path from today, and
+  was multiplied by today's pensum, so a principal working 55 hours who earns and expects 155 000 was shown
+  200 846 in the first year of the education path (202 976 on `today`, 200 846 on `full_pensum` before the
+  education's end). It is the draft's `paths.build_path` (the anchor levels every age, the share is today's
+  pensum), kept by 1.0.0 to 1.4.0. Under `behaviour.income_levels: stated`:
+  1. Until an education ends, and on `today` always, a path runs at today's stated income and pensum (today's
+     income over today's pensum, moved only by the path's shape, P-9).
+  2. From the education's end year (from today when none is stated) a path that changes something takes the stated
+     expectation at the path's pensum; the amount is stated at a full pensum, so a pensum above 1 never raises it.
+     Without an expectation, today's level carries on at the path's pensum.
+  3. Without an education under way or planned there is no education path, whatever hours or budget the answers
+     still hold (the draft's rule for a household with no study hours).
+  `full_pensum` had the same fault before the end year (the expectation times a pensum above 1). 1.0.0 to 1.4.0 keep
+  their hashes; layer B's `changes.json` gains the step 1.4.0 to 1.5.0 with every changed leaf attributed to
+  P-25. The regression cases are `golden/lbs_cases/lbsim-overtime-a` and `-b`, the two live shapes anonymised.

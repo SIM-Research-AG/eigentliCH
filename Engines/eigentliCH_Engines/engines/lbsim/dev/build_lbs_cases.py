@@ -193,7 +193,56 @@ def invented() -> dict[str, dict]:
                  "plan_until_age": 90.0},
         "mandate": {"goal_id": "g-home", "annual_contribution": 18_000.0, "contribution_indexed": True},
     }
-    return {"lbsim-reduced-pensum": reduced, "lbsim-couple": couple, "lbsim-young": young, "lbsim-early": early, "lbsim-family": family,
+    # Two live shapes that exposed the stated-expectation reading (B2's live refresh, 29.09.2026), anonymised:
+    # a principal working more than full-time hours who expects about today's salary at a full pensum once a short
+    # education planned to end in 2027 is done, with a part-time partner.
+    def overtime(ref, age, hours, gross, expected, budget, partner_age, partner_gross, partner_expected, free, p2,
+                 p3a, real, debt, spend, goals, canton, stop):
+        return {
+            "client_ref": ref, "as_of": AS_OF,
+            "household": {"composition_as_of": "2026-09-01", "principal": "p1", "persons": [
+                {**_person("p1", age, None, qualification_highest="Universitäre Hochschule", network_people=12.0,
+                           mandates=1.0, health="0.85", hours_per_week=hours),
+                 "earning_power": {"expected_full_pensum_income": expected, "responsibility": "Oberste Führung",
+                                   "sector": "andere Branche", "education_status": "planned",
+                                   "education_end_year": 2027, "education_hours": "1–2",
+                                   "education_budget_per_year": budget}},
+                {**_person("p2", partner_age, None, qualification_highest="Berufsausbildung (EFZ)",
+                           network_people=5.0, mandates=0.0, health="1", hours_per_week=17.0),
+                 "earning_power": {"expected_full_pensum_income": partner_expected,
+                                   "responsibility": "Keine Führungsfunktion", "education_status": "none"}}]},
+            "positions": [
+                {"position_id": "i1", "role": "income", "capital_type": "human", "magnitude": gross,
+                 "unit": "chf_per_year", "owner": "p1"},
+                {"position_id": "i2", "role": "income", "capital_type": "human", "magnitude": partner_gross,
+                 "unit": "chf_per_year", "owner": "p2"},
+                _stock("a1", "stabilisation", free, "free"),
+                _stock("a2", "protection", p2, "pillar_2", liquidity="illiquid"),
+                _stock("a3", "protection", p3a, "pillar_3a", liquidity="illiquid"),
+                _stock("a4", "stabilisation", real, "real_asset", liquidity="illiquid"),
+                _stock("d1", "stabilisation", debt, None, kind="liability", liquidity=None)],
+            "goals": goals,
+            "facts": {"canton": canton, "civil_status": "verheiratet", "stop_work_age": stop,
+                      "legal_documents": ["Testament", "Ehevertrag"], "mortgage_fixed_until": "2031-12-31",
+                      "amortisation_mode": "direct", "own_use_share": 1.0, "pillar3a_contribution_per_year": 7258.0},
+            "risk": {"stated_loss": 0.2, "spend_now_per_year": spend, "gross_income_per_year": gross,
+                     "plan_until_age": 90.0, "mortgage": debt, "mortgage_rate_pct": 1.8},
+            "mandate": {"goal_id": goals[0]["goal_id"], "annual_contribution": 30_000.0},
+        }
+
+    overtime_a = overtime("lbsim-overtime-a", 52, 55.0, 155_000.0, 155_000.0, 6_000.0, 51, 36_000.0, 90_000.0,
+                          115_000.0, 420_000.0, 180_000.0, 2_275_000.0, 248_000.0, 110_000.0,
+                          [{"goal_id": "g-ret", "kind": "retirement", "target_amount": 105_000.0,
+                            "target_date": "2039-12-31"},
+                           {"goal_id": "g-cap", "kind": "other", "target_amount": 600_000.0,
+                            "target_date": "2035-06-30"}], "St. Gallen", 63.0)
+    overtime_b = overtime("lbsim-overtime-b", 47, 50.0, 140_000.0, 150_000.0, 11_000.0, 45, 42_000.0, 105_000.0,
+                          28_000.0, 125_000.0, 38_000.0, 1_800_000.0, 804_000.0, 135_000.0,
+                          [{"goal_id": "g-ret", "kind": "retirement", "target_amount": 120_000.0,
+                            "target_date": "2044-12-31"},
+                           {"goal_id": "g-cap", "kind": "other", "target_amount": 250_000.0,
+                            "target_date": "2035-12-31"}], "Tessin", 65.0)
+    return {"lbsim-overtime-a": overtime_a, "lbsim-overtime-b": overtime_b, "lbsim-reduced-pensum": reduced, "lbsim-couple": couple, "lbsim-young": young, "lbsim-early": early, "lbsim-family": family,
             "lbsim-thin": thin, "lbsim-sample": sample}
 
 

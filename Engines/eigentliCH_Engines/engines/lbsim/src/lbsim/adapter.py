@@ -185,6 +185,8 @@ def adapt(sheet: LbsSheet, request: LbsRequest, lbs_records: dict[str, dict[str,
     lbsim_block: dict[str, Any] = {"inflation": inflation, "unstated_stop_age_is_reference_age": True}
     if behaviour.income_paths is not None:
         lbsim_block["income_paths"] = behaviour.income_paths
+    if behaviour.income_levels is not None:
+        lbsim_block["income_levels"] = behaviour.income_levels
 
     # -- earning power (LBSIM-11)
     if behaviour.earning_power == "record":
@@ -213,11 +215,16 @@ def adapt(sheet: LbsSheet, request: LbsRequest, lbs_records: dict[str, dict[str,
             raw["income_expected_full"] = float(ep.expected_full_pensum_income)
         if ep.education_status in ("in_progress", "planned") and ep.education_end_year is not None:
             raw["education_planned"] = str(int(ep.education_end_year))
-        if isinstance(ep.education_hours, str):
+        educating = ep.education_status in ("in_progress", "planned")
+        if behaviour.income_levels == "stated" and not educating:
+            # P-25: without an education under way or planned there is no education path (the draft's rule for a
+            # household with no study hours), whatever hours or budget were left in the answers.
+            pass
+        elif isinstance(ep.education_hours, str):
             raw["education_hours"] = ep.education_hours
         elif ep.education_hours is not None:
             raw["education_hours_num"] = float(ep.education_hours)
-        if ep.education_budget_per_year is not None:
+        if ep.education_budget_per_year is not None and (behaviour.income_levels != "stated" or educating):
             raw["education_budget"] = float(ep.education_budget_per_year)
     if "income_expected_full" not in raw:
         assumptions["earning_level"] = None

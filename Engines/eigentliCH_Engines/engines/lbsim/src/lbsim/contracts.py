@@ -984,6 +984,12 @@ class Behaviour(_Frozen):
     #: not paid out. ``None`` (1.0.0 to 1.3.0): the draft's model household. Moves the paths only, never the
     #: findings; left out of the canonical form while ``None``, so earlier versions keep their bytes and hashes.
     paths_household: Optional[Literal["pensions"]] = None
+    #: DECISIONS P-25 (calibration 1.5.0): ``stated`` puts each stated income where it belongs. Until an education
+    #: ends (and on ``today`` always) a path runs at today's stated income and pensum; from the end year (from today
+    #: without an education) the stated expectation applies at the path's pensum, and since it is stated at a full
+    #: pensum a pensum above 1 never raises it. Without a stated education there is no education path. ``None``
+    #: (1.0.0 to 1.4.0): the draft's reading. Left out of the canonical form while ``None``.
+    income_levels: Optional[Literal["stated"]] = None
 
 
 class Retirement(_Frozen):

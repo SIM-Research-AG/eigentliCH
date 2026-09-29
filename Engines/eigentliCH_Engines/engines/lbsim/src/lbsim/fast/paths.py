@@ -271,6 +271,10 @@ def build_path(submission: dict, p: Params, *, code: str, name: str, learning: f
             def level(age: float) -> float:
                 return factor * shape(age)
 
+    if _ext(submission).get("income_levels") == "stated":
+        return _stated_levels(submission, p, i, shape, code=code, name=name, note=note, learning=learning,
+                              network_hours=network_hours, pensum_after=pensum_after)
+
     def income_at(age: float) -> float:
         """Gross income at this age: full-time earning power scaled by the Pensum this path assumes."""
         if corrected and pensum_after is not None and edu_end is None:
@@ -282,6 +286,69 @@ def build_path(submission: dict, p: Params, *, code: str, name: str, learning: f
         else:
             share = pensum_after
         return max(0.0, level(age) * share)
+
+    return {"code": code, "name": name, "note": note, "income_at": income_at,
+            "pensum_now": pensum_now, "pensum_after": pensum_after if pensum_after else pensum_now,
+            "education_end_age": edu_end, "learning_hours": learning, "network_hours": network_hours,
+            "basis": "stated" if anchor else "modelled", "anchor": anchor}
+
+
+def _stated_levels(submission: dict, p: Params, i: dict[str, Any], shape: Callable[[float], float], *, code: str,
+                   name: str, note: str, learning: float, network_hours: float,
+                   pensum_after: float | None) -> dict[str, Any]:
+    """lbsim (DECISIONS P-25, calibration 1.5.0): each stated figure where it belongs.
+
+    The draft levelled every path, `today` included, on the stated expectation at a full pensum, from today, and
+    multiplied it by today's pensum, so a person working 55 hours who expects 155 000 at a full pensum was shown
+    203 000 in the first year. Here:
+
+      before the change   today's stated income at today's pensum (today's income over today's pensum, moved by
+                          the path's shape), on every path until an education ends, and on `today` always;
+      after the change    from the education's end year (from today when none is stated) on a path that changes
+                          something: the stated expectation at the path's pensum, and since the amount is stated
+                          AT a full pensum, a pensum above 1 never raises it. Without an expectation today's level
+                          carries on at the path's pensum.
+
+    Where no income is stated today, the stated expectation (else the model level, also a full-time figure) is the
+    level before the change too, never above a full pensum.
+    """
+    age0, edu_end, pensum_now, anchor = i["age0"], i["edu_end"], i["pensum_now"], i["anchor"]
+    gross_now = i["gross_now"]
+    changes = bool(learning > 0 or pensum_after is not None or network_hours > 0)
+    start = edu_end if edu_end is not None else age0
+    denom_now = shape(age0) or 1.0
+    factor = float(_ext(submission).get("model_level_factor") or 1.0)
+
+    if gross_now and pensum_now:
+        full_now = gross_now / pensum_now
+
+        def current(age: float) -> tuple[float, bool]:
+            return full_now * shape(age) / denom_now, False
+    elif anchor:
+        def current(age: float) -> tuple[float, bool]:
+            return anchor * shape(age) / denom_now, True
+    else:
+        def current(age: float) -> tuple[float, bool]:
+            return factor * shape(age), True
+
+    if anchor:
+        denom_end = shape(start) or 1.0
+
+        def after(age: float) -> tuple[float, bool]:
+            return anchor * shape(age) / denom_end, True
+    else:
+        after = current
+
+    def income_at(age: float) -> float:
+        if changes and age >= start:
+            amount, at_full_pensum = after(age)
+            share = pensum_after if pensum_after is not None else pensum_now
+        else:
+            amount, at_full_pensum = current(age)
+            share = pensum_now
+        if at_full_pensum:
+            share = min(share, 1.0)
+        return max(0.0, amount * share)
 
     return {"code": code, "name": name, "note": note, "income_at": income_at,
             "pensum_now": pensum_now, "pensum_after": pensum_after if pensum_after else pensum_now,

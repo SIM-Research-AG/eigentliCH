@@ -12,7 +12,7 @@ import pytest
 from conftest import GOLDEN, ROOT, load_json
 
 from lbsim.adapter import AdapterError, adapt
-from lbsim.calibration import ACTIVE_SEED, SEED, SEED_1_1, SEED_1_2, SEED_1_3, SEEDS, calibration_hash, seed
+from lbsim.calibration import ACTIVE_SEED, SEED, SEED_1_1, SEED_1_2, SEED_1_3, SEED_1_4, SEEDS, calibration_hash, seed
 from lbsim.contracts import (FINDING_CODES, LbsRequest, LbsSheet, LifeBalanceFindings, LifeBalanceSimRequest,
                              Unchecked, Words)
 from lbsim.fast.build import build_findings
@@ -55,6 +55,7 @@ def test_the_seed_hashes_are_pinned():
     # field is left out of the canonical form while unset).
     assert pins["1.0.0"] == "CAL-16ddc8c0f11af63f" and pins["1.1.0"] == "CAL-c276230b32143099"
     assert pins["1.2.0"] == "CAL-3a4ecac98ac98b90" and pins["1.3.0"] == "CAL-5f544bab06ed5f76"
+    assert pins["1.4.0"] == "CAL-95bbbd2c2f4e7576"
 
 
 def test_1_0_0_is_the_draft_and_1_1_0_switches_the_three_decisions():
@@ -65,7 +66,7 @@ def test_1_0_0_is_the_draft_and_1_1_0_switches_the_three_decisions():
     assert ACTIVE_SEED.behaviour.currencies == ("CHF",)
     assert ACTIVE_SEED.retirement.withdrawal_rate == 0.03 and ACTIVE_SEED.optimiser.confidence == 0.90
     assert seed("1.1.0") is SEED_1_1 and seed("1.2.0") is SEED_1_2 and seed("1.3.0") is SEED_1_3
-    assert seed("1.4.0") is ACTIVE_SEED
+    assert seed("1.4.0") is SEED_1_4 and seed("1.5.0") is ACTIVE_SEED
     assert SEED_1_1.behaviour.income_paths is None and SEED_1_2.behaviour.income_paths == "corrected"
     assert SEED_1_2.parent_version == "1.1.0" and SEED.behaviour.income_paths is None
     # 1.3.0 (DECISIONS O-18): 1.2.0 with the owner's plan settings, the optimiser block only.
@@ -76,11 +77,17 @@ def test_1_0_0_is_the_draft_and_1_1_0_switches_the_three_decisions():
     assert SEED_1_3.model_copy(update={"version": "1.2.0", "parent_version": "1.1.0", "note": SEED_1_2.note,
                                        "optimiser": SEED_1_2.optimiser}) == SEED_1_2
     # 1.4.0 (DECISIONS P-21 to P-24): 1.3.0 with the paths' household, one behaviour switch.
-    assert ACTIVE_SEED.version == "1.4.0" and ACTIVE_SEED.parent_version == "1.3.0"
-    assert ACTIVE_SEED.behaviour.paths_household == "pensions"
+    assert SEED_1_4.version == "1.4.0" and SEED_1_4.parent_version == "1.3.0"
+    assert SEED_1_4.behaviour.paths_household == "pensions"
     assert all(c.behaviour.paths_household is None for c in (SEED, SEED_1_1, SEED_1_2, SEED_1_3))
-    assert ACTIVE_SEED.model_copy(update={"version": "1.3.0", "parent_version": "1.2.0", "note": SEED_1_3.note,
-                                          "behaviour": SEED_1_3.behaviour}) == SEED_1_3
+    assert SEED_1_4.model_copy(update={"version": "1.3.0", "parent_version": "1.2.0", "note": SEED_1_3.note,
+                                       "behaviour": SEED_1_3.behaviour}) == SEED_1_3
+    # 1.5.0 (DECISIONS P-25): 1.4.0 with each stated income where it belongs, one behaviour switch.
+    assert ACTIVE_SEED.version == "1.5.0" and ACTIVE_SEED.parent_version == "1.4.0"
+    assert ACTIVE_SEED.behaviour.income_levels == "stated"
+    assert all(c.behaviour.income_levels is None for c in SEEDS[:-1])
+    assert ACTIVE_SEED.model_copy(update={"version": "1.4.0", "parent_version": "1.3.0", "note": SEED_1_4.note,
+                                          "behaviour": SEED_1_4.behaviour}) == SEED_1_4
     assert all(c.optimiser.max_solve_horizon_years is None for c in (SEED, SEED_1_1, SEED_1_2))
     # The draft's run_case settings, verbatim.
     o = SEED.optimiser

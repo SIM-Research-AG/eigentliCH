@@ -1,10 +1,10 @@
 {
  "contract_version": "lbsim-findings@1.0.0",
- "artefact_id": "LSF-1e6bb1f317ffbfc1",
+ "artefact_id": "LSF-8af16539c664ec09",
  "client_ref": "lbsim-sample",
  "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
  "as_of": "2026-09-28",
- "calibration_version": "1.4.0",
+ "calibration_version": "1.5.0",
  "inflation": {
   "currency": "CHF",
   "annual_rate": 0.01,
@@ -142,137 +142,137 @@
     {
      "year": 2026,
      "age": 38.0,
-     "gross_chf_per_year": 135000.0
+     "gross_chf_per_year": 128000.00000000001
     },
     {
      "year": 2027,
      "age": 39.0,
-     "gross_chf_per_year": 136350.0
+     "gross_chf_per_year": 129280.00000000001
     },
     {
      "year": 2028,
      "age": 40.0,
-     "gross_chf_per_year": 137713.5
+     "gross_chf_per_year": 130572.80000000002
     },
     {
      "year": 2029,
      "age": 41.0,
-     "gross_chf_per_year": 139090.635
+     "gross_chf_per_year": 131878.52800000002
     },
     {
      "year": 2030,
      "age": 42.0,
-     "gross_chf_per_year": 140481.54135
+     "gross_chf_per_year": 133197.31328000003
     },
     {
      "year": 2031,
      "age": 43.0,
-     "gross_chf_per_year": 141886.35676350002
+     "gross_chf_per_year": 134529.28641280002
     },
     {
      "year": 2032,
      "age": 44.0,
-     "gross_chf_per_year": 143305.22033113503
+     "gross_chf_per_year": 135874.57927692804
     },
     {
      "year": 2033,
      "age": 45.0,
-     "gross_chf_per_year": 144738.27253444635
+     "gross_chf_per_year": 137233.3250696973
     },
     {
      "year": 2034,
      "age": 46.0,
-     "gross_chf_per_year": 146185.65525979083
+     "gross_chf_per_year": 138605.6583203943
     },
     {
      "year": 2035,
      "age": 47.0,
-     "gross_chf_per_year": 147647.51181238872
+     "gross_chf_per_year": 139991.71490359821
     },
     {
      "year": 2036,
      "age": 48.0,
-     "gross_chf_per_year": 149123.98693051262
+     "gross_chf_per_year": 141391.6320526342
     },
     {
      "year": 2037,
      "age": 49.0,
-     "gross_chf_per_year": 150615.22679981773
+     "gross_chf_per_year": 142805.54837316053
     },
     {
      "year": 2038,
      "age": 50.0,
-     "gross_chf_per_year": 152121.37906781593
+     "gross_chf_per_year": 144233.60385689215
     },
     {
      "year": 2039,
      "age": 51.0,
-     "gross_chf_per_year": 153642.59285849408
+     "gross_chf_per_year": 145675.93989546108
     },
     {
      "year": 2040,
      "age": 52.0,
-     "gross_chf_per_year": 155179.01878707905
+     "gross_chf_per_year": 147132.6992944157
     },
     {
      "year": 2041,
      "age": 53.0,
-     "gross_chf_per_year": 156730.80897494982
+     "gross_chf_per_year": 148604.02628735985
     },
     {
      "year": 2042,
      "age": 54.0,
-     "gross_chf_per_year": 158298.11706469933
+     "gross_chf_per_year": 150090.06655023346
     },
     {
      "year": 2043,
      "age": 55.0,
-     "gross_chf_per_year": 159881.09823534632
+     "gross_chf_per_year": 151590.96721573579
     },
     {
      "year": 2044,
      "age": 56.0,
-     "gross_chf_per_year": 158250.3110333458
+     "gross_chf_per_year": 150044.73935013526
     },
     {
      "year": 2045,
      "age": 57.0,
-     "gross_chf_per_year": 156636.15786080566
+     "gross_chf_per_year": 148514.28300876386
     },
     {
      "year": 2046,
      "age": 58.0,
-     "gross_chf_per_year": 155038.46905062543
+     "gross_chf_per_year": 146999.4373220745
     },
     {
      "year": 2047,
      "age": 59.0,
-     "gross_chf_per_year": 153457.07666630906
+     "gross_chf_per_year": 145500.04306138933
     },
     {
      "year": 2048,
      "age": 60.0,
-     "gross_chf_per_year": 151891.8144843127
+     "gross_chf_per_year": 144015.94262216313
     },
     {
      "year": 2049,
      "age": 61.0,
-     "gross_chf_per_year": 150342.51797657268
+     "gross_chf_per_year": 142546.9800074171
     },
     {
      "year": 2050,
      "age": 62.0,
-     "gross_chf_per_year": 148809.02429321167
+     "gross_chf_per_year": 141093.00081134142
     },
     {
      "year": 2051,
      "age": 63.0,
-     "gross_chf_per_year": 147291.1722454209
+     "gross_chf_per_year": 139653.85220306576
     },
     {
      "year": 2052,
      "age": 64.0,
-     "gross_chf_per_year": 145788.80228851762
+     "gross_chf_per_year": 138229.3829105945
     }
    ],
    "from_65": {
@@ -286,7 +286,7 @@
      "target_date": "2029-12-31",
      "years": 3.0,
      "zero_return_saving_chf_per_year": 59624.710111606866,
-     "free_cash_chf_per_year": 70713.50195736602,
+     "free_cash_chf_per_year": 65280.220286868855,
      "holds": true
     },
     {
@@ -295,7 +295,7 @@
      "target_date": "2053-12-31",
      "years": 27.0,
      "zero_return_saving_chf_per_year": 103483.39046233632,
-     "free_cash_chf_per_year": 76498.91918424898,
+     "free_cash_chf_per_year": 70560.36291766765,
      "holds": false
     }
    ],
@@ -313,13 +313,13 @@
        "goal_id": "g-home",
        "target_chf": 270672.48341486667,
        "zero_return_saving_chf_per_year": 59032.41818250903,
-       "free_cash_chf_per_year": 70010.69391036798
+       "free_cash_chf_per_year": 64631.38315408549
       },
       {
        "goal_id": "g-ret",
        "target_chf": 2212224.355676688,
        "zero_return_saving_chf_per_year": 90654.47950599586,
-       "free_cash_chf_per_year": 67330.14248843047
+       "free_cash_chf_per_year": 62111.140339467725
       }
      ]
     }
@@ -624,7 +624,7 @@
    "rate": 0.0,
    "holds_today": true,
    "required_today_chf_per_year": 59624.710111606866,
-   "available_today_chf_per_year": 70713.50195736602,
+   "available_today_chf_per_year": 65280.220286868855,
    "cheapest_effort": null,
    "cheapest_goal_change": null,
    "cheapest_combination": null,
@@ -637,7 +637,7 @@
    "rate": 0.0,
    "holds_today": false,
    "required_today_chf_per_year": 103483.39046233632,
-   "available_today_chf_per_year": 76498.91918424898,
+   "available_today_chf_per_year": 70560.36291766765,
    "cheapest_effort": null,
    "cheapest_goal_change": null,
    "cheapest_combination": {
@@ -834,9 +834,9 @@
    "ValidationReport": "lbsim-validation@1.0.0",
    "Calibration": "lbsim-calibration@1.0.0"
   },
-  "calibration_version": "1.4.0",
-  "calibration_hash": "CAL-95bbbd2c2f4e7576",
-  "idempotency_key": "IDK-9ff4cd1f7084a9d3",
+  "calibration_version": "1.5.0",
+  "calibration_hash": "CAL-bf6c32240f0243ba",
+  "idempotency_key": "IDK-0707c8bcce8f68fe",
   "upstream": {
    "lbs": {
     "artefact_id": "LBS-1a68c6aa5d613766",
@@ -867,7 +867,7 @@
    {
     "record": "social-insurance",
     "source": "lbsim",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true
@@ -875,7 +875,7 @@
    {
     "record": "canton-tax",
     "source": "lbsim",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true
@@ -883,7 +883,7 @@
    {
     "record": "findings-text",
     "source": "lbsim",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true

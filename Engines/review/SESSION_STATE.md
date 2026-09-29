@@ -28,13 +28,15 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
   URLs; E app 1.4.0 (intake v4 saved live, outlook page, charts, auto-trigger, backfill). Pushed 080464e.
 - Live: lbsim 8014 (`python -m lbsim serve`, 2 workers), app 8017 restarted (1.4.0), cockpit 8000 restarted,
   temporary cockpit on 8098 for the use-case builder (stop it when the refresh is done).
-- Refresh ran (21:22-21:36): earning, mandates, outlook, reports all went through; `check` all_ok false because
-  report pages carry 32-hex goal ids in lbsim fact names, and the income-path rows read "Ihr Ziel" (D fixing).
-  Five designated goals read chance 0.0 (Corinne, Reto, Regula, Kurt, Esther): B2 investigating measure/mapping.
-  Miriam (EUR) and Lukas (USD) get findings but no paths: CHF only in v1 (LBSIM-14), by design.
-- After the fixes: restart report/lbsim as the agents say, `reports --refresh`, `check`, `check --plans`, the
-  live test, stop the 8098 cockpit, push both remotes. Owner is asleep (night 29./30.09.2026): no decisions
-  guessed; leave any for the morning in this file.
+- Refresh ran (21:22-21:36); check failed on ids in report markup and "Ihr Ziel" rows: fixed in report 1.4.1
+  (restarted). Four 0.0 chances were Monte Carlo defects: fixed as lbsim calibration 1.4.0 (P-21..P-24; Kurt 0.997,
+  Esther 0.993, Reto 0.803, Regula 0.251, Michele 1.0, Peter 1.0; Corinne 0.0 is right). Pushed d53e704.
+- Running: B1 fixes the education path (stated salary applied from today, pensum above 1) as calibration 1.5.0.
+- Then: restart lbsim (serves the active calibration), `mandates --refresh` only if lbs changed (it did not),
+  `outlook`, `reports --refresh`, `check`, `check --plans`, the live test, stop the 8098 cockpit, push both remotes.
+- For the owner in the morning: Esther's goal "Ab 2027 vom Vermögen leben" is an lbs `other` lump sum of
+  CHF 200 000 dated 2031; it would read better as a retirement goal with a yearly need (use-case content,
+  `dev/build_use_cases.py`). Miriam (EUR) and Lukas (USD) get no simulation in v1 (CHF only).
 - Docker: `Engines/deploy/` built, tested (images, smoke test, real-dump restore). CTO takes over 30.09.2026 from
   https://github.com/SIM-Research-AG/eigentliCH. Dump for him: `PostgreSQL/backups/simtech_for_server_2026-09-29.dump`.
   Pending engine changes: `Engines/deploy/ENGINE_CHANGES.md` (cockpit items 2-5, 8; fmre/app init 6-7).

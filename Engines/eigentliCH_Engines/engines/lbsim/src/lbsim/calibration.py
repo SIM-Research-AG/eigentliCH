@@ -111,7 +111,7 @@ SEED_1_3 = Calibration.model_validate(SEED_1_3.model_dump())
 #: stop age as stated, pillar 2 an annuity and pillar 3a paid out when work stops (not before the reference age),
 #: the employee's half of the pillar-2 contribution from a stated salary, capital goals judged and not paid out.
 #: Only the paths move; the findings and the plan settings are 1.3.0's. Active.
-ACTIVE_SEED = SEED_1_3.model_copy(update={
+SEED_1_4 = SEED_1_3.model_copy(update={
     "version": "1.4.0", "parent_version": "1.3.0",
     "note": ("1.3.0 with the paths' household retiring as the findings assume (DECISIONS P-21 to P-24): the stated "
              "stop age as stated; from the later of the stop age and the reference age pillar 2 is an annuity at the "
@@ -119,15 +119,29 @@ ACTIVE_SEED = SEED_1_3.model_copy(update={
              "pillar-2 contribution; a capital goal is judged, not paid out. The findings are 1.3.0's."),
     "behaviour": SEED_1_3.behaviour.model_copy(update={"paths_household": "pensions"}),
 })
+SEED_1_4 = Calibration.model_validate(SEED_1_4.model_dump())
+
+#: 1.4.0 with each stated income where it belongs (DECISIONS P-25, 29.09.2026): until an education ends a path runs
+#: at today's stated income and pensum, and from the end year the stated expectation applies at the path's pensum,
+#: never raised by a pensum above 1 (it is stated at a full pensum). Without a stated education there is no
+#: education path. Active.
+ACTIVE_SEED = SEED_1_4.model_copy(update={
+    "version": "1.5.0", "parent_version": "1.4.0",
+    "note": ("1.4.0 with each stated income where it belongs (DECISIONS P-25): until an education ends, and on the "
+             "path without one always, today's stated income at today's pensum; from the education's end year the "
+             "stated expectation at the path's pensum, never raised by a pensum above 1 because it is stated at a "
+             "full pensum; no education path without a stated education."),
+    "behaviour": SEED_1_4.behaviour.model_copy(update={"income_levels": "stated"}),
+})
 ACTIVE_SEED = Calibration.model_validate(ACTIVE_SEED.model_dump())
 
-SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, SEED_1_2, SEED_1_3, ACTIVE_SEED)
+SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, SEED_1_2, SEED_1_3, SEED_1_4, ACTIVE_SEED)
 
 
 def canonical_json(calibration: Calibration) -> str:
     """The byte-stable form a calibration is hashed and stored in."""
     payload = calibration.model_dump(mode="json")
-    for key in ("income_paths", "paths_household"):
+    for key in ("income_paths", "paths_household", "income_levels"):
         if payload["behaviour"].get(key) is None:
             payload["behaviour"].pop(key, None)
     if payload["optimiser"].get("max_solve_horizon_years") is None:

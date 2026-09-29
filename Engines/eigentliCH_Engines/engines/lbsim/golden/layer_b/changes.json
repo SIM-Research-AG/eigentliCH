@@ -9,9 +9,9 @@
   "hash": "CAL-c276230b32143099"
  },
  "summary": {
-  "LBSIM-08": 896,
-  "LBSIM-11": 183,
-  "LBSIM-08+LBSIM-11": 1770
+  "LBSIM-08": 1043,
+  "LBSIM-11": 211,
+  "LBSIM-08+LBSIM-11": 1950
  },
  "cases": {
   "db-01": {
@@ -6351,6 +6351,1255 @@
     "LBSIM-08"
    ]
   },
+  "lbsim-overtime-a": {
+   "assumptions[key=inflation].key": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].replaced_by.de": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].replaced_by.en": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].text.de": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].text.en": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].unit": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].value": [
+    "LBSIM-08"
+   ],
+   "earning_power[person_id=p1].modelled.at_full_productive_week_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p1].modelled.before_responsibility_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p1].modelled.full_time_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p1].modelled.inputs.earning_power_at_unit": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p1].modelled.monthly_standardised_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.at_full_productive_week_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.before_responsibility_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.full_time_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.inputs.earning_power_at_unit": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.monthly_standardised_chf": [
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-cap,rate_basis=zero].available_today_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-cap,rate_basis=zero].required_today_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].dimension": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.de": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.en": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].value": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].dimension": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.de": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.en": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].value": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.required_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_chf": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_date_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.available_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.moves[0].dimension": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.moves[0].label.de": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.moves[0].label.en": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.moves[0].value": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.required_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.target_chf": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.target_date_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.available_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].dimension": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].label.de": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].label.en": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].value": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.required_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.target_chf": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.target_date_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].combinations_tried": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].holds_today": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].required_today_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].from_65.bvg_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].income[0].gross_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[10].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[11].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[12].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[1].gross_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].income[2].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[3].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[4].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[5].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[6].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[7].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[8].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[9].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.deflator.annual_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.deflator.log_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.deflator.source": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].from_65.bvg_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[0].gross_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[10].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[11].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[12].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[1].gross_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[2].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[3].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[4].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[5].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[6].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[7].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[8].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[9].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.deflator.annual_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.deflator.log_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.deflator.source": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].from_65.bvg_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].income[0].gross_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[10].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[11].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[12].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[1].gross_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].income[2].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[3].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[4].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[5].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[6].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[7].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[8].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[9].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.deflator.annual_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.deflator.log_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.deflator.source": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].from_65.bvg_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[1].gross_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].holds": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.deflator.annual_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.deflator.log_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.deflator.source": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "inflation.annual_rate": [
+    "LBSIM-08"
+   ],
+   "inflation.log_rate": [
+    "LBSIM-08"
+   ],
+   "inflation.source": [
+    "LBSIM-08"
+   ]
+  },
+  "lbsim-overtime-b": {
+   "assumptions[key=inflation].key": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].replaced_by.de": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].replaced_by.en": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].text.de": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].text.en": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].unit": [
+    "LBSIM-08"
+   ],
+   "assumptions[key=inflation].value": [
+    "LBSIM-08"
+   ],
+   "earning_power[person_id=p1].modelled.at_full_productive_week_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p1].modelled.before_responsibility_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p1].modelled.full_time_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p1].modelled.inputs.earning_power_at_unit": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p1].modelled.monthly_standardised_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.at_full_productive_week_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.before_responsibility_chf": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.full_time_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.inputs.earning_power_at_unit": [
+    "LBSIM-11"
+   ],
+   "earning_power[person_id=p2].modelled.monthly_standardised_chf": [
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-cap,rate_basis=zero].available_today_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-cap,rate_basis=zero].required_today_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.de": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.en": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].value": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].dimension": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.de": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.en": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].value": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.required_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_chf": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_date_year": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.available_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].dimension": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].label.de": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].label.en": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].value": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.required_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.target_chf": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.target_date_year": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].combinations_tried": [
+    "LBSIM-08"
+   ],
+   "frontier[goal_id=g-ret,rate_basis=zero].required_today_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].from_65.bvg_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].income[0].gross_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[10].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[11].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[12].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[13].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[14].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[15].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[16].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[17].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[1].gross_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].income[2].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[3].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[4].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[5].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[6].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[7].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[8].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].income[9].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.deflator.annual_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.deflator.log_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.deflator.source": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].from_65.bvg_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[0].gross_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[10].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[11].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[12].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[13].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[14].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[15].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[16].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[17].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[1].gross_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[2].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[3].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[4].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[5].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[6].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[7].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[8].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].income[9].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.deflator.annual_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.deflator.log_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.deflator.source": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].from_65.bvg_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].income[0].gross_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[10].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[11].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[12].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[13].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[14].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[15].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[16].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[17].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[1].gross_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].income[2].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[3].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[4].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[5].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[6].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[7].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[8].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].income[9].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.deflator.annual_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.deflator.log_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.deflator.source": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].from_65.bvg_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[13].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[14].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[15].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[16].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[17].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[1].gross_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.deflator.annual_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.deflator.log_rate": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.deflator.source": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+    "LBSIM-08",
+    "LBSIM-11"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+    "LBSIM-08"
+   ],
+   "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+    "LBSIM-08"
+   ],
+   "inflation.annual_rate": [
+    "LBSIM-08"
+   ],
+   "inflation.log_rate": [
+    "LBSIM-08"
+   ],
+   "inflation.source": [
+    "LBSIM-08"
+   ]
+  },
   "lbsim-reduced-pensum": {
    "assumptions[key=inflation].key": [
     "LBSIM-08"
@@ -10387,7 +11636,7 @@
    "hash": "CAL-3a4ecac98ac98b90"
   },
   "summary": {
-   "P-9": 3885
+   "P-9": 4221
   },
   "cases": {
    "db-01": {
@@ -17476,6 +18725,1018 @@
      "P-9"
     ]
    },
+   "lbsim-overtime-a": {
+    "frontier[goal_id=g-cap,rate_basis=zero].available_today_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.de": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.en": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].value": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].dimension": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.de": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.en": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].value": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.required_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_chf": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_date_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.available_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.moves[0].dimension": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.moves[0].label.de": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.moves[0].label.en": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.moves[0].value": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.required_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.target_chf": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.target_date_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.available_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].dimension": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].label.de": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].label.en": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.moves[0].value": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.required_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.target_chf": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_goal_change.target_date_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].combinations_tried": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[0].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[10].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[11].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[12].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[2].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[3].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[4].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[5].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[6].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[7].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[8].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[9].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].holds": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[0].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[10].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[11].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[12].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[2].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[3].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[4].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[5].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[6].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[7].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[8].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[9].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].holds": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].code": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].education_end_age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].from_65.ahv_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].from_65.bvg_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[0].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[0].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[0].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[10].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[10].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[10].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[11].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[11].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[11].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[12].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[12].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[12].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[1].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[1].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[1].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[2].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[2].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[2].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[3].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[3].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[3].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[4].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[4].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[4].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[5].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[5].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[5].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[6].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[6].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[6].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[7].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[7].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[7].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[8].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[8].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[8].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[9].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[9].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[9].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].learning_hours": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].level_basis": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].name.de": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].name.en": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].network_hours": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].note.de": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].note.en": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].pensum_after": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].pensum_now": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].person_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].goal_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].holds": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].target_date": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].years": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].goal_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].holds": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].target_date": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].years": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.deflator.annual_rate": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.deflator.currency": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.deflator.log_rate": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.deflator.source": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.derived": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].goal_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].goal_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ]
+   },
+   "lbsim-overtime-b": {
+    "frontier[goal_id=g-cap,rate_basis=zero].available_today_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].dimension": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.de": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.en": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].value": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].dimension": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.de": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.en": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].value": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.required_chf_per_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_chf": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_date_year": [
+     "P-9"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].combinations_tried": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[0].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[10].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[11].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[12].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[13].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[14].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[15].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[16].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[17].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[2].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[3].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[4].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[5].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[6].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[7].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[8].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].income[9].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[0].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[10].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[11].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[12].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[13].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[14].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[15].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[16].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[17].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[2].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[3].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[4].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[5].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[6].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[7].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[8].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[9].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].code": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].education_end_age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].from_65.ahv_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].from_65.bvg_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[0].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[0].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[0].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[10].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[10].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[10].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[11].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[11].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[11].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[12].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[12].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[12].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[13].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[13].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[13].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[14].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[14].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[14].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[15].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[15].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[15].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[16].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[16].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[16].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[17].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[17].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[17].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[1].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[1].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[1].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[2].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[2].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[2].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[3].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[3].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[3].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[4].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[4].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[4].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[5].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[5].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[5].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[6].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[6].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[6].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[7].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[7].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[7].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[8].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[8].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[8].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[9].age": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[9].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].income[9].year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].learning_hours": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].level_basis": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].name.de": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].name.en": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].network_hours": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].note.de": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].note.en": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].pensum_after": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].pensum_now": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].person_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].goal_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].holds": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].target_chf": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].target_date": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].years": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].goal_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].holds": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].target_date": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].years": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.deflator.annual_rate": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.deflator.currency": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.deflator.log_rate": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.deflator.source": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.derived": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].goal_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].target_chf": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-cap].zero_return_saving_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].goal_id": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+     "P-9"
+    ],
+    "income_paths[code=network,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[13].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[14].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[15].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[16].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[17].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-9"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-9"
+    ]
+   },
    "lbsim-reduced-pensum": {
     "frontier[goal_id=g-cap1,rate_basis=zero].available_today_chf_per_year": [
      "P-9"
@@ -22118,6 +24379,8 @@
    "syn-property-3": {},
    "syn-property-4": {},
    "syn-property-5": {},
+   "lbsim-overtime-a": {},
+   "lbsim-overtime-b": {},
    "lbsim-reduced-pensum": {},
    "lbsim-couple": {},
    "lbsim-young": {},
@@ -22154,6 +24417,8 @@
    "syn-property-3": {},
    "syn-property-4": {},
    "syn-property-5": {},
+   "lbsim-overtime-a": {},
+   "lbsim-overtime-b": {},
    "lbsim-reduced-pensum": {},
    "lbsim-couple": {},
    "lbsim-young": {},
@@ -22161,6 +24426,1038 @@
    "lbsim-family": {},
    "lbsim-thin": {},
    "lbsim-sample": {}
+  }
+ },
+ "step_1_5_0": {
+  "about": "Every leaf calibration 1.5.0 changes against 1.4.0: each stated income where it belongs (DECISIONS P-25), its one switch.",
+  "from": {
+   "version": "1.4.0",
+   "hash": "CAL-95bbbd2c2f4e7576"
+  },
+  "to": {
+   "version": "1.5.0",
+   "hash": "CAL-bf6c32240f0243ba"
+  },
+  "summary": {
+   "P-25": 329
+  },
+  "cases": {
+   "db-01": {},
+   "db-02": {},
+   "db-03": {},
+   "db-04": {},
+   "db-05": {},
+   "db-06": {},
+   "db-07": {},
+   "db-08": {},
+   "syn-couple": {},
+   "syn-liquidity": {},
+   "syn-property-1": {},
+   "syn-property-2": {},
+   "syn-property-3": {},
+   "syn-property-4": {},
+   "syn-property-5": {},
+   "lbsim-overtime-a": {
+    "frontier[goal_id=g-cap,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[0].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[0].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[0].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[0].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[1].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[1].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[1].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[1].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.target_date_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.moves[0].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.moves[0].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.moves[0].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.moves[0].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.target_date_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.moves[0].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.moves[0].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.moves[0].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.moves[0].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.target_date_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].combinations_tried": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].holds_today": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[0].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.moves[1].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_date_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].combinations_tried": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[10].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[11].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[12].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[2].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[3].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[4].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[5].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[6].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[7].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[8].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[9].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].holds": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].holds": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ]
+   },
+   "lbsim-overtime-b": {
+    "frontier[goal_id=g-cap,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[0].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[0].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[0].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[0].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[1].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[1].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[1].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.moves[1].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_combination.target_date_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.moves[0].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.moves[0].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.moves[0].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.moves[0].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_effort.target_date_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.moves[0].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.moves[0].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.moves[0].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.moves[0].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].cheapest_goal_change.target_date_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].combinations_tried": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-cap,rate_basis=zero].holds_today": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[10].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[11].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[12].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[13].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[14].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[15].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[16].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[17].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[2].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[3].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[4].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[5].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[6].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[7].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[8].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[9].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[13].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[14].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[15].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[16].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[17].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-cap].holds": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-cap].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ]
+   },
+   "lbsim-reduced-pensum": {},
+   "lbsim-couple": {
+    "frontier[goal_id=g-home,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[13].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[14].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[15].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[16].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[17].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[18].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[19].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[20].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[21].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[22].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[23].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[24].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[25].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[26].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ]
+   },
+   "lbsim-young": {
+    "frontier[goal_id=g-home,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-home,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-home,rate_basis=zero].cheapest_combination.moves[0].dimension": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-home,rate_basis=zero].cheapest_combination.moves[0].label.de": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-home,rate_basis=zero].cheapest_combination.moves[0].label.en": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-home,rate_basis=zero].cheapest_combination.moves[0].value": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-home,rate_basis=zero].cheapest_effort.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-home,rate_basis=zero].cheapest_goal_change.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-home,rate_basis=zero].combinations_tried": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_combination.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.available_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.required_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].cheapest_effort.target_chf": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].required_today_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].from_65.ahv_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].from_65.bvg_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+     "P-25"
+    ],
+    "income_paths[code=education,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].from_65.bvg_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+     "P-25"
+    ],
+    "income_paths[code=full_pensum,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].from_65.ahv_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].from_65.bvg_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[13].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[14].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[15].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[16].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[17].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[18].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[19].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[20].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[21].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[22].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[23].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[24].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[25].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[26].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[27].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[28].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[29].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[30].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[31].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[32].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[33].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[34].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[35].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[36].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[37].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].target_chf": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].target_chf": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].zero_return_saving_chf_per_year": [
+     "P-25"
+    ]
+   },
+   "lbsim-early": {},
+   "lbsim-family": {},
+   "lbsim-thin": {},
+   "lbsim-sample": {
+    "frontier[goal_id=g-home,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "frontier[goal_id=g-ret,rate_basis=zero].available_today_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[0].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[10].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[11].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[12].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[13].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[14].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[15].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[16].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[17].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[18].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[19].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[1].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[20].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[21].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[22].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[23].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[24].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[25].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[26].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[2].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[3].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[4].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[5].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[6].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[7].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[8].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].income[9].gross_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-home].free_cash_chf_per_year": [
+     "P-25"
+    ],
+    "income_paths[code=today,person_id=p1].views.real.saving_need[goal_id=g-ret].free_cash_chf_per_year": [
+     "P-25"
+    ]
+   }
   }
  }
 }
