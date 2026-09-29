@@ -38,14 +38,22 @@ from ..model.params import Params
 from ..model.state import State
 from .types import MarketInputs
 
-#: Goal measures, as weights on the state's stocks (``W_L``, ``W_P``, ``W_3a``). ``drawable`` is liquid wealth,
-#: the fast half's ``liquid``; ``deposit_eligible`` counts pillar 3a in full and half of pillar 2 (the paths
-#: sample's reading of the WEF withdrawal); ``retirement_capital`` counts all three.
-MEASURES: dict[str, dict[str, float]] = {
-    "drawable": {"W_L": 1.0, "W_P": 0.0, "W_3a": 0.0},
-    "deposit_eligible": {"W_L": 1.0, "W_P": 0.5, "W_3a": 1.0},
-    "retirement_capital": {"W_L": 1.0, "W_P": 1.0, "W_3a": 1.0},
-}
+#: The goal measures, one definition for the whole engine: ``lbsim.paths.engine.measure_values`` (B2's Monte
+#: Carlo, which gives the out-of-sample chance). ``deposit_eligible`` is W_L + W_3a + ``pension_deposit_share`` W_P;
+#: ``retirement_capital`` is W_L + W_3a, without pillar 2, because the retirement target is the gap its annuity
+#: leaves (B2's P-11, the coordinator's decision of 29.09.2026); ``drawable`` is ``HouseholdWealth.drawable`` with the
+#: Params haircuts (W_L alone at the shipped haircuts of 0). The NLP evaluates the two linear ones through that very
+#: function on symbols, and ``drawable`` through ``symbolic._drawable_real``, its twin; a test holds the in-sample
+#: and the out-of-sample measure equal for every goal kind.
+MEASURE_NAMES: tuple[str, ...] = ("drawable", "deposit_eligible", "retirement_capital")
+LINEAR_MEASURES: frozenset[str] = frozenset({"deposit_eligible", "retirement_capital"})
+_STATE_KEYS = {"W_L": 0, "W_R": 1, "D": 2, "W_res": 7, "W_hol": 8, "W_P": 9, "W_3a": 10}
+
+
+def measure_states(v) -> dict:
+    """The stocks of a state vector (numbers or symbols) under the names ``measure_values`` reads."""
+    return {k: v[i] for k, i in _STATE_KEYS.items()}
+
 
 N_STATES = 25
 _NORMAL = NormalDist()
@@ -163,6 +171,9 @@ def numpy_euler_step(x: State, u: Control, p: Params, dt: float, z: Sequence[flo
     return out
 
 
-def measure_value(v: Sequence[float], measure: str) -> float:
-    w = MEASURES[measure]
-    return w["W_L"] * v[0] + w["W_P"] * v[9] + w["W_3a"] * v[10]
+def measure_value(v: Sequence[float], measure: str, p: Params) -> float:
+    """The measure of a state vector, by B2's function (the out-of-sample definition)."""
+    from ..paths.engine import measure_values  # noqa: PLC0415 - casadi-free, loaded when used
+
+    s = {k: np.asarray([float(x)]) for k, x in measure_states(v).items()}
+    return float(measure_values(s, measure, p)[0])

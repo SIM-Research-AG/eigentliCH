@@ -1,4 +1,5 @@
-"""Golden layer B (LBSIM-13): lbsim's own behaviour, calibration 1.1.0 against 1.0.0, leaf by leaf.
+"""Golden layer B (LBSIM-13): lbsim's own behaviour, leaf by leaf: 1.1.0 against 1.0.0 (the three decisions),
+then 1.2.0 against 1.1.0 (the income-path correction, DECISIONS P-9).
 
 Layer A holds the port to the draft. Layer B has no outside reference: it is lbsim's findings on the frozen lbs
 cases (``golden/lbs_cases``) under both seeds, frozen as a regression reference, with the exact list of leaves
@@ -20,7 +21,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .calibration import ACTIVE_SEED, SEED
+from .calibration import ACTIVE_SEED, SEED, SEED_1_1
 from .contracts import Calibration, LbsRequest, LbsSheet
 from .fast.build import build_findings
 from .ids import sha256
@@ -68,7 +69,7 @@ def changed(a: dict[str, Any], b: dict[str, Any], tol: float = 1e-9) -> list[str
 
 def variant(names: tuple[str, ...]) -> Calibration:
     """1.0.0 with the named decisions switched to 1.1.0's reading."""
-    update = {DECISIONS[n]: getattr(ACTIVE_SEED.behaviour, DECISIONS[n]) for n in names}
+    update = {DECISIONS[n]: getattr(SEED_1_1.behaviour, DECISIONS[n]) for n in names}
     behaviour = SEED.behaviour.model_copy(update=update)
     return SEED.model_copy(update={"behaviour": behaviour, "version": "1.0.0-" + "-".join(
         n.split("-")[1] for n in names)})
@@ -86,9 +87,9 @@ def findings(folder: Path, records: dict[str, Any], cal: Calibration) -> dict[st
 
 
 def attribute(folder: Path, records: dict[str, Any]) -> dict[str, list[str]]:
-    """Every leaf 1.1.0 changes, with the decisions that move it."""
+    """Every leaf 1.1.0 changes against 1.0.0, with the decisions that move it."""
     base = flatten(findings(folder, records, SEED))
-    full = flatten(findings(folder, records, ACTIVE_SEED))
+    full = flatten(findings(folder, records, SEED_1_1))
     moved = changed(base, full)
     alone = {n: set(changed(base, flatten(findings(folder, records, variant((n,)))))) for n in DECISIONS}
     out: dict[str, list[str]] = {}
@@ -104,3 +105,16 @@ def attribute(folder: Path, records: dict[str, Any]) -> dict[str, list[str]]:
                     break
         out[leaf] = who
     return out
+
+
+def attribute_1_2(folder: Path, records: dict[str, Any]) -> dict[str, list[str]]:
+    """Every leaf 1.2.0 changes against 1.1.0. 1.2.0 differs from 1.1.0 by the one switch
+    ``behaviour.income_paths`` (DECISIONS P-9), so every such leaf is P-9's; the switch is checked to be the only
+    difference."""
+    assert SEED_1_1.model_copy(update={"version": ACTIVE_SEED.version, "parent_version": ACTIVE_SEED.parent_version,
+                                       "note": ACTIVE_SEED.note,
+                                       "behaviour": SEED_1_1.behaviour.model_copy(
+                                           update={"income_paths": "corrected"})}) == ACTIVE_SEED
+    before = flatten(findings(folder, records, SEED_1_1))
+    after = flatten(findings(folder, records, ACTIVE_SEED))
+    return {leaf: ["P-9"] for leaf in changed(before, after)}

@@ -153,7 +153,47 @@ def invented() -> dict[str, dict]:
     sample["risk"] = {"stated_loss": 0.2, "spend_now_per_year": 118_000.0, "gross_income_per_year": 220_000.0,
                       "plan_until_age": 90.0, "mortgage": 0.0}
     sample["mandate"] = {"goal_id": "g-home", "annual_contribution": 30_000.0}
-    return {"lbsim-couple": couple, "lbsim-young": young, "lbsim-early": early, "lbsim-family": family,
+    # The shape of a live household that exposed the draft's income paths (B2's live check, 29.09.2026),
+    # anonymised: a reduced pensum (30 hours), no stated expectation, a partner, two children, four goals.
+    reduced = {
+        "client_ref": "lbsim-reduced-pensum", "as_of": AS_OF,
+        "household": {"composition_as_of": "2026-09-01", "principal": "p1", "persons": [
+            _person("p1", 33, None, qualification_highest="Fachhochschule FH", qualification_year=2016.0,
+                    years_in_field=10.0, education_recent="Weiterbildung ab 2027", network_people=8.0,
+                    mandates=0.0, network_reach="im eigenen Unternehmen", health="0.85", hours_per_week=30.0,
+                    rest_hours="5–10", hours_learning=2.0, hours_network=1.0),
+            _person("p2", 35, None, qualification_highest="Berufsausbildung (EFZ)", qualification_year=2011.0,
+                    years_in_field=14.0, education_recent="nein", network_people=6.0, mandates=0.0,
+                    network_reach="im eigenen Unternehmen", health="1 — sehr gut", hours_per_week=42.0,
+                    rest_hours="10–20"),
+            {"person_id": "c1", "kind": "dependant"}, {"person_id": "c2", "kind": "dependant"}]},
+        "positions": [
+            {"position_id": "i1", "role": "income", "capital_type": "human", "magnitude": 56_000.0,
+             "unit": "chf_per_year", "owner": "p1"},
+            _stock("a1", "protection", 61_000.0, "pillar_2", liquidity="illiquid"),
+            _stock("a2", "gain", 22_000.0, "free"),
+            _stock("a3", "stabilisation", 48_000.0, "free"),
+            _stock("a4", "protection", 22_000.0, "pillar_3a", liquidity="illiquid"),
+            _stock("d1", "stabilisation", 14_000.0, None, kind="liability", liquidity=None),
+            _stock("d2", "stabilisation", 11_500.0, None, kind="liability", liquidity=None),
+            {"position_id": "i2", "role": "income", "capital_type": "human", "magnitude": 92_000.0,
+             "unit": "chf_per_year", "owner": "p2"},
+            _stock("a5", "protection", 78_000.0, "pillar_2", owner="p2", liquidity="illiquid")],
+        "goals": [{"goal_id": "g-ret", "kind": "retirement", "target_amount": 84_000.0, "target_date": "2058-12-31",
+                   "amount_basis": "today", "contribution_share": 0.0},
+                  {"goal_id": "g-home", "kind": "property", "target_amount": 850_000.0, "target_date": "2032-12-31",
+                   "occupancy": "owner_occupied_primary", "amount_basis": "today", "contribution_share": 0.6},
+                  {"goal_id": "g-cap1", "kind": "other", "target_amount": 60_000.0, "target_date": "2039-08-31",
+                   "amount_basis": "today", "contribution_share": 0.25},
+                  {"goal_id": "g-cap2", "kind": "other", "target_amount": 9_800.0, "target_date": "2028-07-31",
+                   "amount_basis": "today", "contribution_share": 0.15}],
+        "facts": {"canton": "Bern", "civil_status": "verheiratet"},
+        "risk": {"stated_loss": 0.15, "employment": "angestellt", "liquidity_reserve_months": 6.0,
+                 "spend_now_per_year": 96_000.0, "gross_income_per_year": 56_000.0, "mandates": 0,
+                 "plan_until_age": 90.0},
+        "mandate": {"goal_id": "g-home", "annual_contribution": 18_000.0, "contribution_indexed": True},
+    }
+    return {"lbsim-reduced-pensum": reduced, "lbsim-couple": couple, "lbsim-young": young, "lbsim-early": early, "lbsim-family": family,
             "lbsim-thin": thin, "lbsim-sample": sample}
 
 

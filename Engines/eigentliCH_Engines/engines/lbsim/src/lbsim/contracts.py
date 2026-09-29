@@ -972,6 +972,11 @@ class Behaviour(_Frozen):
     market: Literal["draft", "allocation"]
     #: LBSIM-14: the currencies an Allocation may be in.
     currencies: tuple[str, ...] = ("CHF",)
+    #: DECISIONS P-9 (calibration 1.2.0): ``corrected`` credits an income path only with what its own education and
+    #: networking add (not the draft's autonomous 15 % a year of expertise growth), and applies a path's pensum
+    #: from today when no education is planned. ``None`` (1.0.0, 1.1.0): the draft's paths. Left out of the
+    #: canonical form while ``None``, so 1.0.0 and 1.1.0 keep their bytes and hashes.
+    income_paths: Optional[Literal["corrected"]] = None
 
 
 class Retirement(_Frozen):

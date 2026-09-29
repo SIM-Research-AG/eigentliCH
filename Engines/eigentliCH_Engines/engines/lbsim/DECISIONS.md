@@ -142,3 +142,23 @@ against the draft or the spec.
 - **P-20 the samples.** `golden/samples/paths.sample.json` is now the engine's own paths on the snapshot
   `golden/upstream` (pcp's bench Allocation served under the sample's client); the plan sample is rebuilt on it,
   still hand-built. Both files changed bytes on 29.09.2026 (the report's golden pages rest on the old ones).
+- **P-9 the draft's income paths, corrected in calibration 1.2.0 (29.09.2026).** Found by B2's live check on a
+  household on 56 000 at a 30-hour week with no stated expectation: the `today` path rose to 110 330 in five years,
+  and `full_pensum` and `network` were byte-identical to it. The draft's own `paths.ledger`, run under its own
+  interpreter on the same submission, does the same (56 000, 62 433, 70 156, 79 502, 90 913, 104 975 at zero
+  inflation), so it is the draft's behaviour, not the port's or the adapter's. Three causes, three corrections, all
+  behind one switch, `behaviour.income_paths: corrected`:
+  1. `gameplan.expertise_after` compounds expertise at `beta_E` (15 % a year) with neither the model's ceiling
+     `K_E` nor its depreciation, and every path, `today` included, was credited five years of it. A path is now
+     credited only with what its own education and networking add against not doing them (the counterfactual
+     the draft's `levers` already uses), so `today` moves only with the sheet's inflation and the age profile.
+  2. A path's pensum applied only after an education's end; with no education planned, `full_pensum` and
+     `network` equalled `today` exactly. It now applies from today when no education is planned.
+  3. The ledger set the whole household's spending against the principal's income alone. The second adult's
+     income (fixed in today's francs, the draft's exogenous partner) now joins what a year frees, taxed jointly
+     with the splitting factor when married and separately when not, as `gameplan.cash_flow` already does.
+  A network path that adds nothing (a network at or above the model's base ceiling) is left out, as the draft
+  leaves out education paths without an education. 1.2.0 is a new version because stored seeds are immutable;
+  1.0.0 and 1.1.0 keep their bytes and hashes (the switch is left out of the canonical form while unset), layer A
+  is unchanged, and layer B's `changes.json` gains the step 1.1.0 to 1.2.0 with every changed leaf attributed to
+  P-9. The regression case is `golden/lbs_cases/lbsim-reduced-pensum`, the live household's shape anonymised.

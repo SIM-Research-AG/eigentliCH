@@ -202,3 +202,29 @@ def test_the_draft_market_under_1_0_0_hands_over_nominal_controls(monkeypatch):
     sim = StandInSimulate()
     out = solve(problem, simulate=sim, deadline=no_deadline(), should_cancel=never, progress=quiet)
     assert out.result.control_path.money_basis == "nominal"
+
+
+def test_b2s_monte_carlo_takes_the_plans_control_path(monkeypatch):
+    """The handshake end to end without a solve: ``lbsim.plan.simulate`` (B2's) is the injected ``simulate`` and
+    reads the ControlPath the optimiser hands over."""
+    from lbsim.plan import simulate as b2_simulate
+
+    problem, _ = _stub_solve_case(monkeypatch, "plan")
+    out = solve(problem, simulate=b2_simulate, deadline=no_deadline(), should_cancel=never, progress=quiet)
+    assert out.status == "succeeded"
+    assert 0.0 <= out.result.chance.out_of_sample <= 1.0
+    assert out.diagnostics["out_of_sample"]["n_reached"] is not None
+
+
+@pytest.mark.parametrize("saving", [9_000.0, -3_000.0, 1e7])
+def test_the_terminal_requirement_is_read_as_b2_reads_it(saving):
+    """Beyond the cap the goal is ``measure >= max(0, target - saving x years beyond)``, B2's requirement."""
+    import dataclasses
+    from lbsim.optim.grid import build
+
+    p = sample_problem()
+    g = dataclasses.replace(p.extra_goals[0], planned_saving_chf_per_year=saving)
+    grid = build(27.0, ACTIVE_SEED.optimiser.grid, "variable", cap=20.0)
+    spec = run.goal_spec(g, grid)
+    target = g.target_real_chf
+    assert target - spec.params["extra"] == pytest.approx(max(0.0, target - saving * 7.0))

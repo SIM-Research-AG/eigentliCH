@@ -9,7 +9,7 @@ This is what lets every archetype (home, company, retirement, FI) be an input to
 the same engine rather than bespoke code per case (see personal_alm/cases.py).
 
 lbsim port (agent C, 29.09.2026): the draft's ``goals/spec.py`` with one added kind, ``measure``: lbsim's goals
-(home, retirement, capital) as a target on a measure of the state (``market.MEASURES``), tested at the deadline in
+(home, retirement, capital) as a target on a measure of the state (``market.MEASURE_NAMES``, defined by B2's ``paths.engine.measure_values``), tested at the deadline in
 the goal's own basis (LBSIM-09). Its params: ``measure``, ``target`` (CHF, in the goal's basis), ``basis``
 (``today`` or ``future``), ``lbsim_kind`` (home, retirement, capital), and ``extra`` (the zero-return terminal
 allowance, CHF). ``symbolic_slack`` takes the scenario's price level at the goal node. ``to_goal`` is not ported:
@@ -63,7 +63,7 @@ class GoalSpec:
         pr = self.params
         if self.kind == "measure":
             lv = float(level) if pr.get("basis", "future") == "future" else 1.0
-            return sym.measure_slack(x, measure=pr["measure"], target=float(pr["target"]), level=lv,
+            return sym.measure_slack(x, p, measure=pr["measure"], target=float(pr["target"]), level=lv,
                                      extra=float(pr.get("extra", 0.0)))
         if self.kind == "fi":
             # `q_inv` must be threaded explicitly. Both symbolic slack functions default it to 1.0 so that a

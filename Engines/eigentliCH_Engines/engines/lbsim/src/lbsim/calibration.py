@@ -1,4 +1,5 @@
-"""The seed calibrations (LBSIM-13): 1.0.0 reproduces the draft, 1.1.0 is lbsim's behaviour and is active.
+"""The seed calibrations (LBSIM-13): 1.0.0 reproduces the draft; 1.1.0 is lbsim's behaviour; 1.2.0 corrects the
+draft's income paths (DECISIONS P-9) and is active.
 
 ``1.0.0``  The draft as it is: the draft's ``Params()`` (``earning_power_at_unit`` 0.75), no inflation, the
            draft's Gaussian market and tilt, and its ``cases.run_case`` solver settings (``M_opt`` 14,
@@ -58,7 +59,7 @@ SEED = Calibration(
                         **_DRAFT_OPTIMISER),
 )
 
-ACTIVE_SEED = Calibration(
+SEED_1_1 = Calibration(
     version="1.1.0",
     parent_version="1.0.0",
     note=("lbsim's behaviour: LBSIM-08 (the sheet's inflation in the findings), LBSIM-11 (earning_power_at_unit "
@@ -78,13 +79,29 @@ ACTIVE_SEED = Calibration(
                         **_DRAFT_OPTIMISER),
 )
 
-SEEDS: tuple[Calibration, ...] = (SEED, ACTIVE_SEED)
+#: 1.1.0 with the draft's income paths corrected (DECISIONS P-9, 29.09.2026): the `today` path keeps today's level
+#: (it moved to about twice it in five years through the draft's autonomous expertise growth), and a path's
+#: pensum applies from today when no education is planned (the draft applied it only after an education, so
+#: `full_pensum` and `network` equalled `today` for everyone without one). Active.
+ACTIVE_SEED = SEED_1_1.model_copy(update={
+    "version": "1.2.0", "parent_version": "1.1.0",
+    "note": ("1.1.0 with the income paths corrected (DECISIONS P-9): a path is credited only with the expertise and "
+             "network its own education and networking add, never the draft's autonomous growth, and a path's "
+             "pensum applies from today when no education is planned. A network path that adds nothing is left "
+             "out, as the draft leaves out education paths without an education."),
+    "behaviour": SEED_1_1.behaviour.model_copy(update={"income_paths": "corrected"}),
+})
+ACTIVE_SEED = Calibration.model_validate(ACTIVE_SEED.model_dump())
+
+SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, ACTIVE_SEED)
 
 
 def canonical_json(calibration: Calibration) -> str:
     """The byte-stable form a calibration is hashed and stored in."""
-    return json.dumps(calibration.model_dump(mode="json"), sort_keys=True, separators=(",", ":"),
-                      ensure_ascii=False)
+    payload = calibration.model_dump(mode="json")
+    if payload["behaviour"].get("income_paths") is None:
+        payload["behaviour"].pop("income_paths", None)
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
 def calibration_hash(calibration: Calibration) -> str:

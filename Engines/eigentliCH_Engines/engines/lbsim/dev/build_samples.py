@@ -5,7 +5,7 @@ Run with the family interpreter::
     ..\\..\\.venv\\Scripts\\python -X utf8 dev/build_samples.py [--refresh-upstream]
 
 * ``findings.sample.json``: a real ``LifeBalanceFindings`` from the engine (``lbsim.fast.build``) on the frozen
-  lbs case ``lbsim-sample`` (a CHF couple with a property goal and a retirement goal) under calibration 1.1.0.
+  lbs case ``lbsim-sample`` (a CHF couple with a property goal and a retirement goal) under the active calibration.
 * ``paths.sample.json``: the engine's own ``LifeBalancePaths`` (B2's Monte Carlo, since 29.09.2026) on the
   upstream snapshot ``golden/upstream`` (pcp's bench Allocation served under the sample's client, aggregation's
   Regimes, fmre's ReturnSets and inflation), 2000 paths, the default seed. Until B2 it was hand-built here.

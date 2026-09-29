@@ -231,6 +231,21 @@ def build_path(submission: dict, p: Params, *, code: str, name: str, learning: f
     e_at = _expertise_path(i["E0"], p, learning_hours=learning,
                            budget=i["edu_budget"] if learning else 0.0)
     n_at = _network_path(i["N0"], p, hours=network_hours)
+    corrected = _ext(submission).get("income_paths") == "corrected"
+    if corrected:
+        # lbsim (DECISIONS P-9, calibration 1.2.0): a path is credited only with what its OWN education and
+        # networking add, measured against not doing them -- the counterfactual the draft's `levers` already uses.
+        # The draft credited every path, `today` included, with `beta_E` autonomous expertise growth of 15 % a
+        # year for five years, which roughly doubles the income of a household that changes nothing.
+        e_with, e_without = e_at, _expertise_path(i["E0"], p, learning_hours=0.0, budget=0.0)
+        n_with, n_without = n_at, _network_path(i["N0"], p, hours=0.0)
+        E0, N0 = i["E0"], i["N0"]
+
+        def e_at(n: int) -> float:  # noqa: F811
+            return E0 + (e_with(n) - e_without(n))
+
+        def n_at(n: int) -> float:  # noqa: F811
+            return N0 + (n_with(n) - n_without(n))
 
     def shape(age: float) -> float:
         # Skill growth is credited for `SKILL_PROJECTION_YEARS` and then held; only the age profile moves
@@ -258,7 +273,11 @@ def build_path(submission: dict, p: Params, *, code: str, name: str, learning: f
 
     def income_at(age: float) -> float:
         """Gross income at this age: full-time earning power scaled by the Pensum this path assumes."""
-        if pensum_after is None or edu_end is None or age < edu_end:
+        if corrected and pensum_after is not None and edu_end is None:
+            # lbsim (P-9): with no education to finish, a path's pensum applies from today. The draft applied it
+            # only after an education's end, so without one `full_pensum` and `network` were `today` exactly.
+            share = pensum_after
+        elif pensum_after is None or edu_end is None or age < edu_end:
             share = pensum_now
         else:
             share = pensum_after
@@ -311,6 +330,13 @@ def income_paths(submission: dict, p: Params) -> list[dict[str, Any]]:
         # Nothing to educate: the two education paths would be identical to the ones around them, and four
         # rows that are secretly two is a table that overstates how much was explored.
         paths = [paths[0], paths[2], paths[3]]
+    if _ext(submission).get("income_paths") == "corrected":
+        # lbsim (P-9): the same rule for the network path. Where the model's network ceiling leaves no room, ten
+        # hours a week add nothing and the row would repeat `full_pensum`; it is left out rather than shown.
+        with_n = _network_after(i["N0"], p, years=SKILL_PROJECTION_YEARS, hours=NETWORK_HOURS_AT_KNEE)
+        without_n = _network_after(i["N0"], p, years=SKILL_PROJECTION_YEARS, hours=0.0)
+        if with_n <= without_n:
+            paths = [x for x in paths if x["code"] != "network"]
     return paths
 
 
@@ -377,6 +403,18 @@ def _free_cash_at(submission: dict, p: Params, gross: float, *, p3a_scale: float
     spending = _num(raw, "spend_now") or 0.0
     p3a = min(_num(raw, "pillar3a_contribution") or 0.0, p.pillar3a_cap) * p3a_scale
     taxable = max(0.0, gross - p3a)
+    partner = float(p.partner_income or 0.0) if p.has_partner else 0.0
+    if _ext(submission).get("income_paths") == "corrected" and partner > 0:
+        # lbsim (P-9): the household's spending is paid from both incomes, so the second adult's income (fixed in
+        # today's francs, the draft's exogenous partner) joins what a year frees, taxed the way `gameplan.cash_flow`
+        # taxes it: jointly with the splitting factor when married, separately when not. The draft's ledger set
+        # the whole household's spending against the principal's income alone.
+        married = float(p.tax_split_factor or 1.0) > 1.0
+        if married:
+            tax = income_tax(max(0.0, gross + partner - p3a), p)
+        else:
+            tax = income_tax(taxable, p) + income_tax(partner, p)
+        return gross + partner - tax - spending - p3a
     return gross - income_tax(taxable, p) - spending - p3a
 
 
@@ -458,7 +496,7 @@ def simulate(submission: dict, p: Params, path: dict, *, stop_age: float | None,
     age = age0
     while age < min(age0 + MAX_YEARS, p.ahv_age):
         gross = path["income_at"](age)
-        if _inflation(submission):
+        if _inflation(submission) or _ext(submission).get("income_paths") == "corrected":
             # lbsim (LBSIM-08): the year in the francs of that year. Wages and spending move with prices, a fixed
             # pillar-3a payment does not, and the tax tariff is indexed (the cold progression is compensated).
             level = _price(submission, age - age0)

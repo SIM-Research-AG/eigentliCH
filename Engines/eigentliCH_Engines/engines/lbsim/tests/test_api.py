@@ -76,9 +76,9 @@ def test_the_test_bench_is_served_at_the_root(world):
 def test_calibration_endpoints(world):
     client, _, _ = world
     versions = client.get("/calibration/versions").json()
-    assert [v["version"] for v in versions] == ["1.0.0", "1.1.0"] and versions[1]["active"]
+    assert [v["version"] for v in versions] == ["1.0.0", "1.1.0", "1.2.0"] and versions[2]["active"]
     cal = client.get("/calibration").json()
-    assert cal["version"] == "1.1.0"
+    assert cal["version"] == "1.2.0"
     assert client.get("/calibration", params={"version": "9.9.9"}).status_code == 404
     again = client.put("/calibration", json=cal)
     assert again.status_code == 200
@@ -88,7 +88,7 @@ def test_calibration_endpoints(world):
     assert r.status_code == 409
     plain_sentence(r.json()["detail"])
     changed["version"] = "1.1.1"
-    changed["parent_version"] = "1.1.0"
+    changed["parent_version"] = "1.2.0"
     assert client.put("/calibration", json=changed).status_code == 201
 
 

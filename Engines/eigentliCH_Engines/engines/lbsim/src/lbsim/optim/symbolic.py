@@ -497,14 +497,21 @@ def allocation_step(x, u, p_no_market: Params, dt: float, *, r: float, infl: flo
     return x + f * dt + extra
 
 
-#: Weights of a goal measure on (W_L, W_P, W_3a); the table itself is ``lbsim.optim.market.MEASURES``.
-def measure_expr(x, measure: str):
-    from .market import MEASURES  # noqa: PLC0415 - one table, casadi-free
-    w = MEASURES[measure]
-    return w["W_L"] * x[W_L] + w["W_P"] * x[W_P] + w["W_3a"] * x[W_3A]
+def measure_expr(x, measure: str, p: Params):
+    """A goal measure of the symbolic state: the linear measures through ``lbsim.paths.engine.measure_values``
+    itself (B2's, the out-of-sample definition), ``drawable`` through ``_drawable_real`` (its twin: at W_R = 0 all
+    debt goes to the residence share, as ``measure_values`` does). See ``lbsim.optim.market``."""
+    from ..paths.engine import measure_values  # noqa: PLC0415
+    from .market import LINEAR_MEASURES, measure_states  # noqa: PLC0415
+
+    if measure in LINEAR_MEASURES:
+        return measure_values(measure_states(x), measure, p)
+    if measure == "drawable":
+        return x[W_L] + _drawable_real(x, p.h_res, p.q_inv, p.q_hol)
+    raise KeyError(measure)
 
 
-def measure_slack(x, *, measure: str, target: float, level: float = 1.0, extra: float = 0.0):
+def measure_slack(x, p: Params, *, measure: str, target: float, level: float = 1.0, extra: float = 0.0):
     """lbsim's goal slack, ``(level * measure(x) + extra - target) / target``.
 
     ``x`` is in today's francs. A goal in the francs of its date (LBSIM-09) is compared nominally: ``level`` is the
@@ -513,4 +520,4 @@ def measure_slack(x, *, measure: str, target: float, level: float = 1.0, extra: 
     planned saving times the remaining years, in the target's francs). Normalised by the target, so a CVaR of s
     is ``s * target`` francs and the target reachable at the confidence is ``(1 - s) * target`` exactly (CVaR is
     translation-equivariant and the normaliser does not move with the target)."""
-    return (float(level) * measure_expr(x, measure) + float(extra) - float(target)) / max(float(target), 1.0)
+    return (float(level) * measure_expr(x, measure, p) + float(extra) - float(target)) / max(float(target), 1.0)

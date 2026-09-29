@@ -12,7 +12,7 @@ import pytest
 from conftest import GOLDEN, ROOT, load_json
 
 from lbsim.adapter import AdapterError, adapt
-from lbsim.calibration import ACTIVE_SEED, SEED, calibration_hash, seed
+from lbsim.calibration import ACTIVE_SEED, SEED, SEED_1_1, SEEDS, calibration_hash, seed
 from lbsim.contracts import (FINDING_CODES, LbsRequest, LbsSheet, LifeBalanceFindings, LifeBalanceSimRequest,
                              Unchecked, Words)
 from lbsim.fast.build import build_findings
@@ -50,7 +50,9 @@ def test_the_fast_half_and_the_model_import_without_casadi():
 def test_the_seed_hashes_are_pinned():
     """A changed seed is a new version: these two hashes move only with a deliberate new calibration."""
     pins = load_json(ROOT / "golden" / "calibration_hashes.json")
-    assert {c.version: calibration_hash(c) for c in (SEED, ACTIVE_SEED)} == pins
+    assert {c.version: calibration_hash(c) for c in SEEDS} == pins
+    # 1.0.0 and 1.1.0 keep the hashes they had before 1.2.0 existed (the new switch is left out while unset).
+    assert pins["1.0.0"] == "CAL-16ddc8c0f11af63f" and pins["1.1.0"] == "CAL-c276230b32143099"
 
 
 def test_1_0_0_is_the_draft_and_1_1_0_switches_the_three_decisions():
@@ -60,7 +62,9 @@ def test_1_0_0_is_the_draft_and_1_1_0_switches_the_three_decisions():
     assert ACTIVE_SEED.behaviour.earning_power == "record" and ACTIVE_SEED.behaviour.market == "allocation"
     assert ACTIVE_SEED.behaviour.currencies == ("CHF",)
     assert ACTIVE_SEED.retirement.withdrawal_rate == 0.03 and ACTIVE_SEED.optimiser.confidence == 0.90
-    assert seed("1.1.0") is ACTIVE_SEED
+    assert seed("1.1.0") is SEED_1_1 and seed("1.2.0") is ACTIVE_SEED
+    assert SEED_1_1.behaviour.income_paths is None and ACTIVE_SEED.behaviour.income_paths == "corrected"
+    assert ACTIVE_SEED.parent_version == "1.1.0" and SEED.behaviour.income_paths is None
     # The draft's run_case settings, verbatim.
     o = SEED.optimiser
     assert (o.M_opt, o.M_eval, o.n_starts, o.restore_starts, o.max_iter, o.seed_retries, o.cvar_tol) == \

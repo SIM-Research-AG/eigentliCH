@@ -218,16 +218,51 @@ def test_the_draft_goal_slacks_match_numpy(pi):
         assert _slack(spec, x, u, p) == pytest.approx(goal.slack(x, p, u), abs=tol), spec.kind
 
 
-@pytest.mark.parametrize("measure", sorted(mk.MEASURES))
+@pytest.mark.parametrize("measure", mk.MEASURE_NAMES)
 @pytest.mark.parametrize("basis, level", [("today", 1.0), ("today", 1.3), ("future", 1.0), ("future", 1.27)])
-def test_the_measure_slack_matches_the_numpy_measure(measure, basis, level):
+def test_the_measure_slack_is_the_measure_against_the_target(measure, basis, level):
     p, x, u = Params(), _state(), _control()
     target = 700_000.0
     spec = GoalSpec("measure", 5.0, 0.10, {"measure": measure, "target": target, "basis": basis,
                                            "extra": 12_000.0})
     lv = level if basis == "future" else 1.0
-    expected = (lv * mk.measure_value(mk.state_vector(x, p), measure) + 12_000.0 - target) / target
+    expected = (lv * mk.measure_value(mk.state_vector(x, p), measure, p) + 12_000.0 - target) / target
     assert _slack(spec, x, u, p, level=level) == pytest.approx(expected, rel=1e-12, abs=1e-12)
+
+
+_HAIRCUTS = [dict(), dict(h_res=0.1, q_inv=0.3, q_hol=0.2), dict(pension_deposit_share=0.35, h_res=0.2)]
+_STATES = [dict(), dict(W_R=0.0, W_res=0.0, W_hol=0.0, D=250_000.0), dict(W_R=0.0, W_res=0.0, W_hol=0.0, D=0.0),
+           dict(W_L=20_000.0, W_R=2_000_000.0, W_res=1_500_000.0, W_hol=0.0, D=1_900_000.0),
+           dict(W_P=0.0, W_3a=0.0)]
+
+
+@pytest.mark.parametrize("kind", ["home", "retirement", "capital"])
+@pytest.mark.parametrize("haircuts", _HAIRCUTS)
+@pytest.mark.parametrize("state_kwargs", _STATES)
+def test_the_in_sample_and_out_of_sample_measures_are_one_function(kind, haircuts, state_kwargs):
+    """The coordinator's decision of 29.09.2026 (B2's P-11): the NLP's goal measure is the Monte Carlo's, for
+    every goal kind, so the in-sample chance and the out-of-sample chance judge the same quantity. The kind's
+    measure is B2's own table (``paths.household.MEASURE_OF``) and the value B2's own ``measure_values``."""
+    from lbsim.paths.engine import measure_values
+    from lbsim.paths.household import MEASURE_OF
+
+    p = replace(Params(), **haircuts)
+    x = _state(**state_kwargs)
+    measure = MEASURE_OF[kind]
+    xs = ca.SX.sym("x", sym.NX)
+    f = ca.Function("m", [xs], [sym.measure_expr(xs, measure, p)])
+    v = mk.state_vector(x, p)
+    numpy = measure_values({k: np.asarray([float(a)]) for k, a in mk.measure_states(v).items()}, measure, p)[0]
+    assert float(f(v)) == pytest.approx(float(numpy), rel=1e-12, abs=1e-6), (kind, haircuts, state_kwargs)
+
+
+def test_the_retirement_measure_leaves_pillar_2_out():
+    """The retirement target is the gap the pillar-2 annuity leaves, so pillar-2 capital must not count again."""
+    p = Params()
+    a, b = _state(W_P=0.0), _state(W_P=900_000.0)
+    assert mk.measure_value(mk.state_vector(a, p), "retirement_capital", p) ==         mk.measure_value(mk.state_vector(b, p), "retirement_capital", p)
+    assert mk.measure_value(mk.state_vector(b, p), "retirement_capital", p) == pytest.approx(
+        b.wealth.W_L + b.wealth.W_3a)
 
 
 # --- structural checks of the NLP (the draft's test_optim, ported) --------------------------------------------

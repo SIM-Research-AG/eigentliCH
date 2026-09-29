@@ -183,6 +183,8 @@ def adapt(sheet: LbsSheet, request: LbsRequest, lbs_records: dict[str, dict[str,
     if age is not None:
         raw["birth_year"] = year_now - int(age)
     lbsim_block: dict[str, Any] = {"inflation": inflation, "unstated_stop_age_is_reference_age": True}
+    if behaviour.income_paths is not None:
+        lbsim_block["income_paths"] = behaviour.income_paths
 
     # -- earning power (LBSIM-11)
     if behaviour.earning_power == "record":

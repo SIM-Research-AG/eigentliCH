@@ -1,10 +1,10 @@
 {
  "contract_version": "lbsim-plan@1.0.0",
- "artefact_id": "LSO-87f0406ea4a87f63",
+ "artefact_id": "LSO-0fa7019e33b93242",
  "client_ref": "lbsim-sample",
  "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
- "paths_artefact_id": "LSP-06674d0e37079ec7",
- "calibration_version": "1.1.0",
+ "paths_artefact_id": "LSP-d0121e59576216e4",
+ "calibration_version": "1.2.0",
  "outcome": "solved",
  "goal": {
   "goal_id": "g-home",
@@ -529,11 +529,11 @@
    "ValidationReport": "lbsim-validation@1.0.0",
    "Calibration": "lbsim-calibration@1.0.0"
   },
-  "calibration_version": "1.1.0",
-  "calibration_hash": "CAL-c276230b32143099",
-  "idempotency_key": "IDK-0a68ae153d84f929",
+  "calibration_version": "1.2.0",
+  "calibration_hash": "CAL-3a4ecac98ac98b90",
+  "idempotency_key": "IDK-5f442d13db8ef9af",
   "upstream": {
-   "paths": "LSP-06674d0e37079ec7"
+   "paths": "LSP-d0121e59576216e4"
   },
   "records": [],
   "label": "model-derived",

@@ -78,10 +78,12 @@ def goal_spec(g: T.GoalInput, grid: Grid) -> GoalSpec:
         target = g.target_nominal_chf
     if target is None or not math.isfinite(float(target)) or float(target) < 0:
         raise ProblemError(f"goal {g.goal_id} has no usable target")
-    extra = float(g.planned_saving_chf_per_year) * grid.beyond(float(g.horizon_years))
+    # The zero-return allowance beyond the cap: the requirement at the cap is ``max(0, target - saving x years)``,
+    # as B2's Monte Carlo reads it (a negative planned saving raises it above the target).
+    extra = min(float(target), float(g.planned_saving_chf_per_year) * grid.beyond(float(g.horizon_years)))
     return GoalSpec(kind="measure", horizon_years=float(g.horizon_years), epsilon=eps,
                     params={"measure": g.measure, "target": float(target), "basis": g.amount_basis,
-                            "lbsim_kind": g.kind, "extra": max(0.0, extra)})
+                            "lbsim_kind": g.kind, "extra": extra})
 
 
 def the_market(problem: T.PlanProblem) -> Market:

@@ -31,8 +31,9 @@ database:
 
 calibration:
   # The calibration a run uses when the request does not name one. 1.0.0 reproduces the draft (golden
-  # layer A); 1.1.0 is lbsim's behaviour (LBSIM-13). Changing this is a deliberate act.
-  active: "1.1.0"
+  # layer A); 1.1.0 is lbsim's behaviour (LBSIM-13); 1.2.0 corrects the draft's income paths (DECISIONS P-9).
+  # Changing this is a deliberate act.
+  active: "1.2.0"
   # For reference only, read from the active calibration (never from here):
   #   retirement.withdrawal_rate  0.03   (owner, 29.09.2026; capital needed = yearly need / 0.03)
   #   optimiser.confidence        0.90   (owner, 29.09.2026; epsilon = 0.10)
