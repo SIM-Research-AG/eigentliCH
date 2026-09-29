@@ -617,7 +617,10 @@ def test_a_revision_is_sent_as_one_and_is_not_the_cached_copy(http, engines, cur
     # a second revision revises the latest, or the one named
     http.post(f"/api/clients/{cid}/reports/{rid}/produce?wait=true&revision=true", json={"revision_of": first["id"]})
     sent = [x["body"] for x in engines.report.requests if x["path"] == "/report"][-1]
-    assert sent["revision_of"] == first["report_artefact_id"] and sent["revision_note"] is None
+    assert sent["revision_of"] == first["report_artefact_id"] and "revision_note" not in sent
+    # a request that is no revision carries neither field, so a report engine before 1.2.0 still takes it
+    plain = [x["body"] for x in engines.report.requests if x["path"] == "/report"][-3]
+    assert "revision_of" not in plain and "revision_note" not in plain
     assert http.post(f"/api/clients/{cid}/reports/{rid}/produce?revision=true",
                      json={"revision_of": "0" * 32}).status_code == 404
     assert http.post(f"/api/clients/{cid}/reports/{rid}/produce", json={"revision_note": "x"}).status_code == 422

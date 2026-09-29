@@ -30,13 +30,14 @@ cd eigentlich
 ..\.venv\Scripts\python -m eigentlich migrate --from <file.db>
 ..\.venv\Scripts\python -m eigentlich show                        # counts, content keys, binds, migrations
 ..\.venv\Scripts\python -m eigentlich align-content --curator <id|email>   # questionnaires aligned to the maps (EIG-44/45)
+..\.venv\Scripts\python -m eigentlich revise-content --curator <id|email>  # intake v3: partner section, no hours_learning (EIG-53/58)
 ..\.venv\Scripts\python -m eigentlich fix-encoding [--apply]      # UTF-8 read as a code page: list, then correct (EIG-46)
 ..\.venv\Scripts\python -m eigentlich lbs-backfill [--dry-run]    # one lbs run per client without a sheet (EIG-47)
 ```
 
-`align-content` and `fix-encoding --apply` were run on the real store on 29.09.2026 (the questionnaires are
-at version 2, saved by the owner's curator record; `scoring_bind_check` 169 of 169 ok); `lbs-backfill` too,
-with lbs running (74 clients, 74 sheets). `lbs-backfill` refuses to start, and writes nothing, when lbs does
+`align-content`, `revise-content` and `fix-encoding --apply` were run on the real store on 29.09.2026 (the
+onboarding is at version 2, the intake at version 3, both saved by the owner's curator record;
+`scoring_bind_check` 169 of 169 ok); `lbs-backfill` too, with lbs running (74 clients, 74 sheets). `lbs-backfill` refuses to start, and writes nothing, when lbs does
 not answer.
 
 `seed` exits 1 on a conflict (a source changed after someone edited the content); `migrate` exits 1 on
@@ -91,9 +92,9 @@ docs at `/docs`. It connects as role `eigentlich` to the configured schema and c
 
 | engine | call | for |
 |---|---|---|
-| lbs 8013 | `POST /run` (`lbs-request@1.0.0`), `GET /artefacts/{id}` | the role grid on the home page; every report |
+| lbs 8013 | `POST /run` (`lbs-request@1.0.0`, with `goals[].contribution_share` from lbs@1.2.0), `GET /artefacts/{id}` | the role grid on the home page; every report |
 | chatbot 8016 | `POST /answer` (`chat-request@1.0.0`) | spark7's draft answer in a thread |
-| report 8015 | `POST /report` (`report-request@1.0.0`) | reports and updates |
+| report 8015 | `POST /report` (`report-request@1.0.0`; a revision with `revision_of`, `revision_note`: report 1.2.0) | reports, updates, revisions |
 
 Every call is an `engine_run`. An engine that is down is named on the page; the question or request stays
 open and can be tried again. Nothing is made up in its place.
@@ -103,7 +104,8 @@ client"; the chosen client is kept for the browser window and named in every rou
 client's home (what is open, the role grid from the lbs sheet, what is answered); the onboarding and the
 intake, rendered from the database content, one question at a time or by section, each answer stored at once
 naming its content version, resumable, and an edit mode that saves the client's wording change as a new
-content version; the plan (household, positions in the role grid, goals and their funding, the decision
+content version; the plan (household, positions in the role grid and whose they are, the client's or the
+partner's, goals with their funding and their share of the yearly saving, the stated facts, the decision
 list: every change through a decision, C-09); questions (ask, spark7's draft with sources and unverified
 numbers, curator answers, "ask the curator to approve"); reports (ask for a report or an update, read it,
 ask for approval, see its state).
@@ -112,12 +114,12 @@ Routes (JSON; `{c}` is the client id): `GET /health`, `GET /meta`; `GET|POST /ap
 `GET|PATCH /api/clients/{c}`, `GET /api/clients/{c}/home`; `GET /api/clients/{c}/questionnaires/{onboarding|intake}`,
 `PUT .../answers/{question}`, `POST .../edit`, `GET /api/questionnaires/{name}/history`,
 `POST /api/clients/{c}/onboarding/complete`; `GET /api/clients/{c}/plan`, `GET .../decisions`,
-`PUT .../household`, `POST .../positions`, `PATCH .../positions/{id}`, `POST .../positions/{id}/deactivate|reactivate`,
+`PUT .../household`, `PUT .../facts/{key}`, `POST .../positions`, `PATCH .../positions/{id}`, `POST .../positions/{id}/deactivate|reactivate`,
 `POST .../goals`, `PATCH .../goals/{id}`, `POST .../goals/{id}/deactivate|reactivate`;
-`GET|POST /api/clients/{c}/balance-sheet` (POST takes an optional `{"curator_id": ...}`: the cockpit's
-button, recorded as that curator's run, 403 unless the curator is in service); `GET|POST /api/clients/{c}/threads`, `GET .../threads/{id}`,
+`GET|POST /api/clients/{c}/balance-sheet[?language=de|en]` (POST takes an optional `{"curator_id": ...}`: the
+cockpit's button, recorded as that curator's run, 403 unless the curator is in service); `GET|POST /api/clients/{c}/threads`, `GET .../threads/{id}`,
 `POST .../threads/{id}/messages|draft|close`; `GET|POST /api/clients/{c}/approvals`,
-`POST .../approvals/{id}/withdraw`; `GET|POST /api/clients/{c}/reports`, `POST .../reports/{id}/produce[?revision=true]|withdraw`,
+`POST .../approvals/{id}/withdraw`; `GET|POST /api/clients/{c}/reports`, `POST .../reports/{id}/produce[?revision=true]` (a revision takes `{"revision_note", "revision_of"}`), `POST .../withdraw`,
 `GET /api/clients/{c}/report/{report}/html`. Slow calls run in the background; `?wait=true` runs them inline.
 
 **lbs runs by itself** (EIG-47): every change of a client's plan or answers made in the app schedules a run,
@@ -125,10 +127,17 @@ debounced (`app.lbs_auto.debounce_s`, 5 s), one at a time per client; the home p
 its age, what is still missing in plain words with a link to where to add it (EIG-49), and a note while a
 run is on its way. The AI is called MiniMind wherever the client reads (EIG-48); a drafted answer says
 whether it rests on reviewed notes or is a general assessment (EIG-50). Everything on the page is in the
-chosen language, including the server's refusals.
+chosen language, including the server's refusals and the role names (the house's, from `reference/roles`,
+EIG-56).
 
-The decisions behind the app are EIG-29 to EIG-52 in DECISIONS.md (the owner's of 29.09.2026: EIG-44 to
-EIG-52).
+**The household is stated whole** (EIG-53): the intake's partner section (section 21) gives lbs the partner's
+age, salary, hours, AHV years and human capital; a position belongs to the client or the partner
+(`position.owner`); each goal states its share of the yearly saving when more than one goal has an amount and a
+date (`goal.contribution_share`, EIG-59). A stated fact wins over an answer, so answering a question that fills
+a fact again restates the fact, and `PUT .../facts/{key}` restates one directly (EIG-54).
+
+The decisions behind the app are EIG-29 to EIG-59 in DECISIONS.md (the owner's of 29.09.2026: EIG-44 to
+EIG-52; the fix round after the use cases: EIG-53 to EIG-59).
 
 ## Tests
 
@@ -149,10 +158,13 @@ so run `init-db` once first.
 src/eigentlich/   settings.py  store.py  schema.sql  seed.py  intake.py  migrate.py  __main__.py
                   app: appsettings.py  api.py  service.py  clients.py  contracts.py  inputs.py
                        grounding.py  questionnaires.py  gaps.py
-                  29.09.2026: alignment.py (content aligned to the maps)  encoding.py (code-page repair)
+                  29.09.2026: alignment.py (content aligned to the maps, and the intake's partner section)
+                              encoding.py (code-page repair)
 client/           the browser app: index.html  app/ (api, dom, i18n, main)  surfaces/  style/
 start.cmd         the app on 8017
 tests/            one module per concern; conftest.py (throwaway schemas, curator grants), world.py;
                   test_app_*.py and appkit.py (stand-in engines) for the app
-dev/              verify_regressions.py  schema_catalogue.py  SCHEMA.head.md  reports/ (git-ignored)
+dev/              verify_regressions.py [name]  schema_catalogue.py  SCHEMA.head.md  build_use_cases.py
+                  reports/ (git-ignored)
+docs/             USE_CASES.md (the 20 demonstration clients)  knowledge-drafts/
 ```

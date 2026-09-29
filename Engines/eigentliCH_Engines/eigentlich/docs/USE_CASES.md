@@ -7,14 +7,19 @@ path (`store.erase_client`, one client at a time, owner role), after a full back
 (`Projects/PostgreSQL/backups/eigentlich-before-use-cases-2026-09-29.sql`).
 
 The set is built, and can be rebuilt, by `dev/build_use_cases.py` (steps `select`, `erase`, `enrich`,
-`mandates`, `threads`, `curate`, `reports`, `updates`, `approvals`, `check`; every step is idempotent). Every write
-goes through the app's API, the store's documented functions or the cockpit's curator routes: every plan change
-has its decision, every answer names its content version (onboarding v2 `onb2@0.2.0`, intake v2 `intake@1.2`).
-The acting curator is Nicolas.
+`partners`, `mandates`, `threads`, `curate`, `reports`, `updates`, `approvals`, `check`; every step is
+idempotent). Every write goes through the app's API, the store's documented functions or the cockpit's curator
+routes: every plan change has its decision, every answer names its content version (onboarding v2 `onb2@0.2.0`,
+intake v2 `intake@1.2` and, for the partner section, v3 `intake@1.3`). The acting curator is Nicolas.
 
-Figures are as the engines published them on 29.09.2026: lbs@1.1.0 with calibration 1.2.0, pcp@1.1.0 on the
-current Regime `RGM-e2658e8e9bbbc81e` and aggregation's scenario Regimes, report@1.1.0, the chatbot (MiniMind)
-@1.1.0. Model-derived research output. Not investment advice.
+The **lbs** lines are the sheets lbs@1.2.0 made with calibration 1.3.0 on 29.09.2026 after the step `partners`
+(EIG-53, EIG-59): the partner stated, each goal's share of the yearly saving stated. The **Mandate and pcp**
+lines, the reports and the threads were made before that, from the earlier sheets (lbs@1.1.0, calibration
+1.2.0, every goal drawing on the whole yearly saving, the partner unstated): the parameter sets still carry the
+earlier required returns and curves, so where a required return below differs from the one a mandate line
+names, `mandates --refresh` derives the mandate again. pcp@1.1.0 on the current Regime `RGM-e2658e8e9bbbc81e`
+and aggregation's scenario Regimes, report@1.1.0, the chatbot (MiniMind) @1.1.0. Model-derived research output.
+Not investment advice.
 
 ## How to read a section
 
@@ -29,9 +34,13 @@ current Regime `RGM-e2658e8e9bbbc81e` and aggregation's scenario Regimes, report
 
 Every client has: onboarding and intake answered in full (yearly contribution, education, network, health, rest
 hours, ESG exclusions, risk willingness and crisis behaviour), a household, positions in all four roles on the
-human and the financial side, an open tax liability (so net worth is stated), goals with amounts and dates, an
-education goal that aims at income and network, a health dimension in the plan, a current lbs sheet, a finalised
-parameter set, at least one succeeded pcp run, and a report.
+human and the financial side, an open tax liability (so net worth is stated), goals with amounts and dates, each
+with its share of the yearly saving (retirement goals 0: they rest on the pension fund and the 3a), an education
+goal that aims at income and network, a health dimension in the plan, a current lbs sheet with one gap only
+(earning power, lbsim's), a finalised parameter set, at least one succeeded pcp run, and a report. The 13 clients
+with a partner have the intake's partner section answered and the partner's income and pension-fund balance as
+positions the partner owns, so each sheet has two adults with age, income and human capital, a household income,
+and a property and retirement verdict.
 
 ---
 
@@ -44,7 +53,8 @@ by 2028 (CHF 28 000, aim +15 000 salary and the veb.ch network); retirement need
 **Demonstrates.** A long horizon with a positive required return that levels the target curve; the deferral
 scenario; an update after a raise; a MiniMind answer approved by the curator.
 **lbs.** Net worth CHF 168 700, drawable CHF 113 500. E 0.98, N 0.91, H 1.00. Risk profile 0.53 (bound by
-capacity). Required return **3.86 %** over 22.3 years, reachable. One gap only (earning power, owned by lbsim).
+capacity). Required return **5.55 %** over 22.3 years with 70 % of the saving (CHF 16 800 a year; the diploma takes
+30 %), reachable. One gap only (earning power, owned by lbsim).
 Retirement: covered CHF 61 968 of 62 000 a year, a shortfall of CHF 32.
 **Mandate and pcp.** Balanced CHF, curve shifted +0.36 points to the required return; currency, role and ESG
 bounds from lbs. Current Regime and **deferral**: Gain 50 % in both, Protection 15 % against 14 % under deferral.
@@ -61,7 +71,7 @@ and a GMP course in 2027 (CHF 6 500, aim: industry entry at CHF 95 000, the Swis
 **Demonstrates.** A mandate in **EUR** with a currency bound the curator sets (EUR from 50 %), the sustainable
 preset, and a MiniMind answer **sent back with a revision**.
 **lbs.** Net worth CHF 30 800, drawable CHF 22 000. E 1.00, N 0.79, H 0.85. Risk 0.39. The reserve is reached by
-saving alone (required return 0 %): the curator keeps the preset's curve level.
+saving alone (required return 0 %, with 80 % of the saving): the curator keeps the preset's curve level.
 **Mandate and pcp.** Sustainable balanced, EUR. Gain 30 %, Protection 30 %, EUR cash and government bonds on top.
 **Threads and reports.** "What happens to my pension fund and 3a if I go back to Germany?" MiniMind answered as a
 general assessment; the curator sent a **revision** with the EU rule (the mandatory part stays on a vested
@@ -75,9 +85,11 @@ earns 92 000. Leasing, household saving CHF 18 000 a year, little rest.
 (CHF 60 000); a CAS in integrative education 2027 to 2028 (CHF 9 800, aim +9 000 at the same workload).
 **Demonstrates.** A property goal with occupancy stated, the equity test, part-time work and its pension effect,
 a child education reserve, a curator answer after MiniMind.
-**lbs.** Net worth CHF 127 500 (liabilities CHF 25 500: leasing and taxes). E 1.00, N 0.78, H 0.85. Risk 0.29
-(bound by willingness: she sold part in 2022). Deposit target CHF 170 000 (20 %); equity **does not meet** today;
-affordability undetermined (see the couple gap below).
+**lbs.** Net worth CHF 205 500 (with Marco's pension fund of CHF 78 000; liabilities CHF 25 500: leasing and
+taxes). E 1.00, N 0.78, H 0.85; Marco (35, CHF 92 000) E 0.69, N 0.68, H 1.00. Household income CHF 148 000. Risk
+0.29 (bound by willingness: she sold part in 2022). Deposit target CHF 170 000 (20 %); equity **does not meet**
+today, affordability **does not meet** (CHF 150 167 of income needed; the income carries a price of about
+CHF 838 000). Retirement shortfall CHF 14 177 a year. Required return **4.54 %** with 60 % of the saving.
 **Mandate and pcp.** Balanced CHF, lbs liquidity bound kept (goal in 6 years). Gain 39 %, 12 instruments.
 **Threads and reports.** Equity and pension money for the flat (answered from the notes on equity and advance
 withdrawal); "how much does 60 % cost my pension?", with the curator's answer on the BLVK rule and the salary
@@ -91,8 +103,10 @@ lever. Report.
 Product, +40 000, an international network).
 **Demonstrates.** A mandate in **USD** (growth preset), the deferral scenario, a parameter set **superseded**
 after an unconverged solve, a two-turn MiniMind thread on the cohabitation gap, an update after an RSU vesting.
-**lbs.** Net worth CHF 619 000, drawable CHF 364 000. E 1.00, N 0.98 (25 contacts reaching beyond the industry),
-H 0.85. Risk 0.50. Deposit CHF 360 000: equity **meets**. Required return 0 %.
+**lbs.** Net worth CHF 764 000 (with Sarah's pension fund), drawable CHF 364 000. E 1.00, N 0.98 (25 contacts
+reaching beyond the industry), H 0.85; Sarah (36, doctor at 80 %, CHF 128 000) E 1.00, N 0.98, H 0.85. Household
+income CHF 296 000. Risk 0.45. Deposit CHF 360 000: equity **meets**; affordability **does not meet** (CHF 318 000
+needed). Retirement shortfall CHF 16 806 a year. Required return 0 % (60 % of the saving).
 **Mandate and pcp.** Growth global, USD, currency bounds USD from 30 % and CHF from 20 %. The first set failed to
 converge under deferral (the preset's equity floor against lbs's Gain ceiling); the curator left out the house's
 asset-class bound and finalised again. Gain 52 % in both Regimes; world equities, mining, commodities.
@@ -107,8 +121,8 @@ recurring back pain (H 0.7), no private disability cover.
 **Goals.** "Eigene Physiotherapie-Praxis 2031 (Eigenmittel 110 000)"; "Gesundheitsreserve: drei Monate Ausfall
 ohne Einkommen überbrücken" (CHF 18 000); an MAS in sports physiotherapy (CHF 24 000, a higher tariff).
 **Demonstrates.** The step into self-employment, a health reserve as a goal, the conservative preset.
-**lbs.** Net worth CHF 131 600. E 1.00, N 0.98, H 0.70. Risk 0.29. One gap only. Retirement shortfall CHF 13 583 a
-year.
+**lbs.** Net worth CHF 131 600. E 1.00, N 0.98, H 0.70. Risk 0.29. One gap only. Required return 1.30 % with 60 %
+of the saving (the health reserve and the MAS take the rest). Retirement shortfall CHF 13 583 a year.
 **Mandate and pcp.** Conservative CHF, curve kept (goal reachable by saving). Income 37 %, Protection 30 %.
 **Threads and reports.** AHV and pension fund when becoming self-employed (from the notes); insuring a long
 absence as a future self-employed person (mixed). Report.
@@ -134,7 +148,9 @@ Report.
 Familie)" (a year's income forgone, CHF 58 000); "Ausbildung Emma und Hugo (Studium ab 2032)" (CHF 120 000);
 practice management training 2027 (CHF 12 000).
 **Demonstrates.** A very high income, a health goal that costs income, Geneva, a curator answer on the buy-in.
-**lbs.** Net worth CHF 673 000, drawable CHF 300 000. E 1.00, N 0.98, H 0.70. Risk 0.42.
+**lbs.** Net worth CHF 938 000 (with Julien's pension fund), drawable CHF 300 000. E 1.00, N 0.98, H 0.70;
+Julien (45, CHF 118 000) E 1.00, N 0.98, H 1.00. Household income CHF 408 000. Risk 0.38. Required return 2.72 % with
+half the saving for the practice share. Retirement shortfall CHF 45 867 a year.
 **Mandate and pcp.** Balanced CHF. Gain 48 %.
 **Threads and reports.** "What does 80 % cost me at the pension fund?" (from the part-time note), then the
 curator: a staggered buy-in of up to CHF 280 000 closes the gap. Report.
@@ -149,7 +165,9 @@ project lead at 50 %, the HSLU alumni network).
 **Demonstrates.** The career changer, a stated zero income, the lowest network, an **update after signing a job
 contract** (income 0 to CHF 46 000 at 50 %) **approved** by the curator; the swiss home bias preset with its
 universe extended for the Stabilisation role.
-**lbs.** Net worth CHF 175 000. E 1.00, N 0.37, H 1.00. Risk 0.14 (willingness).
+**lbs.** Net worth CHF 565 000 (with Daniel's pension fund of CHF 390 000). E 1.00, N 0.37, H 1.00; Daniel (47,
+civil engineer, CHF 135 000) E 1.00, N 0.98, H 0.85. Household income CHF 181 000 after the update. Risk 0.14
+(willingness). Retirement shortfall CHF 19 393 a year.
 **Mandate and pcp.** Swiss home bias; lbs's role floors needed a Stabilisation instrument (market neutral, global
 macro added); one run failed to converge before the curator left out the asset-class bound. Income 39 %.
 **Threads and reports.** AHV gaps and care credits (from the notes); "how do I get a network and a better salary
@@ -178,8 +196,9 @@ at CHF 1.4 million, 53 hours, rest 5 to 10 hours, two board seats; partner Stefa
 2027: drei Monate Auszeit, die Agentur läuft ohne mich" (CHF 45 000); Swiss Board School 2027 (CHF 15 000).
 **Demonstrates.** The entrepreneur with a company, a sabbatical as a health goal, a positive required return, a
 chain of five parameter sets, and an approval request **withdrawn** by the client.
-**lbs.** Net worth CHF 1 816 000 (most of it the stake), drawable CHF 215 000. E 1.00, N 0.98, H 0.70. Risk 0.37.
-Required return **1.54 %** over 7.3 years.
+**lbs.** Net worth CHF 1 816 000 (most of it the stake), drawable CHF 215 000. E 1.00, N 0.98, H 0.70; Stefan (46,
+self-employed architect, CHF 110 000, no pension fund) E 1.00, N 0.98, H 0.85. Household income CHF 325 000. Risk
+0.37. Required return **7.36 %** over 7.3 years with 60 % of the saving. Retirement shortfall CHF 47 263 a year.
 **Mandate and pcp.** Balanced CHF (the barbell and growth presets were tried first: the barbell's universe lacks
 two roles, the growth preset did not converge in CHF), curve shifted -1.96 points. Gain 44 %.
 **Threads and reports.** The concentration risk of her own firm (from the note); planning a sabbatical for money,
@@ -193,8 +212,10 @@ a reserve of only three months.
 **Goals.** "Renditeobjekt halten und 2035 amortisiert haben" (CHF 250 000); "Studium Luca und Sofia 2027–2034"
 (CHF 100 000); a CAS in property valuation 2027 (CHF 11 000, valuation mandates of +25 000 a year).
 **Demonstrates.** Rental property, two mortgages, the **stagflation** scenario, a curator answer on amortising.
-**lbs.** Net worth CHF 1 837 000 on assets of 3.89 million. E 1.00, N 0.98, H 0.85. Risk 0.19 (capacity: the
-reserve). Required return **3.05 %** over 9.3 years.
+**lbs.** Net worth CHF 1 957 000 on assets of 4.01 million (with Chiara's pension fund). E 1.00, N 0.98, H 0.85;
+Chiara (45, teacher at 40 %, CHF 42 000) E 1.00, N 0.68, H 1.00. Household income CHF 278 000. Risk 0.19 (capacity:
+the reserve). Required return **12.51 %** over 9.3 years with half the saving (CHF 10 000 a year; the studies take
+40 %). Retirement shortfall CHF 51 879 a year.
 **Mandate and pcp.** Swiss home bias with a Stabilisation instrument added; curve -0.45 points. Current Regime and
 **stagflation**: Gain 30 % against 33 %, CHF cash and private equity on top.
 **Threads and reports.** Amortise or invest (from the notes; the curator adds: build a six-month reserve first);
@@ -208,7 +229,9 @@ surgery due (H 0.7), exam expert and trade association board.
 Monate Ausfall überbrücken" (CHF 30 000); succession training at KMU-HSG 2027 (CHF 6 000).
 **Demonstrates.** Business succession by management buy-out, a health goal, the income preset extended for the
 Stabilisation role, a curator answer.
-**lbs.** Net worth CHF 2 742 000. E 1.00, N 0.98, H 0.70. Risk 0.26. Required return **1.56 %**.
+**lbs.** Net worth CHF 2 837 000 (with Monika's pension fund). E 1.00, N 0.98, H 0.70; Monika (51, the joinery's
+accounts at 40 %, CHF 36 000) E 0.63, N 0.92, H 0.85. Household income CHF 191 000. Risk 0.26. Required return
+**6.30 %** with 70 % of the saving. Retirement shortfall CHF 20 505 a year.
 **Mandate and pcp.** Income focus, curve -1.44 points. Income 37 %, Stabilisation 25 %.
 **Threads and reports.** How the sale price relates to his pension (from the concentration note), and the
 curator: a vendor loan is the same cluster risk; use the pension fund buy-in before the sale. Report.
@@ -221,7 +244,9 @@ with a CHF 640 000 fixed mortgage until 2029; her mother (84) needs increasing c
 Pflegekosten 2027–2029" (CHF 36 000); a postgraduate diploma in hotel management 2027 (CHF 16 000).
 **Demonstrates.** Amortisation, direct or indirect through the 3a, care for a parent, the **stagflation**
 scenario, and a MiniMind refusal answered after the client rephrased.
-**lbs.** Net worth CHF 862 000. E 1.00, N 0.98, H 0.85. Risk 0.29. Required return 0.02 % over 14.3 years.
+**lbs.** Net worth CHF 862 000. E 1.00, N 0.98, H 0.85; Gian (55, self-employed mountain guide, CHF 68 000, no
+pension fund) E 0.90, N 0.98, H 0.85. Household income CHF 183 000. Risk 0.29. Required return 5.28 % over 14.3
+years with half the saving (care for her mother takes 35 %). Retirement shortfall CHF 37 296 a year.
 **Mandate and pcp.** Income focus with a Stabilisation instrument added, curve -2.98 points. Same allocation under
 stagflation (Income 37 %).
 **Threads and reports.** Direct or indirect amortisation (from the notes). "How can I support my mother without
@@ -235,19 +260,23 @@ household and answers her or his own questionnaires with the same household code
 
 **Yasmin.** Kindergarten teacher at 60 % (CHF 70 980), healthy (H 1.00), a small network (N 0.31). Goals: "Ferienhaus
 kaufen 2036 1.5 Mio" (a second home: 30 % equity, no pension money allowed); a CAS in early education 2027 to 2028
-(CHF 8 500). lbs: net worth CHF 230 000; equity for the holiday home **does not meet**; required return **3.17 %**
-over 10.3 years. Balanced CHF, curve -0.33 points, finalised twice (a first run did not converge). Thread: may we
+(CHF 8 500). lbs: net worth CHF 846 000 (with Elio's pension fund); household income CHF 285 860; Elio as her
+record states him E 1.00, N 0.78, H 0.50; equity for the holiday home **does not meet**, affordability **meets**;
+retirement **meets**; required return **5.21 %** over 10.3 years with 85 % of the saving. Balanced CHF, curve -0.33 points, finalised twice (a first run did not converge). Thread: may we
 use the pension fund or 3a for a holiday home? (from the notes: no). Report.
 
 **Elio.** Head of development (CHF 214 880, 50 hours), an exhaustion in 2025 (H 0.50, hardly any rest), CHF 616 000
 in the pension fund, sold everything in 2008 (crisis behaviour caps his willingness: risk 0.20). Goals: "Pensum
 80 % ab 2027: Reserve für die Lohneinbusse" (CHF 120 000, the mandate goal); a staggered buy-in into the second
-pillar (CHF 150 000); a CAS in leadership coaching 2027 (mentoring mandates from 60). lbs: net worth CHF 661 000.
+pillar (CHF 150 000); a CAS in leadership coaching 2027 (mentoring mandates from 60). lbs: net worth CHF 756 000
+(with Yasmin's pension fund); household income CHF 285 860; Yasmin as his record states her E 1.00, N 0.31, H 1.00;
+required return **16.18 %** for the reserve by the end of 2027 with half the saving (the buy-in takes 40 %);
+retirement shortfall CHF 3 783 a year.
 Crisis-resilient, Protection 61 %. Threads: annuity or lump sum (from the note, **approved** by the curator), and
 reducing to 80 % before a buy-in. Report.
 
 **Demonstrates.** A couple with separate records, the second-home rule, burnout and reduced hours, "Rente oder
-Kapital", the crisis-resilient preset, and the gap every two-adult household carries (see below).
+Kapital", the crisis-resilient preset, and a couple whose two records each state the other as the partner.
 
 ## 16. Franziska O., 56, Olten (SO): divorced, exhausted, a daughter at university
 
@@ -273,8 +302,10 @@ aufbauen" (the mandate goal); "Erbvorbezug an Andrea und Martin 2028", lowered f
 after the curator's revision; a CAS in mediation 2027 (CHF 12 000, mediation mandates after 2034).
 **Demonstrates.** Inheritance law, the **depression** scenario, a report **sent back with a revision**, a change
 the client makes in answer, and an **update approved**; also the longest parameter-set chain (seven).
-**lbs.** Net worth CHF 2 478 000. E 1.00, N 0.98 (20 contacts beyond her field, three mandates), H 0.85. Risk 0.43.
-Required return **2.00 %** over 7.8 years.
+**lbs.** Net worth CHF 2 478 000. E 1.00, N 0.98 (20 contacts beyond her field, three mandates), H 0.85; Hans (66,
+retired, pensions of CHF 62 000) E 1.00, N 0.98, H 0.85. Household income CHF 207 000. Risk 0.43. Required return
+**4.44 %** over 7.8 years with 60 % of the saving. Retirement shortfalls CHF 54 050 and CHF 34 050 a year (the two
+retirement goals).
 **Mandate and pcp.** Balanced CHF, curve -1.50 points (the income preset did not converge under depression).
 Current Regime: Gain 48 %; **depression**: Gain 30 %, Income 33 %, Stabilisation 20 %.
 **Threads and reports.** The compulsory shares and what changed in 2023 (from the note). Report; the curator sent
@@ -288,7 +319,9 @@ a revision; Regula lowered the advance and asked for an update, which the curato
 erhalten" (CHF 280 000); a course for foundation and company boards 2027 (CHF 5 000).
 **Demonstrates.** Annuity or lump sum, staggered 3a withdrawal, the **depression** scenario, a report
 **approved** by the curator.
-**lbs.** Net worth CHF 1 789 000, drawable CHF 230 000. E 1.00, N 0.96, H 0.85. Risk 0.40. Required return 0.16 %.
+**lbs.** Net worth CHF 1 789 000, drawable CHF 230 000. E 1.00, N 0.96, H 0.85; Rosmarie (63, retired, a pension of
+CHF 18 000) E 0.62, N 0.39, H 0.85. Household income CHF 166 000. Risk 0.40. Required return 0.55 % with 80 % of the
+saving. Retirement shortfall CHF 7 635 a year.
 **Mandate and pcp.** Conservative CHF, curve -0.84 points. Current Regime: Income 32 %, Protection 31 %;
 **depression**: Protection 52 %.
 **Threads and reports.** "How do I decide between annuity and lump sum?" and "how do I draw my three 3a accounts
@@ -321,7 +354,9 @@ Pflege und Betreuung von Margrit und mir ab 2030" (CHF 120 000); a certificate i
 (CHF 6 500, expert opinions worth CHF 20 000 a year).
 **Demonstrates.** Transfer to the children in lifetime, equalisation between siblings, the **hyperinflation**
 scenario, a thread the curator closes.
-**lbs.** Net worth CHF 2 079 000, drawable CHF 350 000. E 1.00, N 0.85, H 0.70. Risk 0.38.
+**lbs.** Net worth CHF 2 079 000, drawable CHF 350 000. E 1.00, N 0.85, H 0.70; Margrit (66) E 0.61, N 0.52,
+H 0.85. The couple's pensions of CHF 86 160 a year are two positions now (Peter CHF 63 480, Margrit's AHV
+CHF 22 680), so the household income is stated. Risk 0.38. Retirement: covered CHF 31 980 of 96 000 a year.
 **Mandate and pcp.** Crisis-resilient with an Income instrument added. Current Regime: Protection 53 %;
 **hyperinflation**: precious metals, US Treasuries and global equities at 20 % each, Gain 25 %.
 **Threads and reports.** The transfer and the compulsory share: refused first, answered from the note after the
@@ -359,7 +394,8 @@ Pe Peter.
 | Inheritance, advance directive, will | | | | x | | | | | x | | | | | | | | x | | x | x | 5 |
 | Divorce, widowhood or another life event | | | | | | | | x | x | | | | | | x | x | | | | | 4 |
 | Business succession or concentration in a firm | | | | x | | | | | | x | | x | | | | | | | | | 3 |
-| lbs sheet with a single gap (earning power only) | x | x | | | x | x | | | x | | | | | | | x | | | x | | 7 |
+| lbs sheet with a single gap (earning power only) | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | 20 |
+| Partner stated to lbs (age, income, human capital, own positions) | | | x | x | | | x | x | | x | x | x | x | x | x | | x | x | | x | 13 |
 | Required return above 0 levels the curve | x | | | | | | | | | x | x | x | x | x | | | x | x | x | | 9 |
 | Required return 0: the preset's level kept | | x | x | x | x | x | x | x | x | | | | | | x | x | | | | x | 11 |
 | Currency, liquidity and role bounds kept from lbs | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | x | 20 |
@@ -394,16 +430,19 @@ Yasmin). Risk profiles run from 0.09 (Esther) to 0.53 (Simon).
 
 ## Where the set shows the suite's current limits
 
-* **Every two-adult household carries the partner's gaps.** The app sends a partner to lbs with only the kind
-  (no age, income, human capital or AHV facts) and every position as the client's own, so lbs names the partner's
-  E, N, H, age and average income as gaps and leaves the household income, the affordability test and the
-  retirement verdict undetermined (13 clients). No questionnaire question or plan field can state them today.
+* **The parameter sets rest on the earlier sheets.** They were derived before the partners and the shares of the
+  saving were stated, when each mandate goal drew on the whole yearly saving; the required returns are higher
+  now (up to 16 % for Elio's reserve) and the finalised curves do not follow them until `mandates --refresh`
+  derives them again.
 * **Four of the eight mandate presets** (income focus, crisis-resilient, swiss home bias, barbell) leave at least
   one role without an instrument, so they cannot carry the role floors lbs derives; the curator adds instruments
   from the house's own role classification (seven clients) or picks another preset.
-* **MiniMind refused three questions that are in its domain** (care for a parent, incapacity, inheritance), and the
-  app's note choice gave the inheritance and advance-directive questions the wrong notes; each client rephrased.
-* **A report revision without a change is a copy.** The report engine answers the same request from its cache, so
-  Regula's revised report is the same artefact as the first; the change she then made is what the update shows.
+* **MiniMind refused three questions that are in its domain** (care for a parent, incapacity, inheritance); each
+  client rephrased. The app's note choice then gave the inheritance and advance-directive questions AHV notes
+  (numbers and inflected stop words scored); it now gives them «Vorsorgeauftrag und Patientenverfügung» and the
+  Erbrecht notes (EIG-55), and the threads keep the answers drafted then.
+* **Regula's revised report is a copy of the first.** It was produced when a revision was the same request again,
+  which the report engine answered from its cache. The app now sends a revision as one (`revision_of` and the
+  curator's note, report 1.2.0, EIG-57); the change she then made is what the update shows.
 * **The failed pcp runs** (Lukas 2, Anita 1, Tanja 4, Yasmin 1, Regula 9) are real attempts that did not converge
   (SLSQP in pcp's fast mode, with the house's policy bounds against the household's). They stay in the history.

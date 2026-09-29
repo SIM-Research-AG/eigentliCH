@@ -66,8 +66,8 @@
     here, since this session did not start it.
 18. **The auto-run state is in memory** (as the jobs, EIG-34): a run scheduled but not yet started is lost on
     restart; the next home visit schedules it again.
-19. **`education_hours` and `hours_learning`** both sit in intake section 16 (a band the map scores and a
-    number lbs reads); a curator may want to word them apart.
+19. **Resolved (EIG-58).** ~~`education_hours` and `hours_learning` both sit in intake section 16~~: the intake
+    (version 3) keeps the band and no longer asks the number.
 20. **Server refusals are recognised by pattern** in `client/app/api.js`; a new refusal text reads as the
     plain sentence for its status until a pattern is added.
 21. **No note covers growing one's income**; the growth question now gets the nearest notes and a general
@@ -75,11 +75,61 @@
 22. **Parallel test runs** by other sessions can trip the throwaway-schema teardown check ("dropped
     something else") in `conftest.py`; a rerun passes.
 
+## The fix round after the use cases (29.09.2026, EIG-53 to EIG-59)
+
+* **Built:** the partner stated to lbs (intake v3 section 21, `position.owner`, the mapping in `inputs.py`,
+  EIG-53); a re-answer restates its fact and `PUT /api/clients/{c}/facts/{key}` restates one directly (EIG-54);
+  grounding without numbers and inflected stop words (EIG-55); the house's role names from `reference/roles` on
+  every page, in the page's language (EIG-56); a report revision sent with `revision_of` and the curator's
+  `revision_note` (report 1.2.0, REP-25; EIG-57); `hours_learning` dropped from the intake (EIG-58); each goal's
+  share of the yearly saving, stored, checked (at most 100 % together) and sent (lbs@1.2.0, EIG-59). App
+  version 1.2.0.
+* **Schema, additive:** `position.owner` and `goal.contribution_share` with their CHECKs, applied to the real
+  schema by `init-db`; SCHEMA.md regenerated (section 4.7, the curator SQL "State a fact anew").
+* **Content:** `questionnaire/intake` version 3 (`intake@1.3`, 127 questions) saved on the real store by the
+  owner's curator record (`revise-content`); `scoring_bind_check` 169 of 169 ok.
+* **Use cases:** step `partners` of `dev/build_use_cases.py` run on the real store through a temporary app on
+  port 8027 (new code, same store and engines; stopped afterwards; 8017 was not touched): the 13 partners' answers
+  and their income and pension positions, Peter's and Margrit's pensions split, the shares for all 20. Every one
+  of the 20 sheets now names one gap only (earning power, lbsim's). `enrich` run again afterwards wrote nothing.
+  docs/USE_CASES.md carries the new lbs figures; its mandate lines are from the earlier sheets.
+* **Tests:** 362 passed, 3 skipped (live, opt-in); with `EIGENTLICH_LIVE=1` the 3 live tests passed against lbs
+  1.2.0, chatbot 1.1.0 and report 1.1.0. `dev/verify_regressions.py` has 10 more code guards (50 in all); the
+  10 new ones were each shown to fail reverted and pass restored (`verify_regressions.py <name>` runs a subset).
+* **Mirrors re-read:** lbs `contracts.py` (lbs@1.2.0: `goals[].contribution_share`, and its owner and share
+  checks mirrored); report `contracts.py` (1.2.0: `revision_of`, `revision_note`, sent only on a revision).
+
+### To restart (the owner's session)
+
+* **The app on 8017** runs 1.1.0 and must be restarted to serve 1.2.0. Until then a German home page shows lbs's
+  English role names, the plan has no partner, owner, share or fact fields, and a home visit there can schedule
+  an lbs run with the old request (no partner, no shares), which would then be the latest sheet: after the
+  restart, `build_use_cases.py partners` (it presses the curator's lbs button for each client) brings every
+  sheet back.
+* **The report engine on 8015** runs 1.1.0; its code is 1.2.0 (REP-25). A revision from the app needs 1.2.0
+  running (1.1.0 refuses the two fields; every other request works on both).
+
+### Open points from the fix round
+
+23. **The parameter sets rest on the earlier sheets.** With the shares stated, the required returns rose (up to
+    16 % for Elio's reserve, 12.5 % for Michele's); `build_use_cases.py mandates --refresh` (needs the cockpit on
+    8098) derives and finalises them again.
+24. **The partner's answers are the client's.** There is no consent or record of the partner's own agreement;
+    the health question says to answer only with it. A couple with two records states each other twice.
+25. **The partner is the first other adult** by label order; a household with an adult child and a partner
+    should list the partner first alphabetically or the child as a dependant. A partner column on the member
+    row would settle it (not built: the questionnaire carries the partner, the member row stays as it is).
+26. **The intake's own `health` question declares no class** (the onboarding's fills K3; the intake's answer is
+    stored K2). The partner's health question declares K3. A curator may want the same on the client's.
+27. **The shares' sum is checked by the app, not the database** (the cockpit could write more); `inputs.py` then
+    sends none and names it in `dropped`.
+
 ## For the next agents
 
 * **Cockpit:** link to a client's view with `http://127.0.0.1:8017/#/client/<id>/home`; for a report
-  revision call `POST /api/clients/<id>/reports/<request>/produce?revision=true&wait=true`, then write the
-  `revision_sent` event naming the new report (EIG-41).
+  revision call `POST /api/clients/<id>/reports/<request>/produce?revision=true&wait=true` with
+  `{"revision_note": "<the curator's remark>"}` (and `"revision_of": "<report id>"` for another than the
+  latest), then write the `revision_sent` event naming the new report (EIG-41, EIG-57).
 * **Backend (consumer web app):** built (above); it uses `eigentlich.store` (README "The repository"). The client picker is
   `store.list_clients` (view `client_overview`). Plan changes only through `store.plan_change`. Show a
   knowledge note only when `front_matter.approved` is true. Approval waits only where the client asked
