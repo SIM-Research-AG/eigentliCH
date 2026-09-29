@@ -224,6 +224,10 @@ exist; its `ALTER ROLE ... PASSWORD` lines apply), and `.env` must then hold tho
 
 Tested on 29.09.2026 on a separate test project: backup, then restore into the same server, then
 provisioning; every schema came back with its engine as owner and every health check was `ok`.
+The owner's real dump of 29.09.2026 (`simtech_for_server_2026-09-29.dump`, 24.6 MB) was restored
+the same way on a fresh test project: no pg_restore errors, no object owned by anyone but its
+engine, no role outside the roster, the curator's grants on `eigentlich` intact, and every engine
+healthy straight away, without `init-empty.sh`.
 
 ## Upgrade
 
