@@ -1,20 +1,29 @@
 # sim-tech / eigentliCH on Docker
 
 For the person who runs the team server (Linux x86_64). You need to know Docker and Compose;
-you do not need to know the code. Written 29.09.2026.
+you do not need to know the code. Written 29.09.2026, restructured to two containers on
+01.10.2026.
 
-**What runs:** 13 engines, the consumer app `eigentlich` and the cockpit, each in its own
-container, built from five images (one per family), plus PostgreSQL 18, a one-shot provisioning
-job, a nightly backup and a Cloudflare Tunnel. Only the app and the cockpit are reachable from
-outside, through the tunnel and Cloudflare Access. Nothing publishes a host port.
+**What runs:** two containers.
 
-**What does not change on the owner's machine:** this folder is new. No engine was modified; the
-changes the engines would benefit from are listed in [ENGINE_CHANGES.md](ENGINE_CHANGES.md).
+- `db`: PostgreSQL 18 (the official image) with the one database `simtech`. It also runs the
+  nightly backup.
+- `simtech`: one image with everything else, under supervisord: the start-up provisioning, the
+  13 engines, the lbsim plan workers, the consumer app `eigentlich` (8017), the cockpit (8000)
+  and, when a tunnel token is set, the Cloudflare Tunnel (`cloudflared`).
+
+Only the app and the cockpit are reachable from outside, through the tunnel and Cloudflare
+Access. The host publishes no port.
+
+**What does not change on the owner's machine:** this folder is all there is. No engine was
+modified; the changes the engines would benefit from are listed in
+[ENGINE_CHANGES.md](ENGINE_CHANGES.md).
 
 ## Contents
 
 - [The system at a glance](#the-system-at-a-glance)
 - [What you need](#what-you-need)
+- [Sizing](#sizing)
 - [First start (day one, from the owner's dump)](#first-start-day-one-from-the-owners-dump)
 - [Start order](#start-order)
 - [Health check](#health-check)
@@ -22,6 +31,7 @@ changes the engines would benefit from are listed in [ENGINE_CHANGES.md](ENGINE_
 - [Backup and restore](#backup-and-restore)
 - [Upgrade](#upgrade)
 - [Everyday commands](#everyday-commands)
+- [Changing a password](#changing-a-password)
 - [The cockpit in Docker](#the-cockpit-in-docker)
 - [How configuration reaches the engines](#how-configuration-reaches-the-engines)
 - [What is not in the repository](#what-is-not-in-the-repository)
@@ -29,55 +39,73 @@ changes the engines would benefit from are listed in [ENGINE_CHANGES.md](ENGINE_
 
 ## The system at a glance
 
-| Service | Image | Port (internal) | Health | Waits for |
-|---|---|---|---|---|
-| `postgres` | `postgres:18` | 5432 | `pg_isready` | |
-| `provision` (one-shot) | instruments | | exits 0 | postgres |
-| `backup` | `postgres:18` | | | postgres |
-| `datafeed` (01) | macro | 8001 | `/health` | provision |
-| `honi` (02) | macro | 8002 | `/health` | datafeed |
-| `macrofield` (03) | macro | 8003 | `/health` | datafeed |
-| `mrs` (05) | macro | 8005 | `/health` | datafeed |
-| `cycle` (12) | macro | 8012 | `/health` | datafeed, macrofield |
-| `aggregation` (04) | macro | 8004 | `/health` | mrs, cycle, macrofield |
-| `fmre` (06) | instruments | 8006 | `/v1/health` | aggregation |
-| `pcp` (07) | optimizer | 8007 | `/health` | aggregation, fmre (started) |
-| `lbs` (13) | eigentlich | 8013 | `/health` | provision |
-| `lbsim` (14, API only) | eigentlich | 8014 | `/health` | lbs, pcp, aggregation, fmre (started) |
-| `lbsim-worker` (x3) | eigentlich | none | | lbsim |
-| `report` (15) | eigentlich | 8015 | `/health` | lbs, pcp, lbsim |
-| `chatbot` (16) | eigentlich | 8016 | `/health` | lbsim |
-| `eigentlich` (the app) | eigentlich | 8017 | `/health` | lbs, lbsim, report, chatbot |
-| `cockpit` (11) | cockpit | 8000 | `/api/config` | provision |
-| `cloudflared` | `cloudflare/cloudflared` | | | eigentlich, cockpit |
+| Container | Image | Volumes | Health |
+|---|---|---|---|
+| `db` | `postgres:18` | `pgdata` (the database), `backups` (the nightly dumps) | `pg_isready` |
+| `simtech` | `simtech/simtech:local`, built on the server | `cockpit-data` (the CIO's decision log) | every route below answers 200 |
 
-Every engine gets its own database login (role = engine name) and owns one schema of the one
-database `simtech`; the provisioning creates them. Containers reach each other by service name:
-`http://fmre:8006`, `postgres:5432`.
+The programs supervisord runs in `simtech`, in start order:
 
+| Program | Port (127.0.0.1) | Health route | Waits for |
+|---|---|---|---|
+| `provision` (one-shot) | | exits 0 | `db` healthy |
+| `datafeed` (01) | 8001 | `/health` | provision |
+| `honi` (02), `macrofield` (03), `mrs` (05) | 8002, 8003, 8005 | `/health` | datafeed |
+| `lbs` (13) | 8013 | `/health` | provision |
+| `cycle` (12) | 8012 | `/health` | datafeed, macrofield |
+| `aggregation` (04) | 8004 | `/health` | mrs, cycle, macrofield |
+| `fmre` (06) | 8006 | `/v1/health` | aggregation |
+| `pcp` (07) | 8007 | `/health` | aggregation, fmre |
+| `lbsim` (14, API only) | 8014 | `/health` | lbs, pcp, aggregation, fmre |
+| `lbsim-worker-1` ... `-N` | none | `supervisorctl status` | lbsim |
+| `report` (15) | 8015 | `/health` | lbs, pcp, lbsim |
+| `chatbot` (16) | 8016 | `/health` | lbsim |
+| `eigentlich` (the app) | 8017 (0.0.0.0) | `/health` | lbs, lbsim, report, chatbot |
+| `cockpit` (11) | 8000 (0.0.0.0) | `/api/config` | the app |
+| `cloudflared` (only with a token) | | | the app, the cockpit |
+
+Inside `simtech` the engines reach each other on `http://127.0.0.1:<port>`, which is what every
+engine's config.yaml says, and the database as `db:5432`. Every engine has its own database login
+(role = engine name) and owns one schema of the database `simtech`; the provisioning creates them.
 Engines 08, 09 and 10 are not built and are not in the roster.
 
 ## What you need
 
 - A Linux x86_64 server with a current Docker Engine and the Compose plugin (tested with Docker
-  29.5 and Compose 5.1). BuildKit, the default builder, is required because each image has its
-  own `.dockerignore`. About 3 GB of disk
-  for the images, plus the database and its backups.
-- Sizing: idle, all containers together use about 1.3 GB of RAM (measured). Each lbsim worker is
-  limited to 1 CPU and 2 GB while it solves a plan. 8 cores and 16 GB leave comfortable room.
+  29.5 and Compose 5.1). BuildKit, the default builder, is required (the image has its own
+  `.dockerignore` beside its Dockerfile). About 1.5 GB of disk for the image, plus the database
+  and its backups.
 - Outbound HTTPS from the server to Cloudflare (the tunnel) and to `spark7.minimind.ch` (the
   MiniMind model server that report and chatbot call).
 - A clone of the repository: `git clone https://github.com/SIM-Research-AG/eigentliCH.git
   /opt/simtech` (branch `main`). The deployment lives in `/opt/simtech/Engines/deploy`, and the
-  images are built from `/opt/simtech/Engines`. The images take nothing else from the machine.
+  image is built from `/opt/simtech/Engines`. The image takes nothing else from the machine.
 - From the owner: the dump of today's `simtech` database, and the two MiniMind values
   `SPARK7_CLIENT_ID` and `SPARK7_CLIENT_SECRET`.
 - From you: every password in `.env`, a Cloudflare account with Zero Trust, the two hostnames,
   and who may sign in.
 
+## Sizing
+
+Everything except the database shares one container, so its limits are set once, in `.env`:
+
+| Setting | Default | What it does |
+|---|---|---|
+| `LBSIM_WORKERS` | 3 | lbsim plan workers. Each solve (CasADi/IPOPT with MUMPS) keeps **one core** busy for its whole run; the maths libraries are held to one thread per worker. More workers: more plans at the same time, not a faster single plan. |
+| `SIMTECH_CPUS` | 6 | compose `cpus` of `simtech`: the cores all its programs together may use. |
+| `SIMTECH_MEMORY` | 10g | compose `mem_limit` of `simtech`. If it is reached, the kernel ends the largest process (usually a solving worker); supervisord starts it again, and lbsim puts the plan run back in the queue once its heartbeat has gone stale. |
+
+Rule of thumb: `SIMTECH_CPUS` = `LBSIM_WORKERS` + 3 (the engines, the app and the cockpit need
+little CPU, but leave them room while all workers solve), and `SIMTECH_MEMORY` = 2 GB + 2 GB per
+worker. Measured on 01.10.2026 with the owner's data: idle, `simtech` uses about 1.1 GB and `db`
+about 150 MB. A server with 8 cores and 16 GB runs the defaults comfortably; for 6 workers give
+`simtech` 9 cores and 14 GB. The `db` container has no limit; give it one in compose.yaml if the
+server runs other things.
+
 ## First start (day one, from the owner's dump)
 
-All commands run in this folder (`Engines/deploy`) on the server unless said otherwise.
+All commands run in this folder (`/opt/simtech/Engines/deploy`) on the server unless said
+otherwise.
 
 **1. Settings.**
 
@@ -87,7 +115,9 @@ chmod +x scripts/*.sh            # a copy from Windows may lose the executable b
 # edit .env: replace every CHANGE_ME (admin password, 15 role passwords, SPARK7_*, tunnel token)
 ```
 
-**2. Build the images** (on the server, no registry). About 4 minutes the first time.
+Leave `CLOUDFLARE_TUNNEL_TOKEN` empty until Cloudflare Access is set up (step 6).
+
+**2. Build the image** (on the server, no registry). About 2 to 4 minutes the first time.
 
 ```bash
 docker compose build
@@ -110,41 +140,44 @@ with `scp`); it contains client records, so keep it off shared drives and delete
 ./scripts/restore.sh ~/simtech-2026-09-29.dump
 ```
 
-The script asks for `yes`, then: starts postgres, runs the provisioning (so that every engine
-role exists before the dump refers to it), drops and recreates `simtech`, restores the dump with
-its original owners, runs the provisioning again (database grants, new schemas) and starts all
-services. It prints each schema with its owner and table count, and any pg_restore error. If one
-reads `role "x" does not exist`, that role was made by hand on the owner's machine and is not in
-the roster: tell the owner. If the provisioning then warns that an object "is owned by myuser, not
+The script asks for `yes`, then: stops `simtech` (if it runs), starts `db`, runs the provisioning
+(so that every engine role exists before the dump refers to it), copies the dump into the `db`
+container, drops and recreates `simtech`, restores the dump with its original owners, deletes the
+copy, runs the provisioning again (database grants, new schemas) and starts both containers. It
+prints each schema with its owner and table count, and any pg_restore error. If one reads
+`role "x" does not exist`, that role was made by hand on the owner's machine and is not in the
+roster: tell the owner. If the provisioning then warns that an object "is owned by myuser, not
 the engine role", the owner's database has that object owned by the administrator; the engine may
 fail to start on it, and `store.provision.adopt()` hands it over (ask the owner first).
 
-**5. Check.** `./scripts/health.sh` should show every endpoint `ok`.
+**5. Check.** After a minute, `./scripts/health.sh` should end with `all ok`.
 
 **6. Open the way in:** [Cloudflare Tunnel and Access](#cloudflare-tunnel-and-access).
 
 **Starting without a dump** (an empty system, e.g. to try it out): `docker compose up -d`, then
-`./scripts/init-empty.sh`, which creates the tables of the two services that do not create their
-own at start-up (fmre and the app). Everything is healthy, but empty: there is no source data,
-no calibration and no questionnaire content.
+`./scripts/init-empty.sh`, which creates the tables of the two programs that do not create their
+own at start-up (fmre and the app). Until then `simtech` is reported unhealthy, because fmre's
+health route answers 500 without its tables. Afterwards everything is healthy, but empty: there
+is no source data, no calibration and no questionnaire content.
 
 ## Start order
 
-`docker compose up -d` starts everything in this order, each step waiting for the previous one:
+`docker compose up -d` starts `db` and waits until it is healthy; then `simtech`, where
+supervisord starts every program at once and each one waits for its turn (`docker/run.sh`):
 
-1. `postgres` until `pg_isready` answers;
-2. `provision` runs `python -m store.provision` and exits 0 (idempotent: it runs on every `up`,
-   creates what is missing and changes nothing that exists; role passwords are set only when a
-   role is created);
-3. the engines in roster order: an engine waits until the engines it consumes are healthy
-   (table above), so datafeed comes first and macrofield is up before cycle;
-4. the app after lbs, lbsim, report and chatbot; the cockpit straight after provisioning, so that
-   it can show an engine that is down;
-5. `cloudflared` last.
+1. `provision` runs `python -m store.provision` (idempotent: it runs on every start of the
+   container, creates what is missing and changes nothing that exists; role passwords are set
+   only when a role is created). It retries every 15 seconds until it succeeds, then exits 0;
+2. every other program waits for that, then for the ports of the engines it consumes (table
+   above), so datafeed comes first and macrofield is up before cycle. If an upstream still does
+   not answer after 5 minutes, the program starts anyway and says so in the log: the engines call
+   each other per request, not at start-up;
+3. the app after lbs, lbsim, report and chatbot; the cockpit after the app; cloudflared last.
 
-`fmre` is waited for as *started*, not *healthy*, because its health reads its own tables and
-answers 500 while they do not exist (ENGINE_CHANGES.md, item 6). Every service restarts by itself
-(`unless-stopped`), including after a reboot of the server.
+With the owner's data, `simtech` is healthy about 30 seconds after it starts. Every program is
+restarted by supervisord when it exits (one that keeps failing at once is retried with a growing
+pause); both containers restart by themselves (`unless-stopped`), including after a reboot of the
+server. `docker compose stop` stops the programs in reverse order, within a few seconds.
 
 ## Health check
 
@@ -152,13 +185,15 @@ answers 500 while they do not exist (ENGINE_CHANGES.md, item 6). Every service r
 ./scripts/health.sh
 ```
 
-Prints every container's state and health, then calls every engine's health endpoint from inside
-the cockpit container (engines have no host ports) and prints the HTTP status and the engine's
-own `status` field. Exit status 0 when all answered 200, so it can go into a monitoring job.
+Prints both containers' state and health, every program in `simtech` with its supervisord state
+(`provision` is `EXITED` once it has done its work, `cloudflared` is `STOPPED` without a token),
+every health route called from inside `simtech` with the HTTP status and the engine's own
+`status` field, and whether the database answers. Ends with `all ok` and exit status 0 when
+everything is as it should be, so it can go into a monitoring job.
 
 Expected values: `ok` for all; `fmre` says `uncalibrated` until a calibration is loaded; the app
 says `degraded` when its database is unreachable. `docker compose ps` alone shows the health that
-Docker itself checks every 30 seconds.
+Docker itself checks every 30 seconds (`simtech health --quiet`: every route must answer 200).
 
 ## Cloudflare Tunnel and Access
 
@@ -175,158 +210,186 @@ public hostnames.
    domain, or an identity provider group); session duration as you see fit (for example 24 hours);
    identity provider as your organisation uses. Keep the cockpit's group smaller than the app's:
    in `development` mode the cockpit lets its users write to every engine.
-2. **Tunnel** (Zero Trust > Networks > Tunnels > Create a tunnel > Cloudflared > Docker). Copy the
-   token from the command Cloudflare shows (the long value after `--token`) into
-   `CLOUDFLARE_TUNNEL_TOKEN` in `.env`. Do not run Cloudflare's command; compose runs cloudflared.
+2. **Tunnel** (Zero Trust > Networks > Tunnels > Create a tunnel > Cloudflared). Copy the token
+   from the install command Cloudflare shows (the long value after `--token`) into
+   `CLOUDFLARE_TUNNEL_TOKEN` in `.env`. Do not run Cloudflare's command: cloudflared is built into
+   the `simtech` image and supervisord runs it.
 3. **Public hostnames** of that tunnel:
-   - `app.<your-domain>`, service type HTTP, URL `eigentlich:8017`
-   - `cockpit.<your-domain>`, service type HTTP, URL `cockpit:8000`
+   - `app.<your-domain>`, service type HTTP, URL `127.0.0.1:8017`
+   - `cockpit.<your-domain>`, service type HTTP, URL `127.0.0.1:8000`
 
-   Nothing else. The engines and Postgres are not exposed.
-4. Start or restart the tunnel: `docker compose up -d cloudflared` (it runs when
-   `COMPOSE_PROFILES=tunnel` is in `.env`; leave that empty to run without a tunnel).
+   Nothing else. cloudflared runs inside `simtech`, where every engine also listens on
+   127.0.0.1, so a further hostname would expose an engine without the cockpit in front of it:
+   keep the right to edit this tunnel to the people who run the server.
+4. Start the tunnel: `docker compose up -d` (the container is recreated with the token, and
+   cloudflared starts once the app and the cockpit answer). Its log lines start with
+   `[cloudflared]`.
 5. Test from outside: both hostnames must first show the Cloudflare Access sign-in page.
 
-Once it works, pin the cloudflared image to a release in `.env` (`CLOUDFLARED_VERSION`).
+To run without the tunnel, empty `CLOUDFLARE_TUNNEL_TOKEN` and `docker compose up -d`. A new
+cloudflared release: set `CLOUDFLARED_VERSION` in `.env`, then `docker compose build` and
+`docker compose up -d`.
 
 ## Backup and restore
 
-**Nightly.** The `backup` service writes, every day at `BACKUP_AT` (default 02:30, `TZ`
-Europe/Zurich), into the named volume `backups`:
+**Nightly.** The `db` container runs `scripts/backup.sh` beside PostgreSQL (started by
+`scripts/db-entrypoint.sh` before the image's own entrypoint; the official image and two small
+scripts, nothing installed). Every day at `BACKUP_AT` (default 02:30, `TZ` Europe/Zurich) it
+writes into the named volume `backups`:
 
 - `simtech-YYYY-MM-DD_HHMM.dump`, a `pg_dump -Fc` of `simtech`;
 - `globals-YYYY-MM-DD_HHMM.sql`, the roles with their password hashes (`pg_dumpall --globals-only`);
 
-and deletes files older than `BACKUP_KEEP_DAYS` (default 14). These files are on the same disk as
-the database: copy them off the server as well (your usual backup tool, reading the volume's
-folder `docker volume inspect simtech_backups --format '{{ .Mountpoint }}'`).
+and deletes files older than `BACKUP_KEEP_DAYS` (default 14). Its log lines in
+`docker compose logs db` contain `backup:`. These files are on the same disk as the database:
+copy them off the server as well (your usual backup tool, reading the volume's folder
+`docker volume inspect simtech_backups --format '{{ .Mountpoint }}'`).
+
+Why in `db`: `pg_dump` must match the server's major version, and the `postgres:18` image has
+exactly that one; in `simtech` it would need the PostgreSQL apt repository and a client package
+kept in step with the server.
 
 **On demand,** for example before an upgrade:
 
 ```bash
-docker compose exec backup bash /scripts/backup.sh now
-docker compose exec backup ls -l /backups
-docker compose cp backup:/backups/simtech-2026-09-29_1430.dump .      # copy one out
+docker compose exec db bash /scripts/backup.sh now
+docker compose exec db ls -l /backups
+docker compose cp db:/backups/simtech-2026-10-01_1430.dump .      # copy one out
 ```
 
 **Restore** (replaces the whole `simtech` database on this server; asks for `yes`):
 
 ```bash
-./scripts/restore.sh /path/to/simtech-YYYY-MM-DD_HHMM.dump
+./scripts/restore.sh /path/to/simtech-YYYY-MM-DD_HHMM.dump          # a file on the server
+./scripts/restore.sh --backup simtech-YYYY-MM-DD_HHMM.dump          # a file in the backup volume
 ```
 
-Same steps as on day one. A file already in the backup volume: copy it out first with
-`docker compose cp` as above. The roles and their passwords are not in a `simtech-*.dump`; they
+Same steps as on day one. The roles and their passwords are not in a `simtech-*.dump`; they
 come from `.env` through the provisioning. `globals-*.sql` is only needed to bring back the *old*
-role passwords on a rebuilt server: after the restore, `docker compose exec -T postgres psql -U
-myuser -d postgres < globals-....sql` (its `CREATE ROLE` lines fail harmlessly because the roles
-exist; its `ALTER ROLE ... PASSWORD` lines apply), and `.env` must then hold those old values.
+role passwords on a rebuilt server: after the restore,
+`docker compose exec -T db psql -U myuser -d postgres < globals-....sql` (its `CREATE ROLE` lines
+fail harmlessly because the roles exist; its `ALTER ROLE ... PASSWORD` lines apply), and `.env`
+must then hold those old values.
 
-Tested on 29.09.2026 on a separate test project: backup, then restore into the same server, then
-provisioning; every schema came back with its engine as owner and every health check was `ok`.
-The owner's real dump of 29.09.2026 (`simtech_for_server_2026-09-29.dump`, 24.6 MB) was restored
-the same way on a fresh test project: no pg_restore errors, no object owned by anyone but its
-engine, no role outside the roster, the curator's grants on `eigentlich` intact, and every engine
-healthy straight away, without `init-empty.sh`.
+Tested on 01.10.2026 on a separate compose project with empty volumes: the owner's dump of
+29.09.2026 (`simtech_for_server_2026-09-29.dump`, 24.6 MB) restored with this script in 14
+seconds, no pg_restore errors, every schema owned by its engine, every health route `ok` without
+`init-empty.sh`; then `backup.sh now`, and `restore.sh --backup` of that backup, with the same
+result.
 
 ## Upgrade
 
 New engine code:
 
 ```bash
-docker compose exec backup bash /scripts/backup.sh now     # 1. a backup first
-git -C /opt/simtech pull                                    # 2. new code (deploy/.env is git-ignored and stays)
-docker compose build                                        # 3. rebuild (cached layers: fast)
-docker compose up -d                                        # 4. recreates only what changed
+docker compose exec db bash /scripts/backup.sh now         # 1. a backup first
+docker tag simtech/simtech:local simtech/simtech:prev       # 2. keep a way back
+git -C /opt/simtech pull                                    # 3. new code (deploy/.env is git-ignored and stays)
+docker compose build                                        # 4. rebuild (cached layers: fast)
+docker compose up -d                                        # 5. recreates simtech; db keeps running
 ./scripts/health.sh
 ```
 
-Engines apply their own schema changes at start-up (idempotent `schema.sql`); `provision` runs
-again on `up` and adds roles and schemas for engines new to the roster. To keep a way back, tag
-the running images before step 3 (`for i in macro instruments optimizer eigentlich cockpit; do
-docker tag simtech/$i:local simtech/$i:prev; done`); to go back, set `IMAGE_TAG=prev` in `.env`
-and `docker compose up -d`. A database change is not undone by that: restore the backup from
-step 1 if needed.
+Engines apply their own schema changes at start-up (idempotent `schema.sql`); the provisioning
+runs at every start of `simtech` and adds roles and schemas for engines new to the roster. To go
+back: set `IMAGE_TAG=prev` in `.env` and `docker compose up -d`. A database change is not undone
+by that: restore the backup from step 1 if needed.
 
 Python packages: the versions are pinned in `docker/constraints.txt`; change a version there and
 rebuild. The engines' own `pyproject.toml` files decide which packages are installed.
 
-PostgreSQL within 18 (18.x): `docker compose pull postgres backup && docker compose up -d`. To a
-new major version: take a dump, point both `postgres:18` lines in compose.yaml at the new version,
-remove the `pgdata` volume (after the dump is safe) and restore.
+PostgreSQL within 18 (18.x): `docker compose pull db && docker compose up -d db`. To a new major
+version: take a dump, point the `postgres:18` line in compose.yaml at the new version, remove the
+`pgdata` volume (after the dump is safe) and restore.
 
 ## Everyday commands
 
 ```bash
-docker compose ps                         # what runs
-docker compose logs -f --tail 100 lbsim   # one service's log (json-file, 5 x 10 MB kept)
-docker compose restart honi               # restart one engine
-docker compose stop && docker compose up -d
-docker compose up -d --scale lbsim-worker=5    # more plan workers for a while (or LBSIM_WORKERS)
-docker compose -f compose.yaml -f compose.debug.yaml up -d   # publish ports on 127.0.0.1 for debugging
-docker compose exec postgres psql -U myuser -d simtech       # a SQL prompt as administrator
+docker compose ps                                          # both containers and their health
+docker compose exec simtech supervisorctl status           # every program inside simtech
+docker compose logs -f --tail 200 simtech                  # all programs, each line "[name] ..."
+docker compose logs -f --no-log-prefix simtech | grep '^\[lbsim'     # lbsim and its workers only
+docker compose exec simtech supervisorctl restart honi     # restart one engine
+docker compose exec simtech supervisorctl restart 'lbsim-worker:*'   # every plan worker
+docker compose restart simtech                             # every program, provisioning first
+docker compose exec simtech simtech health                 # the health routes alone
+docker compose exec db psql -U myuser -d simtech           # a SQL prompt as administrator
+docker compose -f compose.yaml -f compose.debug.yaml up -d # app and cockpit on 127.0.0.1:8017 / :8000
 ```
 
-**Changing a password.** The provisioning sets a role's password only when it creates the role.
-To change one later: `docker compose exec postgres psql -U myuser -d postgres -c "ALTER ROLE honi
-PASSWORD 'new-value'"`, put the same value in `.env` (`SIMTECH_HONI_PASSWORD`), then
-`docker compose up -d honi`. For the curator: role `curator`, variable `SIMTECH_CURATOR_PASSWORD`,
-service `cockpit`.
+More plan workers: set `LBSIM_WORKERS` (and `SIMTECH_CPUS`, `SIMTECH_MEMORY`, see
+[Sizing](#sizing)) in `.env`, then `docker compose up -d`. For debugging every engine from the
+server, add `-f compose.debug-engines.yaml` as a third file: it publishes every engine port and
+the database on 127.0.0.1 (move the database with `DEBUG_PG_PORT` if 5432 is taken).
+
+The container logs use Docker's json-file driver, 5 files of 20 MB kept for each container.
+
+## Changing a password
+
+The provisioning sets a role's password only when it creates the role. To change one later:
+
+```bash
+docker compose exec db psql -U myuser -d postgres -c "ALTER ROLE honi PASSWORD 'new-value'"
+# put the same value in .env (SIMTECH_HONI_PASSWORD), then:
+docker compose up -d
+```
+
+`up -d` recreates the `simtech` container with the new environment (all programs restart, about
+30 seconds). For the curator: role `curator`, variable `SIMTECH_CURATOR_PASSWORD`. For the
+administrator: `ALTER ROLE myuser ...`, then `POSTGRES_ADMIN_PASSWORD` in `.env` (the server keeps
+the password it was created with; `POSTGRES_PASSWORD` only matters on an empty volume).
 
 ## The cockpit in Docker
 
 On the owner's machine the cockpit's desktop app starts every engine (`autostart: true` and a
 `start` command for each engine in `cockpit/config.yaml`); `python -m cockpit serve` does not
 autostart, but its System page can still start an engine through `POST /api/launcher/{key}/start`.
-There is no environment switch for that. In Docker it must only show status, so without changing
-the cockpit:
+In Docker supervisord starts the engines, and the cockpit must only show status, so without
+changing the cockpit:
 
-- the container runs `python -m cockpit serve`, never `desktop` or `start-engines`;
+- supervisord runs `python -m cockpit serve`, never `desktop` or `start-engines`;
 - at image build, `docker/cockpit_docker_config.py` writes the cockpit's `config.local.yaml` from
-  its own `config.yaml`: each engine's address becomes `http://<key>:<port>`, and every `start`,
-  `python` and `autostart` entry is removed. The cockpit then has nothing it may start (tested:
+  its own `config.yaml`: every `start`, `python` and `autostart` entry is removed, the engine
+  addresses stay `http://127.0.0.1:80NN`. The cockpit then has nothing it may start (tested:
   none of the 13 is startable, and the start route answers 409);
-- the curator's database host becomes `postgres`; its password comes from
-  `SIMTECH_CURATOR_PASSWORD`.
+- the curator's database host becomes `db`; its password comes from `SIMTECH_CURATOR_PASSWORD`.
 
-Known limit: the System page links each engine's own address, which is an internal name in
-Docker; those links do not open from a browser (the test benches and the proxy work).
-ENGINE_CHANGES.md items 2 to 5 describe the cockpit changes that would make the overlay
-unnecessary.
+Known limit: the System page links each engine's own address, `http://127.0.0.1:80NN`; opened
+through the tunnel, that points at the viewer's own computer, so those links do not work (the
+test benches and the proxy do). ENGINE_CHANGES.md items 1, 2 and 4 describe the cockpit changes
+that would make the overlay unnecessary and the links useful.
 
-`COCKPIT_MODE` in `.env`: `development` (today's behaviour on the owner's machine: everything,
-including the test benches and every write through the proxy) or `cio` (the CIO workspace and
-system status only). Which one the team server should use is the owner's decision.
+`COCKPIT_MODE` in `.env`: `development` (the default, the owner's decision: everything, including
+the test benches and every write through the proxy) or `cio` (the CIO workspace and system status
+only).
 
 ## How configuration reaches the engines
 
-Every engine reads `config.yaml < config.local.yaml < environment`. The images contain the
+Every engine reads `config.yaml < config.local.yaml < environment`. The image contains the
 committed `config.yaml` files and never a developer's `config.local.yaml`, `.env` or
-`config.toml`. compose.yaml sets, per engine:
+`config.toml`. Inside `simtech`:
 
-- `<PREFIX>_HOST=0.0.0.0` (the prefix is the engine name in capitals; the app uses
-  `EIGENTLICH_APP_HOST`), so it listens on the container network;
-- `<PREFIX>_DB_HOST=postgres`, `<PREFIX>_DB_PORT=5432`, `<PREFIX>_DB_PASSWORD` from
-  `SIMTECH_<ENGINE>_PASSWORD`; database, schema and user stay as in config.yaml (`simtech`, the
-  engine's schema, the engine's role). fmre uses `INSTRUMENTS_DB_*` and `INSTRUMENTS_DB_USER=fmre`;
-- the upstream addresses where the engine reads them from the environment (`HONI_DATAFEED_URL`,
-  `AGGREGATION_MRS_URL`, `PCP_FMRE_URL`, `REPORT_LBSIM_URL`, `EIGENTLICH_LBS_URL`,
-  `INSTRUMENTS_AGGREGATION_URL`, ...). lbsim does not yet; its addresses come from
-  `config/lbsim.docker.yaml`, baked into the image as its `config.local.yaml`;
-- report and chatbot: `SPARK7_CLIENT_ID` and `SPARK7_CLIENT_SECRET` (the Cloudflare Access
-  service token of the model server). Locally they read these from `eigentliCH_Engines/.env`; the
-  environment takes precedence, and that file is never in an image.
-
-The lbsim API runs as `python -m lbsim serve --workers 0` (no workers in the API container); the
-plan workers run as `python -m lbsim worker`, one per `lbsim-worker` container, each limited by
-`LBSIM_WORKER_CPUS` and `LBSIM_WORKER_MEMORY`, with the maths libraries held to one thread.
+- the engines listen on 127.0.0.1 and call each other there, exactly as their config.yaml says;
+  only the app and the cockpit listen on 0.0.0.0, so that `compose.debug.yaml` can publish them;
+- `docker/run.sh` gives each program, from the container's environment, `<PREFIX>_DB_HOST=db`,
+  `<PREFIX>_DB_PORT=5432`, `<PREFIX>_DB_USER` (the engine's role) and `<PREFIX>_DB_PASSWORD` (its
+  `SIMTECH_<ENGINE>_PASSWORD`). The prefix is the engine name in capitals; fmre uses
+  `INSTRUMENTS_DB_*` with role `fmre`. Database and schema stay as in config.yaml;
+- `run.sh` then removes every secret the program does not need from its environment: an engine
+  sees its own password and no other, only report and chatbot see `SPARK7_CLIENT_ID` and
+  `SPARK7_CLIENT_SECRET`, only cloudflared the tunnel token (as `TUNNEL_TOKEN`), only the
+  provisioning the administrator password. Every program runs as the unprivileged user `engine`
+  (uid 10001). This keeps a secret out of an engine's error pages and logs; it is not a wall
+  between engines, which share the user and the container;
+- the lbsim API runs as `python -m lbsim serve --workers 0`; the plan workers run as
+  `python -m lbsim worker`, `LBSIM_WORKERS` of them, with the maths libraries held to one thread.
 
 ## What is not in the repository
 
-The builds need nothing outside the `Engines` folder. The images leave out, on purpose: every
+The build needs nothing outside the `Engines` folder. The image leaves out, on purpose: every
 `.venv`, `.env`, `config.local.yaml` and `config.toml`, `tests/`, `golden/`, `dev/`, caches,
 `*.cmd`, `macrofield/data/archive` and the cockpit's `data/`. So the engines' test suites do not
-run inside the images; run them on a development machine.
+run inside the image; run them on a development machine.
 
 Some one-off loading commands read files that are not in the repository. None is needed after a
 restore from the owner's dump:
@@ -341,19 +404,28 @@ restore from the owner's dump:
 
 | File | What it is |
 |---|---|
-| `compose.yaml` | every service, its command, environment, health check and start order |
-| `compose.debug.yaml` | optional: publishes all ports on 127.0.0.1 for debugging |
+| `compose.yaml` | the two containers, their environment, volumes, limits and health checks |
+| `compose.debug.yaml` | optional: publishes the app and the cockpit on 127.0.0.1 |
+| `compose.debug-engines.yaml` | optional, with the one above: every engine and the database on 127.0.0.1 |
 | `.env.example` | every setting and secret, with placeholders; copy to `.env` |
-| `docker/<family>.Dockerfile` | the five images: macro, instruments, optimizer, eigentlich, cockpit |
-| `docker/<family>.Dockerfile.dockerignore` | each image's allowlist of what enters the build |
+| `docker/simtech.Dockerfile` | the one image: a Python environment for all engines, supervisord, cloudflared |
+| `docker/simtech.Dockerfile.dockerignore` | the allowlist of what enters the build |
+| `docker/supervisord.conf` | every program in `simtech`: folder, command, database role, start order |
+| `docker/run.sh` | starts one program: its database login, secrets removed, waits, log prefix |
+| `docker/simtech.sh` | the container's entrypoint and the `simtech` command (start, provision, init-empty, health) |
+| `docker/provision.sh` | the start-up provisioning (supervisord's one-shot program) |
+| `docker/healthcheck.py` | every health route (standard library only) |
 | `docker/constraints.txt` | pinned package versions (from the owner's working environments) |
 | `docker/deps.py` | reads the engines' dependencies from their `pyproject.toml` |
-| `docker/healthcheck.py` | the containers' health check (standard library only) |
 | `docker/cockpit_docker_config.py` | writes the cockpit's status-only overlay at build |
-| `config/lbsim.docker.yaml` | lbsim's upstream addresses for Docker |
 | `scripts/health.sh` | health of the whole deployment |
 | `scripts/restore.sh` | restore a dump, in the right order (runs on the host) |
-| `scripts/restore-db.sh` | the pg_restore step (runs in the backup container) |
-| `scripts/backup.sh` | the nightly and on-demand backup (runs in the backup container) |
+| `scripts/restore-db.sh` | the pg_restore step (runs in `db`) |
+| `scripts/backup.sh` | the nightly and on-demand backup (runs in `db`) |
+| `scripts/db-entrypoint.sh` | starts the backup loop in `db`, then PostgreSQL |
 | `scripts/init-empty.sh` | tables for fmre and the app on an empty database |
 | `ENGINE_CHANGES.md` | changes to engines that would remove the workarounds here |
+
+Every script on the host takes the compose project and env file from the usual
+`COMPOSE_PROJECT_NAME` and `COMPOSE_ENV_FILES` variables, so a second copy (for example a test
+project) can be checked and restored the same way.

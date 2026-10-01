@@ -31,9 +31,19 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
 - Refresh ran (21:22-21:36); check failed on ids in report markup and "Ihr Ziel" rows: fixed in report 1.4.1
   (restarted). Four 0.0 chances were Monte Carlo defects: fixed as lbsim calibration 1.4.0 (P-21..P-24; Kurt 0.997,
   Esther 0.993, Reto 0.803, Regula 0.251, Michele 1.0, Peter 1.0; Corinne 0.0 is right). Pushed d53e704.
-- Running: B1 fixes the education path (stated salary applied from today, pensum above 1) as calibration 1.5.0.
-- Then: restart lbsim (serves the active calibration), `mandates --refresh` only if lbs changed (it did not),
-  `outlook`, `reports --refresh`, `check`, `check --plans`, the live test, stop the 8098 cockpit, push both remotes.
+- Done: B1 calibration 1.5.0 (income at today's level until an education ends; no pensum above 1 on a
+  full-pensum amount). lbsim restarted on 1.5.0. Builder fixed (outlook --refresh; a report is current only on
+  lbsim's newest paths; non-CHF clients accepted without a simulation). `check` all_ok TRUE at 22:40. Pushed 4e85d11.
+- Base chances now: Simon 0.68, Noemi 0.997, Michele 0.016, Reto 0.0, Corinne 0.0, Regula 0.13, Kurt 0.997,
+  Esther 0.993, Peter 1.0, the rest 1.0.
+- Paused 30.09.2026 05:15 (owner). Plans (latest per client, 18 CHF clients): 7 succeeded, 7 queued, 1 running,
+  3 failed (Reto, Michele, Corinne: one solver non-convergence, one timed_out past 120 min, one fmre 500 which was
+  transient; that one (Reto, 95c705f1...) was restarted with optimise "now" at 05:12). One of the two workers had
+  died overnight; a second `python -m lbsim worker` was started at 05:09.
+- Background shell `bncwglp8e` (`check --plans`, then the live app test) keeps waiting if the machine stays on.
+- On resume: read its output; list the latest plan run per client (lbsim.run, kind plan); decide with the owner
+  whether non-converging / timed-out plans need a setting change (500 iterations, 10-year cap, 120-min budget);
+  stop the 8098 cockpit; fill USE_CASES.md "to fill" columns; push both remotes.
 - For the owner in the morning: Esther's goal "Ab 2027 vom Vermögen leben" is an lbs `other` lump sum of
   CHF 200 000 dated 2031; it would read better as a retirement goal with a yearly need (use-case content,
   `dev/build_use_cases.py`). Miriam (EUR) and Lukas (USD) get no simulation in v1 (CHF only).

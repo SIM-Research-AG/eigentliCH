@@ -1,39 +1,14 @@
-# Optional override for debugging: publishes every engine, the app, the cockpit and Postgres on
-# 127.0.0.1 of the Docker host only (reach them from your machine with an SSH tunnel, e.g.
-# ssh -L 8000:127.0.0.1:8000 -L 5432:127.0.0.1:5432 server). Never on 0.0.0.0.
+# Optional override for debugging: publishes the app (8017) and the cockpit (8000) on 127.0.0.1
+# of the Docker host only (reach them from your machine with an SSH tunnel, e.g.
+# ssh -L 8017:127.0.0.1:8017 -L 8000:127.0.0.1:8000 server). Never on 0.0.0.0.
 #
 #   docker compose -f compose.yaml -f compose.debug.yaml up -d
 #
-# Ports are the roster's ports. DEBUG_BIND and DEBUG_PG_PORT let you move them if something
-# else on the host already listens there.
+# Every engine as well (and the database): add compose.debug-engines.yaml.
+# DEBUG_BIND, DEBUG_APP_PORT and DEBUG_COCKPIT_PORT move them if something else on the host
+# already listens there.
 services:
-  postgres:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:${DEBUG_PG_PORT:-5432}:5432"]
-  cockpit:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8000:8000"]
-  datafeed:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8001:8001"]
-  honi:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8002:8002"]
-  macrofield:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8003:8003"]
-  aggregation:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8004:8004"]
-  mrs:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8005:8005"]
-  fmre:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8006:8006"]
-  pcp:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8007:8007"]
-  cycle:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8012:8012"]
-  lbs:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8013:8013"]
-  lbsim:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8014:8014"]
-  report:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8015:8015"]
-  chatbot:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8016:8016"]
-  eigentlich:
-    ports: ["${DEBUG_BIND:-127.0.0.1}:8017:8017"]
+  simtech:
+    ports:
+      - "${DEBUG_BIND:-127.0.0.1}:${DEBUG_APP_PORT:-8017}:8017"
+      - "${DEBUG_BIND:-127.0.0.1}:${DEBUG_COCKPIT_PORT:-8000}:8000"

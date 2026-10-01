@@ -1,0 +1,44 @@
+# Build context allowlist for simtech.Dockerfile (context: the Engines folder).
+# Everything is excluded, then only what the image needs is let back in, then local state,
+# secrets and development material are excluded again. Later lines win.
+*
+!deploy/docker/constraints.txt
+!deploy/docker/deps.py
+!deploy/docker/healthcheck.py
+!deploy/docker/cockpit_docker_config.py
+!deploy/docker/supervisord.conf
+!deploy/docker/run.sh
+!deploy/docker/provision.sh
+!deploy/docker/simtech.sh
+!Macro/engines
+!Instruments
+!Optimizer/engines
+!eigentliCH_Engines/engines
+!eigentliCH_Engines/eigentlich
+!cockpit
+
+# Never: environments, secrets, local overrides, caches, tests, golden files, dev material.
+**/.venv
+**/venv
+**/.env
+**/.env.*
+**/config.local.yaml
+**/config.toml
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.hypothesis
+**/.mypy_cache
+**/.ruff_cache
+**/*.egg-info
+**/node_modules
+**/tests
+**/golden
+**/dev
+**/*.cmd
+**/*.dump
+**/*.log
+Macro/engines/macrofield/data/archive
+Instruments/requirements-dev.txt
+Instruments/docs/archive
+cockpit/data

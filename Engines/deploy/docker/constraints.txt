@@ -1,8 +1,9 @@
-# Versions the images install, taken from the working virtual environments on the owner's
-# machine (Macro/.venv, Optimizer/.venv, eigentliCH_Engines/.venv, system Python 3.12.10)
-# on 29.09.2026. A constraint only pins a package when some engine asks for it, so one file
-# serves every image. The engines' own pyproject.toml files decide WHAT is installed; this
-# file decides WHICH version. To upgrade a package, change it here and rebuild.
+# Versions the simtech image installs, taken from the working virtual environments on the
+# owner's machine (Macro/.venv, Optimizer/.venv, eigentliCH_Engines/.venv, system Python 3.12.10)
+# on 29.09.2026. The four families pin the same versions, so the image has one environment for
+# all of them. A constraint only pins a package when some engine asks for it. The engines' own
+# pyproject.toml files decide WHAT is installed; this file decides WHICH version. To upgrade a
+# package, change it here and rebuild.
 fastapi==0.115.6
 starlette==0.41.3
 uvicorn==0.34.0
@@ -27,3 +28,5 @@ casadi==3.7.2
 openpyxl==3.1.5
 et_xmlfile==2.0.0
 packaging==26.3
+# The process supervisor of the simtech container (its own environment, /opt/supervisor).
+supervisor==4.3.0

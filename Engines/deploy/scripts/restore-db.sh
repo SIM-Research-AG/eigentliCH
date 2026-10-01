@@ -1,9 +1,10 @@
 #!/bin/bash
-# Replace the simtech database with a pg_dump custom-format file. Runs inside a one-off
-# container of the `backup` service (postgres:18 image); scripts/restore.sh calls it after
-# stopping every engine and running the provisioning once, so every engine role exists.
+# Replace the simtech database with a pg_dump custom-format file. Runs inside the `db`
+# container (postgres:18 image, over the local socket as the administrator); scripts/restore.sh
+# calls it after stopping the simtech container and running the provisioning once, so every
+# engine role exists.
 #
-#   bash /scripts/restore-db.sh /restore/<file>.dump
+#   bash /scripts/restore-db.sh /backups/<file>.dump
 #
 # What it does: drops simtech (WITH (FORCE) ends any leftover session), creates it empty,
 # and runs pg_restore as the administrator WITHOUT --no-owner, so every schema, table and
@@ -12,11 +13,13 @@
 # not in a pg_dump; the provisioning run after this puts them back.
 set -euo pipefail
 
-DUMP=${1:?usage: restore-db.sh /restore/<file>.dump}
+DUMP=${1:?usage: restore-db.sh /backups/<file>.dump}
 DATABASE=${BACKUP_DATABASE:-simtech}
+export PGUSER=${PGUSER:-${POSTGRES_USER:-postgres}}
+export PGPASSWORD=${PGPASSWORD:-${POSTGRES_PASSWORD:-}}
 [ -f "$DUMP" ] || { echo "no such file: $DUMP" >&2; exit 2; }
 
-until pg_isready -q; do echo "waiting for the server"; sleep 2; done
+until pg_isready -q -d postgres; do echo "waiting for the server"; sleep 2; done
 
 echo "restore: dropping and recreating $DATABASE"
 psql -v ON_ERROR_STOP=1 -d postgres \

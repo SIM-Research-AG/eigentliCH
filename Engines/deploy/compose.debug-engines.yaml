@@ -1,0 +1,27 @@
+# Optional override for debugging, on top of compose.debug.yaml: publishes every engine and the
+# database on 127.0.0.1 of the Docker host only. The engines then listen on 0.0.0.0 inside the
+# simtech container (SIMTECH_ENGINE_BIND), which a published port needs.
+#
+#   docker compose -f compose.yaml -f compose.debug.yaml -f compose.debug-engines.yaml up -d
+#
+# Ports are the roster's ports. DEBUG_BIND and DEBUG_PG_PORT let you move them.
+services:
+  simtech:
+    environment:
+      SIMTECH_ENGINE_BIND: 0.0.0.0
+    ports:
+      - "${DEBUG_BIND:-127.0.0.1}:8001:8001"
+      - "${DEBUG_BIND:-127.0.0.1}:8002:8002"
+      - "${DEBUG_BIND:-127.0.0.1}:8003:8003"
+      - "${DEBUG_BIND:-127.0.0.1}:8004:8004"
+      - "${DEBUG_BIND:-127.0.0.1}:8005:8005"
+      - "${DEBUG_BIND:-127.0.0.1}:8006:8006"
+      - "${DEBUG_BIND:-127.0.0.1}:8007:8007"
+      - "${DEBUG_BIND:-127.0.0.1}:8012:8012"
+      - "${DEBUG_BIND:-127.0.0.1}:8013:8013"
+      - "${DEBUG_BIND:-127.0.0.1}:8014:8014"
+      - "${DEBUG_BIND:-127.0.0.1}:8015:8015"
+      - "${DEBUG_BIND:-127.0.0.1}:8016:8016"
+  db:
+    ports:
+      - "${DEBUG_BIND:-127.0.0.1}:${DEBUG_PG_PORT:-5432}:5432"
