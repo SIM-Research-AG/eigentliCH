@@ -36,93 +36,18 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
   lbsim's newest paths; non-CHF clients accepted without a simulation). `check` all_ok TRUE at 22:40. Pushed 4e85d11.
 - Base chances now: Simon 0.68, Noemi 0.997, Michele 0.016, Reto 0.0, Corinne 0.0, Regula 0.13, Kurt 0.997,
   Esther 0.993, Peter 1.0, the rest 1.0.
-- Paused 30.09.2026 05:15 (owner). Plans (latest per client, 18 CHF clients): 7 succeeded, 7 queued, 1 running,
-  3 failed (Reto, Michele, Corinne: one solver non-convergence, one timed_out past 120 min, one fmre 500 which was
-  transient; that one (Reto, 95c705f1...) was restarted with optimise "now" at 05:12). One of the two workers had
-  died overnight; a second `python -m lbsim worker` was started at 05:09.
-- Background shell `bncwglp8e` (`check --plans`, then the live app test) keeps waiting if the machine stays on.
-- On resume: read its output; list the latest plan run per client (lbsim.run, kind plan); decide with the owner
-  whether non-converging / timed-out plans need a setting change (500 iterations, 10-year cap, 120-min budget);
-  stop the 8098 cockpit; fill USE_CASES.md "to fill" columns; push both remotes.
-- For the owner in the morning: Esther's goal "Ab 2027 vom Vermögen leben" is an lbs `other` lump sum of
-  CHF 200 000 dated 2031; it would read better as a retirement goal with a yearly need (use-case content,
-  `dev/build_use_cases.py`). Miriam (EUR) and Lukas (USD) get no simulation in v1 (CHF only).
-- Docker: `Engines/deploy/` built, tested (images, smoke test, real-dump restore). CTO takes over 30.09.2026 from
-  https://github.com/SIM-Research-AG/eigentliCH. Dump for him: `PostgreSQL/backups/simtech_for_server_2026-09-29.dump`.
-  Pending engine changes: `Engines/deploy/ENGINE_CHANGES.md` (cockpit items 2-5, 8; fmre/app init 6-7).
-
-Hung pytest processes stopped and scratch schemas dropped (owner's go-ahead). The owner is judging FMRE-38 (a duration-6 bond
-reads -97 % real in hyperinflation, not -94 %; -94 % is the price change alone).
-
-Notion page ids:
-- Build Instruction `3e90ba72543f819b9fa1ff13ecf5fb59`
-- 03 macrofield `3e50ba72543f81d38916efb0c7cc5241`, 04 aggregation `3e50ba72543f81e3815ce4aece6046ed`
-- 06 fmre `3e50ba72543f81f8ad09f996fd82db92`, 07 pcp `3e50ba72543f8156b3e7f074387d7cac`
-- 11 cockpit `3e50ba72543f8148a851e54a2b18750b`, 12 cycle `3e80ba72543f81299187c34493263bba`
-- 13 lbs `3e80ba72543f81cd8fc5c5a7279c1b0c`, 15 report `3e80ba72543f81279459c05a6644539a`
-- 16 chatbot `3e80ba72543f81ab9706e18e563646f8`
-- Guide `3e30ba72543f80549955d5029d2512cd`, review dossier `3e90ba72543f8177a16ad5712c140bc4`
-
-## Live system (versions)
-
-- **Macro:**
-  - macrofield 1.5.0 (projection to 2080).
-  - cycle: contract cycle-state@1.2.0.
-  - aggregation: Default Regime `RGM-e2658e8e9bbbc81e`, optimism default. Scenario Regimes carry
-    `inflation_path` and `inflation_final_12m` (computed at read time, AGG-24):
-    - depression `RGM-1af6968e287768c9`
-    - hyperinflation `RGM-59eebfaf7744d8ec` (63.6 %)
-    - stagflation `RGM-6bb531998bfefc4d` (10 %)
-    - deferral `RGM-c0ed086f1916984e` (2.6 %)
-- **fmre:**
-  - The default is forward 12m plus smoothing. Default stamped `RS-59598b143ab78c56`, CHF `RS-c472e411e39645f5`.
-  - `/v1/inflation`, `basis=real`.
-  - β pass-through under scenarios (`ipt@1.1.0` live, `IPT-585c7da4656ead2b`; 1.0.0 kept in the store).
-  - `GET/PUT /v1/inflation-beta`, `GET /v1/inflation-beta/{id}/history`.
-- **pcp 1.2.0:** currency, basis, a joint-feasibility check, the rescue path, the hard-currency fallback (PCP-23).
-- **lbs 1.3.0:** calibration 1.5.0 live. Real view, amount basis,
-  indexed contribution, the plausibility judgement.
-- **report 1.3.0:** basis, revisions, no ids, house role names.
-- **chatbot 1.2.0:** MiniMind, wider domain.
-- **App 1.3.0:**
-  - two-adult households, contribution shares, the nominal/real switch;
-  - reports on the base run of the current parameter set;
-  - readable decision history;
-  - 20 use-case clients.
-  - `desktop.cmd` (the target of `eigentliCH.lnk`) starts lbs, report, chatbot, aggregation, pcp and the app.
-- **Cockpit:**
-  - Curator pages; mandate presets v2; 13 target-curve presets;
-  - Regime by optimism level (C-30); real switch (C-31); β override panel (C-32);
-  - tests 75.
-  - The owner must reopen the desktop app on 8000 to see it.
-
-## Owner decisions of 29.09.2026 (all settled)
-
-- **Real view:**
-  - inflation per state over the following 12 months; scenarios use their own path;
-  - index CH CPI / HICP / CPI-U;
-  - ceiling -20 % to +100 %, with a hard-currency view above it;
-  - **default nominal everywhere**;
-  - goals in today's francs by default; contributions fixed by default;
-  - Germany 1922-23 as a stress case only.
-- **β pass-through:**
-  - gold, commodities and inflation-linked 1.0; real estate and infrastructure 0.8; equities 0.6;
-    hedge funds, digital assets and volatility 0.5; **cash 0**; nominal bonds 0 plus a log-form duration loss;
-  - role profiles take a blended β;
-  - the CIO can override β per instrument.
-- **lbs:** CHF inflation 1.0 %; the plausibility table 2 / 3.5 / 5 % real.
-- **pcp:** accept the hard-currency fallback, clearly marked.
-- **Earlier:**
-  - Income A; Global Bonds in Income; Short MSCI US and CS Long Vola deactivated; volatility on VXTH;
-  - erasure deletes decisions; 20 use cases;
-  - Engines 08, 09 and 10 dropped;
-  - MiniMind is the name; the chatbot answers beyond the notes;
-  - no raw ids or keys shown; one language per page;
-  - knowledge notes approved (v2).
-
-## With the owner
-
-- Reopen the cockpit desktop app.
-- Run the SQL Metadata "Merge with CSV" with `Engines/Instruments/docs/sql_metadata.csv`.
-- Tell Tino (Engines 08, 09 and 10 dropped).
-- A first click-through of the app and the cockpit.
+- **Parked 01.10.2026 by the owner.** Power cut on 30.09; the machine restarted, nothing lost. Docker deployment
+  rebuilt to the CTO's real requirement: TWO containers (`simtech` with all engines, workers, app and cockpit under
+  supervisord on 127.0.0.1; `db` PostgreSQL 18 with the nightly backup), tested incl. the real-dump restore, pushed
+  b0b388f to both remotes. CTO handover text given to the owner (01.10.2026).
+- Open when resuming:
+  1. Start the engines here (eigentliCH desktop icon starts lbs, report, chatbot, aggregation, fmre, pcp, lbsim,
+     app; the cockpit via its own shortcut). Queued and cut-off lbsim plan runs requeue on their own.
+  2. Three plans failed on 30.09 (Reto, Michele, Corinne: solver non-convergence, a time-out past 120 min, and a
+     transient fmre 500 that was retried). Ask the owner whether to change 500 iterations / 10-year cap / 120 min.
+  3. Run `build_use_cases.py check --plans`, then the live app test (`EIGENTLICH_LIVE=1 pytest tests/test_app_live.py`).
+  4. Fill the "to fill" columns in `eigentlich/docs/USE_CASES.md`; stop any temporary cockpit on 8098.
+  5. Engine fixes in `Engines/deploy/ENGINE_CHANGES.md` (lbsim schema deadlock with parallel workers: advisory
+     lock; cockpit curator-DB env vars and launcher switch; fmre/app create their tables at start-up).
+  6. Notion pages for lbsim (14), report 1.4.1, the app, cockpit and the Docker deployment are not updated yet.
+  7. Owner's morning item: Esther's goal "Ab 2027 vom Vermögen leben" would fit better as a retirement goal.
