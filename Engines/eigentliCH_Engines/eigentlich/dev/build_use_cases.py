@@ -1541,10 +1541,13 @@ CLIENTS: list[dict[str, Any]] = [
             P("stabilisation", "financial", TAX, 9000, kind="liability", liq="within_months", vessel="free"),
         ],
         goals=[
-            G("Ausgaben im Ruhestand aus frei verfügbarem Vermögen gedeckt", 62000, "2031-12-31",
+            # Owner, 03.10.2026: the retirement starts when the job ends in summer 2027, and the second goal is named
+            # for what it measures (free wealth kept at 200 000 until 2031), not "live from wealth".
+            G("Ausgaben im Ruhestand aus frei verfügbarem Vermögen gedeckt", 62000, "2027-07-31",
               match=("Ausgaben aus frei verfügbarem Vermögen gedeckt",), kind="retirement",
               funded=("Pensionskasse (Bezug aufgeschoben)", P3A)),
-            G("Ab 2027 vom Vermögen leben", 200000, "2031-12-31", funded=(CASH, SEC),
+            G("Freies Vermögen bis 2031 bei 200 000 halten", 200000, "2031-12-31", funded=(CASH, SEC),
+              match=("Ab 2027 vom Vermögen leben",),
               why="Das freie Vermögen soll bis 2031 bei 200 000 bleiben, Entnahmen kommen aus Renten und 3a."),
             G("Vorsorgeauftrag und Patientenverfügung beurkunden lassen", 1800, "2026-12-31", template="estate",
               funded=(CASH,)),

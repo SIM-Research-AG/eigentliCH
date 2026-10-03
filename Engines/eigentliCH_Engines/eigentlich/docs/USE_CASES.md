@@ -374,8 +374,8 @@ for tax?" (both from the notes). Report, **approved**.
 
 **Situation.** Widowed, school secretary at 40 % until summer 2027, AHV since 2024, pension fund deferred (CHF
 340 000), an owner-occupied flat. The lowest expertise and network in the set (E 0.78, N 0.39).
-**Goals.** "Ausgaben im Ruhestand aus frei verfügbarem Vermögen gedeckt" (CHF 62 000 a year); "Ab 2027 vom Vermögen
-leben" (keep CHF 200 000 until 2031); "Vorsorgeauftrag und Patientenverfügung beurkunden lassen" (CHF 1 800); a
+**Goals.** "Ausgaben im Ruhestand aus frei verfügbarem Vermögen gedeckt" (CHF 62 000 a year from summer 2027, when
+her job ends); "Freies Vermögen bis 2031 bei 200 000 halten" (keep CHF 200 000 until 2031); "Vorsorgeauftrag und Patientenverfügung beurkunden lassen" (CHF 1 800); a
 reserve for Spitex and a barrier-free conversion (CHF 60 000); a course for private guardians 2027.
 **Demonstrates.** Old age, care and incapacity, the **hyperinflation** scenario, a report **awaiting** the curator,
 a MiniMind refusal followed by a rephrased question and a curator answer.
