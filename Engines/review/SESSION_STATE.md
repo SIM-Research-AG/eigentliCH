@@ -86,3 +86,16 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
 - Not started: the Docker agent removing the deploy/ workarounds and retesting; lbsim restart (after plans);
   `check --plans`, live app test, USE_CASES.md "to fill"; Notion (connector unavailable).
 - Plans: 18 were calculating on 3 workers; on power loss they requeue when lbsim starts again.
+
+## Stopped again 03.10.2026 ~16:00 (owner)
+- Done and pushed (d2af040): all ENGINE_CHANGES items in the engines (cockpit 4d6350c, eigentliCH 91d1859,
+  fmre/Macro/pcp 810fd9f), every engine restarted on them; deploy/ without workarounds, retested (empty start,
+  real-dump restore, 20 parallel worker starts, quiet logs). macrofield "hang" was a slow suite (124 tests, 18.5 min)
+  plus Git's timeout.exe not killing the Windows python child: use `-o faulthandler_timeout=...`, not `timeout`.
+- Plans under calibration 1.6.0: 12 succeeded; 6 failed "solver" (Corinne, Esther, Franziska, Kurt, Michele, Peter),
+  each after 3 seed attempts in 5-38 min. Suspected: retired households with nothing to steer (Esther, Kurt, Peter),
+  unreachable goals reported as solver failure instead of goal_not_fundable per M79 (Corinne, Michele); Franziska
+  unclear. An agent was investigating and was STOPPED by the owner; check `git status` in engines/lbsim for partial
+  edits before restarting that work.
+- App live test: 4 passed (03.10.2026).
+- Still open: the 6 plans; USE_CASES.md "to fill" columns (after the plans); Notion (connector unavailable).
