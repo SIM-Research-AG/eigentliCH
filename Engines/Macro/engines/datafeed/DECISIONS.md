@@ -113,5 +113,7 @@ to worst of the high-yield index, for the spread `MR_Bond.m` meant to take); its
 series equal r2 cell for cell. The MATLAB columns stay in the registry unchanged, so
 `mrs`'s `matlab` mode still sees what MATLAB saw.
 
+**DF-19 Health probes stay out of the access log** (03.10.2026, `deploy/ENGINE_CHANGES.md` item 10). `access_log.py` puts a filter on uvicorn's `uvicorn.access` logger, installed at the top of `create_app` (uvicorn configures its loggers before it calls the factory). It drops a `GET /health` line that answered below 400, matched on the path without the query string; every other request is still logged, and so is a health call that answered 400 or more. No new dependency; `tests/test_access_log.py`. The engine version stays `datafeed@1.0.0`: it enters every idempotency key (the panel run key), so a bump would give a rerun of unchanged inputs new ids for a change that alters no figure. The container's health check calls 14 routes every 30 seconds, about 40,000 health lines a day between the lines that matter. A failing probe is the line worth reading, so it stays.
+
 **DF-14 The filled snapshot id** hashes the raw snapshot's checksum together with the fill
 verdicts and the calibration, so a changed raw snapshot can never share a child id.

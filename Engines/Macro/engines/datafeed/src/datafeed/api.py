@@ -13,7 +13,7 @@ from typing import Any, Optional
 from fastapi import FastAPI, Header, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import ENGINE_VERSION, contracts as c
+from . import ENGINE_VERSION, access_log, contracts as c
 from .service import Conflict, InvalidRequest, NotFound, Service
 from .settings import Settings, load
 from .store import Store
@@ -21,6 +21,8 @@ from .store import Store
 
 def create_app(settings: Optional[Settings] = None) -> FastAPI:
     settings = settings or load()
+    # Successful health probes stay out of uvicorn's access log (DF-19).
+    access_log.install()
     service = Service(settings, Store(settings.database))
 
     @asynccontextmanager

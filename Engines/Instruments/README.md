@@ -22,6 +22,11 @@ python -m uvicorn api.main:app --port 8006 --reload
 After the first run, `python -m store.etl.bootstrap` on its own rebuilds the store, and
 **`start.cmd`** (double-clickable) starts the engine.
 
+`pip install ".[etl]"` installs the same dependencies from `pyproject.toml` (the `etl` extra
+adds `openpyxl` for the offline ETL, `dev` the test tools); fmre still runs from this folder
+(FMRE-43). The engine applies its schema at start-up, and on a schema without its tables
+`/v1/health` answers 200 with `"status": "uninitialised"` (FMRE-42).
+
 > **Docker running is not enough.** The container is the database and comes back by itself
 > after a reboot (`restart: always`). The engine is a separate process and does not — if
 > the test bench says it cannot reach `127.0.0.1:8006`, that is almost always why.

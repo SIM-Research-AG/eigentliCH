@@ -15,7 +15,7 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from . import ENGINE_VERSION, contracts as c
+from . import ENGINE_VERSION, access_log, contracts as c
 from .service import Conflict, InvalidRequest, NotFound, Service
 from .settings import ROOT, Settings, load
 from .store import Store
@@ -26,6 +26,8 @@ TESTBENCH = ROOT / "testbench" / "index.html"
 
 def create_app(settings: Optional[Settings] = None) -> FastAPI:
     settings = settings or load()
+    # Successful health probes stay out of uvicorn's access log.
+    access_log.install()
     service = Service(settings, Store(settings.database))
 
     @asynccontextmanager

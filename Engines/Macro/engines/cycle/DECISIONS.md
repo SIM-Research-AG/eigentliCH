@@ -233,6 +233,8 @@ the real `cycle` schema on 28.09.2026 (`CYS-c6a5185ec9c743a0`, `CYS-ae1207d81825
 read back identical to their stored payload. A later contract bump adds one model to
 `STORED_CYCLE_STATES` rather than replacing the last.
 
+**C-27 Health probes stay out of the access log** (03.10.2026, `deploy/ENGINE_CHANGES.md` item 10). `access_log.py` puts a filter on uvicorn's `uvicorn.access` logger, installed at the top of `create_app` (uvicorn configures its loggers before it calls the factory). It drops a `GET /health` line that answered below 400, matched on the path without the query string; every other request is still logged, and so is a health call that answered 400 or more. No new dependency; `tests/test_access_log.py`. The engine version stays `cycle@1.0.0`: it enters every idempotency key (`Service.idempotency_key`), so a bump would give a rerun of unchanged inputs new ids for a change that alters no figure. The container's health check calls 14 routes every 30 seconds, about 40,000 health lines a day between the lines that matter. A failing probe is the line worth reading, so it stays.
+
 **C-15 What is not ported.** The draft's `years_into_capital_cycle` restart (needs the saturation
 phase classifier), `spectrum` (a chart helper), the regime tilts that read the cycles
 (`capital_overdue`, `innovation_to_trough`: they belong to `aggregation`) and the blend of the

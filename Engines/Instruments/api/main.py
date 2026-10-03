@@ -21,19 +21,22 @@ and read by reference, and that is both a privacy guarantee and the caching desi
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Any, Iterator
+from contextlib import asynccontextmanager
+from typing import Any, AsyncIterator, Iterator
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
+from api import access_log
 from api.data import router as data_router
 from api.datafeed import router as datafeed_router
 from api.integrity import router as integrity_router
@@ -71,6 +74,32 @@ BASIS_PATTERN = r"^(nominal|real)$"
 #: currency reads the stored profiles back unchanged.
 METHOD_PATTERN = r"^(cascade|shape_scaled|forward_12m|forward_12m_smoothed)$"
 
+log = logging.getLogger("fmre")
+
+#: The tables ``/v1/health`` counts. All of them exist once ``schema.sql`` has been applied.
+HEALTH_TABLES = ("long_series", "market_risk_signal", "instrument",
+                 "instrument_return", "calibration", "run_manifest")
+
+# Successful health probes stay out of uvicorn's access log (FMRE-42).
+access_log.install()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    """Apply the schema at start-up, as every other engine does (FMRE-42).
+
+    :func:`store.db.initialise` is idempotent, so on a store that already holds the tables
+    it changes nothing that is published. A failure here (the server not up yet, a role
+    without the right to create) is logged and the engine starts anyway: ``/v1/health``
+    then says what is missing, which is more use than a process that exits.
+    """
+    try:
+        db.initialise()
+    except Exception as exc:  # noqa: BLE001 - reported, and health shows the state
+        log.warning("fmre: the schema could not be applied at start-up: %s", exc)
+    yield
+
+
 app = FastAPI(
     title="sim-tech Instruments -- Fund Map",
     version=service.ENGINE_VERSION,
@@ -79,6 +108,7 @@ app = FastAPI(
         "per role and per instrument, every value carrying the method that produced it. "
         "Deliberately publishes no mean, variance or covariance."
     ),
+    lifespan=lifespan,
 )
 
 
@@ -163,12 +193,34 @@ def health(conn: db.Connection = Depends(get_conn)) -> dict[str, Any]:
     Which database answered is worth surfacing: the same engine against an empty schema
     looks identical to one against a stale one, and "which server am I actually on?" is
     the first question when a figure looks wrong.
+
+    On a schema without fmre's tables it answers 200 with ``"status": "uninitialised"`` and
+    names the missing tables, rather than a 500 (FMRE-42). The start-up hook applies the
+    schema, so this is seen only when that failed or the tables were dropped since.
     """
+    schema = conn.config.schema
+    missing = [
+        table for table in HEALTH_TABLES
+        if conn.execute("SELECT to_regclass(%s) AS t", (f"{schema}.{table}",)).fetchone()["t"]
+        is None
+    ]
+    if missing:
+        return {
+            "status": "uninitialised",
+            "engine": service.ENGINE,
+            "engine_version": service.ENGINE_VERSION,
+            "calibration_id": None,
+            "store": db.describe(),
+            "missing_tables": missing,
+            "note": (
+                f"schema {schema} lacks fmre's tables. Restart the engine to apply them, or "
+                f"run python -m store.etl.bootstrap"
+            ),
+        }
     calibration_id = service.latest_calibration_id(conn)
     counts = {
         table: conn.execute(f"SELECT COUNT(*) AS n FROM {table}").fetchone()["n"]
-        for table in ("long_series", "market_risk_signal", "instrument",
-                      "instrument_return", "calibration", "run_manifest")
+        for table in HEALTH_TABLES
     }
     return {
         "status": "ok" if calibration_id else "uncalibrated",

@@ -15,7 +15,7 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from . import ENGINE_VERSION, contracts as c
+from . import ENGINE_VERSION, access_log, contracts as c
 from .clients import aggregation_client, fmre_client
 from .service import Conflict, InvalidRequest, NotFound, Refused, Service, Unavailable, allowlist_report
 from .settings import ROOT, Settings, load
@@ -29,6 +29,8 @@ def create_app(settings: Optional[Settings] = None,
                aggregation_transport: Optional[httpx.BaseTransport] = None,
                fmre_transport: Optional[httpx.BaseTransport] = None) -> FastAPI:
     settings = settings or load()
+    # Successful health probes stay out of uvicorn's access log (PCP-24).
+    access_log.install()
     timeout = settings.upstream_timeout_s
     aggregation = aggregation_client(settings.aggregation_url, timeout, aggregation_transport)
     fmre = fmre_client(settings.fmre_url, timeout, fmre_transport)

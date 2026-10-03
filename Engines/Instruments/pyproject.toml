@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fmre"
+version = "1.0.0"
+description = "Instruments: the Fund Map return engine (fmre), per-state return profiles for the instrument universe. Model-derived research output; not investment advice."
+requires-python = ">=3.11"
+# Runtime: the same four packages as requirements.txt, and the same pins. Everything
+# numerical is on the standard library (engines/fund_map/numerics.py).
+dependencies = [
+    "fastapi==0.115.6",
+    "pydantic==2.10.4",
+    "uvicorn==0.34.0",
+    "psycopg[binary]==3.2.3",
+]
+
+[project.optional-dependencies]
+# The offline ETL: store/etl/long_record.py reads the Steiner workbooks. Never needed by a
+# running engine.
+etl = ["openpyxl==3.1.5"]
+# Building and testing only; the same as requirements-dev.txt.
+dev = [
+    "openpyxl==3.1.5",
+    "pytest==8.3.4",
+    "httpx==0.28.1",     # fastapi TestClient
+]
+
+# fmre runs from its own folder (start.cmd, `python -m uvicorn api.main:app`), and its
+# top-level packages carry generic names (api, store, engines, contracts, feeds). So this
+# file declares the dependencies and installs no package: `pip install .[etl]` puts the
+# right libraries in an environment, and nothing called `api` lands in site-packages where
+# it could shadow another project's (FMRE-43).
+[tool.setuptools]
+packages = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

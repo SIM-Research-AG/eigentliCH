@@ -18,7 +18,7 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from . import ENGINE_VERSION, contracts as c
+from . import ENGINE_VERSION, access_log, contracts as c
 from .clients import DatafeedClient
 from .service import Conflict, InvalidRequest, NotFound, Service, Unavailable, allowlist_report
 from .settings import ROOT, Settings, load
@@ -32,6 +32,8 @@ TESTBENCH = ROOT / "testbench" / "index.html"
 def create_app(settings: Optional[Settings] = None,
                datafeed_transport: Optional[httpx.BaseTransport] = None) -> FastAPI:
     settings = settings or load()
+    # Successful health probes stay out of uvicorn's access log (D-31).
+    access_log.install()
     datafeed = DatafeedClient(settings.datafeed_url, settings.datafeed_timeout_s,
                               transport=datafeed_transport)
     service = Service(settings, Store(settings.database), datafeed)
