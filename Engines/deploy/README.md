@@ -15,9 +15,10 @@ you do not need to know the code. Written 29.09.2026, restructured to two contai
 Only the app and the cockpit are reachable from outside, through the tunnel and Cloudflare
 Access. The host publishes no port.
 
-**What does not change on the owner's machine:** this folder is all there is. No engine was
-modified; the changes the engines would benefit from are listed in
-[ENGINE_CHANGES.md](ENGINE_CHANGES.md).
+**What does not change on the owner's machine:** this folder is all there is. The engine
+changes this deployment asked for ([ENGINE_CHANGES.md](ENGINE_CHANGES.md)) are in the engines
+since 03.10.2026, so every engine, the app and the cockpit run from their own committed
+config.yaml plus environment, with no overlay and no workaround.
 
 ## Contents
 
@@ -61,7 +62,7 @@ The programs supervisord runs in `simtech`, in start order:
 | `report` (15) | 8015 | `/health` | lbs, pcp, lbsim |
 | `chatbot` (16) | 8016 | `/health` | lbsim |
 | `eigentlich` (the app) | 8017 (0.0.0.0) | `/health` | lbs, lbsim, report, chatbot |
-| `cockpit` (11) | 8000 (0.0.0.0) | `/api/config` | the app |
+| `cockpit` (11) | 8000 (0.0.0.0) | `/health` | the app |
 | `cloudflared` (only with a token) | | | the app, the cockpit |
 
 Inside `simtech` the engines reach each other on `http://127.0.0.1:<port>`, which is what every
@@ -73,7 +74,7 @@ Engines 08, 09 and 10 are not built and are not in the roster.
 
 - A Linux x86_64 server with a current Docker Engine and the Compose plugin (tested with Docker
   29.5 and Compose 5.1). BuildKit, the default builder, is required (the image has its own
-  `.dockerignore` beside its Dockerfile). About 1.5 GB of disk for the image, plus the database
+  `.dockerignore` beside its Dockerfile). About 1 GB of disk for the image, plus the database
   and its backups.
 - Outbound HTTPS from the server to Cloudflare (the tunnel) and to `spark7.minimind.ch` (the
   MiniMind model server that report and chatbot call).
@@ -154,11 +155,10 @@ fail to start on it, and `store.provision.adopt()` hands it over (ask the owner 
 
 **6. Open the way in:** [Cloudflare Tunnel and Access](#cloudflare-tunnel-and-access).
 
-**Starting without a dump** (an empty system, e.g. to try it out): `docker compose up -d`, then
-`./scripts/init-empty.sh`, which creates the tables of the two programs that do not create their
-own at start-up (fmre and the app). Until then `simtech` is reported unhealthy, because fmre's
-health route answers 500 without its tables. Afterwards everything is healthy, but empty: there
-is no source data, no calibration and no questionnaire content.
+**Starting without a dump** (an empty system, e.g. to try it out): `docker compose up -d`. Every
+engine and the app create their tables at start-up, so `simtech` goes healthy by itself, but
+empty: there is no source data, no calibration (fmre says `uncalibrated`) and no questionnaire
+content.
 
 ## Start order
 
@@ -191,8 +191,10 @@ every health route called from inside `simtech` with the HTTP status and the eng
 `status` field, and whether the database answers. Ends with `all ok` and exit status 0 when
 everything is as it should be, so it can go into a monitoring job.
 
-Expected values: `ok` for all; `fmre` says `uncalibrated` until a calibration is loaded; the app
-says `degraded` when its database is unreachable. `docker compose ps` alone shows the health that
+Expected values: `ok` for all; `fmre` says `uncalibrated` until a calibration is loaded (on an
+empty database), and `uninitialised` if it could not create its tables at start-up (its log says
+why; `supervisorctl restart fmre` tries again); the app says `degraded` when its database is
+unreachable. `docker compose ps` alone shows the health that
 Docker itself checks every 30 seconds (`simtech health --quiet`: every route must answer 200).
 
 ## Cloudflare Tunnel and Access
@@ -225,6 +227,13 @@ public hostnames.
    cloudflared starts once the app and the cockpit answer). Its log lines start with
    `[cloudflared]`.
 5. Test from outside: both hostnames must first show the Cloudflare Access sign-in page.
+6. Optional: set `COCKPIT_ENGINE_EIGENTLICH_PUBLIC_URL=https://app.<your-domain>` in `.env` and
+   `docker compose up -d`, so that the cockpit's System page links the app at its public
+   address. Without it, the System page links an engine only when the cockpit itself is opened
+   on 127.0.0.1 or localhost (the debug files, [Everyday commands](#everyday-commands)), because
+   through the tunnel `http://127.0.0.1:80NN` would point at the viewer's own computer. The cockpit reads
+   `COCKPIT_ENGINE_<KEY>_PUBLIC_URL` for every engine in its roster, but the engines have no
+   public hostname here (step 3), so leave the others unset.
 
 To run without the tunnel, empty `CLOUDFLARE_TUNNEL_TOKEN` and `docker compose up -d`. A new
 cloudflared release: set `CLOUDFLARED_VERSION` in `.env`, then `docker compose build` and
@@ -273,9 +282,16 @@ must then hold those old values.
 
 Tested on 01.10.2026 on a separate compose project with empty volumes: the owner's dump of
 29.09.2026 (`simtech_for_server_2026-09-29.dump`, 24.6 MB) restored with this script in 14
-seconds, no pg_restore errors, every schema owned by its engine, every health route `ok` without
-`init-empty.sh`; then `backup.sh now`, and `restore.sh --backup` of that backup, with the same
-result.
+seconds, no pg_restore errors, every schema owned by its engine, every health route `ok`; then
+`backup.sh now`, and `restore.sh --backup` of that backup, with the same result.
+
+Tested again on 03.10.2026 with the engines' changes (ENGINE_CHANGES.md): on an empty database
+`simtech` went healthy by itself in about 35 seconds (fmre `uncalibrated`, everything else `ok`);
+the same dump restored in 13 seconds with no pg_restore errors, healthy 30 seconds later, with
+the Default Regime, 20 clients, their lbs sheets and stored reports readable through the
+engines and the app, the cockpit's curator store reachable on `db` and no engine startable
+through the cockpit; the 3 lbsim workers started together (and with the lbsim API, 5 times)
+without one exiting; and 2 minutes of `docker compose logs simtech` held no health-probe line.
 
 ## Upgrade
 
@@ -313,6 +329,7 @@ docker compose exec simtech supervisorctl restart honi     # restart one engine
 docker compose exec simtech supervisorctl restart 'lbsim-worker:*'   # every plan worker
 docker compose restart simtech                             # every program, provisioning first
 docker compose exec simtech simtech health                 # the health routes alone
+docker compose exec simtech simtech eigentlich show        # an app maintenance command (python -m eigentlich ...)
 docker compose exec db psql -U myuser -d simtech           # a SQL prompt as administrator
 docker compose -f compose.yaml -f compose.debug.yaml up -d # app and cockpit on 127.0.0.1:8017 / :8000
 ```
@@ -342,22 +359,23 @@ the password it was created with; `POSTGRES_PASSWORD` only matters on an empty v
 ## The cockpit in Docker
 
 On the owner's machine the cockpit's desktop app starts every engine (`autostart: true` and a
-`start` command for each engine in `cockpit/config.yaml`); `python -m cockpit serve` does not
-autostart, but its System page can still start an engine through `POST /api/launcher/{key}/start`.
-In Docker supervisord starts the engines, and the cockpit must only show status, so without
-changing the cockpit:
+`start` command for each engine in `cockpit/config.yaml`). In Docker supervisord starts the
+engines, and the cockpit only shows status. It runs from its committed `config.yaml` (the
+engine addresses `http://127.0.0.1:80NN` are right inside `simtech`) plus environment, set in
+`docker/supervisord.conf`:
 
-- supervisord runs `python -m cockpit serve`, never `desktop` or `start-engines`;
-- at image build, `docker/cockpit_docker_config.py` writes the cockpit's `config.local.yaml` from
-  its own `config.yaml`: every `start`, `python` and `autostart` entry is removed, the engine
-  addresses stay `http://127.0.0.1:80NN`. The cockpit then has nothing it may start (tested:
-  none of the 13 is startable, and the start route answers 409);
-- the curator's database host becomes `db`; its password comes from `SIMTECH_CURATOR_PASSWORD`.
+- `python -m cockpit serve`, never `desktop` or `start-engines`;
+- `COCKPIT_LAUNCHER=off`: no engine is startable, the System page shows no Start, and
+  `POST /api/launcher/{key}/start` answers 409 with a sentence saying why;
+- `COCKPIT_CURATOR_DB_HOST` and `_PORT` from `SIMTECH_DB_HOST` and `SIMTECH_DB_PORT` (`db:5432`),
+  the password from `SIMTECH_CURATOR_PASSWORD`; database `simtech` and user `curator` are the
+  config.yaml defaults;
+- `COCKPIT_DATA_DIR=/data` (the `cockpit-data` volume) and, when set in `.env`,
+  `COCKPIT_ENGINE_EIGENTLICH_PUBLIC_URL` ([Cloudflare Tunnel and Access](#cloudflare-tunnel-and-access), step 6).
 
-Known limit: the System page links each engine's own address, `http://127.0.0.1:80NN`; opened
-through the tunnel, that points at the viewer's own computer, so those links do not work (the
-test benches and the proxy do). ENGINE_CHANGES.md items 1, 2 and 4 describe the cockpit changes
-that would make the overlay unnecessary and the links useful.
+Its health route is `GET /health`. Opened through the tunnel, the System page leaves out the
+links to the engines' own addresses (they would point at the viewer's computer); the test
+benches and the proxy work, because they go through the cockpit.
 
 `COCKPIT_MODE` in `.env`: `development` (the default, the owner's decision: everything, including
 the test benches and every write through the proxy) or `cio` (the CIO workspace and system status
@@ -383,6 +401,14 @@ committed `config.yaml` files and never a developer's `config.local.yaml`, `.env
   between engines, which share the user and the container;
 - the lbsim API runs as `python -m lbsim serve --workers 0`; the plan workers run as
   `python -m lbsim worker`, `LBSIM_WORKERS` of them, with the maths libraries held to one thread.
+  They all start at once: every eigentliCH store applies its schema under an advisory lock, so
+  processes starting together queue for it;
+- the app's maintenance commands (`simtech eigentlich seed`, `migrate`, `align-content`, ...)
+  write their reports to `EIGENTLICH_REPORT_DIR=/var/lib/simtech/reports`, a folder in the
+  container owned by `engine` (not a volume: `docker compose cp simtech:/var/lib/simtech/reports .`
+  to keep one);
+- successful health probes are left out of every engine's, the app's and the cockpit's access
+  log, so `docker compose logs simtech` shows real requests only.
 
 ## What is not in the repository
 
@@ -398,7 +424,7 @@ restore from the owner's dump:
 |---|---|---|
 | `python -m datafeed bootstrap` | the MATLAB export `M_TS.mat` and the ticker workbooks (`DATAFEED_MATLAB_DIR`) | `SIM_NAS/SIM_Tech/Master_Controller` |
 | `python -m store.etl.bootstrap` (fmre) | the feed CSV and the ECN folder (`INSTRUMENTS_FEED_CSV`, `INSTRUMENTS_ECN_DIR`) | outside `Engines` |
-| `python -m eigentlich seed` / `migrate` | the questionnaire prototype and its SQLite file (`EIGENTLICH_PROTOTYPE_ROOT`, `EIGENTLICH_MIGRATE_FROM`) | `Projects/eigentliCH/Prototype` |
+| `simtech eigentlich seed` / `migrate` | the questionnaire prototype and its SQLite file (`EIGENTLICH_PROTOTYPE_ROOT`, `EIGENTLICH_MIGRATE_FROM`) | `Projects/eigentliCH/Prototype` |
 
 ## Files in this folder
 
@@ -412,19 +438,17 @@ restore from the owner's dump:
 | `docker/simtech.Dockerfile.dockerignore` | the allowlist of what enters the build |
 | `docker/supervisord.conf` | every program in `simtech`: folder, command, database role, start order |
 | `docker/run.sh` | starts one program: its database login, secrets removed, waits, log prefix |
-| `docker/simtech.sh` | the container's entrypoint and the `simtech` command (start, provision, init-empty, health) |
+| `docker/simtech.sh` | the container's entrypoint and the `simtech` command (start, provision, eigentlich, health) |
 | `docker/provision.sh` | the start-up provisioning (supervisord's one-shot program) |
 | `docker/healthcheck.py` | every health route (standard library only) |
 | `docker/constraints.txt` | pinned package versions (from the owner's working environments) |
 | `docker/deps.py` | reads the engines' dependencies from their `pyproject.toml` |
-| `docker/cockpit_docker_config.py` | writes the cockpit's status-only overlay at build |
 | `scripts/health.sh` | health of the whole deployment |
 | `scripts/restore.sh` | restore a dump, in the right order (runs on the host) |
 | `scripts/restore-db.sh` | the pg_restore step (runs in `db`) |
 | `scripts/backup.sh` | the nightly and on-demand backup (runs in `db`) |
 | `scripts/db-entrypoint.sh` | starts the backup loop in `db`, then PostgreSQL |
-| `scripts/init-empty.sh` | tables for fmre and the app on an empty database |
-| `ENGINE_CHANGES.md` | changes to engines that would remove the workarounds here |
+| `ENGINE_CHANGES.md` | the engine changes this deployment asked for, done and open |
 
 Every script on the host takes the compose project and env file from the usual
 `COMPOSE_PROJECT_NAME` and `COMPOSE_ENV_FILES` variables, so a second copy (for example a test

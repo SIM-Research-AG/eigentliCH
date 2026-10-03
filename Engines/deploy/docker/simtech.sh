@@ -3,7 +3,9 @@
 #
 #   simtech start              the container's command: clear the start-up marker, then supervisord
 #   simtech provision [--show] the provisioning, once, with its exit status (scripts/restore.sh)
-#   simtech init-empty         the tables of fmre and the app on an EMPTY database (scripts/init-empty.sh)
+#   simtech eigentlich ARGS    a maintenance command of the app (python -m eigentlich ARGS), with
+#                              its database login, as the user engine; reports go to
+#                              EIGENTLICH_REPORT_DIR (README.md, "Everyday commands")
 #   simtech health [--quiet]   every engine's health route (scripts/health.sh, the container health check)
 #   simtech COMMAND ...        anything else is run as given (e.g. bash, supervisorctl status)
 set -euo pipefail
@@ -37,14 +39,14 @@ case "${1:-start}" in
         RUN_NAME=provision RUN_DB=INSTRUMENTS:- RUN_KEEP=all RUN_AFTER_PROVISION=0 \
             exec /opt/deploy/run.sh python -X utf8 -m store.provision "$@"
         ;;
-    init-empty)
-        cd "$INSTRUMENTS"
-        RUN_NAME=init-empty RUN_DB=INSTRUMENTS:fmre /opt/deploy/run.sh \
-            python -X utf8 -c "from store import db; db.initialise(); print('fmre: schema ready')"
+    eigentlich)
+        shift
         cd "$APP"
-        RUN_NAME=init-empty RUN_DB=EIGENTLICH:eigentlich /opt/deploy/run.sh \
-            python -X utf8 -m eigentlich init-db
+        status=0
+        RUN_NAME=eigentlich RUN_DB=EIGENTLICH:eigentlich RUN_AFTER_PROVISION=0 /opt/deploy/run.sh \
+            python -X utf8 -m eigentlich "$@" || status=$?
         sleep 1   # let the log prefixer flush
+        exit "$status"
         ;;
     health)
         shift

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Start one program of the simtech container: its environment, its place in the start order,
 # its log prefix. supervisord.conf runs every program through this script; `simtech provision`
-# and `simtech init-empty` use it too.
+# and `simtech eigentlich` use it too.
 #
 #   run.sh COMMAND [ARGS ...]
 #
@@ -17,7 +17,6 @@
 #              engines this one consumes. After RUN_WAIT_TIMEOUT seconds (default 300) it starts
 #              anyway and says so; the engines call each other per request, not at start-up.
 #   RUN_AFTER_PROVISION  1 (default): wait until the provisioning has finished (marker file).
-#   RUN_STAGGER  n: start 4 x (n - 1) seconds after the waits (the lbsim workers, by number).
 #
 # Every line the program writes to stdout or stderr goes to the container log as "[name] line".
 # The script ends with exec, so supervisord's signals reach the program itself.
@@ -84,10 +83,6 @@ for port in ${RUN_WAIT:-}; do
         waited=$((waited + 2))
     done
 done
-
-if [ -n "${RUN_STAGGER:-}" ] && [ "$RUN_STAGGER" -gt 1 ] 2>/dev/null; then
-    sleep $(( (RUN_STAGGER - 1) * 4 ))
-fi
 
 # 5. Run it, as the unprivileged user `engine` (supervisord already sets it; `docker compose
 #    run` and `exec` start as root).

@@ -112,6 +112,9 @@ services:
       # cloudflared only, and it starts only when this is set.
       CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
       COCKPIT_MODE: ${COCKPIT_MODE:-development}
+      # The app's address as a browser reaches it (https://app.<domain>), for the cockpit's
+      # System page; empty: the page links the engines only when opened on 127.0.0.1.
+      COCKPIT_ENGINE_EIGENTLICH_PUBLIC_URL: ${COCKPIT_ENGINE_EIGENTLICH_PUBLIC_URL:-}
       LBSIM_WORKERS: ${LBSIM_WORKERS:-3}
     volumes:
       - cockpit-data:/data          # the CIO's decision log (append-only JSON lines)

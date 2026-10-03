@@ -27,10 +27,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_ROOT_USER_ACTION=ignore \
     PATH=/opt/venv/bin:$PATH \
     SIMTECH_ENGINE_BIND=127.0.0.1 \
-    LBSIM_WORKERS=3
+    LBSIM_WORKERS=3 \
+    EIGENTLICH_REPORT_DIR=/var/lib/simtech/reports
 
+# /var/lib/simtech/reports: where the app's maintenance commands (`simtech eigentlich seed`,
+# `migrate`, ...) write their reports; the image has no dev/ folder. Not a volume: copy a report
+# out with `docker compose cp`.
 RUN useradd --system --uid 10001 --user-group --home-dir /nonexistent --no-create-home --shell /usr/sbin/nologin engine \
-    && mkdir -p /data /run/simtech && chown engine:engine /data /run/simtech
+    && mkdir -p /data /run/simtech /var/lib/simtech/reports \
+    && chown engine:engine /data /run/simtech /var/lib/simtech /var/lib/simtech/reports
 
 COPY deploy/docker/constraints.txt deploy/docker/deps.py /opt/deploy/
 
@@ -42,9 +47,9 @@ RUN python -m venv /opt/supervisor \
 # 2. cloudflared, the static binary from Cloudflare's own image (pinned by CLOUDFLARED_VERSION).
 COPY --from=cloudflared /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 
-# 3. Third-party packages, from the engines' own pyproject.toml files and Instruments'
-#    requirements.txt (plus openpyxl, which its offline ETL imports). Rebuilt only when one of
-#    those files or constraints.txt changes, not on every code change.
+# 3. Third-party packages, from the engines' own pyproject.toml files (fmre's with its `etl`
+#    extra, openpyxl, which its offline ETL imports). Rebuilt only when one of those files or
+#    constraints.txt changes, not on every code change.
 COPY Macro/engines/datafeed/pyproject.toml          /tmp/pyproject/datafeed.toml
 COPY Macro/engines/honi/pyproject.toml              /tmp/pyproject/honi.toml
 COPY Macro/engines/macrofield/pyproject.toml        /tmp/pyproject/macrofield.toml
@@ -58,32 +63,31 @@ COPY eigentliCH_Engines/engines/report/pyproject.toml  /tmp/pyproject/report.tom
 COPY eigentliCH_Engines/engines/chatbot/pyproject.toml /tmp/pyproject/chatbot.toml
 COPY eigentliCH_Engines/eigentlich/pyproject.toml      /tmp/pyproject/eigentlich.toml
 COPY cockpit/pyproject.toml                         /tmp/pyproject/cockpit.toml
-COPY Instruments/requirements.txt                   /tmp/instruments-requirements.txt
+COPY Instruments/pyproject.toml                     /tmp/fmre.toml
 RUN python -m venv /opt/venv \
-    && python /opt/deploy/deps.py /tmp/requirements.txt /tmp/pyproject/*.toml --extra openpyxl \
-    && pip install -r /tmp/requirements.txt -r /tmp/instruments-requirements.txt -c /opt/deploy/constraints.txt \
+    && python /opt/deploy/deps.py /tmp/requirements.txt /tmp/pyproject/*.toml "/tmp/fmre.toml[etl]" \
+    && pip install -r /tmp/requirements.txt -c /opt/deploy/constraints.txt \
     && pip check \
-    && rm -rf /tmp/pyproject /tmp/requirements.txt /tmp/instruments-requirements.txt
+    && rm -rf /tmp/pyproject /tmp/fmre.toml /tmp/requirements.txt
 
 # 4. CasADi's IPOPT (with MUMPS) must solve in this image, or the lbsim workers cannot.
 RUN python -c "import casadi as ca; x = ca.SX.sym('x'); s = ca.nlpsol('s', 'ipopt', {'x': x, 'f': (x - 2) ** 2}, {'print_time': 0, 'ipopt.print_level': 0}); r = s(x0=0); assert abs(float(r['x']) - 2) < 1e-6, r; print('casadi', ca.__version__, 'IPOPT ok')"
 
 # 5. The engine code, installed editable (as in the local virtual environments) so that each
-#    engine's ROOT stays its own folder. Instruments is not a package: fmre and the provisioning
-#    run from its folder, as on the owner's machine.
+#    engine's ROOT stays its own folder. Instruments installs no package (its pyproject.toml has
+#    `packages = []`): fmre and the provisioning run from its folder, as on the owner's machine.
+#    The cockpit runs from its committed config.yaml plus environment (supervisord.conf).
 COPY Macro/engines        /srv/Engines/Macro/engines
 COPY Instruments          /srv/Engines/Instruments
 COPY Optimizer/engines    /srv/Engines/Optimizer/engines
 COPY eigentliCH_Engines   /srv/Engines/eigentliCH_Engines
 COPY cockpit              /srv/Engines/cockpit
-COPY deploy/docker/cockpit_docker_config.py /opt/deploy/
 RUN for p in Macro/engines/datafeed Macro/engines/honi Macro/engines/macrofield Macro/engines/aggregation \
              Macro/engines/mrs Macro/engines/cycle Optimizer/engines/pcp \
              eigentliCH_Engines/engines/lbs eigentliCH_Engines/engines/lbsim eigentliCH_Engines/engines/report \
              eigentliCH_Engines/engines/chatbot eigentliCH_Engines/eigentlich cockpit; do \
         pip install --no-deps -e "/srv/Engines/$p" || exit 1; \
-    done \
-    && python /opt/deploy/cockpit_docker_config.py /srv/Engines/cockpit
+    done
 
 # 6. The supervisor's configuration and the start-up scripts.
 COPY deploy/docker/supervisord.conf /etc/supervisord.conf

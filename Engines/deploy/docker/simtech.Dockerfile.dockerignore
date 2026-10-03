@@ -5,7 +5,6 @@
 !deploy/docker/constraints.txt
 !deploy/docker/deps.py
 !deploy/docker/healthcheck.py
-!deploy/docker/cockpit_docker_config.py
 !deploy/docker/supervisord.conf
 !deploy/docker/run.sh
 !deploy/docker/provision.sh

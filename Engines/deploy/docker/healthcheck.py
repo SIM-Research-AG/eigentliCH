@@ -29,7 +29,7 @@ ROUTES = [
     ("report", "http://127.0.0.1:8015/health"),
     ("chatbot", "http://127.0.0.1:8016/health"),
     ("eigentlich", "http://127.0.0.1:8017/health"),
-    ("cockpit", "http://127.0.0.1:8000/api/config"),
+    ("cockpit", "http://127.0.0.1:8000/health"),
 ]
 
 
