@@ -144,6 +144,15 @@ def latest_sheet_for_client(conn, client_ref: str) -> Optional[str]:
     return None if row is None else row["life_balance_sheet_id"]
 
 
+def newest_outlook_per_client(conn, limit: int = 30) -> list[dict[str, Any]]:
+    """The test bench's picker: each client's newest succeeded outlook run, newest first."""
+    return conn.execute(
+        "SELECT * FROM (SELECT DISTINCT ON (client_ref) client_ref, life_balance_sheet_id, request_json, "
+        "artefact_ids_json, queued_at FROM run WHERE kind = 'outlook' AND status = 'succeeded' "
+        "ORDER BY client_ref, queued_at DESC, run_id DESC) AS newest ORDER BY queued_at DESC LIMIT %s",
+        (limit,)).fetchall()
+
+
 # -- runs -------------------------------------------------------------------------------------------------
 
 _RUN_COLUMNS = ("run_id, kind, status, failure_kind, idempotency_key, client_ref, life_balance_sheet_id, "

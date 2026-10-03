@@ -9,7 +9,7 @@ page is Notion `3e80ba72543f819abe14c30ca61942f5`; the binding interfaces are `E
 | Family | Client |
 | Module | `lbsim`, installed editable in `eigentliCH_Engines/.venv` (`pip install --no-deps -e .`) |
 | Port | 8014 (`config.yaml`) |
-| Status | Built: contracts, model port, fast half, adapter, calibrations (B1); Monte Carlo, upstream clients, store, service, API, worker harness, test bench (B2); optimiser `lbsim.optim` (C). Active calibration 1.4.0. |
+| Status | Built: contracts, model port, fast half, adapter, calibrations (B1); Monte Carlo, upstream clients, store, service, API, worker harness, test bench (B2); optimiser `lbsim.optim` (C); the capitals on the paths and the bench's client picker and graphs (F, engine 1.1.0). Active calibration 1.5.0. |
 | Consumes | lbs 8013 (sheet, its request, calibration); pcp 8007 (Allocation); aggregation 8004 (Regimes); fmre 8006 (ReturnSets, inflation) |
 | Produces | `LifeBalanceFindings` (`LSF-`), `LifeBalancePaths` (`LSP-`), `LifeBalancePlan` (`LSO-`) |
 | Downstream | report 8015, the consumer app 8017, the cockpit 8000 |
@@ -25,7 +25,10 @@ page is Notion `3e80ba72543f819abe14c30ca61942f5`; the binding interfaces are `E
 ```
 
 `serve` prepares the store, puts plan runs whose worker died back on the queue, starts the workers as separate
-processes and then the API; stopping it stops them. The test bench is served at `/` (development only). The
+processes and then the API; stopping it stops them. The test bench is served at `/` (development only): what
+lbsim does in plain words, a picker of the clients lbsim has computed (no hand-typed ids), and the result as inline
+SVG graphs (the wealth fan per Regime, nominal or real, with the goal line; the capitals over time; the chances per
+Regime; the income paths; what the plan calculation assumes for this period). The
 password of the `lbsim` role lives in `config.local.yaml` (git-ignored), as for lbs; `LBSIM_DB_PASSWORD` or
 `LBSIM_DATABASE_URL` override it. `LBSIM_CONFIG` points at another configuration file.
 
@@ -80,6 +83,12 @@ draft and makes findings only (`not_made: draft_market`).
 - **Bands (LBSIM-10).** Year-end quantiles p05..p95 of `net_worth` and each goal measure, in both bases; the real
   bands are quantiles of each path's own deflated values. Recorded before any goal of that date is carried out,
   so the band at a goal's date is the value its chance is judged on.
+- **Capitals (engine 1.1.0, DECISIONS P-26).** `regimes[].capitals`: the principal's expertise `E`, network `N` and
+  health `H`, year-end quantiles p10..p90 from the same draws as the wealth bands, with their scales (`K_E` and
+  `K_H` from the calibration; the network on lbs's 0 to 1, raised to the Regime's highest p90 of `N` where its
+  paths go beyond it) and de/en labels. Model levels, never money. Optional in the contract: artefacts made before it read
+  as they are and keep their bytes and ids. Under the stated plan expertise and health follow the plan alone, so
+  their bands are narrow; the network also grows with real net worth.
 - **Parity.** `lbsim.paths.reference` holds the draft's `simulate` verbatim (checked against the draft's own
   output, frozen under the draft's interpreter in `golden/mc`) and lbsim's step one path at a time on the draft's
   scalar functions; the vectorised engine equals both path by path to 1e-9 (sigma = 0, the draft's shocks, fixed
@@ -107,7 +116,9 @@ Every refusal is one plain sentence (`detail`). `POST /validate` reports the sam
 `GET /runs[?client_ref=&kind=&status=]`, `/runs/{id}`, `POST /runs/{id}/cancel` (plan runs only),
 `/artefacts/{id}` (typed by prefix), `GET`/`PUT /calibration`, `/calibration/versions`, `POST /validate`,
 `GET /outlook?client_ref=&life_balance_sheet_id=`, `/findings/{id}`, `/paths/{id}`, `/plans/{id}`,
-`/paths/{id}/fan?regime=base&basis=nominal&series=goal_measure`, `POST /optimise`.
+`/paths/{id}/fan?regime=base&basis=nominal&series=goal_measure`, `POST /optimise`. With the test bench only:
+`GET /bench/candidates` (DECISIONS P-27), each client's newest sheet lbsim has run, with a valid request and a
+label for people.
 
 `GET /outlook` states the plan as `ready`, `calculating` (with `elapsed_s` and `budget_s`),
 `waiting_for_allocation`, `not_possible` (with the reason) or `not_requested`; it never mixes sheets.
@@ -138,6 +149,7 @@ Every refusal is one plain sentence (`detail`). `POST /validate` reports the sam
 | `golden/layer_b` | findings under 1.0.0 and 1.1.0, and `changes.json` | `dev/build_layer_b.py` |
 | `golden/upstream` | pcp's bench Allocation, aggregation's base and four scenario Regimes (reduced to the fields lbsim reads), fmre's ReturnSets and inflation, read only on 29.09.2026 | `dev/build_upstream_snapshot.py` |
 | `golden/samples` | the findings and paths samples (the engine's own) and the plan sample (hand-built) | `dev/build_samples.py` |
+| `golden/legacy` | the paths sample as engine 1.0.0 made it, without `capitals`: an old artefact must still read with its bytes and id | copied on 03.10.2026 |
 
 ## Tests
 

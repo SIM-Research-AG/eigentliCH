@@ -158,4 +158,10 @@ def create_app(settings: Optional[Settings] = None, upstream: Optional[Upstream]
         def testbench() -> FileResponse:
             return FileResponse(TESTBENCH)
 
+        @app.get("/bench/candidates", tags=["bench"])
+        def bench_candidates(limit: int = 30) -> list[dict[str, Any]]:
+            """Development only (with the test bench): each client's newest sheet lbsim has run, with a valid
+            request and a label for people."""
+            return service.bench_candidates(limit)
+
     return app

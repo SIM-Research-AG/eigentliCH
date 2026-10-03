@@ -17,7 +17,8 @@ import re
 from datetime import date
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (BaseModel, ConfigDict, Field, SerializerFunctionWrapHandler, field_validator,
+                      model_serializer, model_validator)
 
 N_STATES = 25
 
@@ -76,6 +77,9 @@ FindingCode = Literal[
 GoalMeasure = Literal["drawable", "deposit_eligible", "retirement_capital"]
 BAND_SERIES: tuple[str, ...] = ("net_worth", "drawable", "deposit_eligible", "retirement_capital")
 QUANTILES: tuple[str, ...] = ("p05", "p10", "p25", "p50", "p75", "p90", "p95")
+#: The capitals' bands (``RegimePaths.capitals``, DECISIONS P-26): five quantiles, p10 to p90.
+CAPITAL_QUANTILES: tuple[str, ...] = ("p10", "p25", "p50", "p75", "p90")
+CAPITALS: tuple[str, ...] = ("expertise", "network", "health")
 ROLES: tuple[str, ...] = ("Gain", "Income", "Stabilisation", "Protection")
 
 _OPAQUE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
@@ -601,6 +605,54 @@ class RegimeInflation(_Frozen):
     labels_summary: dict[str, int]
 
 
+class CapitalBand(_Frozen):
+    """Year-end quantiles of one capital over the paths (a model level without a currency)."""
+
+    p10: tuple[float, ...]
+    p25: tuple[float, ...]
+    p50: tuple[float, ...]
+    p75: tuple[float, ...]
+    p90: tuple[float, ...]
+
+    @model_validator(mode="after")
+    def _shape(self) -> "CapitalBand":
+        if len({len(getattr(self, q)) for q in CAPITAL_QUANTILES}) != 1:
+            raise ValueError("every quantile series of a capital has the same length (horizon + 1 year ends)")
+        return self
+
+
+class CapitalScale(_Frozen):
+    min: float = 0.0
+    max: float = Field(gt=0.0)
+
+
+class CapitalScales(_Frozen):
+    expertise: CapitalScale
+    network: CapitalScale
+    health: CapitalScale
+
+
+class CapitalLabels(_Frozen):
+    expertise: Words
+    network: Words
+    health: Words
+
+
+class CapitalPaths(_Frozen):
+    """The principal's expertise ``E``, network ``N`` and health ``H`` over the years (DECISIONS P-26), from the same
+    draws as the wealth bands. Model levels on their own scale, never money. ``scale``: ``expertise`` and
+    ``health`` up to the calibration's ceilings ``K_E`` and ``K_H``; ``network`` (whose model ceiling ``K_N`` moves
+    with expertise, net worth and the habit) on lbs's 0 to 1, raised to the highest p90 of ``N`` at any year end
+    of this Regime where its paths go beyond 1. Every band lies within its scale."""
+
+    person_id: str
+    expertise: CapitalBand
+    network: CapitalBand
+    health: CapitalBand
+    scale: CapitalScales
+    labels: CapitalLabels
+
+
 class RegimePaths(_Frozen):
     key: RegimeKey
     label: Words
@@ -617,6 +669,16 @@ class RegimePaths(_Frozen):
     #: year end on.
     bands: dict[str, BandSet]
     goals: tuple[GoalChance, ...]
+    #: The principal's capitals over time (DECISIONS P-26, engine 1.1.0). Absent on artefacts made before it; then it
+    #: is left out of the serialised artefact too, so their bytes and ids stay what they were.
+    capitals: Optional[CapitalPaths] = None
+
+    @model_serializer(mode="wrap")
+    def _drop_absent_capitals(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        out = handler(self)
+        if isinstance(out, dict) and out.get("capitals", 0) is None:
+            out.pop("capitals")
+        return out
 
     @field_validator("bands")
     @classmethod
@@ -725,6 +787,10 @@ class LifeBalancePaths(_Frozen):
                 for part in (band.nominal, band.real):
                     if len(part.p50) != self.horizon_years + 1:
                         raise ValueError(f"{r.key}/{series}: a band has horizon + 1 year-end values")
+            if r.capitals is not None:
+                for name in CAPITALS:
+                    if len(getattr(r.capitals, name).p50) != self.horizon_years + 1:
+                        raise ValueError(f"{r.key}/capitals/{name}: a band has horizon + 1 year-end values")
         return self
 
 

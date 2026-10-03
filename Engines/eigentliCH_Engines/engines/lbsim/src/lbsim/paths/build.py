@@ -7,6 +7,9 @@ give the same bytes; no clock, no I/O.
   from the same draws, never deflated quantiles. Paths themselves are not stored; the seed reproduces them.
 * One chance per goal and Regime in the goal's own basis (LBSIM-09). The target in the other basis is converted
   at the median path's price level at the goal's date, for the dashed line of chart 3.
+* The principal's capitals (``capitals``, DECISIONS P-26, engine 1.1.0): year-end quantiles p10..p90 of the model's
+  ``E``, ``N`` and ``H`` from the same draws, on their own scales (the calibration's ``K_E`` and ``K_H``; for the
+  network lbs's 0 to 1, raised to the Regime's highest p90 of ``N`` where its paths go beyond it).
 """
 
 from __future__ import annotations
@@ -18,8 +21,8 @@ import numpy as np
 
 from .. import ENGINE_VERSION
 from ..calibration import calibration_hash
-from ..contracts import (BAND_SERIES, CONTRACT_VERSIONS, QUANTILES, AllocationView, Calibration, LifeBalanceFindings,
-                         LifeBalancePaths, Provenance)
+from ..contracts import (BAND_SERIES, CAPITAL_QUANTILES, CAPITALS, CONTRACT_VERSIONS, QUANTILES, AllocationView,
+                         Calibration, LifeBalanceFindings, LifeBalancePaths, Provenance)
 from ..ids import content_id
 from ..upstream import MarketBundle
 from . import engine as E
@@ -27,6 +30,12 @@ from .household import StatedPlan
 from .market import draws, path_market, rule_words, year_table
 
 QS = tuple(int(q[1:]) for q in QUANTILES)
+CAPITAL_QS = tuple(int(q[1:]) for q in CAPITAL_QUANTILES)
+#: The model state behind each capital, and its words (spec VISUALS_INTERFACES, 03.10.2026).
+CAPITAL_STATE = {"expertise": "E", "network": "N", "health": "H"}
+CAPITAL_LABELS = {"expertise": {"de": "Wissen und Ausbildung", "en": "Expertise and education"},
+                  "network": {"de": "Netzwerk", "en": "Network"},
+                  "health": {"de": "Gesundheit", "en": "Health"}}
 DEFLATOR = "each path's own price level, from the inflation of the market states drawn on that path (fmre, CHF)"
 
 
@@ -48,6 +57,32 @@ def _quantiles(values: np.ndarray) -> dict[str, list[float]]:
     return {f"p{p:02d}": [float(v) for v in row] for p, row in zip(QS, q)}
 
 
+def _capital_quantiles(values: np.ndarray) -> dict[str, list[float]]:
+    q = np.percentile(values, CAPITAL_QS, axis=1)
+    return {f"p{p:02d}": [float(v) for v in row] for p, row in zip(CAPITAL_QS, q)}
+
+
+def capital_scales(result: "E.Result", plan: StatedPlan) -> dict[str, dict[str, float]]:
+    """``K_E`` and ``K_H``: the calibration's ceilings. The network has no fixed ceiling in the model (``K_N``
+    moves with expertise, net worth and the habit, and on a wealthy path reaches several times the level), so its
+    scale is the one lbs states ``N`` on, 0 to 1, raised to the highest p90 of ``N`` at any year end of this Regime
+    where its paths go beyond it (DECISIONS P-26). Per Regime, so a Regime's block does not depend on which other
+    Regimes run beside it (common random numbers)."""
+    p = plan.params
+    top = max(1.0, float(np.max(np.percentile(result.states["N"], 90, axis=1))))
+    return {"expertise": {"min": 0.0, "max": float(p.K_E)}, "network": {"min": 0.0, "max": top},
+            "health": {"min": 0.0, "max": float(p.K_H)}}
+
+
+def capitals_block(result: "E.Result", person_id: str, plan: StatedPlan) -> dict[str, Any]:
+    out: dict[str, Any] = {"person_id": person_id}
+    for name in CAPITALS:
+        out[name] = _capital_quantiles(result.states[CAPITAL_STATE[name]])
+    out["scale"] = capital_scales(result, plan)
+    out["labels"] = CAPITAL_LABELS
+    return out
+
+
 def simulate_regimes(plan: StatedPlan, bundle: MarketBundle, calibration: Calibration, *, n_paths: int,
                      seed: int, states: Optional[dict[str, np.ndarray]] = None) -> dict[str, E.Result]:
     """Every Regime's run, on the shared draws. ``states`` fixes a Regime's state path (tests)."""
@@ -66,7 +101,8 @@ def simulate_regimes(plan: StatedPlan, bundle: MarketBundle, calibration: Calibr
     return out
 
 
-def regime_block(regime, result: E.Result, plan: StatedPlan, calibration: Calibration) -> dict[str, Any]:
+def regime_block(regime, result: E.Result, plan: StatedPlan, calibration: Calibration, *,
+                 capitals: Optional[dict[str, Any]] = None) -> dict[str, Any]:
     p = plan.params
     series = ["net_worth"] + [s for s in BAND_SERIES[1:] if any(g.measure == s for g in plan.goals)]
     P = result.states["P"]
@@ -93,7 +129,7 @@ def regime_block(regime, result: E.Result, plan: StatedPlan, calibration: Calibr
             "kind": regime.kind, "scenario_years": result.table.scenario_years,  # type: ignore[attr-defined]
             "return_set_id": regime.return_set_id, "inflation_pass_through": regime.inflation_pass_through,
             "inflation": {"source": regime.inflation_source, "labels_summary": regime.labels_summary},
-            "bands": bands, "goals": goals}
+            "bands": bands, "goals": goals, **({"capitals": capitals} if capitals is not None else {})}
 
 
 def allocation_view(bundle: MarketBundle) -> dict[str, Any]:
@@ -136,7 +172,9 @@ def build_paths(findings: LifeBalanceFindings, plan: StatedPlan, bundle: MarketB
     if calibration.behaviour.market != "allocation":
         raise ValueError("paths are simulated on the allocation market only (calibration 1.1.0 and later)")
     results = simulate_regimes(plan, bundle, calibration, n_paths=n_paths, seed=seed)
-    regimes = [regime_block(r, results[r.key], plan, calibration) for r in bundle.regimes]
+    regimes = [regime_block(r, results[r.key], plan, calibration,
+                            capitals=capitals_block(results[r.key], findings.principal, plan))
+               for r in bundle.regimes]
     key = paths_key(findings, bundle, horizon_years=plan.horizon_years, n_paths=n_paths, seed=seed,
                     income_path=plan.income_path)
     provenance = Provenance(

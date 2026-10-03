@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lbsim"
-version = "1.0.0"
+version = "1.1.0"
 description = "LifeBalance Simulator (Engine 14): the deterministic findings, the Monte Carlo paths and the background plan calculation on a Life Balance Sheet. Model-derived research output; not investment advice."
 requires-python = ">=3.11"
 # Runtime. Every entry is on the Engine Building Guide allowlist (section 3) except psycopg, admitted as in

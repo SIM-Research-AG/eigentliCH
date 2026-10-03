@@ -1,4 +1,4 @@
-# lbsim: handover after B2 (29.09.2026)
+# lbsim: handover after B2 (29.09.2026) and F (03.10.2026)
 
 B1 built the core (contracts, model port, fast half, adapter, calibrations, golden layer A and B). B2 built what
 runs it: the Monte Carlo, the upstream clients, the store, the service and API, the plan workers, the test bench.
@@ -61,3 +61,25 @@ paths under a new key. The samples were rebuilt under 1.4.0 (their bytes changed
 - **The samples changed bytes** (`paths.sample.json`, `plan.sample.json`); the report's golden pages rest on the old.
 - The plan sample stays hand-built until C's solver produces one; `tests/test_worker.py` has a slow end-to-end test
   of C's real solve (`-m slow`).
+
+## Agent F (03.10.2026): the capitals and the bench
+
+- **Engine 1.1.0.** `LifeBalancePaths.regimes[].capitals` as `Engines/review/VISUALS_INTERFACES.md` defines it: the
+  principal's expertise, network and health, year-end p10..p90 from the same draws as the wealth bands, with scales
+  and de/en labels (DECISIONS P-26). Optional: old artefacts read with their bytes and ids. The network's scale is
+  not a calibration ceiling (the model's `K_N` moves with wealth); it is lbs's 0 to 1, raised to the Regime's
+  highest p90 where its paths go beyond it, so it can differ between Regimes. The agents drawing it (lbs bench, report, app, cockpit) read `scale.network.max` as given.
+- **No figure moved.** Findings and paths differ from 1.0.0 in the engine version, keys, ids and the new field only.
+  The samples were rebuilt (their bytes changed again: findings `LSF-a60abb0fa0f37d52`, paths
+  `LSP-85cfcfe62c138e2b`, plan `LSO-f6cbce667814155a`), and layer B's expected findings in the engine version,
+  key and id only.
+- **The bench** (`testbench/index.html`, at `/`): a plain explanation, a client picker from `GET /bench/candidates`
+  (DECISIONS P-27) that fills a valid request, the raw request under "For experts", and inline SVG graphs with no
+  external script: the wealth fan per Regime (nominal or real, the goal line, one shared scale or each its own),
+  the capitals over time on their own scales with words, the chances per Regime as bars, the income paths, and the
+  plan's this-period figures as a table under "What the calculation assumes".
+- **Restart needed.** The live lbsim on 8014 still runs engine 1.0.0 and has neither the field nor the route. A
+  restart of `python -m lbsim serve` serves 1.1.0; the next `POST /run` per client makes new findings and paths under
+  new keys (stored 1.0.0 artefacts stay and still read, without capitals). Plan runs queued on 1.0.0 paths are not
+  touched by the change itself, but a new `POST /run` for a client supersedes them (section 5).
+- Tests: 974 passed, 23 skipped, 16 slow deselected (`test_capitals` new, 10; `test_api` has the picker).

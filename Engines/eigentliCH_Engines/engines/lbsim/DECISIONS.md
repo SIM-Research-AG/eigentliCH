@@ -330,3 +330,43 @@ is B1's and B2's.
   `full_pensum` had the same fault before the end year (the expectation times a pensum above 1). 1.0.0 to 1.4.0 keep
   their hashes; layer B's `changes.json` gains the step 1.4.0 to 1.5.0 with every changed leaf attributed to
   P-25. The regression cases are `golden/lbs_cases/lbsim-overtime-a` and `-b`, the two live shapes anonymised.
+
+## The capitals and the bench (agent F, 03.10.2026)
+
+Under `Engines/review/VISUALS_INTERFACES.md` (the owner's decisions of 03.10.2026). Engine 1.0.0 to 1.1.0; no
+calibration and no figure moved.
+
+- **P-26 the principal's capitals on the paths.** `LifeBalancePaths.regimes[].capitals`, optional, for the principal
+  (`findings.principal`; the partner enters as income only, P-6): `person_id`; `expertise`, `network`, `health`, each
+  the year-end quantiles p10, p25, p50, p75, p90 (`horizon_years + 1` values) of the model's `E`, `N`, `H` over the
+  same paths as the wealth bands; `scale` per capital `{min: 0, max}`; `labels` de/en as the spec gives them.
+  1. **Scales.** Expertise and health: `K_E` and `K_H` of the calibration's model (`Params`, 1.0 each under 1.5.0).
+     The network has no fixed ceiling: the model's `K_N = N_0 + lambda_E E + lambda_W Omega / W_scale + lambda_kappa
+     kappa` moves with expertise, real net worth and the habit, and on a wealthy path reaches several times the
+     level (4.2 at p90 on the sample, 8.0 at the maximum). Taken as the scale it pressed every band to the floor of
+     the chart. So the network's scale is lbs's 0 to 1 (`identities.net_scale`), raised to the highest p90 of `N`
+     at any year end of the Regime where its paths go beyond 1. Per Regime, not across them: a shared scale made
+     the base Regime's block depend on which scenarios ran beside it, against common random numbers (B2's test
+     `test_the_base_is_the_same_whatever_scenarios_run_beside_it` caught it). This is the one reading of the spec's
+     "`K_N`" that is not a calibration figure.
+  2. **Bytes.** A field that is absent is left out of the serialised artefact (a wrap serialiser on `RegimePaths`),
+     so an artefact made before 1.1.0 reads, re-serialises to the same bytes and keeps its content id
+     (`golden/legacy/paths.engine-1.0.0.json`). The contract version stays `lbsim-paths@1.0.0`: the change is additive.
+  3. **Keys.** The findings key carries the engine version and the paths key carries the findings key, so 1.1.0
+     makes new findings and paths under new keys; nothing stored under 1.0.0 is reused for a new run. Findings and
+     paths differ from 1.0.0 only in `provenance.engine_version`, the keys and ids, and the new field (checked on the
+     samples and on layer B, both rebuilt: findings sample `LSF-a60abb0fa0f37d52`, paths `LSP-85cfcfe62c138e2b`,
+     plan `LSO-f6cbce667814155a`; `golden/layer_b/expected` moved in those three fields only, `changes.json` not
+     at all).
+  4. **Checks** (`tests/test_capitals.py`): same seed same bytes; ordered bands within `[0, max]`; the quantiles are
+     the percentiles of the very states the wealth bands come from; at sigma 0 (one fixed state path in every Regime,
+     no property noise) the median of each capital is `lbsim.paths.reference.simulate_path`'s scalar path to 1e-9;
+     an old artefact reads with its bytes and id.
+- **P-27 the bench's client picker.** `GET /bench/candidates` exists only where the test bench does (the route is
+  registered with `/`). It lists each client's newest succeeded outlook run (at most 100, newest first) with the
+  request it needs (`client_ref`, `life_balance_sheet_id`, the run's `allocation_id`, `optimise: no`) and a label for
+  people: the designated goal's name and the sheet's date. lbsim stores no goal names; the name is the one pcp gave
+  the mandate (`<template> (<currency>): <goal>`, in the paths' `allocation_view.mandate_name`), the date the
+  findings' `as_of`. A sheet without an allocation is "A household without an allocation". Read only: it writes
+  nothing. A "Run" from the bench asks for no plan, but `POST /run` still supersedes the client's other plan runs
+  (section 5), and the bench says so.

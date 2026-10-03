@@ -2,5 +2,5 @@
 Sheet. Model-derived research output; not investment advice."""
 
 ENGINE = "lbsim"
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 ENGINE_VERSION = f"{ENGINE}@{__version__}"

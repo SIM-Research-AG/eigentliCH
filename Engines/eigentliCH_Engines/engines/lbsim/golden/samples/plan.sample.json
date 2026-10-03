@@ -1,9 +1,9 @@
 {
  "contract_version": "lbsim-plan@1.0.0",
- "artefact_id": "LSO-1a81461b27fd5b4b",
+ "artefact_id": "LSO-f6cbce667814155a",
  "client_ref": "lbsim-sample",
  "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
- "paths_artefact_id": "LSP-a2ae3490f7e903b6",
+ "paths_artefact_id": "LSP-85cfcfe62c138e2b",
  "calibration_version": "1.5.0",
  "outcome": "solved",
  "goal": {
@@ -369,7 +369,7 @@
  },
  "basis": "nominal",
  "provenance": {
-  "engine_version": "lbsim@1.0.0",
+  "engine_version": "lbsim@1.1.0",
   "contract_versions": {
    "LifeBalanceSimRequest": "lbsim-request@1.0.0",
    "LifeBalanceFindings": "lbsim-findings@1.0.0",
@@ -381,9 +381,9 @@
   },
   "calibration_version": "1.5.0",
   "calibration_hash": "CAL-bf6c32240f0243ba",
-  "idempotency_key": "IDK-6d54f54a1b482e16",
+  "idempotency_key": "IDK-54d508b1036ed678",
   "upstream": {
-   "paths": "LSP-a2ae3490f7e903b6"
+   "paths": "LSP-85cfcfe62c138e2b"
   },
   "records": [],
   "label": "model-derived",

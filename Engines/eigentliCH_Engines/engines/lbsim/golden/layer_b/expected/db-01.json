@@ -1,7 +1,7 @@
 {
  "1.0.0": {
   "contract_version": "lbsim-findings@1.0.0",
-  "artefact_id": "LSF-2e41256465115c48",
+  "artefact_id": "LSF-20f8182d5b7c618d",
   "client_ref": "db-01",
   "life_balance_sheet_id": "LBS-4414ee8dc678f600",
   "as_of": "2026-09-28",
@@ -635,7 +635,7 @@
    }
   ],
   "provenance": {
-   "engine_version": "lbsim@1.0.0",
+   "engine_version": "lbsim@1.1.0",
    "contract_versions": {
     "LifeBalanceSimRequest": "lbsim-request@1.0.0",
     "LifeBalanceFindings": "lbsim-findings@1.0.0",
@@ -647,7 +647,7 @@
    },
    "calibration_version": "1.0.0",
    "calibration_hash": "CAL-16ddc8c0f11af63f",
-   "idempotency_key": "IDK-da08aad946f43e02",
+   "idempotency_key": "IDK-3a0b3c9b6d950ea7",
    "upstream": {
     "lbs": {
      "artefact_id": "LBS-4414ee8dc678f600",
@@ -710,7 +710,7 @@
  },
  "1.1.0": {
   "contract_version": "lbsim-findings@1.0.0",
-  "artefact_id": "LSF-5612f2b4136689b5",
+  "artefact_id": "LSF-3c8fc6d1f99be97d",
   "client_ref": "db-01",
   "life_balance_sheet_id": "LBS-4414ee8dc678f600",
   "as_of": "2026-09-28",
@@ -1357,7 +1357,7 @@
    }
   ],
   "provenance": {
-   "engine_version": "lbsim@1.0.0",
+   "engine_version": "lbsim@1.1.0",
    "contract_versions": {
     "LifeBalanceSimRequest": "lbsim-request@1.0.0",
     "LifeBalanceFindings": "lbsim-findings@1.0.0",
@@ -1369,7 +1369,7 @@
    },
    "calibration_version": "1.1.0",
    "calibration_hash": "CAL-c276230b32143099",
-   "idempotency_key": "IDK-438052c6ac6a0f32",
+   "idempotency_key": "IDK-b2d33d7eca82babd",
    "upstream": {
     "lbs": {
      "artefact_id": "LBS-4414ee8dc678f600",
@@ -1432,7 +1432,7 @@
  },
  "1.2.0": {
   "contract_version": "lbsim-findings@1.0.0",
-  "artefact_id": "LSF-9c305b0e334a2af8",
+  "artefact_id": "LSF-0ca706c43093b426",
   "client_ref": "db-01",
   "life_balance_sheet_id": "LBS-4414ee8dc678f600",
   "as_of": "2026-09-28",
@@ -2010,7 +2010,7 @@
    }
   ],
   "provenance": {
-   "engine_version": "lbsim@1.0.0",
+   "engine_version": "lbsim@1.1.0",
    "contract_versions": {
     "LifeBalanceSimRequest": "lbsim-request@1.0.0",
     "LifeBalanceFindings": "lbsim-findings@1.0.0",
@@ -2022,7 +2022,7 @@
    },
    "calibration_version": "1.2.0",
    "calibration_hash": "CAL-3a4ecac98ac98b90",
-   "idempotency_key": "IDK-9de9ded63f83748e",
+   "idempotency_key": "IDK-7e413ba647eb515b",
    "upstream": {
     "lbs": {
      "artefact_id": "LBS-4414ee8dc678f600",
@@ -2085,7 +2085,7 @@
  },
  "1.3.0": {
   "contract_version": "lbsim-findings@1.0.0",
-  "artefact_id": "LSF-c5c42261dd40eb75",
+  "artefact_id": "LSF-35cdec09af5fae7c",
   "client_ref": "db-01",
   "life_balance_sheet_id": "LBS-4414ee8dc678f600",
   "as_of": "2026-09-28",
@@ -2663,7 +2663,7 @@
    }
   ],
   "provenance": {
-   "engine_version": "lbsim@1.0.0",
+   "engine_version": "lbsim@1.1.0",
    "contract_versions": {
     "LifeBalanceSimRequest": "lbsim-request@1.0.0",
     "LifeBalanceFindings": "lbsim-findings@1.0.0",
@@ -2675,7 +2675,7 @@
    },
    "calibration_version": "1.3.0",
    "calibration_hash": "CAL-5f544bab06ed5f76",
-   "idempotency_key": "IDK-900b44fba957a2a6",
+   "idempotency_key": "IDK-2a94fe4f64a2636b",
    "upstream": {
     "lbs": {
      "artefact_id": "LBS-4414ee8dc678f600",
@@ -2738,7 +2738,7 @@
  },
  "1.4.0": {
   "contract_version": "lbsim-findings@1.0.0",
-  "artefact_id": "LSF-a264b22b9c118413",
+  "artefact_id": "LSF-db6205032cb444a8",
   "client_ref": "db-01",
   "life_balance_sheet_id": "LBS-4414ee8dc678f600",
   "as_of": "2026-09-28",
@@ -3316,7 +3316,7 @@
    }
   ],
   "provenance": {
-   "engine_version": "lbsim@1.0.0",
+   "engine_version": "lbsim@1.1.0",
    "contract_versions": {
     "LifeBalanceSimRequest": "lbsim-request@1.0.0",
     "LifeBalanceFindings": "lbsim-findings@1.0.0",
@@ -3328,7 +3328,7 @@
    },
    "calibration_version": "1.4.0",
    "calibration_hash": "CAL-95bbbd2c2f4e7576",
-   "idempotency_key": "IDK-960165f8de03facb",
+   "idempotency_key": "IDK-785dbc0fbd916fb3",
    "upstream": {
     "lbs": {
      "artefact_id": "LBS-4414ee8dc678f600",
@@ -3391,7 +3391,7 @@
  },
  "1.5.0": {
   "contract_version": "lbsim-findings@1.0.0",
-  "artefact_id": "LSF-ea797dc45615071e",
+  "artefact_id": "LSF-ed3c7e176d1bb8c0",
   "client_ref": "db-01",
   "life_balance_sheet_id": "LBS-4414ee8dc678f600",
   "as_of": "2026-09-28",
@@ -3969,7 +3969,7 @@
    }
   ],
   "provenance": {
-   "engine_version": "lbsim@1.0.0",
+   "engine_version": "lbsim@1.1.0",
    "contract_versions": {
     "LifeBalanceSimRequest": "lbsim-request@1.0.0",
     "LifeBalanceFindings": "lbsim-findings@1.0.0",
@@ -3981,7 +3981,7 @@
    },
    "calibration_version": "1.5.0",
    "calibration_hash": "CAL-bf6c32240f0243ba",
-   "idempotency_key": "IDK-a3c7e644e7b33e2c",
+   "idempotency_key": "IDK-aa113937e9269033",
    "upstream": {
     "lbs": {
      "artefact_id": "LBS-4414ee8dc678f600",

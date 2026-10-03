@@ -136,6 +136,24 @@ def test_run_makes_findings_and_paths_and_queues_the_plan(world):
     assert client.get("/artefacts/XYZ-0000000000000000").status_code == 404
 
 
+def test_the_bench_lists_each_clients_newest_sheet_with_a_valid_request(world):
+    client, stub, _ = world
+    rows = client.get("/bench/candidates").json()
+    mine = [r for r in rows if r["request"]["client_ref"] == body(stub)["client_ref"]]
+    assert len(mine) == 1
+    c = mine[0]
+    assert c["request"]["life_balance_sheet_id"] == stub.sheet_id(CASE)
+    assert c["request"]["allocation_id"] == stub.allocation_id and c["request"]["optimise"] == "no"
+    assert c["has_paths"] and c["goal"]["kind"] in ("home", "retirement", "capital")
+    assert not re.search(r"(LBS|PCP|LSF|LSP|RUN)-[0-9a-f]{16}", c["label"])
+    assert c["request"]["client_ref"] not in c["label"] and ", sheet of " in c["label"]
+    v = client.post("/validate", json=c["request"]).json()
+    assert v["ok"], v
+    acc = client.post("/run", json={**c["request"], "n_paths": 300}).json()
+    paths = client.get(f"/paths/{acc['paths_artefact_id']}").json()
+    assert all(r["capitals"]["person_id"] for r in paths["regimes"])
+
+
 def test_the_request_holds_ids_and_options_only(world):
     client, stub, _ = world
     acc = client.post("/run", json=body(stub)).json()

@@ -472,6 +472,24 @@ class Service:
         return LifeBalanceOutlook(client_ref=client_ref, life_balance_sheet_id=sheet_id, findings=findings,
                                   paths=paths, plan=plan)
 
+    # -- the test bench --------------------------------------------------------------------------------------------
+
+    def bench_candidates(self, limit: int = 30) -> list[dict[str, Any]]:
+        """``GET /bench/candidates`` (development): the sheets lbsim has seen, each client's newest outlook run,
+        with what a valid request needs and a label for people (never an id)."""
+        out = []
+        with self.store.session() as conn:
+            rows = st.newest_outlook_per_client(conn, max(1, min(limit, 100)))
+            for r in rows:
+                req = json.loads(r["request_json"]).get("request") or {}
+                arts = {}
+                for aid in json.loads(r["artefact_ids_json"]):
+                    row = st.get_artefact(conn, aid)
+                    if row is not None:
+                        arts[row["kind"]] = json.loads(row["payload_json"])
+                out.append(bench_candidate(r, req, arts.get("findings"), arts.get("paths")))
+        return out
+
     def _plan_outlook(self, runs: list[dict[str, Any]]) -> PlanOutlook:
         if not runs:
             return PlanOutlook(state="not_requested", reason=NOT_MADE_TEXT["not_requested"])
@@ -488,6 +506,44 @@ class Service:
         last = runs[0]
         return PlanOutlook(state="not_possible", run=status_of(last),
                            reason=PLAN_REASON.get(last["failure_kind"] or "solver", PLAN_REASON["solver"]))
+
+
+GOAL_WORDS = {"home": "Home", "retirement": "Retirement", "capital": "Capital"}
+
+
+def _date_words(text: Optional[str]) -> Optional[str]:
+    if not text:
+        return None
+    y, m, d = text[:10].split("-")
+    return f"{d}.{m}.{y}"
+
+
+def bench_candidate(run: dict[str, Any], req: dict[str, Any], findings: Optional[dict[str, Any]],
+                    paths: Optional[dict[str, Any]]) -> dict[str, Any]:
+    """One row of the bench's picker. The goal's name is the one pcp gave the mandate (``<template> (<currency>):
+    <goal>``); the sheet's date is the findings' ``as_of``."""
+    sheet_date = _date_words((findings or {}).get("as_of"))
+    goal = None
+    mandate = None
+    if paths:
+        name = (paths.get("allocation_view") or {}).get("mandate_name") or ""
+        mandate, _, goal_name = name.partition("): ")
+        mandate = (mandate + ")") if goal_name else name or None
+        goals = (paths.get("regimes") or [{}])[0].get("goals") or []
+        g = goals[0] if goals else None
+        goal = {"name": goal_name or None, "kind": g["kind"] if g else None,
+                "date": g["target"]["date"] if g else None}
+    if goal and goal["name"]:
+        head = goal["name"]
+    elif goal and goal["kind"]:
+        head = f"{GOAL_WORDS[goal['kind']]} goal" + (f" in {goal['date'][:4]}" if goal["date"] else "")
+    else:
+        head = "A household without an allocation"
+    label = head + (f", sheet of {sheet_date}" if sheet_date else "")
+    return {"label": label, "sheet_date": (findings or {}).get("as_of"), "goal": goal, "mandate": mandate,
+            "last_run_at": run["queued_at"], "has_paths": paths is not None,
+            "request": {"client_ref": run["client_ref"], "life_balance_sheet_id": run["life_balance_sheet_id"],
+                        "allocation_id": req.get("allocation_id"), "optimise": "no"}}
 
 
 def status_of(row: dict[str, Any]) -> RunStatus:

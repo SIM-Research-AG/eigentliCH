@@ -1,6 +1,6 @@
 {
  "contract_version": "lbsim-findings@1.0.0",
- "artefact_id": "LSF-8af16539c664ec09",
+ "artefact_id": "LSF-a60abb0fa0f37d52",
  "client_ref": "lbsim-sample",
  "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
  "as_of": "2026-09-28",
@@ -824,7 +824,7 @@
   }
  ],
  "provenance": {
-  "engine_version": "lbsim@1.0.0",
+  "engine_version": "lbsim@1.1.0",
   "contract_versions": {
    "LifeBalanceSimRequest": "lbsim-request@1.0.0",
    "LifeBalanceFindings": "lbsim-findings@1.0.0",
@@ -836,7 +836,7 @@
   },
   "calibration_version": "1.5.0",
   "calibration_hash": "CAL-bf6c32240f0243ba",
-  "idempotency_key": "IDK-0707c8bcce8f68fe",
+  "idempotency_key": "IDK-66a471def59f4daa",
   "upstream": {
    "lbs": {
     "artefact_id": "LBS-1a68c6aa5d613766",
