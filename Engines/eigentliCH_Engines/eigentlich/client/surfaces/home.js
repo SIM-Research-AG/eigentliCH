@@ -8,6 +8,7 @@ import { amount, button, clear, h, notice, when, put } from '../app/dom.js';
 import { t } from '../app/i18n.js';
 import { basisLabel, basisSwitch, currentBasis, pct } from '../app/basis.js';
 import { chanceWords, planSentence } from './outlook.js';
+import { balanceChart, capitalsChart } from '../app/charts.js';
 
 export function showValue(value, L) {
   if (value === null || value === undefined) return '';
@@ -148,6 +149,56 @@ export function missingList(missing, L, go) {
   return box;
 }
 
+const LEVEL_WORDS = (L) => ({ low: t('capitals.level_low', L), mid: t('capitals.level_mid', L), high: t('capitals.level_high', L) });
+
+/** "Ihre Lebensbilanz" (EIG-70): the balance sheet as a graph from the newest lbs sheet. Today's assets and debts
+ *  are the same in both bases (lbs states today's stocks); the goals' amounts follow the nominal / real switch. */
+export function pictureBlock(pic, basis, L) {
+  if (!pic) return null;
+  const box = h('div', { class: 'picture', 'data-basis': basis });
+  put(box, h('h3', { text: t('picture.title', L) }), h('p', { class: 'small muted', text: t('picture.lede', L) }));
+  const assets = pic.assets.map((a) => ({ label: t(`picture.part.${a.part}`, L), chf: a.chf, cls: a.part }));
+  if (!assets.length) {
+    put(box, h('p', { class: 'small muted', text: t('picture.nothing', L) }));
+    return box;
+  }
+  const open = t('picture.open', L);
+  const net = pic.net_worth;
+  const middle = [{ label: t('picture.debts', L), chf: pic.liabilities, cls: 'debts', open }];
+  middle.push({ label: t('picture.net_worth', L), chf: typeof net === 'number' ? net : null, cls: 'net', open });
+  const claims = pic.claims.map((c, i) => ({ label: `${c.name || t('picture.this_goal', L)}${c.date ? ` · ${c.date.slice(0, 4)}` : ''}`,
+    chf: c[basis], cls: i % 2 ? 'claim alt' : 'claim', open }));
+  const columns = [{ title: t('picture.assets', L), parts: assets },
+    { title: t('picture.debts_and_net', L), parts: middle },
+    { title: t('picture.claims', L), parts: claims, note: claims.length ? null : t(pic.claims_available ? 'picture.nothing' : 'picture.no_claims', L) }];
+  put(box, balanceChart(columns, { title: t('picture.title', L), desc: t('picture.desc', L) }, L),
+    h('p', { class: 'small muted', text: t('picture.claims_basis', L, { basis: basisLabel(basis, L) }) }));
+  if (typeof net === 'number' && net < 0) put(box, notice(t('picture.negative', L, { amount: amount(-net, L) }), 'calm'));
+  const yearly = pic.yearly_goals || [];
+  if (yearly.length) put(box, h('p', { class: 'small muted', text: t('picture.yearly', L, { names: yearly.map((n) => n || t('picture.this_goal', L)).join(', ') }) }));
+  return box;
+}
+
+/** "Ihre vier Kapitale" today (EIG-71): wealth in francs as words, expertise, network and health as levels on
+ *  lbs's scale, per adult. A withheld health (K3) is not drawn: the server sends no figure, the page says why. */
+export function capitalsBlock(caps, L) {
+  if (!caps || !caps.adults || !caps.adults.length) return null;
+  const box = h('div', { class: 'capitals' });
+  put(box, h('h3', { text: t('capitals.title', L) }), h('p', { class: 'small muted', text: t('capitals.lede', L) }));
+  const w = caps.wealth || {};
+  const wealthText = typeof w.net_worth === 'number' ? t('capitals.wealth_household', L, { amount: amount(w.net_worth, L) })
+    : typeof w.financial_assets === 'number' ? t('capitals.wealth_financial', L, { amount: amount(w.financial_assets, L) })
+      : t('capitals.unknown', L);
+  for (const row of caps.adults) {
+    const name = row.name || t('capitals.this_person', L);
+    put(box, h('h4', { text: name }), capitalsChart(row, caps.scale || {}, {
+      title: `${t('capitals.title', L)}: ${name}`, desc: t('capitals.desc', L), wealth: t('capitals.wealth', L), wealthText,
+      expertise: t('capitals.expertise', L), network: t('capitals.network', L), health: t('capitals.health', L),
+      ...LEVEL_WORDS(L), of: t('capitals.of', L), unknown: t('capitals.unknown', L), withheld: t('capitals.withheld', L) }, L));
+  }
+  return box;
+}
+
 export async function render(main, { language, client, go }) {
   const L = language;
   let data;
@@ -230,6 +281,8 @@ export async function render(main, { language, client, go }) {
         bs.plan_changed_since && !bs.pending ? notice(t('home.sheet_stale', L), 'calm') : null,
         basis === 'real' ? h('p', { class: 'small muted', text: t('basis.today_same', L) }) : null,
         sheetGrid(s, L), totals(s, L),
+        pictureBlock(bs.picture, basis, L),
+        capitalsBlock(bs.capitals, L),
         goalFigures(bs.views, basis, L),
         missingList(bs.missing || [], L, go),
         h('p', { class: 'small muted', text: t('notice', L) }),

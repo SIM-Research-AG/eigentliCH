@@ -91,6 +91,7 @@ class Lbs(StandIn):
         super().__init__()
         self.sheets: dict[str, dict[str, Any]] = {}
         self.real_view = True           # the sheet carries lbs's real view (calibration 1.4.0, LBS-31)
+        self.health_withheld = False    # H absent as lbs states it when K3 data was filtered or erased
 
     def handle(self, method, path, body):
         if method == "POST" and path == "/run":
@@ -132,9 +133,16 @@ class Lbs(StandIn):
                               "adults": [p for p in persons if p["kind"] == "adult"],
                               "dependants": [p for p in persons if p["kind"] == "dependant"]},
                 "human_capital": [{"person_id": "p1", "E": {"key": "E", "value": 0.62}, "N": {"key": "N", "value": None},
-                                   "H": {"key": "H", "value": 0.85}}] if persons else [],
+                                   "H": {"key": "H", "value": None, "absent_because": "K3 data was filtered or erased"}
+                                   if self.health_withheld else {"key": "H", "value": 0.85}}] if persons else [],
                 "totals": {"financial_assets": fin, "human_assets": None, "total_assets": None, "liabilities": None,
-                           "net_worth": None, "drawable": None, "household_income": income},
+                           "net_worth": None, "drawable": None, "household_income": income,
+                           # lbs's sums by vessel over the active financial assets in chf, None where none
+                           "by_vessel": {v or "not_stated": sum(p["magnitude"] for p in body["positions"]
+                                                                if p["active"] and p["capital_type"] == "financial"
+                                                                and p["unit"] == "chf" and p["stock_kind"] == "asset"
+                                                                and p.get("vessel") == v) or None
+                                         for v in ("free", "pillar_2", "pillar_3a", "real_asset", None)}},
                 "gaps": gaps,
                 "notice": "Model-derived research output. Not investment advice.",
             }
@@ -268,6 +276,7 @@ class Lbsim(StandIn):
         self.outlooks: dict[tuple[str, str], dict[str, Any]] = {}
         self.runs: dict[str, dict[str, Any]] = {}
         self.plans: dict[str, dict[str, Any]] = {}
+        self.capitals = False           # each Regime carries ``capitals`` (VISUALS_INTERFACES.md), from the fixture
 
     def _goals(self, sheet_id: str) -> dict[str, str]:
         request = next((r["body"] for r in self.lbs.requests if r["path"] == "/run"
@@ -331,6 +340,9 @@ class Lbsim(StandIn):
                              allocation_id=body["allocation_id"])
                 paths["allocation_view"]["allocation_id"] = body["allocation_id"]
                 paths = self._rename(paths, names)
+                if self.capitals:
+                    for regime in paths["regimes"]:
+                        regime["capitals"] = _sample("capitals")
             else:
                 not_made.append({"artefact": "paths", "reason": "no_allocation",
                                  "text": {"de": "Noch keine Allokation.", "en": "No allocation yet."}})
@@ -400,6 +412,8 @@ class Engines:
         self.chatbot.refusal = False
         self.chatbot.general = False
         self.lbs.real_view = True
+        self.lbs.health_withheld = False
+        self.lbsim.capitals = False
         self.aggregation.scenarios = []
 
 

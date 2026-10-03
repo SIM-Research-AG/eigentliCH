@@ -16,6 +16,7 @@ import re
 from typing import Any, Callable, Optional
 
 from .decisions import number
+from .pictures import capitals_over_time
 
 SEVERITY_ORDER = {"blocking": 0, "high": 1, "medium": 2, "note": 3}
 URGENCY_ORDER = {"now": 0, "months": 1, "year": 2, "watch": 3}
@@ -156,13 +157,17 @@ def _findings(f: dict[str, Any], q: Questions, lang: str, basis: str) -> list[di
     return out
 
 
-def _regime(r: dict[str, Any], goals: dict[str, str], lang: str) -> dict[str, Any]:
+def _regime(r: dict[str, Any], goals: dict[str, str], lang: str, persons: Optional[dict[str, str]] = None,
+            withheld: frozenset[str] | set[str] = frozenset()) -> dict[str, Any]:
     return {"key": r.get("key"), "label": _w(r.get("label"), lang), "kind": r.get("kind"),
             "goals": [{"goal_id": g.get("goal_id"), "name": goals.get(g.get("goal_id")), "kind": g.get("kind"),
                        "measure": g.get("measure"), "chance": g.get("chance"), "chance_basis": g.get("chance_basis"),
                        "target": g.get("target"), "n_reached": g.get("n_reached"),
                        "median_shortfall_chf": g.get("median_shortfall_chf")} for g in r.get("goals") or []],
-            "bands": r.get("bands") or {}}
+            "bands": r.get("bands") or {},
+            # the principal's expertise, network and health over time (lbsim, EIG-71): the name, not the id; the
+            # health band left out when health is withheld (K3)
+            "capitals": capitals_over_time(r.get("capitals"), persons or {}, lang, set(withheld))}
 
 
 def _allocation(av: dict[str, Any], role_name: Callable[[str], str]) -> dict[str, Any]:
@@ -198,7 +203,8 @@ def _plan(plan: dict[str, Any], goals: dict[str, str], lang: str) -> dict[str, A
 
 
 def shape(raw: dict[str, Any], *, language: str, basis: str, persons: dict[str, str], goals: dict[str, str],
-          role_name: Callable[[str], str], questions: Questions, mandate_goal: Optional[str]) -> dict[str, Any]:
+          role_name: Callable[[str], str], questions: Questions, mandate_goal: Optional[str],
+          withheld: frozenset[str] | set[str] = frozenset()) -> dict[str, Any]:
     lang = "en" if language == "en" else "de"
     f = raw.get("findings") or {}
     p = raw.get("paths") or None
@@ -228,7 +234,7 @@ def shape(raw: dict[str, Any], *, language: str, basis: str, persons: dict[str, 
         "plan": plan,
     }
     if p:
-        regimes = [_regime(r, goals, lang) for r in p.get("regimes") or []]
+        regimes = [_regime(r, goals, lang, persons, withheld) for r in p.get("regimes") or []]
         base = next((r for r in regimes if r["key"] == "base"), regimes[0] if regimes else None)
         ids = [g["goal_id"] for g in (base or {}).get("goals") or []]
         designated = next((g for g in (plan.get("ready") or {}, {"goal_id": mandate_goal}) if g.get("goal_id") in ids),

@@ -241,6 +241,39 @@ columns are filled from `dev/reports/use-cases-outlook.json` and `use-cases-chec
 38. **lbsim's reasons for "no allocation"** are the app's: without a parameter set, a run, a base run, or in another
     currency than CHF, the page says so itself and lbsim is sent no Allocation (it then waits for one).
 
+## The balance sheet and the four capitals as graphs (03.10.2026, EIG-70 to EIG-72)
+
+* **Built** to `review/VISUALS_INTERFACES.md` (agent H): `src/eigentlich/pictures.py` (pure: the balance picture,
+  today's capitals, lbsim's capitals over time, the K3 rule); `picture` and `capitals` on
+  `GET /api/clients/{c}/balance-sheet` and the home payload; `capitals` on each Regime of the outlook's paths; the
+  mirror `contracts.LbsimCapitals` (optional); three charts in `client/app/charts.js` (`balanceChart`,
+  `capitalsChart`, `capitalPathChart`, SVG through `h()`); "Ihre Lebensbilanz" and "Ihre vier Kapitale" on the home
+  page (`home.pictureBlock`, `home.capitalsBlock`), "Wissen, Netzwerk und Gesundheit über die Zeit" on the outlook
+  (`outlook.capitalsOverTime`); the words in both languages; the chart styles in `client/style/app.css`. App version
+  1.5.0. No schema change.
+* **Where each graph sits:** the balance sheet and today's four capitals on the home page under "Ihr Raster", after the
+  totals and before the goals' figures (EIG-70 says why the home page); the capitals over time on the outlook page
+  after the wealth fan, for the Regime chosen there.
+* **Tests:** 424 passed, 4 skipped (the opt-in live tests). `tests/test_app_pictures.py` (16): the pure pieces, the
+  mirror (against a capitals block made from the spec, `tests/fixtures/lbsim/capitals.sample.json`, and against
+  lbsim's own 1.1.0 sample when it is beside the package), the two routes with stand-in engines, and the three charts
+  drawn in Node against a small DOM stand-in (skipped without Node). The stand-ins in `tests/appkit.py` gained
+  `lbs.health_withheld`, `lbsim.capitals` and lbs's `totals.by_vessel`. `test_app_lbsim.py::
+  test_lbsim_runs_only_on_a_new_sheet_id` failed once under the full suite's load and passed on every rerun (its
+  background run timing; not touched by this round).
+* **To see it:** restart the app on 8017 (it serves 1.4.0 until then). lbsim sends `capitals` from its 1.1.0 on
+  (agent F; restart lbsim on 8014), and only on artefacts made after it: compute the outlook again (or
+  `lbsim-backfill` after a new sheet) to see the capitals over time; older artefacts show the "not yet" note.
+
+### Open points from this round
+
+39. **Wealth today is the household's.** lbs states wealth for the household, not per adult; the per-adult view would
+    need lbs to sum the positions by owner (`Position.owner` is in the request already).
+40. **The app never sends `health_withheld: true` yet**: no question or setting withholds health; the K3 rule is in
+    place for when one does (and for lbs stating `H` withheld after a K3 erasure).
+41. **The level words are by thirds of the scale** (gering, mittel, hoch), a reading aid of the app's; lbs's record
+    has words for the network's knee only. A published reading per capital would replace them.
+
 ## For the next agents
 
 * **Cockpit:** link to a client's view with `http://127.0.0.1:8017/#/client/<id>/home`; for a report

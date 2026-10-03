@@ -221,3 +221,23 @@ table.figures td.num { text-align: right; }
 .chart-goal { stroke: var(--attention); stroke-width: 1.8; }
 .outlook-chance { font-size: 1.15rem; font-weight: 700; }
 .chances td.num { text-align: right; }
+
+/* The life balance sheet and the four capitals (EIG-70 to EIG-72). Vessels from the palette's ramp, debts in the
+ * refusal rose, the net worth in the brand violet, the goals in the attention orange; the capitals are levels,
+ * drawn as tracks from zero to the model's ceiling, never in francs. */
+.chart-label.strong { font-weight: 700; }
+.chart-part.free { fill: var(--g0); }
+.chart-part.pillar_2 { fill: var(--primary-deep); }
+.chart-part.pillar_3a { fill: var(--g1); }
+.chart-part.real_asset { fill: var(--g3); }
+.chart-part.not_stated { fill: var(--ink-mute); }
+.chart-part.human { fill: var(--capital-human); opacity: 0.55; }
+.chart-part.debts { fill: var(--refusal); }
+.chart-part.net { fill: var(--g2); }
+.chart-part.claim { fill: var(--attention); opacity: 0.8; }
+.chart-part.claim.alt { opacity: 0.5; }
+.chart-part.open { fill: var(--line); }
+.chart-track { fill: var(--surface-tint); stroke: var(--line); }
+.chart-capital.expertise { fill: var(--g1); }
+.chart-capital.network { fill: var(--g0); }
+.chart-capital.health { fill: var(--g2); }

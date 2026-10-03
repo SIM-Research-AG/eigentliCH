@@ -106,15 +106,17 @@ open and can be tried again. Nothing is made up in its place.
 
 **No sign-in** (owner decision 9.1). The start page lists the clients (`client_overview`) and offers "new
 client"; the chosen client is kept for the browser window and named in every route. Screens: the picker; the
-client's home (what is open, the role grid from the lbs sheet, what is answered); the onboarding and the
+client's home (what is open, the role grid from the lbs sheet with the balance sheet as a graph and the four
+capitals per adult, EIG-70 and EIG-71, what is answered); the onboarding and the
 intake, rendered from the database content, one question at a time or by section, each answer stored at once
 naming its content version, resumable, and an edit mode that saves the client's wording change as a new
 content version; the plan (household, positions in the role grid and whose they are, the client's or the
 partner's, goals with their funding and their share of the yearly saving, the stated facts, the decision
 list: every change through a decision, C-09); the outlook ("Aussichten", EIG-68: earning power per adult, the
 income paths and the saving each goal needs at no return, the findings with their next steps and the question that
-answers them, the three charts with the nominal / real switch, the Regimes' chances, the plan calculation's figures
-for this period as "Was die Rechnung annimmt"); questions (ask, spark7's draft with sources and unverified
+answers them, the three charts with the nominal / real switch, the Regimes' chances, the principal's expertise,
+network and health over time (EIG-71), the plan calculation's figures for this period as "Was die Rechnung
+annimmt"); questions (ask, spark7's draft with sources and unverified
 numbers, curator answers, "ask the curator to approve"); reports (ask for a report or an update, read it,
 ask for approval, see its state).
 
@@ -160,9 +162,15 @@ the basis always shown; in real the pages show lbs's real figures and a report i
 report takes the pcp run of the client's current parameter set on its base Regime, a scenario only when asked
 for (EIG-63). The decision list reads in plain words, with the house's role names and Swiss figures (EIG-64).
 
-The decisions behind the app are EIG-29 to EIG-69 in DECISIONS.md (the owner's of 29.09.2026: EIG-44 to
+**The balance sheet and the four capitals as graphs** (EIG-70 to EIG-72): on the home page "Ihre Lebensbilanz",
+the assets by vessel and the human capital against the debts, the net worth and the goals' claims (the claims follow
+the switch), and "Ihre vier Kapitale" per adult (wealth in francs, expertise, network and health as lbs's levels on
+their own scale with words, never on a money axis); on the outlook the principal's capitals over time from lbsim's
+`regimes[].capitals`. A withheld health (K3) never leaves the server and the page says so instead of drawing it.
+
+The decisions behind the app are EIG-29 to EIG-72 in DECISIONS.md (the owner's of 29.09.2026: EIG-44 to
 EIG-52; the fix round after the use cases: EIG-53 to EIG-59; the nominal and real view: EIG-60 to EIG-64; lbsim:
-EIG-65 to EIG-69).
+EIG-65 to EIG-69; the graphs: EIG-70 to EIG-72).
 
 ## Tests
 

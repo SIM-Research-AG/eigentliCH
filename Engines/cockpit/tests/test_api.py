@@ -1076,3 +1076,115 @@ def test_an_lbsim_run_status_names_its_artefact_by_kind():
     assert _main_artefact(["LSF-1", "LSP-2"]) == "LSP-2"
     assert _main_artefact(["LSO-3"]) == "LSO-3" and _main_artefact(["LSF-1"]) == "LSF-1"
     assert _main_artefact(["ALC-9"]) == "ALC-9" and _main_artefact([]) is None and _main_artefact(None) is None
+
+
+
+# ---- the life balance sheet and the four capitals (C-36, VISUALS_INTERFACES.md) -----------------------------
+
+CAPITALS_SAMPLE = json.loads((LBSIM_FIXTURES / "capitals.sample.json").read_text(encoding="utf-8"))
+
+
+def test_the_client_page_carries_the_balance_panel_and_the_capitals_over_time():
+    """The balance panel reads the newest sheet through the proxy and has its own nominal / real switch; the
+    outlook panel draws lbsim's capitals after the fan; every chart goes through plot(); the words are in OW in
+    both languages and the page reads English (C-35)."""
+    client = _page_blocks()["curator/client"]
+    assert "balancePanel(bc, d)" in client
+    assert "api(`/lbs/artefacts/${encodeURIComponent(sheetRun.artefact_id)}`)" in client, "through the proxy"
+    assert 'basisSwitch("bBasis", view.basis)' in client and 'wireBasis("bBasis"' in client
+    assert "balanceSheetChart(chartIn(sec, 320), sheet, view.basis, goalName)" in client
+    assert "(g[basis] || {}).amount" in client, "the goals' claims follow the switch"
+    assert "capitalsTodayChart(chartIn(cap, 90 + 60 * adults.length), adults)" in client
+    draw = client[client.index("function drawOutlook("):client.index("async function outlookPanel(")]
+    assert draw.index("fanChart(chartIn(fanHost, 340)") < draw.index("capitalsOverTime(capHost, p, reg, view.withheld || new Set())")
+    assert "view.withheld = withheldIn(sheetRun && sheetRun.request)" in client
+    region = client[client.index("// ---- the life balance sheet and the four capitals (C-36"):client.index("// ---- Parameters: the pcp mandate")]
+    assert "Plotly" not in region and region.count("plot(el, ") == 3
+    assert "idChip(" not in region, "no raw ids in the new panel"
+    assert "—" not in region, "no em-dash"
+    for de, en in (("Lebensbilanz", "Life balance sheet"), ("Schulden und Nettovermögen", "Debts and net worth"),
+                   ("Die vier Kapitale heute", "The four capitals today"),
+                   ("Wissen, Netzwerk und Gesundheit über die Zeit", "Expertise, network and health over time"),
+                   ("Gesundheit zurückgehalten (K3): nicht gezeigt.", "Health withheld (K3): not shown.")):
+        assert f'"{de}"' in client and f'"{en}"' in client, de
+
+
+def test_the_capitals_sample_has_the_shape_the_spec_fixes():
+    """The fixture is made from VISUALS_INTERFACES.md before lbsim ships the field: the principal, three capitals
+    with five quantiles each over horizon + 1 year ends, their scales and their labels in both languages."""
+    caps, paths = CAPITALS_SAMPLE, lbsim_outlook()["paths"]
+    assert caps["person_id"] == "p1"
+    for k in ("expertise", "network", "health"):
+        assert set(caps[k]) == {"p10", "p25", "p50", "p75", "p90"}
+        assert {len(v) for v in caps[k].values()} == {paths["horizon_years"] + 1}
+        lo, hi = caps["scale"][k]["min"], caps["scale"][k]["max"]
+        assert all(lo <= x <= hi for v in caps[k].values() for x in v), "every band within its scale"
+        assert caps["labels"][k]["de"] and caps["labels"][k]["en"]
+
+
+NODE = __import__("shutil").which("node")
+
+
+def _charts_in_node(script: str) -> dict:
+    """Run the page's own chart functions in Node with plot() recording its traces and layout (no Plotly, no DOM)."""
+    import subprocess
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    words = html[html.index("const OUTLOOK_LANG = "):html.index("function planBlock(")]
+    charts = html[html.index("const LBS_WITHHELD = "):html.index("async function balancePanel(")]
+    js = (f"{html[html.index('const esc = '):html.index('const pct = ')]}\n"
+          "const css = (v) => ({ '--s1': '#2a78d6', '--s2': '#eb6834', '--s3': '#1baf7a', '--s4': '#eda100', '--s5': '#e87ba4', "
+          "'--rest': '#c3c2b7', '--serious': '#ec835a', '--ink-2': '#52514e' })[v] || '#000000';\n"
+          "const label = (s) => String(s); const pct = (v) => String(v); const table = () => '';\n"
+          "const calls = []; const plot = (el, traces, lay) => calls.push({ el, traces, lay });\n"
+          f"{words}\n{charts}\n{script}\nconsole.log(JSON.stringify(out));")
+    run = subprocess.run([NODE, "--input-type=module", "-"], input=js, capture_output=True, text=True,
+                         encoding="utf-8", timeout=60)
+    assert run.returncode == 0, run.stderr
+    return json.loads(run.stdout)
+
+
+SHEET = {"totals": {"financial_assets": 579000, "human_assets": 150000, "liabilities": 14000, "net_worth": 715000,
+                    "by_vessel": {"free": 65000, "pillar_2": 478000, "pillar_3a": 36000, "real_asset": None, "not_stated": None}},
+         "real_view": {"goals": [{"goal_id": "g1", "kind": "property", "unit": "chf", "nominal": {"amount": 375000}, "real": {"amount": 250000}},
+                                 {"goal_id": "g2", "kind": "retirement", "unit": "chf_per_year", "nominal": {"amount": 90000}, "real": {"amount": 60000}}]},
+         "human_capital": [{"person_id": "p1", "E": {"value": 0.62}, "N": {"value": 0.31}, "H": {"value": 0.85}},
+                           {"person_id": "p2", "E": {"value": None}, "N": {"value": 0.53},
+                            "H": {"value": None, "absent_because": "K3 data was filtered or erased"}}]}
+
+
+@pytest.mark.skipif(NODE is None, reason="Node is not installed: the panel is checked by its source above")
+def test_the_charts_stack_lbs_s_figures_and_keep_the_capitals_off_the_money_axis():
+    script = f"""
+const sheet = {json.dumps(SHEET)}, caps = {json.dumps(CAPITALS_SAMPLE)};
+const goalName = (g) => g.goal_id === 'g1' ? 'Eigenheim' : 'Ruhestand';
+balanceSheetChart('a', sheet, 'nominal', goalName);
+balanceSheetChart('b', sheet, 'real', goalName);
+capitalsTodayChart('c', [{{ name: 'Principal', held: false, values: {{ expertise: 0.62, network: 0.31, health: 0.85 }} }},
+                        {{ name: 'Partner', held: true, values: {{ expertise: null, network: 0.53, health: null }} }}]);
+capitalPathChart('d', {{ start_year: 2026 }}, caps, 'network');
+capitalPathChart('e', {{ start_year: 2026 }}, {{ ...caps, scale: {{ ...caps.scale, network: {{ min: 0, max: 1.21 }} }} }}, 'network');
+const out = {{ calls, held: [...withheldIn({{ household: {{ persons: [{{ person_id: 'p1', human_capital: {{ health_withheld: true }} }},
+  {{ person_id: 'p2', human_capital: {{}} }}] }} }})], none: [...withheldIn(null)],
+  words: [levelWord(0.1, 0, 1), levelWord(0.5, 0, 1), levelWord(1, 0, 1)] }};
+"""
+    out = _charts_in_node(script)
+    nominal, real, today, path, raised = out["calls"]
+    # the network has no fixed ceiling (lbsim P-26): each Regime's scale is read as given, never assumed to be 1
+    assert raised["lay"]["yaxis"]["range"] == [0, 1.21] and raised["lay"]["yaxis"]["ticktext"][2] == "top of scale 1.21"
+    stacks = {(t["x"][0], t["name"]): t["y"][0] for t in nominal["traces"]}
+    assert stacks == {("Assets", "Free"): 65000, ("Assets", "Pillar 2"): 478000, ("Assets", "Pillar 3a"): 36000,
+                      ("Assets", "Human capital"): 150000, ("Debts and net worth", "Debts"): 14000,
+                      ("Debts and net worth", "Net worth"): 715000, ("The goals' claims", "Eigenheim"): 375000}
+    assert nominal["lay"]["barmode"] == "stack" and nominal["lay"]["yaxis"]["tickprefix"] == "CHF "
+    assert {(t["x"][0], t["name"]): t["y"][0] for t in real["traces"]}[("The goals' claims", "Eigenheim")] == 250000
+    assert "Ruhestand" not in json.dumps(nominal["traces"]), "a need a year is not stacked with the stocks"
+    # the capitals: levels on 0 to 1 with words, never francs; a withheld health has no bar
+    assert "CHF" not in json.dumps(today) and "CHF" not in json.dumps(path)
+    assert today["lay"]["xaxis"]["range"] == [0, 1.2] and today["lay"]["xaxis"]["title"]["text"] == "model level, no currency"
+    lea, noa = today["traces"]
+    assert lea["x"] == [0.62, 0.31, 0.85] and lea["text"] == ["moderate (0.62)", "low (0.31)", "high (0.85)"]
+    assert noa["x"][2] is None and noa["text"][2] == ""
+    assert path["lay"]["yaxis"]["range"] == [0, 1] and path["lay"]["yaxis"]["ticktext"] == ["none 0.00", "0.50", "top of scale 1.00"]
+    assert [t["name"] for t in path["traces"]] == ["p90", "80 of 100 paths", "p75", "50 of 100 paths", "middle"]
+    assert path["traces"][4]["x"][0] == 2026 and len(path["traces"][4]["y"]) == 28
+    assert out["held"] == ["p1"] and out["none"] == [] and out["words"] == ["low", "moderate", "high"]

@@ -46,13 +46,14 @@ from . import decisions as dx
 from . import gaps, grounding, inputs, questionnaires as qn, store
 from .appsettings import AppSettings
 from . import outlook as ol
+from . import pictures
 from .clients import (AggregationClient, ChatbotClient, EngineError, EngineRefused, EngineUnavailable, LbsClient,
                       LbsimClient, ReportClient)
 from .inputs import MEMBER_ORDER
 from .store import Decision, NotFound, Store
 
 APP = "eigentlich-app"
-APP_VERSION = "1.4.0"
+APP_VERSION = "1.5.0"
 
 #: ``engine_run.requested_by_ref`` of the automatic lbs runs (``requested_by_kind = 'system'``).
 AUTO_REF = "eigentlich-app:auto"
@@ -1011,7 +1012,12 @@ class Service:
                                                     "calibration_version", "notice")},
                 # the nominal and real view (lbs LBS-31): each goal's amount and the required return in both bases,
                 # with the goals' names; the page shows one basis at a time, nominal by default
-                "views": self._sheet_views(sheet, names["goals"])}
+                "views": self._sheet_views(sheet, names["goals"]),
+                # the life balance sheet as a graph and today's four capitals per adult (EIG-70, EIG-71): lbs's
+                # figures with names instead of ids; a withheld health (K3) does not leave the server
+                "picture": pictures.balance(sheet, names["goals"]),
+                "capitals": pictures.capitals_today(sheet, names["persons"],
+                                                    pictures.withheld_persons(run["request"]))}
 
     @staticmethod
     def _sheet_views(sheet: dict[str, Any], goal_names: dict[str, str]) -> dict[str, Any]:
@@ -1721,7 +1727,8 @@ class Service:
         shaped = ol.shape(raw, language=lang, basis=basis, persons=names["persons"], goals=names["goals"],
                           role_name=lambda k: self._role_text(roles, ol.ROLE_KEYS.get(k, str(k).lower()), "financial",
                                                               lang)[0],
-                          questions=ol.Questions(bodies), mandate_goal=mandate)
+                          questions=ol.Questions(bodies), mandate_goal=mandate,
+                          withheld=pictures.withheld_persons(sheet["request"]))
         why = self._lbsim_allocation_quiet(client_id)[1] if shaped.get("paths") is None else None
         return {**shaped, "pending": pending, "made_at": last["finished_at"] if last else None, "no_allocation": why}
 

@@ -667,3 +667,44 @@ engine and kind. When a plan run turns out succeeded and the client's latest rep
 the app asks the update that carries it, once, in the name of whoever asked that report, with the note "Ergänzt um
 die Planrechnung, sobald sie vorlag." (`lbsim_auto.report_update`, default on). The app learns of the plan when it
 asks lbsim (the outlook page, the home page, a report, the cockpit's refresh); nothing polls in the background.
+### EIG-70 · "Ihre Lebensbilanz": the balance sheet as a graph on the home page (03.10.2026)
+The owner's decision of 03.10.2026 (`review/VISUALS_INTERFACES.md`): the life balance sheet is shown as a graph. It
+sits on the **home page**, under the role grid and the totals, and not on the plan page: the home page already holds
+the client's newest lbs sheet with its age, its pending run, its staleness note and the nominal / real switch, so the
+graph is drawn from exactly the sheet those words describe, and the plan page stays the place where things are
+entered and changed. Three columns on one franc scale: the assets stacked by vessel (frei verfügbar, Pensionskasse /
+Freizügigkeit, Säule 3a, Sachwerte, ohne Angabe des Gefässes) with the human capital on top; the debts with the net
+worth above them; the goals' claims. Every part is listed under its column with its amount, so a thin part is never a
+label lost on top of another. The figures are lbs's alone (`totals.by_vessel`, `human_assets`, `liabilities`,
+`net_worth`, `real_view.goals`): the server shapes them (`pictures.balance`) with the goals' names instead of their
+ids; a part lbs left open is listed as "offen" and never drawn as zero. Today's assets and debts are the same in both
+bases; the goals' claims follow the switch (nominal: the francs of each goal's date; real: today's francs), and the
+basis is named under the graph. A goal stated a year (retirement) is named under the graph, never stacked with the
+stocks. A sheet without lbs's real view says it gives no claims yet. `GET /api/clients/{c}/balance-sheet` (and the
+home payload) carries it as `picture`. Drawn by `charts.balanceChart` through the namespace-aware `h()`.
+
+### EIG-71 · "Ihre vier Kapitale": today on the home page, over time on the outlook (03.10.2026)
+Per adult, today (home page, `capitals` on the balance-sheet payload, `pictures.capitals_today`): wealth in francs as
+words, and expertise ("Wissen und Ausbildung"), network and health as lbs's levels (`human_capital[].E/N/H.value`) on
+lbs's scale of 0 to 1 (the human-capital record's ceiling), drawn as bars with the level in words (gering, mittel,
+hoch, by thirds of the scale) and the number ("mittel (0.62 von 1.00)"). Never on a money axis. lbs states wealth for
+the household, not per adult, so the wealth row says "gemeinsam im Haushalt" (net worth, else the financial assets)
+rather than splitting it by a rule of the app's. Over time (the outlook page, after the fan, for the Regime chosen):
+lbsim's `regimes[].capitals` for the principal (`outlook._regime` through `pictures.capitals_over_time`), the name
+instead of the person id, lbsim's labels in the page's language, one chart per capital with the middle path and the
+bands of 10 to 90 and 25 to 75 of 100 paths, on the scale lbsim gives for that Regime with words at both ends
+("keine", "Skalenende") and the end value in words. The scale is read as given per Regime and never assumed to be 1:
+the network has no fixed ceiling in the model, so lbsim raises its top to that Regime's highest p90 (lbsim P-26).
+Wealth over time stays the existing fan. An artefact made before the field has no `capitals`; the page then says the
+capitals over time are not yet there and that computing the outlook again brings them. Drawn by `charts.capitalsChart`
+and `charts.capitalPathChart`; `charts.levelWord` gives the words.
+
+### EIG-72 · K3: a withheld health is not drawn and the page says so (03.10.2026)
+Health is K3 data. When an adult's health is withheld, either in the lbs request the app sent
+(`human_capital.health_withheld`) or as lbs states it (`H.absent_because` "K3 data was filtered or erased"), the
+server sends no health figure for that adult (`health: null`, `health_withheld: true`) and drops the health band
+from lbsim's capitals over time for the principal; the figure lbs or lbsim computed never leaves the server. The page
+does not draw the bar or the chart and says instead "von Ihnen zurückgehalten, darum nicht gezeigt" (today) and "Die
+Gesundheit über die Zeit wird nicht gezeigt, weil Sie Ihre Gesundheitsangaben zurückgehalten haben" (over time). The
+mirror of lbsim's field (`contracts.LbsimCapitals`, on `LbsimPaths.regimes[]`, optional) checks one value per year end
+of the horizon for each quantile and a scale for each band, and takes a `health` left out. App version 1.5.0.

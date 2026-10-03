@@ -10,7 +10,7 @@ import { api, detailText } from '../app/api.js';
 import { amount, button, clear, h, notice, put, when } from '../app/dom.js';
 import { t } from '../app/i18n.js';
 import { basisLabel, basisSwitch, currentBasis, pct } from '../app/basis.js';
-import { fanChart, fitChart, weightsChart } from '../app/charts.js';
+import { capitalPathChart, fanChart, fitChart, weightsChart } from '../app/charts.js';
 
 const chfText = (v, L) => (v === null || v === undefined ? t('sheet.open', L) : `CHF ${amount(v, L)}`);
 const yearly = (v, L) => (v === null || v === undefined ? t('sheet.open', L) : `CHF ${amount(v, L)} ${t('unit.per_year', L)}`);
@@ -161,6 +161,33 @@ function goalLine(goal, basis, L) {
     label: `${goal.name || t('gap.this_goal', L)}: CHF ${amount(value, L)}${converted ? ` (${t('outlook.converted', L)})` : ''}` };
 }
 
+/** "Ihre vier Kapitale" over time (EIG-71): the principal's expertise, network and health from lbsim, each on its
+ *  own scale with words, never on a money axis; wealth over time is the fan. A withheld health (K3) never arrives
+ *  from the server, and the page says so instead of drawing it. */
+export function capitalsOverTime(caps, startYear, L) {
+  const box = h('div', { class: 'capitals-time' });
+  put(box, h('h3', { text: t('capitals.time_title', L) }));
+  if (!caps || !caps.series) {
+    put(box, notice(t('capitals.not_yet', L), 'calm'));
+    return box;
+  }
+  put(box, h('p', { class: 'small muted', text: t('capitals.time_lede', L, { name: caps.name || t('capitals.this_person', L) }) }));
+  for (const key of ['expertise', 'network', 'health']) {
+    const s = caps.series[key];
+    if (key === 'health' && caps.health_withheld) {
+      put(box, h('h4', { text: t('capitals.health', L) }), notice(t('capitals.time_withheld', L), 'calm'));
+      continue;
+    }
+    if (!s) continue;
+    const title = s.label || t(`capitals.${key}`, L);
+    put(box, h('h4', { text: title }), capitalPathChart(s, startYear, {
+      title, desc: t('capitals.time_desc', L), outer: t('capitals.band_outer', L), median: t('capitals.band_median', L),
+      today: t('outlook.today', L), min: t('capitals.min', L), max: t('capitals.max', L),
+      low: t('capitals.level_low', L), mid: t('capitals.level_mid', L), high: t('capitals.level_high', L) }, L));
+  }
+  return box;
+}
+
 export async function render(main, { language, client }) {
   const L = language;
   let data;
@@ -206,6 +233,7 @@ export async function render(main, { language, client }) {
           desc: t('outlook.fan_desc', L), outer: t('outlook.fan_outer', L), inner: t('outlook.fan_inner', L),
           median: t('outlook.fan_median', L), today: t('outlook.today', L) }, L));
     }
+    put(charts, capitalsOverTime(reg.capitals, p.start_year, L));
   }
 
   function chances(basis) {

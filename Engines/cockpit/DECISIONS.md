@@ -502,3 +502,27 @@ the plan calculation", "Ihre Angabe" and "Modellwert" are "Stated by the client"
 "converted", the house roles are Gain, Income, Stabilisation and Protection. This keeps one language per page; the
 German words are the app's and the report's. Changing `OUTLOOK_LANG` to `de` switches the whole panel and the chart
 labels at once, for a German curator page if one is wanted.
+**C-36 The life balance sheet and the four capitals on the Client page (03.10.2026).** The owner's decision of
+03.10.2026 (`review/VISUALS_INTERFACES.md`): the balance sheet and the capitals are shown as graphs on the cockpit's
+client page too. A new **Life balance sheet** panel, before the Outlook, reads the client's newest lbs sheet through
+the proxy (`GET /api/lbs/artefacts/{id}`, the sheet of the newest succeeded lbs `engine_run`, as the Outlook finds its
+sheet) and draws, through the page's `plot()` helper: the balance sheet as stacked bars in three columns (Assets by
+vessel, Free, Pillar 2, Pillar 3a, Real assets, Vessel not stated, with the human capital on top; Debts and net worth;
+the goals' claims, named by the client's goal names), with its own nominal / real switch (C-31's `basisSwitch`,
+default nominal): today's assets and debts are the same on both bases, the goals' claims are lbs's `real_view` amounts
+in the basis shown; a goal stated a year is named, not stacked; a sheet without a real view says the claims are not
+drawn. Under it **The four capitals today** per adult: wealth in francs as words (the household's, as lbs states it,
+not split per adult), expertise, network and health as lbs's levels on 0 to 1 in a grouped bar chart whose axis is
+"model level, no currency", each bar labelled with its level in words (low, moderate, high by thirds of the scale)
+and its number. The **Outlook** panel draws, after the fan, **Expertise, network and health over time** for the
+Regime chosen: lbsim's `regimes[].capitals` for the principal, one chart per capital with the middle path and the
+bands of 80 and 50 of 100 paths, the y axis the scale lbsim gives for that Regime with "none" and "top of scale" at
+its ends, never francs. The scale is read as given per Regime (the network has no fixed model ceiling, so lbsim raises
+its top to that Regime's highest p90, lbsim P-26). An artefact made before the field has no `capitals`, and the panel
+says so. K3: a health withheld in the lbs request the app sent (`human_capital.health_withheld`) or as lbs states it
+(`H.absent_because`) is drawn neither today nor over time, and the panel says "Health withheld (K3): not shown." The
+panel shows no raw id; its words are in `OW` in both languages and the page reads English (C-35). The cockpit
+computes no figure (C-07). *Tests.* `tests/test_api.py`: the panel's pieces in the page source; the capitals fixture
+(`tests/fixtures/lbsim/capitals.sample.json`, made from the spec) has the spec's shape; the page's own chart functions
+run in Node with `plot()` recording the traces (skipped without Node): the stacks, the claims following the basis,
+the capitals off the money axis, a withheld health without a bar, a Regime's raised network scale.

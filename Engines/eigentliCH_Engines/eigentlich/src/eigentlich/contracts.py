@@ -554,10 +554,66 @@ class LbsimFindings(_LbsimArtefact):
     contract_version: Literal["lbsim-findings@1.0.0"]
 
 
+class LbsimCapitalBands(_In):
+    """One capital's year-end quantiles over the horizon, from the same draws as the wealth bands."""
+    p10: tuple[float, ...]
+    p25: tuple[float, ...]
+    p50: tuple[float, ...]
+    p75: tuple[float, ...]
+    p90: tuple[float, ...]
+
+    @model_validator(mode="after")
+    def _same_length(self) -> "LbsimCapitalBands":
+        if len({len(self.p10), len(self.p25), len(self.p50), len(self.p75), len(self.p90)}) != 1:
+            raise ValueError("a capital's quantiles have one value per year end each")
+        return self
+
+
+class LbsimCapitalScale(_In):
+    min: float = 0.0
+    max: float
+
+
+class LbsimCapitals(_In):
+    """``regimes[].capitals`` (VISUALS_INTERFACES.md, optional and additive): the principal's expertise, network
+    and health over time as model levels on their own scales, never money. ``health`` may be left out (K3)."""
+    person_id: str
+    expertise: LbsimCapitalBands
+    network: LbsimCapitalBands
+    health: Optional[LbsimCapitalBands] = None
+    scale: dict[str, LbsimCapitalScale]
+    labels: dict[str, dict[str, str]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _scaled(self) -> "LbsimCapitals":
+        for name in ("expertise", "network") + (("health",) if self.health is not None else ()):
+            if name not in self.scale:
+                raise ValueError(f"the {name} band comes without its scale")
+        return self
+
+
+class LbsimRegime(_In):
+    key: Optional[str] = None
+    capitals: Optional[LbsimCapitals] = None
+
+
 class LbsimPaths(_LbsimArtefact):
     contract_version: Literal["lbsim-paths@1.0.0"]
     allocation_id: str
     findings_artefact_id: str
+    horizon_years: Optional[int] = None
+    regimes: tuple[LbsimRegime, ...] = ()
+
+    @model_validator(mode="after")
+    def _capitals_span_the_horizon(self) -> "LbsimPaths":
+        for r in self.regimes:
+            caps = r.capitals
+            if caps is None or self.horizon_years is None:
+                continue
+            for bands in (caps.expertise, caps.network, caps.health):
+                if bands is not None and len(bands.p50) != self.horizon_years + 1:
+                    raise ValueError("the capitals carry one value per year end of the horizon")
+        return self
 
 
 class LbsimPlan(_LbsimArtefact):

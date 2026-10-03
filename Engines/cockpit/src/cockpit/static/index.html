@@ -1382,6 +1382,11 @@ page("curator/client", "curator", "Client", async () => {
     if (fresh) { $("cRuns").innerHTML = runsTable(fresh.engine_runs); wireRuns($("cRuns"), reload); }
   }, null).catch(() => {});
 
+  // the life balance sheet and today's four capitals (C-36): the newest lbs sheet read through the proxy
+  const bc = card(esc(ow("balance")), "Assets by vessel and human capital against debts and the goals' claims, with net worth, and each adult's four capitals today, from the client's newest Life Balance Sheet.",
+    "Expertise, network and health are model levels without a currency, each on its own scale and never on a money axis. A health the client withheld (K3) is not drawn.");
+  balancePanel(bc, d).catch(e => { bc.innerHTML = `<p class="bad">${esc(e.message)}</p>`; });
+
   // the lbsim outlook (C-34): read through the proxy for the newest sheet; new runs only through the app
   const oc = card(esc(ow("title")), esc(ow("intro")), "The plan's figures are what the calculation assumes, shown to the client in the same words, never as a recommendation.");
   outlookPanel(oc, id, d, async () => {
@@ -1429,14 +1434,24 @@ const OW = {
     outlook: "Die Aussichten", weights: "Gewichte nach Rolle und nach Anlage", fit: "Ziel und Erreichtes je Zustand", fan: "Die simulierten Verläufe",
     assumes: "Was die Rechnung annimmt", plan: "Was die Planrechnung ergibt", restart: "Planrechnung neu starten", compute: "Aussichten berechnen",
     running: (n, h) => `Die Planrechnung läuft noch (seit ${n} Minuten, höchstens ${h} Stunden).`, converted: "umgerechnet",
-    crisis: "Krise", boom: "Boom", target: "Ziel", reached: "erreicht", solver: "Details der Planrechnung (für Kuratoren)" },
+    crisis: "Krise", boom: "Boom", target: "Ziel", reached: "erreicht", solver: "Details der Planrechnung (für Kuratoren)",
+    balance: "Lebensbilanz", assets: "Vermögen", debtsNet: "Schulden und Nettovermögen", claims: "Ansprüche der Ziele", human: "Menschliches Kapital",
+    debts: "Schulden", net: "Nettovermögen", capitalsToday: "Die vier Kapitale heute", capitalsTime: "Wissen, Netzwerk und Gesundheit über die Zeit",
+    capitalsNotYet: "lbsim hat für diese Pfade noch keine Kapitale geliefert (ein Artefakt von vor dem Feld): die Aussichten neu berechnen.",
+    healthWithheld: "Gesundheit zurückgehalten (K3): nicht gezeigt.", unknown: "nicht bekannt", none: "keine", ceiling: "Skalenende",
+    level: "Stufe des Modells, ohne Währung", band80: "80 von 100 Verläufen", band50: "50 von 100 Verläufen", middle: "Mitte" },
   en: { title: "Outlook", intro: "What lbsim computed for the client's newest Life Balance Sheet: earning power, income paths, findings, the simulated paths and the plan calculation.",
     earning: "Earning power", stated: "Stated by the client", modelled: "Model value", principal: "Principal", partner: "Partner",
     paths: "Income paths and the saving they need", findings: "Findings and next steps", schedule: "Schedule", unchecked: "Not checked",
     outlook: "The outlook", weights: "Weights by role and by instrument", fit: "Target and reached per state", fan: "The simulated paths",
     assumes: "What the calculation assumes", plan: "What the plan calculation shows", restart: "Restart the plan calculation", compute: "Compute the outlook",
     running: (n, h) => `The plan calculation is still running (for ${n} minutes, at most ${h} hours).`, converted: "converted",
-    crisis: "Crisis", boom: "Boom", target: "target", reached: "reached", solver: "Plan calculation details (curators)" } };
+    crisis: "Crisis", boom: "Boom", target: "target", reached: "reached", solver: "Plan calculation details (curators)",
+    balance: "Life balance sheet", assets: "Assets", debtsNet: "Debts and net worth", claims: "The goals' claims", human: "Human capital",
+    debts: "Debts", net: "Net worth", capitalsToday: "The four capitals today", capitalsTime: "Expertise, network and health over time",
+    capitalsNotYet: "lbsim sent no capitals with these paths (an artefact made before the field): compute the outlook again.",
+    healthWithheld: "Health withheld (K3): not shown.", unknown: "not known", none: "none", ceiling: "top of scale",
+    level: "model level, no currency", band80: "80 of 100 paths", band50: "50 of 100 paths", middle: "middle" } };
 const ow = k => OW[OUTLOOK_LANG][k];
 const lw = t => t && typeof t === "object" && !Array.isArray(t) ? (t[OUTLOOK_LANG] ?? t.en ?? t.de ?? "") : (t ?? "");   // one side of a {de, en} pair
 const HOUSE_ROLE = { gain: { de: "Wertsteigerung", en: "Gain" }, income: { de: "Einkommen", en: "Income" },
@@ -1630,6 +1645,8 @@ function drawOutlook(host, o, view) {   // view: {basis, regime, series}, kept a
     fanChart(chartIn(fanHost, 340), p, reg, view.series, view.basis, goals);
     $("oSeries").onchange = () => { view.series = $("oSeries").value; drawOutlook(host, o, view); };
     fanHost.insertAdjacentHTML("beforeend", `<p class="note">The goal line is solid in the goal's own basis and dashed, labelled ${esc(ow("converted"))}, in the other basis (converted at the median path's inflation).${(reg.bands[view.series] || {}).real && view.basis === "real" ? " Real bands are lbsim's, computed from the same draws." : ""}</p>`);
+    const capHost = document.createElement("div"); ch.append(capHost);
+    capitalsOverTime(capHost, p, reg, view.withheld || new Set());
     if (av) {
       const w1 = document.createElement("div"); ch.append(w1);
       w1.innerHTML = `<h3 class="chart-t">${esc(ow("weights"))} <span class="muted" style="font-weight:400">${esc(av.mandate_name || "")} · ${esc(av.currency || "")} · ${basisChip(av.allocation_basis)}</span></h3>`;
@@ -1651,6 +1668,7 @@ async function outlookPanel(host, clientId, d, runsChanged) {   // the client's 
   host.innerHTML = `<div class="row" style="margin-bottom:6px"><button type="button" class="primary" id="oRestart" title="A priority plan run for the client's newest sheet, asked for through the consumer app, which records it as the acting curator's">${esc(ow("restart"))}</button>
       <button type="button" id="oCompute" title="Findings and simulated paths for the newest sheet, asked for through the consumer app">${esc(ow("compute"))}</button><span id="oMsg" class="ink2"></span></div><div id="oBody"></div>`;
   const body = $("oBody"), view = { basis: DEFAULT_BASIS, regime: "base", series: null };
+  view.withheld = withheldIn(sheetRun && sheetRun.request);   // K3: the principal's health over time is not drawn
   const read = async () => {
     if (!sheetRun) { body.innerHTML = `<p class="muted">No balance sheet yet: compute it first (Parameter sets and engine runs, below). The outlook is computed for the newest sheet.</p>`; return; }
     body.innerHTML = `<p class="muted">Reading the outlook from lbsim…</p>`;
@@ -1673,6 +1691,112 @@ async function outlookPanel(host, clientId, d, runsChanged) {   // the client's 
   $("oRestart").onclick = () => ask($("oRestart"), true);
   $("oCompute").onclick = () => ask($("oCompute"), false);
   await read();
+}
+
+// ---- the life balance sheet and the four capitals (C-36, VISUALS_INTERFACES.md) --------------------------
+// The balance sheet as a graph from the client's newest lbs sheet (read through the proxy): the assets by vessel
+// and the human capital, the debts with the net worth, and the goals' claims in the basis the panel's switch shows
+// (lbs's real view; today's stocks are the same on both). The four capitals per adult today: wealth in francs as
+// words (lbs states it for the household), expertise, network and health as lbs's levels on 0 to 1. Over time, in
+// the outlook: lbsim's regimes[].capitals, the principal's middle path with the 10 to 90 and 25 to 75 bands, each
+// capital on its own scale with words at both ends, never on a money axis; wealth over time stays the fan. The
+// page computes no figure (C-07). A health the client withheld (K3), in the request the app sent or as lbs states
+// it, is neither drawn today nor over time, and the panel says so.
+const LBS_WITHHELD = "K3 data was filtered or erased";   // lbs's engine.WITHHELD
+const VESSEL_PARTS = [["free", { de: "frei verfügbar", en: "Free" }, "--s1"], ["pillar_2", { de: "Pensionskasse / Freizügigkeit", en: "Pillar 2" }, "--s4"],
+  ["pillar_3a", { de: "Säule 3a", en: "Pillar 3a" }, "--s3"], ["real_asset", { de: "Sachwerte", en: "Real assets" }, "--s5"],
+  ["not_stated", { de: "ohne Angabe des Gefässes", en: "Vessel not stated" }, "--rest"]];
+const CAPITAL_KEYS = [["expertise", "E", { de: "Wissen und Ausbildung", en: "Expertise and education" }],
+  ["network", "N", { de: "Netzwerk", en: "Network" }], ["health", "H", { de: "Gesundheit", en: "Health" }]];
+const LEVEL_WORDS = { de: ["gering", "mittel", "hoch"], en: ["low", "moderate", "high"] };
+const levelWord = (v, lo, hi) => LEVEL_WORDS[OUTLOOK_LANG][Math.max(0, Math.min(2, Math.floor(((v - lo) / ((hi - lo) || 1)) * 3)))];
+const personWord = pid => pid === "p1" ? ow("principal") : ow("partner");   // the app's request: p1 is the client
+function withheldIn(request) {   // the persons whose health the client withheld, from the lbs request the app sent
+  const persons = (((request || {}).household || {}).persons) || [];
+  return new Set(persons.filter(x => x && x.human_capital && x.human_capital.health_withheld === true).map(x => x.person_id));
+}
+function balanceSheetChart(el, sheet, basis, goalName) {
+  const t = sheet.totals || {}, bv = t.by_vessel || {}, cols = [ow("assets"), ow("debtsNet"), ow("claims")], traces = [];
+  const part = (x, y, name, color) => traces.push({ type: "bar", x: [x], y: [y], name, marker: { color },
+    hovertemplate: `${esc(name)}: CHF %{y:,.0f}<extra></extra>` });
+  for (const [k, w, c] of VESSEL_PARTS) if (bv[k] > 0) part(cols[0], bv[k], lw(w), css(c));
+  if (t.human_assets > 0) part(cols[0], t.human_assets, ow("human"), hexA(css("--s1"), 0.4));
+  if (t.liabilities > 0) part(cols[1], t.liabilities, ow("debts"), css("--serious"));
+  if (t.net_worth > 0) part(cols[1], t.net_worth, ow("net"), css("--ink-2"));
+  const claims = ((sheet.real_view || {}).goals || []).filter(g => g.unit === "chf");
+  claims.forEach((g, i) => { const v = (g[basis] || {}).amount; if (v > 0) part(cols[2], v, goalName(g), hexA(css("--s2"), i % 2 ? 0.5 : 0.9)); });
+  plot(el, traces, { barmode: "stack", separators: ".'", margin: { l: 80, r: 16, t: 8, b: 44 }, legend: { orientation: "h", y: -0.2 },
+    xaxis: { categoryorder: "array", categoryarray: cols }, yaxis: { tickformat: ",.0f", tickprefix: "CHF ", rangemode: "tozero", title: { text: basis } } });
+}
+function capitalsTodayChart(el, adults) {   // lbs's levels on 0 to 1, grouped by capital, one trace per adult
+  const ys = CAPITAL_KEYS.map(([, , w]) => lw(w)), colours = ["--s1", "--s3", "--s4"];
+  plot(el, adults.map((a, i) => ({ type: "bar", orientation: "h", name: a.name, y: ys, x: CAPITAL_KEYS.map(([k]) => a.values[k]),
+      text: CAPITAL_KEYS.map(([k]) => a.values[k] === null ? "" : `${levelWord(a.values[k], 0, 1)} (${fmt(a.values[k], 2)})`), textposition: "outside",
+      marker: { color: css(colours[i % colours.length]) }, hovertemplate: `${esc(a.name)}: %{y} %{x:.2f}<extra></extra>` })),
+    { barmode: "group", margin: { l: 170, r: 24, t: 8, b: 44 }, legend: { orientation: "h", y: -0.25 }, yaxis: { autorange: "reversed" },
+      xaxis: { range: [0, 1.2], tickvals: [0, 0.5, 1], ticktext: [`${ow("none")} 0`, "0.5", `${ow("ceiling")} 1`], title: { text: ow("level") } } });
+}
+function capitalPathChart(el, paths, caps, key) {   // one capital over time on its own scale, never francs
+  const b = caps[key], sc = (caps.scale || {})[key] || {}, lo = sc.min ?? 0, hi = sc.max ?? Math.max(...b.p90);
+  const years = b.p50.map((_, k) => paths.start_year + k), c = css("--s3");
+  const line = (y, name, extra = {}) => ({ x: years, y, name, mode: "lines", hoverinfo: "skip", ...extra });
+  plot(el, [line(b.p90, "p90", { line: { width: 0 }, showlegend: false }),
+    line(b.p10, ow("band80"), { line: { width: 0 }, fill: "tonexty", fillcolor: hexA(c, 0.14) }),
+    line(b.p75, "p75", { line: { width: 0 }, showlegend: false }),
+    line(b.p25, ow("band50"), { line: { width: 0 }, fill: "tonexty", fillcolor: hexA(c, 0.28) }),
+    { x: years, y: b.p50, name: ow("middle"), mode: "lines", line: { color: c, width: 2.2 }, hovertemplate: "%{x}: %{y:.2f}<extra></extra>" }],
+    { margin: { l: 96, r: 16, t: 8, b: 44 }, legend: { orientation: "h", y: -0.3 }, xaxis: { title: { text: OUTLOOK_LANG === "de" ? "Jahresende" : "year end" } },
+      yaxis: { range: [lo, hi], tickvals: [lo, (lo + hi) / 2, hi], ticktext: [`${ow("none")} ${fmt(lo, 2)}`, fmt((lo + hi) / 2, 2), `${ow("ceiling")} ${fmt(hi, 2)}`], title: { text: ow("level") } } });
+}
+function capitalsOverTime(host, p, reg, withheld) {   // lbsim's regimes[].capitals in the outlook panel
+  const caps = reg.capitals;
+  host.innerHTML = `<h3 class="chart-t">${esc(ow("capitalsTime"))}</h3>`;
+  if (!caps) { host.insertAdjacentHTML("beforeend", `<p class="muted">${esc(ow("capitalsNotYet"))}</p>`); return; }
+  const held = withheld.has(caps.person_id);
+  host.insertAdjacentHTML("beforeend", `<p class="note" style="margin-top:0">${esc(personWord(caps.person_id))}, under ${esc(lw(reg.label))}: the middle path and the bands of 80 and 50 of 100 paths, from the same draws as the wealth fan above, each capital on its own scale as lbsim gives it for this Regime (expertise and health up to the calibration's ceilings; the network, which has no fixed ceiling, up to 1 or this Regime's highest p90).</p>`);
+  const grid = document.createElement("div"); grid.className = "grid2"; host.append(grid);
+  for (const [k, , w] of CAPITAL_KEYS) {
+    const box = document.createElement("div"); grid.append(box);
+    box.innerHTML = `<h3 class="chart-t">${esc(lw(caps.labels && caps.labels[k]) || lw(w))}</h3>`;
+    if (k === "health" && held) { box.insertAdjacentHTML("beforeend", `<p class="muted">${esc(ow("healthWithheld"))}</p>`); continue; }
+    if (!caps[k] || !caps[k].p50) { box.insertAdjacentHTML("beforeend", `<p class="muted">${esc(ow("unknown"))}</p>`); continue; }
+    capitalPathChart(chartIn(box, 220), p, caps, k);
+  }
+}
+async function balancePanel(host, d) {   // the client's newest sheet, read through the proxy
+  const sheetRun = d.engine_runs.find(r => r.engine === "lbs" && r.status === "succeeded" && r.artefact_id);
+  if (!sheetRun) { host.innerHTML = `<p class="muted">No balance sheet yet: compute it first (Parameter sets and engine runs, above).</p>`; return; }
+  host.innerHTML = `<p class="muted">Reading the balance sheet from lbs…</p>`;
+  let sheet;
+  try { sheet = await api(`/lbs/artefacts/${encodeURIComponent(sheetRun.artefact_id)}`); }
+  catch (e) { host.innerHTML = `<p class="warn">lbs cannot show the newest balance sheet: ${esc(e.message)}</p>`; return; }
+  const view = { basis: DEFAULT_BASIS }, withheld = withheldIn(sheetRun.request);
+  const goalName = g => { const mine = d.goals.find(x => x.id === g.goal_id); return mine && mine.name ? mine.name : (GOAL_KIND[g.kind] ? lw(GOAL_KIND[g.kind]) : "Goal"); };
+  const draw = () => {
+    host.innerHTML = "";
+    const bar = document.createElement("div"); bar.className = "filters"; host.append(bar);
+    bar.innerHTML = `<div class="fld">Basis ${basisSwitch("bBasis", view.basis)}</div><span class="spacer"></span><span class="ink2" style="font-size:12px">as of ${esc(sheet.as_of || "")}, calibration ${esc(sheet.calibration_version || "")}</span>`;
+    wireBasis("bBasis", b => { view.basis = b; draw(); });
+    const t = sheet.totals || {}, rv = sheet.real_view;
+    const sec = document.createElement("div"); host.append(sec);
+    sec.innerHTML = `<h3 class="chart-t">${esc(ow("balance"))} ${basisChip(view.basis)}</h3>`;
+    balanceSheetChart(chartIn(sec, 320), sheet, view.basis, goalName);
+    const yearly = ((rv || {}).goals || []).filter(g => g.unit === "chf_per_year").map(goalName);
+    sec.insertAdjacentHTML("beforeend", `<p class="note">Assets and debts are today's (the same on both bases); the goals' claims are ${view.basis === "real" ? "in today's francs" : "in the francs of each goal's date"}, as lbs's real view states them.${rv ? "" : " This sheet has no real view (a calibration before 1.4.0): the goals' claims are not drawn."}${yearly.length ? ` Stated a year, so not stacked: ${yearly.map(esc).join(", ")}.` : ""} Net worth ${chfW(t.net_worth)}${t.net_worth === null || t.net_worth === undefined ? " (open until a debt or no debt is stated)" : ""}.</p>`);
+    const adults = (sheet.human_capital || []).map(hc => {
+      const held = withheld.has(hc.person_id) || (hc.H || {}).absent_because === LBS_WITHHELD;
+      const values = Object.fromEntries(CAPITAL_KEYS.map(([k, key]) => [k, k === "health" && held ? null : ((hc[key] || {}).value ?? null)]));
+      return { name: personWord(hc.person_id), held, values };
+    });
+    const cap = document.createElement("div"); host.append(cap);
+    cap.innerHTML = `<h3 class="chart-t">${esc(ow("capitalsToday"))}</h3><p class="note" style="margin-top:0">Wealth (the household's, as lbs states it, not per adult): ${chfW(t.net_worth)} net worth, ${chfW(t.financial_assets)} financial assets. Expertise, network and health are lbs's levels from 0 to 1, in words: ${LEVEL_WORDS[OUTLOOK_LANG].join(", ")} by thirds of the scale.</p>`;
+    if (!adults.length) { cap.insertAdjacentHTML("beforeend", `<p class="muted">lbs names no adult on this sheet.</p>`); return; }
+    capitalsTodayChart(chartIn(cap, 90 + 60 * adults.length), adults);
+    const notes = adults.flatMap(a => [a.held ? `${esc(a.name)}: ${esc(ow("healthWithheld"))}` : "",
+      ...CAPITAL_KEYS.filter(([k]) => a.values[k] === null && !(k === "health" && a.held)).map(([, , w]) => `${esc(a.name)}: ${esc(lw(w))} ${esc(ow("unknown"))}.`)]).filter(Boolean);
+    if (notes.length) cap.insertAdjacentHTML("beforeend", `<p class="note">${notes.join(" ")}</p>`);
+  };
+  draw();
 }
 
 // ---- Parameters: the pcp mandate --------------------------------------------------------
