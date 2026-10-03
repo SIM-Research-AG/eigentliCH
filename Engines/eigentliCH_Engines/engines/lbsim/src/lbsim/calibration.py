@@ -1,6 +1,7 @@
 """The seed calibrations (LBSIM-13): 1.0.0 reproduces the draft; 1.1.0 is lbsim's behaviour; 1.2.0 corrects the
 draft's income paths (DECISIONS P-9); 1.3.0 carries the owner's plan settings (DECISIONS O-18: 500 iterations, a
-10-year solve horizon) and is active.
+10-year solve horizon); 1.4.0 lets the paths' household retire (P-21 to P-24); 1.5.0 puts each stated income where it
+belongs (P-25); 1.6.0 raises the iteration limit to 1000 (DECISIONS O-19) and is active.
 
 ``1.0.0``  The draft as it is: the draft's ``Params()`` (``earning_power_at_unit`` 0.75), no inflation, the
            draft's Gaussian market and tilt, and its ``cases.run_case`` solver settings (``M_opt`` 14,
@@ -124,8 +125,8 @@ SEED_1_4 = Calibration.model_validate(SEED_1_4.model_dump())
 #: 1.4.0 with each stated income where it belongs (DECISIONS P-25, 29.09.2026): until an education ends a path runs
 #: at today's stated income and pensum, and from the end year the stated expectation applies at the path's pensum,
 #: never raised by a pensum above 1 (it is stated at a full pensum). Without a stated education there is no
-#: education path. Active.
-ACTIVE_SEED = SEED_1_4.model_copy(update={
+#: education path.
+SEED_1_5 = SEED_1_4.model_copy(update={
     "version": "1.5.0", "parent_version": "1.4.0",
     "note": ("1.4.0 with each stated income where it belongs (DECISIONS P-25): until an education ends, and on the "
              "path without one always, today's stated income at today's pensum; from the education's end year the "
@@ -133,9 +134,21 @@ ACTIVE_SEED = SEED_1_4.model_copy(update={
              "full pensum; no education path without a stated education."),
     "behaviour": SEED_1_4.behaviour.model_copy(update={"income_levels": "stated"}),
 })
+SEED_1_5 = Calibration.model_validate(SEED_1_5.model_dump())
+
+#: 1.5.0 with the owner's iteration limit of 03.10.2026 (DECISIONS O-19): at most 1000 IPOPT iterations per solve
+#: (was 500). Two use-case plans failed under 1.5.0, one of them not converging within 500 iterations. Only
+#: ``optimiser.max_iter`` differs, so the findings and the paths are 1.5.0's. The run's time budget (180 minutes) is
+#: not a calibration figure; it lives in ``config.yaml`` (``optimiser.budget_minutes``). Active.
+ACTIVE_SEED = SEED_1_5.model_copy(update={
+    "version": "1.6.0", "parent_version": "1.5.0",
+    "note": ("1.5.0 with the owner's iteration limit (DECISIONS O-19, 03.10.2026): at most 1000 IPOPT iterations per "
+             "solve. The findings and the paths are 1.5.0's."),
+    "optimiser": SEED_1_5.optimiser.model_copy(update={"max_iter": 1000}),
+})
 ACTIVE_SEED = Calibration.model_validate(ACTIVE_SEED.model_dump())
 
-SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, SEED_1_2, SEED_1_3, SEED_1_4, ACTIVE_SEED)
+SEEDS: tuple[Calibration, ...] = (SEED, SEED_1_1, SEED_1_2, SEED_1_3, SEED_1_4, SEED_1_5, ACTIVE_SEED)
 
 
 def canonical_json(calibration: Calibration) -> str:

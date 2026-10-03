@@ -6315,5 +6315,997 @@
    "numpy_version": null
   },
   "notice": "Model-derived research output. Not investment advice."
+ },
+ "1.6.0": {
+  "contract_version": "lbsim-findings@1.0.0",
+  "artefact_id": "LSF-39b03577ec0306d7",
+  "client_ref": "syn-liquidity",
+  "life_balance_sheet_id": "LBS-980297b4f1414231",
+  "as_of": "2026-09-28",
+  "calibration_version": "1.6.0",
+  "inflation": {
+   "currency": "CHF",
+   "annual_rate": 0.01,
+   "log_rate": 0.009950330853168083,
+   "source": "the Life Balance Sheet's own assumption (Swiss CPI (LIK), datafeed inflation.cpi_yoy CH (SZCPIYOY Index)), lbs calibration 1.5.0"
+  },
+  "basis": "nominal",
+  "principal": "p1",
+  "earning_power": [
+   {
+    "person_id": "p1",
+    "status": "not_available",
+    "reason": {
+     "de": "Die Ertragskraft ist nicht berechenbar, weil Ausbildung oder Netzwerk nicht erfasst sind.",
+     "en": "Earning power cannot be computed, because the education or the network is not recorded."
+    },
+    "modelled": null,
+    "stated": {
+     "expected_full_pensum_income_chf_per_year": null,
+     "from_age": null
+    },
+    "level_basis": "modelled",
+    "current": {
+     "gross_income_chf_per_year": null,
+     "pensum": null,
+     "full_pensum_equivalent_chf": null
+    },
+    "education": {
+     "status": null,
+     "end_year": null,
+     "end_age": null,
+     "hours_per_week": null,
+     "budget_chf_per_year": null
+    },
+    "health": {
+     "H": null,
+     "work_capacity": null,
+     "capacity_basis": "modelled"
+    },
+    "caveats": [
+     {
+      "de": "Die Gesundheit ist nicht erfasst; die Ertragskraft gilt bei voller Gesundheit und ist damit zu hoch.",
+      "en": "Health is not recorded; earning power is at full health and so too high."
+     }
+    ]
+   }
+  ],
+  "income_paths": [
+   {
+    "code": "today",
+    "person_id": "p1",
+    "name": {
+     "de": "Ohne Weiterbildung, Pensum bleibt",
+     "en": "No further education, same pensum"
+    },
+    "note": {
+     "de": "Keine zusätzliche Ausbildung, keine Änderung am Pensum. Das Einkommen bewegt sich trotzdem: Erfahrung wächst im Modell von selbst, und im späten Erwerbsleben fällt es wieder. Das ist die Vergleichslinie.",
+     "en": "No further education, no change to the pensum. Income still moves: experience grows by itself in the model, and late in the career it falls again. This is the line to compare with."
+    },
+    "level_basis": "modelled",
+    "pensum_now": 1.0,
+    "pensum_after": 1.0,
+    "education_end_age": null,
+    "learning_hours": 0.0,
+    "network_hours": 0.0,
+    "income": [
+     {
+      "year": 2026,
+      "age": 44.0,
+      "gross_chf_per_year": 48668.007116869114
+     },
+     {
+      "year": 2027,
+      "age": 45.0,
+      "gross_chf_per_year": 49154.6871880378
+     },
+     {
+      "year": 2028,
+      "age": 46.0,
+      "gross_chf_per_year": 49646.234059918184
+     },
+     {
+      "year": 2029,
+      "age": 47.0,
+      "gross_chf_per_year": 50142.69640051737
+     },
+     {
+      "year": 2030,
+      "age": 48.0,
+      "gross_chf_per_year": 50644.12336452254
+     },
+     {
+      "year": 2031,
+      "age": 49.0,
+      "gross_chf_per_year": 51150.56459816777
+     },
+     {
+      "year": 2032,
+      "age": 50.0,
+      "gross_chf_per_year": 51662.07024414945
+     },
+     {
+      "year": 2033,
+      "age": 51.0,
+      "gross_chf_per_year": 52178.69094659094
+     },
+     {
+      "year": 2034,
+      "age": 52.0,
+      "gross_chf_per_year": 52700.47785605685
+     },
+     {
+      "year": 2035,
+      "age": 53.0,
+      "gross_chf_per_year": 53227.482634617416
+     },
+     {
+      "year": 2036,
+      "age": 54.0,
+      "gross_chf_per_year": 53759.75746096359
+     },
+     {
+      "year": 2037,
+      "age": 55.0,
+      "gross_chf_per_year": 54297.35503557322
+     },
+     {
+      "year": 2038,
+      "age": 56.0,
+      "gross_chf_per_year": 53743.52201421038
+     },
+     {
+      "year": 2039,
+      "age": 57.0,
+      "gross_chf_per_year": 53195.33808966543
+     },
+     {
+      "year": 2040,
+      "age": 58.0,
+      "gross_chf_per_year": 52652.74564115085
+     },
+     {
+      "year": 2041,
+      "age": 59.0,
+      "gross_chf_per_year": 52115.68763561111
+     },
+     {
+      "year": 2042,
+      "age": 60.0,
+      "gross_chf_per_year": 51584.10762172788
+     },
+     {
+      "year": 2043,
+      "age": 61.0,
+      "gross_chf_per_year": 51057.94972398624
+     },
+     {
+      "year": 2044,
+      "age": 62.0,
+      "gross_chf_per_year": 50537.15863680159
+     },
+     {
+      "year": 2045,
+      "age": 63.0,
+      "gross_chf_per_year": 50021.67961870621
+     },
+     {
+      "year": 2046,
+      "age": 64.0,
+      "gross_chf_per_year": 49511.45848659541
+     }
+    ],
+    "from_65": {
+     "ahv_chf_per_year": 24363.840897364513,
+     "bvg_chf_per_year": 3662.1941911837116
+    },
+    "saving_need": [
+     {
+      "goal_id": "g4",
+      "target_chf": 50000.0,
+      "target_date": "2026-01-31",
+      "years": 1.0,
+      "zero_return_saving_chf_per_year": 18000.0,
+      "free_cash_chf_per_year": 45422.81393737861,
+      "holds": true
+     },
+     {
+      "goal_id": "g1",
+      "target_chf": 51643.357469411225,
+      "target_date": "2029-12-31",
+      "years": 3.0,
+      "zero_return_saving_chf_per_year": 6547.785823137075,
+      "free_cash_chf_per_year": 45878.55617055031,
+      "holds": true
+     },
+     {
+      "goal_id": "g2",
+      "target_chf": 51900.93192246672,
+      "target_date": "2030-06-30",
+      "years": 4.0,
+      "zero_return_saving_chf_per_year": 4975.23298061668,
+      "free_cash_chf_per_year": 46108.70978353651,
+      "holds": true
+     }
+    ],
+    "views": {
+     "real": {
+      "derived": true,
+      "deflator": {
+       "currency": "CHF",
+       "annual_rate": 0.01,
+       "log_rate": 0.009950330853168083,
+       "source": "the Life Balance Sheet's own assumption (Swiss CPI (LIK), datafeed inflation.cpi_yoy CH (SZCPIYOY Index)), lbs calibration 1.5.0"
+      },
+      "saving_need": [
+       {
+        "goal_id": "g4",
+        "target_chf": 49504.9504950495,
+        "zero_return_saving_chf_per_year": 18000.0,
+        "free_cash_chf_per_year": 45422.81393737861
+       },
+       {
+        "goal_id": "g1",
+        "target_chf": 50124.53396571606,
+        "zero_return_saving_chf_per_year": 6482.742308640383,
+        "free_cash_chf_per_year": 45422.81393737861
+       },
+       {
+        "goal_id": "g2",
+        "target_chf": 49875.77543783126,
+        "zero_return_saving_chf_per_year": 4901.2232837265865,
+        "free_cash_chf_per_year": 45422.81393737861
+       }
+      ]
+     }
+    }
+   },
+   {
+    "code": "full_pensum",
+    "person_id": "p1",
+    "name": {
+     "de": "Weiterbildung und volles Pensum",
+     "en": "Further education and a full pensum"
+    },
+    "note": {
+     "de": "Nach Abschluss ein volles Pensum. Für einen Haushalt, dessen Einkommen heute wegen der Ausbildung tief ist, ist das meist der grösste einzelne Schritt.",
+     "en": "A full pensum once the education is done. For a household whose income is low today because of the education this is usually the largest single step."
+    },
+    "level_basis": "modelled",
+    "pensum_now": 1.0,
+    "pensum_after": 1.0,
+    "education_end_age": null,
+    "learning_hours": 0.0,
+    "network_hours": 0.0,
+    "income": [
+     {
+      "year": 2026,
+      "age": 44.0,
+      "gross_chf_per_year": 48668.007116869114
+     },
+     {
+      "year": 2027,
+      "age": 45.0,
+      "gross_chf_per_year": 49154.6871880378
+     },
+     {
+      "year": 2028,
+      "age": 46.0,
+      "gross_chf_per_year": 49646.234059918184
+     },
+     {
+      "year": 2029,
+      "age": 47.0,
+      "gross_chf_per_year": 50142.69640051737
+     },
+     {
+      "year": 2030,
+      "age": 48.0,
+      "gross_chf_per_year": 50644.12336452254
+     },
+     {
+      "year": 2031,
+      "age": 49.0,
+      "gross_chf_per_year": 51150.56459816777
+     },
+     {
+      "year": 2032,
+      "age": 50.0,
+      "gross_chf_per_year": 51662.07024414945
+     },
+     {
+      "year": 2033,
+      "age": 51.0,
+      "gross_chf_per_year": 52178.69094659094
+     },
+     {
+      "year": 2034,
+      "age": 52.0,
+      "gross_chf_per_year": 52700.47785605685
+     },
+     {
+      "year": 2035,
+      "age": 53.0,
+      "gross_chf_per_year": 53227.482634617416
+     },
+     {
+      "year": 2036,
+      "age": 54.0,
+      "gross_chf_per_year": 53759.75746096359
+     },
+     {
+      "year": 2037,
+      "age": 55.0,
+      "gross_chf_per_year": 54297.35503557322
+     },
+     {
+      "year": 2038,
+      "age": 56.0,
+      "gross_chf_per_year": 53743.52201421038
+     },
+     {
+      "year": 2039,
+      "age": 57.0,
+      "gross_chf_per_year": 53195.33808966543
+     },
+     {
+      "year": 2040,
+      "age": 58.0,
+      "gross_chf_per_year": 52652.74564115085
+     },
+     {
+      "year": 2041,
+      "age": 59.0,
+      "gross_chf_per_year": 52115.68763561111
+     },
+     {
+      "year": 2042,
+      "age": 60.0,
+      "gross_chf_per_year": 51584.10762172788
+     },
+     {
+      "year": 2043,
+      "age": 61.0,
+      "gross_chf_per_year": 51057.94972398624
+     },
+     {
+      "year": 2044,
+      "age": 62.0,
+      "gross_chf_per_year": 50537.15863680159
+     },
+     {
+      "year": 2045,
+      "age": 63.0,
+      "gross_chf_per_year": 50021.67961870621
+     },
+     {
+      "year": 2046,
+      "age": 64.0,
+      "gross_chf_per_year": 49511.45848659541
+     }
+    ],
+    "from_65": {
+     "ahv_chf_per_year": 24363.840897364513,
+     "bvg_chf_per_year": 3662.1941911837116
+    },
+    "saving_need": [
+     {
+      "goal_id": "g4",
+      "target_chf": 50000.0,
+      "target_date": "2026-01-31",
+      "years": 1.0,
+      "zero_return_saving_chf_per_year": 18000.0,
+      "free_cash_chf_per_year": 45422.81393737861,
+      "holds": true
+     },
+     {
+      "goal_id": "g1",
+      "target_chf": 51643.357469411225,
+      "target_date": "2029-12-31",
+      "years": 3.0,
+      "zero_return_saving_chf_per_year": 6547.785823137075,
+      "free_cash_chf_per_year": 45878.55617055031,
+      "holds": true
+     },
+     {
+      "goal_id": "g2",
+      "target_chf": 51900.93192246672,
+      "target_date": "2030-06-30",
+      "years": 4.0,
+      "zero_return_saving_chf_per_year": 4975.23298061668,
+      "free_cash_chf_per_year": 46108.70978353651,
+      "holds": true
+     }
+    ],
+    "views": {
+     "real": {
+      "derived": true,
+      "deflator": {
+       "currency": "CHF",
+       "annual_rate": 0.01,
+       "log_rate": 0.009950330853168083,
+       "source": "the Life Balance Sheet's own assumption (Swiss CPI (LIK), datafeed inflation.cpi_yoy CH (SZCPIYOY Index)), lbs calibration 1.5.0"
+      },
+      "saving_need": [
+       {
+        "goal_id": "g4",
+        "target_chf": 49504.9504950495,
+        "zero_return_saving_chf_per_year": 18000.0,
+        "free_cash_chf_per_year": 45422.81393737861
+       },
+       {
+        "goal_id": "g1",
+        "target_chf": 50124.53396571606,
+        "zero_return_saving_chf_per_year": 6482.742308640383,
+        "free_cash_chf_per_year": 45422.81393737861
+       },
+       {
+        "goal_id": "g2",
+        "target_chf": 49875.77543783126,
+        "zero_return_saving_chf_per_year": 4901.2232837265865,
+        "free_cash_chf_per_year": 45422.81393737861
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "zero_return": {
+   "rate": 0.0,
+   "note": {
+    "de": "Die Sparrechnung rechnet ohne Rendite. Das ist ein Überblick und keine Prognose: sie zeigt, was ein Ziel an reinem Sparen kostet. Was schon ohne Rendite trägt, braucht den Markt nicht.",
+    "en": "The saving figures assume a return of zero. This is an overview, not a forecast: it shows what a goal costs in saving alone. What holds without a return does not need the market."
+   }
+  },
+  "findings": [
+   {
+    "code": "goal_not_computed",
+    "severity": "high",
+    "urgency": "now",
+    "action_kind": "decide_between",
+    "figures": {
+     "count": {
+      "value": 3.0,
+      "unit": "count",
+      "basis": null
+     },
+     "largest_deferred": {
+      "value": 51900.93192246672,
+      "unit": "chf",
+      "basis": "nominal"
+     },
+     "target_solved": {
+      "value": 50000.0,
+      "unit": "chf",
+      "basis": "nominal"
+     }
+    },
+    "text": {
+     "de": {
+      "title": "Ein genanntes Ziel ist in dieser Rechnung nicht enthalten",
+      "trigger": "{count} genannte Ziele sind nicht gerechnet; das grösste beträgt {largest_deferred}. Gerechnet wurde gegen {target_solved}.",
+      "why": "Ein Ziel, dessen Art offen ist, lässt sich nicht gegen die Bilanz rechnen: selbst bewohntes Eigentum, ein Ferienobjekt und eine Firma verhalten sich verschieden.",
+      "action": "Die Art des Ziels festlegen. Danach rechnet der Bericht dagegen."
+     },
+     "en": {
+      "title": "A stated goal is not in this calculation",
+      "trigger": "{count} stated goals are not computed; the largest is {largest_deferred}. The calculation ran against {target_solved}.",
+      "why": "A goal whose kind is open cannot be computed against the balance sheet: a home to live in, a holiday home and a company behave differently.",
+      "action": "Settle what kind of goal it is. The report then computes against it."
+     }
+    },
+    "answers": [
+     "goals"
+    ],
+    "audience": "both"
+   }
+  ],
+  "schedule": [
+   {
+    "when": "now",
+    "label": {
+     "de": "Jetzt, vor jeder Anlageentscheidung",
+     "en": "Now, before any investment decision"
+    },
+    "codes": [
+     "goal_not_computed"
+    ]
+   }
+  ],
+  "unchecked": [
+   {
+    "code": "goal_not_fundable",
+    "reason": {
+     "de": "Das entscheidet die Planrechnung, die im Hintergrund läuft.",
+     "en": "The plan calculation decides this; it runs in the background."
+    },
+    "missing": [],
+    "answered_by": "plan"
+   },
+   {
+    "code": "thin_liquidity",
+    "reason": {
+     "de": "Die Schulden des Haushalts sind nicht erfasst.",
+     "en": "The household's debts are not recorded."
+    },
+    "missing": [
+     "mortgage"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "no_legal_documents",
+    "reason": {
+     "de": "Ob ein Testament oder ein Vorsorgeauftrag besteht, ist nicht erfasst.",
+     "en": "Whether there is a will or a power of attorney is not recorded."
+    },
+    "missing": [
+     "legal_documents"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "hours_above_threshold",
+    "reason": {
+     "de": "Die Wochenstunden sind nicht erfasst.",
+     "en": "The working hours are not recorded."
+    },
+    "missing": [
+     "hours_per_week"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "undirected_surplus",
+    "reason": {
+     "de": "Einkommen oder heutige Lebenskosten sind nicht erfasst.",
+     "en": "The income or today's living costs are not recorded."
+    },
+    "missing": [
+     "income_gross",
+     "spend_now"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "debt_service_equals_spending",
+    "reason": {
+     "de": "Die Schulden oder das Ausgabenziel sind nicht erfasst.",
+     "en": "The debts or the spending goal are not recorded."
+    },
+    "missing": [
+     "mortgage"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "pension_too_small",
+    "reason": {
+     "de": "Einkommen oder Pensionskassenguthaben sind nicht erfasst.",
+     "en": "The income or the pension balance is not recorded."
+    },
+    "missing": [
+     "income_gross"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "empty_pillar3a",
+    "reason": {
+     "de": "Der Beitrag in die Säule 3a ist nicht erfasst.",
+     "en": "The pillar 3a contribution is not recorded."
+    },
+    "missing": [
+     "pillar3a_contribution"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "spending_doubling",
+    "reason": {
+     "de": "Die heutigen Lebenskosten oder die Ausgaben im Ruhestand sind nicht erfasst.",
+     "en": "Today's living costs or the spending in retirement are not recorded."
+    },
+    "missing": [
+     "spend_later"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "rate_not_recorded",
+    "reason": {
+     "de": "Die Schulden des Haushalts sind nicht erfasst.",
+     "en": "The household's debts are not recorded."
+    },
+    "missing": [
+     "mortgage"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "own_share_only",
+    "reason": {
+     "de": "Ob die Angaben den Haushalt oder den eigenen Anteil beschreiben, ist nicht erfasst.",
+     "en": "Whether the answers describe the household or the person's own share is not recorded."
+    },
+    "missing": [
+     "asset_scope"
+    ],
+    "answered_by": null
+   },
+   {
+    "code": "stop_age_missing",
+    "reason": {
+     "de": "Es ist kein Ruhestandsziel mit Datum erfasst.",
+     "en": "No dated retirement goal is recorded."
+    },
+    "missing": [
+     "goals"
+    ],
+    "answered_by": null
+   }
+  ],
+  "input_checks": [],
+  "frontier": [
+   {
+    "goal_id": "g4",
+    "rate_basis": "zero",
+    "rate": 0.0,
+    "holds_today": true,
+    "required_today_chf_per_year": 18000.0,
+    "available_today_chf_per_year": 45422.81393737861,
+    "cheapest_effort": null,
+    "cheapest_goal_change": null,
+    "cheapest_combination": null,
+    "combinations_tried": 0,
+    "refused": null
+   },
+   {
+    "goal_id": "g1",
+    "rate_basis": "zero",
+    "rate": 0.0,
+    "holds_today": true,
+    "required_today_chf_per_year": 6547.785823137075,
+    "available_today_chf_per_year": 45878.55617055031,
+    "cheapest_effort": null,
+    "cheapest_goal_change": null,
+    "cheapest_combination": null,
+    "combinations_tried": 0,
+    "refused": null
+   },
+   {
+    "goal_id": "g2",
+    "rate_basis": "zero",
+    "rate": 0.0,
+    "holds_today": true,
+    "required_today_chf_per_year": 4975.23298061668,
+    "available_today_chf_per_year": 46108.70978353651,
+    "cheapest_effort": null,
+    "cheapest_goal_change": null,
+    "cheapest_combination": null,
+    "combinations_tried": 0,
+    "refused": null
+   }
+  ],
+  "next_questions": [
+   {
+    "question_key": "stop_work_age",
+    "spread_chf": 810000.0,
+    "headline": "bridge_need",
+    "question": {
+     "de": "Ab welchem Alter möchten Sie nicht mehr auf Erwerbseinkommen angewiesen sein?",
+     "en": "From what age do you want to stop depending on earned income?"
+    }
+   },
+   {
+    "question_key": "spend_now",
+    "spread_chf": 90000.0,
+    "headline": "gap_per_year",
+    "question": {
+     "de": "Was kostet Ihr Leben heute, ohne Sparen und ohne Steuern?",
+     "en": "What does your life cost today, without saving and without taxes?"
+    }
+   },
+   {
+    "question_key": "own_use_pct",
+    "spread_chf": 1260.0,
+    "headline": "gap_per_year",
+    "question": {
+     "de": "Welcher Teil Ihrer Liegenschaften ist selbst bewohnt, und welcher vermietet?",
+     "en": "Which part of your property do you live in, and which part is let?"
+    }
+   },
+   {
+    "question_key": "ahv_years_missing",
+    "spread_chf": 0.0,
+    "headline": "capital_need",
+    "question": {
+     "de": "Fehlen Ihnen AHV-Beitragsjahre, etwa durch Studium, Ausland oder Selbständigkeit?",
+     "en": "Are you missing AHV contribution years, for example from study, time abroad or self-employment?"
+    }
+   },
+   {
+    "question_key": "savings",
+    "spread_chf": null,
+    "headline": null,
+    "question": {
+     "de": "Wie viel bleibt bei Ihnen pro Jahr tatsächlich übrig?",
+     "en": "How much is actually left over each year?"
+    }
+   }
+  ],
+  "gate": {
+   "stage": "open",
+   "blocking": [
+    {
+     "code": "no_target_spend",
+     "kind": "blocking_field",
+     "title": {
+      "de": "Eine Angabe fehlt",
+      "en": "An answer is missing"
+     },
+     "fields": [
+      "spend_later"
+     ]
+    },
+    {
+     "code": "no_income",
+     "kind": "blocking_field",
+     "title": {
+      "de": "Eine Angabe fehlt",
+      "en": "An answer is missing"
+     },
+     "fields": [
+      "income_gross"
+     ]
+    },
+    {
+     "code": "no_spending",
+     "kind": "blocking_field",
+     "title": {
+      "de": "Eine Angabe fehlt",
+      "en": "An answer is missing"
+     },
+     "fields": [
+      "spend_now"
+     ]
+    }
+   ],
+   "optional": [],
+   "open_count": 3,
+   "optional_count": 0
+  },
+  "assumptions": [
+   {
+    "key": "withdrawal_rate",
+    "value": 0.03,
+    "unit": "rate",
+    "text": {
+     "de": "Entnahmesatz im Ruhestand: das nötige Kapital ist der jährliche Bedarf geteilt durch diesen Satz.",
+     "en": "Withdrawal rate in retirement: the capital needed is the yearly need divided by this rate."
+    },
+    "replaced_by": {
+     "de": "eine Entscheidung über die verlangte Sicherheit",
+     "en": "a decision on the safety required"
+    }
+   },
+   {
+    "key": "conversion_rate",
+    "value": 0.0525,
+    "unit": "rate",
+    "text": {
+     "de": "Umwandlungssatz der Pensionskasse",
+     "en": "Pension fund conversion rate"
+    },
+    "replaced_by": {
+     "de": "der Vorsorgeausweis",
+     "en": "the pension certificate"
+    }
+   },
+   {
+    "key": "pension_interest",
+    "value": 0.0125,
+    "unit": "rate",
+    "text": {
+     "de": "Verzinsung des Pensionskassenguthabens",
+     "en": "Interest credited on the pension balance"
+    },
+    "replaced_by": {
+     "de": "der Ausweis der Kasse",
+     "en": "the fund's certificate"
+    }
+   },
+   {
+    "key": "wealth_tax_rate",
+    "value": 0.002,
+    "unit": "rate",
+    "text": {
+     "de": "Vermögenssteuersatz",
+     "en": "Wealth tax rate"
+    },
+    "replaced_by": {
+     "de": "die Veranlagung Ihrer Gemeinde",
+     "en": "your municipality's assessment"
+    }
+   },
+   {
+    "key": "income_tax",
+    "value": 0.2,
+    "unit": "rate",
+    "text": {
+     "de": "Einkommenssteuer als glatte Näherung, auf den Kanton skaliert, wo ein Faktor vorliegt",
+     "en": "Income tax as a smooth approximation, scaled to the canton where a factor exists"
+    },
+    "replaced_by": {
+     "de": "die Veranlagung Ihrer Gemeinde",
+     "en": "your municipality's assessment"
+    }
+   },
+   {
+    "key": "inflation",
+    "value": 0.01,
+    "unit": "rate",
+    "text": {
+     "de": "Teuerung: die Annahme des Life Balance Sheet, mit der Löhne und Ausgaben steigen und die Ziele in Franken ihres Datums gelesen werden",
+     "en": "Inflation: the Life Balance Sheet's assumption, with which wages and spending rise and goals are read in the francs of their date"
+    },
+    "replaced_by": {
+     "de": "eine andere Annahme im Life Balance Sheet",
+     "en": "a different assumption in the Life Balance Sheet"
+    }
+   },
+   {
+    "key": "residence_is_all_property",
+    "value": 63000.0,
+    "unit": "chf",
+    "text": {
+     "de": "Die Liegenschaften gelten als selbst bewohnt, weil der Anteil nicht erfasst ist; das ist die vorsichtige Lesart.",
+     "en": "All property counts as lived in, because the share is not recorded; this is the cautious reading."
+    },
+    "replaced_by": {
+     "de": "der selbst bewohnte Anteil",
+     "en": "the share lived in"
+    }
+   },
+   {
+    "key": "capitals_mid_scale",
+    "value": 0.5,
+    "unit": null,
+    "text": {
+     "de": "Ausbildung oder Netzwerk sind nicht erfasst; der Verlauf des Einkommens rechnet mit der Mitte der Skala.",
+     "en": "Education or network are not recorded; the shape of the income path uses the middle of the scale."
+    },
+    "replaced_by": {
+     "de": "Ihre Angaben zu Ausbildung und Netzwerk",
+     "en": "your answers on education and network"
+    }
+   },
+   {
+    "key": "earning_level",
+    "value": null,
+    "unit": null,
+    "text": {
+     "de": "Einkommensniveau aus dem Modell, weil keine Erwartung bei vollem Pensum erfasst ist",
+     "en": "Income level from the model, because no expectation at a full pensum is recorded"
+    },
+    "replaced_by": {
+     "de": "Ihre Erwartung bei vollem Pensum",
+     "en": "your expectation at a full pensum"
+    }
+   },
+   {
+    "key": "pillar3a_contribution",
+    "value": 0.0,
+    "unit": "chf_per_year",
+    "text": {
+     "de": "Kein laufender Beitrag in die Säule 3a, weil keiner erfasst ist",
+     "en": "No running pillar 3a contribution, because none is recorded"
+    },
+    "replaced_by": {
+     "de": "der tatsächliche Beitrag",
+     "en": "the actual contribution"
+    }
+   },
+   {
+    "key": "ahv_record",
+    "value": 1.0,
+    "unit": "share",
+    "text": {
+     "de": "Eine vollständige AHV-Beitragsdauer",
+     "en": "A complete AHV contribution record"
+    },
+    "replaced_by": {
+     "de": "der Auszug aus dem individuellen Konto",
+     "en": "the individual account statement"
+    }
+   }
+  ],
+  "limits": [
+   {
+    "de": "Die Planrechnung läuft getrennt davon. Ohne sie fehlt genau eine Aussage: ob das Ziel bei der verlangten Sicherheit hält, und was die Rechnung für diese Periode annimmt.",
+    "en": "The plan calculation runs separately. Without it exactly one statement is missing: whether the goal holds at the confidence asked, and what the calculation assumes for this period."
+   },
+   {
+    "de": "Die Rentendauer ist im Modell an das Referenzalter gebunden; für einen Ausstieg davor ist die Spanne zu kurz.",
+    "en": "The span of retirement is tied to the reference age in the model; for an earlier stop it is too short."
+   },
+   {
+    "de": "Nichts hier ist eine Empfehlung. Ein Befund ist Bildung; eine Empfehlung verlangt einen benannten Kurator und einen Entscheidungsnachweis.",
+    "en": "Nothing here is a recommendation. A finding informs; a recommendation needs a named curator and a decision record."
+   }
+  ],
+  "provenance": {
+   "engine_version": "lbsim@1.1.0",
+   "contract_versions": {
+    "LifeBalanceSimRequest": "lbsim-request@1.0.0",
+    "LifeBalanceFindings": "lbsim-findings@1.0.0",
+    "LifeBalancePaths": "lbsim-paths@1.0.0",
+    "LifeBalancePlan": "lbsim-plan@1.0.0",
+    "OptimiseRequest": "lbsim-optimise@1.0.0",
+    "ValidationReport": "lbsim-validation@1.0.0",
+    "Calibration": "lbsim-calibration@1.0.0"
+   },
+   "calibration_version": "1.6.0",
+   "calibration_hash": "CAL-859b3be416aad77d",
+   "idempotency_key": "IDK-e4db5ef7453bbc56",
+   "upstream": {
+    "lbs": {
+     "artefact_id": "LBS-980297b4f1414231",
+     "request_hash": "REQ-8289b399bd26a6b7",
+     "calibration_version": "1.5.0",
+     "contract": "lbs-balance-sheet@1.0.0",
+     "sha256": "832490dc6ceaf82c13176dc5f6a1bc79daadb2fd36da421fcdee1977491fafb2",
+     "url": null
+    }
+   },
+   "records": [
+    {
+     "record": "human-capital",
+     "source": "lbs",
+     "version": "1.5.0",
+     "approved": true,
+     "published_by": "Nicolas Bürkler",
+     "read_without_gate": false
+    },
+    {
+     "record": "property-funding",
+     "source": "lbs",
+     "version": "1.5.0",
+     "approved": true,
+     "published_by": "Nicolas Bürkler",
+     "read_without_gate": false
+    },
+    {
+     "record": "social-insurance",
+     "source": "lbsim",
+     "version": "1.6.0",
+     "approved": false,
+     "published_by": null,
+     "read_without_gate": true
+    },
+    {
+     "record": "canton-tax",
+     "source": "lbsim",
+     "version": "1.6.0",
+     "approved": false,
+     "published_by": null,
+     "read_without_gate": true
+    },
+    {
+     "record": "findings-text",
+     "source": "lbsim",
+     "version": "1.6.0",
+     "approved": false,
+     "published_by": null,
+     "read_without_gate": true
+    }
+   ],
+   "label": "model-derived",
+   "made_by": "engine",
+   "sample_note": null,
+   "seeds": {},
+   "numpy_version": null
+  },
+  "notice": "Model-derived research output. Not investment advice."
  }
 }

@@ -1,12 +1,12 @@
 {
  "contract_version": "lbsim-paths@1.0.0",
- "artefact_id": "LSP-85cfcfe62c138e2b",
+ "artefact_id": "LSP-5113823c5952dff6",
  "client_ref": "lbsim-sample",
  "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
- "findings_artefact_id": "LSF-a60abb0fa0f37d52",
+ "findings_artefact_id": "LSF-6e1e84cb5f42bdd1",
  "allocation_id": "PCP-5304eca69cc0e867",
  "as_of": "2026-09-28",
- "calibration_version": "1.5.0",
+ "calibration_version": "1.6.0",
  "start_year": 2026,
  "horizon_years": 27,
  "n_paths": 2000,
@@ -9452,9 +9452,9 @@
    "ValidationReport": "lbsim-validation@1.0.0",
    "Calibration": "lbsim-calibration@1.0.0"
   },
-  "calibration_version": "1.5.0",
-  "calibration_hash": "CAL-bf6c32240f0243ba",
-  "idempotency_key": "IDK-2bf39ea4991c4b29",
+  "calibration_version": "1.6.0",
+  "calibration_hash": "CAL-859b3be416aad77d",
+  "idempotency_key": "IDK-d9d8f9615b9ce389",
   "upstream": {
    "lbs": {
     "artefact_id": "LBS-1a68c6aa5d613766",
@@ -9464,7 +9464,7 @@
     "sha256": "ef57e7f0cc0a880ee157247108b05a4a7883f51ad10b3154ff4080f27d1158a6",
     "url": "http://127.0.0.1:8013"
    },
-   "findings": "LSF-a60abb0fa0f37d52",
+   "findings": "LSF-6e1e84cb5f42bdd1",
    "pcp": {
     "artefact_id": "PCP-5304eca69cc0e867",
     "contract": "pcp-allocation@1.0.0",
@@ -9515,7 +9515,7 @@
    {
     "record": "social-insurance",
     "source": "lbsim",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true
@@ -9523,7 +9523,7 @@
    {
     "record": "canton-tax",
     "source": "lbsim",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true
@@ -9531,7 +9531,7 @@
    {
     "record": "findings-text",
     "source": "lbsim",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "approved": false,
     "published_by": null,
     "read_without_gate": true

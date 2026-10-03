@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from optim_helpers import ACTIVE_SEED, SEED, SEED_1_2, sample_market
-from lbsim.calibration import SEED_1_3
+from lbsim.calibration import SEED_1_3, SEED_1_5
 from lbsim.optim.grid import build
 from lbsim.optim.market import sample_allocation
 from lbsim.optim.types import ControlPath, ControlStep, PlanOutcome
@@ -31,6 +31,13 @@ def test_1_3_0_solves_10_years_on_half_year_steps():
     assert g.goal_node(27.0) == 20 and g.beyond(27.0) == 17.0 and g.beyond(3.0) == 0.0
     short = build(3.0, o.grid, o.grid_rule, cap=o.max_solve_horizon_years)
     assert short.dts == (0.5,) * 6 and not short.capped
+
+
+def test_1_6_0_raises_the_iteration_limit_to_1000_and_nothing_else():
+    """DECISIONS O-19 (owner, 03.10.2026): 1000 iterations; the 10-year horizon and the grid stay 1.3.0's."""
+    o = ACTIVE_SEED.optimiser
+    assert (ACTIVE_SEED.version, o.max_iter, o.max_solve_horizon_years) == ("1.6.0", 1000, 10.0)
+    assert o.model_copy(update={"max_iter": 500}) == SEED_1_5.optimiser == SEED_1_3.optimiser
 
 
 def test_the_calibration_cap_and_the_run_cap_the_tighter_holds():

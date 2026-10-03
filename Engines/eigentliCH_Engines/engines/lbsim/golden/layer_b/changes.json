@@ -25459,5 +25459,43 @@
     ]
    }
   }
+ },
+ "step_1_6_0": {
+  "about": "Every leaf calibration 1.6.0 changes against 1.5.0: the owner's iteration limit of 1000 (DECISIONS O-19, the optimiser block only), which the findings do not read.",
+  "from": {
+   "version": "1.5.0",
+   "hash": "CAL-bf6c32240f0243ba"
+  },
+  "to": {
+   "version": "1.6.0",
+   "hash": "CAL-859b3be416aad77d"
+  },
+  "summary": {},
+  "cases": {
+   "db-01": {},
+   "db-02": {},
+   "db-03": {},
+   "db-04": {},
+   "db-05": {},
+   "db-06": {},
+   "db-07": {},
+   "db-08": {},
+   "syn-couple": {},
+   "syn-liquidity": {},
+   "syn-property-1": {},
+   "syn-property-2": {},
+   "syn-property-3": {},
+   "syn-property-4": {},
+   "syn-property-5": {},
+   "lbsim-overtime-a": {},
+   "lbsim-overtime-b": {},
+   "lbsim-reduced-pensum": {},
+   "lbsim-couple": {},
+   "lbsim-young": {},
+   "lbsim-early": {},
+   "lbsim-family": {},
+   "lbsim-thin": {},
+   "lbsim-sample": {}
+  }
  }
 }

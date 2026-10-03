@@ -108,7 +108,7 @@
       <li><b>The Monte Carlo</b>: the household under its stated plan, simulated a few thousand times on the client's
         allocation in the current market assessment and in each scenario (the Regimes). It gives the range of wealth
         year by year, the chance of reaching each goal, and how expertise, network and health develop.</li>
-      <li><b>The plan calculation</b>: in the background (up to two hours) an optimiser looks for the working time,
+      <li><b>The plan calculation</b>: in the background (up to three hours) an optimiser looks for the working time,
         learning, spending and saving that reach the goal; the bench shows what it assumes for this period.</li>
     </ol>
     <p class="note">Pick a client below. The list holds each client's newest sheet that lbsim has computed, labelled by the
@@ -361,7 +361,7 @@ async function showOutlook(client, sheet) {
   }
   const plan = o.plan;
   const planText = { ready: "The plan calculation is ready.",
-                     calculating: `The plan calculation is running (for ${Math.round((plan.elapsed_s || 0) / 60)} minutes, at most ${Math.round((plan.budget_s || 7200) / 3600)} hours).`,
+                     calculating: `The plan calculation is running (for ${Math.round((plan.elapsed_s || 0) / 60)} minutes, at most ${Math.round((plan.budget_s || 10800) / 3600)} hours).`,
                      waiting_for_allocation: "The plan calculation waits for an allocation.",
                      not_possible: "The plan calculation is not possible.",
                      not_requested: "No plan calculation was asked for on these paths." }[plan.state];

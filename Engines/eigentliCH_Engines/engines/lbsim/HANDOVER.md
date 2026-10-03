@@ -1,4 +1,4 @@
-# lbsim: handover after B2 (29.09.2026) and F (03.10.2026)
+# lbsim: handover after B2 (29.09.2026), F and calibration 1.6.0 (03.10.2026)
 
 B1 built the core (contracts, model port, fast half, adapter, calibrations, golden layer A and B). B2 built what
 runs it: the Monte Carlo, the upstream clients, the store, the service and API, the plan workers, the test bench.
@@ -13,8 +13,8 @@ C builds `lbsim.optim` in parallel. This note says what is there, what the next 
 - `settings`, `store` (`schema.sql`), `service`, `api`: every endpoint of 3.7, the idempotency keys of 3.9, the
   outlook states, supersede and cancel. `config.local.yaml` holds the role's development password (git-ignored).
 - `lbsim.plan` and `lbsim.worker`: the `PlanProblem` on C's `lbsim.optim.types`, lbsim's Monte Carlo as `simulate`,
-  the queue (`FOR UPDATE SKIP LOCKED`, curator first), heartbeat, stale requeue (two attempts), the 120-minute
-  budget, the plan artefact. `python -m lbsim serve | worker | init-db`.
+  the queue (`FOR UPDATE SKIP LOCKED`, curator first), heartbeat, stale requeue (two attempts), the budget
+  (120 minutes then, 180 since O-19), the plan artefact. `python -m lbsim serve | worker | init-db`.
 - `testbench/index.html`, served at `/`: health, validate and run on a request, the outlook with chart 3.
 - `golden/upstream` (snapshot of pcp, aggregation, fmre for the tests), `golden/mc` (the draft's `simulate`),
   `golden/samples` (the paths sample is now the engine's own).
@@ -83,3 +83,26 @@ paths under a new key. The samples were rebuilt under 1.4.0 (their bytes changed
   new keys (stored 1.0.0 artefacts stay and still read, without capitals). Plan runs queued on 1.0.0 paths are not
   touched by the change itself, but a new `POST /run` for a client supersedes them (section 5).
 - Tests: 974 passed, 23 skipped, 16 slow deselected (`test_capitals` new, 10; `test_api` has the picker).
+
+## Calibration 1.6.0 and the 3-hour budget (owner, 03.10.2026)
+
+Two use-case plans failed under 1.5.0 (one not converging within 500 iterations, one past 120 minutes). DECISIONS
+O-19:
+
+- **Calibration 1.6.0** (`CAL-859b3be416aad77d`, parent 1.5.0): `optimiser.max_iter` 1000, nothing else; the 10-year
+  solve horizon stays. Active in `config.yaml`. 1.0.0 to 1.5.0 keep their hashes; 1.5.0 is `SEED_1_5`. Layer B
+  `step_1_6_0` moves no leaf. Samples rebuilt (ids only: findings `LSF-6e1e84cb5f42bdd1`, paths
+  `LSP-5113823c5952dff6`, plan `LSO-dd2044da80bbc3a5`); the report's frozen inputs still carry the 1.5.0 samples and
+  read as they are.
+- **The budget is 180 minutes**, in one place: `config.yaml` `optimiser.budget_minutes` (not a calibration figure).
+  A plan run stores `budget_s` (10 800) when it is queued; the worker's deadline and each IPOPT call's
+  `ipopt.max_wall_time` follow from it. The heartbeat (30 s) beats through IPOPT solves, so `stale_after_s` (120 s)
+  and the two requeue attempts need no change. The bench now says "up to three hours".
+- **Restart needed.** The live lbsim on 8014 was busy with plan runs and was neither restarted nor written to. Until
+  `python -m lbsim serve` is restarted it runs 1.5.0 with 500 iterations and 120 minutes. After the restart a new
+  `POST /run` makes 1.6.0 findings and paths under new keys; plan runs queued before it keep the 7 200 s budget they
+  were stored with and the calibration of their paths, so a failed use-case plan needs a new `POST /run` (or
+  `POST /optimise` on 1.6.0 paths) to get 1000 iterations and 180 minutes.
+- **For the coordinator: the app.** The app's waiting text says "höchstens 2 Stunden" and should say 3 (lbsim's
+  `GET /outlook` reports `budget_s` 10 800 for runs queued from now on).
+- Not measured: the wall clock of a 1000-iteration plan (500 took 31 minutes on the sample's 10-year case).

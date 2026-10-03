@@ -76,10 +76,11 @@ def test_the_test_bench_is_served_at_the_root(world):
 def test_calibration_endpoints(world):
     client, _, _ = world
     versions = client.get("/calibration/versions").json()
-    assert [v["version"] for v in versions] == ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0"]
-    assert versions[5]["active"]
+    assert [v["version"] for v in versions] == ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0",
+                                                "1.6.0"]
+    assert versions[6]["active"] and not versions[5]["active"]
     cal = client.get("/calibration").json()
-    assert cal["version"] == "1.5.0"
+    assert cal["version"] == "1.6.0"
     assert client.get("/calibration", params={"version": "9.9.9"}).status_code == 404
     again = client.put("/calibration", json=cal)
     assert again.status_code == 200
@@ -124,7 +125,7 @@ def test_run_makes_findings_and_paths_and_queues_the_plan(world):
     assert set(run["request"]) == {"request", "resolved"} and run["artefact_ids"] == [
         acc["findings_artefact_id"], acc["paths_artefact_id"]]
     plan = client.get(f"/runs/{acc['plan_run_id']}").json()
-    assert plan["kind"] == "plan" and plan["status"] == "queued" and plan["budget_s"] == 7200
+    assert plan["kind"] == "plan" and plan["status"] == "queued" and plan["budget_s"] == 10800   # 180 minutes (DECISIONS O-19)
     assert plan["requested_by"] == {"kind": "system", "ref": "run"}
     assert set(plan["request"]) == {"paths_artefact_id", "findings_artefact_id", "seed", "calibration_version"}
     listed = client.get("/runs", params={"client_ref": body(stub)["client_ref"], "kind": "plan"}).json()
@@ -179,7 +180,7 @@ def test_outlook_states(world):
         acc = client.post("/run", json={**b, "allocation_id": stub.allocation_id}).json()
         o = client.get("/outlook", params={"client_ref": b["client_ref"],
                                            "life_balance_sheet_id": b["life_balance_sheet_id"]}).json()
-        assert o["plan"]["state"] == "calculating" and o["plan"]["budget_s"] == 7200
+        assert o["plan"]["state"] == "calculating" and o["plan"]["budget_s"] == 10800
         assert o["plan"]["run"]["run_id"] == acc["plan_run_id"]
     finally:
         stub.edit("allocation", lambda a: {**a, "client": stub.sheets[stub.sheet_id(CASE)]["client_ref"]})

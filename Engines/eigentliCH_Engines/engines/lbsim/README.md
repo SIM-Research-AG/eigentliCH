@@ -9,7 +9,7 @@ page is Notion `3e80ba72543f819abe14c30ca61942f5`; the binding interfaces are `E
 | Family | Client |
 | Module | `lbsim`, installed editable in `eigentliCH_Engines/.venv` (`pip install --no-deps -e .`) |
 | Port | 8014 (`config.yaml`) |
-| Status | Built: contracts, model port, fast half, adapter, calibrations (B1); Monte Carlo, upstream clients, store, service, API, worker harness, test bench (B2); optimiser `lbsim.optim` (C); the capitals on the paths and the bench's client picker and graphs (F, engine 1.1.0). Active calibration 1.5.0. |
+| Status | Built: contracts, model port, fast half, adapter, calibrations (B1); Monte Carlo, upstream clients, store, service, API, worker harness, test bench (B2); optimiser `lbsim.optim` (C); the capitals on the paths and the bench's client picker and graphs (F, engine 1.1.0). Active calibration 1.6.0 (1000 IPOPT iterations, DECISIONS O-19). |
 | Consumes | lbs 8013 (sheet, its request, calibration); pcp 8007 (Allocation); aggregation 8004 (Regimes); fmre 8006 (ReturnSets, inflation) |
 | Produces | `LifeBalanceFindings` (`LSF-`), `LifeBalancePaths` (`LSP-`), `LifeBalancePlan` (`LSO-`) |
 | Downstream | report 8015, the consumer app 8017, the cockpit 8000 |
@@ -132,7 +132,9 @@ label for people.
   `lbsim.optim.solve(problem, simulate=lbsim.plan.simulate, deadline=..., should_cancel=..., progress=...)`.
   `simulate` is this Monte Carlo under the planned controls (the out-of-sample chance at `seed + 500 000`).
 - A heartbeat every 30 s; `should_cancel` is true once the run is cancelled, superseded, taken away or past its
-  budget. The budget is 120 minutes of wall clock: past it the run fails `timed_out` and no plan is written.
+  budget. The budget is 180 minutes of wall clock (`config.yaml` `optimiser.budget_minutes`, owner 03.10.2026,
+  DECISIONS O-19), stored with the run when it is queued: past it the run fails `timed_out` and no plan is written.
+  The heartbeat thread beats through IPOPT solves too, so `stale_after_s` does not depend on the budget.
 - A run whose heartbeat stopped for `stale_after_s` goes back to the queue at the next start of `serve` or
   `worker`, at most `max_attempts` (2) times in all, then fails.
 - The API process never imports `lbsim.optim` or casadi (LBSIM-03); the worker imports it on its first plan.
@@ -146,7 +148,7 @@ label for people.
 | `golden/mc` | the draft's own `sim.montecarlo.simulate` on three households, sigma = 0 and seeded | `dev/build_golden_mc.py`, draft interpreter |
 | `golden/earning` | the prototype's `human_capital.earning_power` on lbs's golden households | `dev/build_golden_earning.py`, prototype interpreter |
 | `golden/lbs_cases` | 21 lbs requests and the sheets lbs builds of them, with the records read | `dev/build_lbs_cases.py` |
-| `golden/layer_b` | findings under 1.0.0 and 1.1.0, and `changes.json` | `dev/build_layer_b.py` |
+| `golden/layer_b` | findings under 1.0.0 to 1.6.0, and `changes.json` (one step per version) | `dev/build_layer_b.py` |
 | `golden/upstream` | pcp's bench Allocation, aggregation's base and four scenario Regimes (reduced to the fields lbsim reads), fmre's ReturnSets and inflation, read only on 29.09.2026 | `dev/build_upstream_snapshot.py` |
 | `golden/samples` | the findings and paths samples (the engine's own) and the plan sample (hand-built) | `dev/build_samples.py` |
 | `golden/legacy` | the paths sample as engine 1.0.0 made it, without `capitals`: an old artefact must still read with its bytes and id | copied on 03.10.2026 |

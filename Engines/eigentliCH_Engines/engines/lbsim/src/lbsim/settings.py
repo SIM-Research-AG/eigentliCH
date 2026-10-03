@@ -93,7 +93,7 @@ class SimulationConfig:
 @dataclass(frozen=True)
 class OptimiserConfig:
     workers: int = 3
-    budget_minutes: float = 120.0
+    budget_minutes: float = 180.0      # config.yaml's figure (DECISIONS O-19); only a fallback
     max_solve_horizon_years: float = 20.0
     heartbeat_s: float = 30.0
     max_attempts: int = 2

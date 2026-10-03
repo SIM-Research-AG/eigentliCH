@@ -1,6 +1,8 @@
 """Golden layer B (LBSIM-13): lbsim's own behaviour, leaf by leaf: 1.1.0 against 1.0.0 (the three decisions),
 then 1.2.0 against 1.1.0 (the income-path correction, DECISIONS P-9), then 1.3.0 against 1.2.0 (the optimiser
-block only, DECISIONS O-18: no leaf moves).
+block only, DECISIONS O-18: no leaf moves), then 1.4.0 against 1.3.0 (the paths' household, P-21 to P-24: no leaf
+moves), then 1.5.0 against 1.4.0 (each stated income where it belongs, P-25), then 1.6.0 against 1.5.0 (the iteration
+limit, DECISIONS O-19: no leaf moves).
 
 Layer A holds the port to the draft. Layer B has no outside reference: it is lbsim's findings on the frozen lbs
 cases (``golden/lbs_cases``) under both seeds, frozen as a regression reference, with the exact list of leaves
@@ -22,7 +24,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .calibration import ACTIVE_SEED, SEED, SEED_1_1, SEED_1_2, SEED_1_3, SEED_1_4
+from .calibration import ACTIVE_SEED, SEED, SEED_1_1, SEED_1_2, SEED_1_3, SEED_1_4, SEED_1_5
 from .contracts import Calibration, LbsRequest, LbsSheet
 from .fast.build import build_findings
 from .ids import sha256
@@ -149,10 +151,23 @@ def attribute_1_5(folder: Path, records: dict[str, Any]) -> dict[str, list[str]]
     """Every leaf 1.5.0 changes against 1.4.0. 1.5.0 differs from 1.4.0 by the one switch
     ``behaviour.income_levels`` (DECISIONS P-25), so every such leaf is P-25's; the switch is checked to be the only
     difference."""
-    assert SEED_1_4.model_copy(update={"version": ACTIVE_SEED.version, "parent_version": ACTIVE_SEED.parent_version,
-                                       "note": ACTIVE_SEED.note,
+    assert SEED_1_4.model_copy(update={"version": SEED_1_5.version, "parent_version": SEED_1_5.parent_version,
+                                       "note": SEED_1_5.note,
                                        "behaviour": SEED_1_4.behaviour.model_copy(
-                                           update={"income_levels": "stated"})}) == ACTIVE_SEED
+                                           update={"income_levels": "stated"})}) == SEED_1_5
     before = flatten(findings(folder, records, SEED_1_4))
-    after = flatten(findings(folder, records, ACTIVE_SEED))
+    after = flatten(findings(folder, records, SEED_1_5))
     return {leaf: ["P-25"] for leaf in changed(before, after)}
+
+
+def attribute_1_6(folder: Path, records: dict[str, Any]) -> dict[str, list[str]]:
+    """Every leaf 1.6.0 changes against 1.5.0. 1.6.0 differs from 1.5.0 in ``optimiser.max_iter`` only (DECISIONS
+    O-19: 1000 iterations), which the findings never read, so the expected answer is no leaf at all; any leaf that
+    moved would be O-19's and is attributed to it."""
+    assert SEED_1_5.model_copy(update={"version": ACTIVE_SEED.version, "parent_version": ACTIVE_SEED.parent_version,
+                                       "note": ACTIVE_SEED.note,
+                                       "optimiser": SEED_1_5.optimiser.model_copy(
+                                           update={"max_iter": 1000})}) == ACTIVE_SEED
+    before = flatten(findings(folder, records, SEED_1_5))
+    after = flatten(findings(folder, records, ACTIVE_SEED))
+    return {leaf: ["O-19"] for leaf in changed(before, after)}

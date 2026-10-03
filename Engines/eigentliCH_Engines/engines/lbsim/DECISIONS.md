@@ -370,3 +370,28 @@ calibration and no figure moved.
   findings' `as_of`. A sheet without an allocation is "A household without an allocation". Read only: it writes
   nothing. A "Run" from the bench asks for no plan, but `POST /run` still supersedes the client's other plan runs
   (section 5), and the bench says so.
+
+## Calibration 1.6.0 and the 3-hour budget (owner, 03.10.2026)
+
+- **O-19 1000 iterations and 180 minutes per plan.** Two use-case plans failed under 1.5.0: one did not converge
+  within 500 IPOPT iterations, one ran past the 120-minute budget. The owner raised both limits; the 10-year solve
+  horizon stays (O-18).
+  1. **The iteration limit is calibration 1.6.0** (`CAL-859b3be416aad77d`, parent 1.5.0): 1.5.0 with
+     `optimiser.max_iter` 1000, nothing else. Active in `config.yaml`. 1.5.0 is now the named seed `SEED_1_5`;
+     1.0.0 to 1.5.0 keep their bytes and hashes (pinned in `golden/calibration_hashes.json`). The findings and the
+     paths do not read `max_iter`, so layer B's step 1.5.0 to 1.6.0 (`changes.json` `step_1_6_0`) moves no leaf and
+     is attributed to O-19. The samples were rebuilt under 1.6.0: they differ from 1.5.0's in the calibration
+     version and hash, the keys and the ids only (findings `LSF-6e1e84cb5f42bdd1`, paths `LSP-5113823c5952dff6`,
+     plan `LSO-dd2044da80bbc3a5`).
+  2. **The budget is not a calibration figure.** It is how long the engine lets a run take, not a model parameter,
+     and it never entered an artefact's key; it lives in one place, `config.yaml` `optimiser.budget_minutes`, now
+     180 (the dataclass default in `settings.py` follows it as a fallback only). Everything else derives from it:
+     the plan run stores `budget_s` (10 800) when it is queued, the worker's deadline is the run's `budget_s`, each
+     IPOPT call gets `ipopt.max_wall_time` = the time left (O-7), and `GET /outlook` reports `budget_s`. A run queued
+     before the change keeps the 7 200 s it was queued with.
+  3. **The heartbeat and the requeue need no change.** A thread beats every 30 s for the whole run, IPOPT solves
+     included (CasADi 3.7.2 releases the GIL during a solve; checked on 03.10.2026, the beating thread kept its
+     rhythm through a solve), so `stale_after_s` (120 s) measures a dead worker, not a long solve, and does not
+     depend on the budget. Stale runs are requeued only at the start of `serve` or `worker`, at most twice.
+  4. Not measured: how long a 1000-iteration plan takes. At 500 the sample's 10-year case took 31 minutes (O-18); a
+     solve that uses all 1000 iterations takes about twice as long, and three draws of them can reach the budget.
