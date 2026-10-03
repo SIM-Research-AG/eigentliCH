@@ -188,7 +188,7 @@ def test_the_bench_lists_stored_reports_by_client_with_readable_labels(client, h
     got = client.get("/bench/reports").json()
     assert got and all(c["reports"] for c in got)
     mine = next(c for c in got if any(r["artefact_id"] == hex_pages[("de", "real")]["artefact_id"] for r in c["reports"]))
-    assert mine["label"].startswith("Couple, one dependant · net worth CHF 257k · with the outlook")
+    assert mine["label"].startswith("Couple, one dependant · net worth CHF 257,000 · with the outlook")
     assert {"report · German · real", "report · English · nominal"} <= {r["label"].rsplit(" · ", 1)[0]
                                                                        for r in mine["reports"]}
     for c in got:

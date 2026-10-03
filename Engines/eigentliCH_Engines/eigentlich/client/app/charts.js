@@ -10,7 +10,8 @@
 // (3) fanChart: the wealth paths as a fan (5 to 95 and 25 to 75 of 100 paths, the median), and the goal's line,
 //     solid in the goal's own basis and dashed in the other (converted, LBSIM-09).
 
-import { amount, svg } from './dom.js';
+import { svg } from './dom.js';
+import { amount, level, share as weightText, year } from './format.js';
 
 const W = 640;
 
@@ -18,10 +19,6 @@ function frame(height, title, desc, kids) {
   return svg('svg', { class: 'chart', role: 'img', viewBox: `0 0 ${W} ${height}`, width: '100%',
     preserveAspectRatio: 'xMinYMin meet', 'aria-label': title }, [
     svg('title', { text: title }), svg('desc', { text: desc }), ...kids]);
-}
-
-function pctText(value, L) {
-  return `${new Intl.NumberFormat(L === 'en' ? 'en-CH' : 'de-CH', { maximumFractionDigits: 1 }).format(value * 100)} %`;
 }
 
 /** (1) Horizontal bars. `rows`: [{label, weight}] (weights 0..1); `words`: {title, desc}. */
@@ -39,7 +36,7 @@ export function weightsChart(rows, words, L) {
     kids.push(
       svg('text', { x: left - 8, y: y + bar * 0.62, class: 'chart-label', 'text-anchor': 'end', text: r.label }),
       svg('rect', { x: left, y: y + 4, width: width.toFixed(1), height: bar - 9, rx: 3, class: 'chart-bar' }),
-      svg('text', { x: left + width + 6, y: y + bar * 0.62, class: 'chart-value', text: pctText(r.weight, L) }),
+      svg('text', { x: left + width + 6, y: y + bar * 0.62, class: 'chart-value', text: weightText(r.weight, L) }),
     );
   });
   return frame(height, words.title, words.desc, kids);
@@ -104,7 +101,7 @@ export function fanChart(bands, startYear, until, goal, words, L) {
     area(series.p75, series.p25, 'chart-band-inner'),
     line(series.p50.map((v, i) => [x(i), y(v)]), 'chart-median'),
     svg('text', { x: left, y: height - 12, class: 'chart-label', text: words.today }),
-    svg('text', { x: right, y: height - 12, class: 'chart-label', 'text-anchor': 'end', text: String(startYear + n) }),
+    svg('text', { x: right, y: height - 12, class: 'chart-label', 'text-anchor': 'end', text: year(startYear + n) }),
     svg('text', { x: right + 8, y: y(end) + 4, class: 'chart-label', text: `${words.median}: CHF ${amount(end, L)}` }),
     svg('text', { x: right + 8, y: y(series.p95[series.p95.length - 1]) + 4, class: 'chart-label muted', text: words.outer }),
     svg('text', { x: right + 8, y: y(series.p75[series.p75.length - 1]) - 6, class: 'chart-label muted', text: words.inner }),
@@ -133,10 +130,6 @@ export function levelWord(value, scale, words) {
   const hi = (scale && typeof scale.max === 'number' && scale.max > lo) ? scale.max : 1;
   const share = (value - lo) / (hi - lo);
   return share < 1 / 3 ? words.low : share < 2 / 3 ? words.mid : words.high;
-}
-
-function levelNumber(value, L) {
-  return new Intl.NumberFormat(L === 'en' ? 'en-CH' : 'de-CH', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(value);
 }
 
 /** (4) The balance sheet. `columns`: [{title, parts: [{label, chf, cls, open}], note}] (parts bottom to top; a
@@ -200,7 +193,7 @@ export function capitalsChart(row, scale, words, L) {
       kids.push(svg('rect', { x: left, y: y + 4, width: track, height: 14, rx: 7, class: 'chart-track' }),
         svg('rect', { x: left, y: y + 4, width: Math.max(2, share * track).toFixed(1), height: 14, rx: 7, class: `chart-capital ${key}` }),
         svg('text', { x: left + track + 10, y: y + 15, class: 'chart-value',
-          text: `${levelWord(row[key], { min: lo, max: hi }, words)} (${words.of.replace('{value}', levelNumber(row[key], L)).replace('{max}', levelNumber(hi, L))})` }));
+          text: `${levelWord(row[key], { min: lo, max: hi }, words)} (${words.of.replace('{value}', level(row[key], L)).replace('{max}', level(hi, L))})` }));
     }
     y += 30;
   }
@@ -230,17 +223,17 @@ export function capitalPathChart(series, startYear, words, L) {
   const kids = [
     svg('line', { x1: left, x2: right, y1: top, y2: top, class: 'chart-zero' }),
     svg('line', { x1: left, x2: right, y1: bottom, y2: bottom, class: 'chart-zero' }),
-    svg('text', { x: left - 8, y: top + 4, class: 'chart-label muted', 'text-anchor': 'end', text: `${words.max} ${levelNumber(hi, L)}` }),
-    svg('text', { x: left - 8, y: bottom + 4, class: 'chart-label muted', 'text-anchor': 'end', text: `${words.min} ${levelNumber(lo, L)}` }),
+    svg('text', { x: left - 8, y: top + 4, class: 'chart-label muted', 'text-anchor': 'end', text: `${words.max} ${level(hi, L)}` }),
+    svg('text', { x: left - 8, y: bottom + 4, class: 'chart-label muted', 'text-anchor': 'end', text: `${words.min} ${level(lo, L)}` }),
     svg('text', { x: left, y: height - 10, class: 'chart-label', text: words.today }),
-    svg('text', { x: right, y: height - 10, class: 'chart-label', 'text-anchor': 'end', text: String(startYear + n) }),
+    svg('text', { x: right, y: height - 10, class: 'chart-label', 'text-anchor': 'end', text: year(startYear + n) }),
   ];
   if (b.p10 && b.p90) kids.push(band(b.p90, b.p10, 'chart-band-outer'));
   if (b.p25 && b.p75) kids.push(band(b.p75, b.p25, 'chart-band-inner'));
   kids.push(line(p50.map((v, i) => [x(i), y(v)]), 'chart-median'));
   if (typeof end === 'number') {
     kids.push(svg('text', { x: right + 8, y: y(end) + 4, class: 'chart-label',
-      text: `${words.median}: ${levelWord(end, { min: lo, max: hi }, words)} (${levelNumber(end, L)})` }));
+      text: `${words.median}: ${levelWord(end, { min: lo, max: hi }, words)} (${level(end, L)})` }));
   }
   if (b.p90 && b.p90.length) {
     kids.push(svg('text', { x: right + 8, y: Math.max(top + 4, y(b.p90[b.p90.length - 1]) - 10), class: 'chart-label muted', text: words.outer }));

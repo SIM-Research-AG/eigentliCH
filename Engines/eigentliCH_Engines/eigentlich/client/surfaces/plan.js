@@ -3,7 +3,8 @@
 // Positions and goals are never deleted: they leave the running plan and can come back (R-122, EIG-07).
 
 import { api, detailText } from '../app/api.js';
-import { amount, button, clear, field, h, notice, when, put } from '../app/dom.js';
+import { button, clear, field, h, notice, when, put } from '../app/dom.js';
+import { amount, stated } from '../app/format.js';
 import { t } from '../app/i18n.js';
 import { roleName, showValue } from './home.js';
 import { basisLabel, basisSwitch, currentBasis } from '../app/basis.js';
@@ -20,7 +21,8 @@ function select(values, current, L, prefix) {
 function magnitudeText(p, L) {
   if (p.magnitude === null || p.magnitude === undefined) return null;
   const unit = p.magnitude_unit === 'chf_per_year' ? t('unit.chf_per_year', L) : p.magnitude_unit === 'share_of_total' ? '%' : 'CHF';
-  return p.magnitude_unit === 'share_of_total' ? `${p.magnitude} %` : `${amount(p.magnitude, L)} ${unit}`;
+  // the client's own figure, as stated (ROUNDING.md)
+  return p.magnitude_unit === 'share_of_total' ? `${stated(p.magnitude, L)} %` : `${stated(p.magnitude, L)} ${unit}`;
 }
 
 function positionForm(L, { position, role, capital, partner, onSave, onCancel }) {
@@ -82,7 +84,8 @@ function goalForm(L, { goal, positions, sharesAsked, onSave, onCancel, templates
   const date = h('input', { type: 'date', value: g.target_date || '' });
   const occupancy = select(['', 'owner_occupied_primary', 'second_or_holiday_home', 'let_to_someone_else'], g.occupancy, L, 'occupancy');
   // Its share of the one yearly saving, 0 to 100 % here, 0 to 1 in the store (EIG-59): asked when more than one
-  // goal has an amount and a date, or when this goal already states one.
+  // goal has an amount and a date, or when this goal already states one. The field shows the stated share back
+  // (only the binary drift of the * 100 is removed), so it is not a display figure (ROUNDING.md).
   const askShare = sharesAsked || (g.contribution_share !== null && g.contribution_share !== undefined);
   const share = h('input', { type: 'number', min: '0', max: '100', step: 'any',
     value: g.contribution_share === null || g.contribution_share === undefined ? '' : String(Math.round(g.contribution_share * 1000) / 10) });
@@ -254,7 +257,7 @@ export async function render(main, ctx) {
   })]), goalSlot, goals);
   if (!plan.goals.length) put(goals, h('li', { class: 'muted', text: t('plan.no_goals', L) }));
   if (plan.shares_asked) {
-    put(main, h('p', { class: 'small muted', text: t('plan.shares_total', L, { n: String(Math.round((plan.shares_total || 0) * 1000) / 10) }) }));
+    put(main, h('p', { class: 'small muted', text: t('plan.shares_total', L, { n: stated((plan.shares_total || 0) * 100, L) }) }));
   }
   for (const g of plan.goals) {
     const funders = plan.positions.filter((p) => g.funded_by.includes(p.id)).map((p) => p.label);
@@ -264,11 +267,11 @@ export async function render(main, ctx) {
         h('span', { class: 'badge quiet', text: t(`goalkind.${g.kind}`, L) }),
       ]),
       h('div', { class: 'small muted' }, [
-        g.target_amount !== null ? `CHF ${amount(g.target_amount, L)} ${t(`plan.stated_${g.amount_basis || 'today'}`, L)}` : t('plan.no_amount', L),
+        g.target_amount !== null ? `CHF ${stated(g.target_amount, L)} ${t(`plan.stated_${g.amount_basis || 'today'}`, L)}` : t('plan.no_amount', L),
         ' · ', g.target_date || t('plan.no_date', L),
         funders.length ? ` · ${t('plan.funded_by', L)}: ${funders.join(', ')}` : '',
         g.contribution_share !== null && g.contribution_share !== undefined
-          ? ` · ${t('plan.share_of_saving', L, { n: String(Math.round(g.contribution_share * 1000) / 10) })}` : '',
+          ? ` · ${t('plan.share_of_saving', L, { n: stated(g.contribution_share * 100, L) })}` : '',
       ]),
       goalInView(plan.goal_views && plan.goal_views[g.id], basis, L),
       h('div', { class: 'actions' }, [

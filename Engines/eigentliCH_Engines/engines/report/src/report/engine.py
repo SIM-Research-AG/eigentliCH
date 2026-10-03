@@ -27,6 +27,7 @@ from typing import Any, Callable, Iterable, Optional, Sequence
 
 from pydantic import BaseModel
 
+from . import rounding as rnd
 from . import vocabulary as voc
 from .contracts import (
     Allocation,
@@ -57,25 +58,12 @@ def content_id(prefix: str, payload: Any) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Formatting: the house style of dossier.py (thin-space thousands, decimal comma, "−")
+# Formatting: the house style of dossier.py (space thousands, decimal comma, "−"), rounded for display by the
+# one formatter, ``rounding.py`` (owner, 03.10.2026; REP-44). The fact keeps the exact value.
 # ---------------------------------------------------------------------------
 
 def _money(x: float, lang: str) -> str:
-    text = f"{abs(x):,.0f}"
-    text = text.replace(",", " ") if lang == "de" else text
-    return ("−" if x < 0 else "") + "CHF " + text
-
-
-def _share(x: float, lang: str, digits: int = 1) -> str:
-    text = f"{abs(x) * 100:.{digits}f}"
-    sign = "−" if x < 0 else ""
-    return f"{sign}{text.replace('.', ',')} %" if lang == "de" else f"{sign}{text}%"
-
-
-def _number(x: float, lang: str, digits: int = 2) -> str:
-    text = f"{abs(x):.{digits}f}"
-    sign = "−" if x < 0 else ""
-    return sign + (text.replace(".", ",") if lang == "de" else text)
+    return rnd.money(x, lang)
 
 
 _MONTHS_EN = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
@@ -90,8 +78,9 @@ def _date(iso: str, lang: str) -> str:
     return f"{d.day:02d}.{d.month:02d}.{d.year}" if lang == "de" else f"{d.day} {_MONTHS_EN[d.month - 1]} {d.year}"
 
 
-def fmt(value: Any, unit: str, lang: str) -> str:
-    """How a fact is printed. Every figure on the page goes through here."""
+def fmt(value: Any, unit: str, lang: str, fact_id: Optional[str] = None) -> str:
+    """How a fact is printed. Every figure on the page goes through here, rounded for display by its kind
+    (``rounding.kind_of``: the unit and, for a share or a number, the fact's id)."""
     if value is None:
         return "–"
     if unit == "flag":
@@ -100,30 +89,20 @@ def fmt(value: Any, unit: str, lang: str) -> str:
         return _money(float(value), lang)
     if unit == "chf_per_year":
         return _money(float(value), lang) + (" pro Jahr" if lang == "de" else " a year")
-    if unit == "share":
-        return _share(float(value), lang)
-    if unit == "count":
-        return str(int(value))
-    if unit == "number":
-        return _number(float(value), lang)
+    if unit in ("share", "count", "number"):
+        return rnd.figure(float(value), rnd.kind_of(fact_id, unit), lang)
     if unit == "date":
         return _date(str(value), lang)
     return str(value)
 
 
-def fmt_change(value: float, unit: str, lang: str) -> str:
-    """A signed difference: CHF amounts in francs, shares in percentage points."""
-    sign = "+" if value > 0 else ""
+def fmt_change(value: float, unit: str, lang: str, fact_id: Optional[str] = None) -> str:
+    """A signed difference, rounded as its figure is: CHF amounts in francs, shares in percentage points."""
+    kind = rnd.kind_of(fact_id, unit)
     if unit == "share":
-        pts = f"{abs(value) * 100:.1f}"
-        pts = pts.replace(".", ",") if lang == "de" else pts
-        head = "+" if value > 0 else "−" if value < 0 else ""
-        return f"{head}{pts} " + ("Prozentpunkte" if lang == "de" else "percentage points")
-    if unit in ("chf", "chf_per_year"):
-        return (sign if value > 0 else "") + _money(value, lang)
-    if unit == "count":
-        return f"{sign}{int(value)}"
-    return sign + _number(value, lang)
+        return rnd.points(value, lang, kind)
+    text = rnd.figure(value, kind, lang)
+    return ("+" if value > 0 and any(c in "123456789" for c in text) else "") + text
 
 
 # ---------------------------------------------------------------------------
@@ -262,7 +241,7 @@ class _Maker:
         if isinstance(value, float) and not math.isfinite(value):
             raise EngineError(f"{self.engine} {self.artefact_id}: {_pointer(*path)} is not finite")
         self.facts.append(Fact(fact_id=fact_id, section=section, label=text or label(fact_id, self.lang),
-                               value=value, unit=unit, display=display or fmt(value, unit, self.lang),
+                               value=value, unit=unit, display=display or fmt(value, unit, self.lang, fact_id),
                                sources=(self.src(*path),), derivation=derivation, basis=basis))
 
 
@@ -307,8 +286,7 @@ def extract_pcp(a: Allocation, cal: Calibration, lang: str, basis: str = "nomina
     m.add("pcp.objective", "fit", float(d.objective), "number", ["diagnostics", "objective"])
     m.add("pcp.objective_floor", "fit", float(d.objective_floor), "number", ["diagnostics", "objective_floor"])
     if d.weight_leverage is not None:
-        m.add("pcp.weight_leverage", "fit", float(d.weight_leverage), "share", ["diagnostics", "weight_leverage"],
-              display=_share(float(d.weight_leverage), lang, 2))
+        m.add("pcp.weight_leverage", "fit", float(d.weight_leverage), "share", ["diagnostics", "weight_leverage"])
     m.add("pcp.solver_method", "fit", d.solver_method, "text", ["diagnostics", "solver_method"])
     m.add("pcp.solver_converged", "fit", d.success, "flag", ["diagnostics", "success"])
     m.add("pcp.constraint_rows", "fit", float(d.constraint_rows), "count", ["diagnostics", "constraint_rows"])
@@ -412,7 +390,7 @@ Figure = tuple[Optional[float], str, list[Any]]
 
 
 def _goal_figure(m: "_Maker", fact_id: str, section: str, views: dict[str, Figure], unit: str, basis: str, *,
-                 text: str, digits: Optional[int] = None) -> None:
+                 text: str) -> None:
     """A return or goal figure (REP-27), marked with its basis. ``views`` holds the figure in each basis lbs
     gives it in, each with the basis lbs states for it. In nominal, the nominal figure. In real, the real figure;
     a figure lbs has no real view of (a liquidity gap, a fixed contribution) is shown as lbs states it, nominal,
@@ -429,8 +407,7 @@ def _goal_figure(m: "_Maker", fact_id: str, section: str, views: dict[str, Figur
     if stated != want:
         raise EngineError(f"lbs sheet {m.artefact_id}: {_pointer(*path)} is {stated}, read as {want}; a report "
                           "never mixes nominal and real figures")
-    display = _share(value, m.lang, digits) if (digits is not None and value is not None) else None
-    m.add(fact_id, section, value, unit, path, text=text, display=display, basis=stated)
+    m.add(fact_id, section, value, unit, path, text=text, basis=stated)
 
 
 def _views(top: Figure, more: Iterable[tuple[str, Figure]]) -> dict[str, Figure]:
@@ -572,8 +549,7 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "
             m.add(f"{base}.bvg.closing", "pensions", b.closing_balance, "chf", ["pensions", j, "bvg", "closing_balance"],
                   text=f"{who}: {w['bvg_closing']}", basis="nominal")
             m.add(f"{base}.bvg.conversion", "pensions", b.conversion_rate, "share",
-                  ["pensions", j, "bvg", "conversion_rate"], text=f"{who}: {w['bvg_conversion']}",
-                  display=_share(b.conversion_rate, lang, 2))
+                  ["pensions", j, "bvg", "conversion_rate"], text=f"{who}: {w['bvg_conversion']}")
             m.add(f"{base}.bvg.yearly", "pensions", b.yearly_pension, "chf_per_year",
                   ["pensions", j, "bvg", "yearly_pension"], text=f"{who}: {w['bvg_yearly']}", basis="nominal")
         else:
@@ -655,7 +631,7 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "
         _goal_figure(m, "lbs.mandate.contribution", "mandate", {paid_basis: paid}, "chf_per_year",
                      paid_basis, text=w["m_contribution"])
         _goal_figure(m, "lbs.mandate.required_return", "mandate", mandate_views("required_return"), "share", basis,
-                     text=w["m_required"], digits=2)
+                     text=w["m_required"])
         if mp.plausibility is not None:
             judged = mp.plausibility.judgement
             m.add("lbs.mandate.plausibility", "mandate", judged, "text",
@@ -673,8 +649,7 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "
         # What the real figures rest on (REP-27): lbs's inflation assumption and whether the saving rises with it.
         bw = voc.BASIS_WORDS
         m.add("lbs.real.inflation", "mandate", rv.inflation.annual_rate, "share",
-              ["real_view", "inflation", "annual_rate"], text=bw["inflation"][lang],
-              display=_share(rv.inflation.annual_rate, lang, 2))
+              ["real_view", "inflation", "annual_rate"], text=bw["inflation"][lang])
         m.add("lbs.real.inflation_label", "mandate", rv.inflation.label, "text", ["real_view", "inflation", "label"],
               text=bw["inflation_label"][lang], display=bw[rv.inflation.label][lang])
         m.add("lbs.real.contribution_indexed", "mandate", rv.contribution_indexed, "flag",
@@ -789,13 +764,13 @@ def _ls_figure(value: float, unit: str, lang: str) -> tuple[str, str]:
     """``(fact unit, display)`` of a finding figure. The template carries the unit words ("pro Jahr"), so an
     amount a year prints as the amount."""
     if unit in ("chf", "chf_per_year"):
-        return unit, _money(value, lang)
+        return unit, rnd.money(value, lang)
     if unit == "share":
-        return "share", _share(value, lang)
+        return "share", rnd.weight(value, lang)
     if unit == "count":
-        return "count", str(int(round(value)))
-    digits = 0 if float(value).is_integer() else 1
-    return "number", _number(value, lang, digits)
+        return "count", rnd.whole(value, lang)
+    # years and hours a week: whole numbers (ROUNDING.md); the template carries the unit words
+    return "number", rnd.whole(value, lang)
 
 
 def fill_template(template: str, figures: dict[str, str]) -> str:
@@ -846,8 +821,7 @@ def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeB
                   ["earning_power", j, "current", "gross_income_chf_per_year"], text=f"{p}: {w['ep_current']}")
             if ep.current.pensum is not None:
                 m.add(f"{base}.pensum", "earning_power", float(ep.current.pensum), "share",
-                      ["earning_power", j, "current", "pensum"], text=f"{p}: {w['ep_pensum']}",
-                      display=_share(float(ep.current.pensum), lang, 0))
+                      ["earning_power", j, "current", "pensum"], text=f"{p}: {w['ep_pensum']}")
             for n, c in enumerate(ep.caveats):
                 m.add(f"{base}.caveat.{n}", "earning_power", getattr(c, lang), "text",
                       ["earning_power", j, "caveats", n, lang], text=f"{p}: {w['ep_caveat']}")
@@ -954,8 +928,7 @@ def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeB
                   text=w["regime"])
             for j, g in enumerate(reg.goals):
                 m.add(f"lbsim.chance.{reg.key}.{g.goal_id}", "outlook", float(g.chance), "share",
-                      ["regimes", r, "goals", j, "chance"], text=f"{label_}: {goal(g.goal_id)}, {w['chance']}",
-                      display=_share(float(g.chance), lang, 0))
+                      ["regimes", r, "goals", j, "chance"], text=f"{label_}: {goal(g.goal_id)}, {w['chance']}")
             band = reg.bands.get(series)
             if band is None:
                 continue
@@ -1022,9 +995,9 @@ def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeB
         m.add("lbsim.plan.goal", "plan", plan.goal.goal_id, "text", ["goal", "goal_id"], text=w["plan_goal"],
               display=goal(plan.goal.goal_id))
         m.add("lbsim.plan.confidence", "plan", float(plan.goal.confidence), "share", ["goal", "confidence"],
-              text=w["plan_confidence"], display=_share(float(plan.goal.confidence), lang, 0))
+              text=w["plan_confidence"])
         m.add("lbsim.plan.chance", "plan", float(plan.chance.out_of_sample), "share", ["chance", "out_of_sample"],
-              text=w["plan_chance"], display=_share(float(plan.chance.out_of_sample), lang, 0))
+              text=w["plan_chance"])
         if plan.reachable is not None:
             m.add("lbsim.plan.reachable", "plan", float(plan.reachable.amount_chf), "chf", ["reachable", "amount_chf"],
                   text=w["plan_reachable"], basis="nominal")
@@ -1032,9 +1005,9 @@ def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeB
         for field, words in voc.LBSIM_ACTION_NOW.items():
             value = float(getattr(a, field))
             if field == "work_share":
-                unit, display = "share", _share(value, lang, 0)
+                unit, display = "share", None
             elif field.endswith("_hours_per_week"):
-                unit, display = "number", f"{_number(value, lang, 0 if value.is_integer() else 1)} {w['hours_a_week']}"
+                unit, display = "number", f"{rnd.whole(value, lang)} {w['hours_a_week']}"
             else:
                 unit, display = "chf_per_year", None
             m.add(f"lbsim.plan.action_now.{field}", "plan", value, unit, ["action_now", field], text=words[lang],
@@ -1225,13 +1198,13 @@ def change_facts(previous: Report, current: Sequence[Fact], lang: str) -> list[F
         if rel(new_v, old_v):
             unchanged += 1
             continue
-        arrow = f"{fmt(old_v, f.unit, lang)} → {fmt(new_v, f.unit, lang)}"
+        arrow = f"{fmt(old_v, f.unit, lang, f.fact_id)} → {fmt(new_v, f.unit, lang, f.fact_id)}"
         out.append(Fact(fact_id=f"change.{f.fact_id}", section="changes", label=f.label, value=new_v, unit=f.unit,
                         display=arrow, previous=old_v, sources=(prev_src(n),) + f.sources,
                         derivation=f"current value against report {previous.artefact_id}", basis=f.basis))
         delta = new_v - old_v
         out.append(Fact(fact_id=f"delta.{f.fact_id}", section="changes", label=f.label, value=delta, previous=old_v,
-                        unit=f.unit, display=fmt_change(delta, f.unit, lang), sources=(prev_src(n),) + f.sources,
+                        unit=f.unit, display=fmt_change(delta, f.unit, lang, f.fact_id), sources=(prev_src(n),) + f.sources,
                         derivation="current minus previous", basis=f.basis))
     whole = FactSource(engine="report", artefact_id=previous.artefact_id, contract_version=previous.contract_version,
                        path="/facts")
@@ -1369,9 +1342,10 @@ def reject_reason(text: str, lang: str, cal: Calibration) -> Optional[str]:
 
 _DATE = re.compile(r"\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b|\b(\d{4})-(\d{2})-(\d{2})\b")
 _NUMBER = re.compile(r"\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?:[.,]\d{1,2})?(?!\d)|\d+(?:[.,'\u2019]\d+)*")
-_SCALE = re.compile(r"\s*(Mrd\.?|Milliarden?|billion|Mio\.?|Millionen|Million|million|Tausend|thousand)(?![A-Za-z])",
+#: "m" is the English page's millions ("CHF 1.35 m", REP-44), matched in its lower case only.
+_SCALE = re.compile(r"\s*(Mrd\.?|Milliarden?|billion|Mio\.?|Millionen|Million|million|Tausend|thousand|(?-i:m))(?![A-Za-z])",
                     re.IGNORECASE)
-_SCALE_FACTOR = {"mrd": 1e9, "milliarde": 1e9, "milliarden": 1e9, "billion": 1e9, "mio": 1e6,
+_SCALE_FACTOR = {"m": 1e6, "mrd": 1e9, "milliarde": 1e9, "milliarden": 1e9, "billion": 1e9, "mio": 1e6,
                  "millionen": 1e6, "million": 1e6, "tausend": 1e3, "thousand": 1e3}
 #: Percent sign or word, and percentage points (a change in a share).
 _PERCENT = re.compile(r"\s*(%|Prozentpunkte?\b|Prozent\b|Pp\.|percentage points?\b|percent\b|per cent\b)",

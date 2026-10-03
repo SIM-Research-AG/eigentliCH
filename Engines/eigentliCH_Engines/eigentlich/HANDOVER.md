@@ -241,6 +241,22 @@ columns are filled from `dev/reports/use-cases-outlook.json` and `use-cases-chec
 38. **lbsim's reasons for "no allocation"** are the app's: without a parameter set, a run, a base run, or in another
     currency than CHF, the page says so itself and lbsim is sent no Allocation (it then waits for one).
 
+## Rounding for display (03.10.2026, EIG-73)
+
+* **Built** to the owner's rule (`review/ROUNDING.md`): `client/app/format.js`, the client's one number formatter
+  (`amount`, `money`, `stated`, `rate`, `chance`, `share`, `level`, `ratio`, `count`, `year`), used by `home.js`,
+  `outlook.js`, `plan.js` and `charts.js`; its Python twin `src/eigentlich/rounding.py`, used by `outlook.figure_text`
+  (a finding's figures in its sentences). `dom.amount` and `basis.pct` removed. New words: `format.rounded` ("Beträge
+  gerundet." / "Amounts rounded."), `outlook.in_share_of_paths` (replaces `outlook.in_n_of_100`); `outlook.of_100`
+  removed. App version 1.5.1. No schema change, no contract change.
+* **Tests:** 569 passed, 4 skipped (the opt-in live tests). `tests/test_app_rounding.py`: every row of the rule in both languages for the client (in Node) and the
+  twin, with the edges (negatives, exactly 1 000, 100 000 and 1 000 000, 0, None, a chance below 1 % and above 99 %);
+  no ad-hoc number formatting left in the client; the home page's figures, the balance sheet, the capitals, the
+  weights, the fan and the outlook's sentences drawn in Node from the engines' unrounded floats, with a scan that no
+  raw float and no figure with more digits than allowed reaches the page; a finding's sentence rounded on the server.
+  `tests/test_app_pictures.py` scans its drawn pages the same way.
+* **The running app on 8017 needs a restart** to serve 1.5.1 (the client files are read at start).
+
 ## The balance sheet and the four capitals as graphs (03.10.2026, EIG-70 to EIG-72)
 
 * **Built** to `review/VISUALS_INTERFACES.md` (agent H): `src/eigentlich/pictures.py` (pure: the balance picture,

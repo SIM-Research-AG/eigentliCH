@@ -526,3 +526,29 @@ computes no figure (C-07). *Tests.* `tests/test_api.py`: the panel's pieces in t
 (`tests/fixtures/lbsim/capitals.sample.json`, made from the spec) has the spec's shape; the page's own chart functions
 run in Node with `plot()` recording the traces (skipped without Node): the stacks, the claims following the basis,
 the capitals off the money axis, a withheld health without a bar, a Regime's raised network scale.
+
+**C-37 Numbers are rounded for display by one rule (03.10.2026).** The owner's rule of 03.10.2026
+(`review/ROUNDING.md`): every number a person reads in the cockpit and in every engine's test bench is rounded
+meaningfully, display only. One formatter, `displayRounding()`, kept in `dev/display_rounding.js` and carried
+verbatim between its begin and end lines by the cockpit page and by the benches of honi, macrofield, aggregation,
+fmre, pcp, cycle, lbs, lbsim and chatbot (standalone pages without a build step, so the block is copied, not
+imported; report keeps its own in its code base). The page makes `N` from it (English) and `NO` for the outlook and
+balance-sheet panels (in `OUTLOOK_LANG`, so a German panel reads "Mio." and "unter 1 %", C-35). The rules: CHF
+amounts below 1 000 whole, to 99 999 the nearest 100, to 999 999 the nearest 1 000, then millions with two decimals
+("CHF 1.35 m"); a figure the client stated (a position's magnitude, a goal's target, a stated income) as stated;
+returns, rates, inflation and the required return one decimal ("4.9 %"); chances whole percent with "below 1 %"
+and "above 99 %", 0 % and 100 % only for exactly 0 and 1; weights and shares whole percent, below 1 % one decimal, 0
+as "–"; HoNI scores and model levels two decimals, the word first where the page has one ("moderate (0.62)");
+capital saturation, durations and ratios one decimal, betas two; years, ages, hours, minutes and counts whole; a
+figure of no stated kind (honi's raw index values, a model card's series) three significant digits. The thousands
+separator stays the page's (’), the minus is a true minus. Charts follow the same rules: amount axes get round
+ticks labelled by the rule (`N.ticks`, no `tickprefix` and `,.0f`), amount and weight hovers read precomputed
+text (`customdata`), rates hover at one decimal; a hover may show one more digit than its label (scores and capital
+saturation keep `.2f`), never the raw float. Not rounded: ids, versions, dates, the API explorer's raw JSON, the
+inputs a curator types (bounds, curve points, betas) and the values put back into them, the Excel exports (data for
+the CIO's own work) and the API's JSON. The server writes no number into text except the curator's own entries in a
+refusal (`mandate.py`, shown as typed), so it is unchanged. *Tests.* `tests/test_api.py`: the formatter's every rule
+in Node (amounts at each band edge, German words, stated figures, rates, chances, weights, levels, ticks); the block
+identical in the page and in the nine benches; no `toFixed` (but the sparkline's SVG geometry), `toLocaleString`,
+`toPrecision`, `,.0f` or `.4g` left in the page; the outlook's figures and the fan's axis and hover by the rule;
+the balance sheet's axis ticks and hover.

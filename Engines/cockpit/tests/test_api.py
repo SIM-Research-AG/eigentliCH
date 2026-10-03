@@ -1039,7 +1039,7 @@ def test_the_client_page_carries_the_outlook_panel():
     assert "fillTemplate(t.action, x.figures)" in client and "f.schedule" in client
     assert 'case "chf": case "chf_per_year"' in client, "figures formatted by unit"
     assert 'basisSwitch("oBasis", view.basis)' in client and 'wireBasis("oBasis"' in client
-    assert "lw(r.label)" in client and "pct(g.chance, 0)" in client, "Regimes by their labels, chances as numbers"
+    assert "lw(r.label)" in client and "NO.chance(g.chance)" in client, "Regimes by their labels, chances by the rule (C-37)"
     assert "weightsChart(w1, av.instruments, av.by_role)" in client
     assert "stateCurveChart(chartIn(w2, 280), curves.target, curves.achieved, view.basis)" in client
     assert "(av.curves || {})[view.basis]" in client
@@ -1131,10 +1131,10 @@ def _charts_in_node(script: str) -> dict:
     html = STATIC_PAGE.read_text(encoding="utf-8")
     words = html[html.index("const OUTLOOK_LANG = "):html.index("function planBlock(")]
     charts = html[html.index("const LBS_WITHHELD = "):html.index("async function balancePanel(")]
-    js = (f"{html[html.index('const esc = '):html.index('const pct = ')]}\n"
+    js = (f"{html[html.index('const esc = '):html.index('const label = s => ')]}\n"
           "const css = (v) => ({ '--s1': '#2a78d6', '--s2': '#eb6834', '--s3': '#1baf7a', '--s4': '#eda100', '--s5': '#e87ba4', "
           "'--rest': '#c3c2b7', '--serious': '#ec835a', '--ink-2': '#52514e' })[v] || '#000000';\n"
-          "const label = (s) => String(s); const pct = (v) => String(v); const table = () => '';\n"
+          "const label = (s) => String(s); const table = () => '';\n"
           "const calls = []; const plot = (el, traces, lay) => calls.push({ el, traces, lay });\n"
           f"{words}\n{charts}\n{script}\nconsole.log(JSON.stringify(out));")
     run = subprocess.run([NODE, "--input-type=module", "-"], input=js, capture_output=True, text=True,
@@ -1175,7 +1175,8 @@ const out = {{ calls, held: [...withheldIn({{ household: {{ persons: [{{ person_
     assert stacks == {("Assets", "Free"): 65000, ("Assets", "Pillar 2"): 478000, ("Assets", "Pillar 3a"): 36000,
                       ("Assets", "Human capital"): 150000, ("Debts and net worth", "Debts"): 14000,
                       ("Debts and net worth", "Net worth"): 715000, ("The goals' claims", "Eigenheim"): 375000}
-    assert nominal["lay"]["barmode"] == "stack" and nominal["lay"]["yaxis"]["tickprefix"] == "CHF "
+    assert nominal["lay"]["barmode"] == "stack" and nominal["lay"]["yaxis"]["ticktext"] == ["CHF 0", "CHF 200’000", "CHF 400’000", "CHF 600’000", "CHF 800’000"]
+    assert nominal["traces"][0]["customdata"] == ["CHF 65’000"] and "%{customdata}" in nominal["traces"][0]["hovertemplate"]
     assert {(t["x"][0], t["name"]): t["y"][0] for t in real["traces"]}[("The goals' claims", "Eigenheim")] == 250000
     assert "Ruhestand" not in json.dumps(nominal["traces"]), "a need a year is not stacked with the stocks"
     # the capitals: levels on 0 to 1 with words, never francs; a withheld health has no bar
@@ -1188,3 +1189,112 @@ const out = {{ calls, held: [...withheldIn({{ household: {{ persons: [{{ person_
     assert [t["name"] for t in path["traces"]] == ["p90", "80 of 100 paths", "p75", "50 of 100 paths", "middle"]
     assert path["traces"][4]["x"][0] == 2026 and len(path["traces"][4]["y"]) == 28
     assert out["held"] == ["p1"] and out["none"] == [] and out["words"] == ["low", "moderate", "high"]
+
+
+# ---- display rounding (C-37, review/ROUNDING.md) -----------------------------------------------------------
+
+ROUNDING_JS = Path(__file__).resolve().parents[1] / "dev" / "display_rounding.js"
+ROUNDING_BEGIN, ROUNDING_END = "// ---- display rounding: begin", "// ---- display rounding: end ----\n"
+
+
+def _rounding_block(text: str) -> str:
+    """The formatter block as a page carries it, from its begin line through its end line."""
+    i = text.index(ROUNDING_BEGIN)
+    return text[i:text.index(ROUNDING_END, i) + len(ROUNDING_END)]
+
+
+def _benches() -> dict[str, Path]:
+    """Every engine's test bench the cockpit shows, and chatbot's; report's is owned and checked by report."""
+    from cockpit.settings import ROOT
+    out = {e.key: e.bench for e in load().engines if e.bench is not None and e.key != "report"}
+    out["chatbot"] = ROOT.parent / "eigentliCH_Engines" / "engines" / "chatbot" / "testbench" / "index.html"
+    return out
+
+
+def test_one_formatter_block_identical_in_the_cockpit_and_every_bench():
+    """One formatter per code base (ROUNDING.md): the cockpit page and the benches carry the canonical
+    dev/display_rounding.js verbatim, so a rule changed there is changed everywhere it is copied."""
+    canon = ROUNDING_JS.read_text(encoding="utf-8")
+    assert canon.startswith(ROUNDING_BEGIN) and canon.endswith(ROUNDING_END)
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    assert html.count(ROUNDING_BEGIN) == 1 and _rounding_block(html) == canon
+    benches = _benches()
+    assert set(benches) == {"honi", "macrofield", "aggregation", "fmre", "pcp", "cycle", "lbs", "lbsim", "chatbot"}, set(benches)
+    for key, path in benches.items():
+        text = path.read_text(encoding="utf-8")
+        assert text.count(ROUNDING_BEGIN) == 1, key
+        assert _rounding_block(text) == canon, f"{key}: the bench's copy differs from cockpit/dev/display_rounding.js"
+        assert "displayRounding({" in text, f"{key}: the formatter is instantiated"
+
+
+def test_the_cockpit_page_has_no_ad_hoc_number_format_left():
+    """Outside the formatter block no toFixed, toLocaleString or toPrecision formats a number people read (the
+    sparkline's SVG coordinates are geometry), and no Plotly axis or hover carries a raw or thousands format."""
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    rest = html.replace(_rounding_block(html), "")
+    assert "toLocaleString(" not in rest and "toPrecision(" not in rest
+    spark = rest[rest.index("function spark("):rest.index("// aggregation issues one Regime per optimism level")]
+    assert rest.count(".toFixed(") == spark.count(".toFixed(") > 0, "toFixed only in the sparkline's geometry"
+    for raw in (":,.0f", ".4g", ":.3f", 'tickprefix: "CHF "', "const fmt = ", "const pct = ", "function signed("):
+        assert raw not in rest, raw
+    assert 'const N = displayRounding({ na: "n/a" });' in html
+    assert 'const NO = displayRounding({ lang: OUTLOOK_LANG, na: "n/a" });' in html
+
+
+@pytest.mark.skipif(NODE is None, reason="Node is not installed: the formatter is checked by its source above")
+def test_the_formatter_follows_every_rule_of_the_spec():
+    import subprocess
+    js = ROUNDING_JS.read_text(encoding="utf-8") + """
+const N = displayRounding({ na: "n/a" }), D = displayRounding({ lang: "de", na: "–" });
+const out = {
+  money: [640, 999.4, 999.6, 38250, 38249, 99949, 99951, 579400, 999499, 999501, 1350000, -1349999, 0, -0.4, null].map(v => N.money(v)),
+  de: [D.money(1350000), D.chance(0.004), D.chance(0.995), D.money(null)],
+  stated: [N.stated(1800), N.stated(1800.5), N.stated(38249, "")],
+  rate: [N.rate(0.049), N.rate(-0.0134), N.rate(-0.0004), N.rate(0.012, true), N.ratePct(4.94), N.pp(-1.25)],
+  chance: [0, 0.004, 0.01, 0.675, 0.99, 0.994, 1].map(N.chance),
+  weight: [0, 0.0004, 0.004, 0.0096, 0.27, 1].map(N.weight),
+  level: [N.level(0.62, "mittel"), N.level(0.5), N.level(null)],
+  other: [N.ratio(6), N.beta(0.8), N.whole(2034), N.whole(67.4), N.count(12000), N.signed(-0.001), N.signed(0.123), N.signed(-1.26, 1)],
+  auto: [0.00312, 5.678, 56.78, 99.6, 1234.5, 2.5e6, -0.5].map(N.auto),
+  ticks: N.ticks(0, 1234567, v => N.money(v)),
+};
+console.log(JSON.stringify(out));"""
+    run = subprocess.run([NODE, "--input-type=module", "-"], input=js, capture_output=True, text=True, encoding="utf-8", timeout=60)
+    assert run.returncode == 0, run.stderr
+    out = json.loads(run.stdout)
+    assert out["money"] == ["CHF 640", "CHF 999", "CHF 1’000", "CHF 38’300", "CHF 38’200", "CHF 99’900", "CHF 100’000",
+                            "CHF 579’000", "CHF 999’000", "CHF 1.00 m", "CHF 1.35 m", "CHF −1.35 m", "CHF 0", "CHF 0", "n/a"]
+    assert out["de"] == ["CHF 1.35 Mio.", "unter 1 %", "über 99 %", "–"]
+    assert out["stated"] == ["CHF 1’800", "CHF 1’800.50", "38’249"], "a stated figure as stated"
+    assert out["rate"] == ["4.9 %", "−1.3 %", "0.0 %", "+1.2 %", "4.9 %", "−1.3 pp"]
+    assert out["chance"] == ["0 %", "below 1 %", "1 %", "68 %", "99 %", "above 99 %", "100 %"]
+    assert out["weight"] == ["–", "below 0.1 %", "0.4 %", "1 %", "27 %", "100 %"]
+    assert out["level"] == ["mittel (0.62)", "0.50", "n/a"]
+    assert out["other"] == ["6.0", "0.80", "2034", "67", "12’000", "0.00", "+0.12", "−1.3"]
+    assert out["auto"] == ["0.00312", "5.68", "56.8", "100", "1’235", "2.50 m", "−0.5"]
+    assert out["ticks"]["tickvals"] == [0, 250000, 500000, 750000, 1000000, 1250000]
+    assert out["ticks"]["ticktext"][-2:] == ["CHF 1.00 m", "CHF 1.25 m"]
+
+
+@pytest.mark.skipif(NODE is None, reason="Node is not installed: the panels are checked by their source above")
+def test_the_outlook_reads_lbsim_s_figures_by_the_rule():
+    """figureText, the plan's figures and the fan chart: amounts stepped, shares and chances by their rules,
+    hours whole, the fan's axis and hover never a raw franc figure."""
+    script = """
+const paths = { start_year: 2026 };
+const regime = { goals: [{ goal_id: 'g1', measure: 'net_worth', chance_basis: 'nominal', target: { nominal_chf: 375400, real_chf: 250000, date: '2034-06-30' } }],
+                 bands: { net_worth: { nominal: { p05: [0, 10], p25: [0, 20], p50: [100000, 1234567], p75: [0, 30], p95: [200000, 1500000] } } } };
+fanChart('f', paths, regime, 'net_worth', 'nominal', { g1: { kind: 'home', target: { date: '2034-06-30' } } });
+const out = { calls, figs: [figureText({ value: 38249, unit: 'chf' }), figureText({ value: 0.004, unit: 'share' }), figureText({ value: 0, unit: 'share' }),
+  figureText({ value: 0.0213, unit: 'rate' }), figureText({ value: 19.6, unit: 'hours_per_week' }), figureText({ value: 12.5, unit: 'years' }),
+  figureText({ value: 2.1e6, unit: 'chf_at_horizon' }), figureText({ value: null, unit: 'chf' })],
+  units: [unitValue(0.8, 'share'), unitValue(19.6, 'hours_per_week'), unitValue(36249, 'chf_per_year')] };
+"""
+    out = _charts_in_node(script)
+    assert out["figs"] == ["CHF 38’200", "0.4 %", "0 %", "2.1 %", "20", "13", "CHF 2.10 m", "n/a"]
+    assert out["units"] == ["80 %", "20 hours a week", "CHF 36’200 a year"]
+    fan = out["calls"][0]
+    assert fan["lay"]["yaxis"]["ticktext"][:2] == ["CHF 0", "CHF 500’000"] and "tickprefix" not in fan["lay"]["yaxis"]
+    median, goal = fan["traces"][4], fan["traces"][5]
+    assert median["customdata"] == ["CHF 100’000", "CHF 1.23 m"] and "%{customdata}" in median["hovertemplate"]
+    assert goal["customdata"] == ["CHF 375’000", "CHF 375’000"] and ":,.0f" not in goal["hovertemplate"]

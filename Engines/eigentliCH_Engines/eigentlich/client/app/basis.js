@@ -33,9 +33,3 @@ export function basisSwitch(L, onChange) {
     h('span', { class: 'badge quiet basis-shown', text: t(basis === 'real' ? 'basis.shown_real' : 'basis.shown_nominal', L) }),
   ]);
 }
-
-/** A rate (decimal a year) as "4.2 %". */
-export function pct(rate, L) {
-  if (rate === null || rate === undefined) return null;
-  return `${new Intl.NumberFormat(L === 'en' ? 'en-CH' : 'de-CH', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(rate * 100)} %`;
-}

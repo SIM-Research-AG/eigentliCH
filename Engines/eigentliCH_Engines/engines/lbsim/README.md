@@ -28,7 +28,8 @@ page is Notion `3e80ba72543f819abe14c30ca61942f5`; the binding interfaces are `E
 processes and then the API; stopping it stops them. The test bench is served at `/` (development only): what
 lbsim does in plain words, a picker of the clients lbsim has computed (no hand-typed ids), and the result as inline
 SVG graphs (the wealth fan per Regime, nominal or real, with the goal line; the capitals over time; the chances per
-Regime; the income paths; what the plan calculation assumes for this period). The
+Regime; the income paths; what the plan calculation assumes for this period). The bench rounds every figure for display
+per `review/ROUNDING.md`, with the shared snippet from `cockpit/dev/display_rounding.js` (cockpit C-37); the request box stays exact. The
 password of the `lbsim` role lives in `config.local.yaml` (git-ignored), as for lbs; `LBSIM_DB_PASSWORD` or
 `LBSIM_DATABASE_URL` override it. `LBSIM_CONFIG` points at another configuration file.
 

@@ -175,7 +175,7 @@ async function again() {
   const t0 = performance.now();
   try {
     const rep = await call("/report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestOf(shown)) });
-    $("status").textContent = `${(performance.now() - t0).toFixed(0)} ms · complete: ${rep.complete ? "yes" : "no"}`;
+    $("status").textContent = `${Math.round(performance.now() - t0)} ms · complete: ${rep.complete ? "yes" : "no"}`;
     showReport(rep, `${$("frameHead").textContent} · produced again`);
   } catch (e) { $("status").textContent = e.message; }
 }

@@ -531,10 +531,12 @@ def page_note(key: str, lang: str, **values: str) -> str:
 # The basis of return and goal figures (REP-27): nominal or real, always shown
 # ---------------------------------------------------------------------------
 
-#: The header line: what every amount on the page is.
+#: The header line: what every amount on the page is, and that it is rounded for display (REP-44): said once, so a
+#: table whose rounded parts do not add up to its rounded total needs no note of its own.
 BASIS_HEADER: dict[str, Texts] = {
-    "nominal": {"de": "Alle Beträge nominal.", "en": "All amounts nominal."},
-    "real": {"de": "Alle Beträge in heutigen Franken (real).", "en": "All amounts in today’s francs (real)."},
+    "nominal": {"de": "Alle Beträge nominal, gerundet.", "en": "All amounts nominal, rounded."},
+    "real": {"de": "Alle Beträge in heutigen Franken (real), gerundet.",
+             "en": "All amounts in today’s francs (real), rounded."},
 }
 #: The word printed next to every return and goal figure.
 BASIS_MARK: dict[str, Texts] = {

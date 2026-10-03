@@ -391,3 +391,13 @@ def test_the_capitals_are_levels_in_words_and_k3_is_said_not_drawn(drawn):
     held = drawn["time_held_de"]
     assert held.count('role="img"') == 2 and "Gesundheitsangaben zurückgehalten" in held
     assert "noch nicht vor" in drawn["time_none_de"] and "not yet available" in drawn["time_none_en"]
+
+
+def test_the_drawn_pages_carry_no_raw_float(drawn):
+    """Display rounding (ROUNDING.md, EIG-73): the text a person reads on these pages carries no raw float and no
+    figure with more digits than the rule allows."""
+    from .test_app_rounding import too_precise
+
+    for key, markup in drawn.items():
+        text = re.sub(r"<[^>]+>", " ", markup)
+        assert too_precise(text) == [], (key, too_precise(text))

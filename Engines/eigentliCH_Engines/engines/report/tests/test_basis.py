@@ -93,7 +93,7 @@ def _marked(report: dict) -> None:
 def test_a_nominal_report_says_so_in_the_header_and_next_to_every_return_and_goal_figure(client, spark):
     rep = _report(client, sources=NOMINAL_SOURCES)
     assert rep["basis"] == "nominal"
-    assert '<span data-basis="nominal">Alle Beträge nominal.</span>' in rep["html"]
+    assert '<span data-basis="nominal">Alle Beträge nominal, gerundet.</span>' in rep["html"]
     facts = {f["fact_id"]: f for f in rep["facts"]}
     for fid in ("lbs.mandate.target", "lbs.mandate.required_return", "lbs.mandate.contribution"):
         assert facts[fid]["basis"] == "nominal", fid
@@ -107,7 +107,7 @@ def test_a_real_report_takes_lbss_real_figures_and_says_so(client, spark):
     raw = json.loads(LBS_REAL)
     rep = _report(client, sources=REAL_SOURCES, basis="real")
     assert rep["basis"] == "real"
-    assert "Alle Beträge in heutigen Franken (real)." in rep["html"]
+    assert "Alle Beträge in heutigen Franken (real), gerundet." in rep["html"]
     facts = {f["fact_id"]: f for f in rep["facts"]}
     real = raw["mandate_proposal"]["views"]["real"]
     assert facts["lbs.mandate.target"]["value"] == real["target_chf"] != raw["mandate_proposal"]["target_chf"]
@@ -126,7 +126,7 @@ def test_an_english_real_report_on_the_property_sheet(client, spark):
     raw = json.loads(PROPERTY_REAL)
     rep = _report(client, client_ref=PROPERTY_CLIENT, language="en", basis="real", display_facts=[],
                   sources=[{"engine": "lbs", "artefact_id": PROPERTY_REAL_ID}])
-    assert "All amounts in today’s francs (real)." in rep["html"]
+    assert "All amounts in today’s francs (real), rounded." in rep["html"]
     price = next(f for f in rep["facts"] if f["fact_id"].endswith(".price"))
     # From lbs 1.4.0 the top-level price is in today's francs (``basis: real``).
     assert raw["property"][0]["basis"] == "real" and price["value"] == raw["property"][0]["price_chf"]
@@ -136,7 +136,7 @@ def test_an_english_real_report_on_the_property_sheet(client, spark):
     price_n = next(f for f in nominal["facts"] if f["fact_id"].endswith(".price"))
     assert price_n["value"] == raw["real_view"]["goals"][0]["nominal"]["amount"] > price["value"]
     assert price_n["sources"][0]["path"] == "/real_view/goals/0/nominal/amount"
-    assert "All amounts nominal." in nominal["html"]
+    assert "All amounts nominal, rounded." in nominal["html"]
 
 
 def test_the_real_prompt_tells_the_model_the_basis(client, spark):

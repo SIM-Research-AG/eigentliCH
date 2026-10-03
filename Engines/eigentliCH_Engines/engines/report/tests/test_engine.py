@@ -150,8 +150,8 @@ def test_positions_are_listed_from_the_threshold_in_weight_order():
 
 
 @pytest.mark.parametrize("value,unit,de,en", [
-    (1035000.0, "chf", "CHF 1 035 000", "CHF 1,035,000"), (-780000.0, "chf", "−CHF 780 000", "−CHF 780,000"),
-    (174000.0, "chf_per_year", "CHF 174 000 pro Jahr", "CHF 174,000 a year"), (0.45, "share", "45,0 %", "45.0%"),
+    (1035000.0, "chf", "CHF 1,04 Mio.", "CHF 1.04 m"), (-780000.0, "chf", "−CHF 780 000", "−CHF 780,000"),
+    (174000.0, "chf_per_year", "CHF 174 000 pro Jahr", "CHF 174,000 a year"), (0.45, "share", "45 %", "45%"),
     (7.0, "count", "7", "7"), (28.985346, "number", "28,99", "28.99"), (True, "flag", "ja", "yes"),
     ("2024-12-31", "date", "31.12.2024", "31 December 2024")])
 def test_the_house_formats(value, unit, de, en):
@@ -191,7 +191,7 @@ def test_a_figure_from_another_section_does_not_verify():
 
 def test_a_change_in_a_share_may_be_said_in_percentage_points():
     delta = _fact("delta.x", 0.15, "share", section="changes", display=engine.fmt_change(0.15, "share", "de"))
-    assert delta.display == "+15,0 Prozentpunkte"
+    assert delta.display == "+15 Prozentpunkte"
     assert engine.unverified_numbers("Der Anteil stieg um 15 Prozentpunkte.", [delta], CAL) == ()
     assert engine.unverified_numbers("Der Anteil stieg um 16 Prozentpunkte.", [delta], CAL) == ("16",)
 
@@ -244,7 +244,7 @@ def test_changes_cite_both_reports_and_carry_the_difference():
     ch = {f.fact_id: f for f in engine.change_facts(prev, now, "de")}
     moved = ch["change.lbs.totals.net_worth"]
     assert moved.previous == 1000000.0 and moved.value == 1035000.0
-    assert moved.display == "CHF 1 000 000 → CHF 1 035 000"
+    assert moved.display == "CHF 1,00 Mio. → CHF 1,04 Mio."
     assert [s.artefact_id for s in moved.sources] == ["REP-prev", "T-1"] and moved.sources[0].path == "/facts/0/value"
     assert ch["delta.lbs.totals.net_worth"].value == 35000.0 and ch["delta.lbs.totals.net_worth"].display == "+CHF 35 000"
     assert ch["changes.unchanged"].value == 1.0

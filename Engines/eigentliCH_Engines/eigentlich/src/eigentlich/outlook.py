@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 from typing import Any, Callable, Optional
 
-from .decisions import number
+from . import rounding as rnd
 from .pictures import capitals_over_time
 
 SEVERITY_ORDER = {"blocking": 0, "high": 1, "medium": 2, "note": 3}
@@ -46,26 +46,28 @@ def _w(value: Any, lang: str) -> Optional[str]:
     return value if isinstance(value, str) else None
 
 
-def chf(value: Optional[float]) -> Optional[str]:
-    return None if value is None else f"CHF {number(round(value))}"
+def chf(value: Optional[float], lang: str = "de") -> Optional[str]:
+    """An amount in words, rounded for display (ROUNDING.md, EIG-73): CHF 61’000, CHF 1.35 Mio."""
+    return rnd.money(value, lang)
 
 
 def figure_text(fig: dict[str, Any], lang: str, basis: str) -> str:
-    """A finding's figure in words: CHF 61’000, 40 %, 3 Jahre. A nominal figure on a page shown in today's francs
-    says so (lbsim states its findings nominal, REP-36 reads them the same way)."""
+    """A finding's figure in words, rounded for display (ROUNDING.md, EIG-73): CHF 61’000, 40 %, 3 Jahre. A
+    nominal figure on a page shown in today's francs says so (lbsim states its findings nominal, REP-36 reads them
+    the same way)."""
     value, unit = fig.get("value"), fig.get("unit")
     if value is None:
         return "offen" if lang == "de" else "open"
     if unit in ("chf", "chf_per_year"):
-        text = chf(value)
+        text = chf(value, lang)
     elif unit == "share":
-        text = f"{number(round(value * 100))} %"
+        text = rnd.share(value, lang)
     elif unit == "years":
-        text = f"{number(round(value, 1))} {_UNIT_WORDS[lang]['years']}"
+        text = f"{rnd.count(value, lang)} {_UNIT_WORDS[lang]['years']}"
     elif unit == "hours_per_week":
-        text = f"{number(round(value))} {_UNIT_WORDS[lang]['hours_per_week']}"
+        text = f"{rnd.count(value, lang)} {_UNIT_WORDS[lang]['hours_per_week']}"
     else:
-        text = number(round(value))
+        text = rnd.count(value, lang)
     if basis == "real" and fig.get("basis") == "nominal":
         text += " (nominal)"
     return text

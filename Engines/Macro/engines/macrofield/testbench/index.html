@@ -262,8 +262,105 @@ apiInput.addEventListener("change", () => { API = apiInput.value.replace(/\/$/, 
 
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const fmt = (v, d = 3) => v == null || !isFinite(v) ? "–" : Number(v).toFixed(d);
-const big = v => v == null ? "–" : Math.abs(v) >= 1e6 ? Number(v).toExponential(4) : Number(v).toFixed(4);
+// ---- display rounding: begin (review/ROUNDING.md; cockpit C-37) ----
+// Canonical copy: Engines/cockpit/dev/display_rounding.js. The cockpit page and every engine's test bench carry this
+// block verbatim between the begin and end lines; tests/test_api.py checks that every copy is identical. Change it
+// here, then copy it into each page. Display only: the figures stay exact everywhere else (contracts, artefacts,
+// stores, raw JSON views); a number is rounded only where it becomes text or a chart label.
+// Use: const N = displayRounding({ lang: "en", group: "’", na: "–" }); then N.money(38250) is "CHF 38’300".
+function displayRounding(opts) {
+  const o = Object.assign({ lang: "en", group: "’", na: "–", minus: "−" }, opts || {});
+  const WORDS = { en: { m: "m", below: "below", above: "above" }, de: { m: "Mio.", below: "unter", above: "über" } };
+  const w = () => WORDS[o.lang] || WORDS.en;
+  const ok = v => v !== null && v !== undefined && v !== "" && typeof v !== "boolean" && Number.isFinite(Number(v));
+  const grouped = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, o.group);
+  // d decimals, the integer part grouped, a true minus sign, never "-0"; sign: "+" before a positive figure
+  function fixed(v, d, sign) {
+    const x = Number(v), t = Math.abs(x).toFixed(d || 0), parts = t.split(".");
+    const body = grouped(parts[0]) + (parts[1] ? "." + parts[1] : "");
+    return (Number(t) === 0 ? "" : x < 0 ? o.minus : sign ? "+" : "") + body;
+  }
+  const stepped = (x, step) => Math.sign(x) * Math.round(Math.abs(x) / step) * step;
+  // CHF, EUR, USD: below 1 000 whole units; to 99 999 the nearest 100; to 999 999 the nearest 1 000; then millions, two decimals
+  function amountText(v) {
+    const x = Number(v), a = Math.abs(x);
+    if (a < 999.5) return fixed(x, 0);
+    if (a < 99950) return fixed(stepped(x, 100), 0);
+    if (a < 999500) return fixed(stepped(x, 1000), 0);
+    return fixed(x / 1e6, 2) + " " + w().m;
+  }
+  const pre = (cur, text) => cur ? cur + " " + text : text;
+  const N = {
+    opts: o,
+    ok,
+    fixed: (v, d, sign) => ok(v) ? fixed(v, d, sign) : o.na,
+    // an amount by the stepped rule, with its currency in front ("" for none)
+    money: (v, cur = "CHF") => ok(v) ? pre(cur, amountText(v)) : o.na,
+    amount: v => ok(v) ? amountText(v) : o.na,
+    // a figure the client stated (a fee, a deposit, a price): shown as stated, whole units unless it has cents
+    stated: (v, cur = "CHF") => ok(v) ? pre(cur, fixed(v, Number.isInteger(Number(v)) ? 0 : 2)) : o.na,
+    // returns, rates, inflation: one decimal, percent; rate takes a fraction (0.049), ratePct a percent (4.9)
+    rate: (v, sign) => ok(v) ? fixed(Number(v) * 100, 1, sign) + " %" : o.na,
+    ratePct: (v, sign) => ok(v) ? fixed(v, 1, sign) + " %" : o.na,
+    // percentage points (a shift between two rates given in percent)
+    pp: (v, sign = true) => ok(v) ? fixed(v, 1, sign) + " pp" : o.na,
+    // chances: whole percent; below 1 % and above 99 % in words; 0 % and 100 % only when every path agrees (exactly 0 or 1)
+    chance: v => {
+      if (!ok(v)) return o.na;
+      const p = Number(v);
+      if (p <= 0) return "0 %";
+      if (p >= 1) return "100 %";
+      if (p < 0.01) return w().below + " 1 %";
+      if (p > 0.99) return w().above + " 99 %";
+      return Math.round(p * 100) + " %";
+    },
+    // portfolio weights and shares: whole percent; below 1 % one decimal; 0 is "–"; weight takes a fraction, weightPct a percent
+    weightPct: v => {
+      if (!ok(v)) return o.na;
+      const p = Number(v), a = Math.abs(p);
+      if (a === 0) return "–";
+      if (a < 0.05) return w().below + " 0.1 %";
+      return fixed(p, a < 0.95 ? 1 : 0) + " %";
+    },
+    weight: v => ok(v) ? N.weightPct(Number(v) * 100) : o.na,
+    // model levels without a unit (scores, expertise, network, health): the word first when there is one, two decimals
+    level: (v, word) => ok(v) ? (word ? word + " (" + fixed(v, 2) + ")" : fixed(v, 2)) : o.na,
+    // ratios and durations one decimal; betas two
+    ratio: v => ok(v) ? fixed(v, 1) : o.na,
+    beta: v => ok(v) ? fixed(v, 2) : o.na,
+    // a change with its sign, d decimals (a score change 2, a z-score 1)
+    signed: (v, d = 2) => ok(v) ? fixed(v, d, true) : o.na,
+    // years, ages, hours, seconds: whole, never grouped (2034); counts: whole, grouped (12’000)
+    whole: v => ok(v) ? fixed(Math.round(Number(v)), 0).split(o.group).join("") : o.na,
+    count: v => ok(v) ? fixed(Math.round(Number(v)), 0) : o.na,
+    // a figure of no stated kind (raw index values, a model card's series): three significant digits, whole from 100
+    auto: v => {
+      if (!ok(v)) return o.na;
+      const x = Number(v), a = Math.abs(x);
+      if (a === 0) return "0";
+      if (a >= 999500) return fixed(x / 1e6, 2) + " " + w().m;
+      if (a >= 99.5) return fixed(x, 0);
+      const d = Math.min(8, Math.max(0, 2 - Math.floor(Math.log10(a))));
+      return fixed(x, d).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+    },
+    // chart axis: about n round ticks covering lo to hi, one step past each end (the chart hides the ticks outside its
+    // range), each labelled by fn (N.money, N.rate, ...): spread the result into the chart's axis
+    ticks: (lo, hi, fn, n = 5) => {
+      lo = Number(lo) || 0; hi = Number(hi) || 0;
+      if (hi < lo) { const t = lo; lo = hi; hi = t; }
+      const raw = ((hi - lo) || Math.abs(hi) || 1) / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+      const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(s => s >= raw * 0.999);
+      const vals = [];
+      for (let k = Math.floor(lo / step + 1e-9); k * step < hi + step * (1 - 1e-9); k++) vals.push(Math.round(k * step * 1e9) / 1e9);
+      return { tickmode: "array", tickvals: vals, ticktext: vals.map(v => fn(v)) };
+    },
+  };
+  return N;
+}
+// ---- display rounding: end ----
+const N = displayRounding({ na: "–" });
+// display formatters for chart hovers (called with the value only, never passed straight to map)
+const usd = v => N.money(v, "USD"), share = v => N.weight(v), rate = v => N.rate(v), ratio = v => N.ratio(v), raw = v => N.auto(v);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const PHASE = { 1: "Foundation", 2: "Build-up", 3: "Optimisation", 4: "Saturation and reordering" };
 function status(msg, bad) { $("status").textContent = msg; $("status").className = "status" + (bad ? " err" : ""); }
@@ -310,7 +407,8 @@ function layout(title, extra = {}) {
 }
 const line = (x, y, name, color, o = {}) => ({ x, y, name, type: "scatter", mode: o.mode || "lines+markers",
   line: { color, width: 2, dash: o.dash || "solid", shape: o.shape || "linear" }, marker: { size: o.size ?? 5, color },
-  connectgaps: false, hovertemplate: o.hover });
+  connectgaps: false, customdata: o.hover ? undefined : (y || []).map(v => (o.fmt || raw)(v)),
+  hovertemplate: o.hover || `${name}: %{customdata}<extra></extra>` });
 const hline = (y, color, dash = "dot") => ({ type: "line", xref: "paper", x0: 0, x1: 1, y0: y, y1: y, line: { color, width: 1, dash } });
 const band = (lo, hi) => ({ type: "rect", xref: "paper", x0: 0, x1: 1, y0: lo, y1: hi, fillcolor: css("--band"), line: { width: 0 }, layer: "below" });
 const vspan = (x0, x1, color) => ({ type: "rect", yref: "paper", y0: 0, y1: 1, x0, x1, fillcolor: color, line: { width: 0 }, layer: "below" });
@@ -349,7 +447,7 @@ async function submitRun(version) {
     const t0 = Date.now();
     while (true) {
       const s = await get(`/runs/${accepted.run_id}`);
-      status(`${s.status} (${((Date.now() - t0) / 1000).toFixed(0)} s)${accepted.cached ? ", cached" : ""}`);
+      status(`${s.status} (${N.whole((Date.now() - t0) / 1000)} s)${accepted.cached ? ", cached" : ""}`);
       if (s.status === "failed") return status(`failed: ${s.error}`, true);
       if (s.status === "succeeded") { await init(); $("artefact").value = s.artefact_id; await loadArtefact(s.artefact_id); return showTab("overview"); }
       await new Promise(res => setTimeout(res, 1500));
@@ -394,11 +492,11 @@ function renderOverview() {
     if (e.status !== "ok") return `<tr><td>${e.code} ${esc(e.name)}</td><td colspan="8" class="muted">unavailable: ${esc(e.reason)}</td></tr>`;
     const c = e.current, pr = e.projection;
     const proj = pr && pr.status === "ok"
-      ? `${pr.years[pr.years.length - 1]}: ${PHASE[pr.phase[pr.phase.length - 1]]}, sat ${fmt(pr.saturation[pr.saturation.length - 1], 2)}${pr.integrated_years < pr.requested_horizon ? ` (${pr.integrated_years} of ${pr.requested_horizon} yrs integrated)` : ""}${pr.fit_reproduces_window ? "" : ` <span class="err">weak evidence</span>`}`
+      ? `${pr.years[pr.years.length - 1]}: ${PHASE[pr.phase[pr.phase.length - 1]]}, sat ${N.ratio(pr.saturation[pr.saturation.length - 1])}${pr.integrated_years < pr.requested_horizon ? ` (${pr.integrated_years} of ${pr.requested_horizon} yrs integrated)` : ""}${pr.fit_reproduces_window ? "" : ` <span class="err">weak evidence</span>`}`
       : `<span class="muted">none</span>`;
     return `<tr class="pick" data-code="${e.code}"><td>${e.code} ${esc(e.name)}</td><td>${e.years[0]} to ${c.year}</td>
-      <td>${c.phase} ${PHASE[c.phase]}</td><td class="num">${fmt(c.saturation)}</td><td>${c.in_balanced_band ? "yes" : "no"}</td>
-      <td class="num">${fmt(c.real_to_financial)}</td><td class="num">${fmt(c.unsecured_ratio, 2)}</td>
+      <td>${c.phase} ${PHASE[c.phase]}</td><td class="num">${N.ratio(c.saturation)}</td><td>${c.in_balanced_band ? "yes" : "no"}</td>
+      <td class="num">${N.ratio(c.real_to_financial)}</td><td class="num">${N.ratio(c.unsecured_ratio)}</td>
       <td>${e.fit.integration_accuracy}${e.fit.converged ? "" : ", not converged"}</td><td>${proj}</td></tr>`;
   }).join("");
   document.querySelectorAll("#current tr.pick").forEach(tr => tr.addEventListener("click", () => { pick(tr.dataset.code); showTab("economy"); }));
@@ -421,13 +519,13 @@ function renderEconomy() {
   const entered = h.phase.findIndex(p => p === 4);
   $("eco-cards").innerHTML = [
     card("Phase now", `${c.phase} ${PHASE[c.phase]}`, entered >= 0 ? `first Phase 4 year in history: ${h.years[entered]}` : "never in Phase 4 in the history"),
-    card("Saturation", fmt(c.saturation), `${c.in_balanced_band ? "inside" : "outside"} the band; ${fmt(c.distance_to_band_upper, 2)} below the upper bound`),
-    card("K_R / K_I", fmt(c.real_to_financial), "Phase 4 below 1"),
-    card("Unsecured / Y", fmt(c.unsecured_ratio, 2), "(K_R + K_I − Y) / Y"),
+    card("Saturation", N.ratio(c.saturation), `${c.in_balanced_band ? "inside" : "outside"} the band; ${N.ratio(c.distance_to_band_upper)} below the upper bound`),
+    card("K_R / K_I", N.ratio(c.real_to_financial), "Phase 4 below 1"),
+    card("Unsecured / Y", N.ratio(c.unsecured_ratio), "(K_R + K_I − Y) / Y"),
     card("Window", `${e.years[0]} to ${c.year}`, `${e.years.length} years${e.dropped_years.length ? `, dropped ${e.dropped_years.join(", ")}` : ""}`),
     card("History", `${h.years[0]} to ${h.years[h.years.length - 1]}`, "years with saturation and capital ratio"),
-    card("Capital scale", fmt(n.scale, 4), `max K_R/Y ${fmt(n.observed_max_ratio, 2)} in ${n.observed_max_year} mapped to ${n.target}`),
-    card("Fit", f.integration_accuracy, `${f.converged ? "converged" : "not converged"}, ${f.evaluations} evaluations`),
+    card("Capital scale", N.auto(n.scale), `max K_R/Y ${N.ratio(n.observed_max_ratio)} in ${n.observed_max_year} mapped to ${N.auto(n.target)}`),
+    card("Fit", f.integration_accuracy, `${f.converged ? "converged" : "not converged"}, ${N.count(f.evaluations)} evaluations`),
     card("Stimulus proxy", e.stimulus_proxy.replace("_", " "), ""),
     card("Saturation source", ({ bis_credit: "BIS credit × uplift", bank_balance_sheet: "bank balance sheet (Genreith)", imf_debt: "IMF private + gov. debt × uplift" })[specOf(e.code)?.saturation_source] || "–", ""),
   ].join("");
@@ -435,42 +533,44 @@ function renderEconomy() {
   const s1 = css("--s1"), s2 = css("--s2"), muted = css("--muted");
   const t = calibration ? calibration.phases : { balanced_band: { lower: 2.5, upper: 3.5 }, foundation_saturation_ceiling: 1, optimisation_saturation_ceiling: 3.5 };
   const win = vspan(e.years[0] - 0.5, e.years[e.years.length - 1] + 0.5, css("--window"));
-  plot("h-saturation", [line(h.years, h.saturation, "Saturation", s1, { size: 4 })],
+  plot("h-saturation", [line(h.years, h.saturation, "Saturation", s1, { size: 4, fmt: ratio })],
     layout("Saturation axis, full history", { shapes: [win, band(t.balanced_band.lower, t.balanced_band.upper), hline(t.optimisation_saturation_ceiling, css("--err")), hline(t.foundation_saturation_ceiling, muted)] }));
-  plot("h-ratio", [line(h.years, h.real_to_financial, "K_R / K_I", s1, { size: 4 })],
+  plot("h-ratio", [line(h.years, h.real_to_financial, "K_R / K_I", s1, { size: 4, fmt: ratio })],
     layout("K_R / K_I, full history (Phase 4 below 1)", { shapes: [win, hline(1, css("--err"))] }));
   const hasShare = (h.commercial_bank_share || []).some(v => v != null);
   $("h-share").hidden = !hasShare;
   if (hasShare) {
     const floor = t.commercial_bank_share_floor;
-    plot("h-share", [line(h.years, h.commercial_bank_share, "Loans / bank balance sheet", s1, { size: 4 })],
-      layout("Loans / bank balance sheet (Genreith; Phase IV below the floor)", { shapes: [win, ...(floor ? [hline(floor, css("--err"))] : [])] }));
+    plot("h-share", [line(h.years, h.commercial_bank_share, "Loans / bank balance sheet", s1, { size: 4, fmt: share })],
+      layout("Loans / bank balance sheet (Genreith; Phase IV below the floor)", { shapes: [win, ...(floor ? [hline(floor, css("--err"))] : [])], yaxis: { tickformat: ".0%" } }));
   }
   plot("h-phase", [line(h.years, h.phase, "Phase", s1, { shape: "hv", size: 4, hover: "%{x}: %{y}<extra></extra>" })],
     layout("Phase (latched), full history", { shapes: [win], yaxis: phaseAxis }));
 
   const x = e.years, sim = e.simulated;
   for (const [id, key, title] of [["e-y", "Y", "Y, output (USD)"], ["e-kr", "K_R", "K_R, real capital (normalised)"], ["e-ki", "K_I", "K_I, financial capital (normalised)"]]) {
-    const tr = [line(x, e.observed[key], "Observed", s1)];
-    if (sim) tr.push(line(x, sim[key], "Simulated", s2, { dash: "dash" }));
+    const f = key === "Y" ? usd : raw;
+    const tr = [line(x, e.observed[key], "Observed", s1, { fmt: f })];
+    if (sim) tr.push(line(x, sim[key], "Simulated", s2, { dash: "dash", fmt: f }));
     plot(id, tr, layout(sim ? title : `${title}: no simulated path`, { yaxis: { type: "log" }, showlegend: !!sim }));
   }
   const ids = e.identities, inp = e.inputs;
-  plot("i-r", [line(x, ids.r, "r", s1)], layout("r = 1 − K_R / Y (investment share)"));
-  plot("i-alpha", [line(x, ids.alpha, "alpha", s1)], layout("alpha (savings share to financial capital)"));
-  plot("i-pp", [line(x, ids.p_p, "p_p", s1)], layout("p_p (return on capital)"));
-  plot("i-pb", [line(x, ids.p_b, "p_b in use", s1), line(x, ids.p_b_flow_ratio, "flow-ratio formula", s2, { dash: "dot" })],
-    layout("p_b (population growth in use)", { showlegend: true }));
-  plot("i-ps", [line(x, inp.p_s, "p_s", s1)], layout("p_s (savings rate)"));
-  plot("i-s", [line(x, inp.stimulus_share, "S / Y", s1)], layout("Stimulus S as a share of Y"));
+  const shareAxis = { yaxis: { tickformat: ".0%" } }, rateAxis = { yaxis: { tickformat: ".1%" } };
+  plot("i-r", [line(x, ids.r, "r", s1, { fmt: share })], layout("r = 1 − K_R / Y (investment share)", shareAxis));
+  plot("i-alpha", [line(x, ids.alpha, "alpha", s1, { fmt: share })], layout("alpha (savings share to financial capital)", shareAxis));
+  plot("i-pp", [line(x, ids.p_p, "p_p", s1, { fmt: rate })], layout("p_p (return on capital)", rateAxis));
+  plot("i-pb", [line(x, ids.p_b, "p_b in use", s1, { fmt: rate }), line(x, ids.p_b_flow_ratio, "flow-ratio formula", s2, { dash: "dot", fmt: rate })],
+    layout("p_b (population growth in use)", { showlegend: true, ...rateAxis }));
+  plot("i-ps", [line(x, inp.p_s, "p_s", s1, { fmt: rate })], layout("p_s (savings rate)", rateAxis));
+  plot("i-s", [line(x, inp.stimulus_share, "S / Y", s1, { fmt: share })], layout("Stimulus S as a share of Y", shareAxis));
 
   $("fit").querySelector("tbody").innerHTML = Object.entries(f.free_parameters).map(([k, v]) =>
-    `<tr><td>${k}</td><td class="num">${big(v)}</td><td class="num">${f.standard_errors[k] == null ? "–" : Number(f.standard_errors[k]).toExponential(2)}</td><td>${esc(f.identifiability[k])}</td></tr>`).join("");
+    `<tr><td>${k}</td><td class="num">${N.auto(v)}</td><td class="num">${N.auto(f.standard_errors[k])}</td><td>${esc(f.identifiability[k])}</td></tr>`).join("");
   const diag = [
-    ["Residual Y / K_R / K_I (RMS relative)", ["Y", "K_R", "K_I"].map(k => fmt(f.residuals[k], 3)).join(" / ")],
-    ["Two-body identity residual (worst, relative)", f.two_body_worst_relative == null ? "–" : Number(f.two_body_worst_relative).toExponential(2)],
-    ...Object.entries(f.identity_corrections).map(([k, v]) => [`Identity correction ${k}: |value − 1|`, fmt(v, 3)]),
-    ...Object.entries(f.identity_diagnostics).map(([k, v]) => [k.replaceAll("_", " "), fmt(v, 4)]),
+    ["Residual Y / K_R / K_I (RMS relative)", ["Y", "K_R", "K_I"].map(k => N.auto(f.residuals[k])).join(" / ")],
+    ["Two-body identity residual (worst, relative)", N.auto(f.two_body_worst_relative)],
+    ...Object.entries(f.identity_corrections).map(([k, v]) => [`Identity correction ${k}: |value − 1|`, N.auto(v)]),
+    ...Object.entries(f.identity_diagnostics).map(([k, v]) => [k.replaceAll("_", " "), N.auto(v)]),
     ["Optimiser", esc(f.optimiser_message)],
   ];
   $("fit-diag").querySelector("tbody").innerHTML = diag.map(([k, v]) => `<tr><td>${k}</td><td class="num">${v}</td></tr>`).join("");
@@ -570,42 +670,43 @@ function renderProjection(e, pr) {
   const weak = pr.fit_reproduces_window ? "" : `<p class="warn"><b>Weak evidence.</b> The calibrated equations do not reproduce ${e.code}'s observed window, so this projection rests on fitted parameters the window does not confirm. Read the direction only.</p>`;
   const tu = r005 && pr.turns.length ? pr.turns[0] : null;
   const turnCards = !r005 ? [] : [
-    card("Turn", tu ? `${tu.year} at ${fmt(tu.level, 2)}` : "none", tu ? `${pr.resolution_policy}; policy level ${fmt(tu.turn_level, 2)}, band ${pr.ceiling.lower} to ${pr.ceiling.upper}${tu.in_extrapolation ? "; in the extrapolated tail" : ""}` : `no turn by ${pr.years[last]}`),
-    card("Crisis and reset", tu ? `${tu.crisis_end_year} / ${tu.reset_end_year}` : "–", tu ? `crisis to ${fmt(tu.crisis_end_level, 2)}, ${tu.reset_years}-year reset to ${fmt(tu.reset_target, 2)}` : ""),
+    card("Turn", tu ? `${tu.year} at ${N.ratio(tu.level)}` : "none", tu ? `${pr.resolution_policy}; policy level ${N.ratio(tu.turn_level)}, band ${N.ratio(pr.ceiling.lower)} to ${N.ratio(pr.ceiling.upper)}${tu.in_extrapolation ? "; in the extrapolated tail" : ""}` : `no turn by ${pr.years[last]}`),
+    card("Crisis and reset", tu ? `${tu.crisis_end_year} / ${tu.reset_end_year}` : "–", tu ? `crisis to ${N.ratio(tu.crisis_end_level)}, ${tu.reset_years}-year reset to ${N.ratio(tu.reset_target)}` : ""),
     card("Confidence", `to ${pr.display_until}`, `years after ${pr.display_until} are lower confidence`)];
   $("proj-cards").innerHTML = weak + [
     card("Projected to", pr.years[last], `from ${pr.from_year}, ${pr.integrated_years} of ${pr.requested_horizon} years integrated`),
     ...turnCards,
     card("Phase at end", `${pr.phase[last]} ${PHASE[pr.phase[last]]}`, `now ${e.current.phase} ${PHASE[e.current.phase]}`),
-    card("Saturation at end", fmt(pr.saturation[last], 2), `now ${fmt(e.current.saturation, 2)}`),
-    card("K_R / K_I at end", fmt(pr.real_to_financial[last], 3), `now ${fmt(e.current.real_to_financial, 3)}`),
-    card("Direction match (in sample)", ["Y", "K_R", "K_I"].map(k => fmt(pr.directional_accuracy[k], 2)).join(" / "), "Y / K_R / K_I"),
+    card("Saturation at end", N.ratio(pr.saturation[last]), `now ${N.ratio(e.current.saturation)}`),
+    card("K_R / K_I at end", N.ratio(pr.real_to_financial[last]), `now ${N.ratio(e.current.real_to_financial)}`),
+    card("Direction match (in sample)", ["Y", "K_R", "K_I"].map(k => N.weight(pr.directional_accuracy[k])).join(" / "), "Y / K_R / K_I"),
   ].join("");
-  const satTraces = [line(ox, e.inputs.saturation.slice(tail), "Observed", s1), line(px, join(e.inputs.saturation[e.years.length - 1], pr.saturation), "Projected", s2, { dash: "dash" })];
+  const satTraces = [line(ox, e.inputs.saturation.slice(tail), "Observed", s1, { fmt: ratio }), line(px, join(e.inputs.saturation[e.years.length - 1], pr.saturation), "Projected", s2, { dash: "dash", fmt: ratio })];
   const ceilingShapes = r005 ? [hline(pr.ceiling.lower, css("--s2")), hline(pr.ceiling.upper, css("--s2"))] : [];
   const policyColour = { depression: css("--s3"), hyperinflation: muted, stagflation: css("--s2"), deferral: css("--s1") };
   if (r005) pr.scenarios.filter(sc => sc.years.length && sc.name !== pr.resolution_policy).forEach(sc =>
-    satTraces.push(line(sc.years, sc.saturation, `${sc.name} (turn ${sc.turn.year} at ${fmt(sc.turn.level, 2)})`, policyColour[sc.name], { dash: "dot", size: 2 })));
+    satTraces.push(line(sc.years, sc.saturation, `${sc.name} (turn ${sc.turn.year} at ${N.ratio(sc.turn.level)})`, policyColour[sc.name], { dash: "dot", size: 2, fmt: ratio })));
   plot("p-sat", satTraces,
     layout("Saturation axis" + note, { ...xr, showlegend: true, shapes: [band(t.balanced_band.lower, t.balanced_band.upper), hline(t.optimisation_saturation_ceiling, css("--err")), hline(t.foundation_saturation_ceiling, muted), ...ceilingShapes, ...extra] }));
-  plot("p-ratio", [line(ox, e.diagnostics.real_to_financial.slice(tail), "Observed", s1), line(px, join(e.current.real_to_financial, pr.real_to_financial), "Projected", s2, { dash: "dash" })],
+  plot("p-ratio", [line(ox, e.diagnostics.real_to_financial.slice(tail), "Observed", s1, { fmt: ratio }), line(px, join(e.current.real_to_financial, pr.real_to_financial), "Projected", s2, { dash: "dash", fmt: ratio })],
     layout("K_R / K_I" + note, { ...xr, showlegend: true, shapes: [hline(1, css("--err")), ...extra] }));
-  const ks = [line(ox, e.diagnostics.capital_saturation.slice(tail), "Observed", s1),
-              line(px, join(e.diagnostics.capital_saturation[e.years.length - 1], pr.capital_saturation), "Projected", s2, { dash: "dash" })];
+  const ks = [line(ox, e.diagnostics.capital_saturation.slice(tail), "Observed", s1, { fmt: ratio }),
+              line(px, join(e.diagnostics.capital_saturation[e.years.length - 1], pr.capital_saturation), "Projected", s2, { dash: "dash", fmt: ratio })];
   const scen = { debt_deflation: [s3, "dot"], hyperinflation: [muted, "dashdot"], depression: [s3, "dot"], stagflation: [css("--s2"), "dot"], deferral: [s1, "dot"] };
-  pr.scenarios.filter(sc => sc.years.length).forEach(sc => ks.push(line(sc.years, sc.capital_ratio, sc.name.replace("_", " "), scen[sc.name][0], { dash: scen[sc.name][1], size: 3 })));
+  pr.scenarios.filter(sc => sc.years.length).forEach(sc => ks.push(line(sc.years, sc.capital_ratio, sc.name.replace("_", " "), scen[sc.name][0], { dash: scen[sc.name][1], size: 3, fmt: ratio })));
   plot("p-ks", ks, layout("(K_R + K_I) / Y and Phase IV resolutions", { ...xr, showlegend: true, shapes: [hline(t.balanced_band.upper, muted), ...extra] }));
-  plot("p-phase", [line(ox, e.diagnostics.phase.slice(tail), "Observed", s1, { shape: "hv" }), line(px, join(e.current.phase, pr.phase), "Projected", s2, { shape: "hv", dash: "dash" })],
+  plot("p-phase", [line(ox, e.diagnostics.phase.slice(tail), "Observed", s1, { shape: "hv", hover: "Observed %{x}: %{y}<extra></extra>" }), line(px, join(e.current.phase, pr.phase), "Projected", s2, { shape: "hv", dash: "dash", hover: "Projected %{x}: %{y}<extra></extra>" })],
     layout("Phase (latched)" + (r005 ? ": 4 through crisis and reset, then afresh" : ""), { ...xr, showlegend: true, yaxis: phaseAxis, shapes: extra }));
   for (const [id, key, title] of [["p-y", "Y", "Y"], ["p-kr", "K_R", "K_R"], ["p-ki", "K_I", "K_I"]]) {
-    plot(id, [line(ox, e.observed[key].slice(tail), "Observed", s1), line(px, join(e.observed[key][e.years.length - 1], pr[key]), "Projected", s2, { dash: "dash" })],
+    const f = key === "Y" ? usd : raw;
+    plot(id, [line(ox, e.observed[key].slice(tail), "Observed", s1, { fmt: f }), line(px, join(e.observed[key][e.years.length - 1], pr[key]), "Projected", s2, { dash: "dash", fmt: f })],
       layout(title + " (log)", { ...xr, showlegend: true, yaxis: { type: "log" }, shapes: extra }));
   }
   $("p-trans").querySelector("tbody").innerHTML = pr.transitions.length
     ? `<tr><th>Year</th><th>From</th><th>To</th><th class="num">Saturation</th><th class="num">K_R / K_I</th><th></th></tr>` + pr.transitions.map(x =>
-      `<tr><td>${x.year}</td><td>${PHASE[x.from_phase]}</td><td>${PHASE[x.to_phase]}</td><td class="num">${fmt(x.saturation, 2)}</td><td class="num">${fmt(x.real_to_financial, 3)}</td><td>${x.extrapolated ? "extrapolated tail" : ""}${r005 && pr.segment_label[pr.years.indexOf(x.year)] ? ` ${pr.segment_label[pr.years.indexOf(x.year)]}` : ""}${r005 && x.year > pr.display_until ? " (lower confidence)" : ""}</td></tr>`).join("")
+      `<tr><td>${x.year}</td><td>${PHASE[x.from_phase]}</td><td>${PHASE[x.to_phase]}</td><td class="num">${N.ratio(x.saturation)}</td><td class="num">${N.ratio(x.real_to_financial)}</td><td>${x.extrapolated ? "extrapolated tail" : ""}${r005 && pr.segment_label[pr.years.indexOf(x.year)] ? ` ${pr.segment_label[pr.years.indexOf(x.year)]}` : ""}${r005 && x.year > pr.display_until ? " (lower confidence)" : ""}</td></tr>`).join("")
     : `<tr><td class="muted">No phase change over the horizon.</td></tr>`;
-  $("p-notes").innerHTML = [...pr.assumptions, ...pr.notes, ...pr.scenarios.map(s => `${s.name.replace("_", " ")}${s.turn ? ` (turn ${s.turn.year} at ${fmt(s.turn.level, 2)}, reset to ${s.turn.reset_end_year})` : (s.label ? " (no turn within the horizon)" : "")}: ${s.mechanism}; ${s.asset_implication}`)]
+  $("p-notes").innerHTML = [...pr.assumptions, ...pr.notes, ...pr.scenarios.map(s => `${s.name.replace("_", " ")}${s.turn ? ` (turn ${s.turn.year} at ${N.ratio(s.turn.level)}, reset to ${s.turn.reset_end_year})` : (s.label ? " (no turn within the horizon)" : "")}: ${s.mechanism}; ${s.asset_implication}`)]
     .map(n => `<li>${esc(n)}</li>`).join("");
 }
 
@@ -757,7 +858,7 @@ function renderData() {
     ].filter(c => c[1] != null);
     dataCols = cols.map(c => c[0]);
     dataRows = e.years.map((_, r) => cols.map(c => c[1][r]));
-    const cell = v => typeof v === "number" ? (Number.isInteger(v) && Math.abs(v) < 1e4 ? v : Math.abs(v) >= 1e6 ? v.toExponential(4) : v.toFixed(4)) : v === true ? "yes" : v === false ? "" : v ?? "–";
+    const cell = v => typeof v === "number" ? (Number.isInteger(v) && Math.abs(v) < 1e4 ? N.whole(v) : N.auto(v)) : v === true ? "yes" : v === false ? "" : v ?? "–";
     $("data-table").innerHTML = `<thead><tr>${dataCols.map(c => `<th class="num">${c}</th>`).join("")}</tr></thead><tbody>${dataRows.map(r => `<tr>${r.map(v => `<td class="num">${cell(v)}</td>`).join("")}</tr>`).join("")}</tbody>`;
   }
   renderNeed();

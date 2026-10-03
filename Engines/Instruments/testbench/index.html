@@ -193,8 +193,103 @@ const svgEl = (t, a={}) => {
   for (const [k,v] of Object.entries(a)) n.setAttribute(k, v);
   return n;
 };
-const pct = v => (v*100).toFixed(2) + "%";
-const sig = (v,d=3) => Number(v).toFixed(d);
+// ---- display rounding: begin (review/ROUNDING.md; cockpit C-37) ----
+// Canonical copy: Engines/cockpit/dev/display_rounding.js. The cockpit page and every engine's test bench carry this
+// block verbatim between the begin and end lines; tests/test_api.py checks that every copy is identical. Change it
+// here, then copy it into each page. Display only: the figures stay exact everywhere else (contracts, artefacts,
+// stores, raw JSON views); a number is rounded only where it becomes text or a chart label.
+// Use: const N = displayRounding({ lang: "en", group: "’", na: "–" }); then N.money(38250) is "CHF 38’300".
+function displayRounding(opts) {
+  const o = Object.assign({ lang: "en", group: "’", na: "–", minus: "−" }, opts || {});
+  const WORDS = { en: { m: "m", below: "below", above: "above" }, de: { m: "Mio.", below: "unter", above: "über" } };
+  const w = () => WORDS[o.lang] || WORDS.en;
+  const ok = v => v !== null && v !== undefined && v !== "" && typeof v !== "boolean" && Number.isFinite(Number(v));
+  const grouped = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, o.group);
+  // d decimals, the integer part grouped, a true minus sign, never "-0"; sign: "+" before a positive figure
+  function fixed(v, d, sign) {
+    const x = Number(v), t = Math.abs(x).toFixed(d || 0), parts = t.split(".");
+    const body = grouped(parts[0]) + (parts[1] ? "." + parts[1] : "");
+    return (Number(t) === 0 ? "" : x < 0 ? o.minus : sign ? "+" : "") + body;
+  }
+  const stepped = (x, step) => Math.sign(x) * Math.round(Math.abs(x) / step) * step;
+  // CHF, EUR, USD: below 1 000 whole units; to 99 999 the nearest 100; to 999 999 the nearest 1 000; then millions, two decimals
+  function amountText(v) {
+    const x = Number(v), a = Math.abs(x);
+    if (a < 999.5) return fixed(x, 0);
+    if (a < 99950) return fixed(stepped(x, 100), 0);
+    if (a < 999500) return fixed(stepped(x, 1000), 0);
+    return fixed(x / 1e6, 2) + " " + w().m;
+  }
+  const pre = (cur, text) => cur ? cur + " " + text : text;
+  const N = {
+    opts: o,
+    ok,
+    fixed: (v, d, sign) => ok(v) ? fixed(v, d, sign) : o.na,
+    // an amount by the stepped rule, with its currency in front ("" for none)
+    money: (v, cur = "CHF") => ok(v) ? pre(cur, amountText(v)) : o.na,
+    amount: v => ok(v) ? amountText(v) : o.na,
+    // a figure the client stated (a fee, a deposit, a price): shown as stated, whole units unless it has cents
+    stated: (v, cur = "CHF") => ok(v) ? pre(cur, fixed(v, Number.isInteger(Number(v)) ? 0 : 2)) : o.na,
+    // returns, rates, inflation: one decimal, percent; rate takes a fraction (0.049), ratePct a percent (4.9)
+    rate: (v, sign) => ok(v) ? fixed(Number(v) * 100, 1, sign) + " %" : o.na,
+    ratePct: (v, sign) => ok(v) ? fixed(v, 1, sign) + " %" : o.na,
+    // percentage points (a shift between two rates given in percent)
+    pp: (v, sign = true) => ok(v) ? fixed(v, 1, sign) + " pp" : o.na,
+    // chances: whole percent; below 1 % and above 99 % in words; 0 % and 100 % only when every path agrees (exactly 0 or 1)
+    chance: v => {
+      if (!ok(v)) return o.na;
+      const p = Number(v);
+      if (p <= 0) return "0 %";
+      if (p >= 1) return "100 %";
+      if (p < 0.01) return w().below + " 1 %";
+      if (p > 0.99) return w().above + " 99 %";
+      return Math.round(p * 100) + " %";
+    },
+    // portfolio weights and shares: whole percent; below 1 % one decimal; 0 is "–"; weight takes a fraction, weightPct a percent
+    weightPct: v => {
+      if (!ok(v)) return o.na;
+      const p = Number(v), a = Math.abs(p);
+      if (a === 0) return "–";
+      if (a < 0.05) return w().below + " 0.1 %";
+      return fixed(p, a < 0.95 ? 1 : 0) + " %";
+    },
+    weight: v => ok(v) ? N.weightPct(Number(v) * 100) : o.na,
+    // model levels without a unit (scores, expertise, network, health): the word first when there is one, two decimals
+    level: (v, word) => ok(v) ? (word ? word + " (" + fixed(v, 2) + ")" : fixed(v, 2)) : o.na,
+    // ratios and durations one decimal; betas two
+    ratio: v => ok(v) ? fixed(v, 1) : o.na,
+    beta: v => ok(v) ? fixed(v, 2) : o.na,
+    // a change with its sign, d decimals (a score change 2, a z-score 1)
+    signed: (v, d = 2) => ok(v) ? fixed(v, d, true) : o.na,
+    // years, ages, hours, seconds: whole, never grouped (2034); counts: whole, grouped (12’000)
+    whole: v => ok(v) ? fixed(Math.round(Number(v)), 0).split(o.group).join("") : o.na,
+    count: v => ok(v) ? fixed(Math.round(Number(v)), 0) : o.na,
+    // a figure of no stated kind (raw index values, a model card's series): three significant digits, whole from 100
+    auto: v => {
+      if (!ok(v)) return o.na;
+      const x = Number(v), a = Math.abs(x);
+      if (a === 0) return "0";
+      if (a >= 999500) return fixed(x / 1e6, 2) + " " + w().m;
+      if (a >= 99.5) return fixed(x, 0);
+      const d = Math.min(8, Math.max(0, 2 - Math.floor(Math.log10(a))));
+      return fixed(x, d).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+    },
+    // chart axis: about n round ticks covering lo to hi, one step past each end (the chart hides the ticks outside its
+    // range), each labelled by fn (N.money, N.rate, ...): spread the result into the chart's axis
+    ticks: (lo, hi, fn, n = 5) => {
+      lo = Number(lo) || 0; hi = Number(hi) || 0;
+      if (hi < lo) { const t = lo; lo = hi; hi = t; }
+      const raw = ((hi - lo) || Math.abs(hi) || 1) / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+      const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(s => s >= raw * 0.999);
+      const vals = [];
+      for (let k = Math.floor(lo / step + 1e-9); k * step < hi + step * (1 - 1e-9); k++) vals.push(Math.round(k * step * 1e9) / 1e9);
+      return { tickmode: "array", tickvals: vals, ticktext: vals.map(v => fn(v)) };
+    },
+  };
+  return N;
+}
+// ---- display rounding: end ----
+const N = displayRounding({ na: "—" });
 
 // The five support levels, weakest to strongest. `data-driven` and `data-driven-trimmed`
 // share a colour step: they are the same kind of support and differ only in sample size,
@@ -265,7 +360,7 @@ function lineChart(series, opts={}) {
     const v = lo + (hi - lo) * i / ticks;
     svg.append(svgEl("line", {x1:M.l, x2:M.l+iw, y1:y(v), y2:y(v), stroke:"var(--grid)", "stroke-width":1}));
     const t = svgEl("text", {x: M.l - 8, y: y(v) + 4, "text-anchor": "end"});
-    t.textContent = (v*100).toFixed(1) + "%"; svg.append(t);
+    t.textContent = N.rate(v); svg.append(t);
   }
   if (lo < 0 && hi > 0) svg.append(svgEl("line", {x1:M.l, x2:M.l+iw, y1:y(0), y2:y(0), stroke:"var(--axis)", "stroke-width":1}));
 
@@ -304,7 +399,7 @@ function lineChart(series, opts={}) {
     cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("opacity", 1);
     const rows = series.map(s => {
       const m = s.methods ? ` <span style="color:var(--ink-muted)">${SUPPORT[s.methods[i]]?.label ?? s.methods[i]}</span>` : "";
-      return `<div><span class="swatch" style="background:${s.color}"></span> ${s.label} <b>${pct(s.values[i])}</b>${m}</div>`;
+      return `<div><span class="swatch" style="background:${s.color}"></span> ${s.label} <b>${N.rate(s.values[i])}</b>${m}</div>`;
     }).join("");
     showTip(ev, `<b>State ${i+1}</b>${rows}`);
   });
@@ -333,8 +428,8 @@ function coverageMatrix(rows) {
       });
       rect.addEventListener("mousemove", ev => showTip(ev,
         `<b>${row.label}</b><br>State ${s+1} · ${sup.label}` +
-        (row.n_obs ? `<br>n = ${row.n_obs[s]}` : "") +
-        (row.values ? `<br>${pct(row.values[s])}` : "")));
+        (row.n_obs ? `<br>n = ${N.count(row.n_obs[s])}` : "") +
+        (row.values ? `<br>${N.rate(row.values[s])}` : "")));
       rect.addEventListener("mouseleave", hideTip);
       svg.append(rect);
     });
@@ -362,7 +457,7 @@ function phasePanels(blocks, phaseNames) {
     svg.append(svgEl("line", {x1:M.l, x2:M.l+iw, y1:y(0), y2:y(0), stroke:"var(--axis)", "stroke-width":1}));
     [lo, hi].forEach(v => {
       const t = svgEl("text", {x:M.l-6, y:y(v)+4, "text-anchor":"end", "font-size":10});
-      t.textContent = (v*100).toFixed(0) + "%"; svg.append(t);
+      t.textContent = N.rate(v); svg.append(t);
     });
     b.means.forEach((v, i) => {
       const top = Math.min(y(v), y(0)), h = Math.abs(y(v) - y(0));
@@ -371,7 +466,7 @@ function phasePanels(blocks, phaseNames) {
         rx: 3, fill: v < 0 ? "var(--series-2)" : "var(--series-1)"
       });
       rect.addEventListener("mousemove", ev => showTip(ev,
-        `<b>${b.label}</b><br>${phaseNames[i]} · <b>${pct(v)}</b><br>n = ${b.n_obs[i]}`));
+        `<b>${b.label}</b><br>${phaseNames[i]} · <b>${N.rate(v)}</b><br>n = ${N.count(b.n_obs[i])}`));
       rect.addEventListener("mouseleave", hideTip);
       svg.append(rect);
       const t = svgEl("text", {x: M.l + i*bw + bw/2, y: H - 10, "text-anchor":"middle", "font-size":9.5});
@@ -403,7 +498,7 @@ function cycleChart(years) {
   [-2,-1,0,1,2].forEach(v => {
     if (v < lo || v > hi) return;
     const t = svgEl("text", {x:M.l-8, y:y(v)+4, "text-anchor":"end"});
-    t.textContent = v + "σ"; svg.append(t);
+    t.textContent = N.whole(v) + "σ"; svg.append(t);
   });
   const d = years.map((p,i) => `${i?"L":"M"}${x(i).toFixed(2)},${y(p.cycle).toFixed(2)}`).join(" ");
   svg.append(svgEl("path", {d, fill:"none", stroke:"var(--series-1)", "stroke-width":2, "stroke-linejoin":"round"}));
@@ -422,7 +517,7 @@ function cycleChart(years) {
     const bb = svg.getBoundingClientRect();
     const rel = (ev.clientX - bb.left) * (W / bb.width);
     const i = Math.max(0, Math.min(years.length-1, Math.round((rel - M.l) / (iw/(years.length-1)))));
-    showTip(ev, `<b>${years[i].year}</b><br>${years[i].phase}<br>${sig(years[i].cycle)} σ`);
+    showTip(ev, `<b>${years[i].year}</b><br>${years[i].phase}<br>${N.signed(years[i].cycle, 2)} σ`);
   });
   hit.addEventListener("mouseleave", hideTip);
   return svg;
@@ -443,9 +538,9 @@ tab("overview", "Overview", async host => {
   tile("Calibration", cal.calibration_id.slice(0,12)+"…", `${cal.window[0]}–${cal.window[1]}, ${cal.estimator}`);
   tile("Shape assertions", shapes.all_passed ? "8 / 8" : "FAILING",
        shapes.all_passed ? "state tagging aligned" : "tagging has drifted");
-  tile("Instruments", String(health.counts.instrument), `${health.counts.instrument_return} monthly returns`);
-  tile("Annual record", String(health.counts.long_series), "observations across 19 series");
-  tile("Signal months", String(health.counts.market_risk_signal/25), "monthly 25-state readings");
+  tile("Instruments", N.count(health.counts.instrument), `${N.count(health.counts.instrument_return)} monthly returns`);
+  tile("Annual record", N.count(health.counts.long_series), "observations across 19 series");
+  tile("Signal months", N.count(health.counts.market_risk_signal/25), "monthly 25-state readings");
   host.append(tiles);
 
   const c1 = el("div", {class:"card"});
@@ -469,7 +564,7 @@ tab("overview", "Overview", async host => {
   c2.append(el("div", {class:"scroll"}, [cycleChart(env.years)]));
   const order = ["crisis","contraction","stagnation","expansion","boom"];
   c2.append(el("p", {class:"note"},
-    "Years per phase — " + order.map(p => `${p} ${counts[p]}`).join(" · ") +
+    "Years per phase — " + order.map(p => `${p} ${N.count(counts[p])}`).join(" · ") +
     ". Every phase clears the six-observation sufficiency floor, which is why no phase knot needed the cascade."));
   host.append(c2);
 });
@@ -485,8 +580,8 @@ tab("roles", "Roles", async host => {
     tbl.append(el("thead", {}, [el("tr", {}, [el("th",{},"phase")].concat(
       r.phase_names.map(p => el("th",{},p))))]));
     tbl.append(el("tbody", {}, [
-      el("tr", {}, [el("td",{},"return")].concat(r.phase_values.map(v => el("td",{},pct(v))))),
-      el("tr", {}, [el("td",{},"observations")].concat(r.n_obs_by_phase.map(v => el("td",{},String(v))))),
+      el("tr", {}, [el("td",{},"return")].concat(r.phase_values.map(v => el("td",{},N.rate(v))))),
+      el("tr", {}, [el("td",{},"observations")].concat(r.n_obs_by_phase.map(v => el("td",{},N.count(v))))),
     ]));
     c.append(el("div", {class:"scroll"}, [tbl]));
     host.append(c);
@@ -540,7 +635,7 @@ tab("coverage", "Coverage", async host => {
     const m = r.methods.filter(x => x.startsWith("data-driven")).length;
     body.append(el("tr",{},[el("td",{},r.label),
       el("td",{},r.methods.reduce((a,b)=>SUPPORT[a].rank<=SUPPORT[b].rank?a:b)),
-      el("td",{},String(m)), el("td",{},String(25-m))]));
+      el("td",{},N.count(m)), el("td",{},N.count(25-m))]));
   });
   tbl.append(body); det.append(el("div",{class:"scroll"},[tbl])); c.append(det);
   host.append(c);
@@ -553,7 +648,7 @@ tab("instruments", "Instruments", async host => {
   c.append(el("p", {class:"q"}, "The universe is a versioned input, so adding an instrument is a data event rather than a release. Pick one to see its estimated profile."));
   const sel = el("select");
   list.forEach(i => sel.append(el("option", {value:i.instrument_id},
-    `${i.name} — ${i.role}, ${i.months} months`)));
+    `${i.name} — ${i.role}, ${N.count(i.months)} months`)));
   const btn = el("button", {}, "re-estimate stored cascade");
   c.append(el("div", {class:"row"}, [sel, btn]));
   const out = el("div");
@@ -570,8 +665,8 @@ tab("instruments", "Instruments", async host => {
       const tile = (k,v,n) => tiles.append(el("div",{class:"tile"},[
         el("div",{class:"k"},k), el("div",{class:"v"},v), el("div",{class:"n"},n||"")]));
       tile("Coverage", SUPPORT[p.coverage]?.label ?? p.coverage, "weakest method present");
-      tile("Months used", String(p.n_obs_total), `${meta.first_period}–${meta.last_period}`);
-      tile("Own-measured states", String(p.states.filter(s=>s.method.startsWith("data-driven") || s.method === "forward-12m-smoothed").length) + " / 25", "rest on this instrument's measurement");
+      tile("Months used", N.count(p.n_obs_total), `${meta.first_period}–${meta.last_period}`);
+      tile("Own-measured states", N.count(p.states.filter(s=>s.method.startsWith("data-driven") || s.method === "forward-12m-smoothed").length) + " / 25", "rest on this instrument's measurement");
       tile("Estimator", p.profile_method || "cascade", p.series ? `${p.series} · ${p.currency}` : "stored profile");
       const lines = [{label: meta.role, color: roleColor(meta.role),
         values: p.states.map(s=>s.value), methods: p.states.map(s=>s.method)}];
@@ -610,7 +705,7 @@ function timeChart(points, opts={}) {
     const v = lo + (hi-lo)*i/4;
     svg.append(svgEl("line",{x1:M.l,x2:M.l+iw,y1:y(v),y2:y(v),stroke:"var(--grid)","stroke-width":1}));
     const t = svgEl("text",{x:M.l-8,y:y(v)+4,"text-anchor":"end"});
-    t.textContent = opts.fmt ? opts.fmt(v) : v.toFixed(2); svg.append(t);
+    t.textContent = (opts.fmt || N.auto)(v); svg.append(t);
   }
   if (lo < 0 && hi > 0)
     svg.append(svgEl("line",{x1:M.l,x2:M.l+iw,y1:y(0),y2:y(0),stroke:"var(--axis)","stroke-width":1}));
@@ -626,7 +721,7 @@ function timeChart(points, opts={}) {
     const bb = svg.getBoundingClientRect();
     const rel = (ev.clientX-bb.left)*(W/bb.width);
     const i = Math.max(0, Math.min(points.length-1, Math.round((rel-M.l)/(iw/(points.length-1)))));
-    showTip(ev, `<b>${points[i].k}</b><br>${opts.fmt ? opts.fmt(points[i].v) : points[i].v.toFixed(4)}`);
+    showTip(ev, `<b>${points[i].k}</b><br>${(opts.fmt || N.auto)(points[i].v)}`);
   });
   hit.addEventListener("mouseleave", hideTip);
   return svg;
@@ -642,7 +737,7 @@ tab("raw", "1 · Raw data", async host => {
   c0.append(el("p", {class:"q"}, srcs.provenance_statement));
   const tiles = el("div", {class:"tiles"});
   const tile = (k,v,n) => tiles.append(el("div",{class:"tile"},[
-    el("div",{class:"k"},k), el("div",{class:"v"},String(v)), el("div",{class:"n"},n)]));
+    el("div",{class:"k"},k), el("div",{class:"v"},N.count(v)), el("div",{class:"n"},n)]));
   tile("Files", srcs.count, "all hashed on load");
   tile("Downloaded", srcs.downloaded_count, "the ETL makes no network call");
   Object.entries(srcs.by_origin).forEach(([k,v]) => tile(k.replace("nas:",""), v, k));
@@ -675,7 +770,7 @@ tab("raw", "1 · Raw data", async host => {
   const listing = await get("/v1/data/series");
   const sel = el("select");
   listing.series.forEach(s => sel.append(el("option",{value:s.series_key},
-    `${s.series_key} — ${s.n} obs, ${s.lo}–${s.hi}`)));
+    `${s.series_key} — ${N.count(s.n)} obs, ${s.lo}–${s.hi}`)));
   sel.value = "gold";
   c2.append(el("div",{class:"row"},[sel]));
   const out = el("div"); c2.append(out); host.append(c2);
@@ -685,16 +780,16 @@ tab("raw", "1 · Raw data", async host => {
     const d = await get(`/v1/data/series?key=${sel.value}`);
     const pts = d.values.map(v => ({k:String(v.year), v:v.value}));
     const det = el("details");
-    det.append(el("summary",{},`All ${d.observations} values`));
+    det.append(el("summary",{},`All ${N.count(d.observations)} values`));
     const tt = el("table");
     tt.append(el("thead",{},[el("tr",{},[el("th",{},"year"),el("th",{},"value")])]));
     const tb = el("tbody");
     d.values.forEach(v => tb.append(el("tr",{},[el("td",{},String(v.year)),
-      el("td",{},v.value.toLocaleString(undefined,{maximumFractionDigits:6}))])));
+      el("td",{},N.auto(v.value))])));
     tt.append(tb); det.append(el("div",{class:"scroll"},[tt]));
     out.replaceChildren(
       el("p",{class:"note"}, `${d.note}   ·   ${d.source_file}, column ${d.source_column}`),
-      el("div",{class:"scroll"},[timeChart(pts,{fmt:v=>v.toLocaleString(undefined,{maximumFractionDigits:2})})]),
+      el("div",{class:"scroll"},[timeChart(pts,{fmt:N.auto})]),
       det);
   }
   sel.addEventListener("change", drawSeries);
@@ -724,7 +819,7 @@ tab("macro", "2 · Macro & signal", async host => {
 
   const c1 = el("div", {class:"card"});
   c1.append(el("h2", {}, "The transformation, step by step"));
-  c1.append(el("p", {class:"q"}, `Nine steps take ${method.window.observations} annual observations to a 25-state profile. Five of those twenty-five carry a measured number; the rest are filled and labelled.`));
+  c1.append(el("p", {class:"q"}, `Nine steps take ${N.count(method.window.observations)} annual observations to a 25-state profile. Five of those twenty-five carry a measured number; the rest are filled and labelled.`));
   method.steps.forEach(s => {
     const d = el("details");
     d.append(el("summary",{},`${s.step}. ${s.name}  ·  ${s.frequency}`));
@@ -759,14 +854,14 @@ tab("macro", "2 · Macro & signal", async host => {
     t.append(el("thead",{},[el("tr",{},["indicator","de-trend","sign","residual","standardised"].map(h=>el("th",{},h)))]));
     const b = el("tbody");
     d.indicators.forEach(i => b.append(el("tr",{},[el("td",{},i.name), el("td",{},i.detrend),
-      el("td",{}, i.sign>0?"+":"−"), el("td",{},i.residual.toFixed(5)), el("td",{},i.standardised.toFixed(4))])));
+      el("td",{}, i.sign>0?"+":"−"), el("td",{},N.auto(i.residual)), el("td",{},N.signed(i.standardised, 2))])));
     b.append(el("tr",{},[el("td",{},el("b",{},"mean of the eight")),el("td",{},""),el("td",{},""),
-      el("td",{},""), el("td",{},el("b",{},d.mean_of_standardised.toFixed(4)))]));
+      el("td",{},""), el("td",{},el("b",{},N.signed(d.mean_of_standardised, 2)))]));
     t.append(b);
     yearOut.replaceChildren(el("div",{class:"scroll"},[t]),
       el("p",{class:"note"}, d.cycle_note),
       el("pre",{class:"cmd"},
-        `ec_cycle(${d.year}) = ${d.cycle.toFixed(4)} sigma\n${d.classification}\ninflation that year = ${(d.inflation*100).toFixed(2)}%`));
+        `ec_cycle(${d.year}) = ${N.signed(d.cycle, 2)} sigma\n${d.classification}\ninflation that year = ${N.rate(d.inflation)}`));
   }
   yearSel.addEventListener("change", drawYear);
 
@@ -790,7 +885,7 @@ tab("macro", "2 · Macro & signal", async host => {
     const dot = svgEl("circle",{cx:xx(e.signal_state),cy:yy(e.calib_state),r:4.5,
       fill:"var(--series-1)",stroke:"var(--surface-1)","stroke-width":2});
     dot.addEventListener("mousemove", ev => showTip(ev,
-      `<b>Signal column ${e.signal_state}</b><br>centile ${e.centile.toFixed(1)}%<br>cycle ${sig(e.cycle_value)} σ<br>axis ${sig(e.axis_value)} → state ${e.calib_state}`));
+      `<b>Signal column ${e.signal_state}</b><br>centile ${N.ratePct(e.centile)}<br>cycle ${N.signed(e.cycle_value, 2)} σ<br>axis ${N.level(e.axis_value)} → state ${e.calib_state}`));
     dot.addEventListener("mouseleave", hideTip); svg.append(dot);
   });
   c4.append(el("div",{class:"legend"},[
@@ -818,10 +913,10 @@ tab("macro", "2 · Macro & signal", async host => {
         el("p",{class:"note"}, d.normalisation + (d.in_tolerance?"":"  This month is one of the five flagged as out of tolerance.")),
         el("pre",{class:"cmd"},
           `period               ${d.period}\n` +
-          `modal signal column  ${d.modal_state}      (mean column ${d.mean_state.toFixed(2)})\n` +
-          `  its centile        ${g.centile.toFixed(2)} %\n` +
-          `  ec_cycle there     ${g.cycle_value>=0?"+":""}${g.cycle_value.toFixed(3)} sigma\n` +
-          `  phase axis         ${g.axis_value.toFixed(3)}   on the 1..5 scale\n` +
+          `modal signal column  ${d.modal_state}      (mean column ${N.ratio(d.mean_state)})\n` +
+          `  its centile        ${N.ratePct(g.centile)}\n` +
+          `  ec_cycle there     ${N.signed(g.cycle_value, 2)} sigma\n` +
+          `  phase axis         ${N.level(g.axis_value)}   on the 1..5 scale\n` +
           `  calibration state  ${g.calibration_state}`),
         el("p",{class:"note"}, d.note));
     } catch(e) { monthOut.replaceChildren(el("p",{class:"err"}, e.message)); }
@@ -841,7 +936,7 @@ tab("perf", "3 · Performance", async host => {
   c0.append(el("h2", {}, "The register"));
   const tiles = el("div",{class:"tiles"});
   const tile=(k,v,n)=>tiles.append(el("div",{class:"tile"},[el("div",{class:"k"},k),
-    el("div",{class:"v"},String(v)),el("div",{class:"n"},n)]));
+    el("div",{class:"v"},N.count(v)),el("div",{class:"n"},n)]));
   tile("Registered", d.registered, "the versioned universe");
   tile("With history", d.with_history, "estimable from own returns");
   tile("Without", d.without_history, "seeded from the role");
@@ -867,11 +962,11 @@ tab("perf", "3 · Performance", async host => {
       el("td",{},[el("span",{class:"swatch",style:`background:${roleColor(i.role)}`}), " "+i.name]),
       el("td",{},i.role), el("td",{},i.currency),
       el("td",{}, i.proxy_grade ? el("span",{class:"pill"}, i.proxy_grade) : "report"),
-      el("td",{},String(p.months)),
-      el("td",{},pct(p.cumulative)), el("td",{},pct(p.annualised_log_return)),
-      el("td",{},pct(p.annualised_volatility)),
-      el("td",{}, p.return_over_volatility==null?"—":p.return_over_volatility.toFixed(2)),
-      el("td",{},pct(p.max_drawdown)), el("td",{},pct(p.hit_rate))]));
+      el("td",{},N.count(p.months)),
+      el("td",{},N.rate(p.cumulative)), el("td",{},N.rate(p.annualised_log_return)),
+      el("td",{},N.rate(p.annualised_volatility)),
+      el("td",{}, N.ratio(p.return_over_volatility)),
+      el("td",{},N.rate(p.max_drawdown)), el("td",{},N.weight(p.hit_rate))]));
   });
   t.append(b); c1.append(el("div",{class:"scroll"},[t]));
   c1.append(el("p",{class:"note"},
@@ -902,11 +997,11 @@ tab("perf", "3 · Performance", async host => {
   ci.append(el("p", {class:"q"}, "Two entries that are really one count twice in a universe whose size sets the optimiser's floor. Causes are separated because they need different fixes."));
   const ovTiles = el("div",{class:"tiles"});
   const ovTile=(k,v,n)=>ovTiles.append(el("div",{class:"tile"},[el("div",{class:"k"},k),
-    el("div",{class:"v"},String(v)),el("div",{class:"n"},n)]));
-  ovTile("Ticker collisions", ov.ticker_collisions.length, `${ov.ticker_collision_instruments} instruments share them`);
+    el("div",{class:"v"},N.count(v)),el("div",{class:"n"},n)]));
+  ovTile("Ticker collisions", ov.ticker_collisions.length, `${N.count(ov.ticker_collision_instruments)} instruments share them`);
   ovTile("Register defects", ov.register_defect.length, "same Bloomberg ticker");
   ovTile("Proxy artefacts", ov.proxy_artefact.length, "this build's limitation");
-  ovTile("Economic overlap", ov.economic_overlap.length, `r ≥ ${ov.threshold}`);
+  ovTile("Economic overlap", ov.economic_overlap.length, `r ≥ ${N.fixed(ov.threshold, 2)}`);
   ci.append(ovTiles);
 
   if (ov.ticker_collisions.length) {
@@ -927,7 +1022,7 @@ tab("perf", "3 · Performance", async host => {
     t.append(el("thead",{},[el("tr",{},["r","months","instrument","instrument","via"].map(h=>el("th",{},h)))]));
     const b = el("tbody");
     rows.forEach(x => b.append(el("tr",{},[
-      el("td",{},x.correlation.toFixed(4)), el("td",{},String(x.shared_months)),
+      el("td",{},N.fixed(x.correlation, 2)), el("td",{},N.count(x.shared_months)),
       el("td",{},x.a), el("td",{},x.b), el("td",{}, x.proxy || "—")])));
     t.append(b); ci.append(el("div",{class:"scroll"},[t]));
   };
@@ -943,7 +1038,7 @@ tab("perf", "3 · Performance", async host => {
   // --- register integrity: classification -----------------------------------
   const cc = el("div", {class:"card"});
   cc.append(el("h2", {}, "Does behaviour match the assigned role?"));
-  cc.append(el("p", {class:"q"}, `Equity beta against ${cls.benchmark.replace("INS-","")}, and the mean return in crisis months. ${cls.flagged} of ${cls.assessed} raise a question.`));
+  cc.append(el("p", {class:"q"}, `Equity beta against ${cls.benchmark.replace("INS-","")}, and the mean return in crisis months. ${N.count(cls.flagged)} of ${N.count(cls.assessed)} raise a question.`));
   const ct2 = el("table");
   ct2.append(el("thead",{},[el("tr",{},["instrument","role","proxy","grade","beta","crisis","vol","flag"].map(h=>el("th",{},h)))]));
   const cb2 = el("tbody");
@@ -952,9 +1047,9 @@ tab("perf", "3 · Performance", async host => {
       const tr = el("tr",{},[
         el("td",{},[el("span",{class:"swatch",style:`background:${roleColor(i.role)}`})," "+i.name]),
         el("td",{},i.role), el("td",{},i.proxy_symbol||"—"), el("td",{},i.proxy_grade||"—"),
-        el("td",{}, i.equity_beta==null?"—":i.equity_beta.toFixed(2)),
-        el("td",{}, i.crisis_mean==null?"—":pct(i.crisis_mean)),
-        el("td",{},pct(i.volatility)),
+        el("td",{}, N.beta(i.equity_beta)),
+        el("td",{}, N.rate(i.crisis_mean)),
+        el("td",{},N.rate(i.volatility)),
         el("td",{}, i.flag ? el("span",{class:"fail"}, i.flag) : "")]);
       if (i.explanation) tr.title = i.explanation;
       cb2.append(tr);
@@ -969,7 +1064,7 @@ tab("perf", "3 · Performance", async host => {
   c3.append(el("h2", {}, "One instrument in detail"));
   const sel = el("select");
   withHist.forEach(i => sel.append(el("option",{value:i.instrument_id},
-    `${i.name} — ${i.performance.months} months`)));
+    `${i.name} — ${N.count(i.performance.months)} months`)));
   sel.value = "INS-precious-metals";
   c3.append(el("div",{class:"row"},[sel]));
   const out = el("div"); c3.append(out); host.append(c3);
@@ -983,48 +1078,48 @@ tab("perf", "3 · Performance", async host => {
     const yt = el("table");
     yt.append(el("thead",{},[el("tr",{},["year","return"].map(h=>el("th",{},h)))]));
     const yb = el("tbody");
-    p.by_year.forEach(r => yb.append(el("tr",{},[el("td",{},r.year), el("td",{},pct(r.return))])));
+    p.by_year.forEach(r => yb.append(el("tr",{},[el("td",{},r.year), el("td",{},N.rate(r.return))])));
     yt.append(yb);
 
     const bt = el("table");
     bt.append(el("thead",{},[el("tr",{},["state","n","estimate","std err","95% interval"].map(h=>el("th",{},h)))]));
     const bb = el("tbody");
-    tr.buckets.forEach(x => bb.append(el("tr",{},[el("td",{},String(x.state)), el("td",{},String(x.n_obs)),
-      el("td",{},pct(x.estimate)), el("td",{},pct(x.std_error)),
-      el("td",{},`${pct(x.ci_low)} … ${pct(x.ci_high)}`)])));
+    tr.buckets.forEach(x => bb.append(el("tr",{},[el("td",{},String(x.state)), el("td",{},N.count(x.n_obs)),
+      el("td",{},N.rate(x.estimate)), el("td",{},N.rate(x.std_error)),
+      el("td",{},`${N.rate(x.ci_low)} … ${N.rate(x.ci_high)}`)])));
     bt.append(bb);
 
     const h = tr.horizon_check;
     const ht = el("table");
     ht.append(el("thead",{},[el("tr",{},["crisis month","that month","next 6m","next 12m"].map(x=>el("th",{},x)))]));
     const hb = el("tbody");
-    h.rows.forEach(r => hb.append(el("tr",{},[el("td",{},r.period), el("td",{},pct(r.that_month)),
-      el("td",{}, r.next_6m==null?"—":pct(r.next_6m)), el("td",{}, r.next_12m==null?"—":pct(r.next_12m))])));
+    h.rows.forEach(r => hb.append(el("tr",{},[el("td",{},r.period), el("td",{},N.rate(r.that_month)),
+      el("td",{}, N.rate(r.next_6m)), el("td",{}, N.rate(r.next_12m))])));
     ht.append(hb);
 
     out.replaceChildren(
       el("pre",{class:"cmd"},
         `${one.name}\n` +
         `  role ${one.role} · ${one.asset_class} · ${one.currency} · ${one.ticker||"no ticker"} · ${one.liquidity||"—"}\n` +
-        `  ${p.months} months, ${p.first_period}–${p.last_period}\n` +
-        `  cumulative ${pct(p.cumulative)} · annualised ${pct(p.annualised_log_return)} · vol ${pct(p.annualised_volatility)}\n` +
-        `  worst month ${pct(p.worst_month)} · best ${pct(p.best_month)} · max drawdown ${pct(p.max_drawdown)} at ${p.max_drawdown_trough}\n` +
+        `  ${N.count(p.months)} months, ${p.first_period}–${p.last_period}\n` +
+        `  cumulative ${N.rate(p.cumulative)} · annualised ${N.rate(p.annualised_log_return)} · vol ${N.rate(p.annualised_volatility)}\n` +
+        `  worst month ${N.rate(p.worst_month)} · best ${N.rate(p.best_month)} · max drawdown ${N.rate(p.max_drawdown)} at ${p.max_drawdown_trough}\n` +
         `  profile coverage: ${one.coverage}${one.borrowed_from?" from "+one.borrowed_from:""}`),
       el("div",{class:"scroll"},[timeChart(p.curve.map(c=>({k:c.period.slice(0,4),v:c.index})),
-        {color: roleColor(one.role), fmt: v=>v.toFixed(2)})]),
+        {color: roleColor(one.role), fmt: N.auto})]),
       el("p",{class:"note"}, "Growth of 1, compounding the recovered monthly returns. Months the manager was out compound as flat, so this is the manager's experience of the instrument rather than its own track record."),
       el("details",{},[el("summary",{},"Calendar year returns"), el("div",{class:"scroll"},[yt])]),
       el("h2",{style:"font-size:14px;margin-top:20px"}, "Estimator diagnostic — each state bucket is an independent mean"),
       el("div",{class:"scroll"},[bt]),
       el("pre",{class:"cmd"},
-        `mean absolute jump between adjacent states   ${tr.noise.mean_abs_jump==null?"—":pct(tr.noise.mean_abs_jump)}\n` +
-        `mean standard error of one bucket            ${tr.noise.mean_std_error==null?"—":pct(tr.noise.mean_std_error)}`),
+        `mean absolute jump between adjacent states   ${N.rate(tr.noise.mean_abs_jump)}\n` +
+        `mean standard error of one bucket            ${N.rate(tr.noise.mean_std_error)}`),
       el("p",{class:"note"}, tr.noise.reading),
       el("h2",{style:"font-size:14px;margin-top:20px"}, "The same crisis months, over different horizons"),
       el("div",{class:"scroll"},[ht]),
       el("pre",{class:"cmd"},
-        `mean, that month, annualised   ${h.mean_that_month_annualised==null?"—":pct(h.mean_that_month_annualised)}\n` +
-        `mean, the following 12 months  ${h.mean_next_12m==null?"—":pct(h.mean_next_12m)}`),
+        `mean, that month, annualised   ${N.rate(h.mean_that_month_annualised)}\n` +
+        `mean, the following 12 months  ${N.rate(h.mean_next_12m)}`),
       el("p",{class:"note"}, h.reading));
   }
   sel.addEventListener("change", drawOne);
@@ -1100,12 +1195,12 @@ tab("estimators", "Estimators · R-002/3", async host => {
     const b = el("tbody");
     METHODS.forEach(m => {
       const s = data.summary[m.id];
-      const labels = Object.entries(s.state_share_by_label).map(([k,v]) => `${k} ${(v*100).toFixed(1)}%`).join(" · ");
+      const labels = Object.entries(s.state_share_by_label).map(([k,v]) => `${k} ${N.weight(v)}`).join(" · ");
       b.append(el("tr", {}, [
         el("td", {html:`<span class="swatch" style="background:${m.color}"></span> ${m.label}`}),
-        el("td", {}, pct(s.mean_abs_jump)),
-        el("td", {}, pct(s.mean_largest_jump)),
-        el("td", {}, s.max_knot_shift == null ? "—" : pct(s.max_knot_shift)),
+        el("td", {}, N.rate(s.mean_abs_jump)),
+        el("td", {}, N.rate(s.mean_largest_jump)),
+        el("td", {}, N.rate(s.max_knot_shift)),
         el("td", {style:"white-space:normal;text-align:left"}, `${s.protection_negative_in_crisis.length}: ${s.protection_negative_in_crisis.join(", ") || "none"}`),
         el("td", {style:"white-space:normal;text-align:left"}, `${s.protection_failing_acceptance.length}: ${s.protection_failing_acceptance.join(", ") || "none"}`),
         el("td", {style:"white-space:normal;text-align:left"}, labels),
@@ -1141,7 +1236,7 @@ tab("estimators", "Estimators · R-002/3", async host => {
       const ok = v.protection_check ? v.protection_check.passed : false;
       b.append(el("tr", {}, [el("td", {}, m.label), el("td", {}, v.coverage),
         el("td", {}, `${v.series || "none"} · ${v.series_currency}`),
-        el("td", {}, pct(p[2])), el("td", {}, pct(p[22])),
+        el("td", {}, N.rate(p[2])), el("td", {}, N.rate(p[22])),
         el("td", {html: row.role === "protection" ? `<span class="${ok?"pass":"fail"}">${ok?"✓ pass":"✕ fail"}</span>` : "n/a"})]));
     });
     t.append(b); chartCard.append(el("div", {class:"scroll"}, [t]));
@@ -1153,15 +1248,15 @@ tab("estimators", "Estimators · R-002/3", async host => {
     const tp = el("table");
     tp.append(el("thead", {}, [el("tr", {}, ["phase", "windows", "n_eff", "value", "method"].map(h => el("th", {}, h)))]));
     const bp = el("tbody");
-    f.phases.forEach(p => bp.append(el("tr", {}, [el("td", {}, p.phase), el("td", {}, String(p.windows)),
-      el("td", {}, String(p.n_eff)), el("td", {}, pct(p.value)), el("td", {}, p.method)])));
+    f.phases.forEach(p => bp.append(el("tr", {}, [el("td", {}, p.phase), el("td", {}, N.count(p.windows)),
+      el("td", {}, N.count(p.n_eff)), el("td", {}, N.rate(p.value)), el("td", {}, p.method)])));
     tp.append(bp); detailCard.append(el("div", {class:"scroll"}, [tp]));
     detailCard.append(el("h2", {style:"font-size:14px;margin-top:18px"}, `After each crisis and contraction month · ${f.after_stress.length} windows`));
     const ta = el("table");
     ta.append(el("thead", {}, [el("tr", {}, ["month", "phase", "state", "next 12 months"].map(h => el("th", {}, h)))]));
     const ba = el("tbody");
     f.after_stress.forEach(w => ba.append(el("tr", {}, [el("td", {}, w.start), el("td", {}, w.phase),
-      el("td", {}, String(w.state)), el("td", {class: w.forward_12m < 0 ? "fail" : ""}, pct(w.forward_12m))])));
+      el("td", {}, String(w.state)), el("td", {class: w.forward_12m < 0 ? "fail" : ""}, N.rate(w.forward_12m))])));
     ta.append(ba);
     const det = el("details", {open: ""});
     det.append(el("summary", {}, "Table"), el("div", {class:"scroll"}, [ta]));
@@ -1169,7 +1264,7 @@ tab("estimators", "Estimators · R-002/3", async host => {
     if (f.after_stress.length) {
       const crisis = f.after_stress.filter(w => w.phase === "crisis").map(w => w.forward_12m);
       const contr = f.after_stress.filter(w => w.phase === "contraction").map(w => w.forward_12m);
-      const avg = xs => xs.length ? pct(xs.reduce((a,b) => a+b, 0) / xs.length) : "—";
+      const avg = xs => xs.length ? N.rate(xs.reduce((a,b) => a+b, 0) / xs.length) : N.opts.na;
       detailCard.append(el("p", {class:"note"},
         `Average of the windows: after crisis months ${avg(crisis)} (${crisis.length}), after contraction months ${avg(contr)} (${contr.length}).`));
     }
@@ -1187,7 +1282,7 @@ tab("estimators", "Estimators · R-002/3", async host => {
 tab("income", "Income · R-001", async host => {
   const d = await get("/v1/diagnostics/income-candidates");
   const colors = ["var(--series-3)", "var(--series-1)", "var(--series-4)", "var(--ink-2)"];
-  const name = c => Object.entries(c.weights).map(([k,v]) => `${k.replace("_"," ")} ${Math.round(v*100)}%`).join(" + ");
+  const name = c => Object.entries(c.weights).map(([k,v]) => `${k.replace("_"," ")} ${N.weight(v)}`).join(" + ");
   const c1 = el("div", {class:"card"});
   c1.append(el("h2", {}, "Income candidates against Stabilisation · USD, nominal (long annual record)"));
   c1.append(el("p", {class:"q"},
@@ -1210,17 +1305,17 @@ tab("income", "Income · R-001", async host => {
     const g = c.gap_to_stabilisation;
     b.append(el("tr", {}, [
       el("td", {style:"white-space:normal;text-align:left"}, (i === 0 ? "now: " : "ABC"[i-1] + ": ") + name(c)),
-      el("td", {}, c.phase_values.map(v => (v*100).toFixed(1)).join(" · ")),
+      el("td", {}, c.phase_values.map(v => N.rate(v)).join(" · ")),
       el("td", {html:`<span class="${c.target_met?"pass":"fail"}">${c.target_met?"✓ met":"✕ not met"}</span>`}),
-      el("td", {}, pct(g.min_abs_by_phase)), el("td", {}, pct(g.mean_abs_by_state)),
-      el("td", {}, g.curve_correlation.toFixed(2)),
+      el("td", {}, N.rate(g.min_abs_by_phase)), el("td", {}, N.rate(g.mean_abs_by_state)),
+      el("td", {}, N.fixed(g.curve_correlation, 2)),
       el("td", {}, `${c.shape_checks_passed} / 8`),
       el("td", {style:"white-space:normal;text-align:left"},
         c.role_changes_nearest_curve.map(x => `${x.name} (${x.registered}): ${x.nearest_now} → ${x.nearest_with_candidate}`).join("; ") || "none"),
     ]));
   });
   b.prepend(el("tr", {}, [el("td", {}, "stabilisation"),
-    el("td", {}, d.stabilisation.phase_values.map(v => (v*100).toFixed(1)).join(" · ")),
+    el("td", {}, d.stabilisation.phase_values.map(v => N.rate(v)).join(" · ")),
     el("td", {}, ""), el("td", {}, ""), el("td", {}, ""), el("td", {}, ""), el("td", {}, ""), el("td", {}, "")]));
   t.append(b); c2.append(el("div", {class:"scroll"}, [t]));
   c2.append(el("p", {class:"note"}, d.reading));
@@ -1240,8 +1335,8 @@ tab("audit", "Audit", async host => {
   const b1 = el("tbody");
   rec.blocks.forEach(r => b1.append(el("tr",{},[
     el("td",{},r.block), el("td",{},r.window.join("–")),
-    el("td",{},pct(r.recomposed_on_full_record)), el("td",{},pct(r.recomposed_on_own_window)),
-    el("td",{},pct(r.drift)), el("td",{},r.truncated ? "yes" : "no")])));
+    el("td",{},N.rate(r.recomposed_on_full_record)), el("td",{},N.rate(r.recomposed_on_own_window)),
+    el("td",{},N.rate(r.drift)), el("td",{},r.truncated ? "yes" : "no")])));
   t1.append(b1); c.append(el("div",{class:"scroll"},[t1]));
   host.append(c);
 
@@ -1268,7 +1363,7 @@ tab("audit", "Audit", async host => {
   const b3 = el("tbody");
   runs.runs.forEach(r => b3.append(el("tr",{},[
     el("td",{},r.run_id), el("td",{},r.engine), el("td",{},r.finished_at),
-    el("td",{},r.wall_clock_ms.toFixed(1)), el("td",{},r.status)])));
+    el("td",{},N.count(r.wall_clock_ms)), el("td",{},r.status)])));
   t3.append(b3); c3.append(el("div",{class:"scroll"},[t3]));
   host.append(c3);
 });
@@ -1359,7 +1454,7 @@ function start() {
     const store = h.store ? `${h.store.dbname}.${h.store.schema} @ ${h.store.host}` : "?";
     $("#subtitle").textContent =
       `${h.engine_version} · ${h.calibration_id ?? "uncalibrated"} · ` +
-      `${h.counts.instrument} instruments · ${store} · not part of the system`;
+      `${N.count(h.counts.instrument)} instruments · ${store} · not part of the system`;
   }).catch(e => {
     $("#subtitle").textContent = e instanceof Unreachable
       ? `no engine at ${API || location.origin}`

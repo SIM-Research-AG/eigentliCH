@@ -18,7 +18,7 @@ https://app.notion.com/p/3e80ba72543f81279459c05a6644539a
 | Family | Communication |
 | Module | `report` |
 | Default port | 8015 (configurable) |
-| Status | v1.5.0 (03.10.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; the life balance sheet and the four capitals as graphs (REP-40 to REP-43); 492 tests and one opt-in live test |
+| Status | v1.5.1 (03.10.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; the life balance sheet and the four capitals as graphs (REP-40 to REP-43); every figure rounded for display (REP-44); 590 tests and one opt-in live test |
 | Consumes | `pcp-allocation@1.0.0` from `pcp` (8007, `GET /allocation/{id}`), `lbs-balance-sheet@1.0.0` from `lbs` (8013, `GET /artefacts/{id}`), `lbsim-findings@1.0.0`, `lbsim-paths@1.0.0` and `lbsim-plan@1.0.0` from `lbsim` (8014, `GET /artefacts/{id}`, typed by the id's prefix), a `ReportRequest` from the caller |
 | Produces | `Report` (`report@1.0.0`), with the rendered HTML |
 | Model | MiniMind (display name), served by spark7 (`https://spark7.minimind.ch`, vLLM), `google/gemma-4-31B-it-qat-w4a16-ct` |
@@ -37,7 +37,7 @@ First time: `..\..\.venv\Scripts\pip install --no-deps -e .`, the role and schem
 the engines it draws on running (`pcp` on 8007, `lbs` on 8013, `lbsim` on 8014). `python -m report probe` checks the model service.
 
 ```bash
-python -m pytest              # 492 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
+python -m pytest              # 590 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
 python -m pytest -m live -s   # one report with prose against the real spark7
 ```
 
@@ -120,7 +120,13 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    a `<tspan data-fact>`, labelled directly, so the page's figure rule holds inside a chart. The plan's figures
    stand in a box headed with lbsim's framing, "Was die Rechnung annimmt: ..., keine Empfehlung" (owner,
    29.09.2026).
-10. **The life balance sheet** (section `life_sheet`, "Ihre Lebensbilanz" / "Your life balance sheet", REP-40, on
+10. **Rounding for display** (`report/rounding.py`, REP-44, owner's rule of 03.10.2026 in `review/ROUNDING.md`): the
+   fact keeps its exact value and its display is rounded: CHF amounts below 1 000 whole, to the nearest 100 below
+   100 000, to the nearest 1 000 below 1 000 000, then millions with two decimals ("CHF 1,35 Mio." / "CHF 1.35 m");
+   returns and rates one decimal; chances whole percent with "unter 1 %" and "über 99 %"; weights whole percent,
+   below 1 % one decimal, 0 as "–"; model levels two decimals; years and hours whole. The charts and MiniMind are
+   given the display. The header says once that the amounts are rounded.
+11. **The life balance sheet** (section `life_sheet`, "Ihre Lebensbilanz" / "Your life balance sheet", REP-40, on
    every page with an lbs source): three bars on one CHF scale without an axis: the assets by vessel (frei
    verfügbar, 2. Säule, Säule 3a, Realwerte, ohne Angabe) and human capital, the liabilities and the goals' amounts,
    and net worth, every segment named and valued under its bar. The section's facts (`lbs.sheet.*`) restate the
@@ -128,7 +134,7 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    (`lbs.claim.<goal>`) is lbs's `real_view.goals[]` amount with unit chf in the report's basis, marked with it, or,
    on a sheet without the real view, a property's price and an own-amount goal's target as lbs states them. A yearly
    retirement need is not one amount and is not drawn (the caption says so). Holdings are today's in either basis.
-11. **The four capitals** (section `capitals`, "Ihre vier Kapitale" / "Your four capitals", REP-41): wealth in CHF
+12. **The four capitals** (section `capitals`, "Ihre vier Kapitale" / "Your four capitals", REP-41): wealth in CHF
    as the household's net worth (lbs states no wealth per person), and per adult expertise and education, network
    and health, each on its own track from 0 to 1 (lbs's records: E's ceiling 1, N a stock in [0, 1], H a
    multiplier in [0, 1]) with words at the ends and the level as a fact and a word (`lbs.capital.<person>.<E|N|H>`:
@@ -211,6 +217,9 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
   constructed one that fills what they leave empty; no label carries a figure; a not-available section is
   stated and never a number.
 * **Property tests**: the printed display of any figure verifies against it.
+* **Rounding** (`tests/test_rounding.py`, REP-44): every row of the display rule in German and English with its
+  edges, which rule each fact follows, a sentence quoting a rounded display verifying; on every golden page no
+  display, in the text or in a chart, carries more digits than the rule allows (`tests/test_golden.py`).
 * **lbsim and the charts** (`tests/test_lbsim.py`): the request rule per engine and kind, the id of a request
   without lbsim sources, every refusal of REP-32 with its sentence, all three charts on the outlook pages, every
   `data-fact` inside an SVG a fact printing its display, no digit outside those, no `<script>` and no `http` inside

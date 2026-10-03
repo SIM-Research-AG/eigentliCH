@@ -3,6 +3,18 @@
 Where the build stands, how to pick it up, and what is still open. The README is the reference; this file is the
 resume point. Model-derived research output; not investment advice.
 
+## State (03.10.2026, rounding)
+
+- **Engine 15, v1.5.1**: the owner's display-rounding rule (`review/ROUNDING.md`, REP-44). One formatter,
+  `src/report/rounding.py`; every fact keeps its exact value and its display is rounded by its kind (read from the
+  unit and the fact's id), in the text, in the charts' printed values and in what MiniMind is given. The header says
+  "Alle Beträge nominal, gerundet." / "All amounts nominal, rounded.". The bench's client label rounds the net worth
+  the same way. 590 tests pass (`tests/test_rounding.py`: every row of the rule, the edges and which rule each fact
+  follows; `tests/test_golden.py`: no display on any golden page carries more digits than the rule allows). Golden
+  pages rebuilt (twenty); the prose case replayed from spark7's frozen replies: its seven sections still verify, but
+  its sentences quote the exact figures of 1.5.0, so **re-freeze it live** (`python dev/build_golden.py --live`) when
+  spark7 is reachable. **The running server on 8015 needs a restart** to serve 1.5.1.
+
 ## State (03.10.2026)
 
 - **Engine 15, v1.5.0**: the life balance sheet and the four capitals as graphs (owner's decisions of 03.10.2026,

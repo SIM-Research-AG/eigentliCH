@@ -133,6 +133,7 @@ golden/                the frozen production snapshot and the draft's output on 
 testbench/             development front end (Plotly). Not deployed. "Over time": the five cycles,
                        the aggregate (superposition, solid; superposition_anchored, dashed, after
                        the data edge) and alignment below with the synchrony windows (R-004).
+                       Rounds for display per review/ROUNDING.md with the shared snippet from cockpit/dev/display_rounding.js (cockpit C-37).
 dev/                   deploy builder. Not deployed.
 ```
 

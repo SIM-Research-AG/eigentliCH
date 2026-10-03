@@ -209,8 +209,103 @@ const store = { get(k) { try { return localStorage.getItem("cockpit." + k); } ca
                 set(k, v) { try { localStorage.setItem("cockpit." + k, v); } catch {} } };
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const fmt = (v, d = 2) => v === null || v === undefined || Number.isNaN(v) ? "n/a" : Number(v).toFixed(d);
-const pct = (v, d = 1) => v === null || v === undefined ? "n/a" : (Number(v) * 100).toFixed(d) + "%";
+// ---- display rounding: begin (review/ROUNDING.md; cockpit C-37) ----
+// Canonical copy: Engines/cockpit/dev/display_rounding.js. The cockpit page and every engine's test bench carry this
+// block verbatim between the begin and end lines; tests/test_api.py checks that every copy is identical. Change it
+// here, then copy it into each page. Display only: the figures stay exact everywhere else (contracts, artefacts,
+// stores, raw JSON views); a number is rounded only where it becomes text or a chart label.
+// Use: const N = displayRounding({ lang: "en", group: "’", na: "–" }); then N.money(38250) is "CHF 38’300".
+function displayRounding(opts) {
+  const o = Object.assign({ lang: "en", group: "’", na: "–", minus: "−" }, opts || {});
+  const WORDS = { en: { m: "m", below: "below", above: "above" }, de: { m: "Mio.", below: "unter", above: "über" } };
+  const w = () => WORDS[o.lang] || WORDS.en;
+  const ok = v => v !== null && v !== undefined && v !== "" && typeof v !== "boolean" && Number.isFinite(Number(v));
+  const grouped = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, o.group);
+  // d decimals, the integer part grouped, a true minus sign, never "-0"; sign: "+" before a positive figure
+  function fixed(v, d, sign) {
+    const x = Number(v), t = Math.abs(x).toFixed(d || 0), parts = t.split(".");
+    const body = grouped(parts[0]) + (parts[1] ? "." + parts[1] : "");
+    return (Number(t) === 0 ? "" : x < 0 ? o.minus : sign ? "+" : "") + body;
+  }
+  const stepped = (x, step) => Math.sign(x) * Math.round(Math.abs(x) / step) * step;
+  // CHF, EUR, USD: below 1 000 whole units; to 99 999 the nearest 100; to 999 999 the nearest 1 000; then millions, two decimals
+  function amountText(v) {
+    const x = Number(v), a = Math.abs(x);
+    if (a < 999.5) return fixed(x, 0);
+    if (a < 99950) return fixed(stepped(x, 100), 0);
+    if (a < 999500) return fixed(stepped(x, 1000), 0);
+    return fixed(x / 1e6, 2) + " " + w().m;
+  }
+  const pre = (cur, text) => cur ? cur + " " + text : text;
+  const N = {
+    opts: o,
+    ok,
+    fixed: (v, d, sign) => ok(v) ? fixed(v, d, sign) : o.na,
+    // an amount by the stepped rule, with its currency in front ("" for none)
+    money: (v, cur = "CHF") => ok(v) ? pre(cur, amountText(v)) : o.na,
+    amount: v => ok(v) ? amountText(v) : o.na,
+    // a figure the client stated (a fee, a deposit, a price): shown as stated, whole units unless it has cents
+    stated: (v, cur = "CHF") => ok(v) ? pre(cur, fixed(v, Number.isInteger(Number(v)) ? 0 : 2)) : o.na,
+    // returns, rates, inflation: one decimal, percent; rate takes a fraction (0.049), ratePct a percent (4.9)
+    rate: (v, sign) => ok(v) ? fixed(Number(v) * 100, 1, sign) + " %" : o.na,
+    ratePct: (v, sign) => ok(v) ? fixed(v, 1, sign) + " %" : o.na,
+    // percentage points (a shift between two rates given in percent)
+    pp: (v, sign = true) => ok(v) ? fixed(v, 1, sign) + " pp" : o.na,
+    // chances: whole percent; below 1 % and above 99 % in words; 0 % and 100 % only when every path agrees (exactly 0 or 1)
+    chance: v => {
+      if (!ok(v)) return o.na;
+      const p = Number(v);
+      if (p <= 0) return "0 %";
+      if (p >= 1) return "100 %";
+      if (p < 0.01) return w().below + " 1 %";
+      if (p > 0.99) return w().above + " 99 %";
+      return Math.round(p * 100) + " %";
+    },
+    // portfolio weights and shares: whole percent; below 1 % one decimal; 0 is "–"; weight takes a fraction, weightPct a percent
+    weightPct: v => {
+      if (!ok(v)) return o.na;
+      const p = Number(v), a = Math.abs(p);
+      if (a === 0) return "–";
+      if (a < 0.05) return w().below + " 0.1 %";
+      return fixed(p, a < 0.95 ? 1 : 0) + " %";
+    },
+    weight: v => ok(v) ? N.weightPct(Number(v) * 100) : o.na,
+    // model levels without a unit (scores, expertise, network, health): the word first when there is one, two decimals
+    level: (v, word) => ok(v) ? (word ? word + " (" + fixed(v, 2) + ")" : fixed(v, 2)) : o.na,
+    // ratios and durations one decimal; betas two
+    ratio: v => ok(v) ? fixed(v, 1) : o.na,
+    beta: v => ok(v) ? fixed(v, 2) : o.na,
+    // a change with its sign, d decimals (a score change 2, a z-score 1)
+    signed: (v, d = 2) => ok(v) ? fixed(v, d, true) : o.na,
+    // years, ages, hours, seconds: whole, never grouped (2034); counts: whole, grouped (12’000)
+    whole: v => ok(v) ? fixed(Math.round(Number(v)), 0).split(o.group).join("") : o.na,
+    count: v => ok(v) ? fixed(Math.round(Number(v)), 0) : o.na,
+    // a figure of no stated kind (raw index values, a model card's series): three significant digits, whole from 100
+    auto: v => {
+      if (!ok(v)) return o.na;
+      const x = Number(v), a = Math.abs(x);
+      if (a === 0) return "0";
+      if (a >= 999500) return fixed(x / 1e6, 2) + " " + w().m;
+      if (a >= 99.5) return fixed(x, 0);
+      const d = Math.min(8, Math.max(0, 2 - Math.floor(Math.log10(a))));
+      return fixed(x, d).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+    },
+    // chart axis: about n round ticks covering lo to hi, one step past each end (the chart hides the ticks outside its
+    // range), each labelled by fn (N.money, N.rate, ...): spread the result into the chart's axis
+    ticks: (lo, hi, fn, n = 5) => {
+      lo = Number(lo) || 0; hi = Number(hi) || 0;
+      if (hi < lo) { const t = lo; lo = hi; hi = t; }
+      const raw = ((hi - lo) || Math.abs(hi) || 1) / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+      const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(s => s >= raw * 0.999);
+      const vals = [];
+      for (let k = Math.floor(lo / step + 1e-9); k * step < hi + step * (1 - 1e-9); k++) vals.push(Math.round(k * step * 1e9) / 1e9);
+      return { tickmode: "array", tickvals: vals, ticktext: vals.map(v => fn(v)) };
+    },
+  };
+  return N;
+}
+// ---- display rounding: end ----
+const N = displayRounding({ na: "n/a" });   // the page's one formatter (C-37); the outlook panels use NO, the same in OUTLOOK_LANG
 const label = s => String(s).replaceAll("_", " ");
 const engNo = e => e.number == null ? "application (no engine number)" : `Engine ${String(e.number).padStart(2, "0")}`;
 const SECTORS = [["financial", "Financial", "--s1"], ["international", "International", "--s2"], ["real", "Real", "--s3"]];
@@ -262,7 +357,7 @@ function plot(el, traces, lay) { Plotly.react(el, traces, layout(lay), { display
 const seqScale = () => css("--seq").split(",").map((c, i, a) => [i / (a.length - 1), c.trim()]);
 function scoreBar(v) { // presentation only: the bar's length is the published score on its 1 to 5 scale
   if (v === null || v === undefined) return `<span class="muted">n/a</span>`;
-  return `<span class="bar"><i><b style="width:${Math.max(0, Math.min(100, (v - 1) * 25))}%"></b></i><span>${fmt(v)}</span></span>`;
+  return `<span class="bar"><i><b style="width:${Math.max(0, Math.min(100, (v - 1) * 25))}%"></b></i><span>${N.level(v)}</span></span>`;
 }
 
 // ---------------------------------------------------------------------------------------
@@ -369,7 +464,7 @@ function inflationView(host, inf, deflator) {   // the per-state inflation fmre 
   plot(el, Object.keys(counts).map(k => {
     const pts = inf.states.filter(s => s.label === k);
     return { type: "bar", name: label(k), x: pts.map(s => s.state), y: pts.map(s => s.inflation), marker: { color: css((INFL_LABEL[k] || ["--rest"])[0]) },
-             customdata: pts.map(s => [s.n_obs ?? "", s.log_inflation]), hovertemplate: `state %{x}: %{y:.2%} a year<br>${esc(label(k))}, n=%{customdata[0]}<extra></extra>` };
+             customdata: pts.map(s => [s.n_obs ?? "", s.log_inflation]), hovertemplate: `state %{x}: %{y:.1%} a year<br>${esc(label(k))}, n=%{customdata[0]}<extra></extra>` };
   }), { margin: { l: 46, r: 8, t: 6, b: 30 }, barmode: "overlay", xaxis: { dtick: 4, range: [0.5, 25.5] }, yaxis: { tickformat: ".0%" }, legend: { orientation: "h", y: -0.3 }, showlegend: Object.keys(counts).length > 1 });
   const rv = inf.real_view || {};   // fmre: in which currency a real figure is computed, or why none is
   host.insertAdjacentHTML("beforeend", `${rv.status === "not_computable" ? `<p class="bad">No real view: ${esc(rv.reason || "not computable")}.</p>` : ""}${hardCurrencyNote(deflator, rv)}<p class="note">From fmre /v1/inflation${inf.source ? ` (${esc(typeof inf.source === "string" ? inf.source : JSON.stringify(inf.source))})` : ""}: the inflation measured in each state over the following 12 months. The real profiles are fmre's, nominal minus ln(1 + inflation) per state; the cockpit converts nothing.</p>`);
@@ -387,7 +482,7 @@ const INFLATION_DURATION_MAX = 30;   // years, fmre's bound on a duration
 const INFLATION_BETA_HISTORY = "/fmre/v1/inflation-beta/{id}/history";   // one instrument's override versions
 const inForce = o => o && ((o.beta !== null && o.beta !== undefined) || (o.duration !== null && o.duration !== undefined)) ? o : null;
 const curatorName = idv => ((C.curators || []).find(c => c.id === idv) || {}).display_name || idv || "";
-const betaTxt = v => v === null || v === undefined ? `<span class="muted">n/a</span>` : fmt(v, 2);
+const betaTxt = v => v === null || v === undefined ? `<span class="muted">n/a</span>` : N.beta(v);
 const betaSource = s => s === "override" ? `<span class="pill basis-real" title="the CIO's override">override</span>` : `<span class="pill" title="fmre's house beta">${esc(s || "house")}</span>`;
 function passThroughRows(rs) {   // provenance.inflation_pass_through of a scenario ReturnSet, as fmre states it
   const pt = rs && rs.provenance && rs.provenance.inflation_pass_through;
@@ -403,10 +498,10 @@ function passThroughView(rs, nameOf = id => id) {   // which beta each instrumen
   if (!rows) return "";
   const pt = rs.provenance.inflation_pass_through, n = rows.filter(r => r.source === "override").length;
   const num = v => v !== null && v !== undefined;
-  return `<details style="margin-top:6px"><summary class="ink2" style="cursor:pointer;font-size:12.5px">Inflation pass-through used by fmre: ${rows.length} instruments, ${n ? `<b>${n} on the CIO's override</b>` : "all on the house beta"}${pt.policy || pt.scenario ? ` (scenario ${esc(pt.policy || "")} ${idChip(pt.scenario)}${num(pt.inflation_final_12m) ? `, inflation ${pct(pt.inflation_final_12m)} a year` : ""})` : ""}</summary>
+  return `<details style="margin-top:6px"><summary class="ink2" style="cursor:pointer;font-size:12.5px">Inflation pass-through used by fmre: ${rows.length} instruments, ${n ? `<b>${n} on the CIO's override</b>` : "all on the house beta"}${pt.policy || pt.scenario ? ` (scenario ${esc(pt.policy || "")} ${idChip(pt.scenario)}${num(pt.inflation_final_12m) ? `, inflation ${N.rate(pt.inflation_final_12m)} a year` : ""})` : ""}</summary>
     <div class="scroll"><table style="max-width:720px;margin-top:4px"><thead><tr><th class="l">Instrument</th><th class="l">Type</th><th>Beta used</th><th class="l">Source</th><th>Duration</th><th class="l">Deflator</th></tr></thead><tbody>${
     rows.map(r => `<tr><td class="l">${esc(r.name || nameOf(r.id))} ${idChip(r.id)}</td><td class="l ink2">${esc(label(r.type || ""))}</td><td>${betaTxt(r.beta)}</td>
-      <td class="l">${betaSource(r.source)}${num(r.version) ? ` <span class="muted">v${esc(r.version)}</span>` : ""}</td><td>${num(r.duration) ? `${fmt(r.duration, 2)} <span class="muted">${esc(r.durationSource || "")}</span>` : ""}</td><td class="l ink2">${esc(r.ccy || "")}</td></tr>`).join("")}</tbody></table></div>
+      <td class="l">${betaSource(r.source)}${num(r.version) ? ` <span class="muted">v${esc(r.version)}</span>` : ""}</td><td>${num(r.duration) ? `${N.ratio(r.duration)} <span class="muted">${esc(r.durationSource || "")}</span>` : ""}</td><td class="l ink2">${esc(r.ccy || "")}</td></tr>`).join("")}</tbody></table></div>
     <p class="note">From the ReturnSet's provenance.inflation_pass_through${pt.calibration_version ? ` (house table ${esc(pt.calibration_version)})` : ""}: under the scenario fmre sets real = historical real + (beta - 1) · ln(1 + scenario inflation), and a nominal bond adds the price change of its duration. Role profiles take the blended beta and duration of their blocks; block profiles carry no pass-through.</p></details>`;
 }
 async function inflationBetaPanel(host) {
@@ -420,9 +515,9 @@ async function inflationBetaPanel(host) {
     host.innerHTML = `<div class="scroll" style="max-height:460px;overflow-y:auto"><table id="ibTable"><thead><tr><th class="l">Instrument</th><th class="l">Type</th><th>House beta</th><th>Override</th><th class="l">Reason, set by</th><th>Effective beta</th><th>Duration</th><th></th></tr></thead><tbody>${
       list.map(r => { const o = ov(r), last = r.override;
         return `<tr data-id="${esc(r.instrument_id)}"${r.instrument_id === openId ? ` class="sel"` : ""}><td class="l">${esc(r.name)} ${idChip(r.instrument_id)}</td><td class="l ink2">${esc(r.type_label || label(r.type || ""))}</td><td>${betaTxt(r.house_beta)}</td>
-          <td>${o ? `<b>${o.beta === null || o.beta === undefined ? `<span class="muted">house</span>` : betaTxt(o.beta)}</b>${o.duration !== null && o.duration !== undefined ? `<div class="muted" style="font-size:11px">duration ${fmt(o.duration, 2)}</div>` : ""}` : `<span class="muted">${last ? "reverted" : "none"}</span>`}</td>
+          <td>${o ? `<b>${o.beta === null || o.beta === undefined ? `<span class="muted">house</span>` : betaTxt(o.beta)}</b>${o.duration !== null && o.duration !== undefined ? `<div class="muted" style="font-size:11px">duration ${N.ratio(o.duration)}</div>` : ""}` : `<span class="muted">${last ? "reverted" : "none"}</span>`}</td>
           <td class="l" style="max-width:280px;font-size:12px">${last ? `${esc(last.reason)}<div class="muted" style="font-size:11px">${esc(curatorName(last.set_by))}, ${esc(when(last.set_at))}${last.version !== undefined && last.version !== null ? `, v${esc(last.version)}` : ""}</div>` : ""}</td>
-          <td>${betaTxt(r.effective_beta ?? r.beta)} ${betaSource(r.source || (o && o.beta !== null && o.beta !== undefined ? "override" : "house"))}</td><td>${r.duration !== null && r.duration !== undefined ? fmt(r.duration, 2) : ""}</td>
+          <td>${betaTxt(r.effective_beta ?? r.beta)} ${betaSource(r.source || (o && o.beta !== null && o.beta !== undefined ? "override" : "house"))}</td><td>${r.duration !== null && r.duration !== undefined ? N.ratio(r.duration) : ""}</td>
           <td class="l noprint"><button type="button" class="linkish" data-ib="${esc(r.instrument_id)}">${o ? "change or revert" : "override"}</button></td></tr>`; }).join("")}</tbody></table></div>
       <div id="ibForm" class="noprint"></div><div id="ibHist"></div>`;
     host.querySelectorAll("[data-ib]").forEach(b => b.onclick = () => form(list.find(r => r.instrument_id === b.dataset.ib)));
@@ -446,7 +541,7 @@ async function inflationBetaPanel(host) {
       if (!reason) { $("ibReason").focus(); toast("Give the reason: fmre keeps it with the version."); return; }
       try {
         await put(r.instrument_id, { ...data, reason, set_by: actingCurator() });
-        toast(data.beta === null ? `Reverted <b>${esc(r.name)}</b> to the house beta.` : `Override for <b>${esc(r.name)}</b> set to ${fmt(data.beta, 2)}.`);
+        toast(data.beta === null ? `Reverted <b>${esc(r.name)}</b> to the house beta.` : `Override for <b>${esc(r.name)}</b> set to ${N.beta(data.beta)}.`);
         await draw(r.instrument_id, r.instrument_id);
       } catch (e) { toast(`<span class="bad">Not saved:</span> ${esc(e.message)}`, 8000); }
     };
@@ -469,15 +564,15 @@ async function inflationBetaPanel(host) {
       catch (e) {   // fmre's list carries the version in force only; the earlier versions need its history endpoint
         const o = r.override;
         box.innerHTML = `<h3 class="chart-t">History: ${esc(r.name)}</h3><p class="warn">fmre serves the version in force only, not the earlier ones (${esc(e.message)}).</p>${o ? `<div class="scroll"><table style="max-width:820px"><thead><tr><th>Version</th><th class="l">Set at</th><th>Beta</th><th>Duration</th><th class="l">Reason</th><th class="l">Set by</th></tr></thead><tbody>
-          <tr><td>${o.version ?? ""}</td><td class="l">${esc(when(o.set_at))}</td><td>${o.beta === null || o.beta === undefined ? `<span class="muted">house (reverted)</span>` : fmt(o.beta, 2)}</td><td>${o.duration !== null && o.duration !== undefined ? fmt(o.duration, 2) : `<span class="muted">house</span>`}</td><td class="l">${esc(o.reason)}</td><td class="l">${esc(curatorName(o.set_by))}</td></tr></tbody></table></div>` : `<p class="muted">No override ever set.</p>`}`;
+          <tr><td>${o.version ?? ""}</td><td class="l">${esc(when(o.set_at))}</td><td>${o.beta === null || o.beta === undefined ? `<span class="muted">house (reverted)</span>` : N.beta(o.beta)}</td><td>${o.duration !== null && o.duration !== undefined ? N.ratio(o.duration) : `<span class="muted">house</span>`}</td><td class="l">${esc(o.reason)}</td><td class="l">${esc(curatorName(o.set_by))}</td></tr></tbody></table></div>` : `<p class="muted">No override ever set.</p>`}`;
         return;
       }
     }
     const order = (a, b) => (b.version ?? 0) - (a.version ?? 0) || String(b.set_at || "").localeCompare(String(a.set_at || ""));
     box.innerHTML = `<h3 class="chart-t">History: ${esc(r.name)}, ${rows.length} version${rows.length === 1 ? "" : "s"}, newest first</h3>
       <div class="scroll"><table style="max-width:820px"><thead><tr><th>Version</th><th class="l">Set at</th><th>Beta</th><th>Duration</th><th class="l">Reason</th><th class="l">Set by</th></tr></thead><tbody>${
-      [...rows].sort(order).map(v => `<tr><td>${v.version ?? ""}</td><td class="l">${esc(when(v.set_at))}</td><td>${v.beta === null || v.beta === undefined ? `<span class="muted">house (reverted)</span>` : fmt(v.beta, 2)}</td>
-        <td>${v.duration !== null && v.duration !== undefined ? fmt(v.duration, 2) : `<span class="muted">house</span>`}</td><td class="l">${esc(v.reason)}</td><td class="l">${esc(curatorName(v.set_by))}</td></tr>`).join("") || `<tr><td class="l muted" colspan="6">no override ever set</td></tr>`}</tbody></table></div>`;
+      [...rows].sort(order).map(v => `<tr><td>${v.version ?? ""}</td><td class="l">${esc(when(v.set_at))}</td><td>${v.beta === null || v.beta === undefined ? `<span class="muted">house (reverted)</span>` : N.beta(v.beta)}</td>
+        <td>${v.duration !== null && v.duration !== undefined ? N.ratio(v.duration) : `<span class="muted">house</span>`}</td><td class="l">${esc(v.reason)}</td><td class="l">${esc(curatorName(v.set_by))}</td></tr>`).join("") || `<tr><td class="l muted" colspan="6">no override ever set</td></tr>`}</tbody></table></div>`;
   };
   await draw();
 }
@@ -546,7 +641,7 @@ page("cio/overview", "cio", "Overview", async () => {
     tile(a.years[i], "latest HoNI year", `${a.countries.length} countries · ${esc(a.provenance.snapshot_id)}`);
     const order = a.countries.map((c, j) => ({ c, v: a.national[i][j] })).filter(p => p.v !== null).sort((p, q) => p.v - q.v);
     plot(chartIn(rank, 34 + order.length * 26), [{ type: "bar", orientation: "h", x: order.map(p => p.v), y: order.map(p => p.c.name),
-      marker: { color: css("--s1"), line: { color: css("--surface"), width: 2 } }, text: order.map(p => fmt(p.v)), textposition: "outside",
+      marker: { color: css("--s1"), line: { color: css("--surface"), width: 2 } }, text: order.map(p => N.level(p.v)), textposition: "outside",
       textfont: { color: css("--ink-2") }, cliponaxis: false, hovertemplate: "%{y}: %{x:.2f}<extra></extra>" }],
       { showlegend: false, margin: { l: 120, r: 40, t: 8, b: 36 }, xaxis: { range: [0, 5.4], title: { text: `HoNI ${a.years[i]}` } }, bargap: 0.25 });
   } catch (e) { rank.innerHTML = `<p class="bad">${esc(e.message)}</p>`; }
@@ -608,11 +703,6 @@ async function trendsFor(h, window, year) {
 }
 const trendOf = (tr, key) => tr && tr.series.find(s => s.key === key);
 const colOf = (tr, code) => tr ? tr.countries.findIndex(c => c.code === code) : -1;
-function signed(v, d = 2) {
-  if (v === null || v === undefined) return "n/a";
-  const t = Number(v).toFixed(d);
-  return Number(t) === 0 ? Number(0).toFixed(d) : (v > 0 ? "+" : "") + t;  // no "-0.0"
-}
 // Instruments whose register exposure names this economy (fmre /v1/instruments countries).
 const exposedTo = (f, code) => f ? f.register.filter(r => (r.countries || []).includes(code)) : [];
 
@@ -662,9 +752,9 @@ function drawBoundsTable(host, h, i, sel, tr, f) {
     order.map((p, k) => { const b = bound[p.c.code] || {};
       return `<tr data-code="${p.c.code}" data-name="${esc(p.c.name)}" class="${p.c.code === sel ? "sel" : ""}"><td class="l muted">${p.v === null ? "" : k + 1}</td>
         <td class="l"><a href="#/cio/country" onclick="store.set('country','${p.c.code}')">${esc(p.c.name)}</a> <span class="muted">${p.c.code}</span></td>
-        <td>${scoreBar(p.v)}</td><td class="muted">${prior ? fmt(a.national[i - 1][p.j]) : ""}</td>
-        <td>${nat ? signed(nat.change[colOf(tr, p.c.code)]) : ""}</td><td>${nat ? signed(nat.level_z[colOf(tr, p.c.code)], 1) : ""}</td>
-        ${SECTORS.map(([s]) => `<td>${fmt(a.sectors[s][i][p.j])}</td>`).join("")}<td>${fmt(a.capital_saturation[i][p.j])}</td>
+        <td>${scoreBar(p.v)}</td><td class="muted">${prior ? N.level(a.national[i - 1][p.j]) : ""}</td>
+        <td>${nat ? N.signed(nat.change[colOf(tr, p.c.code)]) : ""}</td><td>${nat ? N.signed(nat.level_z[colOf(tr, p.c.code)], 1) : ""}</td>
+        ${SECTORS.map(([s]) => `<td>${N.level(a.sectors[s][i][p.j])}</td>`).join("")}<td>${N.ratio(a.capital_saturation[i][p.j])}</td>
         <td>${f ? `<a href="#/cio/instruments" onclick="store.set('iCountry','${p.c.code}')">${exposedTo(f, p.c.code).length}</a>` : ""}</td>
         <td class="l" style="min-width:220px;max-width:300px">${notes[p.c.code] ? notes[p.c.code].map(n => `<div class="warn ink2" style="font-size:11.5px">${esc(n)}</div>`).join("") : `<span class="muted">complete</span>`}</td>
         <td><input type="number" min="0" max="100" step="0.5" data-f="min_pct" value="${val(b.min_pct)}"></td>
@@ -719,9 +809,9 @@ page("cio/country", "cio", "Country dossier", async () => {
     const jj = colOf(tr, code);
     const tiles = document.createElement("div"); tiles.className = "tiles"; body.append(tiles);
     const prev = i > 0 ? a.years[i - 1] : null;
-    const tile = (k, series, key, d = 2) => { const t = trendOf(tr, key);
-      tiles.insertAdjacentHTML("beforeend", `<div class="tile"><div class="v">${fmt(series[i], d)}</div><div class="k">${k}, ${year}</div><div class="d">${prev ? `${prev}: ${fmt(series[i - 1], d)}` : ""}${t ? ` · vs ${tr.base_year}: ${signed(t.change[jj])} · z ${signed(t.level_z[jj], 1)}` : ""}</div></div>`); };
-    tile("HoNI", c.national, "national"); SECTORS.forEach(([s, l]) => tile(l, c.sectors[s], s)); tile("Capital saturation", c.capital_saturation, "capital_saturation");
+    const tile = (k, series, key, f = N.level) => { const t = trendOf(tr, key);
+      tiles.insertAdjacentHTML("beforeend", `<div class="tile"><div class="v">${f(series[i])}</div><div class="k">${k}, ${year}</div><div class="d">${prev ? `${prev}: ${f(series[i - 1])}` : ""}${t ? ` · vs ${tr.base_year}: ${N.signed(t.change[jj])} · z ${N.signed(t.level_z[jj], 1)}` : ""}</div></div>`); };
+    tile("HoNI", c.national, "national"); SECTORS.forEach(([s, l]) => tile(l, c.sectors[s], s)); tile("Capital saturation", c.capital_saturation, "capital_saturation", N.ratio);
 
     const g = document.createElement("div"); g.className = "grid2"; body.append(g); card.host = g;
     // Both cards exist before either chart is drawn, so each is sized to its half of the grid.
@@ -740,9 +830,10 @@ page("cio/country", "cio", "Country dossier", async () => {
       tr ? `Computed by honi (/trends, window ${tr.first_year} to ${tr.year}, base ${tr.base_year}; a slope or z-score needs ${tr.min_obs} years with a value). Level z: ${esc(tr.definitions.level_z)}.` : "");
     if (!tr) trc.innerHTML = `<p class="bad">honi did not answer /trends.</p>`;
     else {
-      const rowOf = s => `<tr><td class="l">${esc(s.label)}</td><td class="l ink2">${esc(s.sector || "")}</td><td>${s.basis === "raw" ? (s.latest[jj] === null ? "n/a" : Number(s.latest[jj]).toPrecision(4)) : fmt(s.latest[jj])}</td>
-        <td class="muted">${s.basis === "raw" ? (s.base[jj] === null ? "n/a" : Number(s.base[jj]).toPrecision(4)) : fmt(s.base[jj])}</td><td>${s.basis === "raw" ? (s.change[jj] === null ? "n/a" : Number(s.change[jj]).toPrecision(3)) : signed(s.change[jj])}</td>
-        <td>${s.basis === "raw" ? (s.slope[jj] === null ? "n/a" : Number(s.slope[jj]).toPrecision(3)) : signed(s.slope[jj], 3)}</td><td>${signed(s.level_z[jj], 1)}</td><td class="muted">${s.n[jj]}</td></tr>`;
+      const val = s => s.basis === "raw" ? N.auto : s.basis === "saturation" ? N.ratio : N.level;   // honi's basis: score, saturation, raw
+      const rowOf = s => `<tr><td class="l">${esc(s.label)}</td><td class="l ink2">${esc(s.sector || "")}</td><td>${val(s)(s.latest[jj])}</td>
+        <td class="muted">${val(s)(s.base[jj])}</td><td>${s.basis === "raw" ? N.auto(s.change[jj]) : N.signed(s.change[jj])}</td>
+        <td>${s.basis === "raw" ? N.auto(s.slope[jj]) : N.signed(s.slope[jj], 3)}</td><td>${N.signed(s.level_z[jj], 1)}</td><td class="muted">${s.n[jj]}</td></tr>`;
       trc.innerHTML = `<label class="inline noprint" style="margin-bottom:6px"><input type="checkbox" id="cRaw" ${store.get("raw") === "1" ? "checked" : ""}> show the raw index values too</label>
         <div class="scroll"><table><thead><tr><th class="l">Series</th><th class="l">Sector</th><th>${tr.year}</th><th>${tr.base_year}</th><th>Change</th><th>Slope / yr</th><th>Level z</th><th>n</th></tr></thead>
         <tbody>${tr.series.filter(s => s.basis !== "raw" || store.get("raw") === "1").map(rowOf).join("")}</tbody></table></div>`;
@@ -758,12 +849,12 @@ page("cio/country", "cio", "Country dossier", async () => {
         list.map(r => { const p = f.perf[r.instrument_id] || {}, m = p.performance || {};
           return `<tr><td class="l"><a href="#/cio/instruments" onclick="store.set('instrument','${r.instrument_id}')">${esc(r.name)}</a></td><td class="l">${esc(r.role)}</td><td class="l ink2">${esc(r.asset_class)}</td>
             <td class="l">${r.countries.length === 1 ? "this economy only" : `with ${esc(r.countries.filter(x => x !== code).join(", "))}`}</td><td class="l"><span class="pill">${esc(p.coverage || "n/a")}</span></td>
-            <td>${m.months ?? ""}</td><td>${m.months ? pct(m.annualised_log_return) : ""}</td></tr>`; }).join("")}</tbody></table></div>` : `<p class="muted">No instrument in the register is exposed to ${esc(c.country.name)}.</p>`;
+            <td>${m.months ?? ""}</td><td>${m.months ? N.rate(m.annualised_log_return) : ""}</td></tr>`; }).join("")}</tbody></table></div>` : `<p class="muted">No instrument in the register is exposed to ${esc(c.country.name)}.</p>`;
     }
 
     const heat = card("Index scores", "Where exactly is the country strong or weak, and since when?", "1 (worst) to 5 (best). A blank cell is missing data: excluded and the sector re-weighted, never scored as 1.");
     plot(chartIn(heat, 500), [{ type: "heatmap", x: c.years, y: c.indices.map(x => label(x.index)), z: c.indices.map(x => x.score), zmin: 1, zmax: 5,
-      colorscale: seqScale(), xgap: 2, ygap: 2, customdata: c.indices.map(x => x.raw), hovertemplate: "%{y}, %{x}<br>score %{z:.2f}<br>raw %{customdata:.4g}<extra></extra>",
+      colorscale: seqScale(), xgap: 2, ygap: 2, customdata: c.indices.map(x => x.raw.map(N.auto)), hovertemplate: "%{y}, %{x}<br>score %{z:.2f}<br>raw %{customdata}<extra></extra>",
       colorbar: { title: { text: "score" }, thickness: 12 } }], { showlegend: false, margin: { l: 190, r: 16, t: 8, b: 40 }, yaxis: { autorange: "reversed", automargin: true } });
 
     const rows = ps.rows.filter(r => r.basis === "score" && r.year === year);
@@ -772,8 +863,8 @@ page("cio/country", "cio", "Country dossier", async () => {
       "Peer quartiles are published by honi (/peer-stats, linear percentiles). Raw values are in the index's own unit (see Calibration in the export).");
     tbl.innerHTML = `<div class="scroll"><table><thead><tr><th class="l">Index</th><th class="l">Sector</th><th>Score</th><th>${prev ?? ""}</th><th>Raw</th><th>Peer min</th><th>P25</th><th>Median</th><th>P75</th><th>Peer max</th></tr></thead><tbody>${
       c.indices.map(x => { const p = byIdx[x.index] || {};
-        return `<tr><td class="l">${label(x.index)}</td><td class="l ink2">${x.sector}</td><td>${scoreBar(x.score[i])}</td><td class="muted">${prev ? fmt(x.score[i - 1]) : ""}</td><td>${x.raw[i] === null ? "n/a" : Number(x.raw[i]).toPrecision(4)}</td>
-          <td class="muted">${fmt(p.min)}</td><td>${fmt(p.p25)}</td><td>${fmt(p.median)}</td><td>${fmt(p.p75)}</td><td class="muted">${fmt(p.max)}</td></tr>`; }).join("")}</tbody></table></div>`;
+        return `<tr><td class="l">${label(x.index)}</td><td class="l ink2">${x.sector}</td><td>${scoreBar(x.score[i])}</td><td class="muted">${prev ? N.level(x.score[i - 1]) : ""}</td><td>${N.auto(x.raw[i])}</td>
+          <td class="muted">${N.level(p.min)}</td><td>${N.level(p.p25)}</td><td>${N.level(p.median)}</td><td>${N.level(p.p75)}</td><td class="muted">${N.level(p.max)}</td></tr>`; }).join("")}</tbody></table></div>`;
 
     const box = card(`Spread across the peer set, ${year}`, `How does ${esc(c.country.name)} compare with the spread on each index?`, "Box: quartiles across countries; whiskers: minimum and maximum. Dot: this country.");
     const shown = rows.filter(r => r.n > 0), names = shown.map(r => label(r.index));
@@ -782,7 +873,7 @@ page("cio/country", "cio", "Country dossier", async () => {
         lowerfence: shown.map(r => r.min), upperfence: shown.map(r => r.max), fillcolor: css("--band"), line: { color: css("--muted"), width: 1 }, hoverinfo: "x" },
       { type: "scatter", mode: "markers", name: c.country.name, y: names, x: shown.map(r => (c.indices.find(x => x.index === r.index) || { score: [] }).score[i]),
         marker: { color: css("--s1"), size: 10, line: { color: css("--surface"), width: 2 } }, hovertemplate: "%{y}: %{x:.2f}<extra></extra>" }],
-      { xaxis: { range: [0.8, 5.2], title: { text: "Score" } }, yaxis: { autorange: "reversed", automargin: true }, margin: { l: 190, r: 16, t: 8, b: 48 } });
+      { xaxis: { range: [0.8, 5.2], hoverformat: ".2f", title: { text: "Score" } }, yaxis: { autorange: "reversed", automargin: true }, margin: { l: 190, r: 16, t: 8, b: 48 } });
     card.host = null;
   };
   $("cSel").onchange = () => draw().catch(e => problem(e));
@@ -827,7 +918,7 @@ page("cio/instruments", "cio", "Instrument selection", async () => {
   const nat = trendOf(htr, "national");
   const nameOfCode = code => ((hn && hn.artefact.countries.find(c => c.code === code)) || { name: code }).name;
   const chip = code => { const j = colOf(htr, code);
-    return `<a class="pill" style="text-decoration:none;color:inherit" href="#/cio/country" onclick="store.set('country','${code}')" title="${esc(nameOfCode(code))}: HoNI ${htr ? htr.year : ""}${nat && j >= 0 ? `, ${signed(nat.change[j])} vs ${htr.base_year}` : ""}">${code} ${nat && j >= 0 ? `${fmt(nat.latest[j])} <span class="muted">${signed(nat.change[j], 1)}</span>` : ""}</a>`; };
+    return `<a class="pill" style="text-decoration:none;color:inherit" href="#/cio/country" onclick="store.set('country','${code}')" title="${esc(nameOfCode(code))}: HoNI ${htr ? htr.year : ""}${nat && j >= 0 ? `, ${N.signed(nat.change[j])} vs ${htr.base_year}` : ""}">${code} ${nat && j >= 0 ? `${N.level(nat.latest[j])} <span class="muted">${N.signed(nat.change[j], 1)}</span>` : ""}</a>`; };
   const exposure = r => (r.countries || []).length ? r.countries.map(chip).join(" ") : `<span class="muted">no single economy</span>`;
   const saved = latestDecision("instrument_selection");
   const picks = Object.fromEntries((saved ? saved.rows : []).map(r => [r.instrument_id, r]));
@@ -864,7 +955,7 @@ page("cio/instruments", "cio", "Instrument selection", async () => {
   const phaseTicks = { tickvals: [3, 8, 13, 18, 23], ticktext: f.axis.phase_names };
   const profileTrace = (p, name, color, dash, width = 2) => ({ type: "scatter", mode: "lines+markers", name, x: states, y: p.states.map(s => s.value),
     line: { color, width, dash }, marker: { color, size: 7, symbol: p.states.map(s => s.method.startsWith("data-driven") ? "circle" : "circle-open") },
-    customdata: p.states.map(s => [s.method, s.n_obs]), hovertemplate: `${esc(name)}, state %{x}: %{y:.2%}<br>%{customdata[0]}, n=%{customdata[1]}<extra></extra>` });
+    customdata: p.states.map(s => [s.method, s.n_obs]), hovertemplate: `${esc(name)}, state %{x}: %{y:.1%}<br>%{customdata[0]}, n=%{customdata[1]}<extra></extra>` });
   // The four curves converge towards boom, so end labels would collide: identity is carried by the
   // legend, the dash pattern and the hover instead (secondary encoding for the fourth slot).
   plot(chartIn(roles, 400), ROLES.filter(([r]) => view.role[r]).map(([r, v, dash]) => profileTrace(view.role[r], r, css(v), dash)),
@@ -889,7 +980,7 @@ page("cio/instruments", "cio", "Instrument selection", async () => {
     detail.insertAdjacentHTML("beforeend", `<div class="scroll" style="margin-top:6px"><table><tbody>${[
       ["Profile coverage", `${esc(perf.coverage || (p && p.coverage) || "n/a")}${perf.borrowed_from ? `, borrowed from ${esc(perf.borrowed_from)}` : ""}`],
       ["Proxy", `${esc(perf.proxy_symbol || "none")}${perf.proxy_grade ? ` (${esc(perf.proxy_grade)})` : ""}${perf.proxy_note ? `: <span class="ink2">${esc(perf.proxy_note)}</span>` : ""}`],
-      ["Track record", m.months ? `${m.months} months, ${esc(m.first_period)} to ${esc(m.last_period)} · ann. ${pct(m.annualised_log_return)} · vol ${pct(m.annualised_volatility)} · max drawdown ${pct(m.max_drawdown)}` : "no history"],
+      ["Track record", m.months ? `${m.months} months, ${esc(m.first_period)} to ${esc(m.last_period)} · ann. ${N.rate(m.annualised_log_return)} · vol ${N.rate(m.annualised_volatility)} · max drawdown ${N.rate(m.max_drawdown)}` : "no history"],
       ["HoNI exposure", `${exposure(r)}${htr && (r.countries || []).length ? ` <span class="muted">HoNI ${htr.year}, change vs ${htr.base_year}</span>` : ""}`],
       ["Register", `${esc(r.asset_class)} · ${esc(r.region_scope)} · ${esc(r.currency)} · ${esc(r.liquidity || "n/a")} · <code>${esc(r.ticker)}</code>`]].map(([k, v]) => `<tr><td class="l ink2" style="width:120px">${k}</td><td class="l">${v}</td></tr>`).join("")}</tbody></table></div>`);
     document.querySelectorAll("#uni tbody tr").forEach(tr => tr.classList.toggle("sel", tr.dataset.id === id));
@@ -916,8 +1007,8 @@ page("cio/instruments", "cio", "Instrument selection", async () => {
         const k = keep[r.instrument_id], d = k ? k.d : (picks[r.instrument_id] || {}).decision || "", n = k ? k.n : (picks[r.instrument_id] || {}).note || "";
         return `<tr data-id="${r.instrument_id}" style="cursor:pointer"><td class="l"><select data-id="${r.instrument_id}">${["", "include", "watch", "exclude"].map(o => `<option value="${o}" ${o === d ? "selected" : ""}>${o || "·"}</option>`).join("")}</select></td>
           <td class="l" style="min-width:170px">${esc(r.name)}<div class="muted" style="font-size:11px">${esc(r.ticker)}</div></td><td class="l">${esc(r.role)}</td><td class="l ink2">${esc(r.asset_class)}</td><td class="l ink2">${esc(r.region_scope)}</td><td class="l" style="min-width:290px;max-width:330px;font-size:11.5px;line-height:1.9">${exposure(r)}</td><td class="l ink2">${esc(r.currency)}</td>
-          <td class="l"><span class="pill">${esc(p.coverage || "n/a")}</span></td><td>${m.months ?? ""}</td><td>${m.months ? pct(m.annualised_log_return) : ""}</td><td>${m.months ? pct(m.annualised_volatility) : ""}</td>
-          <td>${m.months ? fmt(m.return_over_volatility) : ""}</td><td>${m.months ? pct(m.max_drawdown) : ""}</td><td>${c.crisis_mean !== undefined && c.crisis_mean !== null ? pct(c.crisis_mean) : ""}</td><td>${c.equity_beta !== undefined && c.equity_beta !== null ? fmt(c.equity_beta) : ""}</td>
+          <td class="l"><span class="pill">${esc(p.coverage || "n/a")}</span></td><td>${m.months ?? ""}</td><td>${m.months ? N.rate(m.annualised_log_return) : ""}</td><td>${m.months ? N.rate(m.annualised_volatility) : ""}</td>
+          <td>${m.months ? N.ratio(m.return_over_volatility) : ""}</td><td>${m.months ? N.rate(m.max_drawdown) : ""}</td><td>${c.crisis_mean !== undefined && c.crisis_mean !== null ? N.rate(c.crisis_mean) : ""}</td><td>${c.equity_beta !== undefined && c.equity_beta !== null ? N.beta(c.equity_beta) : ""}</td>
           <td class="l" style="font-size:11.5px">${flags(r)}</td><td class="l"><input style="width:130px;text-align:left" value="${esc(n)}"></td></tr>`; }).join("")}</tbody></table></div>
       <div class="row noprint" style="margin-top:12px"><label>Title <input id="sTitle" size="34" value="Instrument shortlist ${new Date().toISOString().slice(0, 10)}"></label>
         <label>Author <input id="sAuthor" size="14" value="${esc(store.get("author") || "CIO")}"></label>
@@ -1024,7 +1115,7 @@ async function cycleCharts() {
   plot(chartIn(l, 90 + 26 * a.economies.length), [
     { type: "heatmap", x: bins, y: a.economies.map(e => e.name), z: a.economies.map(e => last(e)), colorscale: seqScale(), xgap: 1, ygap: 2,
       colorbar: { title: { text: "weight", font: { color: css("--muted") } }, tickfont: { color: css("--muted") }, thickness: 12 },
-      hovertemplate: "%{y} · bin %{x}: %{z:.3f}<extra></extra>", showlegend: false },
+      customdata: a.economies.map(e => (last(e) || []).map(N.weight)), hovertemplate: "%{y} · bin %{x}: %{customdata}<extra></extra>", showlegend: false },
     { type: "scatter", mode: "markers", x: a.economies.map(e => e.layer_mean_bin[now]), y: a.economies.map(e => e.name),
       marker: { size: 9, color: css("--s2"), line: { width: 2, color: css("--surface") } }, name: "mean bin",
       hovertemplate: "%{y}: mean bin %{x:.1f}<extra></extra>" },
@@ -1353,9 +1444,9 @@ page("curator/client", "curator", "Client", async () => {
       ["Joined", m => esc(m.joined_on || "")], ["Left", m => esc(m.left_on || "")]])}`).join("");
   pl.innerHTML = `<h3 class="chart-t">Household</h3>${hh || '<p class="muted">No household stated.</p>'}
     <h3 class="chart-t">Positions</h3>${table(d.positions, [["Label", p => `${esc(p.label)}${p.active ? "" : ' <span class="muted">(inactive)</span>'}${p.description ? `<div class="muted" style="font-size:11.5px">${esc(p.description)}</div>` : ""}`],
-      ["Role", p => esc(p.role)], ["Capital", p => esc(p.capital_type)], ["Magnitude", p => p.magnitude === null ? '<span class="muted">n/a</span>' : Number(p.magnitude).toLocaleString("de-CH"), false],
+      ["Role", p => esc(p.role)], ["Capital", p => esc(p.capital_type)], ["Magnitude", p => p.magnitude === null ? '<span class="muted">n/a</span>' : N.stated(p.magnitude, ""), false],
       ["Unit", p => esc(p.magnitude_unit || "")], ["Stock", p => esc(p.stock_kind || "")], ["Liquidity", p => esc(p.liquidity || "")]], "No positions.")}
-    <h3 class="chart-t">Goals</h3>${table(d.goals, [["Goal", g => `${esc(g.name)}${g.active ? "" : ' <span class="muted">(inactive)</span>'}`], ["Target", g => g.target_amount === null ? '<span class="muted">n/a</span>' : Number(g.target_amount).toLocaleString("de-CH"), false],
+    <h3 class="chart-t">Goals</h3>${table(d.goals, [["Goal", g => `${esc(g.name)}${g.active ? "" : ' <span class="muted">(inactive)</span>'}`], ["Target", g => g.target_amount === null ? '<span class="muted">n/a</span>' : N.stated(g.target_amount, ""), false],
       ["Date", g => esc(g.target_date || "")], ["Horizon", g => esc(g.horizon || "")], ["Safety", g => esc(g.safety || "")], ["Liquidity need", g => esc(g.liquidity_need || "")],
       ["Volatility tolerance", g => esc(g.volatility_tolerance || "")], ["Template", g => esc(g.template || "")]], "No goals.")}
     <h3 class="chart-t">Facts</h3>${table(d.facts, [["Fact", f => esc(label(f.stated_key))], ["Value", f => `${show(f.stated_value)}${f.data_class === 3 ? ' <span class="pill">K3</span>' : ""}`],
@@ -1453,6 +1544,7 @@ const OW = {
     healthWithheld: "Health withheld (K3): not shown.", unknown: "not known", none: "none", ceiling: "top of scale",
     level: "model level, no currency", band80: "80 of 100 paths", band50: "50 of 100 paths", middle: "middle" } };
 const ow = k => OW[OUTLOOK_LANG][k];
+const NO = displayRounding({ lang: OUTLOOK_LANG, na: "n/a" });   // the formatter in the panel's language (C-35, C-37)
 const lw = t => t && typeof t === "object" && !Array.isArray(t) ? (t[OUTLOOK_LANG] ?? t.en ?? t.de ?? "") : (t ?? "");   // one side of a {de, en} pair
 const HOUSE_ROLE = { gain: { de: "Wertsteigerung", en: "Gain" }, income: { de: "Einkommen", en: "Income" },
   stabilisation: { de: "Stabilisierung", en: "Stabilisation" }, protection: { de: "Absicherung", en: "Protection" } };
@@ -1469,24 +1561,24 @@ const ACTION_NOW = [   // the plan's "this period" figures, in plain units
   ["saving_chf_per_year", { de: "Sparen", en: "Saving" }, "chf_per_year"], ["education_spend_chf_per_year", { de: "Ausgaben für Ausbildung", en: "Spending on education" }, "chf_per_year"],
   ["network_spend_chf_per_year", { de: "Ausgaben für das Netzwerk", en: "Spending on the network" }, "chf_per_year"], ["amortisation_chf_per_year", { de: "Amortisation", en: "Amortisation" }, "chf_per_year"]];
 const CONTROL_WORD = { tau_Y: "working time", tau_E: "learning time", tau_N: "networking time", tau_H: "rest", C: "consumption", m_E: "education spend", m_N: "network spend", p_A: "amortisation" };
-const chfW = v => v === null || v === undefined ? `<span class="muted">n/a</span>` : `CHF ${Math.round(Number(v)).toLocaleString("de-CH")}`;
+const chfW = v => NO.ok(v) ? NO.money(v) : `<span class="muted">n/a</span>`;
 const perYear = OUTLOOK_LANG === "de" ? " pro Jahr" : " a year", perWeek = OUTLOOK_LANG === "de" ? " Std. pro Woche" : " hours a week";
 function figureText(f) {   // one of lbsim's figures, formatted by its unit (the template carries the words around it)
   if (!f || f.value === null || f.value === undefined) return "n/a";
   const v = Number(f.value);
   switch (f.unit) {
-    case "chf": case "chf_per_year": return `CHF ${Math.round(v).toLocaleString("de-CH")}`;
-    case "share": return `${(v * 100).toFixed(0)} %`;
-    case "years": return v.toLocaleString("de-CH", { maximumFractionDigits: 1 });
-    case "hours_per_week": return v.toLocaleString("de-CH", { maximumFractionDigits: 1 });
-    case "count": return Math.round(v).toLocaleString("de-CH");
-    default: return v.toLocaleString("de-CH", { maximumFractionDigits: 2 });
+    case "chf": case "chf_per_year": case "chf_at_horizon": return NO.money(v);
+    case "rate": return NO.rate(v);
+    case "share": return v === 0 ? "0 %" : NO.weight(v);   // in a sentence a nought reads "0 %", not "–"
+    case "years": case "hours_per_week": return NO.whole(v);
+    case "count": return NO.count(v);
+    default: return NO.auto(v);
   }
 }
 const fillTemplate = (tpl, figures) => esc(String(tpl || "")).replace(/\{(\w+)\}/g, (m, k) => figures && figures[k] ? `<b>${esc(figureText(figures[k]))}</b>` : m);
 function unitValue(v, unit) {
   if (v === null || v === undefined) return `<span class="muted">n/a</span>`;
-  return unit === "share" ? `${(Number(v) * 100).toFixed(0)} %` : unit === "hours_per_week" ? `${fmt(v, 1)}${perWeek}` : `${chfW(v)}${perYear}`;
+  return unit === "share" ? NO.weight(v) : unit === "hours_per_week" ? `${NO.whole(v)}${perWeek}` : `${chfW(v)}${perYear}`;
 }
 const hexA = (hex, a) => { const h = String(hex).replace("#", ""); return h.length === 6 ? `rgba(${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)},${a})` : hex; };
 function outlookGoals(o) {   // goal_id -> {kind, date, name}, from the paths (the base Regime lists every goal)
@@ -1510,18 +1602,18 @@ function weightsChart(host, instruments, byRole) {
   const a = chartIn(grid, 200), b = chartIn(grid, Math.max(200, 26 * held.length + 60));
   const bar = { tickformat: ".0%", rangemode: "tozero", title: { text: OUTLOOK_LANG === "de" ? "Gewicht" : "weight" } };
   plot(a, [{ type: "bar", orientation: "h", y: roles.map(roleWord), x: roleVals, marker: { color: [css("--s1"), css("--s3"), css("--s2"), css("--s4")] },
-             text: roleVals.map(v => `${(v * 100).toFixed(0)} %`), textposition: "auto", hovertemplate: "%{y}: %{x:.1%}<extra></extra>" }],
+             text: roleVals.map(NO.weight), textposition: "auto", customdata: roleVals.map(NO.weight), hovertemplate: "%{y}: %{customdata}<extra></extra>" }],
     { showlegend: false, margin: { l: 110, r: 16, t: 8, b: 40 }, xaxis: bar, yaxis: { autorange: "reversed" } });
   plot(b, [{ type: "bar", orientation: "h", y: held.map(i => i.name), x: held.map(i => i.weight), marker: { color: held.map(i => ({ gain: css("--s1"), income: css("--s3"), stabilisation: css("--s2"), protection: css("--s4") })[String(i.role).toLowerCase()] || css("--rest")) },
-             customdata: held.map(i => roleWord(i.role)), text: held.map(i => `${(i.weight * 100).toFixed(1)} %`), textposition: "auto", hovertemplate: "%{y} (%{customdata}): %{x:.1%}<extra></extra>" }],
+             customdata: held.map(i => [roleWord(i.role), NO.weight(i.weight)]), text: held.map(i => NO.weight(i.weight)), textposition: "auto", hovertemplate: "%{y} (%{customdata[0]}): %{customdata[1]}<extra></extra>" }],
     { showlegend: false, margin: { l: 170, r: 16, t: 8, b: 40 }, xaxis: bar });
 }
 // Chart 2: the mandate's target curve and the portfolio's reached curve per state, 1 (crisis) to 25 (boom),
 // in the basis given, with the 0 % line.
 function stateCurveChart(el, target, achieved, basis) {
   const st = Array.from({ length: (target || achieved || []).length }, (_, i) => i + 1);
-  plot(el, [{ x: st, y: target, name: OUTLOOK_LANG === "de" ? "Ziel (Mandatskurve)" : "target (the mandate's curve)", mode: "lines+markers", line: { color: css("--s2"), dash: "dot" } },
-            { x: st, y: achieved, name: OUTLOOK_LANG === "de" ? "erreicht (Portfolio)" : "reached (the portfolio)", mode: "lines+markers", line: { color: css("--s1") } }],
+  plot(el, [{ x: st, y: target, name: OUTLOOK_LANG === "de" ? "Ziel (Mandatskurve)" : "target (the mandate's curve)", mode: "lines+markers", line: { color: css("--s2"), dash: "dot" }, hovertemplate: "%{x}: %{y:.1%}<extra></extra>" },
+            { x: st, y: achieved, name: OUTLOOK_LANG === "de" ? "erreicht (Portfolio)" : "reached (the portfolio)", mode: "lines+markers", line: { color: css("--s1") }, hovertemplate: "%{x}: %{y:.1%}<extra></extra>" }],
     { margin: { l: 56, r: 12, t: 8, b: 44 }, legend: { orientation: "h", y: -0.25 },
       xaxis: { tickvals: [1, 25], ticktext: [ow("crisis"), ow("boom")], range: [0.5, 25.5], title: { text: OUTLOOK_LANG === "de" ? "Zustand der Wirtschaft" : "state of the economy" } },
       yaxis: { tickformat: ".1%", zeroline: true, zerolinecolor: css("--ink-2"), zerolinewidth: 1.5, title: { text: `${basis || "nominal"}, annualised log return` } } });
@@ -1539,21 +1631,23 @@ function fanChart(el, paths, regime, series, basis, goals) {
     line(set.p05, OUTLOOK_LANG === "de" ? "90 von 100 Verläufen" : "90 of 100 paths", { line: { width: 0 }, fill: "tonexty", fillcolor: hexA(c, 0.14) }),
     line(set.p75, "p75", { line: { width: 0 }, showlegend: false }),
     line(set.p25, OUTLOOK_LANG === "de" ? "50 von 100 Verläufen" : "50 of 100 paths", { line: { width: 0 }, fill: "tonexty", fillcolor: hexA(c, 0.28) }),
-    { x: years, y: set.p50, name: OUTLOOK_LANG === "de" ? "Median" : "median", mode: "lines", line: { color: c, width: 2.2 }, hovertemplate: "%{x}: CHF %{y:,.0f}<extra></extra>" }];
+    { x: years, y: set.p50, name: OUTLOOK_LANG === "de" ? "Median" : "median", mode: "lines", line: { color: c, width: 2.2 }, customdata: set.p50.map(v => NO.money(v)), hovertemplate: "%{x}: %{customdata}<extra></extra>" }];
+  let top = Math.max(0, ...set.p95.filter(Number.isFinite));
   for (const g of (regime.goals || []).filter(x => x.measure === series)) {
     const own = g.chance_basis || "nominal", other = basis !== own;
     const val = basis === "real" ? g.target.real_chf : g.target.nominal_chf, gy = Number(String(g.target.date || "").slice(0, 4)) || years[years.length - 1];
+    if (Number.isFinite(val)) top = Math.max(top, val);
     traces.push({ x: [years[0], gy], y: [val, val], mode: "lines+markers", marker: { size: [0, 8], color: css("--s2") },
       name: `${goalWord(g.goal_id, goals)}${other ? ` (${ow("converted")})` : ""}`, line: { color: css("--s2"), dash: other ? "dash" : "solid", width: 1.8 },
-      hovertemplate: `${esc(goalWord(g.goal_id, goals))}: CHF %{y:,.0f}${other ? ` (${ow("converted")})` : ""}<extra></extra>` });
+      customdata: [NO.money(val), NO.money(val)], hovertemplate: `${esc(goalWord(g.goal_id, goals))}: %{customdata}${other ? ` (${ow("converted")})` : ""}<extra></extra>` });
   }
   plot(el, traces, { separators: ".'", margin: { l: 80, r: 16, t: 8, b: 44 }, legend: { orientation: "h", y: -0.2 },
-    xaxis: { title: { text: OUTLOOK_LANG === "de" ? "Jahresende" : "year end" } }, yaxis: { tickformat: ",.0f", tickprefix: "CHF ", rangemode: "tozero", title: { text: basis } } });
+    xaxis: { title: { text: OUTLOOK_LANG === "de" ? "Jahresende" : "year end" } }, yaxis: { ...NO.ticks(0, top, v => NO.money(v)), rangemode: "tozero", title: { text: basis } } });
 }
 function planBlock(plan) {   // the plan's state, as lbsim states it; ready: the figures under the framing heading
   if (!plan) return `<p class="muted">lbsim sent no plan state.</p>`;
   if (plan.state === "calculating") {
-    const n = Math.max(0, Math.floor((plan.elapsed_s || 0) / 60)), h = plan.budget_s ? Math.round(plan.budget_s / 3600 * 10) / 10 : 2;
+    const n = Math.max(0, Math.floor((plan.elapsed_s || 0) / 60)), h = NO.whole(plan.budget_s ? plan.budget_s / 3600 : 2);
     return `<p class="warn">${esc(ow("running")(n, h))}</p>`;
   }
   if (plan.state !== "ready" || !plan.artefact) return `<p class="ink2">${esc(lw(plan.reason) || label(plan.state))}</p>`;
@@ -1566,13 +1660,13 @@ function solverDetails(plan, goals = {}) {   // the curator's view of the plan: 
   if (!a) return "";
   const s = a.solver || {}, ch = a.chance || {}, hz = a.horizon || {}, ex = a.exchange_rate || {};
   const outcome = { solved: "solved: the goal is reached at the confidence required", goal_not_fundable: "the goal cannot be funded at the confidence required", undetermined: "undetermined" }[a.outcome] || label(a.outcome);
-  const rows = [["Outcome", esc(outcome) + (a.reachable ? `; reachable ${chfW(a.reachable.amount_chf)} at ${pct(a.reachable.at_confidence, 0)} confidence` : "")],
-    ["Goal", `${esc(a.goal && goals[a.goal.goal_id] ? goalWord(a.goal.goal_id, goals) : a.goal && GOAL_KIND[a.goal.kind] ? lw(GOAL_KIND[a.goal.kind]) : goalWord(null, {}))}, confidence ${pct(a.goal && a.goal.confidence, 0)}`],
-    ["Chance in sample", pct(ch.in_sample, 1)], ["Chance out of sample", `${pct(ch.out_of_sample, 1)} over ${ch.n_out_of_sample ?? "n/a"} paths (seed ${esc(ch.seed_out ?? "n/a")})`],
+  const rows = [["Outcome", esc(outcome) + (a.reachable ? `; reachable ${chfW(a.reachable.amount_chf)} at ${NO.chance(a.reachable.at_confidence)} confidence` : "")],
+    ["Goal", `${esc(a.goal && goals[a.goal.goal_id] ? goalWord(a.goal.goal_id, goals) : a.goal && GOAL_KIND[a.goal.kind] ? lw(GOAL_KIND[a.goal.kind]) : goalWord(null, {}))}, confidence ${NO.chance(a.goal && a.goal.confidence)}`],
+    ["Chance in sample", NO.chance(ch.in_sample)], ["Chance out of sample", `${NO.chance(ch.out_of_sample)} over ${NO.count(ch.n_out_of_sample)} paths (seed ${esc(ch.seed_out ?? "n/a")})`],
     ["Shortfall (CVaR)", chfW(a.shortfall_cvar_chf)],
-    ["Horizon", `${fmt(hz.solved_years, 0)} of ${fmt(hz.total_years, 0)} years solved${hz.beyond_cap_rule === "zero_return_terminal" ? "; beyond them the wealth needed at zero return is required at the end of the solved years" : hz.beyond_cap_rule ? `; ${esc(label(hz.beyond_cap_rule))}` : ""}`],
-    ["Exchange rate", ex.winner ? `${esc(label(ex.winner))} wins, ratio ${fmt(ex.ratio, 2)}${ex.dominant ? `, dominated by ${esc(CONTROL_WORD[ex.dominant] || label(ex.dominant))}` : ""}` : `<span class="muted">n/a</span>`],
-    ["Solver", `${esc(s.return_status || "n/a")}, ${s.iterations ?? "n/a"} iterations, ${s.wall_clock_s !== undefined && s.wall_clock_s !== null ? `${fmt(s.wall_clock_s / 60, 1)} minutes` : "n/a"}`],
+    ["Horizon", `${NO.whole(hz.solved_years)} of ${NO.whole(hz.total_years)} years solved${hz.beyond_cap_rule === "zero_return_terminal" ? "; beyond them the wealth needed at zero return is required at the end of the solved years" : hz.beyond_cap_rule ? `; ${esc(label(hz.beyond_cap_rule))}` : ""}`],
+    ["Exchange rate", ex.winner ? `${esc(label(ex.winner))} wins, ratio ${NO.ratio(ex.ratio)}${ex.dominant ? `, dominated by ${esc(CONTROL_WORD[ex.dominant] || label(ex.dominant))}` : ""}` : `<span class="muted">n/a</span>`],
+    ["Solver", `${esc(s.return_status || "n/a")}, ${NO.count(s.iterations)} iterations, ${s.wall_clock_s !== undefined && s.wall_clock_s !== null ? `${NO.whole(s.wall_clock_s / 60)} minutes` : "n/a"}`],
     ["Seed", `${esc(s.seed ?? "n/a")}, attempt ${esc(s.seed_attempt ?? "n/a")}; M_opt ${esc(s.M_opt ?? "n/a")}; ${(s.grid || []).length} grid steps`],
     ["Versions", `CasADi ${esc(s.casadi_version || "n/a")}, IPOPT ${esc(s.ipopt_version || "n/a")}`]];
   return `<details style="margin-top:8px"><summary class="muted" style="cursor:pointer">${esc(ow("solver"))}</summary>
@@ -1594,21 +1688,21 @@ function drawOutlook(host, o, view) {   // view: {basis, regime, series}, kept a
     const ep = sec(ow("earning"), `Today's francs a year. "${esc(ow("stated"))}" when the client gave an expectation, "${esc(ow("modelled"))}" when the model supplies the level.`);
     ep.insertAdjacentHTML("beforeend", table(f.earning_power || [], [["Person", e => esc(person(e.person_id))],
       ["Level used", e => e.status !== "available" && !e.stated.expected_full_pensum_income_chf_per_year ? `<span class="muted">${esc(lw(e.reason) || "not available")}</span>` : `<b>${esc(e.level_basis === "stated" ? ow("stated") : ow("modelled"))}</b>`],
-      ["Stated (full pensum)", e => e.stated && e.stated.expected_full_pensum_income_chf_per_year ? `${chfW(e.stated.expected_full_pensum_income_chf_per_year)}${e.stated.from_age ? ` <span class="muted">from age ${fmt(e.stated.from_age, 0)}</span>` : ""}` : `<span class="muted">none</span>`, false],
+      ["Stated (full pensum)", e => e.stated && e.stated.expected_full_pensum_income_chf_per_year ? `${NO.stated(e.stated.expected_full_pensum_income_chf_per_year)}${e.stated.from_age ? ` <span class="muted">from age ${NO.whole(e.stated.from_age)}</span>` : ""}` : `<span class="muted">none</span>`, false],
       ["Model (full time)", e => e.modelled ? chfW(e.modelled.full_time_chf_per_year) : `<span class="muted">${esc(lw(e.reason) || "n/a")}</span>`, false],
-      ["Today", e => e.current ? `${chfW(e.current.gross_income_chf_per_year)} <span class="muted">at ${pct(e.current.pensum, 0)}</span>` : "", false],
+      ["Today", e => e.current ? `${chfW(e.current.gross_income_chf_per_year)} <span class="muted">at ${NO.weight(e.current.pensum)}</span>` : "", false],
       ["Responsibility", e => e.modelled && e.modelled.responsibility ? `${esc(lw(e.modelled.responsibility.label))}${e.modelled.responsibility.stated ? "" : ` <span class="muted">(not stated)</span>`}` : ""],
       ["Notes", e => `<span class="ink2" style="font-size:11.5px">${(e.caveats || []).map(c => esc(lw(c))).join(" ")}</span>`]], "lbsim names no adult."));
 
     // income paths and the saving each goal needs at zero return, nominal or real (views.real, derived)
-    const ip = sec(ow("paths"), `${esc(lw(f.zero_return && f.zero_return.note))} ${view.basis === "real" ? `Real: in today's francs at the sheet's inflation (${pct(f.inflation && f.inflation.annual_rate, 1)} a year), as lbsim derives it.` : "Nominal: in the francs of each year."}`);
+    const ip = sec(ow("paths"), `${esc(lw(f.zero_return && f.zero_return.note))} ${view.basis === "real" ? `Real: in today's francs at the sheet's inflation (${NO.rate(f.inflation && f.inflation.annual_rate)} a year), as lbsim derives it.` : "Nominal: in the francs of each year."}`);
     const goalIds = [...new Set((f.income_paths || []).flatMap(x => (x.saving_need || []).map(s => s.goal_id)))];
     const need = (x, gid) => { const nom = (x.saving_need || []).find(s => s.goal_id === gid); const real = ((x.views && x.views.real && x.views.real.saving_need) || []).find(s => s.goal_id === gid);
       return { nom, row: view.basis === "real" ? real : nom }; };
     ip.insertAdjacentHTML("beforeend", table(f.income_paths || [], [
       ["Path", x => `<b>${esc(lw(x.name))}</b><div class="muted" style="font-size:11.5px;max-width:360px">${esc(lw(x.note))}</div>`],
       ["Person", x => esc(person(x.person_id))], ["Level", x => esc(x.level_basis === "stated" ? ow("stated") : ow("modelled"))],
-      ["Pensum", x => `${pct(x.pensum_now, 0)}${x.pensum_after !== x.pensum_now ? ` to ${pct(x.pensum_after, 0)}` : ""}`, false],
+      ["Pensum", x => `${NO.weight(x.pensum_now)}${x.pensum_after !== x.pensum_now ? ` to ${NO.weight(x.pensum_after)}` : ""}`, false],
       ...goalIds.map(gid => [`${esc(goalWord(gid, goals, ((f.income_paths[0].saving_need || []).find(s => s.goal_id === gid) || {}).target_date))}: saving needed a year / free`, x => {
         const { nom, row } = need(x, gid);
         if (!row) return `<span class="muted">n/a</span>`;
@@ -1628,16 +1722,16 @@ function drawOutlook(host, o, view) {   // view: {basis, regime, series}, kept a
   } else host.insertAdjacentHTML("beforeend", `<p class="muted">lbsim holds no findings for this sheet yet.</p>`);
 
   // charts 1 to 3, and the chances per goal under the chosen Regime
-  const ch = sec(ow("outlook"), p ? `${p.n_paths} simulated paths over ${p.horizon_years} years, monthly steps, under the plan as stated. ${esc(lw(p.market_model && p.market_model.rule))}` : "");
+  const ch = sec(ow("outlook"), p ? `${NO.count(p.n_paths)} simulated paths over ${NO.whole(p.horizon_years)} years, monthly steps, under the plan as stated. ${esc(lw(p.market_model && p.market_model.rule))}` : "");
   if (!p) { ch.insertAdjacentHTML("beforeend", `<p class="muted">No simulated paths: ${esc(lw(o.plan && o.plan.reason) || "lbsim computed none for this sheet (paths need a pcp Allocation on the base Regime)")}.</p>`); }
   else {
     const reg = p.regimes.find(r => r.key === view.regime) || p.regimes[0], av = p.allocation_view;
     view.regime = reg.key;
     ch.insertAdjacentHTML("beforeend", table(reg.goals || [], [["Goal", g => `<b>${esc(goalWord(g.goal_id, goals))}</b>`],
       ["Target", g => `${chfW(g.chance_basis === "real" ? g.target.real_chf : g.target.nominal_chf)} ${basisChip(g.chance_basis)}`, false],
-      ["Chance", g => `<b>${pct(g.chance, 0)}</b> <span class="muted">(${g.n_reached} of ${p.n_paths} paths)</span>`, false],
+      ["Chance", g => `<b>${NO.chance(g.chance)}</b> <span class="muted">(${NO.count(g.n_reached)} of ${NO.count(p.n_paths)} paths)</span>`, false],
       ["Median shortfall", g => g.median_shortfall_chf ? chfW(g.median_shortfall_chf) : `<span class="muted">none</span>`, false]], "No goal is measured."));
-    if (p.regimes.length > 1) ch.insertAdjacentHTML("beforeend", `<p class="note">${p.regimes.map(r => `${esc(lw(r.label))}: ${(r.goals || []).map(g => `${esc(goalWord(g.goal_id, goals))} ${pct(g.chance, 0)}`).join(", ")}`).join(" · ")}. Each chance is judged in the goal's own basis, the same on both views.</p>`);
+    if (p.regimes.length > 1) ch.insertAdjacentHTML("beforeend", `<p class="note">${p.regimes.map(r => `${esc(lw(r.label))}: ${(r.goals || []).map(g => `${esc(goalWord(g.goal_id, goals))} ${NO.chance(g.chance)}`).join(", ")}`).join(" · ")}. Each chance is judged in the goal's own basis, the same on both views.</p>`);
     const seriesKeys = Object.keys(reg.bands || {});
     if (!seriesKeys.includes(view.series)) view.series = seriesKeys.find(k => (reg.goals || []).some(g => g.measure === k)) || seriesKeys[0];
     const fanHost = document.createElement("div"); ch.append(fanHost);
@@ -1717,8 +1811,8 @@ function withheldIn(request) {   // the persons whose health the client withheld
 }
 function balanceSheetChart(el, sheet, basis, goalName) {
   const t = sheet.totals || {}, bv = t.by_vessel || {}, cols = [ow("assets"), ow("debtsNet"), ow("claims")], traces = [];
-  const part = (x, y, name, color) => traces.push({ type: "bar", x: [x], y: [y], name, marker: { color },
-    hovertemplate: `${esc(name)}: CHF %{y:,.0f}<extra></extra>` });
+  const sums = {}, part = (x, y, name, color) => { sums[x] = (sums[x] || 0) + y; traces.push({ type: "bar", x: [x], y: [y], name, marker: { color },
+    customdata: [NO.money(y)], hovertemplate: `${esc(name)}: %{customdata}<extra></extra>` }); };
   for (const [k, w, c] of VESSEL_PARTS) if (bv[k] > 0) part(cols[0], bv[k], lw(w), css(c));
   if (t.human_assets > 0) part(cols[0], t.human_assets, ow("human"), hexA(css("--s1"), 0.4));
   if (t.liabilities > 0) part(cols[1], t.liabilities, ow("debts"), css("--serious"));
@@ -1726,15 +1820,15 @@ function balanceSheetChart(el, sheet, basis, goalName) {
   const claims = ((sheet.real_view || {}).goals || []).filter(g => g.unit === "chf");
   claims.forEach((g, i) => { const v = (g[basis] || {}).amount; if (v > 0) part(cols[2], v, goalName(g), hexA(css("--s2"), i % 2 ? 0.5 : 0.9)); });
   plot(el, traces, { barmode: "stack", separators: ".'", margin: { l: 80, r: 16, t: 8, b: 44 }, legend: { orientation: "h", y: -0.2 },
-    xaxis: { categoryorder: "array", categoryarray: cols }, yaxis: { tickformat: ",.0f", tickprefix: "CHF ", rangemode: "tozero", title: { text: basis } } });
+    xaxis: { categoryorder: "array", categoryarray: cols }, yaxis: { ...NO.ticks(0, Math.max(0, ...Object.values(sums)), v => NO.money(v)), rangemode: "tozero", title: { text: basis } } });
 }
 function capitalsTodayChart(el, adults) {   // lbs's levels on 0 to 1, grouped by capital, one trace per adult
   const ys = CAPITAL_KEYS.map(([, , w]) => lw(w)), colours = ["--s1", "--s3", "--s4"];
   plot(el, adults.map((a, i) => ({ type: "bar", orientation: "h", name: a.name, y: ys, x: CAPITAL_KEYS.map(([k]) => a.values[k]),
-      text: CAPITAL_KEYS.map(([k]) => a.values[k] === null ? "" : `${levelWord(a.values[k], 0, 1)} (${fmt(a.values[k], 2)})`), textposition: "outside",
+      text: CAPITAL_KEYS.map(([k]) => a.values[k] === null ? "" : NO.level(a.values[k], levelWord(a.values[k], 0, 1))), textposition: "outside",
       marker: { color: css(colours[i % colours.length]) }, hovertemplate: `${esc(a.name)}: %{y} %{x:.2f}<extra></extra>` })),
     { barmode: "group", margin: { l: 170, r: 24, t: 8, b: 44 }, legend: { orientation: "h", y: -0.25 }, yaxis: { autorange: "reversed" },
-      xaxis: { range: [0, 1.2], tickvals: [0, 0.5, 1], ticktext: [`${ow("none")} 0`, "0.5", `${ow("ceiling")} 1`], title: { text: ow("level") } } });
+      xaxis: { range: [0, 1.2], tickvals: [0, 0.5, 1], ticktext: [`${ow("none")} ${NO.level(0)}`, NO.level(0.5), `${ow("ceiling")} ${NO.level(1)}`], title: { text: ow("level") } } });
 }
 function capitalPathChart(el, paths, caps, key) {   // one capital over time on its own scale, never francs
   const b = caps[key], sc = (caps.scale || {})[key] || {}, lo = sc.min ?? 0, hi = sc.max ?? Math.max(...b.p90);
@@ -1746,7 +1840,7 @@ function capitalPathChart(el, paths, caps, key) {   // one capital over time on 
     line(b.p25, ow("band50"), { line: { width: 0 }, fill: "tonexty", fillcolor: hexA(c, 0.28) }),
     { x: years, y: b.p50, name: ow("middle"), mode: "lines", line: { color: c, width: 2.2 }, hovertemplate: "%{x}: %{y:.2f}<extra></extra>" }],
     { margin: { l: 96, r: 16, t: 8, b: 44 }, legend: { orientation: "h", y: -0.3 }, xaxis: { title: { text: OUTLOOK_LANG === "de" ? "Jahresende" : "year end" } },
-      yaxis: { range: [lo, hi], tickvals: [lo, (lo + hi) / 2, hi], ticktext: [`${ow("none")} ${fmt(lo, 2)}`, fmt((lo + hi) / 2, 2), `${ow("ceiling")} ${fmt(hi, 2)}`], title: { text: ow("level") } } });
+      yaxis: { range: [lo, hi], tickvals: [lo, (lo + hi) / 2, hi], ticktext: [`${ow("none")} ${NO.level(lo)}`, NO.level((lo + hi) / 2), `${ow("ceiling")} ${NO.level(hi)}`], title: { text: ow("level") } } });
 }
 function capitalsOverTime(host, p, reg, withheld) {   // lbsim's regimes[].capitals in the outlook panel
   const caps = reg.capitals;
@@ -1819,7 +1913,6 @@ const FIELD_LABEL = { universe: "Universe", max_single_position: "Largest single
   "bounds.liquidity": "Liquidity bounds", "bounds.region|capital_type|phase|asset_class": "Policy bounds (region, capital type, phase, asset class)" };
 const fieldName = f => FIELD_LABEL[f] || label(String(f).replace(/^bounds\./, "") + (String(f).startsWith("bounds.") ? " bounds" : ""));
 const adjustCurve = (base, shift, tilt) => base.map((p, i) => p + shift + tilt * ((i + 1) - 13) / 12);   // the preview of what /mandate/assemble applies (C-21)
-const pp = v => `${v > 0 ? "+" : v < 0 ? "−" : "±"}${Math.abs(v).toFixed(1)} pp`;
 function spark(points, lo, hi, w = 150, h = 42) {   // chart geometry only (C-07): the preset's stored points drawn
   const x = i => 2 + i * (w - 4) / (points.length - 1), y = v => h - 3 - (v - lo) / ((hi - lo) || 1) * (h - 6);
   const zero = lo < 0 && hi > 0 ? `<line x1="0" x2="${w}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}" stroke="var(--axis)" stroke-dasharray="2 2"/>` : "";
@@ -1959,7 +2052,7 @@ page("curator/parameters", "curator", "Parameters", async () => {
 
   // ---- 3 · target curve ------------------------------------------------------------------
   const curveCard = card("3 · Target curve", "What the portfolio should return in each of the 25 states, from 1 (crisis) to 25 (boom). Pick a shape, then shift its level and tilt its slope.");
-  curveCard.innerHTML = `${curves.length ? `<div class="presets">${curves.map(c => `<button type="button" class="preset" data-cp="${esc(c.key)}" title="${esc(c.description)}&#10;${esc(c.formula)}"><b>${esc(c.name)}</b>${spark(c.points_pct, lo, hi)}<span>mean ${fmt(c.mean_pct, 1)} % · ${fmt(c.min_pct, 1)} to ${fmt(c.max_pct, 1)} %</span></button>`).join("")}</div>`
+  curveCard.innerHTML = `${curves.length ? `<div class="presets">${curves.map(c => `<button type="button" class="preset" data-cp="${esc(c.key)}" title="${esc(c.description)}&#10;${esc(c.formula)}"><b>${esc(c.name)}</b>${spark(c.points_pct, lo, hi)}<span>mean ${N.ratePct(c.mean_pct)} · ${N.fixed(c.min_pct, 1)} to ${N.ratePct(c.max_pct)}</span></button>`).join("")}</div>`
       : `<p class="warn">No target-curve presets in the content store${presets.curves && presets.curves.missing ? `: ${esc(presets.curves.missing)}` : ""}.</p>`}
     <div class="grid2" style="margin-top:12px"><div>
       <div id="cLabel" style="margin-bottom:6px"></div><div id="cBasis" style="margin-bottom:8px"></div>
@@ -1974,13 +2067,13 @@ page("curator/parameters", "curator", "Parameters", async () => {
   const drawCurve = () => {
     const pts = curvePoints(), c = P.curve, lbsPts = P.lbs && P.lbs.curve.points_pct, st = Array.from({ length: 25 }, (_, i) => i + 1);
     curveCard.querySelectorAll("[data-cp]").forEach(b => b.classList.toggle("sel", b.dataset.cp === c.preset));
-    $("cLabel").innerHTML = pts ? `<b>${esc(c.label || "custom")}</b>${c.shift || c.tilt ? ` <span class="ink2">${pp(c.shift)} level, ${pp(c.tilt)} tilt</span>` : ""}` : `<span class="muted">No curve chosen yet.</span>`;
+    $("cLabel").innerHTML = pts ? `<b>${esc(c.label || "custom")}</b>${c.shift || c.tilt ? ` <span class="ink2">${N.pp(c.shift)} level, ${N.pp(c.tilt)} tilt</span>` : ""}` : `<span class="muted">No curve chosen yet.</span>`;
     const pv = curveByKey[c.preset], req = P.proposal && P.proposal.status === "available" ? P.proposal.required_return : null, real = F.basis === "real";
     $("cBasis").innerHTML = real ? `${basisChip("real")} <span class="ink2">The curve is read as <b>real</b>: every point is a return after the inflation of the mandate's currency, and the level shift and tilt apply in real terms. The presets are nominal data, taken as they are and read as real; the cockpit converts nothing, fmre's real ReturnSet does the deflating.</span>`
       : `${basisChip("nominal")} <span class="ink2">The curve is read as nominal, before inflation.</span>`;
     $("cMatch").disabled = real || !(pv && req !== null && req !== undefined);
-    $("cMatch").title = real ? "lbs's required return is nominal; in real the curve's level is set by the shift" : req === null || req === undefined ? "no lbs required return loaded" : !pv ? "matching needs a preset (its mean is stored with it)" : `sets the curve's mean over the 25 states to ${fmt(req * 100, 2)} %, as lbs levels its own ramp`;
-    $("cInfo").innerHTML = pv ? `${esc(pv.description)} <span class="muted">Mean ${fmt(pv.mean_pct + c.shift, 2)} % a year after the shift (the tilt keeps the mean).</span>` : c.label === "lbs proposal" ? "The ramp lbs derived from the goal: its mean is the required return." : "";
+    $("cMatch").title = real ? "lbs's required return is nominal; in real the curve's level is set by the shift" : req === null || req === undefined ? "no lbs required return loaded" : !pv ? "matching needs a preset (its mean is stored with it)" : `sets the curve's mean over the 25 states to ${N.rate(req)}, as lbs levels its own ramp`;
+    $("cInfo").innerHTML = pv ? `${esc(pv.description)} <span class="muted">Mean ${N.ratePct(pv.mean_pct + c.shift)} a year after the shift (the tilt keeps the mean).</span>` : c.label === "lbs proposal" ? "The ramp lbs derived from the goal: its mean is the required return." : "";
     const traces = [];
     if (pts && (c.shift || c.tilt)) traces.push({ x: st, y: c.base, name: "preset as stored", mode: "lines", line: { color: css("--rest"), dash: "dot" }, hovertemplate: "state %{x}: %{y:.2f} %<extra>preset</extra>" });
     if (lbsPts && c.label !== "lbs proposal") traces.push({ x: st, y: lbsPts, name: "lbs proposal", mode: "lines", line: { color: css("--s2"), dash: "dash" }, hovertemplate: "state %{x}: %{y:.2f} %<extra>lbs</extra>" });
@@ -1997,7 +2090,7 @@ page("curator/parameters", "curator", "Parameters", async () => {
   $("cZero").onclick = () => { P.curve.shift = 0; P.curve.tilt = 0; syncSliders(); drawCurve(); };
   $("cMatch").onclick = () => {   // shift = required return x 100 - the preset's stored mean (C-21)
     const pv = curveByKey[P.curve.preset]; P.curve.shift = Math.round((P.proposal.required_return * 100 - pv.mean_pct) * 100) / 100; syncSliders(); drawCurve();
-    toast(`Shifted by ${pp(P.curve.shift)}: the curve's mean is now lbs's required return, ${fmt(P.proposal.required_return * 100, 2)} % a year.`);
+    toast(`Shifted by ${N.pp(P.curve.shift)}: the curve's mean is now lbs's required return, ${N.rate(P.proposal.required_return)} a year.`);
   };
   $("cUsePts").onclick = () => {
     const pts = [...$("cPts").querySelectorAll("input")].map(i => Number(i.value));
@@ -2134,7 +2227,7 @@ page("curator/parameters", "curator", "Parameters", async () => {
       <div class="fieldmsg" data-field="regime"></div>`;
     const sum = () => {   // a check of what was typed, not a model figure (C-21)
       const t = [...blendCard.querySelectorAll("input[data-eco]")].reduce((s, i) => s + (Number(i.value) || 0), 0);
-      $("rbSum").innerHTML = Math.abs(t - 100) < 1e-6 ? `<span class="ok">The weights add up to 100 %.</span>` : `<span class="warn">The weights add up to ${fmt(t, 1)} %; they must add up to 100 %.</span>`;
+      $("rbSum").innerHTML = Math.abs(t - 100) < 1e-6 ? `<span class="ok">The weights add up to 100 %.</span>` : `<span class="warn">The weights add up to ${N.fixed(t, 1)} %; they must add up to 100 %.</span>`;
     };
     blendCard.querySelectorAll('input[name="rbMode"]').forEach(r => r.onchange = () => { $("rbWeights").classList.toggle("hidden", blendCard.querySelector('input[name="rbMode"]:checked').value !== "weights"); });
     blendCard.querySelectorAll("input[data-eco]").forEach(i => i.oninput = sum); sum();
@@ -2243,7 +2336,7 @@ page("curator/parameters", "curator", "Parameters", async () => {
       const a = await api(`/lbs/artefacts/${encodeURIComponent(aid)}`);
       store.set("lbs:" + id, aid); P.proposal = a.mandate_proposal;
       if (P.proposal && P.proposal.status === "available") P.lbs = await toForm(fromProposal(P.proposal));
-      $("pSrcInfo").innerHTML = `<p class="${P.lbs ? "ok" : "warn"}">Life Balance Sheet ${idChip(a.artefact_id)} as of ${esc(a.as_of)}: ${P.lbs ? `a mandate proposal for the goal <b>${esc(goalName(P.proposal))}</b>${P.proposal.required_return !== null && P.proposal.required_return !== undefined ? `, required return ${fmt(P.proposal.required_return * 100, 2)} % a year` : ""}; ${(P.proposal.curator_to_fill || []).length} fields are left to the curator.` : "no mandate proposal."}</p>`;
+      $("pSrcInfo").innerHTML = `<p class="${P.lbs ? "ok" : "warn"}">Life Balance Sheet ${idChip(a.artefact_id)} as of ${esc(a.as_of)}: ${P.lbs ? `a mandate proposal for the goal <b>${esc(goalName(P.proposal))}</b>${P.proposal.required_return !== null && P.proposal.required_return !== undefined ? `, required return ${N.rate(P.proposal.required_return)} a year` : ""}; ${(P.proposal.curator_to_fill || []).length} fields are left to the curator.` : "no mandate proposal."}</p>`;
     } catch (e) { $("pSrcInfo").innerHTML = `<p class="bad">lbs: ${esc(e.message)}</p>`; }
     drawBasis();
   };
@@ -2259,13 +2352,13 @@ page("curator/parameters", "curator", "Parameters", async () => {
     if (!p) { basis.innerHTML = `<p class="muted">No lbs proposal loaded.</p>`; return; }
     if (p.status !== "available") { basis.innerHTML = `<p class="warn">lbs could not propose a mandate: ${esc(p.reason ? label(p.reason) : JSON.stringify(p))}.</p>`; return; }
     const rows = Object.entries(p.bounds || {}).flatMap(([dim, cats]) => Object.entries(cats).map(([k, v]) => ({ dim, k, ...v })));
-    const chf = v => v === null || v === undefined ? `<span class="muted">n/a</span>` : `CHF ${Number(v).toLocaleString("de-CH", { maximumFractionDigits: 0 })}`;
+    const chf = v => N.ok(v) ? N.money(v) : `<span class="muted">n/a</span>`;
     basis.innerHTML = `<div class="scroll"><table><tbody>${[["Goal", `<b>${esc(goalName(p))}</b> <span class="muted">${esc(label(p.goal_kind || ""))}</span> ${idChip(p.goal_id)}`], ["Target basis", esc(label(p.target_basis || ""))], ["Target", chf(p.target_chf)],
-        ["Goal horizon", p.goal_horizon_years === null || p.goal_horizon_years === undefined ? "n/a" : `${fmt(p.goal_horizon_years, 1)} years`], ["Drawable wealth", chf(p.drawable_chf)], ["Yearly contribution", chf(p.annual_contribution)],
-        ["Required return", p.required_return === null || p.required_return === undefined ? `<span class="muted">none: the goal is not reachable at any return searched</span>` : `${fmt(p.required_return * 100, 2)} % a year`], ["Reachable", p.feasible === null || p.feasible === undefined ? "n/a" : p.feasible ? "yes" : "no"],
+        ["Goal horizon", p.goal_horizon_years === null || p.goal_horizon_years === undefined ? "n/a" : `${N.whole(p.goal_horizon_years)} years`], ["Drawable wealth", chf(p.drawable_chf)], ["Yearly contribution", chf(p.annual_contribution)],
+        ["Required return", p.required_return === null || p.required_return === undefined ? `<span class="muted">none: the goal is not reachable at any return searched</span>` : `${N.rate(p.required_return)} a year`], ["Reachable", p.feasible === null || p.feasible === undefined ? "n/a" : p.feasible ? "yes" : "no"],
         ["Curve shape", esc((p.curve_shape && p.curve_shape.why) || "")], ["Complete", p.complete ? "yes" : "no: some fields are the curator's"]]
         .map(([k, v]) => `<tr><td class="l ink2" style="width:190px">${k}</td><td class="l">${v}</td></tr>`).join("")}</tbody></table></div>
-      <h3 class="chart-t">Proposed bounds and why</h3>${table(rows, [["Dimension", r => esc(DIM_LABEL[r.dim] || label(r.dim))], ["Bucket", r => esc(r.k)], ["Lower", r => pct(r.lower, 0), false], ["Upper", r => pct(r.upper, 0), false], ["Why", r => `<span class="ink2">${esc(r.reasoning)}</span>`]], "lbs proposed no bounds.")}
+      <h3 class="chart-t">Proposed bounds and why</h3>${table(rows, [["Dimension", r => esc(DIM_LABEL[r.dim] || label(r.dim))], ["Bucket", r => esc(r.k)], ["Lower", r => N.weight(r.lower), false], ["Upper", r => N.weight(r.upper), false], ["Why", r => `<span class="ink2">${esc(r.reasoning)}</span>`]], "lbs proposed no bounds.")}
       <h3 class="chart-t">Left to the curator</h3>${table(p.curator_to_fill || [], [["Field", x => esc(fieldName(x.field))], ["Why", x => `<span class="ink2">${esc(x.reason)}</span>`]], "Nothing.")}
       ${(p.notes || []).length ? `<ul class="notes">${p.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}`;
   }
@@ -2285,7 +2378,7 @@ page("curator/parameters", "curator", "Parameters", async () => {
     }).catch(e => { const el = $("pOutlook"); if (el) el.outerHTML = `<p class="warn">Outlook (lbsim) not asked for: ${esc(e.message)}</p>`; });
   };
   const ids = () => ({ regime_id: $("pReg").value.trim(), return_set_id: $("pRs").value.trim(), ...($("pSpeed").value ? { speed_mode: $("pSpeed").value } : {}), ...($("pDate").value.trim() ? { date: $("pDate").value.trim() } : {}) });
-  const curveNote = () => P.curve.base ? `curve ${P.curve.label || "custom"}${P.curve.shift ? ` ${pp(P.curve.shift)}` : ""}${P.curve.tilt ? `, tilt ${pp(P.curve.tilt)}` : ""}` : "";
+  const curveNote = () => P.curve.base ? `curve ${P.curve.label || "custom"}${P.curve.shift ? ` ${N.pp(P.curve.shift)}` : ""}${P.curve.tilt ? `, tilt ${N.pp(P.curve.tilt)}` : ""}` : "";
   $("pVal").onclick = () => act($("pVal"), async () => {
     const mandate = await assembled(); $("pJson").textContent = JSON.stringify(mandate, null, 1);
     const body = { ...ids(), mandate };
@@ -2340,10 +2433,10 @@ page("curator/parameters", "curator", "Parameters", async () => {
       const held = a.instruments.filter(i => i.weight > 0).sort((p, q) => q.weight - p.weight);
       allocHost.innerHTML = `<div class="tiles"><div class="tile"><div class="v" style="font-size:16px">${await regimeLabel(a.regime_id, ctx)}</div><div class="k">computed under · Regime month ${esc(a.date)}</div></div>
           <div class="tile"><div class="v">${currency ? esc(currency) : `<span class="muted">n/a</span>`}</div><div class="k">currency${currency ? "" : " (no recorded run names it)"} · basis ${abasis ? basisChip(abasis) : `<span class="muted">not stated</span>`} · ReturnSet ${idChip(a.return_set_id)}</div></div>
-          <div class="tile"><div class="v">${a.budget_met ? "met" : "not met"}</div><div class="k">budget (raw weight sum ${fmt(a.raw_weight_sum, 4)})</div></div>
+          <div class="tile"><div class="v">${a.budget_met ? "met" : "not met"}</div><div class="k">budget (raw weight sum ${N.weight(a.raw_weight_sum)})</div></div>
           <div class="tile"><div class="v">${held.length}</div><div class="k">instruments held · ${esc(a.release_state)}</div></div></div>
-        <div class="grid2"><div>${table(held, [["Instrument", i => `${esc(i.name)} ${idChip(i.instrument_id, 14)}`], ["Role", i => esc(ROLE_LABEL[i.role] || i.role)], ["Weight", i => pct(i.weight, 2), false], ["Profile coverage", i => esc(i.coverage)]])}</div>
-          <div>${table(Object.entries(a.weights_by_role || {}), [["Role", r => esc(ROLE_LABEL[r[0]] || r[0])], ["Weight", r => pct(r[1], 1), false]])}</div></div>
+        <div class="grid2"><div>${table(held, [["Instrument", i => `${esc(i.name)} ${idChip(i.instrument_id, 14)}`], ["Role", i => esc(ROLE_LABEL[i.role] || i.role)], ["Weight", i => N.weight(i.weight), false], ["Profile coverage", i => esc(i.coverage)]])}</div>
+          <div>${table(Object.entries(a.weights_by_role || {}), [["Role", r => esc(ROLE_LABEL[r[0]] || r[0])], ["Weight", r => N.weight(r[1]), false]])}</div></div>
         <h3 class="chart-t">Weights by role and by instrument</h3><div id="allocWeights"></div>
         <h3 class="chart-t">Target and reached per state ${abasis ? basisChip(abasis) : ""}</h3><div id="allocCurve" class="chart" style="height:280px"></div>
         ${(a.coverage.warnings || []).map(w => `<p class="note warn">${esc(w)}</p>`).join("")}<p class="note">${esc(a.notice)} Curves in pcp's unit (annualised log return)${abasis ? `, ${esc(abasis)}` : ""}.</p>`;
@@ -2516,7 +2609,7 @@ page("system/engines", "system", "Engine status", async () => {
         const store_ = m.store || h.store; const launched = g.launched.find(l => l.key === n.key);
         return `<tr><td class="l muted">${n.number == null ? "app" : String(n.number).padStart(2, "0")}</td><td class="l"><b>${esc(n.name)}</b> <span class="muted">${n.key} · ${esc(n.url.replace("http://", ""))}</span></td>
           <td class="l ink2">${esc(n.family)}</td><td class="l"><span class="pill st-${n.status}">${n.status}</span></td>
-          <td class="l">${n.up ? `<span class="ok">${n.latency_ms} ms</span>` : `<span class="${["built", "parked"].includes(n.status) ? "bad" : "muted"}">${esc(n.error || "no")}</span>`}${launched ? `<div class="muted" style="font-size:11px">started by cockpit, pid ${launched.pid}${launched.running ? "" : `, exited ${launched.exit_code}`}</div>` : ""}</td>
+          <td class="l">${n.up ? `<span class="ok">${N.whole(n.latency_ms)} ms</span>` : `<span class="${["built", "parked"].includes(n.status) ? "bad" : "muted"}">${esc(n.error || "no")}</span>`}${launched ? `<div class="muted" style="font-size:11px">started by cockpit, pid ${launched.pid}${launched.running ? "" : `, exited ${launched.exit_code}`}</div>` : ""}</td>
           <td class="l">${esc(h.engine_version || m.engine_version || "")}</td><td class="l ink2">${esc(m.calibration_version || h.calibration_id || "")}</td>
           <td class="l">${al ? (al.ok ? `<span class="ok">ok</span>` : `<span class="bad">fails</span>`) + (Object.values(al.packages || {}).some(p => p.admitted_by) ? ` <span class="muted" title="${esc(Object.entries(al.packages).filter(([, p]) => p.admitted_by).map(([k, p]) => `${k}: ${p.admitted_by}`).join("; "))}">+ admitted</span>` : "") : `<span class="muted">${n.up ? "no /meta" : ""}</span>`}</td>
           <td class="l muted" style="font-size:11.5px">${store_ ? esc(`${store_.dbname}.${store_.schema}`) : ""}</td>
@@ -2564,7 +2657,7 @@ page("system/explorer", "system", "API explorer", async () => {
     const init = m === "GET" ? undefined : { method: m, headers: { "content-type": "application/json" }, body: $("xB").value || "{}" };
     const r = await fetch(`/api/${$("xEng").value}/${$("xP").value.replace(/^\//, "")}`, init).catch(e => ({ status: 0, text: async () => String(e) }));
     const text = await r.text(); let pretty = text; try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch {}
-    $("xOut").innerHTML = `<p class="${r.status >= 200 && r.status < 300 ? "ok" : "bad"}">${r.status} · ${(performance.now() - t0).toFixed(0)} ms · ${text.length.toLocaleString()} bytes</p><pre>${esc(pretty.slice(0, 200000))}</pre>`;
+    $("xOut").innerHTML = `<p class="${r.status >= 200 && r.status < 300 ? "ok" : "bad"}">${r.status} · ${N.whole(performance.now() - t0)} ms · ${N.count(text.length)} bytes</p><pre>${esc(pretty.slice(0, 200000))}</pre>`;
   };
 }, { devOnly: true });
 
@@ -2610,8 +2703,8 @@ function modelChart(host, ch) {
     plot(el, [{
       type: "heatmap", x: ch.x, y: ch.rows, z: ch.z, colorscale: scale, xgap: 1, ygap: 1,
       zmin: cat ? -0.5 : undefined, zmax: cat ? n - 0.5 : undefined,
-      customdata: cat ? ch.z.map(r => r.map(v => v === null ? "no position" : ch.categories[v])) : undefined,
-      hovertemplate: cat ? "%{y} · %{x}: %{customdata}<extra></extra>" : "%{y} · %{x}: %{z:.4g}<extra></extra>",
+      customdata: cat ? ch.z.map(r => r.map(v => v === null ? "no position" : ch.categories[v])) : ch.z.map(r => (r || []).map(N.auto)),
+      hovertemplate: "%{y} · %{x}: %{customdata}<extra></extra>",
       colorbar: cat ? { tickvals: ch.categories.map((_, i) => i), ticktext: ch.categories, tickfont: { color: css("--muted") }, thickness: 12 }
                     : { tickfont: { color: css("--muted") }, thickness: 12 },
     }], { showlegend: false, margin: { l: 110, r: 24, t: 18, b: 44 }, shapes, annotations,
@@ -2619,9 +2712,10 @@ function modelChart(host, ch) {
     return;
   }
   let auto = 0;
+  const yText = /weight|share|probab/i.test(ch.y_label || "") ? N.weight : N.auto;   // a weight by the weight rule, else three significant digits
   const traces = ch.series.map(s => {
     const color = s.muted ? css("--rest") : css(SLOTS[(s.slot ?? auto++) % 5]);
-    const base = { x: ch.x, y: s.y, name: s.name, hovertemplate: `${esc(s.name)}: %{y:.4g}<extra></extra>` };
+    const base = { x: ch.x, y: s.y, name: s.name, customdata: (s.y || []).map(yText), hovertemplate: `${esc(s.name)}: %{customdata}<extra></extra>` };
     if (s.kind === "bar") return { ...base, type: "bar", marker: { color, line: { color: css("--surface"), width: 1 } } };
     if (s.kind === "markers") return { ...base, mode: "markers", marker: { size: 8, color, line: { width: 2, color: css("--surface") } } };
     return { ...base, mode: "lines", line: { width: s.muted ? 1.5 : 2, color, dash: s.dash }, connectgaps: false };

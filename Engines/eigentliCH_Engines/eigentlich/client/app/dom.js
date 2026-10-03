@@ -48,12 +48,6 @@ export function announce(message) {
   if (live) live.textContent = message;
 }
 
-/** Swiss figures: apostrophe thousands. Absent stays absent: null is not zero (R-020). */
-export function amount(value, language = 'de') {
-  if (value === null || value === undefined) return null;
-  return new Intl.NumberFormat(language === 'en' ? 'en-CH' : 'de-CH', { maximumFractionDigits: 0 }).format(value);
-}
-
 export function when(iso, language = 'de') {
   if (!iso) return '';
   const d = new Date(iso);

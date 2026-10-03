@@ -212,6 +212,7 @@ src/pcp/
 golden/                draft (layer A), inputs and production (layer C)
 dev/                   build_golden_draft.py, freeze_inputs.py, build_golden_production.py, make_deploy.py
 testbench/index.html   development only; the Currency and Basis selects set the mandate's currency and basis and fetch the matching set
+                       it rounds for display per review/ROUNDING.md with the shared snippet from cockpit/dev/display_rounding.js (cockpit C-37)
 tests/
 ```
 

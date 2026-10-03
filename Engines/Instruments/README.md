@@ -35,6 +35,10 @@ relative path, and shows an API field in the header so you can point it elsewher
 page is a client, not a server. Serving it from the engine is simpler when you have the
 choice, because everything is then same-origin.
 
+The test bench rounds every figure for display per `review/ROUNDING.md`, with the shared
+snippet copied verbatim from `cockpit/dev/display_rounding.js` (cockpit C-37); the API and
+the raw JSON views stay exact.
+
 CORS defaults to `*` so the disk-opened case works. **Narrow it before deployment** with
 `INSTRUMENTS_CORS_ORIGINS=https://app.example`. It is acceptable as a default only because
 the engine binds to localhost, holds no user data and has no session to steal.

@@ -81,7 +81,8 @@ engines/macrofield/
   golden/                   frozen outputs of the eigentliCH prototype, one JSON per economy;
                             scenario_saa/: Scenario_SAA.m and its frozen policies (R-005)
   dev/                      freeze_sources, freeze_golden, freeze_scenario_saa, reconcile, build_deploy
-  testbench/                single-page test bench (Plotly from CDN), not deployed
+  testbench/                single-page test bench (Plotly from CDN), not deployed; rounds for display per
+                            review/ROUNDING.md with the shared snippet from cockpit/dev/display_rounding.js (cockpit C-37)
 ```
 
 Differences from the Guide's template, each deliberate: `engine.py` delegates to four pure

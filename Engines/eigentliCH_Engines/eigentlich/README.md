@@ -120,6 +120,15 @@ annimmt"); questions (ask, spark7's draft with sources and unverified
 numbers, curator answers, "ask the curator to approve"); reports (ask for a report or an update, read it,
 ask for approval, see its state).
 
+Every figure a page shows is rounded for display (EIG-73, the owner's rule of 03.10.2026 in `review/ROUNDING.md`) by
+one formatter, `client/app/format.js`, and its Python twin `src/eigentlich/rounding.py` for the server's sentences (a
+finding's figures): CHF amounts below 1 000 whole, to the nearest 100 below 100 000, to the nearest 1 000 below
+1 000 000, then millions with two decimals ("CHF 1.35 Mio." / "CHF 1.35 m"); rates one decimal; chances whole
+percent with "unter 1 %" and "über 99 %"; weights and shares whole percent, below 1 % one decimal, 0 as "–"; model
+levels two decimals after their word; hours and counts whole. The client's own figures (a target, a position, an
+answer) are shown as stated, and nothing typed into a field is rounded. The engines' values stay exact in the store
+and in every payload.
+
 Routes (JSON; `{c}` is the client id): `GET /health`, `GET /meta`; `GET|POST /api/clients`,
 `GET|PATCH /api/clients/{c}`, `GET /api/clients/{c}/home`; `GET /api/clients/{c}/questionnaires/{onboarding|intake}`,
 `PUT .../answers/{question}`, `POST .../edit`, `GET /api/questionnaires/{name}/history`,
@@ -195,7 +204,9 @@ src/eigentlich/   settings.py  store.py  schema.sql  seed.py  intake.py  migrate
                               onboarding's two basis questions, the intake's earning-power questions)  encoding.py
                               (code-page repair)  decisions.py (a decision in plain words)  outlook.py (lbsim's
                               outlook as the page reads it)
-client/           the browser app: index.html  app/ (api, basis, charts, dom, i18n, main)  surfaces/ (with outlook)  style/
+                  03.10.2026: pictures.py (the balance sheet and the four capitals)  rounding.py (display rounding, the
+                              twin of client/app/format.js)
+client/           the browser app: index.html  app/ (api, basis, charts, dom, format, i18n, main)  surfaces/ (with outlook)  style/
 start.cmd         the app on 8017
 tests/            one module per concern; conftest.py (throwaway schemas, curator grants), world.py;
                   test_app_*.py and appkit.py (stand-in engines; lbsim on its frozen samples in fixtures/lbsim)

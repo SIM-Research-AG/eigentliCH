@@ -166,7 +166,7 @@ src/chatbot/
   service.py           orchestration
 golden/                requests and the frozen live cases
 dev/                   build_golden.py, make_deploy.py
-testbench/index.html   development only
+testbench/index.html   development only; rounds for display per review/ROUNDING.md with cockpit/dev/display_rounding.js (C-37)
 tests/                 stand-in spark7 (standin.py), engine, client, API, boundary, golden, live
 ```
 

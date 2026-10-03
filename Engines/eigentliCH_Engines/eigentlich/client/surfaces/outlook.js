@@ -7,9 +7,10 @@
 // One language per page; the server sends lbsim's words in this page's language and names instead of ids.
 
 import { api, detailText } from '../app/api.js';
-import { amount, button, clear, h, notice, put, when } from '../app/dom.js';
+import { button, clear, h, notice, put, when } from '../app/dom.js';
+import { amount, chance as chanceText, count, rate, share } from '../app/format.js';
 import { t } from '../app/i18n.js';
-import { basisLabel, basisSwitch, currentBasis, pct } from '../app/basis.js';
+import { basisLabel, basisSwitch, currentBasis } from '../app/basis.js';
 import { capitalPathChart, fanChart, fitChart, weightsChart } from '../app/charts.js';
 
 const chfText = (v, L) => (v === null || v === undefined ? t('sheet.open', L) : `CHF ${amount(v, L)}`);
@@ -20,17 +21,17 @@ function day(iso, L) {
   return new Intl.DateTimeFormat(L === 'en' ? 'en-GB' : 'de-CH', { dateStyle: 'medium' }).format(new Date(`${iso}T12:00:00`));
 }
 
-/** "In 68 von 100 simulierten Verläufen …": a chance in words, the way the page states every chance. */
+/** "In 68 % der simulierten Verläufe …": a chance in words, rounded as every chance is (ROUNDING.md). */
 export function chanceWords(chance, L) {
-  return t('outlook.in_n_of_100', L, { n: Math.round((chance || 0) * 100) });
+  return t('outlook.in_share_of_paths', L, { p: chanceText(chance || 0, L) });
 }
 
 /** The plan calculation's state in a sentence (also the home card's). */
 export function planSentence(plan, L) {
   if (!plan || !plan.state) return '';
   if (plan.state === 'calculating') {
-    const minutes = Math.max(1, Math.round((plan.elapsed_s || 0) / 60));
-    const hours = Math.max(1, Math.round((plan.budget_s || 7200) / 3600));
+    const minutes = count(Math.max(1, (plan.elapsed_s || 0) / 60), L);
+    const hours = count(Math.max(1, (plan.budget_s || 7200) / 3600), L);
     return t('outlook.plan_calculating', L, { minutes, hours });
   }
   if (plan.state === 'ready') return t('outlook.plan_ready', L);
@@ -53,7 +54,7 @@ function earningBlock(data, L) {
     if (e.stated_chf !== null && e.stated_chf !== undefined) rows.push([t('outlook.stated', L), yearly(e.stated_chf, L)]);
     if (e.modelled_full_time_chf !== null && e.modelled_full_time_chf !== undefined) rows.push([t('outlook.modelled', L), yearly(e.modelled_full_time_chf, L)]);
     if (e.current_income_chf !== null && e.current_income_chf !== undefined) {
-      rows.push([t('outlook.current', L), `${yearly(e.current_income_chf, L)}${e.pensum ? ` · ${t('outlook.pensum', L)} ${pct(e.pensum, L)}` : ''}`]);
+      rows.push([t('outlook.current', L), `${yearly(e.current_income_chf, L)}${e.pensum ? ` · ${t('outlook.pensum', L)} ${share(e.pensum, L)}` : ''}`]);
     }
     if (e.responsibility) rows.push([t('outlook.responsibility', L), `${e.responsibility}${e.responsibility_stated ? '' : ` (${t('outlook.assumed', L)})`}`]);
     if (e.education && e.education.status && e.education.status !== 'none') {
@@ -121,7 +122,7 @@ function findingsBlock(data, L) {
   if (data.assumptions.length) {
     put(box, h('h3', { text: t('outlook.assumptions', L) }), h('table', { class: 'figures' }, data.assumptions.map((a) =>
       h('tr', {}, [h('th', { text: a.text || '' }),
-        h('td', { class: 'num', text: a.unit === 'rate' || a.unit === 'share' ? pct(a.value, L) : (a.value === null ? '' : amount(a.value, L)) })]))));
+        h('td', { class: 'num', text: a.unit === 'rate' ? rate(a.value, L) : a.unit === 'share' ? share(a.value, L) : (amount(a.value, L) ?? '') })]))));
   }
   return box;
 }
@@ -132,9 +133,9 @@ function planBlock(plan, L) {
   const r = plan.ready;
   if (plan.state === 'ready' && r) {
     const a = r.action_now || {};
-    const hours = (v) => `${amount(v, L)} ${t('outlook.hours_week', L)}`;
+    const hours = (v) => `${count(v, L)} ${t('outlook.hours_week', L)}`;
     const rows = [
-      ['work_share', pct(a.work_share, L)], ['learning_hours_per_week', hours(a.learning_hours_per_week)],
+      ['work_share', share(a.work_share, L)], ['learning_hours_per_week', hours(a.learning_hours_per_week)],
       ['network_hours_per_week', hours(a.network_hours_per_week)], ['rest_hours_per_week', hours(a.rest_hours_per_week)],
       ['consumption_chf_per_year', yearly(a.consumption_chf_per_year, L)], ['saving_chf_per_year', yearly(a.saving_chf_per_year, L)],
       ['education_spend_chf_per_year', yearly(a.education_spend_chf_per_year, L)],
@@ -144,7 +145,7 @@ function planBlock(plan, L) {
     put(box, h('h3', { text: t('outlook.assumes', L) }), r.framing ? h('p', { class: 'small muted', text: r.framing }) : null,
       h('table', { class: 'figures' }, rows.map(([k, v]) => h('tr', {}, [h('th', { text: t(`plan_now.${k}`, L) }), h('td', { class: 'num', text: v })]))),
       h('p', { class: 'small' }, [t(`outcome.${r.outcome}`, L),
-        r.goal ? ` · ${r.goal}` : '', r.confidence ? ` · ${t('outlook.confidence', L, { p: Math.round(r.confidence * 100) })}` : '',
+        r.goal ? ` · ${r.goal}` : '', r.confidence ? ` · ${t('outlook.confidence', L, { p: chanceText(r.confidence, L) })}` : '',
         typeof r.chance_out_of_sample === 'number' ? ` · ${chanceWords(r.chance_out_of_sample, L)}` : '']),
       r.reachable_chf ? h('p', { class: 'small', text: t('outlook.reachable', L, { amount: chfText(r.reachable_chf, L) }) }) : null);
   }
@@ -246,7 +247,7 @@ export async function render(main, { language, client }) {
     const reg = p.regimes.find((r) => r.key === regime) || p.regimes[0];
     put(box, h('table', { class: 'figures chances' }, reg.goals.map((g) => h('tr', {}, [
       h('th', { text: g.name || t('gap.this_goal', L) }),
-      h('td', { class: 'num', text: `${Math.round((g.chance || 0) * 100)} ${t('outlook.of_100', L)}` }),
+      h('td', { class: 'num', text: chanceText(g.chance || 0, L) }),
       h('td', { class: 'small muted', text: t(g.chance_basis === 'real' ? 'outlook.judged_real' : 'outlook.judged_nominal', L) }),
       h('td', { class: 'num small', text: `${chfText(basis === 'real' ? g.target.real_chf : g.target.nominal_chf, L)} · ${day(g.target.date, L)}` }),
     ]))));

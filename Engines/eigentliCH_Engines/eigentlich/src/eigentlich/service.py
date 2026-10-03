@@ -53,7 +53,7 @@ from .inputs import MEMBER_ORDER
 from .store import Decision, NotFound, Store
 
 APP = "eigentlich-app"
-APP_VERSION = "1.5.0"
+APP_VERSION = "1.5.1"
 
 #: ``engine_run.requested_by_ref`` of the automatic lbs runs (``requested_by_kind = 'system'``).
 AUTO_REF = "eigentlich-app:auto"

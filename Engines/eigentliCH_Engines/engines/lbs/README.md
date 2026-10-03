@@ -212,6 +212,7 @@ Standard (Guide 2.1): `GET /health`, `/meta`, `/contracts`, `POST /run` (`run_id
 * **A nominal and real switch**: the goals' amounts (`real_view.goals[]`), the required return and the retirement
   cover follow it; holdings and liabilities are today's in either view; the BVG projection is nominal in both, as
   lbs states it. English only.
+* **Rounded for display** per `review/ROUNDING.md`, with the shared snippet from `cockpit/dev/display_rounding.js` (cockpit C-37); the request box stays exact.
 
 ## Calibrations
 

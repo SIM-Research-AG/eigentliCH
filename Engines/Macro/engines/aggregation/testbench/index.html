@@ -111,7 +111,103 @@ const $ = id => document.getElementById(id);
 $("api").value = params.get("api") || store.get("api") || (location.protocol === "file:" ? DEFAULT_API : location.origin);
 const S = { tab: store.get("tab") || "run", runs: [], scenarios: [], current: null, regime: null, full: {}, runDetail: {} };
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const fmt = (v, d = 2) => v === null || v === undefined ? "–" : Number(v).toFixed(d);
+// ---- display rounding: begin (review/ROUNDING.md; cockpit C-37) ----
+// Canonical copy: Engines/cockpit/dev/display_rounding.js. The cockpit page and every engine's test bench carry this
+// block verbatim between the begin and end lines; tests/test_api.py checks that every copy is identical. Change it
+// here, then copy it into each page. Display only: the figures stay exact everywhere else (contracts, artefacts,
+// stores, raw JSON views); a number is rounded only where it becomes text or a chart label.
+// Use: const N = displayRounding({ lang: "en", group: "’", na: "–" }); then N.money(38250) is "CHF 38’300".
+function displayRounding(opts) {
+  const o = Object.assign({ lang: "en", group: "’", na: "–", minus: "−" }, opts || {});
+  const WORDS = { en: { m: "m", below: "below", above: "above" }, de: { m: "Mio.", below: "unter", above: "über" } };
+  const w = () => WORDS[o.lang] || WORDS.en;
+  const ok = v => v !== null && v !== undefined && v !== "" && typeof v !== "boolean" && Number.isFinite(Number(v));
+  const grouped = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, o.group);
+  // d decimals, the integer part grouped, a true minus sign, never "-0"; sign: "+" before a positive figure
+  function fixed(v, d, sign) {
+    const x = Number(v), t = Math.abs(x).toFixed(d || 0), parts = t.split(".");
+    const body = grouped(parts[0]) + (parts[1] ? "." + parts[1] : "");
+    return (Number(t) === 0 ? "" : x < 0 ? o.minus : sign ? "+" : "") + body;
+  }
+  const stepped = (x, step) => Math.sign(x) * Math.round(Math.abs(x) / step) * step;
+  // CHF, EUR, USD: below 1 000 whole units; to 99 999 the nearest 100; to 999 999 the nearest 1 000; then millions, two decimals
+  function amountText(v) {
+    const x = Number(v), a = Math.abs(x);
+    if (a < 999.5) return fixed(x, 0);
+    if (a < 99950) return fixed(stepped(x, 100), 0);
+    if (a < 999500) return fixed(stepped(x, 1000), 0);
+    return fixed(x / 1e6, 2) + " " + w().m;
+  }
+  const pre = (cur, text) => cur ? cur + " " + text : text;
+  const N = {
+    opts: o,
+    ok,
+    fixed: (v, d, sign) => ok(v) ? fixed(v, d, sign) : o.na,
+    // an amount by the stepped rule, with its currency in front ("" for none)
+    money: (v, cur = "CHF") => ok(v) ? pre(cur, amountText(v)) : o.na,
+    amount: v => ok(v) ? amountText(v) : o.na,
+    // a figure the client stated (a fee, a deposit, a price): shown as stated, whole units unless it has cents
+    stated: (v, cur = "CHF") => ok(v) ? pre(cur, fixed(v, Number.isInteger(Number(v)) ? 0 : 2)) : o.na,
+    // returns, rates, inflation: one decimal, percent; rate takes a fraction (0.049), ratePct a percent (4.9)
+    rate: (v, sign) => ok(v) ? fixed(Number(v) * 100, 1, sign) + " %" : o.na,
+    ratePct: (v, sign) => ok(v) ? fixed(v, 1, sign) + " %" : o.na,
+    // percentage points (a shift between two rates given in percent)
+    pp: (v, sign = true) => ok(v) ? fixed(v, 1, sign) + " pp" : o.na,
+    // chances: whole percent; below 1 % and above 99 % in words; 0 % and 100 % only when every path agrees (exactly 0 or 1)
+    chance: v => {
+      if (!ok(v)) return o.na;
+      const p = Number(v);
+      if (p <= 0) return "0 %";
+      if (p >= 1) return "100 %";
+      if (p < 0.01) return w().below + " 1 %";
+      if (p > 0.99) return w().above + " 99 %";
+      return Math.round(p * 100) + " %";
+    },
+    // portfolio weights and shares: whole percent; below 1 % one decimal; 0 is "–"; weight takes a fraction, weightPct a percent
+    weightPct: v => {
+      if (!ok(v)) return o.na;
+      const p = Number(v), a = Math.abs(p);
+      if (a === 0) return "–";
+      if (a < 0.05) return w().below + " 0.1 %";
+      return fixed(p, a < 0.95 ? 1 : 0) + " %";
+    },
+    weight: v => ok(v) ? N.weightPct(Number(v) * 100) : o.na,
+    // model levels without a unit (scores, expertise, network, health): the word first when there is one, two decimals
+    level: (v, word) => ok(v) ? (word ? word + " (" + fixed(v, 2) + ")" : fixed(v, 2)) : o.na,
+    // ratios and durations one decimal; betas two
+    ratio: v => ok(v) ? fixed(v, 1) : o.na,
+    beta: v => ok(v) ? fixed(v, 2) : o.na,
+    // a change with its sign, d decimals (a score change 2, a z-score 1)
+    signed: (v, d = 2) => ok(v) ? fixed(v, d, true) : o.na,
+    // years, ages, hours, seconds: whole, never grouped (2034); counts: whole, grouped (12’000)
+    whole: v => ok(v) ? fixed(Math.round(Number(v)), 0).split(o.group).join("") : o.na,
+    count: v => ok(v) ? fixed(Math.round(Number(v)), 0) : o.na,
+    // a figure of no stated kind (raw index values, a model card's series): three significant digits, whole from 100
+    auto: v => {
+      if (!ok(v)) return o.na;
+      const x = Number(v), a = Math.abs(x);
+      if (a === 0) return "0";
+      if (a >= 999500) return fixed(x / 1e6, 2) + " " + w().m;
+      if (a >= 99.5) return fixed(x, 0);
+      const d = Math.min(8, Math.max(0, 2 - Math.floor(Math.log10(a))));
+      return fixed(x, d).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+    },
+    // chart axis: about n round ticks covering lo to hi, one step past each end (the chart hides the ticks outside its
+    // range), each labelled by fn (N.money, N.rate, ...): spread the result into the chart's axis
+    ticks: (lo, hi, fn, n = 5) => {
+      lo = Number(lo) || 0; hi = Number(hi) || 0;
+      if (hi < lo) { const t = lo; lo = hi; hi = t; }
+      const raw = ((hi - lo) || Math.abs(hi) || 1) / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+      const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(s => s >= raw * 0.999);
+      const vals = [];
+      for (let k = Math.floor(lo / step + 1e-9); k * step < hi + step * (1 - 1e-9); k++) vals.push(Math.round(k * step * 1e9) / 1e9);
+      return { tickmode: "array", tickvals: vals, ticktext: vals.map(v => fn(v)) };
+    },
+  };
+  return N;
+}
+// ---- display rounding: end ----
+const N = displayRounding({ na: "–" });
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const base = () => $("api").value.replace(/\/$/, "");
 
@@ -272,16 +368,16 @@ async function renderDistribution() {
   b.innerHTML = `<div class="side"><div id="dChart"></div><div id="dSide"></div></div>`;
   const el = chartIn($("dChart"), 380);
   plot(el, [{ type: "bar", x: STATES, y: row, name: "probability", marker: { color: css("--s1"), line: { color: css("--surface"), width: 1 } },
-              hovertemplate: "state %{x}: %{y:.3f}<extra></extra>" }],
+              customdata: row.map(N.weight), hovertemplate: "state %{x}: %{customdata}<extra></extra>" }],
        { showlegend: false, shapes: [tailBand()], annotations: [tailNote()], bargap: 0.1,
-         xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" } } });
+         xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" }, tickformat: ".0%" } });
   if (!cur || cur.state === undefined || cur.state === null) { $("dSide").innerHTML = `<p class="q">Not assessed.</p>`; return; }
   $("dSide").innerHTML = `<div class="tiles"><div class="tile"><div class="v">${cur.state}</div><div class="k">state (mean-nearest)</div></div>
       <div class="tile"><div class="v">${cur.modal_state}</div><div class="k">modal state</div></div>
-      <div class="tile"><div class="v">${fmt(cur.crisis_tail)}</div><div class="k">crisis tail (states 1 to 5)</div></div></div>
+      <div class="tile"><div class="v">${N.weight(cur.crisis_tail)}</div><div class="k">crisis tail (states 1 to 5)</div></div></div>
     <table><thead><tr><th>Regime</th><th>share</th></tr></thead><tbody>${["Crisis", "Contraction", "Stagnation", "Expansion", "Boom"]
-      .map(k => `<tr><td>${k}</td><td>${fmt(cur.five_regime[k])}</td></tr>`).join("")}</tbody></table>
-    <p class="note">${esc(cur.shape)}${cur.phase ? ` · phase ${cur.phase} ${esc(cur.phase_label)}, saturation ${fmt(cur.saturation_pct, 0)}%` : ""}${cur.macro_carried ? ` · macro reading of ${cur.macro_year} carried` : ""}</p>`;
+      .map(k => `<tr><td>${k}</td><td>${N.weight(cur.five_regime[k])}</td></tr>`).join("")}</tbody></table>
+    <p class="note">${esc(cur.shape)}${cur.phase ? ` · phase ${cur.phase} ${esc(cur.phase_label)}, saturation ${N.ratio(cur.saturation_pct)} %` : ""}${cur.macro_carried ? ` · macro reading of ${cur.macro_year} carried` : ""}</p>`;
 }
 
 // ---- c. Optimism ---------------------------------------------------------------------------------------
@@ -299,11 +395,12 @@ async function renderOptimism() {
     const d = await call(`/regime/${r.regime_id}/distribution?economy=${encodeURIComponent(code)}`);
     ids.push(`${level} <code>${esc(r.regime_id)}</code>${r.cached ? " (cached)" : ""}`);
     lines.push({ x: STATES, y: d.distributions[0].distribution, name: level, mode: "lines+markers",
-                 line: { width: 2, color: css(SLOT[level]) }, marker: { size: 6 }, hovertemplate: `${level}, state %{x}: %{y:.3f}<extra></extra>` });
+                 line: { width: 2, color: css(SLOT[level]) }, marker: { size: 6 }, customdata: d.distributions[0].distribution.map(N.weight),
+                 hovertemplate: `${level}, state %{x}: %{customdata}<extra></extra>` });
   }
   b.innerHTML = "";
   plot(chartIn(b, 420), lines, { shapes: [tailBand()], annotations: [tailNote()], hovermode: "x unified",
-       xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" } } });
+       xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" }, tickformat: ".0%" } });
   b.insertAdjacentHTML("beforeend", `<p class="note">${ids.join(" · ")}</p>`);
   await loadRuns();
 }
@@ -329,10 +426,12 @@ async function renderPath() {
     });
   }
   plot(chartIn(b, 420), [
-    { x: path.map(r => r.date), y: path.map(r => r.state), name: "state (mean-nearest)", mode: "lines", line: { width: 2, color: css("--s1") } },
-    { x: path.map(r => r.date), y: path.map(r => r.modal_state), name: "modal state", mode: "markers", marker: { size: 5, color: css("--s2") } },
+    { x: path.map(r => r.date), y: path.map(r => r.state), name: "state (mean-nearest)", mode: "lines", line: { width: 2, color: css("--s1") },
+      hovertemplate: "state %{y:.0f}<extra></extra>" },
+    { x: path.map(r => r.date), y: path.map(r => r.modal_state), name: "modal state", mode: "markers", marker: { size: 5, color: css("--s2") },
+      hovertemplate: "modal state %{y:.0f}<extra></extra>" },
   ], { hovermode: "x unified", shapes, yaxis: { range: [0.5, 25.5], title: { text: "state (1 cautious, 25 aggressive)" } } });
-  if (e) b.insertAdjacentHTML("beforeend", `<p class="note">${e.carried.filter(Boolean).length} carried months.</p>`);
+  if (e) b.insertAdjacentHTML("beforeend", `<p class="note">${N.count(e.carried.filter(Boolean).length)} carried months.</p>`);
 }
 
 // ---- e. Contributions --------------------------------------------------------------------------------------
@@ -353,17 +452,19 @@ async function renderContributions() {
     if (!c.assessed) { out.innerHTML = `<p class="q">Not assessed on ${esc(c.date)}.</p>`; return; }
     if (c.projected) { out.innerHTML = `<p class="q">${esc(c.date)} is a projected month of the ${esc(c.scenario.policy)} scenario: a step of Scenario_SAA.m towards the policy's target, not a blend of inputs, so there is nothing to decompose (AGG-20). Pick a month up to ${esc(c.scenario.base_as_of)}.</p>`; return; }
     const traces = ["macro", "market", "cycle"].filter(k => c.contributions[k].contribution).map(k => ({
-      type: "bar", x: STATES, y: c.contributions[k].contribution, name: `${k} × ${fmt(c.contributions[k].weight, 3)}`,
-      marker: { color: css(SLOT[k]), line: { color: css("--surface"), width: 1 } }, hovertemplate: `${k}, state %{x}: %{y:.4f}<extra></extra>` }));
-    traces.push({ x: STATES, y: c.distribution, name: `published (${c.optimism_scale}, shift ${fmt(c.optimism_shift)})`, mode: "lines+markers",
-                  line: { width: 2, color: css("--ink-2"), dash: "dot" }, marker: { size: 5 } });
+      type: "bar", x: STATES, y: c.contributions[k].contribution, name: `${k} × ${N.weight(c.contributions[k].weight)}`,
+      marker: { color: css(SLOT[k]), line: { color: css("--surface"), width: 1 } }, customdata: c.contributions[k].contribution.map(N.weight),
+      hovertemplate: `${k}, state %{x}: %{customdata}<extra></extra>` }));
+    traces.push({ x: STATES, y: c.distribution, name: `published (${c.optimism_scale}, shift ${N.auto(c.optimism_shift)})`, mode: "lines+markers",
+                  line: { width: 2, color: css("--ink-2"), dash: "dot" }, marker: { size: 5 }, customdata: c.distribution.map(N.weight),
+                  hovertemplate: "published, state %{x}: %{customdata}<extra></extra>" });
     plot(chartIn(out, 420), traces, { barmode: "stack", bargap: 0.1, shapes: [tailBand()], annotations: [tailNote()],
-         xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" } } });
+         xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" }, tickformat: ".0%" } });
     const regimes = ["crisis", "contraction", "stagnation", "expansion", "boom"];
     out.insertAdjacentHTML("beforeend", `<div class="side" style="margin-top:12px"><div class="scroll"><table><thead><tr><th>Tilt that fired (${c.macro_year}${c.carried ? ", carried" : ""})</th>${regimes.map(r => `<th>${r}</th>`).join("")}</tr></thead><tbody>${
-        Object.entries(c.tilts).map(([k, v]) => `<tr><td>${esc(k.replaceAll("_", " "))}</td>${regimes.map(r => `<td>${fmt(v[r], 3)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="6">none</td></tr>`}</tbody></table></div>
-      <table><thead><tr><th>Macro regime</th><th>weight</th></tr></thead><tbody>${regimes.map(r => `<tr><td>${r}</td><td>${fmt(c.macro_weights[r], 3)}</td></tr>`).join("")}</tbody></table></div>
-      <p class="note">Blend weights: macro ${fmt(c.contributions.macro.weight, 3)}, market ${fmt(c.contributions.market.weight, 3)}, cycle ${fmt(c.contributions.cycle.weight, 3)}.</p>`);
+        Object.entries(c.tilts).map(([k, v]) => `<tr><td>${esc(k.replaceAll("_", " "))}</td>${regimes.map(r => `<td>${N.auto(v[r])}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="6">none</td></tr>`}</tbody></table></div>
+      <table><thead><tr><th>Macro regime</th><th>weight</th></tr></thead><tbody>${regimes.map(r => `<tr><td>${r}</td><td>${N.weight(c.macro_weights[r])}</td></tr>`).join("")}</tbody></table></div>
+      <p class="note">Blend weights: macro ${N.weight(c.contributions.macro.weight)}, market ${N.weight(c.contributions.market.weight)}, cycle ${N.weight(c.contributions.cycle.weight)}.</p>`);
   };
   $("cDate").onchange = () => draw().catch(problem);
   await draw();
@@ -380,7 +481,7 @@ async function renderMarkets() {
     { showlegend: false, margin: { l: 90, r: 40, t: 8, b: 44 }, shapes: [tailBand()],
       xaxis: { range: [0.5, 25.5], title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { autorange: "reversed" } });
   b.insertAdjacentHTML("beforeend", `<div class="scroll"><table><thead><tr><th>Market</th><th>date</th><th>state</th><th>modal</th><th>crisis tail</th><th>shape</th></tr></thead><tbody>${
-    m.map(x => `<tr><td>${esc(x.code)}</td><td>${esc(x.date || "–")}</td><td>${x.state ?? "–"}</td><td>${x.modal_state ?? "–"}</td><td>${fmt(x.crisis_tail)}</td><td>${esc(x.shape || "not assessed")}</td></tr>`).join("")}</tbody></table></div>`);
+    m.map(x => `<tr><td>${esc(x.code)}</td><td>${esc(x.date || "–")}</td><td>${x.state ?? "–"}</td><td>${x.modal_state ?? "–"}</td><td>${N.weight(x.crisis_tail)}</td><td>${esc(x.shape || "not assessed")}</td></tr>`).join("")}</tbody></table></div>`);
 }
 
 // ---- g. Scenarios ------------------------------------------------------------------------------------------
@@ -393,7 +494,7 @@ async function renderScenarios() {
   b.innerHTML = `<div class="filters">${policies.map(p => `<button type="button" data-p="${p.policy}">${esc(p.label_en)}</button>`).join("")}
       <button class="primary" id="scAll" type="button">Issue all four</button></div>
     <div class="scroll"><table><thead><tr><th>Policy</th><th>Deutsch</th><th>target mix (boom, recovery, contraction, bust)</th><th>description</th></tr></thead><tbody>${
-      policies.map(p => `<tr><td>${esc(p.label_en)}</td><td>${esc(p.label_de)}</td><td>${["boom", "recovery", "contraction", "bust"].map(k => fmt(p.target_mix[k])).join(" / ")}</td><td>${esc(p.description_en)}</td></tr>`).join("")}</tbody></table></div>
+      policies.map(p => `<tr><td>${esc(p.label_en)}</td><td>${esc(p.label_de)}</td><td>${["boom", "recovery", "contraction", "bust"].map(k => N.weight(p.target_mix[k])).join(" / ")}</td><td>${esc(p.description_en)}</td></tr>`).join("")}</tbody></table></div>
     <div id="scOut"></div>`;
   const issue = async list => {
     b.querySelectorAll("button").forEach(x => x.disabled = true);
@@ -414,22 +515,25 @@ async function renderScenarios() {
     const dists = await Promise.all(listed.map(x => call(`/regime/${x.regime_id}/distribution?economy=${encodeURIComponent(code)}`)));
     $("scRows").innerHTML = listed.map((x, i) => {
       const cur = currents[i].economies.find(e => e.code === code) || currents[i].markets.find(m => m.code === code) || {};
-      return `<tr><td>${esc(x.policy)}</td><td><code>${esc(x.regime_id)}</code></td><td>${esc(x.created_at.slice(0, 16).replace("T", " "))}</td><td>${esc(currents[i].scenario.scenario_date)}</td><td>${cur.state ?? "–"}</td><td>${fmt(cur.crisis_tail)}</td></tr>`;
+      return `<tr><td>${esc(x.policy)}</td><td><code>${esc(x.regime_id)}</code></td><td>${esc(x.created_at.slice(0, 16).replace("T", " "))}</td><td>${esc(currents[i].scenario.scenario_date)}</td><td>${cur.state ?? "–"}</td><td>${N.weight(cur.crisis_tail)}</td></tr>`;
     }).join("");
     const since = currents[0].scenario.base_as_of.slice(0, 4) - 4 + "-01-01";
     const pc = card(`${esc(code)}: state, history and the 60 projected months`, "Where does each policy take this economy (or market) from its latest reading?",
       "Grey: the base Regime. The shaded span is projected (Scenario_SAA.m stepping); the last month is the target.");
     const b0 = basePath.paths[0].path.filter(r => r.date >= since);
-    plot(chartIn(pc, 420), [{ x: b0.map(r => r.date), y: b0.map(r => r.state), name: "base", mode: "lines", line: { width: 2, color: css("--rest") } },
+    plot(chartIn(pc, 420), [{ x: b0.map(r => r.date), y: b0.map(r => r.state), name: "base", mode: "lines", line: { width: 2, color: css("--rest") },
+        hovertemplate: "base: state %{y:.0f}<extra></extra>" },
       ...listed.map((x, i) => { const r = paths[i].paths[0].path.filter(q => q.date >= currents[i].scenario.base_as_of);
-        return { x: r.map(q => q.date), y: r.map(q => q.state), name: x.policy, mode: "lines", line: { width: 2, color: css(SLOT[x.policy]) } }; })],
+        return { x: r.map(q => q.date), y: r.map(q => q.state), name: x.policy, mode: "lines", line: { width: 2, color: css(SLOT[x.policy]) },
+                 hovertemplate: `${x.policy}: state %{y:.0f}<extra></extra>` }; })],
       { hovermode: "x unified", yaxis: { range: [0.5, 25.5], title: { text: "state (1 cautious, 25 aggressive)" } },
         shapes: [{ type: "rect", xref: "x", yref: "paper", x0: currents[0].scenario.projected_from, x1: currents[0].scenario.scenario_date, y0: 0, y1: 1, fillcolor: css("--carry"), line: { width: 0 }, layer: "below" }] });
     const dc = card(`${esc(code)}: the distribution that represents each scenario`, "The 25-state distribution on the scenario's last month (the target reached).",
       "The .m file's kernels: Bust on states 1 to 10, Contraction 3 to 16, Recovery 10 to 23, Boom 16 to 25.");
     plot(chartIn(dc, 380), listed.map((x, i) => ({ x: STATES, y: dists[i].distributions[0].distribution, name: `${x.policy} (${dists[i].date})`,
-      mode: "lines+markers", line: { width: 2, color: css(SLOT[x.policy]) }, marker: { size: 4 } })),
-      { shapes: [tailBand()], annotations: [tailNote()], xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" } } });
+      mode: "lines+markers", line: { width: 2, color: css(SLOT[x.policy]) }, marker: { size: 4 },
+      customdata: dists[i].distributions[0].distribution.map(N.weight), hovertemplate: `${x.policy}, state %{x}: %{customdata}<extra></extra>` })),
+      { shapes: [tailBand()], annotations: [tailNote()], xaxis: { title: { text: "state (1 cautious, 25 aggressive)" }, dtick: 2 }, yaxis: { title: { text: "probability" }, tickformat: ".0%" } });
   };
   await renderScenarios.draw();
 }

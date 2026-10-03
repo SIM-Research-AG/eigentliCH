@@ -4,15 +4,16 @@
 // named, and nothing measures one against the other.
 
 import { api, detailText } from '../app/api.js';
-import { amount, button, clear, h, notice, when, put } from '../app/dom.js';
+import { button, clear, h, notice, when, put } from '../app/dom.js';
+import { amount, rate, stated } from '../app/format.js';
 import { t } from '../app/i18n.js';
-import { basisLabel, basisSwitch, currentBasis, pct } from '../app/basis.js';
+import { basisLabel, basisSwitch, currentBasis } from '../app/basis.js';
 import { chanceWords, planSentence } from './outlook.js';
 import { balanceChart, capitalsChart } from '../app/charts.js';
 
 export function showValue(value, L) {
   if (value === null || value === undefined) return '';
-  if (typeof value === 'number') return Math.abs(value) >= 10000 ? amount(value, L) : String(value);
+  if (typeof value === 'number') return Math.abs(value) >= 10000 ? stated(value, L) : String(value);
   if (typeof value === 'string') return value;
   if (Array.isArray(value)) {
     if (value.every((v) => typeof v === 'string')) return value.join(', ');
@@ -73,10 +74,12 @@ export function totals(sheet, L) {
     ['sheet.financial_assets', sheet.totals.financial_assets], ['sheet.human_assets', sheet.totals.human_assets],
     ['sheet.liabilities_total', sheet.totals.liabilities], ['sheet.net_worth', sheet.totals.net_worth],
   ];
-  return h('table', { class: 'figures' }, rows.map(([k, v]) => h('tr', {}, [
-    h('th', { text: t(k, L) }),
-    h('td', { class: 'num', text: v === null || v === undefined ? t('sheet.open', L) : `CHF ${amount(v, L)}` }),
-  ])));
+  // rounded parts next to a rounded total, each from lbs's exact figure: said once (ROUNDING.md)
+  return h('table', { class: 'figures' }, [h('caption', { class: 'small muted', text: t('format.rounded', L) }),
+    ...rows.map(([k, v]) => h('tr', {}, [
+      h('th', { text: t(k, L) }),
+      h('td', { class: 'num', text: v === null || v === undefined ? t('sheet.open', L) : `CHF ${amount(v, L)}` }),
+    ]))]);
 }
 
 /** A date (ISO) as 31.12.2040. */
@@ -107,13 +110,13 @@ export function goalFigures(views, basis, L) {
   if (m && m[basis]) {
     const rr = m[basis].required_return;
     rows.push(h('tr', {}, [h('th', { text: t('home.required_return', L, { name: m.name || t('gap.this_goal', L) }) }),
-      h('td', { class: 'num', text: rr === null || rr === undefined ? t('home.required_none', L) : `${pct(rr, L)} ${t('unit.per_year', L)}` }),
+      h('td', { class: 'num', text: rr === null || rr === undefined ? t('home.required_none', L) : `${rate(rr, L)} ${t('unit.per_year', L)}` }),
       h('td', { class: 'small muted', text: shown })]));
   }
   if (!rows.length) return box;
   put(box, h('h3', { text: t('home.goals_title', L) }), h('table', { class: 'figures' }, rows));
   if (basis === 'real' && views.inflation) {
-    put(box, h('p', { class: 'small muted', text: t('basis.inflation', L, { rate: pct(views.inflation.annual_rate, L) }) }));
+    put(box, h('p', { class: 'small muted', text: t('basis.inflation', L, { rate: rate(views.inflation.annual_rate, L) }) }));
   }
   return box;
 }
@@ -172,7 +175,7 @@ export function pictureBlock(pic, basis, L) {
     { title: t('picture.debts_and_net', L), parts: middle },
     { title: t('picture.claims', L), parts: claims, note: claims.length ? null : t(pic.claims_available ? 'picture.nothing' : 'picture.no_claims', L) }];
   put(box, balanceChart(columns, { title: t('picture.title', L), desc: t('picture.desc', L) }, L),
-    h('p', { class: 'small muted', text: t('picture.claims_basis', L, { basis: basisLabel(basis, L) }) }));
+    h('p', { class: 'small muted', text: `${t('picture.claims_basis', L, { basis: basisLabel(basis, L) })} ${t('format.rounded', L)}` }));
   if (typeof net === 'number' && net < 0) put(box, notice(t('picture.negative', L, { amount: amount(-net, L) }), 'calm'));
   const yearly = pic.yearly_goals || [];
   if (yearly.length) put(box, h('p', { class: 'small muted', text: t('picture.yearly', L, { names: yearly.map((n) => n || t('picture.this_goal', L)).join(', ') }) }));

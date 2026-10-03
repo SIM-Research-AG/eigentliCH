@@ -708,3 +708,23 @@ does not draw the bar or the chart and says instead "von Ihnen zurückgehalten, 
 Gesundheit über die Zeit wird nicht gezeigt, weil Sie Ihre Gesundheitsangaben zurückgehalten haben" (over time). The
 mirror of lbsim's field (`contracts.LbsimCapitals`, on `LbsimPaths.regimes[]`, optional) checks one value per year end
 of the horizon for each quantile and a scale for each band, and takes a `health` left out. App version 1.5.0.
+
+### EIG-73 · Every figure on a page is rounded for display (03.10.2026)
+The owner's rule (`review/ROUNDING.md`): one formatter in the client, `client/app/format.js`, used by every surface and
+chart (values, labels and the figures put into the i18n sentences), and its Python twin, `eigentlich.rounding`, for
+the texts the server writes with a number in them (`outlook.figure_text`: a finding's figures in its title, trigger,
+reason and action). `dom.amount` and `basis.pct` are gone; no `Intl.NumberFormat` is left outside `format.js`, and a
+`toFixed` in `charts.js` only places a mark. CHF amounts: below 1 000 whole francs, 1 000 to 99 999 to the nearest 100,
+100 000 to 999 999 to the nearest 1 000, from 1 000 000 millions with two decimals ("CHF 1.35 Mio." / "CHF 1.35 m").
+Rates (a required return, inflation, an assumption's rate): one decimal. Chances (the outlook's chance per goal and
+Regime, the plan's chance and the confidence asked): whole percent, "unter 1 %" / "über 99 %" at the ends, 0 % and
+100 % only for exactly 0 and 1; the sentence is now "In 68 % der simulierten Verläufe" rather than "In 68 von 100".
+Weights and shares (the Allocation's weights, a pensum, the work share): whole percent, below 1 % one decimal, 0 (and
+an optimiser's 1e-16) as "–". Model levels: two decimals after their word ("mittel (0.62 von 1.00)", unchanged).
+Hours, minutes and counts: whole; a year ungrouped. The client's own figures are shown as stated (`format.stated`: a
+position's magnitude, a goal's target and share of the saving, an answer), and a field's value is never rounded.
+Rounding is half up on the magnitude. The Swiss style is unchanged (the browser's de-CH and en-CH: an apostrophe
+between thousands, a decimal point); the twin writes the same. Rounded parts next to a rounded total say so once: the
+totals table and the life balance sheet carry "Beträge gerundet." / "Amounts rounded."; each total is lbs's own exact
+figure rounded, never a sum of rounded parts. The store, the payloads and the decision log (the client's stated
+figures, `decisions.number`) keep the exact values. App version 1.5.1.

@@ -369,7 +369,7 @@ def test_the_page_is_in_one_language_and_names_no_id(http, st, world, engines):
     page = http.get(f"/api/clients/{cid}/outlook?language=de").json()
     assert page["earning_power"][0]["name"] == "Lea" and page["earning_power"][0]["level_basis"] == "stated"
     f = page["findings"][0]
-    assert "CHF 71’634" in f["trigger"] and "{" not in f["trigger"]
+    assert "CHF 71’600" in f["trigger"] and "71’634" not in f["trigger"] and "{" not in f["trigger"]
     assert {x["role"] for x in page["paths"]["allocation"]["by_role"]} == {"Wertsteigerung", "Einkommen",
                                                                          "Stabilisierung", "Absicherung"}
     base = next(r for r in page["paths"]["regimes"] if r["key"] == "base")

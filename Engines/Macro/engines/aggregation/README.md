@@ -158,6 +158,7 @@ golden/                frozen inputs, the first draft's output on them, regressi
                        scenario_saa/: Scenario_SAA.m and its frozen targets and paths
 testbench/             development front end (Plotly): Run, Distribution, Optimism, Path, Contributions,
                        Markets, Scenarios. Served at / and in the cockpit (Test benches, aggregation). Not deployed.
+                       Rounds for display per review/ROUNDING.md with the shared snippet from cockpit/dev/display_rounding.js (cockpit C-37).
 dev/                   deploy builder. Not deployed.
 ```
 

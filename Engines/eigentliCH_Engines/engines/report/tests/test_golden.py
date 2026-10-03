@@ -196,3 +196,64 @@ def test_a_prose_free_report_is_the_same_on_a_fresh_store(produced):
     for c in CASES:
         if not c["request"]["prose"]:
             assert produced[c["name"]]["artefact_id"] == gc.frozen(c["name"])["report"]["artefact_id"]
+
+
+# ---------------------------------------------------------------------------- display rounding (REP-44)
+
+def _too_precise(display: str, kind: str) -> list[str]:
+    """What in one display carries more digits than ROUNDING.md allows for its kind (an independent reading of the
+    rule, not the formatter run again)."""
+    bad: list[str] = []
+    for m in re.finditer(r"CHF (\d{1,3}(?:[ ,]\d{3})*)([,.]\d+)?( Mio\.| m)?", display):
+        whole, frac, mio = m.group(1), m.group(2), m.group(3)
+        if mio:
+            if not frac or len(frac) != 3:
+                bad.append(m.group(0))
+            continue
+        if frac:
+            bad.append(m.group(0))
+            continue
+        n = int(re.sub(r"[ ,]", "", whole))
+        if (n >= 1_000_000) or (n >= 100_000 and n % 1000) or (1_000 <= n < 100_000 and n % 100):
+            bad.append(m.group(0))
+    for m in re.finditer(r"(\d+)(?:[.,](\d+))? ?%", display):
+        places = len(m.group(2) or "")
+        n = int(m.group(1))
+        if kind == "rate" and places != 1:
+            bad.append(m.group(0))
+        if kind in ("chance", "weight") and places > (1 if n == 0 else 0):
+            bad.append(m.group(0))
+    if kind == "level":
+        bad += [t for t in re.findall(r"\d+[.,](\d+)", display) if len(t) != 2]
+    if kind == "whole":
+        bad += re.findall(r"\d+[.,]\d+", display)
+    return bad
+
+
+@pytest.mark.parametrize("name", NAMES)
+def test_no_display_carries_more_digits_than_the_rule_allows(name, produced):
+    """Every figure a golden page prints (a fact's display, in the text and in the charts) is rounded for display
+    by its kind; the fact keeps its exact value (REP-44)."""
+    from report import rounding as rnd
+
+    for report in (gc.frozen(name)["report"], produced[name]):
+        for f in report["facts"]:
+            if f["unit"] not in ("chf", "chf_per_year", "share", "number", "count") or isinstance(f["value"], bool):
+                continue
+            kind = rnd.kind_of(f["fact_id"], f["unit"])
+            if f["fact_id"].startswith("caller."):
+                continue                     # the caller's own figure, shown as stated
+            assert not _too_precise(f["display"], kind), (f["fact_id"], f["display"])
+        page = report["html"]
+        for m in re.finditer(r'<(?:span|b|tspan) data-fact="([^"]+)">([^<]*)<', page):
+            fact = next(x for x in report["facts"] if x["fact_id"] == m.group(1))
+            if fact["unit"] in ("chf", "chf_per_year", "share", "number", "count"):
+                kind = rnd.kind_of(fact["fact_id"], fact["unit"])
+                assert not _too_precise(htmllib.unescape(m.group(2)), kind), (m.group(1), m.group(2))
+
+
+def test_the_rounding_scan_catches_a_raw_figure():
+    assert _too_precise("CHF 1 035 412", "money") and _too_precise("CHF 38 234", "money")
+    assert _too_precise("45,0 %", "weight") and _too_precise("5,25 %", "rate") and _too_precise("0,957", "level")
+    assert not _too_precise("CHF 1,04 Mio.", "money") and not _too_precise("CHF 38 200 pro Jahr", "money")
+    assert not _too_precise("0,4 %", "weight") and not _too_precise("5,3 %", "rate") and not _too_precise("unter 1 %", "chance")

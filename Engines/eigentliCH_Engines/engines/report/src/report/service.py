@@ -35,6 +35,7 @@ from urllib.parse import urlparse
 from pydantic import ValidationError
 
 from . import ENGINE, ENGINE_VERSION, calibration as seeds
+from . import rounding as rnd
 from . import charts, engine, render
 from . import vocabulary as voc
 from . import store as st
@@ -555,7 +556,7 @@ def bench_client_label(report: Report) -> str:
     worth = by.get("lbs.totals.net_worth")
     if worth is not None and isinstance(worth.value, (int, float)):
         amount = float(worth.value)
-        parts.append("net worth CHF " + (f"{amount / 1e6:.1f}m" if abs(amount) >= 1e6 else f"{amount / 1e3:.0f}k"))
+        parts.append("net worth " + rnd.money(amount, "en"))   # rounded as the pages are (REP-44)
     if any(f.fact_id.startswith("lbsim.") for f in report.facts):
         parts.append("with the outlook")
     return " · ".join(parts)

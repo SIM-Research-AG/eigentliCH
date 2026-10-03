@@ -107,6 +107,7 @@ src/honi/
 tests/                 unit, property, golden, API, store and concurrency tests
 golden/                frozen MATLAB references and the snapshot (see golden/README.md)
 testbench/             development front end (Plotly). Not deployed.
+                       Rounds for display per review/ROUNDING.md with the shared snippet from cockpit/dev/display_rounding.js (cockpit C-37).
 dev/                   deploy builder. Not deployed.
 ```
 

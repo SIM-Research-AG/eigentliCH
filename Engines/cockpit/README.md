@@ -134,6 +134,9 @@ engine NN listens on 80NN. The consumer app is an entry of `kind: app` on 8017, 
 number (C-18). `curator_db` names the curator's connection (host, port, `simtech`, schema
 `eigentlich`, user `curator`); its password is never in `config.yaml`. Nothing is hard coded.
 
+Every number people read is rounded for display by one rule (`review/ROUNDING.md`, C-37): one formatter,
+`dev/display_rounding.js`, copied verbatim into the page and into every engine's test bench.
+
 ## Layout
 
 ```text
@@ -156,6 +159,7 @@ cockpit/
   dev/make_deploy.py     writes ../Macro/deploy/cockpit, CIO pages only (C-03)
   dev/build_presets.py   builds, validates (pcp) and saves the target-curve and mandate presets (C-22)
   dev/presets/           the copy of what build_presets.py saved; the tests read it
+  dev/display_rounding.js  the display-rounding formatter, canonical copy (C-37); the page and the benches carry it verbatim
   data/                  decisions.jsonl and logs/ (local state, git-ignored)
   tests/test_api.py      fake engines, no database
   tests/test_curator.py  the curator workflow on a throwaway schema t_<hex>
