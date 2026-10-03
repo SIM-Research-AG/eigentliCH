@@ -241,6 +241,21 @@ columns are filled from `dev/reports/use-cases-outlook.json` and `use-cases-chec
 38. **lbsim's reasons for "no allocation"** are the app's: without a parameter set, a run, a base run, or in another
     currency than CHF, the page says so itself and lbsim is sent no Allocation (it then waits for one).
 
+## The deployment's engine changes (03.10.2026, EIG-74 to EIG-76)
+
+* **Built** from `Engines/deploy/ENGINE_CHANGES.md` items 3, 6, 8 and 10: the app's lifespan applies the schema
+  (`Service.startup()`, idempotent; `init-db` stays), so `/health` is ok on an empty database, and an unreachable
+  store still lets the app start with `/health` `degraded`; `Store.initialise()` takes the advisory lock
+  `hashtext('eigentlich.schema')` first; `EIGENTLICH_REPORT_DIR` for the reports of `seed` and `migrate` (default
+  `dev/reports`); `serve` leaves `/health` out of uvicorn's access log. App version 1.5.2. No schema change, no
+  contract change.
+* **Tests:** 576 passed, 4 skipped (the opt-in live tests). New: `tests/test_app_startup.py`,
+  `tests/test_schema_lock.py`, `tests/test_access_log.py`. Under load from other suites running at the same time,
+  `test_app_lbsim.py::test_lbsim_runs_only_on_a_new_sheet_id` failed once on timing and the module teardown's
+  namespace count once saw another suite's schema; both passed on a rerun.
+* **The running app on 8017 needs a restart** to serve 1.5.2. At that start it applies `schema.sql` to the real
+  store, exactly as `init-db` would.
+
 ## Rounding for display (03.10.2026, EIG-73)
 
 * **Built** to the owner's rule (`review/ROUNDING.md`): `client/app/format.js`, the client's one number formatter

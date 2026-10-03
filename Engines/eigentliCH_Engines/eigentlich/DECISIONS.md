@@ -728,3 +728,26 @@ between thousands, a decimal point); the twin writes the same. Rounded parts nex
 totals table and the life balance sheet carry "Beträge gerundet." / "Amounts rounded."; each total is lbs's own exact
 figure rounded, never a sum of rounded parts. The store, the payloads and the decision log (the client's stated
 figures, `decisions.number`) keep the exact values. App version 1.5.1.
+
+### EIG-74 · The app applies its schema at start-up, under a lock (03.10.2026)
+`Engines/deploy/ENGINE_CHANGES.md` items 6 and 3. The app's lifespan calls `Service.startup()`, which calls
+`Store.initialise()`, as every engine does, so `/health` is ok on an empty database; `init-db` stays and does the
+same. `initialise()` takes `pg_advisory_xact_lock(hashtext('eigentlich.schema'))` (`store.SCHEMA_LOCK`) as the first
+statement of its transaction, so the app and an `init-db` (or a second app) never apply `schema.sql` at once: without
+it PostgreSQL can deadlock on `pg_proc`, as lbsim's workers did on 01.10.2026. Unlike an engine, the app does not
+stop when the store cannot be reached or prepared at start-up: it says why on stderr and starts, and `/health` says
+`degraded` (as before this change) until the store is there; it is the client's front door, and a crash loop would
+say less than `/health` does. Tests: `tests/test_app_startup.py` (an app started on a schema nobody created has every
+table and `/health` ok; a second start on a used schema changes nothing; an unreachable store gives `degraded`) and
+`tests/test_schema_lock.py` (4 threads with their own connections at once, 3 rounds, none fails; `initialise()` waits
+for the lock). App version 1.5.2.
+
+### EIG-75 · `/health` stays out of the access log (03.10.2026)
+Item 10. `python -m eigentlich serve` puts a logging filter on `uvicorn.access` (`__main__.quiet_health_probes`)
+that drops the records whose path is `/health`; every other request is still logged. The container's health check
+calls it every 30 seconds. No new dependency, no setting.
+
+### EIG-76 · `EIGENTLICH_REPORT_DIR` (03.10.2026)
+Item 8. `seed` and `migrate` save their report in the folder `EIGENTLICH_REPORT_DIR` names (created when missing),
+or in `ROOT/dev/reports` when it is unset or blank, as before. The container image has no `dev/` and runs as an
+unprivileged user; the server itself never writes a report.

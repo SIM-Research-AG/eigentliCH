@@ -9,9 +9,27 @@ serves and sends one warm-up token, without printing any header.
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 
 from .settings import ConfigError, load
+
+
+class _NoHealthAccess(logging.Filter):
+    """Leaves ``/health`` out of uvicorn's access log (ENGINE_CHANGES item 10): the container's health check calls
+    it every 30 seconds. Every other request is still logged."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        args = record.args
+        path = args[2] if isinstance(args, tuple) and len(args) > 2 else ""
+        return str(path).split("?", 1)[0] != "/health"
+
+
+def quiet_health_probes() -> None:
+    """Install the filter on ``uvicorn.access`` once; ``uvicorn.run`` keeps a logger's filters."""
+    logger = logging.getLogger("uvicorn.access")
+    if not any(isinstance(f, _NoHealthAccess) for f in logger.filters):
+        logger.addFilter(_NoHealthAccess())
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -57,6 +75,7 @@ def main(argv: list[str] | None = None) -> int:
 
     import uvicorn
 
+    quiet_health_probes()
     uvicorn.run("report.api:create_app", factory=True, host=settings.host, port=settings.port)
     return 0
 

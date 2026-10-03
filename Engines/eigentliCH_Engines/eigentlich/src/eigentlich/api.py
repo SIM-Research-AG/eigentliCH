@@ -189,6 +189,7 @@ def create_app(settings: Optional[AppSettings] = None, *,
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
+        service.startup()
         yield
         service.close()
 

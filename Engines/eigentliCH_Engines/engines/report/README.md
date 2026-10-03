@@ -36,8 +36,11 @@ First time: `..\..\.venv\Scripts\pip install --no-deps -e .`, the role and schem
 (git-ignored) and the spark7 token in the family `.env` (`eigentliCH_Engines\.env`, git-ignored). A report needs
 the engines it draws on running (`pcp` on 8007, `lbs` on 8013, `lbsim` on 8014). `python -m report probe` checks the model service.
 
+Every process applies `schema.sql` at start-up under the advisory lock `hashtext('report.schema')`, so several starting at once
+queue instead of deadlocking (REP-45); `serve` leaves `/health` out of uvicorn's access log (REP-46).
+
 ```bash
-python -m pytest              # 590 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
+python -m pytest              # 593 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
 python -m pytest -m live -s   # one report with prose against the real spark7
 ```
 

@@ -84,6 +84,18 @@ paths under a new key. The samples were rebuilt under 1.4.0 (their bytes changed
   touched by the change itself, but a new `POST /run` for a client supersedes them (section 5).
 - Tests: 974 passed, 23 skipped, 16 slow deselected (`test_capitals` new, 10; `test_api` has the picker).
 
+## The deployment's engine changes (03.10.2026, LBSIM-20 to LBSIM-22)
+
+- **Schema lock** (`ENGINE_CHANGES.md` item 3): `Store.initialise()` takes
+  `pg_advisory_xact_lock(hashtext('lbsim.schema'))` before it applies `schema.sql`, so the API and the workers
+  starting together queue instead of deadlocking on `pg_proc`. The deployment's `RUN_STAGGER` is no longer needed
+  for this (the deployment folder was not touched).
+- **`/health` out of the access log** (item 10): a filter on `uvicorn.access`, installed by `serve`.
+- **Engine version stays `lbsim@1.1.0`** (LBSIM-22): it enters the findings key, so a bump would move every id
+  and key and have every plan calculated again after a restart.
+- Tests: 1002 passed, 23 skipped, 16 slow deselected. **Restart:** only for the quieter access log, and best when no plan is running;
+  the lock takes effect at the next start of `serve` or a worker. The live lbsim was neither restarted nor written to.
+
 ## Calibration 1.6.0 and the 3-hour budget (owner, 03.10.2026)
 
 Two use-case plans failed under 1.5.0 (one not converging within 500 iterations, one past 120 minutes). DECISIONS

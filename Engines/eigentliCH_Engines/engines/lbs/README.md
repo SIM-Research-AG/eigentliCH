@@ -32,8 +32,11 @@ First time: `..\..\.venv\Scripts\python -m pip install --no-deps -e .`, the role
 `python -m store.provision` (in `Projects\Engines\Instruments`), the password in `config.local.yaml`
 (`database: password: ...`, git-ignored), then `..\..\.venv\Scripts\python -m lbs init-db`.
 
+Every process applies `schema.sql` at start-up under the advisory lock `hashtext('lbs.schema')`, so several starting at once
+queue instead of deadlocking (LBS-43); `serve` leaves `/health` out of uvicorn's access log (LBS-44).
+
 ```bash
-..\..\.venv\Scripts\python -m pytest     # 475 tests, against the real PostgreSQL server
+..\..\.venv\Scripts\python -m pytest     # 478 tests, against the real PostgreSQL server
 ```
 
 ## What it computes, and from which prototype service

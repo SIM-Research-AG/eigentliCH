@@ -28,6 +28,10 @@ from .settings import DatabaseConfig
 PRIORITY = {"curator": 2, "client": 1, "system": 0}
 
 
+#: The advisory lock ``initialise()`` holds while it applies ``schema.sql`` (one key per engine).
+SCHEMA_LOCK = "lbsim.schema"
+
+
 class StoreError(RuntimeError):
     """The store is unreachable or not initialised. The message says what to run."""
 
@@ -80,6 +84,10 @@ class Store:
         """Create the schema's tables. Idempotent."""
         ddl = resources.files("lbsim").joinpath("schema.sql").read_text(encoding="utf-8")
         with self.session() as conn:
+            # Several processes start together (the API and its workers, or a restart of the container).
+            # The lock queues them, so two never apply the DDL at once: without it PostgreSQL can deadlock on
+            # pg_proc. Transaction-level, so the commit or rollback at the end of the session releases it.
+            conn.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (SCHEMA_LOCK,))
             conn.execute(f"CREATE SCHEMA IF NOT EXISTS {self.config.schema}")
             conn.execute(f"SET search_path TO {self.config.schema}, public")
             conn.execute(ddl)

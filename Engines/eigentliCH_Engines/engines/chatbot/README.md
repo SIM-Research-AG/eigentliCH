@@ -35,8 +35,11 @@ First time: `..\..\.venv\Scripts\pip install --no-deps -e .`, the role and schem
 (`eigentliCH_Engines\.env`, git-ignored: `SPARK7_CLIENT_ID`, `SPARK7_CLIENT_SECRET`). `python -m chatbot probe`
 checks the model service without printing a header; `python -m chatbot init-db` creates the tables.
 
+Every process applies `schema.sql` at start-up under the advisory lock `hashtext('chatbot.schema')`, so several starting at once
+queue instead of deadlocking (CHB-24); `serve` leaves `/health` out of uvicorn's access log (CHB-25).
+
 ```bash
-python -m pytest              # 151 tests, real PostgreSQL, spark7 stand-in on a real socket
+python -m pytest              # 155 tests, real PostgreSQL, spark7 stand-in on a real socket
 python -m pytest -m live -s   # one test against the real spark7
 ```
 

@@ -3,7 +3,15 @@
 Where the build stands, how to pick it up, and what is still open. The README is the reference; this file is the
 resume point. Model-derived research output; not investment advice.
 
-## State (03.10.2026)
+## State (03.10.2026, the deployment's engine changes)
+
+- **`Engines/deploy/ENGINE_CHANGES.md` items 3 and 10** (LBS-43, LBS-44): `Store.initialise()` takes a transaction-level
+  advisory lock before it applies `schema.sql`, so processes starting together queue instead of deadlocking on
+  `pg_proc`; `serve` leaves `/health` out of uvicorn's access log. No contract, figure or key moves, so the
+  engine version stays `lbs@1.4.0`. 478 tests pass. **The running server on 8013 needs a restart** for the quieter
+  access log; the lock matters only at the next start, so nothing is urgent.
+
+## State (03.10.2026, the bench)
 
 - **The test bench shows what lbs does** (LBS-42, owner's decisions of 03.10.2026, `review/VISUALS_INTERFACES.md`):
   a plain explanation, a picker of real use-case clients that loads a stored sheet and its request (new read-only

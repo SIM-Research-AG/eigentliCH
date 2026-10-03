@@ -7,7 +7,8 @@ fix-encoding | lbs-backfill | lbsim-backfill``.
 ``migrate``  copy the prototype's SQLite data in one transaction; print the reconciliation. Exit 1 on any
              mismatch; exit 0 with "already migrated" when the same file is already in the target.
 ``show``     what the store holds: counts per table, content keys, bind check, migrations.
-``serve``    the consumer web app on the host and port of ``config.yaml`` (``app:``, 8017 by default).
+``serve``    the consumer web app on the host and port of ``config.yaml`` (``app:``, 8017 by default); it applies
+             the schema at start-up and leaves ``/health`` out of the access log.
 ``align-content --curator ID|EMAIL``  save the questionnaires aligned to the scoring maps as new versions by
              that curator (EIG-44, EIG-45); nothing when already aligned. Prints the bind check.
 ``revise-content --curator ID|EMAIL``  save the intake with the partner section and without ``hours_learning``
@@ -20,20 +21,51 @@ fix-encoding | lbs-backfill | lbsim-backfill``.
              Refuses to start when lbs does not answer (exit 1, nothing written).
 ``lbsim-backfill [--limit N] [--dry-run]``  one lbsim run for every client whose newest sheet has no successful
              one (EIG-67). Refuses to start when lbsim does not answer (exit 1, nothing written).
+
+``seed`` and ``migrate`` save their report in ``EIGENTLICH_REPORT_DIR``, or ``dev/reports`` when it is unset.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import logging
+import os
 import sys
 from pathlib import Path
 
-from .settings import ROOT, ConfigError, load
+from .settings import PREFIX, ROOT, ConfigError, load
+
+
+class _NoHealthAccess(logging.Filter):
+    """Leaves ``/health`` out of uvicorn's access log (ENGINE_CHANGES item 10): the container's health check calls
+    it every 30 seconds. Every other request is still logged."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        args = record.args
+        path = args[2] if isinstance(args, tuple) and len(args) > 2 else ""
+        return str(path).split("?", 1)[0] != "/health"
+
+
+def quiet_health_probes() -> None:
+    """Install the filter on ``uvicorn.access`` once; ``uvicorn.run`` keeps a logger's filters."""
+    logger = logging.getLogger("uvicorn.access")
+    if not any(isinstance(f, _NoHealthAccess) for f in logger.filters):
+        logger.addFilter(_NoHealthAccess())
+
+
+#: Where the maintenance commands write their reports; ``ROOT/dev/reports`` when unset. The container image has
+#: no ``dev/`` and runs as an unprivileged user, so it points this at a writable folder (ENGINE_CHANGES item 8).
+REPORT_DIR_VAR = f"{PREFIX}REPORT_DIR"
+
+
+def report_dir() -> Path:
+    configured = os.environ.get(REPORT_DIR_VAR, "").strip()
+    return Path(configured).expanduser() if configured else ROOT / "dev" / "reports"
 
 
 def _report_path(kind: str, schema: str) -> Path:
-    path = ROOT / "dev" / "reports" / f"{kind}-{schema}.json"
+    path = report_dir() / f"{kind}-{schema}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -74,6 +106,7 @@ def main(argv: list[str] | None = None) -> int:
         import uvicorn
         print(f"eigentliCH app on http://{app_settings.host}:{app_settings.port}/  "
               f"store {app_settings.store.database.redacted_url()}")
+        quiet_health_probes()
         uvicorn.run("eigentlich.api:create_app", factory=True, host=app_settings.host, port=app_settings.port)
         return 0
 

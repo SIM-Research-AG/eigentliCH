@@ -33,6 +33,9 @@ per `review/ROUNDING.md`, with the shared snippet from `cockpit/dev/display_roun
 password of the `lbsim` role lives in `config.local.yaml` (git-ignored), as for lbs; `LBSIM_DB_PASSWORD` or
 `LBSIM_DATABASE_URL` override it. `LBSIM_CONFIG` points at another configuration file.
 
+Every process applies `schema.sql` at start-up under the advisory lock `hashtext('lbsim.schema')`, so several starting at once
+queue instead of deadlocking (LBSIM-20); `serve` leaves `/health` out of uvicorn's access log (LBSIM-21).
+
 ## What a run does
 
 `POST /run` (`lbsim-request@1.0.0`) is synchronous for the fast parts and queues the plan:

@@ -395,3 +395,27 @@ calibration and no figure moved.
      depend on the budget. Stale runs are requeued only at the start of `serve` or `worker`, at most twice.
   4. Not measured: how long a 1000-iteration plan takes. At 500 the sample's 10-year case took 31 minutes (O-18); a
      solve that uses all 1000 iterations takes about twice as long, and three draws of them can reach the budget.
+
+## The deployment's engine changes (03.10.2026)
+
+From `Engines/deploy/ENGINE_CHANGES.md`, items 3 and 10.
+
+- **LBSIM-20 the schema is applied under a lock.** The API and every worker apply `schema.sql` at start-up
+  (`Service.startup()`), and two at the same moment could fail: `DeadlockDetected` on `pg_proc` (01.10.2026, three
+  workers started together) or a `UniqueViolation` on `CREATE SCHEMA IF NOT EXISTS`. `Store.initialise()` now takes
+  `pg_advisory_xact_lock(hashtext('lbsim.schema'))` (`store.SCHEMA_LOCK`) as the first statement of the transaction
+  that applies the DDL, so the processes queue and the commit or rollback releases the lock. One key per engine, not
+  per schema: the tests' throwaway schemas queue behind each other for the second the DDL takes, which is harmless.
+  Reproduced before the change (4 threads, 8 rounds on a throwaway schema: 18 failures, deadlocks among them), none
+  after; `tests/test_schema_lock.py` applies it from 4 threads with their own connections at the same moment, 5
+  rounds, and shows that `initialise()` waits while another session holds the lock. Every process still applies
+  the schema itself; the deployment's staggered start (`RUN_STAGGER`) is no longer needed for this.
+- **LBSIM-21 `/health` out of the access log.** `python -m lbsim serve` puts a logging filter on `uvicorn.access`
+  (`__main__.quiet_health_probes`) that drops the records whose path is `/health` (with or without a query); every
+  other request is still logged. uvicorn's logging configuration keeps a logger's filters, so the filter is
+  installed before `uvicorn.run`. No new dependency, no setting.
+- **LBSIM-22 no engine version change.** Neither change touches a contract, a figure or an artefact. The engine
+  version enters the findings key (and through it the paths and plan keys), so a bump to 1.1.1 would move every
+  artefact id and idempotency key (checked: 26 golden and sample tests then differ in `artefact_id`,
+  `engine_version` and `idempotency_key` only) and, after a restart, would have every client's findings and 3-hour
+  plans calculated again. `lbsim@1.1.0` stays, as lbs did for an additive change (LBS-42).

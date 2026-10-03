@@ -3,6 +3,14 @@
 Where the build stands, how to pick it up, and what is still open. The README is the reference; this file is the
 resume point. Model-derived research output; not investment advice.
 
+## State (03.10.2026, the deployment's engine changes)
+
+- **`Engines/deploy/ENGINE_CHANGES.md` items 3 and 10** (CHB-24, CHB-25): `Store.initialise()` takes a transaction-level
+  advisory lock before it applies `schema.sql`, so processes starting together queue instead of deadlocking on
+  `pg_proc`; `serve` leaves `/health` out of uvicorn's access log. No contract, figure or key moves, so the
+  engine version stays `chatbot@1.2.0`. 155 tests pass. **The running server on 8016 needs a restart** for the quieter
+  access log; the lock matters only at the next start, so nothing is urgent.
+
 ## State (29.09.2026)
 
 - **Engine 16, v1.2.0**, calibration 1.1.0, prompt `chatbot-prompt@1.2.0`. 151 tests pass

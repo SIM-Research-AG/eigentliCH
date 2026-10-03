@@ -24,7 +24,7 @@ From `eigentliCH_Engines` (the family venv):
 ```
 .venv\Scripts\python -m pip install --no-deps -e eigentlich      # once
 cd eigentlich
-..\.venv\Scripts\python -m eigentlich init-db                     # tables, triggers, views (idempotent)
+..\.venv\Scripts\python -m eigentlich init-db                     # tables, triggers, views (idempotent; serve does it too)
 ..\.venv\Scripts\python -m eigentlich seed                        # content from the prototype, seed report
 ..\.venv\Scripts\python -m eigentlich migrate                     # prototype SQLite, reconciliation
 ..\.venv\Scripts\python -m eigentlich migrate --from <file.db>
@@ -44,7 +44,12 @@ earning-power questions, EIG-65) is saved by `revise-content` on the real store 
 
 `seed` exits 1 on a conflict (a source changed after someone edited the content); `migrate` exits 1 on
 any reconciliation mismatch and writes nothing, and exits 0 with "already migrated" when the same file is
-in the store. Reports are also written to `dev/reports/` (git-ignored).
+in the store. Reports are also written to `dev/reports/` (git-ignored), or to the folder `EIGENTLICH_REPORT_DIR`
+names when it is set (the container image has no `dev/`).
+
+`serve` applies the schema at start-up as the engines do (idempotent, under an advisory lock so that two processes
+never apply it at once; EIG-74), so `/health` is ok on an empty database; a store it cannot reach does not stop it,
+`/health` then says `degraded`. `serve` leaves `/health` out of uvicorn's access log (EIG-75).
 
 The roles and the empty schema come from provisioning (`Instruments/store/provision.py`); PostgreSQL runs
 in Docker at 127.0.0.1:5432.
@@ -55,7 +60,8 @@ in Docker at 127.0.0.1:5432.
 `EIGENTLICH_DATABASE_URL` / `DATABASE_URL` < `EIGENTLICH_DB_HOST`, `_PORT`, `_NAME`, `_SCHEMA`, `_USER`,
 `_PASSWORD`, `_SSLMODE`. The curator connection the tests use: `EIGENTLICH_CURATOR_USER`,
 `EIGENTLICH_CURATOR_PASSWORD`. Sources: `EIGENTLICH_PROTOTYPE_ROOT`, `EIGENTLICH_MIGRATE_FROM`.
-`EIGENTLICH_CONFIG` points at another config file.
+`EIGENTLICH_CONFIG` points at another config file. `EIGENTLICH_REPORT_DIR`: where `seed` and `migrate` write their
+reports (default `dev/reports`).
 
 ## The repository (for the backend)
 

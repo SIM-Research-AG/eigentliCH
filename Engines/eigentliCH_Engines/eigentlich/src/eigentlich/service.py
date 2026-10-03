@@ -31,6 +31,7 @@ way, then draws on the findings and paths of its sheet, and on the plan once it 
 from __future__ import annotations
 
 import re
+import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -53,7 +54,7 @@ from .inputs import MEMBER_ORDER
 from .store import Decision, NotFound, Store
 
 APP = "eigentlich-app"
-APP_VERSION = "1.5.1"
+APP_VERSION = "1.5.2"
 
 #: ``engine_run.requested_by_ref`` of the automatic lbs runs (``requested_by_kind = 'system'``).
 AUTO_REF = "eigentlich-app:auto"
@@ -140,6 +141,17 @@ class Service:
         self._pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="eigentlich-job")
         self._auto: dict[str, dict[str, Any]] = {}      # client -> {timer, running, again, due_at}
         self._closing = False
+
+    def startup(self) -> None:
+        """Apply the schema, as every engine does at start-up, so ``/health`` is ok on an empty database.
+
+        Idempotent and under the store's schema lock. A store that cannot be reached or prepared does not stop
+        the app: it says why on stderr and ``/health`` reports ``degraded`` until the store is there.
+        """
+        try:
+            self.store.initialise()
+        except (store.StoreError, psycopg.Error) as exc:
+            print(f"eigentlich: the schema was not applied at start-up: {exc}", file=sys.stderr, flush=True)
 
     def close(self) -> None:
         with self._lock:

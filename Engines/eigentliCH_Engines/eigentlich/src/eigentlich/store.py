@@ -28,6 +28,9 @@ from psycopg.types.json import Jsonb
 
 from .settings import DatabaseConfig
 
+#: The advisory lock ``initialise()`` holds while it applies ``schema.sql``.
+SCHEMA_LOCK = "eigentlich.schema"
+
 
 class StoreError(RuntimeError):
     """The store is unreachable or not initialised. The message says what to run."""
@@ -125,6 +128,9 @@ class Store:
         """
         ddl = resources.files("eigentlich").joinpath("schema.sql").read_text(encoding="utf-8")
         with self.session() as conn:
+            # The app and the init-db command may apply the schema at the same moment; the lock queues them, so
+            # PostgreSQL never sees two at once (they can deadlock on pg_proc). Released at commit or rollback.
+            conn.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (SCHEMA_LOCK,))
             conn.execute(sql.SQL("CREATE SCHEMA IF NOT EXISTS {}").format(sql.Identifier(self.config.schema)))
             conn.execute(sql.SQL("SET LOCAL search_path TO {}").format(sql.Identifier(self.config.schema)))
             conn.execute(ddl)

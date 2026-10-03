@@ -3,6 +3,14 @@
 Where the build stands, how to pick it up, and what is still open. The README is the reference; this file is the
 resume point. Model-derived research output; not investment advice.
 
+## State (03.10.2026, the deployment's engine changes)
+
+- **`Engines/deploy/ENGINE_CHANGES.md` items 3 and 10** (REP-45, REP-46): `Store.initialise()` takes a transaction-level
+  advisory lock before it applies `schema.sql`, so processes starting together queue instead of deadlocking on
+  `pg_proc`; `serve` leaves `/health` out of uvicorn's access log. No contract, figure or key moves, so the
+  engine version stays `report@1.5.1`. 593 tests pass. **The running server on 8015 needs a restart** for the quieter
+  access log; the lock matters only at the next start, so nothing is urgent.
+
 ## State (03.10.2026, rounding)
 
 - **Engine 15, v1.5.1**: the owner's display-rounding rule (`review/ROUNDING.md`, REP-44). One formatter,
