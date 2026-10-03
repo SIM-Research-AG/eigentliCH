@@ -51,3 +51,16 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
      lock; cockpit curator-DB env vars and launcher switch; fmre/app create their tables at start-up).
   6. Notion pages for lbsim (14), report 1.4.1, the app, cockpit and the Docker deployment are not updated yet.
   7. Owner's morning item: Esther's goal "Ab 2027 vom Vermögen leben" would fit better as a retirement goal.
+
+## 03.10.2026: graphs and benches (owner: graphs everywhere, today and over time)
+
+- Spec `Engines/review/VISUALS_INTERFACES.md`. Built and pushed (63be96d): lbsim 1.1.0 (capitals over time, bench with
+  client picker and graphs; network scale per Regime, P-26), lbs bench (picker, balance sheet, capitals), report 1.5.0
+  (Lebensbilanz and vier Kapitale sections, report bench with gallery), app 1.5.0 and cockpit (balance sheet and capitals).
+- Restarted: app 1.5.0, cockpit, lbs, report 1.5.0. **lbsim still runs 1.0.0** on purpose (owner: let the plans finish).
+- Background shell `bb6vrbc7l` waits until no plan is queued or running (up to 8 h). Then: restart lbsim (all lbsim
+  serve/worker processes), `build_use_cases.py outlook --refresh`, `reports --refresh`, `check`, then `check --plans`
+  overnight and the live app test; push both remotes.
+- Owner to check once in a real browser: the report bench's report frame (empty in a headless screenshot only).
+- Still open: the two failed plans (solver, timed_out) and whether to change 500 iterations / 10 years / 120 min;
+  USE_CASES.md "to fill" columns; ENGINE_CHANGES.md fixes; Notion pages; Esther's goal.
