@@ -76,3 +76,13 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
   workarounds in deploy/ and retests (two containers, real-dump restore), `check --plans`, the live app test,
   USE_CASES.md "to fill" columns, push both remotes.
 - Notion pages (lbsim, report, app, cockpit, Docker): the Notion connection is not available in this session; open.
+
+## Stopped 03.10.2026 (battery)
+- Done and pushed (91d1859): reports --force (20 rounded reports), cockpit fixes C-38..C-42 (restarted 8000/8098),
+  eigentliCH fixes (schema lock, quiet health log, app 1.5.2; lbs/report/chatbot/app restarted).
+- Stopped mid-work: the fmre/Macro/pcp agent (ENGINE_CHANGES items 5, 9, 10). Its uncommitted edits in Instruments,
+  Macro/engines and Optimizer/engines/pcp are on disk, unreviewed: check `git status`, rerun those suites, then
+  commit or revert.
+- Not started: the Docker agent removing the deploy/ workarounds and retesting; lbsim restart (after plans);
+  `check --plans`, live app test, USE_CASES.md "to fill"; Notion (connector unavailable).
+- Plans: 18 were calculating on 3 workers; on power loss they requeue when lbsim starts again.
