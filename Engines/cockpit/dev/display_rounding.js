@@ -6,7 +6,8 @@
 // Use: const N = displayRounding({ lang: "en", group: "’", na: "–" }); then N.money(38250) is "CHF 38’300".
 function displayRounding(opts) {
   const o = Object.assign({ lang: "en", group: "’", na: "–", minus: "−" }, opts || {});
-  const WORDS = { en: { m: "m", below: "below", above: "above" }, de: { m: "Mio.", below: "unter", above: "über" } };
+  const WORDS = { en: { m: "m", bn: "bn", tn: "tn", below: "below", above: "above" },
+                  de: { m: "Mio.", bn: "Mrd.", tn: "Bio.", below: "unter", above: "über" } };
   const w = () => WORDS[o.lang] || WORDS.en;
   const ok = v => v !== null && v !== undefined && v !== "" && typeof v !== "boolean" && Number.isFinite(Number(v));
   const grouped = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, o.group);
@@ -16,14 +17,22 @@ function displayRounding(opts) {
     const body = grouped(parts[0]) + (parts[1] ? "." + parts[1] : "");
     return (Number(t) === 0 ? "" : x < 0 ? o.minus : sign ? "+" : "") + body;
   }
+  // from a million: millions, billions or trillions, two decimals (a GDP reads "USD 27.36 tn", not millions of millions)
+  function large(x) {
+    const a = Math.abs(x);
+    if (a >= 999.995e9) return fixed(x / 1e12, 2) + " " + w().tn;
+    if (a >= 999.995e6) return fixed(x / 1e9, 2) + " " + w().bn;
+    return fixed(x / 1e6, 2) + " " + w().m;
+  }
   const stepped = (x, step) => Math.sign(x) * Math.round(Math.abs(x) / step) * step;
-  // CHF, EUR, USD: below 1 000 whole units; to 99 999 the nearest 100; to 999 999 the nearest 1 000; then millions, two decimals
+  // CHF, EUR, USD: below 1 000 whole units; to 99 999 the nearest 100; to 999 999 the nearest 1 000; then millions
+  // (billions, trillions), two decimals
   function amountText(v) {
     const x = Number(v), a = Math.abs(x);
     if (a < 999.5) return fixed(x, 0);
     if (a < 99950) return fixed(stepped(x, 100), 0);
     if (a < 999500) return fixed(stepped(x, 1000), 0);
-    return fixed(x / 1e6, 2) + " " + w().m;
+    return large(x);
   }
   const pre = (cur, text) => cur ? cur + " " + text : text;
   const N = {
@@ -69,13 +78,15 @@ function displayRounding(opts) {
     // years, ages, hours, seconds: whole, never grouped (2034); counts: whole, grouped (12’000)
     whole: v => ok(v) ? fixed(Math.round(Number(v)), 0).split(o.group).join("") : o.na,
     count: v => ok(v) ? fixed(Math.round(Number(v)), 0) : o.na,
-    // a figure of no stated kind (raw index values, a model card's series): three significant digits, whole from 100
+    // a figure of no stated kind (raw index values, a model card's series): three significant digits, whole from 100;
+    // below 0.0001 in exponent form with two significant digits, so a tiny residual does not read as "0"
     auto: v => {
       if (!ok(v)) return o.na;
       const x = Number(v), a = Math.abs(x);
       if (a === 0) return "0";
-      if (a >= 999500) return fixed(x / 1e6, 2) + " " + w().m;
+      if (a >= 999500) return large(x);
       if (a >= 99.5) return fixed(x, 0);
+      if (a < 1e-4) { const [m, e] = x.toExponential(1).split("e"); return m.replace("-", o.minus) + "e" + e.replace("+", "").replace("-", o.minus); }
       const d = Math.min(8, Math.max(0, 2 - Math.floor(Math.log10(a))));
       return fixed(x, d).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
     },
