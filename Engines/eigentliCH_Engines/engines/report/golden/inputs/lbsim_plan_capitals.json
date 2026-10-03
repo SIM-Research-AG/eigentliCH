@@ -1,0 +1,399 @@
+{
+ "contract_version": "lbsim-plan@1.0.0",
+ "artefact_id": "LSO-f6cbce667814155a",
+ "client_ref": "lbsim-sample",
+ "life_balance_sheet_id": "LBS-1a68c6aa5d613766",
+ "paths_artefact_id": "LSP-85cfcfe62c138e2b",
+ "calibration_version": "1.5.0",
+ "outcome": "solved",
+ "goal": {
+  "goal_id": "g-home",
+  "kind": "home",
+  "confidence": 0.9
+ },
+ "extra_goals": [
+  "g-ret"
+ ],
+ "action_now": {
+  "work_share": 0.42,
+  "learning_hours_per_week": 2.0,
+  "network_hours_per_week": 3.0,
+  "rest_hours_per_week": 20.0,
+  "consumption_chf_per_year": 118000.0,
+  "saving_chf_per_year": 33000.0,
+  "education_spend_chf_per_year": 2000.0,
+  "network_spend_chf_per_year": 1000.0,
+  "amortisation_chf_per_year": 0.0
+ },
+ "framing": {
+  "de": "Was die Rechnung annimmt: diese Zahlen beschreiben die Annahmen der Planrechnung für diese Periode, keine Empfehlung.",
+  "en": "What the calculation assumes: these figures describe the plan calculation's assumptions for this period, not a recommendation."
+ },
+ "chance": {
+  "in_sample": 1.0,
+  "out_of_sample": 1.0,
+  "n_out_of_sample": 2000,
+  "seed_out": 20760929
+ },
+ "shortfall_cvar_chf": 0.0,
+ "reachable": null,
+ "exchange_rate": {
+  "winner": "networking",
+  "ratio": 1.8,
+  "dominant": "tau_N"
+ },
+ "costates": {
+  "W": 1e-05,
+  "E": 0.42,
+  "N": 0.31,
+  "H": 0.27
+ },
+ "control_path": [
+  {
+   "t_years": 0.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 0.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 1.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 1.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 2.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 2.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 3.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 3.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 4.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 4.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 5.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 5.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 6.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 6.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 7.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 7.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 8.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 8.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 9.0,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  },
+  {
+   "t_years": 9.5,
+   "dt_years": 0.5,
+   "controls": {
+    "tau_Y": 0.42,
+    "tau_E": 0.02,
+    "tau_N": 0.03,
+    "tau_H": 0.2,
+    "C": 118000.0,
+    "m_E": 2000.0,
+    "m_N": 1000.0,
+    "p_A": 0.0
+   }
+  }
+ ],
+ "horizon": {
+  "solved_years": 10.0,
+  "total_years": 27.0,
+  "beyond_cap_rule": "zero_return_terminal"
+ },
+ "solver": {
+  "return_status": "Solve_Succeeded",
+  "iterations": 212,
+  "wall_clock_s": 2870.0,
+  "seed": 20260929,
+  "seed_attempt": 0,
+  "M_opt": 14,
+  "grid": [
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5
+  ],
+  "casadi_version": "3.7.2",
+  "ipopt_version": null
+ },
+ "basis": "nominal",
+ "provenance": {
+  "engine_version": "lbsim@1.1.0",
+  "contract_versions": {
+   "LifeBalanceSimRequest": "lbsim-request@1.0.0",
+   "LifeBalanceFindings": "lbsim-findings@1.0.0",
+   "LifeBalancePaths": "lbsim-paths@1.0.0",
+   "LifeBalancePlan": "lbsim-plan@1.0.0",
+   "OptimiseRequest": "lbsim-optimise@1.0.0",
+   "ValidationReport": "lbsim-validation@1.0.0",
+   "Calibration": "lbsim-calibration@1.0.0"
+  },
+  "calibration_version": "1.5.0",
+  "calibration_hash": "CAL-bf6c32240f0243ba",
+  "idempotency_key": "IDK-54d508b1036ed678",
+  "upstream": {
+   "paths": "LSP-85cfcfe62c138e2b"
+  },
+  "records": [],
+  "label": "model-derived",
+  "made_by": "sample",
+  "sample_note": "Hand-built by dev/build_samples.py, not by the optimiser (C's): the draft's control vector at a plausible working point held over the variable grid; costates, exchange rate and solver record are illustrative; the chance is the paths sample's.",
+  "seeds": {
+   "in_sample": 20260929,
+   "out_of_sample": 20760929
+  },
+  "numpy_version": null
+ },
+ "notice": "Model-derived research output. Not investment advice."
+}

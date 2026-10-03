@@ -759,3 +759,94 @@ CHART_WORDS: dict[str, Texts] = {
     "basis_nominal": {"de": "nominal", "en": "nominal"},
     "basis_real": {"de": "real, in heutigen Franken", "en": "real, in today’s francs"},
 }
+
+
+# ---------------------------------------------------------------------------
+# The life balance sheet and the four capitals (REP-40, REP-41, owner 03.10.2026)
+# ---------------------------------------------------------------------------
+
+#: The words of the life balance sheet's graph and its section.
+SHEET_WORDS: dict[str, Texts] = {
+    "title": {"de": "Ihre Lebensbilanz", "en": "Your life balance sheet"},
+    "desc": {"de": "Drei Balken auf einer Frankenskala: das Vermögen nach Gefäss und das Humankapital, die "
+                   "Verbindlichkeiten und die Beträge der Ziele, und das Reinvermögen. Jeder Teil ist unter seinem "
+                   "Balken mit seinem Betrag genannt.",
+             "en": "Three bars on one franc scale: the assets by vessel and human capital, the liabilities and the "
+                   "goals’ amounts, and net worth. Every part is named under its bar with its amount."},
+    "assets": {"de": "Vermögen", "en": "Assets"},
+    "claims": {"de": "Verbindlichkeiten und Ziele", "en": "Liabilities and goals"},
+    "net_worth": {"de": "Reinvermögen", "en": "Net worth"},
+    "nothing": {"de": "keine Angabe", "en": "nothing stated"},
+    "human": {"de": "Humankapital", "en": "Human capital"},
+    "liabilities": {"de": "Verbindlichkeiten", "en": "Liabilities"},
+    "total": {"de": "Vermögen gesamt", "en": "Total assets"},
+    "goal_amount": {"de": "Betrag des Ziels", "en": "Goal amount"},
+    "caption_nominal": {"de": "Vermögen und Verbindlichkeiten heute; die Ziele nominal, in Franken ihres Zieldatums. "
+                              "Ein Bedarf pro Jahr im Ruhestand ist kein Betrag auf einmal und steht nicht im Bild.",
+                        "en": "Assets and liabilities today; the goals nominal, in francs of their target date. A "
+                              "yearly need in retirement is not one amount and is not drawn."},
+    "caption_real": {"de": "Vermögen und Verbindlichkeiten heute; die Ziele in heutigen Franken (real). Ein Bedarf pro "
+                           "Jahr im Ruhestand ist kein Betrag auf einmal und steht nicht im Bild.",
+                     "en": "Assets and liabilities today; the goals in today’s francs (real). A yearly need in "
+                           "retirement is not one amount and is not drawn."},
+}
+
+#: The three capitals beside wealth: lbs's ``E``, ``N``, ``H`` and lbsim's ``expertise``, ``network``, ``health``.
+CAPITAL_ORDER = (("E", "expertise"), ("N", "network"), ("H", "health"))
+CAPITAL_NAME: dict[str, Texts] = {
+    "expertise": {"de": "Wissen und Ausbildung", "en": "Expertise and education"},
+    "network": {"de": "Netzwerk", "en": "Network"},
+    "health": {"de": "Gesundheit", "en": "Health"},
+}
+#: The words at the two ends of a capital's own scale.
+CAPITAL_ENDS: dict[str, dict[str, tuple[str, str]]] = {
+    "expertise": {"de": ("wenig", "viel"), "en": ("little", "much")},
+    "network": {"de": ("klein", "gross"), "en": ("small", "wide")},
+    "health": {"de": ("eingeschränkt", "voll"), "en": ("limited", "full")},
+}
+#: Today's scales, from lbs's records (calibration 1.5.0): ``human-capital`` states E with a ceiling of 1, N as a
+#: stock in [0, 1] (``intake-scales`` caps it at 0.98) and H as a multiplier in [0, 1]. lbs's sheet carries the
+#: values, not the scales; lbsim's ``capitals.scale`` is read where lbsim gives one.
+CAPITAL_SCALE_TODAY: dict[str, tuple[float, float]] = {"expertise": (0.0, 1.0), "network": (0.0, 1.0),
+                                                       "health": (0.0, 1.0)}
+#: A level in words: the third of the scale it lies in.
+LEVEL: dict[str, Texts] = {"low": {"de": "tief", "en": "low"}, "middle": {"de": "mittel", "en": "middle"},
+                           "high": {"de": "hoch", "en": "high"}}
+CAPITAL_WORDS: dict[str, Texts] = {
+    "title": {"de": "Ihre vier Kapitale", "en": "Your four capitals"},
+    "today_title": {"de": "Die vier Kapitale heute", "en": "The four capitals today"},
+    "today_desc": {"de": "Das Vermögen in Franken; dazu je erwachsene Person Wissen und Ausbildung, Netzwerk und "
+                         "Gesundheit, jedes auf seiner eigenen Skala ohne Währung, die Enden in Worten.",
+                   "en": "Wealth in francs; and per adult expertise, network and health, each on its own scale "
+                         "without a currency, the ends in words."},
+    "today_caption": {"de": "Wissen, Netzwerk und Gesundheit sind Stufen eines Modells, keine Geldbeträge. Das "
+                            "Vermögen ist das Reinvermögen des Haushalts.",
+                      "en": "Expertise, network and health are a model’s levels, not amounts of money. Wealth is the "
+                            "household’s net worth."},
+    "time_title": {"de": "Wie sich die Kapitale entwickeln", "en": "How the capitals develop"},
+    "time_desc": {"de": "Je ein Feld für Wissen und Ausbildung, Netzwerk und Gesundheit über die Jahre: die Linie ist "
+                        "der mittlere Verlauf, das Band umfasst acht von zehn Verläufen; die Skala ohne Zahlen, die "
+                        "Enden in Worten.",
+                  "en": "One panel each for expertise, network and health over the years: the line is the median "
+                        "path, the band holds eight paths in ten; the scale without numbers, the ends in words."},
+    "time_caption": {"de": "Für {who}. Das Vermögen über die Jahre zeigt der Fächer im Abschnitt zu den Aussichten.",
+                     "en": "For {who}. Wealth over the years is the fan in the outlook section."},
+    "wealth": {"de": "Vermögen (Reinvermögen des Haushalts):", "en": "Wealth (the household’s net worth):"},
+    "not_stated": {"de": "nicht angegeben", "en": "not stated"},
+    "today": {"de": "heute", "en": "today"},
+    "in": {"de": "in", "en": "in"},
+    "years": {"de": "Jahren", "en": "years"},
+    "high_end": {"de": "hoch", "en": "high"},
+    "low_end": {"de": "tief", "en": "low"},
+    "low": {"de": "unten", "en": "low"},
+    "mid": {"de": "Mitte", "en": "median"},
+    "high": {"de": "oben", "en": "high"},
+    "whose": {"de": "Die Kapitale über die Zeit gelten für", "en": "The capitals over time are those of"},
+    "start": {"de": "heute, mittlerer Verlauf", "en": "today, median path"},
+    "end_p10": {"de": "am Ende, unten", "en": "at the end, low"},
+    "end_p50": {"de": "am Ende, Mitte", "en": "at the end, median"},
+    "end_p90": {"de": "am Ende, oben", "en": "at the end, high"},
+    "level": {"de": "Stufe", "en": "level"},
+    "person": {"de": "Person", "en": "Person"},
+    "capital": {"de": "Kapital", "en": "Capital"},
+}

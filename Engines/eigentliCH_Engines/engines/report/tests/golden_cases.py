@@ -31,7 +31,9 @@ def upstream_files() -> dict[str, dict[str, str]]:
             "lbs": {f"/artefacts/{_id(n)}": n for n in ("lbs_sheet.json", "lbs_sheet_property.json",
                                                          "lbs_sheet_liquidity.json", "lbs_sheet_real.json",
                                                          "lbs_sheet_property_real.json", "lbs_sheet_lbsim.json")},
-            "lbsim": {f"/artefacts/{_id(n)}": n for n in ("lbsim_findings.json", "lbsim_paths.json", "lbsim_plan.json")}}
+            "lbsim": {f"/artefacts/{_id(n)}": n for n in ("lbsim_findings.json", "lbsim_paths.json", "lbsim_plan.json",
+                                                           "lbsim_findings_capitals.json", "lbsim_paths_capitals.json",
+                                                           "lbsim_plan_capitals.json")}}
 
 
 NAME = [{"key": "name", "label": "Kundin", "value": "Muster", "source": "golden"}]
@@ -49,6 +51,10 @@ def cases() -> list[dict[str, Any]]:
                {"engine": "lbsim", "artefact_id": _id("lbsim_findings.json")},
                {"engine": "lbsim", "artefact_id": _id("lbsim_paths.json")},
                {"engine": "lbsim", "artefact_id": _id("lbsim_plan.json")}]
+    # lbsim@1.1.0's samples with the capitals over time (REP-41), copied unchanged from engines/lbsim/golden/samples
+    # (03.10.2026), on the same sheet and Allocation as the outlook.
+    capitals = outlook[:2] + [{"engine": "lbsim", "artefact_id": _id(n)} for n in (
+        "lbsim_findings_capitals.json", "lbsim_paths_capitals.json", "lbsim_plan_capitals.json")]
     both = [{"engine": "pcp", "artefact_id": _id("pcp_allocation.json")},
             {"engine": "lbs", "artefact_id": _id("lbs_sheet.json")}]
     return [
@@ -100,6 +106,17 @@ def cases() -> list[dict[str, Any]]:
         {"name": "de_outlook_plan_update", "previous": "de_outlook_calculating",
          "request": {"client_ref": sim, "kind": "update", "language": "de", "prose": False, "display_facts": NAME,
                      "sources": outlook}},
+        # The life balance sheet and the four capitals (REP-40, REP-41): today from lbs, over time from lbsim's
+        # capitals, nominal and real, German and English.
+        {"name": "de_capitals", "request": {"client_ref": sim, "kind": "report", "language": "de", "prose": False,
+                                            "display_facts": NAME, "sources": capitals}},
+        {"name": "en_capitals", "request": {"client_ref": sim, "kind": "report", "language": "en", "prose": False,
+                                            "display_facts": [{**NAME[0], "label": "Client"}], "sources": capitals}},
+        {"name": "de_capitals_real", "request": {"client_ref": sim, "kind": "report", "language": "de",
+                                                 "prose": False, "basis": "real", "display_facts": NAME,
+                                                 "sources": capitals[1:]}},
+        {"name": "en_capitals_real", "request": {"client_ref": sim, "kind": "report", "language": "en",
+                                                 "prose": False, "basis": "real", "sources": capitals[1:]}},
         {"name": "de_full_prose", "live": True,
          "request": {"client_ref": couple, "kind": "report", "language": "de", "sources": both,
                      "display_facts": NAME, "prose": True}},

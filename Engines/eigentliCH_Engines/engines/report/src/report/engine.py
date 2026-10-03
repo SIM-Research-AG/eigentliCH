@@ -194,10 +194,12 @@ def label(fact_id: str, lang: str) -> str:
 SECTIONS: tuple[tuple[str, dict[str, str]], ...] = (
     ("changes", {"de": "Was sich verändert hat", "en": "What has changed"}),
     ("household", {"de": "Der Haushalt", "en": "The household"}),
+    ("life_sheet", {"de": "Ihre Lebensbilanz", "en": "Your life balance sheet"}),
     ("balance_sheet", {"de": "Die Bilanz", "en": "The balance sheet"}),
     ("grid", {"de": "Die Rollen der Bilanz", "en": "The roles of the balance sheet"}),
     ("income", {"de": "Das Einkommen", "en": "Income"}),
     ("human_capital", {"de": "Das Humankapital", "en": "Human capital"}),
+    ("capitals", {"de": "Ihre vier Kapitale", "en": "Your four capitals"}),
     ("earning_power", {"de": "Die Erwerbskraft", "en": "Earning power"}),
     ("income_paths", {"de": "Einkommenspfade und Sparbedarf", "en": "Income paths and the saving they need"}),
     ("pensions", {"de": "Die Renten", "en": "Pensions"}),
@@ -439,6 +441,57 @@ def _views(top: Figure, more: Iterable[tuple[str, Figure]]) -> dict[str, Figure]
     return out
 
 
+def level_of(value: float, lo: float, hi: float) -> str:
+    """A capital's level in words (REP-41): the third of its own scale the value lies in."""
+    share = (value - lo) / ((hi - lo) or 1.0)
+    return "low" if share < 1 / 3 else "middle" if share < 2 / 3 else "high"
+
+
+#: The vessels in the order the life balance sheet draws them (REP-40).
+SHEET_VESSELS = ("free", "pillar_2", "pillar_3a", "real_asset", "not_stated")
+
+
+def _life_sheet(m: "_Maker", s: LifeBalanceSheet, names: dict[str, str], lang: str, basis: str) -> None:
+    """The life balance sheet's facts (REP-40), in section ``life_sheet``: the totals and vessels it draws, read from
+    the same paths as the balance sheet's, and each goal's amount in CHF (a claim on the household's wealth) in the
+    report's basis: lbs's real view where the sheet has one, else a property's price and an own-amount goal's target
+    as lbs states them. A yearly need (a retirement goal) is not one amount and is not drawn."""
+    sw = {k: v[lang] for k, v in voc.SHEET_WORDS.items()}
+    t = s.totals
+    m.add("lbs.sheet.total_assets", "life_sheet", t.total_assets, "chf", ["totals", "total_assets"], text=sw["total"])
+    for key in SHEET_VESSELS:
+        m.add(f"lbs.sheet.vessel.{key}", "life_sheet", t.by_vessel.get(key), "chf", ["totals", "by_vessel", key],
+              text=VESSEL[lang].get(key, key))
+    m.add("lbs.sheet.human", "life_sheet", t.human_assets, "chf", ["totals", "human_assets"], text=sw["human"])
+    m.add("lbs.sheet.liabilities", "life_sheet", t.liabilities, "chf", ["totals", "liabilities"],
+          text=sw["liabilities"])
+    claims: list[tuple[str, str, dict[str, Figure]]] = []
+    rv = s.real_view
+    if rv is not None:
+        for k, g in enumerate(rv.goals):
+            if g.unit != "chf":
+                continue
+            views = {b: (getattr(g, b).amount, getattr(g, b).basis, ["real_view", "goals", k, b, "amount"])
+                     for b in ("nominal", "real") if getattr(g, b).amount is not None}
+            claims.append((g.goal_id, g.kind or "goal", views))
+    else:
+        for j, p in enumerate(s.property):
+            if p.price_chf is not None:
+                top = "real" if p.basis == "real" else "nominal"
+                claims.append((p.goal_id, "property", {top: (p.price_chf, top, ["property", j, "price_chf"])}))
+        mp = s.mandate_proposal
+        if isinstance(mp, LbsMandateProposal) and mp.goal_kind == "other" and mp.target_chf is not None \
+                and mp.goal_id not in {c[0] for c in claims}:
+            claims.append((mp.goal_id, "other",
+                           {"nominal": (mp.target_chf, "nominal", ["mandate_proposal", "target_chf"])}))
+    for gid, kind, views in claims:
+        if not views:
+            continue
+        name = names.get(f"goal:{gid}", voc.GOAL[voc.goal_kind(kind)][lang])
+        _goal_figure(m, f"lbs.claim.{gid}", "life_sheet", views, "chf", basis, text=f"{name}: {sw['goal_amount']}")
+    m.add("lbs.sheet.net_worth", "life_sheet", t.net_worth, "chf", ["totals", "net_worth"], text=sw["net_worth"])
+
+
 def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "nominal") -> list[Fact]:
     m = _Maker("lbs", s.artefact_id, s.contract_version, lang)
     rv = s.real_view
@@ -462,6 +515,7 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "
     for key, value in t.by_vessel.items():
         m.add(f"lbs.vessel.{key}", "balance_sheet", value, "chf", ["totals", "by_vessel", key],
               text=VESSEL[lang].get(key, key))
+    _life_sheet(m, s, names, lang, basis)
     for j, cell in enumerate(s.grid):
         capital = CAPITAL[lang].get(cell.capital_type, cell.capital_type)
         name = f"{role_label(cell.role, lang, cell.capital_type)}, {capital}"
@@ -485,6 +539,19 @@ def extract_lbs(s: LifeBalanceSheet, cal: Calibration, lang: str, basis: str = "
                                ["human_capital", j, key, "absent_because"], text)
         _not_available(m, f"lbs.human.{hc.person_id}.earning_power", "human_capital", hc.earning_power.reason,
                        ["human_capital", j, "earning_power", "reason"], f"{who}: {w['earning_power']}")
+
+    for j, hc in enumerate(s.human_capital):
+        # The capitals today (REP-41): each present value's level in words, on the capital's own scale.
+        for key, cap_name in voc.CAPITAL_ORDER:
+            cap = getattr(hc, key)
+            if cap.value is None:
+                continue
+            lo, hi = voc.CAPITAL_SCALE_TODAY[cap_name]
+            word = level_of(float(cap.value), lo, hi)
+            m.add(f"lbs.capital.{hc.person_id}.{key}", "capitals", word, "text", ["human_capital", j, key, "value"],
+                  text=f"{names[f'person:{hc.person_id}']}: {voc.CAPITAL_NAME[cap_name][lang]}",
+                  display=voc.LEVEL[word][lang],
+                  derivation=f"the third of the scale [{lo:g}, {hi:g}] the value lies in: low, middle or high")
 
     for j, p in enumerate(s.pensions):
         who = names[f"person:{p.person_id}"]
@@ -653,7 +720,8 @@ def subject_keys(sheet: Optional[LifeBalanceSheet], findings: Optional[LifeBalan
     return out
 
 
-_KEYED = ("lbs.human.", "lbs.pension.", "lbs.retirement.", "lbs.property.", "lbs.liquidity.", "lbsim.")
+_KEYED = ("lbs.human.", "lbs.pension.", "lbs.retirement.", "lbs.property.", "lbs.liquidity.", "lbs.claim.",
+          "lbs.capital.", "lbsim.")
 
 
 def keyed(fact_id: str, keys: dict[str, str]) -> str:
@@ -898,6 +966,22 @@ def extract_lbsim(findings: Optional[LifeBalanceFindings], paths: Optional[LifeB
                       text=f"{label_}: {w[key]} {w['at_date']}", basis=basis)
         m.add("lbsim.fan.explained", "outlook", w["fan_explained_text"], "text", ["regimes", 0, "bands"],
               text=w["fan_explained"], derivation="the report's reading of the p10, p50 and p90 bands")
+        caps = base.capitals
+        if caps is not None:
+            # The principal's capitals over time (REP-41): today's median and the ends of the band, no basis.
+            cw = {k: v[lang] for k, v in voc.CAPITAL_WORDS.items()}
+            m.add("lbsim.capitals.person", "capitals", caps.person_id, "text", ["regimes", 0, "capitals", "person_id"],
+                  text=cw["whose"], display=who(caps.person_id))
+            for _, cap in voc.CAPITAL_ORDER:
+                b = getattr(caps, cap)
+                name = getattr(getattr(caps.labels, cap), lang)
+                end = min(paths.horizon_years, len(b.p50) - 1)
+                at = ["regimes", 0, "capitals", cap]
+                m.add(f"lbsim.capitals.{cap}.p50.start", "capitals", float(b.p50[0]), "number", at + ["p50", 0],
+                      text=f"{name}: {cw['start']}")
+                for q in ("p10", "p50", "p90"):
+                    m.add(f"lbsim.capitals.{cap}.{q}.end", "capitals", float(getattr(b, q)[end]), "number",
+                          at + [q, end], text=f"{name}: {cw['end_' + q]}")
         av = paths.allocation_view
         if av is not None and not with_allocation:
             # Charts 1 and 2 from the Allocation the paths ran on, as lbsim states it (REP-38, owner 29.09.2026):
@@ -1114,6 +1198,8 @@ def as_of_fact(dated: Sequence[tuple[str, str, str, str]], lang: str) -> Fact:
 # ---------------------------------------------------------------------------
 
 _COMPARABLE = ("chf", "chf_per_year", "share", "count", "number")
+#: Facts that restate another section's figure for a graph (REP-40): never a change of their own.
+RESTATED = ("lbs.sheet.",)
 
 
 def change_facts(previous: Report, current: Sequence[Fact], lang: str) -> list[Fact]:
@@ -1129,7 +1215,8 @@ def change_facts(previous: Report, current: Sequence[Fact], lang: str) -> list[F
                           path=_pointer("facts", n, "value"))
 
     for f in current:
-        if f.unit not in _COMPARABLE or f.fact_id not in before or isinstance(f.value, bool):
+        if f.unit not in _COMPARABLE or f.fact_id not in before or isinstance(f.value, bool) \
+                or f.fact_id.startswith(RESTATED):
             continue
         n, old = before[f.fact_id]
         if old.unit != f.unit or not isinstance(old.value, (int, float)) or isinstance(old.value, bool):
@@ -1151,9 +1238,10 @@ def change_facts(previous: Report, current: Sequence[Fact], lang: str) -> list[F
     out.append(Fact(fact_id="changes.unchanged", section="changes", label=label("changes.unchanged", lang),
                     value=float(unchanged), unit="count", display=str(unchanged), sources=(whole,),
                     derivation=f"count of figures equal in this report and in {previous.artefact_id}"))
-    now = {f.fact_id: f for f in current}
+    now = {f.fact_id: f for f in current if not f.fact_id.startswith(RESTATED)}
     added = [now[i].label for i in now if i not in before and now[i].unit in _COMPARABLE]
-    removed = [before[i][1].label for i in before if i not in now and before[i][1].unit in _COMPARABLE]
+    removed = [before[i][1].label for i in before if i not in now and before[i][1].unit in _COMPARABLE
+               and not i.startswith(RESTATED)]
     for key, names in (("changes.added", added), ("changes.removed", removed)):
         if names:
             out.append(Fact(fact_id=key, section="changes", label=label(key, lang), value="; ".join(names),

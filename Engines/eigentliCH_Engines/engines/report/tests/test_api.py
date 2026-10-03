@@ -26,7 +26,7 @@ def more_artefacts(upstream):
 
 def test_standard_endpoints(client, spark):
     health = client.get("/health").json()
-    assert health["status"] == "ok" and health["engine_version"] == "report@1.4.1"
+    assert health["status"] == "ok" and health["engine_version"] == "report@1.5.0"
     meta = client.get("/meta").json()
     assert meta["contract_versions"] == CONTRACT_VERSIONS and meta["allowlist"]["ok"]
     assert meta["prompt_version"] == "report-prompt@1.1.0" and meta["sections"][0] == "changes"

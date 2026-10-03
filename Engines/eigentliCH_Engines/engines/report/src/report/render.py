@@ -370,8 +370,55 @@ def _plan(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
     return "".join(out)
 
 
+# -- the life balance sheet and the four capitals (REP-40, REP-41) -------------------------------------------
+
+def _life_sheet(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
+    """Under the graph, which prints every figure of the section: the goals' amounts with their basis, as a table."""
+    claims = [f for f in facts if f.fact_id.startswith("lbs.claim.")]
+    if not claims:
+        return ""
+    sw = {k: t[w["lang"]] for k, t in voc.SHEET_WORDS.items()}
+    return _table([(w["figure"], False), (sw["goal_amount"], True)],
+                  [(e(f.label.split(": ", 1)[0]), v(f, lang=w["lang"])) for f in claims])
+
+
+def _capitals(facts: Sequence[Fact], w: Mapping[str, str]) -> str:
+    """Per adult each capital's level in words (the values stand in the graph and in the human capital section);
+    then, from lbsim, the principal's capitals today and at the end of the horizon."""
+    lang = w["lang"]
+    cw = {k: t[lang] for k, t in voc.CAPITAL_WORDS.items()}
+    by = {f.fact_id: f for f in facts}
+    out = []
+    levels = [f for f in facts if f.fact_id.startswith("lbs.capital.")]
+    if levels:
+        people: dict[str, dict[str, Fact]] = {}
+        for f in levels:
+            person = f.fact_id.split(".")[2]
+            people.setdefault(person, {})[f.fact_id.rsplit(".", 1)[1]] = f
+        headers = [(cw["person"], False)] + [(voc.CAPITAL_NAME[cap][lang], False) for _, cap in voc.CAPITAL_ORDER]
+        rows = []
+        for caps in people.values():
+            name = next(iter(caps.values())).label.split(": ", 1)[0]
+            rows.append([e(name)] + [v(caps[k]) if k in caps else "–" for k, _ in voc.CAPITAL_ORDER])
+        out.append(_table(headers, rows))
+    if "lbsim.capitals.person" in by:
+        out.append(f"<p><small>{e(cw['whose'])} {v(by['lbsim.capitals.person'])}.</small></p>")
+        rows = []
+        for _, cap in voc.CAPITAL_ORDER:
+            base = f"lbsim.capitals.{cap}."
+            if base + "p50.start" not in by:
+                continue
+            name = by[base + "p50.start"].label.split(": ", 1)[0]
+            rows.append([e(name)] + [v(by[base + k]) if base + k in by else "–"
+                                     for k in ("p50.start", "p10.end", "p50.end", "p90.end")])
+        out.append(_table([(cw["capital"], False), (cw["today"], True), (cw["end_p10"], True), (cw["end_p50"], True),
+                           (cw["end_p90"], True)], rows))
+    return "".join(out)
+
+
 BODY = {"positions": _positions, "grid": _grid, "changes": _changes, "limits": _limits, "allocation": _allocation,
-        "findings": _findings, "income_paths": _income_paths, "earning_power": _earning_power, "outlook": _outlook, "plan": _plan}
+        "findings": _findings, "income_paths": _income_paths, "earning_power": _earning_power, "outlook": _outlook, "plan": _plan,
+        "life_sheet": _life_sheet, "capitals": _capitals}
 
 
 def render(*, lang: str, kind: str, title: str, facts: Sequence[Fact], sections: Sequence[Section],

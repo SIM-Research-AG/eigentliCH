@@ -379,7 +379,7 @@ class Service:
 
         facts = [_resolve_mandate(f, subject_names) for f in facts]
         names = voc.display_names(request.display_facts, subject_names)
-        figures = build_charts(facts, allocation, paths, plan, sheet, lang, request.basis, keys)
+        figures = build_charts(facts, allocation, paths, plan, sheet, lang, request.basis, keys, subject_names)
 
         warnings: list[str] = []
         notes: list[str] = []
@@ -501,6 +501,79 @@ class Service:
         with self.store.session() as conn:
             return st.list_reports(conn, client_ref, max(1, min(limit, 500)))
 
+    def bench_reports(self, limit: int = 200) -> list[dict[str, Any]]:
+        """``GET /bench/reports`` (REP-43): the stored reports grouped by client, newest client first, each client
+        and each report with a label a person can read, made from the report's own facts (the household, its net
+        worth, the kind, language, basis, whether lbsim's outlook is in it, the date). Never an id, a client_ref or
+        a caller's name as a label. Read-only."""
+        with self.store.session() as conn:
+            rows = st.list_reports(conn, None, max(1, min(limit, 500)))
+            loaded = [(r, st.get_artefact(conn, r["artefact_id"])) for r in rows]
+        clients: dict[str, dict[str, Any]] = {}
+        for row, payload in loaded:
+            if payload is None:
+                continue
+            report = Report.model_validate_json(payload)
+            entry = clients.get(report.client_ref)
+            if entry is None:
+                entry = clients[report.client_ref] = {
+                    "label": bench_client_label(report),
+                    "kind": "use case" if USE_CASE_REF.match(report.client_ref) else "bench or test", "reports": []}
+            entry["reports"].append({"artefact_id": report.artefact_id, "label": bench_report_label(report, row),
+                                     "complete": report.complete})
+        out = list(clients.values())
+        seen: dict[str, int] = {}
+        for c in out:
+            seen[c["label"]] = seen.get(c["label"], 0) + 1
+            if seen[c["label"]] > 1:
+                c["label"] = f"{c['label']} ({seen[c['label']]})"
+        return out
+
+
+#: A use-case client's reference: the consumer app's 32-hex id. Anything else is a bench or test request.
+USE_CASE_REF = re.compile(r"^[0-9a-f]{32}$")
+_NUMBER_WORDS = ("no", "one", "two", "three", "four", "five", "six")
+_LANGUAGE = {"de": "German", "en": "English"}
+_MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def _count(n: int, one: str, many: str) -> str:
+    return f"{_NUMBER_WORDS[n] if n < len(_NUMBER_WORDS) else n} {one if n == 1 else many}"
+
+
+def bench_client_label(report: Report) -> str:
+    """A client in words, from the report's lbs facts: the household and its net worth (REP-43)."""
+    by = {f.fact_id: f for f in report.facts}
+    parts = []
+    adults = int(by["lbs.household.adults"].value) if "lbs.household.adults" in by else None
+    dependants = int(by["lbs.household.dependants"].value) if "lbs.household.dependants" in by else 0
+    if adults is None:
+        parts.append("Household not stated")
+    else:
+        head = "Single adult" if adults == 1 else "Couple" if adults == 2 else _count(adults, "adult", "adults")
+        parts.append(head + (", " + _count(dependants, "dependant", "dependants") if dependants else ""))
+    worth = by.get("lbs.totals.net_worth")
+    if worth is not None and isinstance(worth.value, (int, float)):
+        amount = float(worth.value)
+        parts.append("net worth CHF " + (f"{amount / 1e6:.1f}m" if abs(amount) >= 1e6 else f"{amount / 1e3:.0f}k"))
+    if any(f.fact_id.startswith("lbsim.") for f in report.facts):
+        parts.append("with the outlook")
+    return " · ".join(parts)
+
+
+def bench_report_label(report: Report, row: dict[str, Any]) -> str:
+    """One stored report in words: kind, language, basis, revision, completeness and when it was made (REP-43)."""
+    made = str(row.get("created_at") or "")
+    when = ""
+    if len(made) >= 16:
+        when = f"{int(made[8:10])} {_MONTHS[int(made[5:7]) - 1]} {made[:4]}, {made[11:16]}"
+    parts = [report.kind, _LANGUAGE.get(report.language, report.language), report.basis or "nominal"]
+    if report.revision_of:
+        parts.append("a revision")
+    if not report.complete:
+        parts.append("without prose")
+    return " · ".join(parts + ([when] if when else []))
+
 
 def _mix_reason(engine_name: str, artefact_id: str, bases: frozenset[str], asked: str) -> str:
     """Why a source cannot be reported in the basis asked (REP-27, REP-28): a report never mixes bases."""
@@ -562,9 +635,12 @@ def _earning_power_elsewhere(fact: Fact) -> bool:
 
 
 def build_charts(facts: list[Fact], allocation: Any, paths: Any, plan: Any, sheet: Any, lang: str,
-                 basis: str, keys: Optional[dict[str, str]] = None) -> dict[str, str]:
-    """The three charts (REP-34), per section: the weights (roles, positions) and target against reached (fit)
-    from the pcp Allocation, the fan (outlook) from the lbsim paths. Every printed value is one of ``facts``."""
+                 basis: str, keys: Optional[dict[str, str]] = None,
+                 names: Optional[dict[str, str]] = None) -> dict[str, str]:
+    """The charts, per section: the weights (roles, positions) and target against reached (fit) from the pcp
+    Allocation, the fan (outlook) from the lbsim paths (REP-34); the life balance sheet (life_sheet) from the lbs
+    sheet (REP-40); the four capitals today from the lbs sheet and over time from the lbsim paths (capitals,
+    REP-41). Every printed value is one of ``facts``."""
     cw = {k: v[lang] for k, v in voc.CHART_WORDS.items()}
     by = {f.fact_id: f for f in facts}
     out: dict[str, str] = {}
@@ -613,7 +689,70 @@ def build_charts(facts: list[Fact], allocation: Any, paths: Any, plan: Any, shee
                 caption += " " + cw["fan_dashed"]
             out["outlook"] = charts.fan(bands, ends, goal_value, goal_fact, chance_fact, date_fact, dashed, cw,
                                         cw["fan_title"], cw["fan_desc"], caption)
+    out.update(_sheet_charts(facts, by, paths, sheet, lang, basis, keys or {}, names or {}))
     return {k: v for k, v in out.items() if v}
+
+
+def _sheet_charts(facts: list[Fact], by: dict[str, Fact], paths: Any, sheet: Any, lang: str, basis: str,
+                  keys: dict[str, str], names: dict[str, str]) -> dict[str, str]:
+    """The life balance sheet (REP-40) and the four capitals (REP-41). Money follows the report's basis through the
+    goal facts (today's holdings are the same in either); the capitals carry no basis and sit on their own scales."""
+    out: dict[str, str] = {}
+    sw = {k: v[lang] for k, v in voc.SHEET_WORDS.items()}
+    if sheet is not None:
+        assets = [(k, by[f"lbs.sheet.vessel.{k}"].label, by[f"lbs.sheet.vessel.{k}"]) for k in engine.SHEET_VESSELS
+                  if f"lbs.sheet.vessel.{k}" in by]
+        if "lbs.sheet.human" in by:
+            assets.append(("human", by["lbs.sheet.human"].label, by["lbs.sheet.human"]))
+        claims = [("liabilities", by["lbs.sheet.liabilities"].label, by["lbs.sheet.liabilities"])] \
+            if "lbs.sheet.liabilities" in by else []
+        for f in facts:
+            if f.fact_id.startswith("lbs.claim."):
+                name = f.label.split(": ", 1)[0]
+                mark = f" ({voc.basis_mark(f.basis, lang)})" if f.basis else ""
+                claims.append(("goal", name + mark, f))
+        out["life_sheet"] = charts.balance_sheet(assets, claims, by.get("lbs.sheet.total_assets"),
+                                                 by.get("lbs.sheet.net_worth"), sw, sw["title"], sw["desc"],
+                                                 sw["caption_" + basis])
+    cw = {k: v[lang] for k, v in voc.CAPITAL_WORDS.items()}
+    figures: list[str] = []
+    if sheet is not None:
+        persons = []
+        for hc in sheet.human_capital:
+            pk = keys.get(hc.person_id, hc.person_id)
+            tracks: list[charts.Track] = []
+            for key, cap in voc.CAPITAL_ORDER:
+                value = by.get(f"lbs.human.{pk}.{key}")
+                if value is not None and not isinstance(value.value, (int, float)):
+                    value = None
+                lo, hi = voc.CAPITAL_SCALE_TODAY[cap]
+                share = charts.scaled(float(value.value), lo, hi) if value is not None else None
+                low, high = voc.CAPITAL_ENDS[cap][lang]
+                tracks.append((voc.CAPITAL_NAME[cap][lang], value, by.get(f"lbs.capital.{pk}.{key}"), share, low, high))
+            if any(t[1] is not None for t in tracks):
+                persons.append((names.get(f"person:{hc.person_id}", voc.PERSON[lang].format(n="?")), tracks))
+        if persons:
+            figures.append(charts.capitals_today(by.get("lbs.totals.net_worth"), persons, cw, cw["today_title"],
+                                                 cw["today_desc"], cw["today_caption"]))
+    caps = paths.regimes[0].capitals if (paths is not None and paths.regimes) else None
+    if caps is not None:
+        span = paths.horizon_years + 1
+        panels: list[charts.Panel] = []
+        for _, cap in voc.CAPITAL_ORDER:
+            b = getattr(caps, cap)
+            scale = caps.scale.get(cap)
+            lo, hi = (scale.min, scale.max) if scale is not None else voc.CAPITAL_SCALE_TODAY[cap]
+            ends = {q: by[f"lbsim.capitals.{cap}.{q}.end"] for q in ("p10", "p50", "p90")
+                    if f"lbsim.capitals.{cap}.{q}.end" in by}
+            panels.append((getattr(getattr(caps.labels, cap), lang),
+                           {q: list(getattr(b, q))[:span] for q in ("p10", "p50", "p90")}, (lo, hi), ends,
+                           by.get(f"lbsim.capitals.{cap}.p50.start")))
+        whose = by.get("lbsim.capitals.person")
+        figures.append(charts.capitals_over_time(panels, by.get("lbsim.paths.horizon"), cw, cw["time_title"],
+                                                 cw["time_desc"],
+                                                 cw["time_caption"].format(who=whose.display if whose else "–")))
+    out["capitals"] = "".join(f for f in figures if f)
+    return out
 
 
 def _resolve_mandate(fact: Fact, subject_names: dict[str, str]) -> Fact:

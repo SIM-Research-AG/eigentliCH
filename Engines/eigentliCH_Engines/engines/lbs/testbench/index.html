@@ -3,38 +3,41 @@
   Life Balance Sheet (lbs) test bench. Development only: not part of the system and not in the deploy folder.
 
   A client of the engine's HTTP surface, nothing more: every figure is read from lbs's endpoints. Served by the
-  engine at "/", or opened off disk, when it calls http://127.0.0.1:8013. Plotly from CDN, no build step
-  (Engine Building Guide section 3). Colour: the house palette of the other benches.
+  engine at "/", or opened off disk, when it calls http://127.0.0.1:8013. No external script: the graphs are
+  inline SVG drawn in this page (owner, 03.10.2026, review/VISUALS_INTERFACES.md). Colour: the house palette of
+  the other benches, the series colours checked for colour-blind separation.
 -->
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LBS test bench</title>
-<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <style>
   :root {
     color-scheme: light;
     --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
     --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
-    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --rest: #c3c2b7;
-    --critical: #d03b3b; --good: #0ca30c; --band: rgba(208,59,59,0.08);
+    --s1: #2a78d6; --critical: #d03b3b; --good: #0ca30c; --band: rgba(208,59,59,0.08);
+    --free: #A059C1; --p2: #24997a; --p3a: #5f6ad8; --real: #D9783F; --human: #b8487a; --unstated: #b3b1a8;
+    --liab: #57536e; --goal: #C8662E; --net: #1A1740; --fanband: rgba(42,120,214,0.18); --fanline: #2a78d6;
   }
   @media (prefers-color-scheme: dark) {
-    :root:where(:not([data-theme="light"])) {
+    :root:not([data-theme="light"]) {
       color-scheme: dark;
       --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
-      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
-      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --rest: #4a4a47;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --s1: #3987e5;
       --band: rgba(230,103,103,0.12);
+      --free: #b779d4; --p2: #2bb08c; --p3a: #7b85e6; --real: #e48d5a; --human: #cf6693; --unstated: #6d6c66;
+      --liab: #9a96b5; --goal: #e07f45; --net: #e8e6f5; --fanband: rgba(57,135,229,0.25); --fanline: #5ba0f0;
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
     --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
-    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --rest: #4a4a47;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --s1: #3987e5;
     --band: rgba(230,103,103,0.12);
+    --free: #b779d4; --p2: #2bb08c; --p3a: #7b85e6; --real: #e48d5a; --human: #cf6693; --unstated: #6d6c66;
+    --liab: #9a96b5; --goal: #e07f45; --net: #e8e6f5; --fanband: rgba(57,135,229,0.25); --fanline: #5ba0f0;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -46,17 +49,22 @@
   .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 16px; }
   label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
   input, select, button, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  select#pick { max-width: 100%; min-width: min(560px, 100%); }
   button { cursor: pointer; } button:disabled { opacity: .55; cursor: default; }
   button.primary { background: var(--s1); color: #fff; border-color: var(--s1); }
+  .seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 6px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
   .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; margin-bottom: 16px; min-width: 0; }
   .card h2 { font-size: 15px; margin: 0 0 2px; }
+  .intro p { margin: 0 0 8px; max-width: 900px; }
+  .intro ul { margin: 0 0 4px; padding-left: 20px; max-width: 900px; }
   .q { color: var(--ink-2); margin: 0 0 10px; font-size: 13px; }
   .note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
   .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
   .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 10px 12px; }
   .tile .v { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .tile .k { color: var(--ink-2); font-size: 12px; }
-  .chart { width: 100%; height: 360px; }
   .side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
   @media (max-width: 900px) { .side { grid-template-columns: 1fr; } main, header { padding-left: 16px; padding-right: 16px; } }
   table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -68,6 +76,13 @@
   .ok::before { content: "\2713  "; color: var(--good); font-weight: 700; }
   .na { color: var(--muted); font-style: italic; }
   textarea { width: 100%; font: 12px ui-monospace, Consolas, monospace; }
+  details summary { cursor: pointer; color: var(--ink-2); }
+  svg.g { display: block; width: 100%; max-width: 860px; height: auto; font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  svg.g text { fill: var(--ink); }
+  svg.g text.soft { fill: var(--ink-2); }
+  svg.g text.head { font-weight: 600; }
+  .people { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 420px)); gap: 24px; }
+  .people svg.g { max-width: 420px; }
 </style>
 </head>
 <body>
@@ -77,17 +92,34 @@
   <button id="themeBtn" type="button">Theme</button>
 </header>
 <main>
+  <div class="card intro">
+    <h2>What lbs does</h2>
+    <p>lbs turns one household's stated facts into its <b>life balance sheet</b>: a deterministic calculation, the same request always gives the same sheet, and nothing on it is guessed. Every input it could not use is named as a gap, never filled in.</p>
+    <ul>
+      <li><b>Financial assets by vessel</b>: what is freely available, in the second pillar, in pillar 3a, and in real assets such as a home.</li>
+      <li><b>Human capital</b>: per adult the three capitals beside wealth, expertise and education (E), network (N) and health (H), each a model level on its own scale, not money.</li>
+      <li><b>Liabilities and goals</b>: what the household owes and what its goals will claim, against what it holds, with the net worth.</li>
+      <li><b>Pensions and findings</b>: the AHV and BVG pensions, and whether a home purchase, liquidity and retirement hold.</li>
+      <li><b>The mandate proposal</b>: the return a goal needs, in the shape the portfolio engine (pcp) reads, for a curator to complete. Unreleased by design.</li>
+      <li><b>The real view</b>: goal amounts and returns in nominal francs or in today's francs (real), with the inflation assumption stated. Use the switch below.</li>
+    </ul>
+    <p class="note">Pick a use-case client to load the request lbs stored for its newest sheet and show that sheet. Changing the request and pressing Run makes a new sheet.</p>
+  </div>
   <div class="filters">
-    <label>Engine <input id="api" size="26"></label>
+    <label>Client <select id="pick"><option value="">loading…</option></select></label>
+    <label>View <span class="seg" id="basisSeg"><button type="button" data-basis="nominal" aria-pressed="true">Nominal</button><button type="button" data-basis="real" aria-pressed="false">Real (today's francs)</button></span></label>
     <label>Calibration <select id="cal"></select></label>
     <button id="validateBtn" type="button">Validate</button>
     <button id="runBtn" class="primary" type="button">Run</button>
     <button id="resetBtn" type="button">Example request</button>
+    <label>Engine <input id="api" size="22"></label>
   </div>
   <div class="card">
-    <h2>Request</h2>
-    <p class="q">The client's facts as JSON (lbs-request@1.0.0). An opaque client_ref only: no names, no e-mail addresses.</p>
-    <textarea id="req" rows="14"></textarea>
+    <details id="reqBox">
+      <summary><b>Request</b> (lbs-request@1.0.0): the client's facts as JSON, filled by the picker</summary>
+      <p class="q">An opaque client reference only: no names, no e-mail addresses.</p>
+      <textarea id="req" rows="14"></textarea>
+    </details>
     <p class="note" id="status"></p>
   </div>
   <div id="panel"></div>
@@ -101,11 +133,11 @@ const store = { get(k) { try { return localStorage.getItem("lbs." + k); } catch 
                 set(k, v) { try { localStorage.setItem("lbs." + k, v); } catch {} } };
 const $ = id => document.getElementById(id);
 $("api").value = params.get("api") || store.get("api") || (location.protocol === "file:" ? DEFAULT_API : location.origin);
-const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const chf = v => v === null || v === undefined ? "–" : Math.round(Number(v)).toLocaleString("de-CH");
+const chf = v => v === null || v === undefined ? "–" : "CHF " + Math.round(Number(v)).toLocaleString("de-CH");
 const pct = (v, d = 2) => v === null || v === undefined ? "–" : (100 * Number(v)).toFixed(d) + "%";
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const base = () => $("api").value.replace(/\/$/, "");
+const state = { sheet: null, cal: null, basis: store.get("basis") === "real" ? "real" : "nominal", names: {} };
 async function call(path, init) {
   let r;
   try { r = await fetch(base() + path, init); } catch { throw new Error(`cannot reach ${base()}. Is the engine running?`); }
@@ -136,18 +168,6 @@ const EXAMPLE = {
 };
 $("req").value = store.get("req") || JSON.stringify(EXAMPLE, null, 1);
 
-function layout(extra = {}) {
-  const axis = { gridcolor: css("--grid"), linecolor: css("--axis"), zeroline: false, tickfont: { color: css("--muted") }, title: { font: { color: css("--ink-2") } } };
-  const merged = Object.assign({
-    paper_bgcolor: css("--surface"), plot_bgcolor: css("--surface"),
-    font: { family: "system-ui, -apple-system, Segoe UI, sans-serif", color: css("--ink"), size: 12 },
-    margin: { l: 64, r: 24, t: 16, b: 48 }, hovermode: "closest", showlegend: true,
-    legend: { orientation: "h", y: -0.22, font: { color: css("--ink-2") } },
-    hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--axis"), font: { color: css("--ink") } },
-  }, extra);
-  merged.xaxis = Object.assign({}, axis, extra.xaxis || {}); merged.yaxis = Object.assign({}, axis, extra.yaxis || {});
-  return merged;
-}
 function body() {
   const b = JSON.parse($("req").value);
   if ($("cal").value) b.calibration_version = $("cal").value; else delete b.calibration_version;
@@ -155,6 +175,230 @@ function body() {
   return b;
 }
 const na = v => v && v.status === "not_available";
+
+// ---------------------------------------------------------------------------------------------------------------
+// Names for people and goals: generic, in the sheet's order. Ids never reach the page.
+// ---------------------------------------------------------------------------------------------------------------
+const GOAL_KIND = { property: "Home", retirement: "Retirement", other: "Goal" };
+function namesOf(s, req) {
+  const out = {};
+  const persons = [...s.household.adults, ...s.household.dependants].map(p => p.person_id);
+  s.human_capital.forEach(h => persons.includes(h.person_id) || persons.push(h.person_id));
+  persons.forEach((pid, i) => { out["person:" + pid] = `Person ${i + 1}`; });
+  const goals = (req && req.goals) || (s.real_view ? s.real_view.goals.map(g => ({ goal_id: g.goal_id, kind: g.kind })) : []);
+  const seen = {};
+  goals.forEach(g => {
+    const word = GOAL_KIND[g.kind] || "Goal";
+    seen[word] = (seen[word] || 0) + 1;
+    out["goal:" + g.goal_id] = seen[word] > 1 ? `${word} goal ${seen[word]}` : `${word} goal`;
+  });
+  return out;
+}
+const who = pid => state.names["person:" + pid] || "a person";
+const goalName = gid => state.names["goal:" + gid] || "a goal";
+const plain = text => String(text ?? "").replace(/\b(person|goal)?[_-]?[A-Za-z0-9]*[0-9][A-Za-z0-9_-]*\b/g, m => {
+  for (const [k, v] of Object.entries(state.names)) if (k.endsWith(":" + m)) return v;
+  return m;
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// Inline SVG helpers
+// ---------------------------------------------------------------------------------------------------------------
+const W = 720;
+const f1 = x => Number(x).toFixed(1);
+function svg(height, title, inner, width = W) {
+  return `<svg class="g" viewBox="0 0 ${width} ${f1(height)}" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title>${inner}</svg>`;
+}
+
+// The balance sheet: three bars on one CHF scale. Assets by vessel and human capital; liabilities and the goals'
+// claims; net worth. Every segment is named and valued in the rows under its bar.
+function balanceSheetChart(s, basis) {
+  const t = s.totals;
+  const VESSELS = [["free", "Freely available", "--free"], ["pillar_2", "Pillar 2", "--p2"], ["pillar_3a", "Pillar 3a", "--p3a"],
+                   ["real_asset", "Real assets", "--real"], ["not_stated", "Vessel not stated", "--unstated"]];
+  const assets = VESSELS.filter(([k]) => (t.by_vessel[k] || 0) > 0).map(([k, name, c]) => ({ name, value: t.by_vessel[k], color: c }));
+  if ((t.human_assets || 0) > 0) assets.push({ name: "Human capital", value: t.human_assets, color: "--human" });
+  const claims = [];
+  if ((t.liabilities || 0) > 0) claims.push({ name: "Liabilities", value: t.liabilities, color: "--liab" });
+  const goals = goalClaims(s, basis);
+  goals.forEach((g, i) => claims.push({ name: `${goalName(g.goal_id)} (${g.basisWord})`, value: g.amount, color: "--goal", opacity: i % 2 ? 0.6 : 1 }));
+  const net = t.net_worth;
+  const sum = xs => xs.reduce((a, b) => a + b.value, 0);
+  const top = Math.max(sum(assets), sum(claims), Math.abs(net || 0), 1);
+  const left = 16, barW = W - 2 * left;
+  let y = 8;
+  const out = [];
+  const bar = (head, total, segs) => {
+    out.push(`<text class="head" x="${left}" y="${f1(y + 12)}">${esc(head)}${total === null ? "" : ": " + esc(chf(total))}</text>`);
+    y += 20;
+    let x = left;
+    segs.forEach(sg => {
+      const w = Math.max(barW * Math.abs(sg.value) / top, 2);
+      out.push(`<rect x="${f1(x)}" y="${f1(y)}" width="${f1(Math.max(w - 2, 1))}" height="22" rx="4" style="fill:var(${sg.color})" fill-opacity="${sg.opacity ?? 1}"><title>${esc(sg.name)}: ${esc(chf(sg.value))}</title></rect>`);
+      x += w;
+    });
+    if (!segs.length) out.push(`<text class="soft" x="${left}" y="${f1(y + 15)}">nothing stated</text>`);
+    y += 30;
+    segs.forEach(sg => {
+      out.push(`<rect x="${left}" y="${f1(y + 2)}" width="10" height="10" rx="2" style="fill:var(${sg.color})" fill-opacity="${sg.opacity ?? 1}"/>`);
+      out.push(`<text class="soft" x="${left + 16}" y="${f1(y + 11)}">${esc(sg.name)}</text>`);
+      out.push(`<text x="${W - left}" y="${f1(y + 11)}" text-anchor="end">${esc(chf(sg.value))}</text>`);
+      y += 17;
+    });
+    y += 12;
+  };
+  bar("Assets", t.total_assets, assets);
+  bar("Liabilities and goals", null, claims);
+  out.push(`<text class="head" x="${left}" y="${f1(y + 12)}">Net worth: ${net === null ? "not known (one side of the sheet is not stated)" : esc(chf(net))}</text>`);
+  y += 20;
+  if (net !== null) {
+    out.push(`<rect x="${left}" y="${f1(y)}" width="${f1(Math.max(barW * Math.abs(net) / top, 2))}" height="22" rx="4" style="fill:var(--net)" fill-opacity="${net < 0 ? 0.45 : 1}"><title>Net worth: ${esc(chf(net))}</title></rect>`);
+    y += 30;
+  }
+  return svg(y + 4, "The life balance sheet: assets against liabilities and goals, with net worth", out.join(""));
+}
+
+// The goals' claims in CHF: lbs's real view in the chosen basis; without it, a property's price as lbs states it.
+function goalClaims(s, basis) {
+  if (s.real_view) {
+    return s.real_view.goals.filter(g => g.unit === "chf" && g[basis].amount !== null)
+      .map(g => ({ goal_id: g.goal_id, amount: g[basis].amount, basisWord: basis === "real" ? "today's francs" : "nominal at its date" }));
+  }
+  return s.property.filter(p => p.price_chf !== null).map(p => ({ goal_id: p.goal_id, amount: p.price_chf, basisWord: "nominal" }));
+}
+
+// The capitals of one adult: E, N and H on their own scales from the human-capital record, with words at the ends.
+function scales(cal) {
+  const rec = (cal && cal.records && cal.records["human-capital"]) || {};
+  const intake = (cal && cal.records && cal.records["intake-scales"]) || {};
+  const e = ((rec.expertise || {}).anchors || {});
+  const levels = Object.values(((rec.health || {}).levels) || { a: 1 }).map(Number);
+  return {
+    E: { name: "Expertise and education", min: 0, max: Number(e.ceiling ?? 1), low: "little", high: "much" },
+    N: { name: "Network", min: 0, max: Number(((intake.network || {}).ceiling) ?? 1), low: "small", high: "wide" },
+    H: { name: "Health", min: 0, max: Math.max(...levels, 1), low: "limited", high: "full" },
+  };
+}
+function levelWord(v, sc) {
+  const r = (v - sc.min) / ((sc.max - sc.min) || 1);
+  return r < 1 / 3 ? "low" : r < 2 / 3 ? "middle" : "high";
+}
+function capitalsChart(h, sc) {
+  const CW = 420, left = 8, right = 8, trackW = CW - left - right;
+  let y = 6;
+  const out = [];
+  for (const key of ["E", "N", "H"]) {
+    const c = h[key], s = sc[key];
+    out.push(`<text class="head" x="${left}" y="${f1(y + 12)}">${esc(s.name)}</text>`);
+    if (c.value === null) {
+      const why = "not stated: " + plain(c.absent_because);
+      out.push(`<text class="soft" x="${left}" y="${f1(y + 28)}">${esc(why.length > 66 ? why.slice(0, 64) + "…" : why)}<title>${esc(why)}</title></text>`);
+      y += 38;
+      out.push(`<rect x="${left}" y="${f1(y)}" width="${trackW}" height="8" rx="4" style="fill:var(--grid)"/>`);
+    } else {
+      out.push(`<text x="${CW - right}" y="${f1(y + 12)}" text-anchor="end">${Number(c.value).toFixed(2)} · ${levelWord(c.value, s)}</text>`);
+      y += 24;
+      const pos = left + trackW * Math.min(1, Math.max(0, (c.value - s.min) / ((s.max - s.min) || 1)));
+      out.push(`<rect x="${left}" y="${f1(y)}" width="${trackW}" height="8" rx="4" style="fill:var(--grid)"/>`);
+      out.push(`<rect x="${left}" y="${f1(y)}" width="${f1(Math.max(pos - left, 2))}" height="8" rx="4" style="fill:var(--fanline)"><title>${esc(s.name)}: ${Number(c.value).toFixed(2)}</title></rect>`);
+      out.push(`<circle cx="${f1(pos)}" cy="${f1(y + 4)}" r="6" style="fill:var(--fanline);stroke:var(--surface)" stroke-width="2"/>`);
+    }
+    y += 24;
+    out.push(`<text class="soft" x="${left}" y="${f1(y)}">${esc(s.low)}</text><text class="soft" x="${CW - right}" y="${f1(y)}" text-anchor="end">${esc(s.high)}</text>`);
+    y += 18;
+  }
+  return svg(y, `${who(h.person_id)}: expertise, network and health, each on its own scale`, out.join(""), CW);
+}
+
+// A line over an axis with words or stated values at its ends (BVG balance by age; the target curve by state).
+function lineChart(xs, ys, o) {
+  const left = 16, right = 150, top = 14, bottom = 28, height = 220;
+  const lo = Math.min(...ys, o.zero ? 0 : Infinity), hi = Math.max(...ys, o.zero ? 0 : -Infinity);
+  const span = (hi - lo) || 1, pw = W - left - right, ph = height - top - bottom;
+  const X = i => left + pw * i / (xs.length - 1), Y = v => top + ph * (hi + 0.05 * span - v) / (span * 1.1);
+  const out = [];
+  if (o.zero) out.push(`<line x1="${left}" x2="${left + pw}" y1="${f1(Y(0))}" y2="${f1(Y(0))}" style="stroke:var(--axis)" stroke-dasharray="3 3"/><text class="soft" x="${left + pw + 6}" y="${f1(Y(0) + 4)}">zero</text>`);
+  if (o.band) out.push(`<rect x="${f1(X(o.band[0]))}" y="${top}" width="${f1(X(o.band[1]) - X(o.band[0]))}" height="${ph}" style="fill:var(--band)"/>`);
+  out.push(`<polyline points="${ys.map((v, i) => `${f1(X(i))},${f1(Y(v))}`).join(" ")}" fill="none" style="stroke:var(--fanline)" stroke-width="2"/>`);
+  ys.forEach((v, i) => out.push(`<circle cx="${f1(X(i))}" cy="${f1(Y(v))}" r="8" fill="transparent"><title>${esc(o.tip(xs[i], v))}</title></circle>`));
+  out.push(`<text x="${left + pw + 6}" y="${f1(Y(ys[ys.length - 1]) + 4)}">${esc(o.endLabel(ys[ys.length - 1]))}</text>`);
+  out.push(`<text class="soft" x="${left}" y="${height - 8}">${esc(o.startWord)}</text><text class="soft" x="${left + pw}" y="${height - 8}" text-anchor="end">${esc(o.endWord)}</text>`);
+  return svg(height, o.title, out.join(""));
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The sheet
+// ---------------------------------------------------------------------------------------------------------------
+function view(m, basis) {
+  if (!m || na(m)) return null;
+  return (m.views && m.views[basis]) || (basis === "nominal" ? m : null);
+}
+function render() {
+  const s = state.sheet;
+  if (!s) return;
+  const basis = state.basis;
+  const t = s.totals, m = s.mandate_proposal, mv = view(m, basis);
+  const realMissing = basis === "real" && !s.real_view;
+  const tiles = [["Total assets", chf(t.total_assets)], ["Liabilities", chf(t.liabilities)], ["Net worth", chf(t.net_worth)],
+                 ["Freely available", chf(t.drawable)], ["Household income a year", chf(t.household_income)],
+                 [`Required return (${basis})`, mv ? pct(mv.required_return) : "–"], ["Gaps", s.gaps.length]];
+  const cells = s.grid.map(c => `<tr><td>${esc(c.display)} <span class="note">${esc(c.capital_type)}</span></td>
+      <td>${chf(c.assets_chf)}</td><td>${chf(c.liabilities_chf)}</td><td>${chf(c.flows_chf_per_year)}</td><td>${c.positions.length}</td></tr>`).join("");
+  const pens = s.pensions.map(p => `<tr><td>${esc(who(p.person_id))}</td>
+      <td>${na(p.ahv) ? `<span class="na">${esc(plain(p.ahv.reason))}</span>` : chf(p.ahv.yearly)}</td>
+      <td>${na(p.bvg) ? `<span class="na">${esc(plain(p.bvg.reason))}</span>` : chf(p.bvg.closing_balance) + " at " + p.bvg.to_age}</td>
+      <td>${na(p.bvg) ? "–" : chf(p.bvg.yearly_pension)}</td></tr>`).join("");
+  const retire = f => { const v = (f.views && f.views[basis]) || f; return v.covered_per_year === null ? "" : `covered ${chf(v.covered_per_year)} a year (${(f.views && f.views[basis]) ? basis : "as lbs states it"})`; };
+  const findings = [
+    ...s.property.map(f => `<tr><td>${esc(goalName(f.goal_id))}</td><td>${esc(f.verdict.replace(/_/g, " "))}</td><td>${esc(plain([...f.binds_on, ...f.undetermined_because].join(", ").replace(/_/g, " ")))}</td></tr>`),
+    ...s.retirement.map(f => `<tr><td>${esc(goalName(f.goal_id))}</td><td>${esc(f.verdict.replace(/_/g, " "))}</td><td>${esc(plain(f.undetermined_because.join(", ").replace(/_/g, " ")))} ${retire(f)}</td></tr>`),
+    ...s.liquidity.map(f => `<tr><td>${esc(goalName(f.goal_id))}</td><td>short on ${esc(f.due_date)}</td><td>gap ${chf(f.gap_chf)} (nominal)</td></tr>`)].join("");
+  const gaps = s.gaps.map(g => `<tr><td>${esc(g.section.split(".")[0].replace(/_/g, " "))}</td><td>${esc(g.kind.replace(/_/g, " "))}</td><td style="text-align:left">${esc(plain(g.reason))}</td></tr>`).join("");
+  const bounds = na(m) ? "" : Object.entries(m.bounds).flatMap(([d, bs]) => Object.entries(bs).map(([k, b]) =>
+      `<tr><td>${esc(d)}</td><td>${esc(k)}</td><td>${b.lower}</td><td>${b.upper}</td><td style="text-align:left">${esc(plain(b.reasoning))}</td></tr>`)).join("");
+  const curator = na(m) ? "" : m.curator_to_fill.map(c => `<li><b>${esc(c.field)}</b>: ${esc(plain(c.reason))}</li>`).join("");
+  const sc = scales(state.cal);
+  const people = s.human_capital.map(h => `<div><h3 style="font-size:14px;margin:4px 0">${esc(who(h.person_id))}</h3>${capitalsChart(h, sc)}</div>`).join("");
+  const retirementPerYear = s.real_view ? s.real_view.goals.filter(g => g.unit === "chf_per_year") : [];
+  const bvg = s.pensions.find(p => !na(p.bvg));
+  const rv = s.real_view;
+  $("panel").innerHTML = `
+    ${realMissing ? `<p class="warn">This sheet was built under a calibration without the real view: it has nominal figures only.</p>` : ""}
+    <div class="tiles">${tiles.map(([k, v]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("")}</div>
+    <div>
+      <div class="card"><h2>The life balance sheet</h2>
+        <p class="q">What the household holds, by vessel and as human capital, against what it owes and what its goals will claim. Amounts held and owed are today's; goal amounts are ${basis === "real" ? "in today's francs (real)" : "nominal, in francs of each goal's date"}.</p>
+        ${balanceSheetChart(s, basis)}
+        ${retirementPerYear.length ? `<p class="note">${retirementPerYear.map(g => `${esc(goalName(g.goal_id))}: ${chf(g[basis].amount)} a year`).join("; ")}. A yearly need is not a claim on today's stock and is not drawn.</p>` : ""}
+        ${rv ? `<p class="note">Inflation assumption ${pct(rv.inflation.annual_rate)} a year (${esc(rv.inflation.label)}); the yearly saving ${rv.contribution_indexed ? "rises with prices" : "is fixed in francs"}.</p>` : ""}</div>
+      <div class="card"><h2>The four capitals, today</h2>
+        <p class="q">Wealth in CHF, and per adult expertise, network and health: model levels without a currency, each on its own scale from the human-capital record, never on a money axis.</p>
+        <div class="tile" style="margin-bottom:12px"><div class="v">${chf(t.net_worth)}</div><div class="k">Wealth: the household's net worth (lbs states wealth per household, not per person)</div></div>
+        <div class="people">${people || '<p class="na">No adult on the sheet.</p>'}</div></div>
+    </div>
+    <div class="card"><h2>Grid</h2><p class="q">Role by capital type. Sums over active positions per unit; blank where a cell states nothing.</p>
+      <div class="scroll"><table><tr><th>Cell</th><th>Assets</th><th>Liabilities</th><th>Flows a year</th><th>Positions</th></tr>${cells}</table></div></div>
+    <div class="side">
+      <div class="card"><h2>Pensions</h2><p class="q">AHV (Skala 44) and BVG at the Mindestzinssatz, or why not. The BVG projection is nominal in either view.</p>
+        <div class="scroll"><table><tr><th>Person</th><th>AHV a year</th><th>BVG balance</th><th>BVG a year</th></tr>${pens}</table></div>
+        ${bvg ? lineChart(bvg.bvg.years.map(y => y.age + 1), bvg.bvg.years.map(y => y.closing), { title: `${who(bvg.person_id)}: BVG balance by age, nominal`, tip: (a, v) => `age ${a}: ${chf(v)}`, endLabel: v => chf(v), startWord: `age ${bvg.bvg.from_age}`, endWord: `age ${bvg.bvg.to_age}` }) : ""}</div>
+      <div class="card"><h2>Findings</h2><div class="scroll"><table><tr><th>Goal</th><th>Verdict</th><th style="text-align:left">Why</th></tr>${findings || '<tr><td class="na">none</td></tr>'}</table></div></div>
+    </div>
+    <div class="card"><h2>Mandate proposal</h2>
+      <p class="q">${na(m) ? esc(plain(m.reason)) : `For ${esc(goalName(m.goal_id))}, in the shape of pcp-mandate@1.0.0, unreleased and incomplete by design. Target ${chf(mv ? mv.target_chf : null)} (${basis}); horizon ${m.goal_horizon_years === null ? "–" : m.goal_horizon_years.toFixed(2)} years; required return ${mv ? pct(mv.required_return) : "–"} a year (${basis})${m.plausibility ? `, judged ${esc(m.plausibility.judgement.replace(/_/g, " "))}` : ""}.`}</p>
+      ${!na(m) && m.target_curve ? lineChart(m.target_curve.map((_, i) => i + 1), m.target_curve.map(v => 100 * v), { zero: true, band: [0, 4], title: "Target curve over the 25 market states, annualised log return, nominal", tip: (x, v) => `state ${x}: ${v.toFixed(2)}%`, endLabel: v => `boom ${v.toFixed(1)}%`, startWord: "crisis", endWord: "boom" }) : ""}
+      <div class="scroll"><table><tr><th>Dimension</th><th>Bucket</th><th>Lower</th><th>Upper</th><th style="text-align:left">Reasoning</th></tr>${bounds}</table></div>
+      <p class="q">For the curator:</p><ul class="note">${curator}</ul></div>
+    <div class="card"><h2>Gaps</h2><p class="q">Every input the sheet could not use, and why. Nothing here was filled in.</p>
+      <div class="scroll"><table><tr><th>Section</th><th>Kind</th><th style="text-align:left">Reason</th></tr>${gaps}</table></div></div>`;
+}
+
+async function show(sheet, req) {
+  state.sheet = sheet;
+  state.names = namesOf(sheet, req);
+  try { state.cal = await call(`/calibration?version=${encodeURIComponent(sheet.calibration_version)}`); } catch { state.cal = null; }
+  render();
+}
 
 async function doValidate() {
   try {
@@ -167,88 +411,61 @@ async function doValidate() {
 async function doRun() {
   $("runBtn").disabled = true;
   try {
-    const run = await post("/run", body());
+    const b = body();
+    const run = await post("/run", b);
     if (run.status !== "succeeded") {
       const st = await call(`/runs/${run.run_id}`);
       throw new Error(st.error || "the run failed");
     }
-    $("status").innerHTML = `<span class="ok">${esc(run.artefact_id)}${run.cached ? " (cached)" : ""}</span>`;
-    render(await call(`/sheet/${run.artefact_id}`));
+    $("status").innerHTML = `<span class="ok">sheet built${run.cached ? " (the same request was built before: the stored sheet)" : ""}</span>`;
+    await show(await call(`/sheet/${run.artefact_id}`), b);
   } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
   finally { $("runBtn").disabled = false; }
 }
 
-function render(s) {
-  const t = s.totals, m = s.mandate_proposal;
-  const tiles = [["Financial assets", chf(t.financial_assets)], ["Liabilities", chf(t.liabilities)],
-                 ["Net worth", chf(t.net_worth)], ["Drawable", chf(t.drawable)],
-                 ["Household income / year", chf(t.household_income)],
-                 ["Required return", na(m) ? "–" : pct(m.required_return)], ["Gaps", s.gaps.length]];
-  const cells = s.grid.map(c => `<tr><td>${esc(c.display)} <span class="note">${esc(c.capital_type)}</span></td>
-      <td>${chf(c.assets_chf)}</td><td>${chf(c.liabilities_chf)}</td><td>${chf(c.flows_chf_per_year)}</td><td>${esc(c.positions.join(", "))}</td></tr>`).join("");
-  const hc = s.human_capital.map(h => `<tr><td>${esc(h.person_id)}</td>${["E", "N", "H"].map(k => `<td>${h[k].value === null ? `<span class="na">${esc(h[k].absent_because)}</span>` : h[k].value.toFixed(4)}</td>`).join("")}
-      <td class="na">${esc(h.earning_power.reason)}</td></tr>`).join("");
-  const pens = s.pensions.map(p => `<tr><td>${esc(p.person_id)}</td>
-      <td>${na(p.ahv) ? `<span class="na">${esc(p.ahv.reason)}</span>` : chf(p.ahv.yearly)}</td>
-      <td>${na(p.bvg) ? `<span class="na">${esc(p.bvg.reason)}</span>` : chf(p.bvg.closing_balance) + " at " + p.bvg.to_age}</td>
-      <td>${na(p.bvg) ? "–" : chf(p.bvg.yearly_pension)}</td></tr>`).join("");
-  const findings = [
-    ...s.property.map(f => `<tr><td>property ${esc(f.goal_id)}</td><td>${esc(f.verdict)}</td><td>${esc([...f.binds_on, ...f.undetermined_because].join(", "))}</td></tr>`),
-    ...s.retirement.map(f => `<tr><td>retirement ${esc(f.goal_id)}</td><td>${esc(f.verdict)}</td><td>${esc(f.undetermined_because.join(", "))} ${f.covered_per_year === null ? "" : "covered " + chf(f.covered_per_year)}</td></tr>`),
-    ...s.liquidity.map(f => `<tr><td>liquidity ${esc(f.goal_id)}</td><td>short on ${esc(f.due_date)}</td><td>gap ${chf(f.gap_chf)}; prepared: ${esc(f.prepared.lever || "a curator")}</td></tr>`)].join("");
-  const gaps = s.gaps.map(g => `<tr><td>${esc(g.section)}</td><td>${esc(g.input)}</td><td>${esc(g.kind)}</td><td style="text-align:left">${esc(g.reason)}</td></tr>`).join("");
-  const bounds = na(m) ? "" : Object.entries(m.bounds).flatMap(([d, bs]) => Object.entries(bs).map(([k, b]) =>
-      `<tr><td>${esc(d)}</td><td>${esc(k)}</td><td>${b.lower}</td><td>${b.upper}</td><td style="text-align:left">${esc(b.reasoning)}</td></tr>`)).join("");
-  const curator = na(m) ? "" : m.curator_to_fill.map(c => `<li><b>${esc(c.field)}</b>: ${esc(c.reason)}</li>`).join("");
-  $("panel").innerHTML = `
-    <div class="tiles">${tiles.map(([k, v]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("")}</div>
-    <div class="card"><h2>Grid</h2><p class="q">Role by capital type. Sums over active positions per unit; blank where a cell states nothing.</p>
-      <div class="scroll"><table><tr><th>Cell</th><th>Assets CHF</th><th>Liabilities CHF</th><th>Flows CHF / year</th><th>Positions</th></tr>${cells}</table></div></div>
-    <div class="side">
-      <div class="card"><h2>Human capital</h2><p class="q">E, N and H per adult; absent is never zero.</p>
-        <div class="scroll"><table><tr><th>Person</th><th>E</th><th>N</th><th>H</th><th>Earning power</th></tr>${hc}</table></div></div>
-      <div class="card"><h2>Pensions</h2><p class="q">AHV (Skala 44) and BVG at the Mindestzinssatz, or why not.</p>
-        <div class="scroll"><table><tr><th>Person</th><th>AHV / year</th><th>BVG balance</th><th>BVG / year</th></tr>${pens}</table></div>
-        <div id="bvgChart" class="chart"></div></div>
-    </div>
-    <div class="card"><h2>Findings</h2><div class="scroll"><table><tr><th>Goal</th><th>Verdict</th><th style="text-align:left">Why</th></tr>${findings || '<tr><td class="na">none</td></tr>'}</table></div></div>
-    <div class="card"><h2>Mandate proposal</h2>
-      <p class="q">${na(m) ? esc(m.reason) : `In the shape of pcp-mandate@1.0.0, unreleased and incomplete by design: ${esc(m.target_basis)}; horizon ${m.goal_horizon_years === null ? "–" : m.goal_horizon_years.toFixed(2)} years; curve shape ${esc(m.curve_shape.source)}.`}</p>
-      <div id="curveChart" class="chart"></div>
-      <div class="scroll"><table><tr><th>Dimension</th><th>Bucket</th><th>Lower</th><th>Upper</th><th style="text-align:left">Reasoning</th></tr>${bounds}</table></div>
-      <p class="q">For the curator:</p><ul class="note">${curator}</ul></div>
-    <div class="card"><h2>Gaps</h2><p class="q">Every input the sheet could not use, and why. Nothing here was filled in.</p>
-      <div class="scroll"><table><tr><th>Section</th><th>Input</th><th>Kind</th><th style="text-align:left">Reason</th></tr>${gaps}</table></div></div>`;
-  const traces = s.pensions.filter(p => !na(p.bvg)).map((p, i) => ({ x: p.bvg.years.map(y => y.age + 1), y: p.bvg.years.map(y => y.closing),
-    name: p.person_id, type: "scatter", mode: "lines", line: { color: css(["--s1", "--s2", "--s3"][i % 3]), width: 2 },
-    hovertemplate: "age %{x}: CHF %{y:,.0f}<extra></extra>" }));
-  if (traces.length) Plotly.newPlot("bvgChart", traces, layout({ xaxis: { title: { text: "age" } }, yaxis: { title: { text: "BVG balance, CHF" } } }), { displayModeBar: false, responsive: true });
-  else $("bvgChart").style.display = "none";
-  if (!na(m) && m.target_curve) {
-    Plotly.newPlot("curveChart", [{ x: Array.from({ length: 25 }, (_, i) => i + 1), y: m.target_curve.map(v => 100 * v), name: "target curve (log return, %)",
-      type: "scatter", mode: "lines+markers", line: { color: css("--s1"), width: 2 }, marker: { size: 5 }, hovertemplate: "state %{x}: %{y:.3f}%<extra></extra>" }],
-      layout({ shapes: [{ type: "rect", xref: "x", yref: "paper", x0: 0.5, x1: 5.5, y0: 0, y1: 1, fillcolor: css("--band"), line: { width: 0 }, layer: "below" }],
-               xaxis: { title: { text: "regime state (1 crisis to 25 boom)" }, dtick: 4 }, yaxis: { title: { text: "annualised log return, %" } } }),
-      { displayModeBar: false, responsive: true });
-  } else $("curveChart").style.display = "none";
+// The picker: the stored sheet and the request it was built from (read-only; nothing is written).
+async function doPick() {
+  const id = $("pick").value;
+  if (!id) return;
+  try {
+    const [sheet, stored] = await Promise.all([call(`/sheet/${id}`), call(`/artefacts/${id}/request`)]);
+    $("req").value = JSON.stringify(stored.request, null, 1);
+    $("cal").value = stored.request.calibration_version || "";
+    $("status").innerHTML = `<span class="ok">${esc($("pick").selectedOptions[0].textContent)}: the stored sheet and its request</span>`;
+    await show(sheet, stored.request);
+  } catch (e) { $("status").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
 }
 
 async function boot() {
   try {
-    const [health, versions] = await Promise.all([call("/health"), call("/calibration/versions")]);
+    const [health, versions, candidates] = await Promise.all([call("/health"), call("/calibration/versions"), call("/bench/candidates?limit=60")]);
     $("sub").textContent = `${health.engine_version} at ${base()}`;
     $("cal").innerHTML = `<option value="">active</option>` + versions.map(v => `<option>${esc(v.version)}</option>`).join("");
+    const groups = {};
+    candidates.forEach(c => (groups[c.kind] = groups[c.kind] || []).push(c));
+    $("pick").innerHTML = `<option value="">choose a client…</option>` + Object.entries(groups).map(([k, cs]) =>
+      `<optgroup label="${esc(k)}">${cs.map(c => `<option value="${esc(c.artefact_id)}">${esc(c.label)}</option>`).join("")}</optgroup>`).join("");
+    const first = candidates.find(c => c.artefact_id === params.get("sheet")) || candidates.find(c => c.kind === "use case") || candidates[0];
+    if (first) { $("pick").value = first.artefact_id; doPick(); }
   } catch (e) { $("sub").innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
 }
+function setBasis(b) {
+  state.basis = b; store.set("basis", b);
+  document.querySelectorAll("#basisSeg button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.basis === b)));
+  render();
+}
+document.querySelectorAll("#basisSeg button").forEach(x => x.addEventListener("click", () => setBasis(x.dataset.basis)));
 $("api").addEventListener("change", () => { store.set("api", $("api").value); boot(); });
+$("pick").addEventListener("change", doPick);
 $("validateBtn").addEventListener("click", doValidate);
 $("runBtn").addEventListener("click", doRun);
-$("resetBtn").addEventListener("click", () => { $("req").value = JSON.stringify(EXAMPLE, null, 1); });
+$("resetBtn").addEventListener("click", () => { $("req").value = JSON.stringify(EXAMPLE, null, 1); $("reqBox").open = true; });
 $("themeBtn").addEventListener("click", () => {
   const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
   document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("theme", document.documentElement.dataset.theme);
 });
 if (store.get("theme")) document.documentElement.dataset.theme = store.get("theme");
+setBasis(state.basis);
 boot();
 </script>
 </body>

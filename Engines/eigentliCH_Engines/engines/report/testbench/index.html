@@ -3,8 +3,8 @@
   eigentliCH Report Engine (report) test bench. Development only: not part of the system and not in the deploy folder.
 
   A client of the engine's HTTP surface, nothing more. Served by the engine at "/", or opened off disk, when it
-  calls http://127.0.0.1:8015 (or ?api=...). The report itself is shown as the engine rendered it, in a sandboxed
-  frame. No build step, no external script.
+  calls http://127.0.0.1:8015 (or ?api=...). A report is shown as the engine rendered it and as the client sees
+  it, in a sandboxed frame (no script runs in it). No build step, no external script.
 -->
 <html lang="en-GB">
 <head>
@@ -14,7 +14,7 @@
 <style>
   :root { color-scheme: light; --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
           --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10); --s1: #2a78d6; --critical: #d03b3b; --good: #0ca30c; }
-  @media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { color-scheme: dark; --page: #0d0d0d;
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; --page: #0d0d0d;
           --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
           --s1: #3987e5; } }
   :root[data-theme="dark"] { color-scheme: dark; --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
@@ -23,12 +23,14 @@
   body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
   header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
   h1 { font-size: 18px; margin: 0; } #sub { color: var(--ink-2); font-size: 12px; } #themeBtn { margin-left: auto; }
-  main { padding: 8px 24px 48px; max-width: 1400px; display: grid; grid-template-columns: minmax(300px, 420px) minmax(0, 1fr); gap: 16px; }
-  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  .intro { margin: 0 24px 16px; max-width: 1352px; }
+  .intro p { margin: 0 0 8px; max-width: 920px; } .intro ul { margin: 0 0 4px; padding-left: 20px; max-width: 920px; }
+  main { padding: 0 24px 48px; max-width: 1400px; display: grid; grid-template-columns: minmax(300px, 440px) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } main, header { padding-left: 16px; padding-right: 16px; } .intro { margin: 0 16px 16px; } }
   .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; min-width: 0; margin-bottom: 16px; }
   .card h2 { font-size: 15px; margin: 0 0 8px; }
   label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); margin-bottom: 10px; }
-  input, select, textarea, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; }
+  input, select, textarea, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 10px; max-width: 100%; }
   textarea { font: 12px ui-monospace, Consolas, monospace; min-height: 70px; width: 100%; }
   button { cursor: pointer; } button.primary { background: var(--s1); color: #fff; border-color: var(--s1); }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
@@ -36,9 +38,15 @@
   th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: left; vertical-align: top; }
   th { color: var(--ink-2); font-weight: 600; }
   .bad { color: var(--critical); } .ok { color: var(--good); }
-  iframe { width: 100%; height: 1100px; border: 1px solid var(--ring); border-radius: 10px; background: #fff; }
+  iframe { width: 100%; height: 1200px; border: 1px solid var(--ring); border-radius: 10px; background: #fff; }
   pre { font: 12px ui-monospace, Consolas, monospace; background: var(--page); padding: 8px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; max-height: 300px; }
   .note { color: var(--muted); font-size: 12px; } code { font: 11.5px ui-monospace, Consolas, monospace; }
+  .gallery { display: grid; gap: 6px; }
+  .gallery button { text-align: left; display: grid; gap: 2px; }
+  .gallery button[aria-pressed="true"] { border-color: var(--s1); box-shadow: inset 0 0 0 1px var(--s1); }
+  .gallery .t { font-weight: 600; } .gallery .d { color: var(--ink-2); font-size: 12px; }
+  details summary { cursor: pointer; color: var(--ink-2); }
+  #frameHead { color: var(--ink-2); font-size: 12px; margin: 0 0 8px; }
 </style>
 </head>
 <body>
@@ -46,26 +54,32 @@
   <h1>eigentliCH Report Engine</h1><span id="sub">loading</span>
   <button id="themeBtn" type="button">Theme</button>
 </header>
+<section class="card intro">
+  <h2>What the report engine does</h2>
+  <p>It turns the engines' published results into one page a client reads: their balance sheet, pensions, goals, the proposed mandate, the allocation and, with lbsim, the outlook. The engine owns every figure and the order of the sections; nothing on the page is typed by hand.</p>
+  <ul>
+    <li><b>Deterministic figures and structure</b>: every figure is a fact read from a published artefact (pcp's allocation, lbs's life balance sheet, lbsim's findings, paths and plan) at a stated place in it, or derived by the code with its derivation named. The sections come in a fixed order and are left out when empty.</li>
+    <li><b>MiniMind writes only sentences</b>: the house's AI is given one section's facts at a time and writes two or three connecting sentences. Every number in them must be one of that section's facts, or the sentence is withheld. Without MiniMind the report still stands, without prose.</li>
+    <li><b>Facts and sources</b>: every printed value is a fact (also inside the graphs, which are drawn in the page with no tick numbers); the last section names each source in words and dates. No id is ever printed.</li>
+    <li><b>Revisions and updates</b>: an update states what changed since the previous report first; a revision carries the curator's remark under the lede.</li>
+    <li><b>The basis</b>: nominal by default, or real (in today's francs), stated in the lede and next to every return and goal figure. The capitals have no basis: they are model levels, not money.</li>
+  </ul>
+</section>
 <main>
   <div>
     <section class="card">
-      <h2>Request</h2>
-      <label>client_ref <input id="client" value="syn-couple"></label>
-      <div class="row">
-        <label>Kind <select id="kind"><option>report</option><option>update</option></select></label>
-        <label>Language <select id="lang"><option>de</option><option>en</option></select></label>
-        <label><span>Prose</span><input id="prose" type="checkbox" checked></label>
-      </div>
-      <label>pcp Allocation id (empty: none) <input id="pcp" placeholder="PCP-..."></label>
-      <label>lbs LifeBalanceSheet id (empty: none) <input id="lbs" placeholder="LBS-..."></label>
-      <label>lbsim findings, paths, plan ids (comma-separated, empty: none) <input id="lbsim" placeholder="LSF-..., LSP-..., LSO-..."></label>
-      <label>Previous report id (update only) <input id="prev" placeholder="REP-..."></label>
-      <label>Revision of report id (empty: not a revision) <input id="revof" placeholder="REP-..."></label>
-      <label>Revision note (the curator's remark, printed on the page) <textarea id="revnote"></textarea></label>
-      <label>Display facts (JSON list of {key, label, value, source})
-        <textarea id="display">[{"key": "name", "label": "Kundin", "value": "Muster", "source": "test bench"}]</textarea></label>
-      <button class="primary" id="go" type="button">Produce (POST /report)</button>
+      <h2>A client's stored reports</h2>
+      <label>Client <select id="client"><option>loading…</option></select></label>
+      <label>Report <select id="report"></select></label>
+      <p class="note">A stored report is shown as it was rendered when it was made; a report made before engine 1.5.0 has no life balance sheet and no capitals sections. "Produce again" asks for the same report under the running engine.</p>
+      <div class="row"><button class="primary" id="again" type="button">Produce again (POST /report)</button>
+        <label><span>Prose</span><input id="prose" type="checkbox"></label></div>
       <p id="status" class="note"></p>
+    </section>
+    <section class="card">
+      <h2>Golden example pages</h2>
+      <p class="note">Frozen reports over frozen artefacts, reproduced exactly by the tests. Each in its own language.</p>
+      <div class="gallery" id="gallery"></div>
     </section>
     <section class="card">
       <h2>Sections</h2>
@@ -73,82 +87,150 @@
       <ul id="warnings" class="note"></ul>
     </section>
     <section class="card">
-      <h2>Facts and their sources</h2>
-      <table><thead><tr><th>Fact</th><th>Value</th><th>Source</th></tr></thead><tbody id="facts"></tbody></table>
+      <details>
+        <summary>Facts and where each was read (developer view: ids and paths)</summary>
+        <table><thead><tr><th>Fact</th><th>Value</th><th>Source</th></tr></thead><tbody id="facts"></tbody></table>
+      </details>
     </section>
     <section class="card">
-      <h2>Stored reports</h2>
-      <table><thead><tr><th>Report</th><th>Client</th><th>Kind</th><th>Complete</th></tr></thead><tbody id="reports"></tbody></table>
-      <button type="button" id="probe">Probe MiniMind (GET /model)</button><pre id="model"></pre>
+      <details>
+        <summary>The request behind the shown report, and MiniMind</summary>
+        <pre id="request"></pre>
+        <button type="button" id="probe">Probe MiniMind (GET /model)</button><pre id="model"></pre>
+      </details>
     </section>
   </div>
   <section class="card">
-    <h2>The report, as rendered</h2>
+    <h2>The report, as the client sees it</h2>
+    <p id="frameHead">Pick a client or a golden page.</p>
     <iframe id="page" sandbox="" title="rendered report"></iframe>
   </section>
 </main>
 <script>
-  const params = new URLSearchParams(location.search);
-  const API = params.get("api") || (location.protocol.startsWith("http") ? "" : "http://127.0.0.1:8015");
-  const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
-  $("themeBtn").onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === "dark" ? "light" : "dark"; };
+"use strict";
+const params = new URLSearchParams(location.search);
+const API = params.get("api") || (location.protocol.startsWith("http") ? "" : "http://127.0.0.1:8015");
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+$("themeBtn").onclick = () => { const r = document.documentElement; r.dataset.theme = (r.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark" ? "light" : "dark"; };
+let clients = [], shown = null;
 
-  async function call(path, opts) {
-    const r = await fetch(API + path, opts);
-    const body = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(`${r.status}: ${JSON.stringify(body.detail ?? body)}`);
-    return body;
-  }
+async function call(path, opts) {
+  let r;
+  try { r = await fetch(API + path, opts); } catch { throw new Error(`cannot reach the engine at ${API || location.origin}`); }
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(`${r.status}: ${JSON.stringify(body.detail ?? body)}`);
+  return body;
+}
 
-  function show(rep) {
-    $("page").srcdoc = rep.html;
-    $("sections").innerHTML = rep.sections.map((s, i) => `<tr><td>${String(i + 1).padStart(2, "0")}</td><td>${esc(s.title)}</td>
-      <td class="${s.prose_status === "verified" ? "ok" : (s.prose_status === "flagged" || s.prose_status === "unavailable") ? "bad" : ""}">${esc(s.prose_status)}</td>
-      <td>${s.prose_attempts || ""}</td><td>${esc(s.unverified_numbers.join(", "))}</td></tr>`).join("");
-    $("warnings").innerHTML = rep.warnings.map((w) => `<li>${esc(w)}</li>`).join("");
-    $("facts").innerHTML = rep.facts.map((f) => `<tr><td>${esc(f.label)}<br><code>${esc(f.fact_id)}</code></td><td>${esc(f.display)}</td>
-      <td>${f.sources.map((s) => `${esc(s.engine)} <code>${esc(s.artefact_id)}</code> <code>${esc(s.path)}</code>`).join("<br>")}
-      ${f.derivation ? `<br><span class="note">${esc(f.derivation)}</span>` : ""}</td></tr>`).join("");
-  }
+function showReport(rep, head, src) {
+  shown = rep;
+  // A stored page is loaded from the engine's own route; a page just produced is shown from its HTML.
+  if (src) { $("page").removeAttribute("srcdoc"); $("page").src = API + src; } else { $("page").srcdoc = rep.html; }
+  $("frameHead").textContent = head;
+  $("sections").innerHTML = rep.sections.map((s, i) => `<tr><td>${String(i + 1).padStart(2, "0")}</td><td>${esc(s.title)}</td>
+    <td class="${s.prose_status === "verified" ? "ok" : (s.prose_status === "flagged" || s.prose_status === "unavailable") ? "bad" : ""}">${esc(s.prose_status.replace(/_/g, " "))}</td>
+    <td>${s.prose_attempts || ""}</td><td>${esc(s.unverified_numbers.join(", "))}</td></tr>`).join("");
+  $("warnings").innerHTML = rep.warnings.map((w) => `<li>${esc(w)}</li>`).join("");
+  $("facts").innerHTML = rep.facts.map((f) => `<tr><td>${esc(f.label)}<br><code>${esc(f.fact_id)}</code></td><td>${esc(f.display)}</td>
+    <td>${f.sources.map((s) => `${esc(s.engine)} <code>${esc(s.artefact_id)}</code> <code>${esc(s.path)}</code>`).join("<br>")}
+    ${f.derivation ? `<br><span class="note">${esc(f.derivation)}</span>` : ""}</td></tr>`).join("");
+  $("request").textContent = JSON.stringify(requestOf(rep), null, 1);
+}
 
-  async function refresh() {
-    try {
-      const meta = await call("/meta");
-      $("sub").textContent = `${meta.engine_version} · prose by ${meta.model.display_name || "MiniMind"} (${meta.model.model}, served by ${meta.model.service} at ${meta.model.host}) · upstream pcp ${meta.upstream.pcp}, lbs ${meta.upstream.lbs}`;
-      const reps = await call("/reports?limit=20");
-      $("reports").innerHTML = reps.map((r) => `<tr><td><a href="#" data-id="${esc(r.artefact_id)}"><code>${esc(r.artefact_id)}</code></a></td>
-        <td>${esc(r.client_ref)}</td><td>${esc(r.kind)}</td><td>${r.complete ? "yes" : '<span class="bad">no</span>'}</td></tr>`).join("");
-      document.querySelectorAll("#reports a").forEach((a) => a.onclick = async (ev) => {
-        ev.preventDefault(); show(await call(`/artefacts/${a.dataset.id}`)); $("prev").value = a.dataset.id; });
-    } catch (e) { $("sub").textContent = `engine not reachable: ${e.message}`; }
-  }
+// The request a stored report answers, rebuilt from the report itself: its client, kind, language, basis and the
+// sources its provenance names. The caller's display facts stay as the report recorded them.
+function requestOf(rep) {
+  const body = { client_ref: rep.client_ref, kind: rep.kind, language: rep.language, basis: rep.basis || "nominal",
+                 sources: rep.provenance.sources.map((s) => ({ engine: s.engine, artefact_id: s.artefact_id })),
+                 prose: $("prose").checked,
+                 display_facts: rep.facts.filter((f) => f.fact_id.startsWith("caller.") && f.fact_id !== "caller.revision_note")
+                   .map((f) => ({ key: f.fact_id.slice(7), label: f.label, value: String(f.value), source: "report" })) };
+  if (rep.previous_report_id) body.previous_report_id = rep.previous_report_id;
+  if (rep.revision_of) { body.revision_of = rep.revision_of; body.revision_note = rep.revision_note; }
+  return body;
+}
 
-  $("go").onclick = async () => {
-    const sources = [];
-    if ($("pcp").value.trim()) sources.push({engine: "pcp", artefact_id: $("pcp").value.trim()});
-    if ($("lbs").value.trim()) sources.push({engine: "lbs", artefact_id: $("lbs").value.trim()});
-    $("lbsim").value.split(",").map(x => x.trim()).filter(Boolean).forEach(id => sources.push({engine: "lbsim", artefact_id: id}));
-    let body;
-    try {
-      body = {client_ref: $("client").value.trim(), kind: $("kind").value, language: $("lang").value, sources,
-              prose: $("prose").checked, display_facts: JSON.parse($("display").value)};
-      if (body.kind === "update") body.previous_report_id = $("prev").value.trim();
-      if ($("revof").value.trim()) body.revision_of = $("revof").value.trim();
-      if ($("revnote").value.trim()) body.revision_note = $("revnote").value.trim();
-    } catch (e) { $("status").textContent = `JSON: ${e.message}`; return; }
-    $("status").textContent = "Producing...";
-    const t0 = performance.now();
-    try {
-      const rep = await call("/report", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
-      $("status").textContent = `${rep.artefact_id} · ${(performance.now() - t0).toFixed(0)} ms · complete: ${rep.complete}`;
-      show(rep);
-    } catch (e) { $("status").textContent = e.message; }
-    refresh();
-  };
-  $("probe").onclick = async () => { try { $("model").textContent = JSON.stringify(await call("/model"), null, 1); }
-                                     catch (e) { $("model").textContent = e.message; } };
-  refresh();
+function fillReports() {
+  const c = clients[Number($("client").value)];
+  $("report").innerHTML = c ? c.reports.map((r, i) => `<option value="${i}">${esc(r.label)}</option>`).join("") : "";
+  pickReport();
+}
+
+async function pickReport() {
+  const c = clients[Number($("client").value)];
+  if (!c) return;
+  const r = c.reports[Number($("report").value || 0)];
+  try {
+    const rep = await call(`/artefacts/${encodeURIComponent(r.artefact_id)}`);
+    showReport(rep, `${c.label} · ${r.label}`, `/reports/${encodeURIComponent(r.artefact_id)}/html`);
+    $("status").textContent = "";
+    document.querySelectorAll("#gallery button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+  } catch (e) { $("status").textContent = e.message; }
+}
+
+async function again() {
+  if (!shown) return;
+  $("status").textContent = "Producing…";
+  const t0 = performance.now();
+  try {
+    const rep = await call("/report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestOf(shown)) });
+    $("status").textContent = `${(performance.now() - t0).toFixed(0)} ms · complete: ${rep.complete ? "yes" : "no"}`;
+    showReport(rep, `${$("frameHead").textContent} · produced again`);
+  } catch (e) { $("status").textContent = e.message; }
+}
+
+function describe(g) {
+  const lang = g.language === "de" ? "German" : "English";
+  const bits = [lang, g.basis, g.kind];
+  if (g.lbsim) bits.push("with lbsim"); else bits.push("without lbsim");
+  if (g.capitals_over_time) bits.push("capitals over time");
+  if (g.revision) bits.push("a revision");
+  if (g.prose) bits.push("with MiniMind's sentences");
+  return bits.join(" · ");
+}
+
+async function gallery() {
+  try {
+    const pages = await call("/bench/golden");
+    $("gallery").innerHTML = pages.map((g, i) => `<button type="button" data-i="${i}" aria-pressed="false">
+      <span class="t">${esc(describe(g))}</span><span class="d">shows: ${esc(g.shows.join(", ") || "the balance sheet")}</span></button>`).join("");
+    document.querySelectorAll("#gallery button").forEach((b) => b.onclick = async () => {
+      const g = pages[Number(b.dataset.i)];
+      document.querySelectorAll("#gallery button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      shown = null;
+      $("page").removeAttribute("srcdoc");
+      $("page").src = API + `/bench/golden/${encodeURIComponent(g.name)}`;
+      $("frameHead").textContent = `Golden example: ${describe(g)}`;
+      $("sections").innerHTML = ""; $("facts").innerHTML = ""; $("warnings").innerHTML = ""; $("request").textContent = "";
+    });
+    const first = pages.findIndex((g) => g.capitals_over_time && g.language === "en");
+    if (!clients.length && first >= 0) document.querySelector(`#gallery button[data-i="${first}"]`).click();
+  } catch (e) { $("gallery").innerHTML = `<p class="note">${esc(e.message)}</p>`; }
+}
+
+async function boot() {
+  try {
+    const meta = await call("/meta");
+    $("sub").textContent = `${meta.engine_version} · sentences by ${meta.model.display_name || "MiniMind"}`;
+  } catch (e) { $("sub").textContent = `engine not reachable: ${e.message}`; }
+  try {
+    clients = await call("/bench/reports?limit=300");
+    const groups = {};
+    clients.forEach((c, i) => (groups[c.kind] = groups[c.kind] || []).push([i, c]));
+    $("client").innerHTML = Object.entries(groups).map(([k, cs]) => `<optgroup label="${esc(k)}">${cs.map(([i, c]) =>
+      `<option value="${i}">${esc(c.label)}</option>`).join("")}</optgroup>`).join("") || "<option>no stored report</option>";
+    if (clients.length) fillReports();
+  } catch (e) { $("status").textContent = e.message; }
+  gallery();
+}
+$("client").onchange = fillReports;
+$("report").onchange = pickReport;
+$("again").onclick = again;
+$("prose").onchange = () => { if (shown) $("request").textContent = JSON.stringify(requestOf(shown), null, 1); };
+$("probe").onclick = async () => { try { $("model").textContent = JSON.stringify(await call("/model"), null, 1); }
+                                   catch (e) { $("model").textContent = e.message; } };
+boot();
 </script>
 </body>
 </html>

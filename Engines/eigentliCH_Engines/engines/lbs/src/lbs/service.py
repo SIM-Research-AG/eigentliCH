@@ -277,6 +277,37 @@ class Service:
                         "calibration_version": req.get("calibration_version")})
         return out
 
+    # -- the test bench's picker (LBS-42) ------------------------------------
+
+    def bench_candidates(self, limit: int = 40) -> list[dict[str, Any]]:
+        """``GET /bench/candidates``: the newest sheet of each client, newest first, each with a label a person can
+        read, made from its stored request (household, goals, canton, date). Read-only; never an id as a label."""
+        with self.store.session() as conn:
+            rows = st.list_runs(conn, 500)
+        out: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        # Newest first; runs started in the same second are ordered by the date the request is as of.
+        done = [(r, json.loads(r["request_json"])) for r in rows if r["status"] == "succeeded" and r["artefact_id"]]
+        done.sort(key=lambda t: (t[0]["started_at"], t[1]["as_of"]), reverse=True)
+        for r, req in done:
+            if req["client_ref"] in seen:
+                continue
+            seen.add(req["client_ref"])
+            out.append({"artefact_id": r["artefact_id"], "label": bench_label(req), "as_of": req["as_of"],
+                        "kind": "use case" if USE_CASE_REF.match(req["client_ref"]) else "bench or test",
+                        "calibration_version": req.get("calibration_version")})
+            if len(out) >= max(1, min(limit, 200)):
+                break
+        counts: dict[str, int] = {}
+        for c in out:
+            counts[c["label"]] = counts.get(c["label"], 0) + 1
+        taken: dict[str, int] = {}
+        for c in out:
+            if counts[c["label"]] > 1:
+                taken[c["label"]] = taken.get(c["label"], 0) + 1
+                c["label"] = f"{c['label']} ({taken[c['label']]})"
+        return out
+
     # -- artefacts and engine specific reads -------------------------------
 
     def artefact(self, artefact_id: str) -> LifeBalanceSheet:
@@ -320,6 +351,60 @@ class Service:
             raise NotFound(f"no section {name!r}; known: {sorted(views)}")
         return {"artefact_id": sheet.artefact_id, "client_ref": sheet.client_ref, "as_of": sheet.as_of.isoformat(),
                 **views[name](sheet), "notice": sheet.notice}
+
+
+#: A use-case client's reference: the consumer app's 32-hex id. Anything else is a bench or test request.
+USE_CASE_REF = re.compile(r"^[0-9a-f]{32}$")
+
+_NUMBER_WORDS = ("no", "one", "two", "three", "four", "five", "six")
+_GOAL_WORDS = {"property": "home", "retirement": "retirement", "other": "other goal"}
+_MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def _count(n: int, one: str, many: str) -> str:
+    word = _NUMBER_WORDS[n] if n < len(_NUMBER_WORDS) else str(n)
+    return f"{word} {one if n == 1 else many}"
+
+
+def _chf(amount: float) -> str:
+    if amount >= 1e6:
+        return f"CHF {amount / 1e6:.1f}m".replace(".0m", "m")
+    if amount >= 1e3:
+        return f"CHF {amount / 1e3:.0f}k"
+    return f"CHF {amount:.0f}"
+
+
+def bench_label(req: dict[str, Any]) -> str:
+    """A readable label for a stored request: who the household is, what it holds, what it aims at, where and when.
+    Made from the request's content only; never the client_ref, a person id or a goal id."""
+    parts = []
+    persons = (req.get("household") or {}).get("persons") or []
+    adults = [p for p in persons if p.get("kind") == "adult"]
+    children = len(persons) - len(adults)
+    ages = [str(p["age"]) for p in adults if p.get("age") is not None]
+    if adults:
+        head = "Single adult" if len(adults) == 1 else ("Couple" if len(adults) == 2 else _count(len(adults), "adult", "adults").capitalize())
+        if ages:
+            head += ", " + " and ".join(ages)
+        if children:
+            head += ", " + _count(children, "child", "children")
+        parts.append(head)
+    else:
+        parts.append("Household not stated")
+    assets = sum(float(p.get("magnitude") or 0) for p in req.get("positions") or ()
+                 if p.get("stock_kind") == "asset" and p.get("unit") == "chf" and p.get("active", True))
+    if assets:
+        parts.append(f"assets {_chf(assets)}")
+    kinds = list(dict.fromkeys(_GOAL_WORDS.get(g.get("kind"), str(g.get("kind")).replace("_", " "))
+                               for g in req.get("goals") or ()))
+    if kinds:
+        parts.append("goals: " + ", ".join(kinds))
+    canton = (req.get("facts") or {}).get("canton")
+    if canton:
+        parts.append(str(canton))
+    y, m, d = (int(x) for x in str(req["as_of"])[:10].split("-"))
+    parts.append(f"as of {d} {_MONTHS[m - 1]} {y}")
+    return " · ".join(parts)
 
 
 #: Engine Building Guide section 3. Normalised distribution names.

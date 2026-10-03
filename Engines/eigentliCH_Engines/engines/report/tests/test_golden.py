@@ -187,7 +187,7 @@ def test_the_live_prose_is_all_verified():
     report = gc.frozen("de_full_prose")["report"]
     slotted = [s for s in report["sections"] if s["prose_status"] != "no_slot"]
     assert slotted and all(s["prose_status"] == "verified" and s["unverified_numbers"] == [] for s in slotted)
-    assert report["provenance"]["model"]["model"] == gc.frozen("de_full_prose")["report"]["sections"][1]["prose_model"]
+    assert report["provenance"]["model"]["model"] == slotted[0]["prose_model"]
 
 
 def test_a_prose_free_report_is_the_same_on_a_fresh_store(produced):

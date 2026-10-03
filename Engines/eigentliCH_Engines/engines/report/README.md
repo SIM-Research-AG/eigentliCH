@@ -2,8 +2,8 @@
 
 Renders reports in which every figure traces back to an artefact id. The code owns every figure: each one is a
 fact read from a published artefact (pcp's Allocation, lbs's Life Balance Sheet, lbsim's findings, paths and
-plan) with the engine, the artefact id and the JSON path it was read from. Three charts are inline SVG in which
-every printed value is a fact as well (REP-34). MiniMind, the house's AI (served by spark7), writes the connecting
+plan) with the engine, the artefact id and the JSON path it was read from. Its charts are inline SVG in which
+every printed value is a fact as well (REP-34, REP-40, REP-41). MiniMind, the house's AI (served by spark7), writes the connecting
 sentences, one section at a time, and every number in them is checked against that section's facts. Readers
 see no internal id and no upstream key: every lbs and pcp reason is a plain sentence in the report's language,
 and persons and goals are named, not identified (REP-19, REP-20). If spark7 cannot be reached the report is
@@ -18,7 +18,7 @@ https://app.notion.com/p/3e80ba72543f81279459c05a6644539a
 | Family | Communication |
 | Module | `report` |
 | Default port | 8015 (configurable) |
-| Status | v1.4.1 (29.09.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; 418 tests and one opt-in live test |
+| Status | v1.5.0 (03.10.2026), calibration 1.0.0, prompt `report-prompt@1.1.0`; the life balance sheet and the four capitals as graphs (REP-40 to REP-43); 492 tests and one opt-in live test |
 | Consumes | `pcp-allocation@1.0.0` from `pcp` (8007, `GET /allocation/{id}`), `lbs-balance-sheet@1.0.0` from `lbs` (8013, `GET /artefacts/{id}`), `lbsim-findings@1.0.0`, `lbsim-paths@1.0.0` and `lbsim-plan@1.0.0` from `lbsim` (8014, `GET /artefacts/{id}`, typed by the id's prefix), a `ReportRequest` from the caller |
 | Produces | `Report` (`report@1.0.0`), with the rendered HTML |
 | Model | MiniMind (display name), served by spark7 (`https://spark7.minimind.ch`, vLLM), `google/gemma-4-31B-it-qat-w4a16-ct` |
@@ -37,7 +37,7 @@ First time: `..\..\.venv\Scripts\pip install --no-deps -e .`, the role and schem
 the engines it draws on running (`pcp` on 8007, `lbs` on 8013, `lbsim` on 8014). `python -m report probe` checks the model service.
 
 ```bash
-python -m pytest              # 418 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
+python -m pytest              # 492 tests, real PostgreSQL, upstream doubles on frozen artefacts, spark7 stand-in
 python -m pytest -m live -s   # one report with prose against the real spark7
 ```
 
@@ -77,11 +77,11 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    note that earning power is another engine's is left out. Fact ids carry no person or goal id: `person1`, `goal1` and so on
    in the lbs sheet's order (REP-39); a goal only lbsim names is "Ziel <n>" unless the caller names it.
 4. **The sections**, in a fixed order, left out when empty and numbered at render time (after `dossier.py`):
-   changes (an update only), household, balance sheet, the roles of the balance sheet, income, human capital,
-   earning power, income paths and the saving they need, pensions, retirement, home ownership, liquidity, risk
+   changes (an update only), household, your life balance sheet (REP-40), balance sheet, the roles of the balance
+   sheet, income, human capital, your four capitals (REP-41), earning power, income paths and the saving they need, pensions, retirement, home ownership, liquidity, risk
    profile, mandate proposal, the allocation, weight by role, the building blocks, how the allocation came about,
    the outlook, what the plan calculation shows, findings and next steps, what the report cannot say, sources.
-   The five lbsim sections have no prose slot in this build.
+   The five lbsim sections and the two graph sections have no prose slot in this build.
 5. **The prose** (REP-05). For each section with a slot in the calibration (balance sheet, income, pensions,
    retirement, home ownership, mandate proposal, allocation, roles, fit, changes) the model is given that
    section's facts, labels and printed values only, and asked for two or three sentences. A draft that
@@ -120,6 +120,24 @@ python -m pytest -m live -s   # one report with prose against the real spark7
    a `<tspan data-fact>`, labelled directly, so the page's figure rule holds inside a chart. The plan's figures
    stand in a box headed with lbsim's framing, "Was die Rechnung annimmt: ..., keine Empfehlung" (owner,
    29.09.2026).
+10. **The life balance sheet** (section `life_sheet`, "Ihre Lebensbilanz" / "Your life balance sheet", REP-40, on
+   every page with an lbs source): three bars on one CHF scale without an axis: the assets by vessel (frei
+   verfügbar, 2. Säule, Säule 3a, Realwerte, ohne Angabe) and human capital, the liabilities and the goals' amounts,
+   and net worth, every segment named and valued under its bar. The section's facts (`lbs.sheet.*`) restate the
+   totals from the same paths (and are never a change of their own in an update); each goal's amount
+   (`lbs.claim.<goal>`) is lbs's `real_view.goals[]` amount with unit chf in the report's basis, marked with it, or,
+   on a sheet without the real view, a property's price and an own-amount goal's target as lbs states them. A yearly
+   retirement need is not one amount and is not drawn (the caption says so). Holdings are today's in either basis.
+11. **The four capitals** (section `capitals`, "Ihre vier Kapitale" / "Your four capitals", REP-41): wealth in CHF
+   as the household's net worth (lbs states no wealth per person), and per adult expertise and education, network
+   and health, each on its own track from 0 to 1 (lbs's records: E's ceiling 1, N a stock in [0, 1], H a
+   multiplier in [0, 1]) with words at the ends and the level as a fact and a word (`lbs.capital.<person>.<E|N|H>`:
+   tief, mittel, hoch by the third of the scale). When an lbsim paths source carries `regimes[].capitals`
+   (lbsim@1.1.0), the principal's three over the horizon in the base Regime: one panel each, the median and the
+   p10 to p90 band on the Regime's own scale (`capitals.scale`, the network's ceiling set per Regime, lbsim P-26),
+   "hoch" and "tief" at the ends, no tick number; today's median and the band's ends at the last year are facts
+   (`lbsim.capitals.<capital>.*`), a band collapsed to one line is labelled once. Wealth over time stays the fan.
+   A capital has no basis and is never on a money axis.
 
 ## Contracts
 
@@ -157,6 +175,8 @@ Standard (Guide 2.1): `GET /health`, `/meta`, `/contracts`, `POST /run`, `GET /r
 | GET | `/reports/{artefact_id}/html` | The rendered report as a page |
 | GET | `/model` | Live probe of the model service |
 | GET | `/calibration/versions` | Calibrations, the active one marked |
+| GET | `/bench/reports` | The test bench's picker (REP-43): stored reports grouped by client, newest client first, each client and report with a readable label from the report's own facts (never an id, a client_ref or a caller's name). Read-only |
+| GET | `/bench/golden`, `/bench/golden/{name}` | The golden example pages and what each shows (development only: present when `golden/reports` is) |
 
 ## spark7
 
@@ -174,11 +194,13 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
 
 ## Model quality
 
-* **Golden** (`golden/inputs`, `golden/reports`): sixteen reports over frozen artefacts (German and English, a
+* **Golden** (`golden/inputs`, `golden/reports`): twenty reports over frozen artefacts (German and English, a
   property case, a liquidity case, an update, a revision, three in the real view's inputs: real in German and
   English and nominal on a sheet with both views, one with spark7's real prose, and six on lbsim's frozen samples
   of 29.09.2026: the outlook with all three charts in German and English, real in German and English on lbs and
-  lbsim alone, the plan still running, and the update that includes it), reproduced exactly; the
+  lbsim alone, the plan still running, and the update that includes it; and four on lbsim@1.1.0's samples with
+  the capitals over time, copied unchanged on 03.10.2026: German and English, nominal and real), reproduced
+  exactly; the
   prose-free ones byte for byte on a fresh store. On every frozen report, **every figure is traced to an artefact
   id**: each fact's path is resolved in the frozen artefact it cites and must give the value the report states;
   a change must resolve in the previous report; a display fact in the request.
@@ -194,6 +216,12 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
   `data-fact` inside an SVG a fact printing its display, no digit outside those, no `<script>` and no `http` inside
   an SVG, the goal line dashed in the other basis only, lbsim's real views read in real, the finding templates in
   the page's language, the plan's framing, "wird berechnet" and the update that carries the plan.
+* **The graphs** (`tests/test_visuals.py`): both graph sections and the panels over time on the capitals pages,
+  no capital ever on a money axis (the capitals' charts print no CHF figure but the household's wealth, the panels
+  none), the goals' amounts in the report's basis and the holdings and capitals without one, the panels only where
+  lbsim gives `capitals`, the network drawn on its Regime's own ceiling, no 32-hex string on pages made on the
+  consumer app's ids, a request without these sources keeping its id and showing neither section, and the bench's
+  routes (readable labels, the gallery serving golden pages only).
 * **Boundary**: the role cannot write outside its schema and cannot read another engine's tables, owns its
   schema, no `REAL` column, every table commented, append-only triggers, one complete report per key enforced by
   the store; a concurrent burst of six identical requests against a real socket writes one report and asks for
@@ -206,6 +234,17 @@ report id both times: at temperature 0 with a seed, spark7 returned the same tex
   across bases, the basis word on the page, the header line, lbs's real figures read in real, lbs's stated basis
   checked.
 
+## The test bench
+
+`testbench/index.html`, served at `/` in development (not in the deploy folder). It shows what the report engine
+does and what a report looks like: a short explanation (deterministic figures and structure, MiniMind writes only
+sentences, facts and sources, revisions and updates, the basis); a picker of real use-case clients from the stored
+reports (`GET /bench/reports`), each client and report named in words, which shows the stored page as the client
+sees it in a sandboxed frame (`GET /reports/{id}/html`, no script runs in it) with its sections, its facts and the
+request behind it, and can produce it again under the running engine; and a gallery of the golden pages
+(`GET /bench/golden`): German and English, nominal and real, with and without lbsim, the capitals over time, a
+revision and MiniMind's sentences. English chrome; each page in its own language. No external script.
+
 ## Layout
 
 ```
@@ -217,15 +256,15 @@ src/report/
   engine.py            extractors, formatting, sections, changes, prose prompt and checks (pure)
   vocabulary.py        lbs and pcp keys and reasons as plain sentences (de, en), subjects, page notes (pure)
   render.py            the HTML page (pure)
-  charts.py            the three inline SVG charts (pure)
+  charts.py            the inline SVG charts: weights, fit, fan, the life balance sheet, the capitals (pure)
   spark7.py            the model client and the warm-up tick
   clients.py           the upstream engines
   calibration.py       seed calibration 1.0.0
   store.py, schema.sql PostgreSQL, schema report, append-only reports and calibrations
   service.py           orchestration
 golden/                inputs (frozen artefacts) and reports
-dev/                   freeze_inputs.py, build_golden.py, make_deploy.py
-testbench/index.html   development only
+dev/                   freeze_inputs.py, build_golden.py (--replay-live, REP-42), make_deploy.py
+testbench/index.html   development only (see below)
 tests/
 ```
 

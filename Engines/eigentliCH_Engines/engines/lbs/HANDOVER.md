@@ -3,6 +3,16 @@
 Where the build stands, how to pick it up, and what is still open. The README is the reference; this file is the
 resume point. Model-derived research output; not investment advice.
 
+## State (03.10.2026)
+
+- **The test bench shows what lbs does** (LBS-42, owner's decisions of 03.10.2026, `review/VISUALS_INTERFACES.md`):
+  a plain explanation, a picker of real use-case clients that loads a stored sheet and its request (new read-only
+  route `GET /bench/candidates`), and the sheet drawn as inline SVG graphs (the life balance sheet, the four capitals
+  per adult, the BVG balance, the target curve) with a nominal and real switch. Plotly is gone from the bench. The
+  sheet contract, its figures, the calibrations and the engine version (`lbs@1.4.0`) are unchanged, so every
+  idempotency key and stored sheet stands. 475 tests pass. **The running server on 8013 needs a restart** to serve
+  the new route (the page itself is read from disk on each request, so it already shows, with an empty picker).
+
 ## State (29.09.2026)
 
 - **Engine 13, v1.4.0**, calibration **1.5.0 active**: the deterministic life balance sheet from the eigentliCH

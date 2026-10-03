@@ -3,7 +3,7 @@
  "case": "en_property",
  "report": {
   "contract_version": "report@1.0.0",
-  "artefact_id": "REP-62f134cfeffa2f20",
+  "artefact_id": "REP-31a5b8aeb03cc442",
   "client_ref": "syn-property-1",
   "kind": "report",
   "language": "en",
@@ -217,6 +217,120 @@
       "artefact_id": "LBS-999ac61106461286",
       "contract_version": "lbs-balance-sheet@1.0.0",
       "path": "/totals/by_vessel/pillar_3a"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.sheet.total_assets",
+    "section": "life_sheet",
+    "label": "Total assets",
+    "value": 493350.0,
+    "unit": "chf",
+    "display": "CHF 493,350",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-999ac61106461286",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/total_assets"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.sheet.vessel.free",
+    "section": "life_sheet",
+    "label": "freely available",
+    "value": 475600.0,
+    "unit": "chf",
+    "display": "CHF 475,600",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-999ac61106461286",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/by_vessel/free"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.sheet.vessel.pillar_3a",
+    "section": "life_sheet",
+    "label": "pillar 3a",
+    "value": 17750.0,
+    "unit": "chf",
+    "display": "CHF 17,750",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-999ac61106461286",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/by_vessel/pillar_3a"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.sheet.liabilities",
+    "section": "life_sheet",
+    "label": "Liabilities",
+    "value": 0.0,
+    "unit": "chf",
+    "display": "CHF 0",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-999ac61106461286",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/liabilities"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": null
+   },
+   {
+    "fact_id": "lbs.claim.goal1",
+    "section": "life_sheet",
+    "label": "Your home ownership goal: Goal amount",
+    "value": 1500000.0,
+    "unit": "chf",
+    "display": "CHF 1,500,000",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-999ac61106461286",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/property/0/price_chf"
+     }
+    ],
+    "derivation": null,
+    "previous": null,
+    "basis": "nominal"
+   },
+   {
+    "fact_id": "lbs.sheet.net_worth",
+    "section": "life_sheet",
+    "label": "Net worth",
+    "value": 493350.0,
+    "unit": "chf",
+    "display": "CHF 493,350",
+    "sources": [
+     {
+      "engine": "lbs",
+      "artefact_id": "LBS-999ac61106461286",
+      "contract_version": "lbs-balance-sheet@1.0.0",
+      "path": "/totals/net_worth"
      }
     ],
     "derivation": null,
@@ -925,6 +1039,24 @@
     "prose_note": null
    },
    {
+    "key": "life_sheet",
+    "title": "Your life balance sheet",
+    "fact_ids": [
+     "lbs.sheet.total_assets",
+     "lbs.sheet.vessel.free",
+     "lbs.sheet.vessel.pillar_3a",
+     "lbs.sheet.liabilities",
+     "lbs.claim.goal1",
+     "lbs.sheet.net_worth"
+    ],
+    "prose": null,
+    "prose_status": "not_requested",
+    "prose_model": null,
+    "unverified_numbers": [],
+    "prose_attempts": 0,
+    "prose_note": null
+   },
+   {
     "key": "balance_sheet",
     "title": "The balance sheet",
     "fact_ids": [
@@ -1091,9 +1223,9 @@
   ],
   "complete": true,
   "warnings": [],
-  "html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>Report</title>\n<style>\n  :root{--ink:#1A1740;--soft:#5d4591;--line:#ECE8F4;--tint:#F6F4FB;--acc:#A059C1;\n        --warn:#C1445A;--ok:#2E7D64;--g1:#8890e7;--g2:#A059C1;--g3:#FEA479;--g4:#FFE8A1}\n  *{box-sizing:border-box}\n  body{margin:0;background:#fff;color:var(--ink);font:16px/1.62 \"Iowan Old Style\",\"Palatino Linotype\",Georgia,serif}\n  .w{max-width:860px;margin:0 auto;padding:44px 28px 90px}\n  .ey{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;letter-spacing:.14em;\n      text-transform:uppercase;color:var(--soft);font-weight:600}\n  h1{font-size:31px;line-height:1.2;margin:10px 0 4px;font-weight:600}\n  .lede{font-size:18px;color:#3b3363;margin:0}\n  .rule{height:3px;border-radius:3px;margin:24px 0 30px;\n        background:linear-gradient(110deg,var(--g1),var(--g2) 40%,var(--g3) 80%,var(--g4))}\n  h2{font-family:ui-sans-serif,system-ui,sans-serif;font-size:15px;margin:38px 0 10px;\n     padding-top:16px;border-top:1px solid var(--line);font-weight:700}\n  h2 .ix{display:inline-block;min-width:2.1em;color:var(--acc);font-variant-numeric:tabular-nums}\n  h3{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.5px;margin:20px 0 5px}\n  p{margin:0 0 12px}\n  .box{background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:15px 19px;margin:18px 0}\n  .box.warn{background:#FDF3F5;border-color:#F0D3DA}\n  .box.ok{background:#F1F8F5;border-color:#CFE6DC}\n  .box.draft{background:#FCFBFE;border-style:dashed;border-color:#D8CEE8}\n  .banner{border:1px solid var(--line);border-radius:12px;padding:13px 17px;margin:14px 0 0;\n          background:var(--tint)}\n  .chips{display:flex;gap:8px;flex-wrap:wrap;font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px}\n  .chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--soft)}\n  .chip b{color:var(--ink);font-variant-numeric:tabular-nums}\n  .box p{font-size:14.6px;margin:0 0 8px}\n  .box p:last-child{margin:0}\n  .tag{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10.5px;font-weight:700;\n       letter-spacing:.09em;text-transform:uppercase;display:block;margin-bottom:5px}\n  .tag.w{color:var(--warn)} .tag.o{color:var(--ok)} .tag.n{color:var(--acc)}\n  table{width:100%;border-collapse:collapse;margin:10px 0 6px;\n        font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.4px}\n  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}\n  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}\n  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}\n  .neg{color:var(--warn)} .pos{color:var(--ok)}\n  tr.tot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:700}\n  small{font-size:12.4px;color:var(--soft);font-family:ui-sans-serif,system-ui,sans-serif}\n  small.basis{font-size:11px;letter-spacing:.04em}\n  .foot{margin-top:40px;padding-top:15px;border-top:1px solid var(--line);\n        font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft)}\n  code{font:11.5px ui-monospace,Consolas,monospace}\n  .chart{margin:14px 0 8px}\n  .chart svg{display:block;width:100%;height:auto}\n  .chart figcaption{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft);margin-top:4px}\n  .box h3{margin:2px 0 6px}\n  ul{margin:6px 0 12px;padding-left:22px}\n  li{margin-bottom:6px}\n  @media print{body{font-size:11pt}.w{padding:0}h2{page-break-after:avoid}.box{page-break-inside:avoid}}\n</style>\n</head>\n<body>\n<div class=\"w\">\n<div class=\"ey\">eigentliCH · Report</div>\n<h1>Report</h1>\n<p class=\"lede\">As of <span data-fact=\"sources.as_of\">28 September 2026</span>. <span data-basis=\"nominal\">All amounts nominal.</span> Every figure in this report comes from a published artefact; where from is set out in the last section.</p>\n\n\n<div class=\"rule\"></div>\n<section id=\"sec-household\" data-section=\"household\"><h2><span class=\"ix\">01</span>The household</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Adults</td><td class=\"n\"><span data-fact=\"lbs.household.adults\">1</span></td></tr><tr><td>Dependants</td><td class=\"n\"><span data-fact=\"lbs.household.dependants\">0</span></td></tr><tr><td>Composition recorded on</td><td class=\"n\"><span data-fact=\"lbs.household.composition_as_of\">1 September 2026</span></td></tr></table></section><section id=\"sec-balance_sheet\" data-section=\"balance_sheet\"><h2><span class=\"ix\">02</span>The balance sheet</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Total assets</td><td class=\"n\"><span data-fact=\"lbs.totals.total_assets\">CHF 493,350</span></td></tr><tr><td>Financial assets</td><td class=\"n\"><span data-fact=\"lbs.totals.financial_assets\">CHF 493,350</span></td></tr><tr><td>Liabilities</td><td class=\"n\"><span data-fact=\"lbs.totals.liabilities\">CHF 0</span></td></tr><tr><td>Net worth</td><td class=\"n\"><span data-fact=\"lbs.totals.net_worth\">CHF 493,350</span></td></tr><tr><td>Drawable</td><td class=\"n\"><span data-fact=\"lbs.totals.drawable\">CHF 475,600</span></td></tr><tr><td>Balance identity holds</td><td class=\"n\"><span data-fact=\"lbs.totals.identity_holds\">yes</span></td></tr><tr><td>freely available</td><td class=\"n\"><span data-fact=\"lbs.vessel.free\">CHF 475,600</span></td></tr><tr><td>pillar 3a</td><td class=\"n\"><span data-fact=\"lbs.vessel.pillar_3a\">CHF 17,750</span></td></tr></table></section><section id=\"sec-grid\" data-section=\"grid\"><h2><span class=\"ix\">03</span>The roles of the balance sheet</h2><table><tr><th>Role and capital type</th><th class=\"n\">Assets</th><th class=\"n\">Liabilities</th></tr><tr><td>Stabilisation, financial capital</td><td class=\"n\"><span data-fact=\"lbs.cell.stabilisation.financial.assets\">CHF 475,600</span></td><td class=\"n\">–</td></tr><tr><td>Protection, financial capital</td><td class=\"n\"><span data-fact=\"lbs.cell.protection.financial.assets\">CHF 17,750</span></td><td class=\"n\">–</td></tr></table></section><section id=\"sec-income\" data-section=\"income\"><h2><span class=\"ix\">04</span>Income</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Income, human capital</td><td class=\"n\"><span data-fact=\"lbs.cell.income.human.flows\">CHF 69,550 a year</span></td></tr><tr><td>Household income</td><td class=\"n\"><span data-fact=\"lbs.totals.household_income\">CHF 69,550 a year</span></td></tr></table></section><section id=\"sec-human_capital\" data-section=\"human_capital\"><h2><span class=\"ix\">05</span>Human capital</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Person 1: Expertise (E)</td><td class=\"n\"><span data-fact=\"lbs.human.person1.E\">not available: The intake does not ask about this.</span></td></tr><tr><td>Person 1: Network (N)</td><td class=\"n\"><span data-fact=\"lbs.human.person1.N\">not available: The question was asked and left unanswered.</span></td></tr><tr><td>Person 1: Health (H)</td><td class=\"n\"><span data-fact=\"lbs.human.person1.H\">not available: The question was asked and left unanswered.</span></td></tr><tr><td>Person 1: Earning power</td><td class=\"n\"><span data-fact=\"lbs.human.person1.earning_power\">not available: Earning power is computed by another model; this report does not contain it.</span></td></tr></table></section><section id=\"sec-pensions\" data-section=\"pensions\"><h2><span class=\"ix\">06</span>Pensions</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Person 1: AHV pension</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.ahv\">not available: The basis for this calculation is not yet approved, so no figure is shown.</span></td></tr><tr><td>Person 1: Pension fund balance today</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.opening\">CHF 0</span></td></tr><tr><td>Person 1: Retirement age of the projection</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.to_age\">65</span></td></tr><tr><td>Person 1: Pension fund balance at retirement</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.closing\">CHF 217,971</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Person 1: Conversion rate</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.conversion\">6.80%</span></td></tr><tr><td>Person 1: BVG pension a year</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.yearly\">CHF 14,822 a year</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr></table></section><section id=\"sec-property\" data-section=\"property\"><h2><span class=\"ix\">07</span>Home ownership</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Your home ownership goal: Finding</td><td class=\"n\"><span data-fact=\"lbs.property.goal1.verdict\">not met</span></td></tr><tr><td>Your home ownership goal: Purchase price</td><td class=\"n\"><span data-fact=\"lbs.property.goal1.price\">CHF 1,500,000</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Your home ownership goal: Target date</td><td class=\"n\"><span data-fact=\"lbs.property.goal1.target_date\">31 December 2038</span></td></tr></table></section><section id=\"sec-risk\" data-section=\"risk\"><h2><span class=\"ix\">08</span>The risk profile</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Risk profile</td><td class=\"n\"><span data-fact=\"lbs.risk\">not available: The basis for this calculation is not yet approved, so no figure is shown.</span></td></tr></table></section><section id=\"sec-mandate\" data-section=\"mandate\"><h2><span class=\"ix\">09</span>The mandate proposal</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Mandate proposal</td><td class=\"n\"><span data-fact=\"lbs.mandate.name\">Your home ownership goal</span></td></tr><tr><td>Target amount</td><td class=\"n\"><span data-fact=\"lbs.mandate.target\">CHF 300,000</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Horizon in years</td><td class=\"n\"><span data-fact=\"lbs.mandate.horizon\">12.26</span></td></tr><tr><td>Drawable</td><td class=\"n\"><span data-fact=\"lbs.mandate.drawable\">CHF 475,600</span></td></tr><tr><td>Contribution a year</td><td class=\"n\"><span data-fact=\"lbs.mandate.contribution\">CHF 12,000 a year</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Required return a year</td><td class=\"n\"><span data-fact=\"lbs.mandate.required_return\">0.00%</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Reachable</td><td class=\"n\"><span data-fact=\"lbs.mandate.feasible\">yes</span></td></tr><tr><td>Complete</td><td class=\"n\"><span data-fact=\"lbs.mandate.complete\">no</span></td></tr><tr><td>Status</td><td class=\"n\"><span data-fact=\"lbs.mandate.release_state\">not released</span></td></tr></table></section><section id=\"sec-limits\" data-section=\"limits\"><h2><span class=\"ix\">10</span>What this report cannot say</h2><div class=\"box\"><ul><li><small>Human capital:</small> <span data-fact=\"lbs.gap.0\">Earning power is computed by another model; this report does not contain it.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.1\">Expertise (E): The intake does not ask about this.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.2\">Health (H): The question was asked and left unanswered.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.3\">Network (N): The question was asked and left unanswered.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.4\">The basis of the AHV calculation is not yet approved; no AHV pension is shown.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.5\">No pension fund balance is recorded for the person; the projection starts at zero.</span></li><li><small>Risk profile:</small> <span data-fact=\"lbs.gap.6\">The rules of the risk profile are not yet approved; no profile is derived.</span></li></ul></div></section><section id=\"sec-sources\" data-section=\"sources\"><h2><span class=\"ix\">11</span>Sources</h2><table><tr><th>Source</th><th>As of</th></tr><tr><td>Your balance sheet</td><td><span data-fact=\"sources.date.lbs\">28 September 2026</span></td></tr></table><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>As of</td><td class=\"n\"><span data-fact=\"sources.as_of\">28 September 2026</span></td></tr></table></section>\n<div class=\"foot\">Calibration <code>1.0.0</code> · <code>report@1.4.1</code>. This report sets out a position and is not a recommendation. Model-derived research output. Not investment advice.</div>\n</div>\n</body>\n</html>\n",
+  "html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>Report</title>\n<style>\n  :root{--ink:#1A1740;--soft:#5d4591;--line:#ECE8F4;--tint:#F6F4FB;--acc:#A059C1;\n        --warn:#C1445A;--ok:#2E7D64;--g1:#8890e7;--g2:#A059C1;--g3:#FEA479;--g4:#FFE8A1}\n  *{box-sizing:border-box}\n  body{margin:0;background:#fff;color:var(--ink);font:16px/1.62 \"Iowan Old Style\",\"Palatino Linotype\",Georgia,serif}\n  .w{max-width:860px;margin:0 auto;padding:44px 28px 90px}\n  .ey{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;letter-spacing:.14em;\n      text-transform:uppercase;color:var(--soft);font-weight:600}\n  h1{font-size:31px;line-height:1.2;margin:10px 0 4px;font-weight:600}\n  .lede{font-size:18px;color:#3b3363;margin:0}\n  .rule{height:3px;border-radius:3px;margin:24px 0 30px;\n        background:linear-gradient(110deg,var(--g1),var(--g2) 40%,var(--g3) 80%,var(--g4))}\n  h2{font-family:ui-sans-serif,system-ui,sans-serif;font-size:15px;margin:38px 0 10px;\n     padding-top:16px;border-top:1px solid var(--line);font-weight:700}\n  h2 .ix{display:inline-block;min-width:2.1em;color:var(--acc);font-variant-numeric:tabular-nums}\n  h3{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.5px;margin:20px 0 5px}\n  p{margin:0 0 12px}\n  .box{background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:15px 19px;margin:18px 0}\n  .box.warn{background:#FDF3F5;border-color:#F0D3DA}\n  .box.ok{background:#F1F8F5;border-color:#CFE6DC}\n  .box.draft{background:#FCFBFE;border-style:dashed;border-color:#D8CEE8}\n  .banner{border:1px solid var(--line);border-radius:12px;padding:13px 17px;margin:14px 0 0;\n          background:var(--tint)}\n  .chips{display:flex;gap:8px;flex-wrap:wrap;font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px}\n  .chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--soft)}\n  .chip b{color:var(--ink);font-variant-numeric:tabular-nums}\n  .box p{font-size:14.6px;margin:0 0 8px}\n  .box p:last-child{margin:0}\n  .tag{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10.5px;font-weight:700;\n       letter-spacing:.09em;text-transform:uppercase;display:block;margin-bottom:5px}\n  .tag.w{color:var(--warn)} .tag.o{color:var(--ok)} .tag.n{color:var(--acc)}\n  table{width:100%;border-collapse:collapse;margin:10px 0 6px;\n        font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.4px}\n  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}\n  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}\n  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}\n  .neg{color:var(--warn)} .pos{color:var(--ok)}\n  tr.tot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:700}\n  small{font-size:12.4px;color:var(--soft);font-family:ui-sans-serif,system-ui,sans-serif}\n  small.basis{font-size:11px;letter-spacing:.04em}\n  .foot{margin-top:40px;padding-top:15px;border-top:1px solid var(--line);\n        font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft)}\n  code{font:11.5px ui-monospace,Consolas,monospace}\n  .chart{margin:14px 0 8px}\n  .chart svg{display:block;width:100%;height:auto}\n  .chart figcaption{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--soft);margin-top:4px}\n  .box h3{margin:2px 0 6px}\n  ul{margin:6px 0 12px;padding-left:22px}\n  li{margin-bottom:6px}\n  @media print{body{font-size:11pt}.w{padding:0}h2{page-break-after:avoid}.box{page-break-inside:avoid}}\n</style>\n</head>\n<body>\n<div class=\"w\">\n<div class=\"ey\">eigentliCH · Report</div>\n<h1>Report</h1>\n<p class=\"lede\">As of <span data-fact=\"sources.as_of\">28 September 2026</span>. <span data-basis=\"nominal\">All amounts nominal.</span> Every figure in this report comes from a published artefact; where from is set out in the last section.</p>\n\n\n<div class=\"rule\"></div>\n<section id=\"sec-household\" data-section=\"household\"><h2><span class=\"ix\">01</span>The household</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Adults</td><td class=\"n\"><span data-fact=\"lbs.household.adults\">1</span></td></tr><tr><td>Dependants</td><td class=\"n\"><span data-fact=\"lbs.household.dependants\">0</span></td></tr><tr><td>Composition recorded on</td><td class=\"n\"><span data-fact=\"lbs.household.composition_as_of\">1 September 2026</span></td></tr></table></section><section id=\"sec-life_sheet\" data-section=\"life_sheet\"><h2><span class=\"ix\">02</span>Your life balance sheet</h2><figure class=\"chart\" data-chart=\"life_sheet\"><svg viewBox=\"0 0 640 244\" role=\"img\" aria-label=\"Your life balance sheet\" font-family=\"ui-sans-serif,system-ui,sans-serif\" font-size=\"12\"><title>Your life balance sheet</title><desc>Three bars on one franc scale: the assets by vessel and human capital, the liabilities and the goals’ amounts, and net worth. Every part is named under its bar with its amount.</desc><text x=\"16\" y=\"19\" fill=\"#1A1740\" font-weight=\"600\">Assets <tspan data-fact=\"lbs.sheet.total_assets\">CHF 493,350</tspan></text><rect x=\"16\" y=\"26\" width=\"190.8\" height=\"20\" rx=\"4\" fill=\"#A059C1\"/><rect x=\"208.8\" y=\"26\" width=\"5.2\" height=\"20\" rx=\"4\" fill=\"#5f6ad8\"/><rect x=\"16\" y=\"56\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#A059C1\"/><text x=\"32\" y=\"65\" fill=\"#5d4591\">freely available</text><text x=\"624\" y=\"65\" text-anchor=\"end\" fill=\"#1A1740\"><tspan data-fact=\"lbs.sheet.vessel.free\">CHF 475,600</tspan></text><rect x=\"16\" y=\"73\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#5f6ad8\"/><text x=\"32\" y=\"82\" fill=\"#5d4591\">pillar 3a</text><text x=\"624\" y=\"82\" text-anchor=\"end\" fill=\"#1A1740\"><tspan data-fact=\"lbs.sheet.vessel.pillar_3a\">CHF 17,750</tspan></text><text x=\"16\" y=\"113\" fill=\"#1A1740\" font-weight=\"600\">Liabilities and goals</text><rect x=\"16\" y=\"120\" width=\"606\" height=\"20\" rx=\"4\" fill=\"#C8662E\"/><rect x=\"16\" y=\"150\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#57536e\"/><text x=\"32\" y=\"159\" fill=\"#5d4591\">Liabilities</text><text x=\"624\" y=\"159\" text-anchor=\"end\" fill=\"#1A1740\"><tspan data-fact=\"lbs.sheet.liabilities\">CHF 0</tspan></text><rect x=\"16\" y=\"167\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#C8662E\"/><text x=\"32\" y=\"176\" fill=\"#5d4591\">Your home ownership goal (nominal)</text><text x=\"624\" y=\"176\" text-anchor=\"end\" fill=\"#1A1740\"><tspan data-fact=\"lbs.claim.goal1\">CHF 1,500,000</tspan></text><text x=\"16\" y=\"207\" fill=\"#1A1740\" font-weight=\"600\">Net worth <tspan data-fact=\"lbs.sheet.net_worth\">CHF 493,350</tspan></text><rect x=\"16\" y=\"214\" width=\"200\" height=\"20\" rx=\"4\" fill=\"#1A1740\"/></svg><figcaption>Assets and liabilities today; the goals nominal, in francs of their target date. A yearly need in retirement is not one amount and is not drawn.</figcaption></figure><table><tr><th>Figure</th><th class=\"n\">Goal amount</th></tr><tr><td>Your home ownership goal</td><td class=\"n\"><span data-fact=\"lbs.claim.goal1\">CHF 1,500,000</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr></table></section><section id=\"sec-balance_sheet\" data-section=\"balance_sheet\"><h2><span class=\"ix\">03</span>The balance sheet</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Total assets</td><td class=\"n\"><span data-fact=\"lbs.totals.total_assets\">CHF 493,350</span></td></tr><tr><td>Financial assets</td><td class=\"n\"><span data-fact=\"lbs.totals.financial_assets\">CHF 493,350</span></td></tr><tr><td>Liabilities</td><td class=\"n\"><span data-fact=\"lbs.totals.liabilities\">CHF 0</span></td></tr><tr><td>Net worth</td><td class=\"n\"><span data-fact=\"lbs.totals.net_worth\">CHF 493,350</span></td></tr><tr><td>Drawable</td><td class=\"n\"><span data-fact=\"lbs.totals.drawable\">CHF 475,600</span></td></tr><tr><td>Balance identity holds</td><td class=\"n\"><span data-fact=\"lbs.totals.identity_holds\">yes</span></td></tr><tr><td>freely available</td><td class=\"n\"><span data-fact=\"lbs.vessel.free\">CHF 475,600</span></td></tr><tr><td>pillar 3a</td><td class=\"n\"><span data-fact=\"lbs.vessel.pillar_3a\">CHF 17,750</span></td></tr></table></section><section id=\"sec-grid\" data-section=\"grid\"><h2><span class=\"ix\">04</span>The roles of the balance sheet</h2><table><tr><th>Role and capital type</th><th class=\"n\">Assets</th><th class=\"n\">Liabilities</th></tr><tr><td>Stabilisation, financial capital</td><td class=\"n\"><span data-fact=\"lbs.cell.stabilisation.financial.assets\">CHF 475,600</span></td><td class=\"n\">–</td></tr><tr><td>Protection, financial capital</td><td class=\"n\"><span data-fact=\"lbs.cell.protection.financial.assets\">CHF 17,750</span></td><td class=\"n\">–</td></tr></table></section><section id=\"sec-income\" data-section=\"income\"><h2><span class=\"ix\">05</span>Income</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Income, human capital</td><td class=\"n\"><span data-fact=\"lbs.cell.income.human.flows\">CHF 69,550 a year</span></td></tr><tr><td>Household income</td><td class=\"n\"><span data-fact=\"lbs.totals.household_income\">CHF 69,550 a year</span></td></tr></table></section><section id=\"sec-human_capital\" data-section=\"human_capital\"><h2><span class=\"ix\">06</span>Human capital</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Person 1: Expertise (E)</td><td class=\"n\"><span data-fact=\"lbs.human.person1.E\">not available: The intake does not ask about this.</span></td></tr><tr><td>Person 1: Network (N)</td><td class=\"n\"><span data-fact=\"lbs.human.person1.N\">not available: The question was asked and left unanswered.</span></td></tr><tr><td>Person 1: Health (H)</td><td class=\"n\"><span data-fact=\"lbs.human.person1.H\">not available: The question was asked and left unanswered.</span></td></tr><tr><td>Person 1: Earning power</td><td class=\"n\"><span data-fact=\"lbs.human.person1.earning_power\">not available: Earning power is computed by another model; this report does not contain it.</span></td></tr></table></section><section id=\"sec-pensions\" data-section=\"pensions\"><h2><span class=\"ix\">07</span>Pensions</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Person 1: AHV pension</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.ahv\">not available: The basis for this calculation is not yet approved, so no figure is shown.</span></td></tr><tr><td>Person 1: Pension fund balance today</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.opening\">CHF 0</span></td></tr><tr><td>Person 1: Retirement age of the projection</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.to_age\">65</span></td></tr><tr><td>Person 1: Pension fund balance at retirement</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.closing\">CHF 217,971</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Person 1: Conversion rate</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.conversion\">6.80%</span></td></tr><tr><td>Person 1: BVG pension a year</td><td class=\"n\"><span data-fact=\"lbs.pension.person1.bvg.yearly\">CHF 14,822 a year</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr></table></section><section id=\"sec-property\" data-section=\"property\"><h2><span class=\"ix\">08</span>Home ownership</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Your home ownership goal: Finding</td><td class=\"n\"><span data-fact=\"lbs.property.goal1.verdict\">not met</span></td></tr><tr><td>Your home ownership goal: Purchase price</td><td class=\"n\"><span data-fact=\"lbs.property.goal1.price\">CHF 1,500,000</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Your home ownership goal: Target date</td><td class=\"n\"><span data-fact=\"lbs.property.goal1.target_date\">31 December 2038</span></td></tr></table></section><section id=\"sec-risk\" data-section=\"risk\"><h2><span class=\"ix\">09</span>The risk profile</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Risk profile</td><td class=\"n\"><span data-fact=\"lbs.risk\">not available: The basis for this calculation is not yet approved, so no figure is shown.</span></td></tr></table></section><section id=\"sec-mandate\" data-section=\"mandate\"><h2><span class=\"ix\">10</span>The mandate proposal</h2><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>Mandate proposal</td><td class=\"n\"><span data-fact=\"lbs.mandate.name\">Your home ownership goal</span></td></tr><tr><td>Target amount</td><td class=\"n\"><span data-fact=\"lbs.mandate.target\">CHF 300,000</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Horizon in years</td><td class=\"n\"><span data-fact=\"lbs.mandate.horizon\">12.26</span></td></tr><tr><td>Drawable</td><td class=\"n\"><span data-fact=\"lbs.mandate.drawable\">CHF 475,600</span></td></tr><tr><td>Contribution a year</td><td class=\"n\"><span data-fact=\"lbs.mandate.contribution\">CHF 12,000 a year</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Required return a year</td><td class=\"n\"><span data-fact=\"lbs.mandate.required_return\">0.00%</span> <small class=\"basis\" data-basis=\"nominal\">nominal</small></td></tr><tr><td>Reachable</td><td class=\"n\"><span data-fact=\"lbs.mandate.feasible\">yes</span></td></tr><tr><td>Complete</td><td class=\"n\"><span data-fact=\"lbs.mandate.complete\">no</span></td></tr><tr><td>Status</td><td class=\"n\"><span data-fact=\"lbs.mandate.release_state\">not released</span></td></tr></table></section><section id=\"sec-limits\" data-section=\"limits\"><h2><span class=\"ix\">11</span>What this report cannot say</h2><div class=\"box\"><ul><li><small>Human capital:</small> <span data-fact=\"lbs.gap.0\">Earning power is computed by another model; this report does not contain it.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.1\">Expertise (E): The intake does not ask about this.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.2\">Health (H): The question was asked and left unanswered.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.3\">Network (N): The question was asked and left unanswered.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.4\">The basis of the AHV calculation is not yet approved; no AHV pension is shown.</span></li><li><small>Person 1:</small> <span data-fact=\"lbs.gap.5\">No pension fund balance is recorded for the person; the projection starts at zero.</span></li><li><small>Risk profile:</small> <span data-fact=\"lbs.gap.6\">The rules of the risk profile are not yet approved; no profile is derived.</span></li></ul></div></section><section id=\"sec-sources\" data-section=\"sources\"><h2><span class=\"ix\">12</span>Sources</h2><table><tr><th>Source</th><th>As of</th></tr><tr><td>Your balance sheet</td><td><span data-fact=\"sources.date.lbs\">28 September 2026</span></td></tr></table><table><tr><th>Figure</th><th class=\"n\">Value</th></tr><tr><td>As of</td><td class=\"n\"><span data-fact=\"sources.as_of\">28 September 2026</span></td></tr></table></section>\n<div class=\"foot\">Calibration <code>1.0.0</code> · <code>report@1.5.0</code>. This report sets out a position and is not a recommendation. Model-derived research output. Not investment advice.</div>\n</div>\n</body>\n</html>\n",
   "provenance": {
-   "engine_version": "report@1.4.1",
+   "engine_version": "report@1.5.0",
    "contract_versions": {
     "ReportRequest": "report-request@1.0.0",
     "Report": "report@1.0.0",
@@ -1106,7 +1238,7 @@
    },
    "calibration_version": "1.0.0",
    "calibration_hash": "CAL-a41add0042ff3a9d",
-   "idempotency_key": "IDK-1454d23690559bdf",
+   "idempotency_key": "IDK-cef0be8b10acae4a",
    "request_id": "RRQ-7244a8147a73f6ea",
    "sources": [
     {

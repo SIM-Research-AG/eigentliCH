@@ -75,7 +75,10 @@ def test_every_lbs_fact_is_read_from_the_path_it_cites(name, lang):
         (src,) = f.sources
         assert src.engine == "lbs" and src.artefact_id == sheet.artefact_id
         node = resolve(raw, src.path)
-        if f.derivation:
+        if f.fact_id.startswith("lbs.capital."):
+            # A capital's level in words (REP-41), derived from the value its path cites.
+            assert f.derivation and f.value == engine.level_of(float(node), 0.0, 1.0), f.fact_id
+        elif f.derivation:
             assert f.value == float(len(node))
         elif f.unit == "count":
             assert f.value == float(node), f.fact_id

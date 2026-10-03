@@ -352,6 +352,7 @@ class LbsGoalBasisView(_Upstream):
     """One goal's amount in both bases (lbs LBS-31)."""
 
     goal_id: str
+    kind: Optional[str] = None
     unit: str
     amount_basis: Literal["today", "future"]
     amount_basis_stated: bool
@@ -570,12 +571,47 @@ class LsGoalChance(_Upstream):
     n_reached: int
 
 
+class LsCapitalBands(_Upstream):
+    """One capital's year-end quantiles over the horizon (index 0 today), from the same draws as the wealth bands."""
+
+    p10: tuple[float, ...]
+    p25: tuple[float, ...]
+    p50: tuple[float, ...]
+    p75: tuple[float, ...]
+    p90: tuple[float, ...]
+
+
+class LsScale(_Upstream):
+    min: float
+    max: float
+
+
+class LsCapitalWords(_Upstream):
+    expertise: LsWords
+    network: LsWords
+    health: LsWords
+
+
+class LsCapitals(_Upstream):
+    """``regimes[].capitals`` (review/VISUALS_INTERFACES.md, 03.10.2026; optional, absent on artefacts made before
+    it): the principal's expertise, network and health over the years, on the model's own scales (REP-41)."""
+
+    person_id: str
+    expertise: LsCapitalBands
+    network: LsCapitalBands
+    health: LsCapitalBands
+    scale: dict[str, LsScale]
+    labels: LsCapitalWords
+
+
 class LsRegimePaths(_Upstream):
     key: str
     label: LsWords
     kind: Literal["base", "scenario"]
     bands: dict[str, LsBandSet]
     goals: tuple[LsGoalChance, ...]
+    #: Since 03.10.2026, optional (REP-41).
+    capitals: Optional[LsCapitals] = None
 
 
 class LsAllocationInstrument(_Upstream):

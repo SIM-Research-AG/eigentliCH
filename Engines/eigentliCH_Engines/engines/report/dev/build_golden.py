@@ -2,6 +2,9 @@
 
     python dev/build_golden.py --live     # the prose case asks the real spark7; its replies are frozen
     python dev/build_golden.py            # rebuild from the frozen replies (nothing leaves the machine)
+    python dev/build_golden.py --replay-live
+                                          # rebuild the prose case too, under the live settings, with spark7's
+                                          # frozen replies played back (no call leaves the machine; REP-42)
 
 Writes ``golden/reports/<case>.json`` (the report, and for the prose case spark7's replies in order) and
 ``golden/reports/<case>.html`` (the page, to open in a browser). Check the diff before committing it: a
@@ -38,7 +41,7 @@ def transports() -> dict[str, httpx.BaseTransport]:
     return {"pcp": make("pcp"), "lbs": make("lbs"), "lbsim": make("lbsim")}
 
 
-def build(live: bool) -> None:
+def build(live: bool, replay: bool = False) -> None:
     from fastapi.testclient import TestClient
 
     from report.api import create_app
@@ -49,7 +52,7 @@ def build(live: bool) -> None:
     model = load().model.model
     settings = replace(settings, model=replace(settings.model, model=model))
     live_settings = None
-    if live:
+    if live or replay:
         base = load(overrides={"model": {"warmup": {"enabled": False}}})
         live_settings = replace(base, database=settings.database)
     ids: dict[str, str] = {}
@@ -68,7 +71,26 @@ def build(live: bool) -> None:
                         body["revision_of"] = ids[case["revision_of"]]
                     replies: list[str] | None = None
                     if case.get("live"):
-                        if live_client is not None:
+                        if live_client is not None and replay:
+                            # spark7's frozen replies, in the order the engine asks for them, under the live
+                            # settings: the report a live rebuild gives when spark7 answers as it did (temperature
+                            # 0 with a seed), for a change that touches no prose section's facts.
+                            from report.spark7 import Completion
+
+                            service = live_client.app.state.service
+                            replies = gc.frozen(case["name"])["model_replies"]
+                            queue = list(replies)
+                            original = service.model.complete
+
+                            def replaying(*args, **kwargs):
+                                return Completion(text=queue.pop(0), model=service.settings.model.model,
+                                                  finish_reason="stop", latency_ms=0.0, first_byte_ms=None)
+
+                            service.model.complete = replaying
+                            r = live_client.post("/report", json=body)
+                            service.model.complete = original
+                            assert not queue, "the engine asked for fewer drafts than were frozen"
+                        elif live_client is not None:
                             service = live_client.app.state.service
                             recorded: list[str] = []
                             original = service.model.complete
@@ -114,4 +136,4 @@ def build(live: bool) -> None:
 
 
 if __name__ == "__main__":
-    build("--live" in sys.argv[1:])
+    build("--live" in sys.argv[1:], replay="--replay-live" in sys.argv[1:])

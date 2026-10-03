@@ -32,6 +32,28 @@ from .spark7 import Spark7Client
 from .store import Store
 
 TESTBENCH = ROOT / "testbench" / "index.html"
+#: The golden example pages, shown by the test bench's gallery. Not in the deploy folder either.
+GOLDEN_REPORTS = ROOT / "golden" / "reports"
+
+
+def golden_gallery() -> list[dict[str, Any]]:
+    """Each golden page with what it shows, in words, read from its frozen report."""
+    import json
+
+    out = []
+    for path in sorted(GOLDEN_REPORTS.glob("*.json")):
+        report = json.loads(path.read_text(encoding="utf-8"))["report"]
+        keys = [s["key"] for s in report["sections"]]
+        has = [w for k, w in (("outlook", "outlook"), ("capitals", "four capitals"), ("life_sheet", "life balance sheet"),
+                              ("allocation", "allocation"), ("property", "home ownership"), ("liquidity", "liquidity"))
+               if k in keys]
+        charts = [c for c in ("capitals_time",) if f'data-chart="{c}"' in report["html"]]
+        out.append({"name": path.stem, "language": report["language"], "basis": report.get("basis") or "nominal",
+                    "kind": report["kind"], "lbsim": "outlook" in keys,
+                    "capitals_over_time": bool(charts), "revision": bool(report.get("revision_of")),
+                    "prose": any(s["prose_status"] == "verified" for s in report["sections"]),
+                    "shows": has})
+    return out
 
 
 def create_app(settings: Optional[Settings] = None,
@@ -160,9 +182,27 @@ def create_app(settings: Optional[Settings] = None,
     def calibration_versions() -> list[dict[str, Any]]:
         return service.calibration_versions()
 
+    @app.get("/bench/reports", tags=["bench"])
+    def bench_reports(limit: int = 200) -> list[dict[str, Any]]:
+        """The test bench's picker (REP-43): stored reports by client, with readable labels. Read-only."""
+        return service.bench_reports(limit)
+
     if Path(TESTBENCH).is_file():
         @app.get("/", include_in_schema=False)
         def testbench() -> FileResponse:
             return FileResponse(TESTBENCH)
+
+    if GOLDEN_REPORTS.is_dir():
+        @app.get("/bench/golden", tags=["bench"])
+        def bench_golden() -> list[dict[str, Any]]:
+            """The golden example pages (development only; the deploy folder has no golden data)."""
+            return golden_gallery()
+
+        @app.get("/bench/golden/{name}", tags=["bench"], response_class=HTMLResponse)
+        def bench_golden_page(name: str) -> HTMLResponse:
+            page = GOLDEN_REPORTS / f"{name}.html"
+            if name not in {g["name"] for g in golden_gallery()} or not page.is_file():
+                raise HTTPException(404, f"no golden page {name!r}")
+            return HTMLResponse(page.read_text(encoding="utf-8"))
 
     return app

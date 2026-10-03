@@ -136,6 +136,11 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     def calibration_versions() -> list[dict[str, Any]]:
         return service.calibration_versions()
 
+    @app.get("/bench/candidates", tags=["bench"])
+    def bench_candidates(limit: int = 40) -> list[dict[str, Any]]:
+        """The test bench's picker (LBS-42): the newest sheet of each client with a readable label. Read-only."""
+        return service.bench_candidates(limit)
+
     if Path(TESTBENCH).is_file():
         @app.get("/", include_in_schema=False)
         def testbench() -> FileResponse:

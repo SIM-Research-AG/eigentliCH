@@ -15,7 +15,7 @@ finalise. Every figure is a port of the eigentliCH prototype's services, whose o
 | Family | Client (eigentliCH engines) |
 | Module | `lbs` |
 | Default port | 8013 (configurable in `config.yaml`) |
-| Status | v1.4.0 (29.09.2026), calibration 1.5.0 active (the nominal and real view at the owner's CHF inflation of 1.0 %); the prototype reproduced exactly under 1.0.0 and 1.1.0 (659 figures, deviation 0); the corrected behaviour frozen as golden layer B (steps 1.2.0 to 1.5.0); the answers lbsim reads carried in the request and the request of a sheet read back (LBS-39 to LBS-41); 473 tests |
+| Status | v1.4.0 (29.09.2026), calibration 1.5.0 active (the nominal and real view at the owner's CHF inflation of 1.0 %); the prototype reproduced exactly under 1.0.0 and 1.1.0 (659 figures, deviation 0); the corrected behaviour frozen as golden layer B (steps 1.2.0 to 1.5.0); the answers lbsim reads carried in the request and the request of a sheet read back (LBS-39 to LBS-41); the test bench draws the sheet as graphs and picks real use-case clients (LBS-42, 03.10.2026); 475 tests |
 | Consumes | Client data only (`lbs-request@1.0.0`); no upstream engine |
 | Produces | `LifeBalanceSheet` (`lbs-balance-sheet@1.0.0`) |
 | Downstream | `lbsim` (8014), `report` (8015); the mandate proposal goes to the curator, then `pcp` (8007) |
@@ -33,7 +33,7 @@ First time: `..\..\.venv\Scripts\python -m pip install --no-deps -e .`, the role
 (`database: password: ...`, git-ignored), then `..\..\.venv\Scripts\python -m lbs init-db`.
 
 ```bash
-..\..\.venv\Scripts\python -m pytest     # 473 tests, against the real PostgreSQL server
+..\..\.venv\Scripts\python -m pytest     # 475 tests, against the real PostgreSQL server
 ```
 
 ## What it computes, and from which prototype service
@@ -191,6 +191,27 @@ Standard (Guide 2.1): `GET /health`, `/meta`, `/contracts`, `POST /run` (`run_id
 | GET | `/sheet/{artefact_id}/{grid, human-capital, pensions, findings, mandate, gaps}` | One view of it |
 | GET | `/records` | Each content record's approval state in a calibration |
 | GET | `/calibration/versions` | Calibrations, the active one marked |
+| GET | `/bench/candidates` | The test bench's picker (LBS-42): the newest sheet of each client, newest first, each with `artefact_id`, a `label` made from its stored request (household, assets, goals, canton, date; never an id), `kind` (`use case` for the consumer app's 32-hex client reference, else `bench or test`), `as_of`, `calibration_version`. Read-only, `?limit=` (default 40) |
+
+## The test bench
+
+`testbench/index.html`, served at `/` in development (not in the deploy folder). It shows what lbs does:
+
+* **A short explanation** of the engine's job: the deterministic life balance sheet, financial assets by vessel,
+  human capital, liabilities and goals, pensions and findings, the mandate proposal, the real view.
+* **A picker of real use-case clients** (`GET /bench/candidates`): picking one loads the request lbs stored for its
+  newest sheet (`GET /artefacts/{id}/request`) into the request box and shows that sheet (`GET /sheet/{id}`). Nothing
+  is written; Run makes a new sheet from the (edited) request. Readable labels, never an id; people and goals are
+  "Person 1", "Home goal" on the page.
+* **Graphs drawn in the page** (inline SVG, no external script; native SVG tooltips on the marks): the life balance
+  sheet (assets by vessel and human capital, liabilities and the goals' amounts, net worth, on one CHF scale with
+  every segment named and valued), the four capitals per adult (wealth as the household's net worth in CHF, lbs
+  states no wealth per person; expertise, network and health each on its own track, the scale from the sheet's
+  calibration records `human-capital` and `intake-scales`, words at the ends, never on a money axis), the BVG
+  balance by age and the mandate's target curve.
+* **A nominal and real switch**: the goals' amounts (`real_view.goals[]`), the required return and the retirement
+  cover follow it; holdings and liabilities are today's in either view; the BVG projection is nominal in both, as
+  lbs states it. English only.
 
 ## Calibrations
 

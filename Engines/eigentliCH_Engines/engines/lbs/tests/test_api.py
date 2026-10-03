@@ -229,5 +229,38 @@ def test_unknown_ids_are_404(client):
 
 
 def test_the_testbench_is_served_in_development(client):
+    """The bench draws its graphs as inline SVG in the page: no external script (owner, 03.10.2026)."""
+    import re
+
     r = client.get("/")
-    assert r.status_code == 200 and "plotly" in r.text.lower()
+    assert r.status_code == 200 and "/bench/candidates" in r.text
+    assert not re.search(r"<script[^>]+src=", r.text) and "plotly" not in r.text.lower()
+    assert "<svg" in r.text and "cdn" not in r.text.lower()
+
+
+def test_the_bench_candidates_are_the_newest_sheet_per_client_with_a_readable_label(client):
+    """LBS-42: ``GET /bench/candidates`` lists the newest sheet of each client, newest first, labelled from its stored
+    request; never a client_ref, a person or goal id or a sheet id as the label; read-only."""
+    case = "0123456789abcdef0123456789abcdef"
+    couple = sample_request(client_ref=case, as_of="2026-09-30")
+    couple["household"]["persons"] = list(couple["household"]["persons"]) + [
+        {"person_id": "p2", "kind": "adult", "age": 38}, {"person_id": "k1", "kind": "dependant", "age": 6}]
+    couple["facts"] = {"civil_status": "verheiratet", "canton": "Bern"}
+    first = client.post("/run", json=couple).json()
+    newer = client.post("/run", json={**couple, "as_of": "2026-10-01"}).json()
+    assert first["status"] == newer["status"] == "succeeded" and first["artefact_id"] != newer["artefact_id"]
+    runs_before = len(client.get("/runs", params={"limit": 500}).json())
+    got = client.get("/bench/candidates").json()
+    assert len(client.get("/runs", params={"limit": 500}).json()) == runs_before
+    mine = [c for c in got if c["artefact_id"] in (first["artefact_id"], newer["artefact_id"])]
+    assert [c["artefact_id"] for c in mine] == [newer["artefact_id"]]
+    label = mine[0]["label"]
+    assert label == "Couple, 40 and 38, one child · assets CHF 350k · goals: home, retirement · Bern · as of 1 Oct 2026"
+    assert mine[0]["kind"] == "use case"
+    sample = next(c for c in got if c["label"].startswith("Single adult, 40"))
+    assert sample["kind"] == "bench or test"
+    assert len({c["label"] for c in got}) == len(got)
+    for c in got:
+        assert case not in c["label"] and "LBS-" not in c["label"] and "sample-01" not in c["label"]
+        assert not any(w in c["label"].split() for w in ("p1", "p2", "k1", "later"))
+    assert client.get("/artefacts/" + mine[0]["artefact_id"] + "/request").json()["request"]["client_ref"] == case

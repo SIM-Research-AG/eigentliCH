@@ -111,7 +111,8 @@ def test_the_outlook_is_reported(client, served):
     rep = r.json()
     keys = [s["key"] for s in rep["sections"]]
     assert {"earning_power", "income_paths", "outlook", "plan", "findings"} <= set(keys)
-    assert keys.index("human_capital") + 1 == keys.index("earning_power")
+    # The four capitals stand between human capital and earning power when the sheet states any (REP-41).
+    assert keys.index("human_capital") + 1 + ("capitals" in keys) == keys.index("earning_power")
     assert {s["engine"] for s in rep["provenance"]["sources"]} == {"pcp", "lbs", "lbsim"}
     assert all(s["prose_status"] == "not_requested" for s in rep["sections"])
 
@@ -163,6 +164,10 @@ def test_an_unknown_lbsim_artefact_is_refused(client, served):
 
 # -- the frozen pages ---------------------------------------------------------------------------------------------
 
+#: The vessel names of the life balance sheet (REP-40) that carry a digit; a name, never a value.
+NAMES_WITH_A_DIGIT = tuple(n for words in engine.VESSEL.values() for n in words.values() if re.search(r"\d", n))
+
+
 def _svgs(page: str) -> list[str]:
     return re.findall(r"<svg\b.*?</svg>", page, re.S)
 
@@ -171,7 +176,7 @@ def _svgs(page: str) -> list[str]:
 def test_the_pages_carry_all_three_charts(name):
     page = gc.frozen(name)["report"]["html"]
     shown = re.findall(r'<figure class="chart" data-chart="([^"]+)">', page)
-    assert shown == ["roles", "positions", "fit", "outlook"], shown
+    assert shown == ["life_sheet", "capitals", "roles", "positions", "fit", "outlook"], shown
 
 
 @pytest.mark.parametrize("name", [c["name"] for c in gc.cases()])
@@ -187,9 +192,13 @@ def test_every_svg_is_self_contained_and_prints_only_facts(name):
         for fact_id, text in printed:
             assert fact_id in facts, fact_id
             assert text == __import__("html").escape(facts[fact_id]["display"], quote=True), fact_id
-        # Outside the fact spans, a chart prints words only: no tick label, no axis number.
+        # Outside the fact spans, a chart prints words only: no tick label, no axis number. A name may carry a
+        # digit (a vessel such as "2. Säule" or "pillar 3a", "Person 1", "Ziel 2"): those names are taken out first.
         rest = re.sub(r'<tspan data-fact="[^"]+">[^<]*</tspan>', " ", svg)
         text = re.sub(r"<[^>]+>", " ", rest)
+        for name in NAMES_WITH_A_DIGIT:
+            text = text.replace(name, " ")
+        text = re.sub(r"\b(Person|Ziel|Goal) \d\b", " ", text)
         assert not re.search(r"\d", text), re.findall(r".{20}\d.{20}", text)
 
 

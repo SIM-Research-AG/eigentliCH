@@ -3,6 +3,21 @@
 Where the build stands, how to pick it up, and what is still open. The README is the reference; this file is the
 resume point. Model-derived research output; not investment advice.
 
+## State (03.10.2026)
+
+- **Engine 15, v1.5.0**: the life balance sheet and the four capitals as graphs (owner's decisions of 03.10.2026,
+  `review/VISUALS_INTERFACES.md`; REP-40 to REP-43). Two new sections, "Ihre Lebensbilanz" / "Your life balance
+  sheet" (from lbs) and "Ihre vier Kapitale" / "Your four capitals" (today from lbs; over time from lbsim's new
+  `regimes[].capitals` when the paths carry it), inline SVG from `charts.py` with every printed value a fact, money
+  on the report's basis and the capitals on their own scales. 492 tests pass. Golden pages rebuilt (twenty), the
+  prose case replayed under the live settings from spark7's frozen replies (`dev/build_golden.py --replay-live`;
+  its prose and model unchanged). Golden page with the new graphs: `golden/reports/de_capitals.html` (and
+  `en_capitals.html`, `*_capitals_real.html`). The test bench shows stored reports by client, readable labels, the
+  page in a sandboxed frame, and the golden gallery. **The running server on 8015 needs a restart** to serve 1.5.0
+  and the bench routes.
+- The capitals inputs are lbsim@1.1.0's samples (`engines/lbsim/golden/samples`, agent F, 03.10.2026) copied
+  unchanged as `golden/inputs/lbsim_*_capitals.json`; lbsim on 8014 serves `capitals` once it is restarted on 1.1.0.
+
 ## State (29.09.2026)
 
 - **Engine 15, v1.4.1**, calibration 1.0.0, prompt `report-prompt@1.1.0`. 418 tests pass (`python -m pytest`,
@@ -34,7 +49,7 @@ resume point. Model-derived research output; not investment advice.
 - Both extractors are complete: pcp (`pcp-allocation@1.0.0`) and lbs (`lbs-balance-sheet@1.0.0`, final).
 - Store: database `simtech`, schema `report`, role `report`; password in `config.local.yaml` (git-ignored).
 - spark7 token in `eigentliCH_Engines/.env` (git-ignored).
-- Golden: sixteen frozen reports over frozen artefacts (`golden/inputs`, `golden/reports`; open the `.html` files to
+- Golden: twenty frozen reports over frozen artefacts (`golden/inputs`, `golden/reports`; open the `.html` files to
   see them).
 
 ## Resume
@@ -54,6 +69,12 @@ PCP-...` from the running pcp, or `--pcp-offline` with the Optimizer venv), then
 
 ## Open points
 
+0. **The graphs (03.10.2026)**: the consumer app's `Report` mirror ignores extra fields, so the new sections need
+   nothing from it; a stored report made before 1.5.0 keeps its page (no graph sections) until it is asked again.
+   Wealth per person is not shown: lbs states wealth per household only; if the owner wants it per adult, lbs must
+   state it first. The lbs scales of today's capitals are fixed in `vocabulary.CAPITAL_SCALE_TODAY` from lbs's
+   records (0 to 1); a change of those records needs a report change too (lbs's sheet carries the values, not the
+   scales). The two graph sections have no prose slot (a new calibration version adds one).
 1. **pcp carries no `client_ref`**: its `client` is a free label, so a report cannot check that an Allocation is
    this client's (REP-10). lbs is checked.
 2. **Upstream vocabulary** (REP-19): closed for every key lbs and pcp emit today; `tests/test_vocabulary.py` turns
