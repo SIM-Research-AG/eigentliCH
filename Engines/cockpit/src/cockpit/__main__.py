@@ -53,7 +53,10 @@ def main(argv: list[str] | None = None) -> int:
         from .desktop import create_shortcut
         print(f"created {create_shortcut(settings, start_menu=args.start_menu)}")
         return 0
-    from .launcher import Launcher
+    from .launcher import OFF, Launcher
+    if not settings.launcher:
+        print(OFF)  # C-39: something else starts the engines
+        return 0
     for r in Launcher(settings).start_autostart(wait=True):
         print(f"{r['key']:<12} {r.get('action')}{'' if r.get('up', True) else '  (did not come up: see its log)'}")
     return 0

@@ -12,6 +12,10 @@ service:
   # Override with COCKPIT_MODE.
   mode: development
   timeout_s: 60                 # proxy timeout; a honi run on a new snapshot takes seconds
+  # Whether the cockpit starts engines (Start, the desktop app, start-engines). Off where
+  # something else starts them (supervisord in the Docker image, C-39). Override with
+  # COCKPIT_LAUNCHER=on|off.
+  launcher: on
 
 # Where the CIO's saved decisions (optimiser bounds, instrument shortlists) are kept:
 # append-only JSON lines. Relative to this folder. Override with COCKPIT_DATA_DIR.
@@ -31,6 +35,8 @@ cio:
 # The curator workflow (C-16): the cockpit reads and writes schema eigentlich directly as the
 # login role curator (SELECT, INSERT, UPDATE; never DELETE). No password here: put it in
 # config.local.yaml (curator_db: {password: ...}) or set COCKPIT_CURATOR_DB_PASSWORD.
+# Host, port, dbname and user can be overridden with COCKPIT_CURATOR_DB_HOST, _PORT, _NAME
+# and _USER (C-38); the schema cannot.
 curator_db:
   host: 127.0.0.1
   port: 5432
@@ -50,6 +56,9 @@ python: ../Macro/.venv/Scripts/python.exe
 #   bench:      the engine's own test bench; the cockpit serves it pointed at its proxy
 #   start:      how the launcher starts it: working folder and arguments to `python`
 #   python:     this engine's own interpreter, when it is not the one above (C-17)
+#   public_url: optional; the address a browser reaches the engine at when it is not url
+#               (behind a tunnel). Or COCKPIT_ENGINE_<KEY>_PUBLIC_URL. Without one, the System
+#               page links the engine only when the cockpit is opened on 127.0.0.1 (C-40)
 #   autostart:  the desktop app starts it when it is not already answering
 #               (every engine with a start command: the desktop app brings the whole
 #               system up, in roster order, so macrofield is up before cycle)

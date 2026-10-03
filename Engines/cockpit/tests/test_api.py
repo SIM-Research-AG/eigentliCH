@@ -1298,3 +1298,208 @@ const out = { calls, figs: [figureText({ value: 38249, unit: 'chf' }), figureTex
     median, goal = fan["traces"][4], fan["traces"][5]
     assert median["customdata"] == ["CHF 100’000", "CHF 1.23 m"] and "%{customdata}" in median["hovertemplate"]
     assert goal["customdata"] == ["CHF 375’000", "CHF 375’000"] and ":,.0f" not in goal["hovertemplate"]
+
+
+# ---- the deployment's settings (ENGINE_CHANGES items 1, 2, 4, 7 and 10; C-38 to C-42) ----------------
+
+def _roster(tmp_path: Path, extra: str = "") -> Path:
+    """Two engines, one with a start command and autostart, one without."""
+    p = tmp_path / "config.yaml"
+    p.write_text(f"""data_dir: {tmp_path.as_posix()}/data
+curator_db: {{host: 127.0.0.1, port: 5432, dbname: simtech, schema: eigentlich, user: curator}}
+engines:
+  - {{key: honi, number: 2, name: HoNI, url: "http://127.0.0.1:8002", status: built, autostart: true,
+      start: {{cwd: "{tmp_path.as_posix()}", args: ["-m", "honi", "serve"]}}{extra}}}
+  - {{key: fmre, number: 6, name: Fund Map, url: "http://127.0.0.1:8006", status: built, api: v1}}
+""", encoding="utf-8")
+    return p
+
+
+def test_the_curator_connection_is_taken_from_the_environment(tmp_path):
+    """C-38: host, port, database name and user from COCKPIT_CURATOR_DB_*, as the password already was."""
+    p = _roster(tmp_path)
+    assert load(p, env={}).curator_db.public() == {"host": "127.0.0.1", "port": 5432, "dbname": "simtech",
+                                                   "schema": "eigentlich", "user": "curator", "configured": False}
+    db = load(p, env={"COCKPIT_CURATOR_DB_HOST": "db", "COCKPIT_CURATOR_DB_PORT": "5433",
+                      "COCKPIT_CURATOR_DB_NAME": "simtech_test", "COCKPIT_CURATOR_DB_USER": "curator2",
+                      "COCKPIT_CURATOR_DB_PASSWORD": "pw"}).curator_db
+    assert (db.host, db.port, db.dbname, db.user, db.password) == ("db", 5433, "simtech_test", "curator2", "pw")
+    assert db.schema == "eigentlich"  # the curator's grants are on this schema: it stays in the file
+    assert load(p, env={"COCKPIT_CURATOR_DB_HOST": ""}).curator_db.host == "127.0.0.1"  # empty is unset
+
+
+def test_the_launcher_is_on_by_default_and_off_starts_nothing(tmp_path, monkeypatch):
+    """C-39: COCKPIT_LAUNCHER=off. The start route answers 409 with a plain sentence, autostart starts
+    nothing, every engine reads as not startable, and the page hides Start."""
+    import subprocess
+    from cockpit.launcher import OFF, Launcher
+    p = _roster(tmp_path)
+    assert load(p, env={}).launcher is True
+    assert load(p, env={"COCKPIT_LAUNCHER": "on"}).launcher is True
+    for off in ("off", "OFF", "false", "0", "no"):
+        assert load(p, env={"COCKPIT_LAUNCHER": off}).launcher is False
+    with pytest.raises(ValueError, match="on or off"):
+        load(p, env={"COCKPIT_LAUNCHER": "maybe"})
+    p.write_text("service: {launcher: off}\n" + p.read_text(encoding="utf-8"), encoding="utf-8")
+    assert load(p, env={}).launcher is False  # YAML's bare off
+    assert load(p, env={"COCKPIT_LAUNCHER": "on"}).launcher is True  # the environment wins
+
+    def no_process(*a, **k):
+        raise AssertionError("the launcher started a process although it is off")
+    monkeypatch.setattr(subprocess, "Popen", no_process)
+    s = load(p, env={})
+    assert Launcher(s).start_autostart(wait=False) == []
+    with pytest.raises(LookupError):
+        Launcher(s).start(s.engine("honi"))
+    with TestClient(create_app(s, transport=FakeEngines())) as client:
+        r = client.post("/api/launcher/honi/start")
+        assert r.status_code == 409 and r.json()["detail"] == OFF
+        assert OFF.endswith(".") and "COCKPIT_LAUNCHER=off" in OFF
+        assert client.post("/api/launcher/nope/start").status_code == 404
+        cfg = client.get("/api/config").json()
+        assert cfg["launcher"] is False and not any(e["startable"] for e in cfg["engines"])
+        assert not any(n["startable"] for n in client.get("/api/graph").json()["nodes"])
+    on = load(p, env={"COCKPIT_LAUNCHER": "on"})
+    with TestClient(create_app(on, transport=FakeEngines())) as client:  # today's behaviour
+        cfg = client.get("/api/config").json()
+        assert cfg["launcher"] is True
+        assert {e["key"]: e["startable"] for e in cfg["engines"]} == {"honi": True, "fmre": False}
+    page = STATIC_PAGE.read_text(encoding="utf-8")
+    assert '${S.config.launcher ? `<button id="startAll"' in page and 'if ($("startAll"))' in page
+    assert page.count("e.startable && !(n && n.up)") == 2 and "(n.startable ? `<button data-start=" in page
+
+
+def test_start_engines_and_the_desktop_app_start_nothing_when_the_launcher_is_off(tmp_path, monkeypatch, capsys):
+    """C-39: ``python -m cockpit start-engines`` says why and starts nothing; the desktop app opens its window
+    without an autostart. With the launcher on both start the autostart engines, as before."""
+    import cockpit.__main__ as cli
+    import cockpit.desktop as desktop
+    from cockpit.launcher import OFF, Launcher
+    p = _roster(tmp_path)
+    calls: list[str] = []
+    monkeypatch.setattr(Launcher, "start_autostart", lambda self, wait=True: calls.append("autostart") or [])
+    monkeypatch.setattr(Launcher, "stop_started", lambda self: None)
+
+    monkeypatch.setattr(cli, "load", lambda env=None: load(p, env={"COCKPIT_LAUNCHER": "off"}))
+    assert cli.main(["start-engines"]) == 0
+    assert capsys.readouterr().out.strip() == OFF and calls == []
+    monkeypatch.setattr(cli, "load", lambda env=None: load(p, env={}))
+    assert cli.main(["start-engines"]) == 0 and calls == ["autostart"]
+
+    class Server:  # no port is bound
+        def __init__(self, config):
+            self.should_exit = False
+
+        def run(self):
+            pass
+
+    class Thread:  # runs its target at once, so the test needs no waiting
+        def __init__(self, target, name=None, daemon=None):
+            self.target = target
+
+        def start(self):
+            self.target()
+
+        def is_alive(self):
+            return False
+
+        def join(self, timeout=None):
+            pass
+
+    monkeypatch.setattr(desktop.uvicorn, "Server", Server)
+    monkeypatch.setattr(desktop.threading, "Thread", Thread)
+    monkeypatch.setattr(desktop, "_open_window", lambda base, browser, wait: 60.0)
+    for env, expected in (({"COCKPIT_LAUNCHER": "off"}, []), ({}, ["autostart"])):
+        calls.clear()
+        answers = iter([False, True])  # no cockpit yet; then ours answers
+        monkeypatch.setattr(desktop, "_answering", lambda url: next(answers))
+        assert desktop.run(load(p, env=env)) == 0
+        assert calls == expected
+
+
+def test_an_engine_link_needs_a_public_address_or_a_page_opened_on_this_machine(tmp_path):
+    """C-40: ``public_url`` in the roster or COCKPIT_ENGINE_<KEY>_PUBLIC_URL (the environment wins); ``url``
+    stays the cockpit's own address for the engine, used by the proxy and the status probe."""
+    p = _roster(tmp_path, extra=', public_url: "https://honi.example.org/"')
+    s = load(p, env={"COCKPIT_ENGINE_FMRE_PUBLIC_URL": "https://fmre.example.org"})
+    assert s.engine("honi").url == "http://127.0.0.1:8002"
+    with TestClient(create_app(s, transport=FakeEngines())) as client:
+        engines = {e["key"]: e for e in client.get("/api/config").json()["engines"]}
+        assert engines["honi"]["public_url"] == "https://honi.example.org"
+        assert engines["honi"]["public_docs"] == "https://honi.example.org/docs"
+        assert engines["fmre"]["public_url"] == "https://fmre.example.org"
+        assert engines["honi"]["url"] == "http://127.0.0.1:8002"  # unchanged: the page shows it as text
+        assert client.get("/api/honi/health").json()["status"] == "ok"  # the proxy still uses url
+    s = load(p, env={"COCKPIT_ENGINE_HONI_PUBLIC_URL": "https://other.example.org"})
+    assert s.engine("honi").public_url == "https://other.example.org" and s.engine("fmre").public_url is None
+    assert s.engine("fmre").public()["public_docs"] is None
+    with pytest.raises(ValueError, match="public_url"):
+        load(p, env={"COCKPIT_ENGINE_FMRE_PUBLIC_URL": "fmre.example.org"})
+    page = STATIC_PAGE.read_text(encoding="utf-8")
+    for raw in ('href="${esc(e.docs)}"', 'href="${esc(n.docs)}"', 'href="${esc(e.url)}/"'):
+        assert raw not in page, f"{raw}: an engine's own address linked without the check"
+    assert page.count("docsOf(") >= 4 and page.count("linkOf(") >= 3
+
+
+@pytest.mark.skipif(NODE is None, reason="Node is not installed: the links are checked by their source above")
+def test_the_page_links_the_engine_by_where_it_is_opened():
+    import subprocess
+    html = STATIC_PAGE.read_text(encoding="utf-8")
+    block = html[html.index("const LOCAL_PAGE = "):html.index("const SECTORS = ")]
+    out = {}
+    for host in ("127.0.0.1", "localhost", "cockpit.example.org"):
+        js = (f"const location = {{ hostname: {json.dumps(host)} }};\n{block}\n"
+              "const plain = { url: 'http://127.0.0.1:8002', docs: 'http://127.0.0.1:8002/docs', public_url: null, public_docs: null };\n"
+              "const pub = { ...plain, public_url: 'https://honi.example.org', public_docs: 'https://honi.example.org/docs' };\n"
+              "console.log(JSON.stringify([linkOf(plain), docsOf(plain), linkOf(pub), docsOf(pub)]));")
+        run = subprocess.run([NODE, "-"], input=js, capture_output=True, text=True, encoding="utf-8", timeout=60)
+        assert run.returncode == 0, run.stderr
+        out[host] = json.loads(run.stdout)
+    local = ["http://127.0.0.1:8002", "http://127.0.0.1:8002/docs", "https://honi.example.org",
+             "https://honi.example.org/docs"]
+    assert out["127.0.0.1"] == local and out["localhost"] == local  # today's local use keeps its links
+    assert out["cockpit.example.org"] == [None, None, "https://honi.example.org", "https://honi.example.org/docs"]
+
+
+def test_the_cockpit_answers_the_standard_health(dev):
+    """C-41: GET /health as every engine answers it, so a health check need not read /api/config."""
+    from cockpit import __version__
+    client, fake = dev
+    h = client.get("/health").json()
+    assert set(h) == {"status", "engine", "engine_version", "uptime_s"}
+    assert h["status"] == "ok" and h["engine"] == "cockpit" and h["engine_version"] == f"cockpit@{__version__}"
+    assert isinstance(h["uptime_s"], float) and h["uptime_s"] >= 0
+    assert fake.calls == []  # the cockpit's own: no engine is asked
+
+
+def test_the_access_log_leaves_the_health_probes_out():
+    """C-42: a filter on uvicorn's access logger drops a successful GET of /health and /api/config; a failed
+    probe and every other request are logged as before. It survives uvicorn's own logging set-up."""
+    import logging
+    import logging.config
+    from uvicorn.config import LOGGING_CONFIG
+    from cockpit.api import ProbeFilter, quiet_probes
+    quiet_probes()
+    quiet_probes()  # once only
+    access = logging.getLogger("uvicorn.access")
+    logging.config.dictConfig(LOGGING_CONFIG)  # what uvicorn.run does after create_app
+    assert sum(isinstance(f, ProbeFilter) for f in access.filters) == 1
+
+    seen: list[str] = []
+
+    class Keep(logging.Handler):
+        def emit(self, record):
+            seen.append(record.getMessage())
+    keep = Keep()
+    access.addHandler(keep)
+    try:
+        fmt = '%s - "%s %s HTTP/%s" %d'
+        for method, path, status in (("GET", "/health", 200), ("GET", "/api/config", 200),
+                                     ("GET", "/health?x=1", 200), ("GET", "/api/graph", 200),
+                                     ("GET", "/health", 500), ("POST", "/api/config", 405),
+                                     ("GET", "/api/honi/health", 200)):
+            access.info(fmt, "127.0.0.1:5000", method, path, "1.1", status)
+    finally:
+        access.removeHandler(keep)
+    assert [m.split('"')[1] for m in seen] == ["GET /api/graph HTTP/1.1", "GET /health HTTP/1.1",
+                                               "POST /api/config HTTP/1.1", "GET /api/honi/health HTTP/1.1"]

@@ -319,6 +319,11 @@ function displayRounding(opts) {
 const N = displayRounding({ na: "n/a" });   // the page's one formatter (C-37); the outlook panels use NO, the same in OUTLOOK_LANG
 const label = s => String(s).replaceAll("_", " ");
 const engNo = e => e.number == null ? "application (no engine number)" : `Engine ${String(e.number).padStart(2, "0")}`;
+// C-40: an engine's own address is the cockpit's address for it, which a browser elsewhere (through a tunnel) cannot reach.
+// Its link is shown when a browser-facing public_url is set, or when this page is itself opened on this machine.
+const LOCAL_PAGE = ["127.0.0.1", "localhost", "[::1]", "::1"].includes(location.hostname);
+const linkOf = e => e.public_url || (LOCAL_PAGE ? e.url : null);
+const docsOf = e => e.public_docs || (LOCAL_PAGE ? e.docs : null);
 const SECTORS = [["financial", "Financial", "--s1"], ["international", "International", "--s2"], ["real", "Real", "--s3"]];
 const ROLES = [["gain", "--s1", "solid"], ["stabilisation", "--s2", "dash"], ["income", "--s3", "dot"], ["protection", "--s4", "dashdot"]];
 const S = { config: null, graph: null, snapshots: [], honi: null, honiP: null, fm: null, fmP: null, decisions: null };
@@ -1298,7 +1303,7 @@ async function act(btn, fn, okMsg) {   // a write from a button: the database's 
   finally { if (btn) btn.disabled = false; }
 }
 async function clientList(force) { if (!C.clients || force) C.clients = await api("/curator/clients"); return C.clients; }
-function appLink() { const e = S.config.engines.find(x => x.kind === "app"); return e ? `<a class="button" href="${esc(e.url)}/" target="_blank" rel="noopener">Open the consumer app &#8599;</a>` : ""; }
+function appLink() { const e = S.config.engines.find(x => x.kind === "app"), u = e && linkOf(e); return u ? `<a class="button" href="${esc(u)}/" target="_blank" rel="noopener">Open the consumer app &#8599;</a>` : ""; }
 async function clientBar(target) {   // the client picker at the top of the Client and Parameters pages
   const list = await clientList();
   const id = S.params.get("c") || store.get("curator:client") || (list[0] || {}).id;
@@ -2585,7 +2590,7 @@ async function appPage(e) {
   const n = S.graph && S.graph.nodes.find(x => x.key === e.key);
   const b = card("The client's side", "Onboarding, questionnaires, threads, reports: the consumer web app. It reads and writes schema eigentlich as role eigentlich; these curator pages write the same schema as role curator, so what one side writes the other sees at once.");
   b.innerHTML = `<div class="row"><span class="pill st-${e.status}">${e.status}</span>${n && n.up ? `<span class="ok">answering on ${esc(e.url)}</span>` : `<span class="muted">not answering on ${esc(e.url)}</span>`}
-    <span class="spacer"></span><a class="button" href="${esc(e.url)}/" target="_blank" rel="noopener">Open in the browser &#8599;</a>
+    <span class="spacer"></span>${linkOf(e) ? `<a class="button" href="${esc(linkOf(e))}/" target="_blank" rel="noopener">Open in the browser &#8599;</a>` : ""}
     ${e.startable && !(n && n.up) ? `<button type="button" id="appStart">Start</button>` : ""}</div>
     <p class="note">${e.autostart ? "The desktop app starts it with the engines." : ""} Its log, once started here, is on the System page.</p>`;
   if ($("appStart")) $("appStart").onclick = () => act($("appStart"), () => post(`/launcher/${e.key}/start`, {}).then(r => { toast(esc(r.action)); setTimeout(route, 3500); return r; }));
@@ -2614,7 +2619,7 @@ page("system/engines", "system", "Engine status", async () => {
     const g = await refreshGraph(); if (!g) { tbl.innerHTML = `<p class="bad">graph unavailable</p>`; return; }
     drawFlow(flow, g);
     tbl.innerHTML = `<div class="row" style="margin-bottom:8px"><span class="ink2">Checked ${esc(g.checked_at)}</span><span class="spacer"></span>
-        <button id="startAll" type="button">Start the autostart engines</button><button id="refresh" type="button">Refresh</button></div>
+        ${S.config.launcher ? `<button id="startAll" type="button">Start the autostart engines</button>` : ""}<button id="refresh" type="button">Refresh</button></div>
       <div class="scroll"><table><thead><tr><th class="l">#</th><th class="l">Engine</th><th class="l">Family</th><th class="l">Status</th><th class="l">Running</th><th class="l">Version</th><th class="l">Calibration</th><th class="l">Allowlist</th><th class="l">Store</th><th class="l"></th></tr></thead><tbody>${
       g.nodes.map(n => { const h = n.health || {}, m = n.meta || {}, al = m.allowlist;
         const store_ = m.store || h.store; const launched = g.launched.find(l => l.key === n.key);
@@ -2624,11 +2629,11 @@ page("system/engines", "system", "Engine status", async () => {
           <td class="l">${esc(h.engine_version || m.engine_version || "")}</td><td class="l ink2">${esc(m.calibration_version || h.calibration_id || "")}</td>
           <td class="l">${al ? (al.ok ? `<span class="ok">ok</span>` : `<span class="bad">fails</span>`) + (Object.values(al.packages || {}).some(p => p.admitted_by) ? ` <span class="muted" title="${esc(Object.entries(al.packages).filter(([, p]) => p.admitted_by).map(([k, p]) => `${k}: ${p.admitted_by}`).join("; "))}">+ admitted</span>` : "") : `<span class="muted">${n.up ? "no /meta" : ""}</span>`}</td>
           <td class="l muted" style="font-size:11.5px">${store_ ? esc(`${store_.dbname}.${store_.schema}`) : ""}</td>
-          <td class="l" style="white-space:nowrap">${n.up ? `<a class="button" href="${esc(n.docs)}" target="_blank" rel="noopener">API docs</a>` : (n.startable ? `<button data-start="${n.key}" type="button">Start</button>` : "")}
+          <td class="l" style="white-space:nowrap">${n.up ? (docsOf(n) ? `<a class="button" href="${esc(docsOf(n))}" target="_blank" rel="noopener">API docs</a>` : "") : (n.startable ? `<button data-start="${n.key}" type="button">Start</button>` : "")}
             ${launched ? `<button data-log="${n.key}" type="button">Log</button>` : ""}${n.bench && S.config.mode === "development" ? ` <a class="button" href="#/bench/${n.key}">Bench</a>` : ""}</td></tr>`; }).join("")}</tbody></table></div>
-      <p class="note">Config: ${S.config.config_sources.map(esc).join(" < ")}. Start runs the engine as its start.cmd would, in the background, with its output in cockpit/data/logs; the desktop app stops what it started when its window closes.</p>`;
+      <p class="note">Config: ${S.config.config_sources.map(esc).join(" < ")}. ${S.config.launcher ? "Start runs the engine as its start.cmd would, in the background, with its output in cockpit/data/logs; the desktop app stops what it started when its window closes." : "The cockpit starts no engines here (COCKPIT_LAUNCHER=off): something else starts them."}</p>`;
     $("refresh").onclick = draw;
-    $("startAll").onclick = async () => { for (const n of g.nodes.filter(x => x.autostart && !x.up)) { try { await post(`/launcher/${n.key}/start`, {}); } catch (e) { toast(esc(e.message)); } } toast("Starting; refresh in a few seconds."); setTimeout(draw, 4000); };
+    if ($("startAll")) $("startAll").onclick = async () => { for (const n of g.nodes.filter(x => x.autostart && !x.up)) { try { await post(`/launcher/${n.key}/start`, {}); } catch (e) { toast(esc(e.message)); } } toast("Starting; refresh in a few seconds."); setTimeout(draw, 4000); };
     tbl.querySelectorAll("[data-start]").forEach(b => b.onclick = async () => { b.disabled = true; try { const r = await post(`/launcher/${b.dataset.start}/start`, {}); toast(`${esc(b.dataset.start)}: ${esc(r.action)}`); } catch (e) { toast(esc(e.message)); } setTimeout(draw, 3500); });
     tbl.querySelectorAll("[data-log]").forEach(b => b.onclick = async () => { const r = await api(`/launcher/${b.dataset.log}/log?lines=120`); logs.parentElement.classList.remove("hidden"); logs.innerHTML = `<pre>${esc(r.log || "(empty)")}</pre>`; });
   };
@@ -2812,7 +2817,7 @@ async function renderBench(e) {
   if (e.kind === "app") return appPage(e);
   if (e.bench) {
     $("main").innerHTML = `<div class="benchbar"><b>${esc(e.name)}</b><span class="muted">${e.key} · ${engNo(e)} · its own test bench, unchanged, calling the engine through <code>/api/${e.key}</code></span><span class="spacer"></span>
-      <a class="button" href="/bench/${e.key}/?api=/api/${e.key}" target="_blank" rel="noopener">Open in its own window</a><a class="button" href="${esc(e.docs)}" target="_blank" rel="noopener">API docs</a></div>
+      <a class="button" href="/bench/${e.key}/?api=/api/${e.key}" target="_blank" rel="noopener">Open in its own window</a>${docsOf(e) ? `<a class="button" href="${esc(docsOf(e))}" target="_blank" rel="noopener">API docs</a>` : ""}</div>
       <iframe class="bench" title="${esc(e.name)} test bench" src="/bench/${e.key}/?api=/api/${e.key}"></iframe>`;
     return;
   }
@@ -2825,7 +2830,7 @@ async function renderBench(e) {
                 scaffold: "Scaffold only: folders and README exist, nothing runs yet. The bench arrives with the build.",
                 planned: "Not in these repositories yet (built elsewhere or not started). The cockpit already reserves its port and its place in the flow." }[e.status] || "";
   b.innerHTML = `<p class="ink2" style="margin-top:0">${why}</p><div class="row"><span class="pill st-${e.status}">${e.status}</span>${n && n.up ? `<span class="ok">answering on ${esc(e.url)}</span>` : `<span class="muted">not answering on ${esc(e.url)}</span>`}
-    <span class="spacer"></span>${n && n.up ? `<a class="button" href="#/system/explorer" onclick="store.set('xeng','${e.key}')">API explorer</a><a class="button" href="${esc(e.docs)}" target="_blank" rel="noopener">API docs</a>` : ""}
+    <span class="spacer"></span>${n && n.up ? `<a class="button" href="#/system/explorer" onclick="store.set('xeng','${e.key}')">API explorer</a>${docsOf(e) ? `<a class="button" href="${esc(docsOf(e))}" target="_blank" rel="noopener">API docs</a>` : ""}` : ""}
     ${e.startable && !(n && n.up) ? `<button type="button" onclick="post('/launcher/${e.key}/start',{}).then(r=>toast(esc(r.action))).catch(x=>toast(esc(x.message)))">Start</button>` : ""}${e.notion ? `<a class="button" href="${esc(e.notion)}" target="_blank" rel="noopener">Engine page</a>` : ""}</div>`;
   if (n && n.up) { const m = card("What it reports", "/health and /meta, as served."); m.innerHTML = `<pre>${esc(JSON.stringify({ health: n.health, meta: n.meta }, null, 2))}</pre>`; }
 }

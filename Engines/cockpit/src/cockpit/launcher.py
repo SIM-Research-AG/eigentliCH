@@ -22,6 +22,9 @@ import httpx
 from .settings import Engine, Settings
 
 CREATE_NO_WINDOW = 0x08000000  # Windows: no console window for the child
+#: Why nothing starts when ``COCKPIT_LAUNCHER=off`` (C-39): the start route answers 409 with it.
+OFF = ("The cockpit starts no engines here: its launcher is off (COCKPIT_LAUNCHER=off), "
+       "because something else starts them.")
 
 
 @dataclass
@@ -67,6 +70,8 @@ class Launcher:
 
     def start(self, engine: Engine) -> dict[str, Any]:
         """Start one engine unless it already answers or was already started here."""
+        if not self.settings.launcher:
+            raise LookupError(OFF)
         if engine.start_cwd is None:
             raise LookupError(f"{engine.key} has no start command: its status is {engine.status}")
         with self._lock:
@@ -102,8 +107,11 @@ class Launcher:
         return False
 
     def start_autostart(self, wait: bool = True) -> list[dict[str, Any]]:
-        """Start every ``autostart`` engine in roster order (datafeed first), waiting for each."""
-        out = []
+        """Start every ``autostart`` engine in roster order (datafeed first), waiting for each.
+        Nothing when the launcher is off (C-39)."""
+        out: list[dict[str, Any]] = []
+        if not self.settings.launcher:
+            return out
         for engine in self.settings.engines:
             if not engine.autostart or engine.start_cwd is None:
                 continue

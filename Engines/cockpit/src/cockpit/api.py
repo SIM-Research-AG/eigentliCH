@@ -1,7 +1,8 @@
 """HTTP surface of the cockpit. Routing only: no maths, and no model figure of its own.
 
     /                         the single page front end
-    /api/config               roster, mode and CIO defaults for the front end
+    /health                   the cockpit's own standard health answer (C-41)
+    /api/config              roster, mode and CIO defaults for the front end
     /api/graph                every engine's /health and /meta: the system status view
     /api/decisions            the CIO's decision log (optimiser bounds, instrument shortlists)
     /api/export/...           Excel workbooks laid out from engine endpoints
@@ -18,6 +19,7 @@ Tests pass their own settings and a mock transport for the engines.
 from __future__ import annotations
 
 import json
+import logging
 import time
 from contextlib import asynccontextmanager
 from datetime import date
@@ -156,6 +158,30 @@ def _main_artefact(ids: Any) -> Optional[str]:
     return ids[-1] if ids else None
 
 
+#: Paths a health check calls every few seconds: kept out of uvicorn's access log (C-42).
+PROBES = frozenset({"/health", "/api/config"})
+
+
+class ProbeFilter(logging.Filter):
+    """Drops a successful GET of a probe path from uvicorn's access log; everything else, and a probe
+    that failed, is logged as before. uvicorn logs ``(client, method, path with query, http, status)``."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        args = record.args
+        if not isinstance(args, tuple) or len(args) < 5:
+            return True
+        method, path, status = args[1], str(args[2]).split("?", 1)[0], args[4]
+        return not (method in ("GET", "HEAD") and path in PROBES and isinstance(status, int) and status < 400)
+
+
+def quiet_probes() -> None:
+    """Install :class:`ProbeFilter` on ``uvicorn.access`` once. A filter on the logger survives the
+    logging configuration uvicorn applies afterwards (``dictConfig`` adds, it does not clear)."""
+    access = logging.getLogger("uvicorn.access")
+    if not any(isinstance(f, ProbeFilter) for f in access.filters):
+        access.addFilter(ProbeFilter())
+
+
 def create_app(settings: Optional[Settings] = None,
                transport: Optional[httpx.AsyncBaseTransport] = None,
                launcher: Optional[Launcher] = None,
@@ -165,6 +191,8 @@ def create_app(settings: Optional[Settings] = None,
     log = DecisionLog(settings.data_dir)
     launcher = launcher or Launcher(settings)
     curator = curator or CuratorStore(settings.curator_db)
+    started = time.monotonic()
+    quiet_probes()
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -226,18 +254,26 @@ def create_app(settings: Optional[Settings] = None,
 
     # ---- cockpit's own reads --------------------------------------------------------
 
+    @app.get("/health", tags=["standard"])
+    def health() -> dict[str, Any]:
+        """The standard health answer, as every engine gives it (C-41). The cockpit itself only:
+        the engines' state is ``/api/graph``."""
+        return {"status": "ok", "engine": "cockpit", "engine_version": f"cockpit@{__version__}",
+                "uptime_s": round(time.monotonic() - started, 3)}
+
     @app.get("/api/config", tags=["cockpit"])
     def config() -> dict[str, Any]:
         return {"cockpit_version": __version__, "mode": settings.mode, "notice": NOTICE,
+                "launcher": settings.launcher,
                 "cio": {"snapshot": settings.cio_snapshot, "writable": list(settings.cio_writable)},
-                "engines": [e.public() for e in settings.engines],
+                "engines": [e.public(settings.launcher) for e in settings.engines],
                 "curator_db": settings.curator_db.public(),
                 "config_sources": list(settings.sources)}
 
     @app.get("/api/graph", tags=["cockpit"])
     async def graph() -> dict[str, Any]:
         probes = await engines.probe_all()
-        nodes = [{**e.public(), **probes[e.key]} for e in settings.engines]
+        nodes = [{**e.public(settings.launcher), **probes[e.key]} for e in settings.engines]
         edges = [[up, e.key] for e in settings.engines for up in e.consumes]
         return {"checked_at": time.strftime("%Y-%m-%dT%H:%M:%S"), "mode": settings.mode,
                 "nodes": nodes, "edges": edges, "launched": launcher.state()}

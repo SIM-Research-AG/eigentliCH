@@ -81,7 +81,7 @@ def run(settings: Settings, start_engines: bool = True, browser: Optional[str] =
             return 1
         time.sleep(0.2)
 
-    if start_engines:
+    if start_engines and settings.launcher:  # off (C-39): something else starts the engines
         # In the background: the window opens at once and the System page shows engines
         # coming up one after the other.
         threading.Thread(target=launcher.start_autostart, name="engine-autostart", daemon=True).start()

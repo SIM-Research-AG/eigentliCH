@@ -552,3 +552,60 @@ in Node (amounts at each band edge, German words, stated figures, rates, chances
 identical in the page and in the nine benches; no `toFixed` (but the sparkline's SVG geometry), `toLocaleString`,
 `toPrecision`, `,.0f` or `.4g` left in the page; the outlook's figures and the fan's axis and hover by the rule;
 the balance sheet's axis ticks and hover.
+
+**C-38 The curator's connection from the environment (03.10.2026).** `deploy/ENGINE_CHANGES.md` item 1. Beside
+`COCKPIT_CURATOR_DB_PASSWORD`, `settings._curator_db()` takes `COCKPIT_CURATOR_DB_HOST`, `COCKPIT_CURATOR_DB_PORT`,
+`COCKPIT_CURATOR_DB_NAME` and `COCKPIT_CURATOR_DB_USER` over `curator_db` in config.yaml and config.local.yaml; an
+empty variable counts as unset. The schema has no variable: the curator role's grants are on `eigentlich`, and
+pointing the cockpit at another schema is a test's business (the throwaway `t_<hex>`), done through the file. So a
+container reaches the database at `db` from its environment, and the generated config.local.yaml is no longer needed
+for it. *Tests.* `tests/test_api.py`: the file's values without the variables, every variable over them, the schema
+unchanged, an empty host ignored.
+
+**C-39 The launcher can be switched off (03.10.2026).** `deploy/ENGINE_CHANGES.md` item 2. `service.launcher` in
+config.yaml (on by default, today's behaviour), overridden by `COCKPIT_LAUNCHER=on|off` (also true / false, yes / no,
+1 / 0; anything else stops the start with a ValueError). Off is for a deployment where something else starts the
+engines (supervisord in the Docker image), and a second starter would only get in its way: `POST
+/api/launcher/{key}/start` answers 409 with one plain sentence ("The cockpit starts no engines here: its launcher is
+off (COCKPIT_LAUNCHER=off), because something else starts them."), `Launcher.start_autostart()` returns an empty
+list, `python -m cockpit start-engines` prints that sentence and starts nothing, and the desktop app opens its window
+without starting an engine. `/api/config` carries `launcher`, and every engine's `startable` is false in
+`/api/config` and `/api/graph`, so the System page, the Consumer app page and an engine's placeholder show no Start;
+the System page also hides **Start the autostart engines** and says why under the roster. The log route and the
+list of what was started stay (both empty). An unknown engine still answers 404 before the launcher is asked.
+*Tests.* `tests/test_api.py`: on by default, every spelling of off, YAML's bare `off`, the environment over the
+file, an unknown value refused; with off the route's 409 and its sentence, no process started (Popen would fail the
+test), nothing startable in config and graph; `start-engines` and the desktop app (server, thread and window
+replaced) start nothing with off and start the autostart engines with on; the page's Start buttons behind the flags.
+
+**C-40 A browser-facing address per engine (03.10.2026).** `deploy/ENGINE_CHANGES.md` item 4. An engine's `url` is
+the cockpit's own address for it (the proxy, the status probe, the bench), `http://127.0.0.1:80NN`; opened through
+the tunnel, a link to it points at the viewer's own computer. Each roster entry may name `public_url`, or the
+environment `COCKPIT_ENGINE_<KEY>_PUBLIC_URL` (key upper-cased, any character but a letter or digit as `_`; the
+environment wins), which must start with http:// or https://, and is served trailing slash removed as `public_url`
+with `public_docs` (its `/docs`) beside `url` and `docs`, which keep their meaning. The page links an engine (its API
+docs on the System page, a bench and an engine's placeholder, Open in the browser and Open the consumer app for the
+app) through `linkOf()` and `docsOf()`: the public address when one is set, else the engine's own address only when
+the page itself is opened on 127.0.0.1, localhost or ::1, so today's local use keeps every link and a remote viewer
+sees none that would mislead. The engine's address stays on the page as text ("answering on ..."). For the app in
+Docker: `COCKPIT_ENGINE_EIGENTLICH_PUBLIC_URL=https://app.<domain>`. *Tests.* `tests/test_api.py`: the roster's value
+and the environment's, the environment over the roster, `url` and the proxy unchanged, an address without a scheme
+refused, no engine address linked in the page without the check; `linkOf` and `docsOf` run in Node for a page opened
+on 127.0.0.1, on localhost and elsewhere (skipped without Node).
+
+**C-41 The cockpit answers the standard /health (03.10.2026).** `deploy/ENGINE_CHANGES.md` item 7. `GET /health`
+answers as every engine does, `{status: "ok", engine: "cockpit", engine_version: "cockpit@<version>", uptime_s}`,
+uptime from the app's creation. It asks no engine: the engines' state is `/api/graph`. A health check no longer needs
+`/api/config`; the desktop app still asks `/api/config` whether a cockpit already serves, because an older cockpit
+already running has no `/health`. *Tests.* `tests/test_api.py`: the four fields, the version, no engine called.
+
+**C-42 Health probes stay out of the access log (03.10.2026).** `deploy/ENGINE_CHANGES.md` item 10, the cockpit's
+part. A logging filter, not a switch: `ProbeFilter` on uvicorn's `uvicorn.access` logger drops a GET or HEAD of
+`/health` or `/api/config` that answered below 400 (query string ignored); a failed probe, any other method and
+every other path are logged as before, so the log keeps what a person looks for and loses the container's probe
+every 30 seconds. `create_app()` installs it once (`quiet_probes()`), so it holds however uvicorn is started; a
+filter on the logger survives the logging configuration uvicorn applies afterwards (`dictConfig` adds filters, it
+does not clear them). The page's own load of `/api/config` is one of the dropped lines; that is accepted. No
+`COCKPIT_ACCESS_LOG` switch: nothing is lost that anyone reads. *Tests.* `tests/test_api.py`: installed once, kept
+through uvicorn's `LOGGING_CONFIG`, the probes dropped, a failed probe, a POST and an engine's health through the
+proxy kept.

@@ -44,7 +44,7 @@ PostgreSQL has to be up for the engines and the curator pages (`docker compose u
 `config.local.yaml` (`curator_db: {password: ...}`, git-ignored) or `COCKPIT_CURATOR_DB_PASSWORD`.
 
 ```bash
-python -m pytest        # 84 tests: 62 on fake engines, no database; 22 curator tests on a
+python -m pytest        # 98 tests: 76 on fake engines, no database; 22 curator tests on a
                         # throwaway schema t_<hex> (skipped, with the reason, without PostgreSQL)
 ```
 
@@ -97,11 +97,12 @@ Written with the standard library (C-04). Every page can also be printed to PDF.
 | Method | Path | Notes |
 |---|---|---|
 | GET | `/` | The single page front end |
-| GET | `/api/config` | Roster, mode, CIO defaults |
+| GET | `/health` | The cockpit's own standard health answer, `{status, engine, engine_version, uptime_s}` (C-41) |
+| GET | `/api/config` | Roster, mode, CIO defaults, whether the launcher is on |
 | GET | `/api/graph` | Every engine's `/health` and `/meta` (allowlist check), edges, engines started here |
 | GET, POST | `/api/decisions`, `/api/decisions/{id}` | The CIO's decision log, append-only |
 | GET | `/api/export/...` | The workbooks above |
-| GET, POST | `/api/launcher`, `/api/launcher/{engine}/start`, `/api/launcher/{engine}/log` | Engine supervisor |
+| GET, POST | `/api/launcher`, `/api/launcher/{engine}/start`, `/api/launcher/{engine}/log` | Engine supervisor; a start answers 409 when the launcher is off (C-39) |
 | GET | `/api/curator/status`, `/api/curator/curators` | Store reachable, role, counts; curators (in service flagged) |
 | GET | `/api/curator/clients?q=&open_only=`, `/api/curator/clients/{id}` | The client picker; everything the Client page shows |
 | POST | `/api/curator/clients/{id}/sessions` | C-10 audit: a curator opened the client's material |
@@ -126,7 +127,12 @@ Every curator write carries `curator_id`, the acting curator; the database refus
 ## Configuration
 
 `config.yaml` < `config.local.yaml` (git-ignored) < `COCKPIT_*` (`HOST`, `PORT`, `MODE`,
-`DATA_DIR`, `CURATOR_DB_PASSWORD`). The roster lists twelve engines: 01 datafeed, 02 honi, 03 macrofield,
+`DATA_DIR`, `LAUNCHER`, `CURATOR_DB_HOST`, `_PORT`, `_NAME`, `_USER`, `_PASSWORD`,
+`ENGINE_<KEY>_PUBLIC_URL`). `COCKPIT_LAUNCHER=off` (`service.launcher`, on by default) is for a deployment
+where something else starts the engines: Start is hidden, the start route answers 409, and the desktop app
+and `start-engines` start nothing (C-39). An engine's optional `public_url` is the address a browser reaches it
+at; without one the System page links an engine only when the cockpit itself is opened on 127.0.0.1 or
+localhost (C-40). Successful `/health` and `/api/config` probes are left out of the access log (C-42). The roster lists twelve engines: 01 datafeed, 02 honi, 03 macrofield,
 04 aggregation, 05 mrs, 06 fmre, 07 pcp, 12 cycle, 13 lbs, 14 lbsim, 15 report and 16 chatbot
 (08 `mvopt` and 10 `review` are dropped, C-27; 09 `scenario` is merged into aggregation, C-28;
 the cockpit is Engine 11 itself), each with its URL, status, test bench, start command and, where it differs, interpreter (C-17);
