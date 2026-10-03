@@ -3018,6 +3018,7 @@ def cmd_reports(args):
             stale = pcp is not None and pcp["artefact_id"] not in made
             # lbsim (EIG-69): a report that draws on the outlook of the newest sheet (its findings and paths)
             stale = stale or not _report_has_outlook(c["id"])
+        stale = stale or bool(getattr(args, "force", False) and reqs)
         if not reqs or stale:
             note = REFRESH_NOTE if stale else REPORT_NOTE
             r = app("POST", f"/api/clients/{c['id']}/reports", json={"kind": "report", "language": "de", "note": note})
@@ -3381,6 +3382,8 @@ def main(argv=None):
     p.add_argument("--refresh", action="store_true", help="mandates: derive and finalise again from the latest sheet; reports: a new report where "
                                                           "the latest is older than the latest pcp run or draws on no outlook "
                                                           "of the newest sheet; outlook: ask lbsim again")
+    p.add_argument("--force", action="store_true", help="reports: a new report for every client, e.g. after a report "
+                                                        "engine change that alters every page (display rounding, 1.5.1)")
     args = p.parse_args(argv)
     steps = {"select": cmd_select, "erase": cmd_erase, "enrich": cmd_enrich, "partners": cmd_partners,
              "basis": cmd_basis, "earning": cmd_earning,

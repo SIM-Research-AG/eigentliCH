@@ -64,3 +64,15 @@ checked). Order: A -> B1 -> {B2, C, D} in parallel -> E (spec section 9).
 - Owner to check once in a real browser: the report bench's report frame (empty in a headless screenshot only).
 - Still open: the two failed plans (solver, timed_out) and whether to change 500 iterations / 10 years / 120 min;
   USE_CASES.md "to fill" columns; ENGINE_CHANGES.md fixes; Notion pages; Esther's goal.
+
+## 03.10.2026 afternoon: open items being closed (owner: "take care of the open items")
+
+- Done today: lbsim restarted on 1.1.0 / calibration 1.6.0 (1000 iterations, 3 h); Esther's goals (retirement from
+  07.2027; "Freies Vermögen bis 2031 bei 200 000 halten"); display rounding everywhere (ROUNDING.md, app/report
+  1.5.1, cockpit, all benches; billions and exponent form); pushed 7e592ec.
+- Running: `reports --force` (all 20 reports again, rounded); three agents applying ENGINE_CHANGES.md (cockpit 1,2,4,7,10;
+  eigentliCH 3,6,8,10; fmre/Macro/pcp 5,9,10). 18 optimiser plans calculating on 3 workers (started ~08:40).
+- Then: restart what the agents name (lbsim only after the plans, or accept a restart), a Docker agent removes the
+  workarounds in deploy/ and retests (two containers, real-dump restore), `check --plans`, the live app test,
+  USE_CASES.md "to fill" columns, push both remotes.
+- Notion pages (lbsim, report, app, cockpit, Docker): the Notion connection is not available in this session; open.
